@@ -1,0 +1,28 @@
+@import 'tailwindcss';
+
+/*
+ * Tailwind v4 no longer sets cursor:pointer on buttons by default.
+ * Centralized base rule for all active clickable elements.
+ */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled),
+  a[href] {
+    cursor: pointer;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family:
+      ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    overscroll-behavior: none;
+  }
+}
