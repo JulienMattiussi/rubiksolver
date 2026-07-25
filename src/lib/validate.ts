@@ -1,5 +1,5 @@
 import type { Color, Cube } from './types'
-import { cubeSize } from './cube'
+import { cubeSize, stickersPerColor } from './cube'
 import { solve } from './solver'
 
 export type ValidationError = 'counts' | 'impossible'
@@ -16,7 +16,7 @@ export type ValidationResult = { ok: true } | { ok: false; error: ValidationErro
  *    solver exhausts its bounded search and throws, which we catch.
  */
 export function validateCube(cube: Cube): ValidationResult {
-  const perColor = cubeSize(cube) === 2 ? 4 : 9
+  const perColor = stickersPerColor(cubeSize(cube))
   const counts: Record<Color, number> = { W: 0, Y: 0, G: 0, B: 0, O: 0, R: 0 }
   for (const cubie of cube) for (const s of cubie.stickers) counts[s.color]++
   if (Object.values(counts).some((n) => n !== perColor)) return { ok: false, error: 'counts' }

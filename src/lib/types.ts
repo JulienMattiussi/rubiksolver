@@ -1,7 +1,8 @@
 // Domain types for the cube engine. Pure data, zero React / three.js.
 
-/** Supported cube sizes (NxNxN). */
-export type CubeSize = 2 | 3
+/** Supported cube sizes (NxNxN), in display order. */
+export const CUBE_SIZES = [2, 3] as const
+export type CubeSize = (typeof CUBE_SIZES)[number]
 
 /** A face of the cube, named with the standard Singmaster letters. */
 export type Face = 'U' | 'D' | 'L' | 'R' | 'F' | 'B'

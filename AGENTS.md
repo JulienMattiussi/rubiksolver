@@ -58,7 +58,8 @@ voisins (ex : `big-bang-clicker`).
 src/
 ├── lib/                  # Logique pure, zéro React / zéro three.js (entièrement testée)
 │   ├── types.ts          # Types du domaine (CubeSize, Face, Color, Axis, Vec3, Sticker, Cubie, Cube, Move)
-│   ├── cube.ts           # Modèle cubies : solvedCube(size), applyMove(s), isSolved (faces uniformes), moveGeometry, cubeOrientations
+│   ├── cube.ts           # Modèle cubies : solvedCube(size), applyMove(s), isSolved (faces uniformes), moveGeometry,
+│   │                     #   cubeOrientations, stateKey, comptages de stickers, couleurs opposées (source unique du schéma)
 │   ├── moves.ts          # Notation US/FR (parse/format, faceLabel), inversion, simplification, scramble (RNG injectable)
 │   ├── solver.ts         # Solveurs par méthode et par taille (voir plus bas) : methodsFor(size), étapes nommées (SolveStep[])
 │   ├── editor.ts         # Saisie guidée : 24 orientations -> placements valides, peinture contrainte + auto-complétion, buildCube/cubeToEdit
@@ -106,8 +107,10 @@ définie par son **cheminement propre** (sa suite d'objectifs) et renvoie ses
 **étapes nommées** (`SolveStep[]`), que l'UI joue une par une. Repère commun :
 le jaune (face D) est la première couche, le blanc (face U) la dernière.
 
-Chaque méthode annonce les **tailles de cube** qu'elle sait résoudre ;
-`methodsFor(size)` filtre le registre (l'UI et le store ne voient que ça) :
+Le registre déclare, pour chaque méthode, **un solveur par taille supportée**
+(source unique : pas de dispatch séparé) ; `methodsFor(size)` renvoie les
+méthodes disponibles pour une taille, chacune liée à son solveur (l'UI et le
+store ne voient que ça) :
 
 - **Par couches** (`beginner`, 3x3 et 2x2) : sur 3x3, 1re couche entière
   (croix + coins), puis arêtes du milieu, puis dernière couche (croix,
@@ -159,12 +162,10 @@ les stickers directement sur le rendu 3D (mode édition). Deux garde-fous :
   sur un cube impossible (mauvaise parité, pièce en trop/manquante), le solveur
   épuise sa recherche bornée et lève une exception, qu'on intercepte.
 
-Le 2x2 réutilise tout tel quel : ses 8 emplacements de coins sont exactement
-les emplacements coins du 3x3 (mêmes positions, mêmes normales, mêmes
-placements issus des 24 orientations), donc `paint`/`clearSlot` sont communs.
-Seuls les points d'entrée dépendants de la taille (`slotsFor`, `emptyEdit`,
-`isComplete`, `buildCube`) prennent un `size` ; sans centres, la saisie 2x2
-part entièrement vide (24 stickers).
+Les tables de saisie (emplacements + placements valides) sont **dérivées par
+taille** du cube résolu correspondant et mémoïsées (`tablesFor`) ; toutes les
+fonctions de saisie prennent la taille avec l'état. Sans centres, la saisie
+2x2 part entièrement vide (24 stickers).
 
 ### Interface
 

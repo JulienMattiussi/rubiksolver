@@ -1,5 +1,5 @@
-import { cubeOrientations, solvedCube } from './cube'
-import type { Color, Cube, CubeSize, Vec3 } from './types'
+import { cubeOrientations, normalIndex, solvedCube, stickersTotal } from './cube'
+import type { Color, Cube, CubeSize, Cubie, Vec3 } from './types'
 
 /**
  * Constraint-guided cube editor logic (pure, no React / three.js).
@@ -11,29 +11,13 @@ import type { Color, Cube, CubeSize, Vec3 } from './types'
  * painted stickers still match some available placement, and when a placement
  * becomes the only option its remaining stickers auto-complete.
  *
- * The 2x2 needs no tables of its own: its 8 corner slots are exactly the 3x3
- * corner slots (same positions in {-1,1}^3, same normals) and a solved 2x2 is
- * a solved 3x3 without edges and centers, so the corner placements coincide.
- * Only the size-dependent entry points (which slots exist, what "complete"
- * means, building the cube) take a `size`.
+ * Slots and placements are derived per cube size from that size's solved cube
+ * (memoized in `tablesFor`), so every entry point takes the size alongside the
+ * edit state.
  *
  * This guarantees valid, unique pieces during entry. Global solvability
  * (parity) is checked separately, see validate.ts.
  */
-
-const NORMALS: readonly Vec3[] = [
-  [1, 0, 0],
-  [-1, 0, 0],
-  [0, 1, 0],
-  [0, -1, 0],
-  [0, 0, 1],
-  [0, 0, -1],
-]
-
-/** Index 0..5 of an axis normal. */
-function normalIndex(n: Vec3): number {
-  return NORMALS.findIndex((m) => m[0] === n[0] && m[1] === n[1] && m[2] === n[2])
-}
 
 const posKey = (p: Vec3): string => p.join(',')
 const stickerId = (p: Vec3, ni: number): string => `${posKey(p)}:${ni}`
@@ -64,33 +48,56 @@ function kindOf(stickerCount: number): SlotKind {
         : 'core'
 }
 
-/** Every cubie of a solved 3x3 as a slot (fixed position + exterior normals).
- *  The 2x2 slots are the corner subset, see `slotsFor`. */
-const SLOTS: readonly Slot[] = solvedCube().map((cubie) => ({
-  key: posKey(cubie.position),
-  position: cubie.position,
-  kind: kindOf(cubie.stickers.length),
-  stickers: cubie.stickers.map((s) => ({
-    ni: normalIndex(s.normal),
-    normal: s.normal,
-    id: stickerId(cubie.position, normalIndex(s.normal)),
-    solvedColor: s.color,
-  })),
-}))
-
-/** The slots a cube of `size` exposes to the editor (2x2: corners only). */
-export function slotsFor(size: CubeSize): readonly Slot[] {
-  return size === 2 ? SLOTS.filter((s) => s.kind === 'corner') : SLOTS
+/** A cubie of a solved cube as a slot (fixed position + exterior normals). */
+function toSlot(cubie: Cubie): Slot {
+  return {
+    key: posKey(cubie.position),
+    position: cubie.position,
+    kind: kindOf(cubie.stickers.length),
+    stickers: cubie.stickers.map((s) => ({
+      ni: normalIndex(s.normal),
+      normal: s.normal,
+      id: stickerId(cubie.position, normalIndex(s.normal)),
+      solvedColor: s.color,
+    })),
+  }
 }
-
-const PIECE_SLOTS = SLOTS.filter((s) => s.kind === 'corner' || s.kind === 'edge')
-const SLOT_BY_KEY = new Map(SLOTS.map((s) => [s.key, s]))
 
 /** A placement maps each of a slot's normal indices to a color. */
 type Placement = Record<number, Color>
 
-const ORIENTATIONS: readonly Cube[] = cubeOrientations(solvedCube())
-const PLACEMENTS: Map<string, Placement[]> = computePlacements()
+interface SlotTables {
+  readonly slots: readonly Slot[]
+  /** Paintable slots (corners and edges). */
+  readonly pieceSlots: readonly Slot[]
+  readonly byKey: ReadonlyMap<string, Slot>
+  /** Valid piece placements per slot key, from the 24 solved orientations. */
+  readonly placements: ReadonlyMap<string, readonly Placement[]>
+}
+
+const TABLES = new Map<CubeSize, SlotTables>()
+
+/** Slot + placement tables of a cube size, derived from its solved cube. */
+function tablesFor(size: CubeSize): SlotTables {
+  let tables = TABLES.get(size)
+  if (!tables) {
+    const slots = solvedCube(size).map(toSlot)
+    const pieceSlots = slots.filter((s) => s.kind === 'corner' || s.kind === 'edge')
+    tables = {
+      slots,
+      pieceSlots,
+      byKey: new Map(slots.map((s) => [s.key, s])),
+      placements: computePlacements(size, pieceSlots),
+    }
+    TABLES.set(size, tables)
+  }
+  return tables
+}
+
+/** The slots a cube of `size` exposes to the editor. */
+export function slotsFor(size: CubeSize): readonly Slot[] {
+  return tablesFor(size).slots
+}
 
 function placementKey(p: Placement): string {
   return Object.keys(p)
@@ -101,10 +108,10 @@ function placementKey(p: Placement): string {
 }
 
 /** For each corner/edge slot, all valid piece placements (from the 24 orientations). */
-function computePlacements(): Map<string, Placement[]> {
+function computePlacements(size: CubeSize, pieceSlots: readonly Slot[]): Map<string, Placement[]> {
   const perSlot = new Map<string, Map<string, Placement>>()
-  for (const slot of PIECE_SLOTS) perSlot.set(slot.key, new Map())
-  for (const cube of ORIENTATIONS) {
+  for (const slot of pieceSlots) perSlot.set(slot.key, new Map())
+  for (const cube of cubeOrientations(solvedCube(size))) {
     for (const cubie of cube) {
       const bucket = perSlot.get(posKey(cubie.position))
       if (!bucket) continue // center / core
@@ -144,11 +151,6 @@ export function colorCounts(edit: EditStickers): Record<Color, number> {
   return counts
 }
 
-/** Total sticker count of a cube of `size` (24 or 54). */
-export function stickersTotal(size: CubeSize): number {
-  return size === 2 ? 24 : 54
-}
-
 /** Number of painted stickers (out of `stickersTotal`). */
 export function filledCount(edit: EditStickers): number {
   return Object.keys(edit).length
@@ -169,9 +171,13 @@ function paintedOf(edit: EditStickers, slot: Slot): Placement {
 }
 
 /** Color-sets of every fully painted piece slot other than `exceptKey`. */
-function committedColorSets(edit: EditStickers, exceptKey: string): Set<string> {
+function committedColorSets(
+  edit: EditStickers,
+  pieceSlots: readonly Slot[],
+  exceptKey: string,
+): Set<string> {
   const sets = new Set<string>()
-  for (const slot of PIECE_SLOTS) {
+  for (const slot of pieceSlots) {
     if (slot.key === exceptKey) continue
     const painted = paintedOf(edit, slot)
     if (Object.keys(painted).length !== slot.stickers.length) continue
@@ -185,9 +191,14 @@ function colorSetKey(colors: Color[]): string {
 }
 
 /** Placements of a slot matching its painted stickers and not already used. */
-function candidates(edit: EditStickers, slot: Slot, painted: Placement): Placement[] {
-  const committed = committedColorSets(edit, slot.key)
-  return (PLACEMENTS.get(slot.key) ?? []).filter((placement) => {
+function candidates(
+  edit: EditStickers,
+  tables: SlotTables,
+  slot: Slot,
+  painted: Placement,
+): readonly Placement[] {
+  const committed = committedColorSets(edit, tables.pieceSlots, slot.key)
+  return (tables.placements.get(slot.key) ?? []).filter((placement) => {
     for (const ni of Object.keys(painted).map(Number)) {
       if (placement[ni] !== painted[ni]) return false
     }
@@ -200,8 +211,15 @@ function candidates(edit: EditStickers, slot: Slot, painted: Placement): Placeme
  * same reference if the paint is impossible. A conflicting paint restarts the
  * piece with just this sticker; a determined piece auto-completes.
  */
-export function paint(edit: EditStickers, slotKey: string, ni: number, color: Color): EditStickers {
-  const slot = SLOT_BY_KEY.get(slotKey)
+export function paint(
+  edit: EditStickers,
+  size: CubeSize,
+  slotKey: string,
+  ni: number,
+  color: Color,
+): EditStickers {
+  const tables = tablesFor(size)
+  const slot = tables.byKey.get(slotKey)
   if (!slot || slot.kind === 'center' || slot.kind === 'core') return edit
   const id = stickerId(slot.position, ni)
   if (edit[id] === color) return edit
@@ -209,7 +227,7 @@ export function paint(edit: EditStickers, slotKey: string, ni: number, color: Co
   const tryPlace = (base: EditStickers): EditStickers | null => {
     const next = { ...base, [id]: color }
     const painted = paintedOf(next, slot)
-    const matches = candidates(next, slot, painted)
+    const matches = candidates(next, tables, slot, painted)
     if (matches.length === 0) return null
     if (matches.length === 1) {
       for (const s of slot.stickers) next[s.id] = matches[0]![s.ni]!
@@ -227,8 +245,8 @@ export function paint(edit: EditStickers, slotKey: string, ni: number, color: Co
 }
 
 /** Clear a piece slot's stickers (centers are untouched). */
-export function clearSlot(edit: EditStickers, slotKey: string): EditStickers {
-  const slot = SLOT_BY_KEY.get(slotKey)
+export function clearSlot(edit: EditStickers, size: CubeSize, slotKey: string): EditStickers {
+  const slot = tablesFor(size).byKey.get(slotKey)
   if (!slot || (slot.kind !== 'corner' && slot.kind !== 'edge')) return edit
   const next = { ...edit }
   for (const s of slot.stickers) delete next[s.id]

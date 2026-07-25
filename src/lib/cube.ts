@@ -37,6 +37,16 @@ function vecEqual(a: Vec3, b: Vec3): boolean {
   return a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
 }
 
+/** Opposite color of each color, derived from the face scheme above (the
+ *  opposite face is the one with the negated normal). Single source of truth. */
+export const OPPOSITE_COLOR: Record<Color, Color> = Object.fromEntries(
+  FACES.map((face) => {
+    const n = FACE_NORMAL[face]
+    const opposite = FACES.find((g) => vecEqual(FACE_NORMAL[g], [-n[0], -n[1], -n[2]]))!
+    return [FACE_COLOR[face], FACE_COLOR[opposite]]
+  }),
+) as Record<Color, Color>
+
 /** The face whose outward normal equals `n`, or undefined if `n` is not a face normal. */
 function faceOfNormal(n: Vec3): Face | undefined {
   return FACES.find((f) => vecEqual(FACE_NORMAL[f], n))
@@ -68,7 +78,19 @@ export function solvedCube(size: CubeSize = 3): Cube {
 
 /** Size of a cube from its cubie count (8 -> 2x2, 27 -> 3x3). */
 export function cubeSize(cube: Cube): CubeSize {
-  return cube.length === 8 ? 2 : 3
+  if (cube.length === 8) return 2
+  if (cube.length === 27) return 3
+  throw new Error(`cubeSize: malformed cube with ${cube.length} cubies`)
+}
+
+/** Stickers of each color on a cube of `size`: one face of facelets (size^2). */
+export function stickersPerColor(size: CubeSize): number {
+  return size * size
+}
+
+/** Total sticker count of a cube of `size` (6 faces). */
+export function stickersTotal(size: CubeSize): number {
+  return 6 * stickersPerColor(size)
 }
 
 /** Rotate an integer vector by +90 degrees (right-hand rule) about `axis`. */
@@ -193,14 +215,27 @@ export function isSolved(cube: Cube): boolean {
   return true
 }
 
-function orientationKey(cube: Cube): string {
-  return cube
-    .map(
-      (c) =>
-        c.position.join(',') + ':' + c.stickers.map((s) => s.normal.join(',') + s.color).join(';'),
-    )
-    .sort()
-    .join('|')
+/** Index 0..5 of a face normal, for compact hashing and sticker ids. */
+export function normalIndex(n: Vec3): number {
+  if (n[0] !== 0) return n[0] > 0 ? 0 : 1
+  if (n[1] !== 0) return n[1] > 0 ? 2 : 3
+  return n[2] > 0 ? 4 : 5
+}
+
+/**
+ * Compact, allocation-light state signature. Cubies keep a stable array index
+ * (applyMove and rotateCube map in place), so encoding each by position + its
+ * stickers in order is deterministic. Used to dedupe search states and
+ * orientations, so it must be fast.
+ */
+export function stateKey(cube: Cube): string {
+  let out = ''
+  for (const c of cube) {
+    out += (c.position[0] + 1) * 9 + (c.position[1] + 1) * 3 + (c.position[2] + 1)
+    for (const s of c.stickers) out += normalIndex(s.normal).toString() + s.color
+    out += '|'
+  }
+  return out
 }
 
 /**
@@ -209,14 +244,14 @@ function orientationKey(cube: Cube): string {
  * centers, so "solved" is any of the 24 orientations of the solved cube).
  */
 export function cubeOrientations(cube: Cube): Cube[] {
-  const found = new Map<string, Cube>([[orientationKey(cube), cube]])
+  const found = new Map<string, Cube>([[stateKey(cube), cube]])
   let frontier = [cube]
   while (frontier.length) {
     const next: Cube[] = []
     for (const state of frontier) {
       for (const axis of ['x', 'y'] as Axis[]) {
         const rotated = rotateCube(state, axis, 1)
-        const key = orientationKey(rotated)
+        const key = stateKey(rotated)
         if (!found.has(key)) {
           found.set(key, rotated)
           next.push(rotated)

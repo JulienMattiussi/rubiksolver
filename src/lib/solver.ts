@@ -6,7 +6,9 @@ import {
   FACE_COLOR,
   FACE_NORMAL,
   isSolved,
+  OPPOSITE_COLOR,
   solvedCube,
+  stateKey,
 } from './cube'
 import { invertMoves, parseMoves, simplifyMoves } from './moves'
 import type { Color, Cube, CubeSize, Cubie, Face, Move } from './types'
@@ -86,13 +88,19 @@ export function crossDone(cube: Cube): boolean {
   return SIDES.every((s) => edgePlaced(cube, s))
 }
 
-function cornerPlaced(cube: Cube, s1: Face, s2: Face): boolean {
-  const corner = findCorner(cube, FACE_COLOR.D, FACE_COLOR[s1], FACE_COLOR[s2])
+/** The corner carrying `frame`'s (D, s1, s2) colors sits at its slot, correctly
+ *  oriented. Shared by the 3x3 (fixed frame) and the 2x2 (DBL-anchored frame). */
+function cornerPlacedIn(cube: Cube, frame: Record<Face, Color>, s1: Face, s2: Face): boolean {
+  const corner = findCorner(cube, frame.D, frame[s1], frame[s2])
   return (
-    colorAt(corner, 'D') === FACE_COLOR.D &&
-    colorAt(corner, s1) === FACE_COLOR[s1] &&
-    colorAt(corner, s2) === FACE_COLOR[s2]
+    colorAt(corner, 'D') === frame.D &&
+    colorAt(corner, s1) === frame[s1] &&
+    colorAt(corner, s2) === frame[s2]
   )
+}
+
+function cornerPlaced(cube: Cube, s1: Face, s2: Face): boolean {
+  return cornerPlacedIn(cube, FACE_COLOR, s1, s2)
 }
 
 const CORNER_PAIRS: ReadonlyArray<readonly [Face, Face]> = [
@@ -143,28 +151,6 @@ export function topCornersDone(cube: Cube): boolean {
 // ---------------------------------------------------------------------------
 // Shortest-path search over face turns
 // ---------------------------------------------------------------------------
-
-/** Index 0..5 of a face normal, for compact hashing. */
-function normalIndex(n: readonly [number, number, number]): number {
-  if (n[0] !== 0) return n[0] > 0 ? 0 : 1
-  if (n[1] !== 0) return n[1] > 0 ? 2 : 3
-  return n[2] > 0 ? 4 : 5
-}
-
-/**
- * Compact, allocation-light state signature. Cubies keep a stable array index
- * (applyMove maps in place), so encoding each by position + its stickers in
- * order is deterministic. Used to dedupe search states, so it must be fast.
- */
-function stateKey(cube: Cube): string {
-  let out = ''
-  for (const c of cube) {
-    out += (c.position[0] + 1) * 9 + (c.position[1] + 1) * 3 + (c.position[2] + 1)
-    for (const s of c.stickers) out += normalIndex(s.normal).toString() + s.color
-    out += '|'
-  }
-  return out
-}
 
 /**
  * Breadth-first search for the shortest sequence from `start` to a state
@@ -305,36 +291,39 @@ const MIDDLE_TRIGGERS = [
   ...atEverySide("U' L' U L U F U' F'"), // insert edge into the front-left slot
 ]
 
-export function solveFirstLayerCorners(cube: Cube): Move[] {
+/**
+ * Place pieces one at a time: for each side pair not yet `placed`, search for
+ * trigger applications that place it while `baseGoal` and every previously
+ * placed pair keep holding. Shared by the 3x3 corner and middle-edge phases
+ * and the 2x2 bottom layer, which differ only in pairs, predicate and triggers.
+ */
+function placePieces(
+  cube: Cube,
+  pairs: ReadonlyArray<readonly [Face, Face]>,
+  placed: (c: Cube, s1: Face, s2: Face) => boolean,
+  baseGoal: (c: Cube) => boolean,
+  triggers: Move[][],
+): Move[] {
   let state = cube
   const all: Move[] = []
-  for (const [s1, s2] of CORNER_PAIRS) {
-    if (cornerPlaced(state, s1, s2)) continue
-    const prior = CORNER_PAIRS.filter(([a, b]) => cornerPlaced(state, a, b))
+  for (const [s1, s2] of pairs) {
+    if (placed(state, s1, s2)) continue
+    const prior = pairs.filter(([a, b]) => placed(state, a, b))
     const goal = (c: Cube) =>
-      crossDone(c) && prior.every(([a, b]) => cornerPlaced(c, a, b)) && cornerPlaced(c, s1, s2)
-    const moves = solveWithAlgs(state, CORNER_TRIGGERS, goal, 5)
+      baseGoal(c) && prior.every(([a, b]) => placed(c, a, b)) && placed(c, s1, s2)
+    const moves = solveWithAlgs(state, triggers, goal, 5)
     state = applyMoves(state, moves)
     all.push(...moves)
   }
   return all
 }
 
+export function solveFirstLayerCorners(cube: Cube): Move[] {
+  return placePieces(cube, CORNER_PAIRS, cornerPlaced, crossDone, CORNER_TRIGGERS)
+}
+
 export function solveMiddleLayer(cube: Cube): Move[] {
-  let state = cube
-  const all: Move[] = []
-  for (const [s1, s2] of CORNER_PAIRS) {
-    if (middleEdgePlaced(state, s1, s2)) continue
-    const prior = CORNER_PAIRS.filter(([a, b]) => middleEdgePlaced(state, a, b))
-    const goal = (c: Cube) =>
-      firstLayerDone(c) &&
-      prior.every(([a, b]) => middleEdgePlaced(c, a, b)) &&
-      middleEdgePlaced(c, s1, s2)
-    const moves = solveWithAlgs(state, MIDDLE_TRIGGERS, goal, 5)
-    state = applyMoves(state, moves)
-    all.push(...moves)
-  }
-  return all
+  return placePieces(cube, CORNER_PAIRS, middleEdgePlaced, firstLayerDone, MIDDLE_TRIGGERS)
 }
 
 export function solveTopCross(cube: Cube): Move[] {
@@ -364,15 +353,14 @@ export function solvePermuteEdges(cube: Cube): Move[] {
 // algorithms that move the anchor corner stay sound: a state satisfies a goal
 // exactly when it is consistent with whatever corner then anchors it.
 
-const OPPOSITE_COLOR: Record<Color, Color> = { W: 'Y', Y: 'W', G: 'B', B: 'G', R: 'O', O: 'R' }
-
 /** Reference color of each face, anchored on the corner currently at DBL. */
 function frame2(cube: Cube): Record<Face, Color> {
   const dbl = cube.find((c) => c.position[0] === -1 && c.position[1] === -1 && c.position[2] === -1)
-  const d = dbl && colorAt(dbl, 'D')
-  const l = dbl && colorAt(dbl, 'L')
-  const b = dbl && colorAt(dbl, 'B')
-  if (!d || !l || !b) throw new Error('frame2: no corner at DBL')
+  if (!dbl) throw new Error('frame2: no corner at DBL')
+  const d = colorAt(dbl, 'D')
+  const l = colorAt(dbl, 'L')
+  const b = colorAt(dbl, 'B')
+  if (!d || !l || !b) throw new Error('frame2: DBL corner is missing stickers')
   return { D: d, L: l, B: b, U: OPPOSITE_COLOR[d], R: OPPOSITE_COLOR[l], F: OPPOSITE_COLOR[b] }
 }
 
@@ -384,11 +372,7 @@ const BOTTOM_PAIRS_2: ReadonlyArray<readonly [Face, Face]> = [
 ]
 
 function bottomCornerPlaced2(cube: Cube, s1: Face, s2: Face): boolean {
-  const f = frame2(cube)
-  const corner = findCorner(cube, f.D, f[s1], f[s2])
-  return (
-    colorAt(corner, 'D') === f.D && colorAt(corner, s1) === f[s1] && colorAt(corner, s2) === f[s2]
-  )
+  return cornerPlacedIn(cube, frame2(cube), s1, s2)
 }
 
 export function bottomLayerDone2(cube: Cube): boolean {
@@ -406,18 +390,7 @@ export function topFaceDone2(cube: Cube): boolean {
 }
 
 export function solveBottomLayer2(cube: Cube): Move[] {
-  let state = cube
-  const all: Move[] = []
-  for (const [s1, s2] of BOTTOM_PAIRS_2) {
-    if (bottomCornerPlaced2(state, s1, s2)) continue
-    const prior = BOTTOM_PAIRS_2.filter(([a, b]) => bottomCornerPlaced2(state, a, b))
-    const goal = (c: Cube) =>
-      prior.every(([a, b]) => bottomCornerPlaced2(c, a, b)) && bottomCornerPlaced2(c, s1, s2)
-    const moves = solveWithAlgs(state, CORNER_TRIGGERS, goal, 5)
-    state = applyMoves(state, moves)
-    all.push(...moves)
-  }
-  return all
+  return placePieces(cube, BOTTOM_PAIRS_2, bottomCornerPlaced2, () => true, CORNER_TRIGGERS)
 }
 
 export function solveTopFace2(cube: Cube): Move[] {
@@ -445,6 +418,9 @@ const MOVES_URF: readonly Face[] = ['U', 'R', 'F']
  *  always meets within a combined search depth of 11; 12 proves impossibility. */
 const MAX_DEPTH_2 = 12
 
+/** The 24 orientations of a solved 2x2 with their DBL frames, computed once. */
+const SOLVED_2 = cubeOrientations(solvedCube(2)).map((c) => ({ cube: c, frame: frame2(c) }))
+
 interface BfsSide {
   frontier: Array<{ cube: Cube; moves: Move[] }>
   /** Shortest move sequence (from this side's origin) per visited state key. */
@@ -466,15 +442,8 @@ function bfsSide(origin: Cube): BfsSide {
  * Throws when depth `MAX_DEPTH_2` is exhausted, i.e. the cube is unsolvable.
  */
 export function solveOptimal2(cube: Cube): Move[] {
-  const target = cubeOrientations(solvedCube(2)).find((t) => {
-    try {
-      const f = frame2(t)
-      const g = frame2(cube)
-      return f.D === g.D && f.L === g.L && f.B === g.B
-    } catch {
-      return false
-    }
-  })
+  const g = frame2(cube)
+  const target = SOLVED_2.find(({ frame: f }) => f.D === g.D && f.L === g.L && f.B === g.B)?.cube
   if (!target) throw new Error('solveOptimal2: DBL piece is not a real corner')
   if (stateKey(cube) === stateKey(target)) return []
 
@@ -497,14 +466,18 @@ export function solveOptimal2(cube: Cube): Move[] {
         let state = node.cube
         for (let amount = 1; amount <= 3; amount++) {
           state = applyMove(state, { face, amount: 1 })
-          const moves = [...node.moves, { face, amount: amount as 1 | 2 | 3 }]
+          // Key first: most children are already-visited duplicates, so the
+          // move-list copy below is only built for meets and fresh states.
           const key = stateKey(state)
           const met = other.visited.get(key)
+          const fresh = !expand.visited.has(key)
+          if (!met && !fresh) continue
+          const moves = [...node.moves, { face, amount: amount as 1 | 2 | 3 }]
           if (met && (!best || moves.length + met.length < best.length)) {
             const [f, b] = expand === fwd ? [moves, met] : [met, moves]
             best = [...f, ...invertMoves(b)]
           }
-          if (!expand.visited.has(key)) {
+          if (fresh) {
             expand.visited.set(key, moves)
             next.push({ cube: state, moves })
           }
@@ -621,24 +594,25 @@ function optimalSteps(cube: Cube): SolveStep[] {
 /** Identifier of an available solving method. */
 export type MethodId = 'beginner' | 'cfop' | 'optimal'
 
-/** Registry of solving methods: each returns its solution as named steps. */
+/**
+ * Registry of solving methods: one solver per supported cube size, so which
+ * sizes a method handles - and how - is declared in a single place.
+ */
 const SOLVE_METHODS: ReadonlyArray<{
   id: MethodId
-  sizes: readonly CubeSize[]
-  solve: (cube: Cube) => SolveStep[]
+  solvers: Readonly<Partial<Record<CubeSize, (cube: Cube) => SolveStep[]>>>
 }> = [
-  {
-    id: 'beginner',
-    sizes: [2, 3],
-    solve: (cube) => (cubeSize(cube) === 2 ? beginner2Steps(cube) : beginnerSteps(cube)),
-  },
-  { id: 'cfop', sizes: [3], solve: cfopSteps },
-  { id: 'optimal', sizes: [2], solve: optimalSteps },
+  { id: 'beginner', solvers: { 2: beginner2Steps, 3: beginnerSteps } },
+  { id: 'cfop', solvers: { 3: cfopSteps } },
+  { id: 'optimal', solvers: { 2: optimalSteps } },
 ]
 
-/** The solving methods available for a given cube size. */
+/** The solving methods available for a given cube size, each bound to it. */
 export function methodsFor(size: CubeSize) {
-  return SOLVE_METHODS.filter((m) => m.sizes.includes(size))
+  return SOLVE_METHODS.flatMap((m) => {
+    const solve = m.solvers[size]
+    return solve ? [{ id: m.id, solve }] : []
+  })
 }
 
 /**

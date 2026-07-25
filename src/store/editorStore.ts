@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { cubeSize } from '@/lib/cube'
 import {
   buildCube,
   cubeToEdit,
@@ -8,8 +9,11 @@ import {
   type EditStickers,
 } from '@/lib/editor'
 import { validateCube, type ValidationError } from '@/lib/validate'
-import type { Color } from '@/lib/types'
+import type { Color, CubeSize } from '@/lib/types'
 import { useCube } from './cubeStore'
+
+/** Size of the cube currently being edited (the game's cube). */
+const currentSize = (): CubeSize => cubeSize(useCube.getState().cube)
 
 interface EditorStore {
   mode: 'play' | 'edit'
@@ -34,7 +38,7 @@ export const useEditor = create<EditorStore>((set, get) => ({
   edit: emptyEdit(3),
   error: null,
 
-  enter: () => set({ mode: 'edit', edit: emptyEdit(useCube.getState().size), error: null }),
+  enter: () => set({ mode: 'edit', edit: emptyEdit(currentSize()), error: null }),
 
   enterFromCurrent: () =>
     set({ mode: 'edit', edit: cubeToEdit(useCube.getState().cube), error: null }),
@@ -44,13 +48,13 @@ export const useEditor = create<EditorStore>((set, get) => ({
   setColor: (selectedColor) => set({ selectedColor }),
 
   paintAt: (slotKey, ni) =>
-    set((s) => ({ edit: paint(s.edit, slotKey, ni, s.selectedColor), error: null })),
+    set((s) => ({ edit: paint(s.edit, currentSize(), slotKey, ni, s.selectedColor), error: null })),
 
-  clearAll: () => set({ edit: emptyEdit(useCube.getState().size), error: null }),
+  clearAll: () => set({ edit: emptyEdit(currentSize()), error: null }),
 
   apply: () => {
     const { edit } = get()
-    const size = useCube.getState().size
+    const size = currentSize()
     if (!isComplete(edit, size)) return false
     const cube = buildCube(edit, size)
     const result = validateCube(cube)

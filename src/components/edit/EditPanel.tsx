@@ -1,5 +1,6 @@
 import { Check, Eraser, X } from 'lucide-react'
-import { filledCount, isComplete, stickersTotal } from '@/lib/editor'
+import { cubeSize, stickersTotal } from '@/lib/cube'
+import { filledCount, isComplete } from '@/lib/editor'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -9,7 +10,7 @@ import { ColorPalette } from './ColorPalette'
 /** "Saisie" panel: hint, color palette, progress, validation error, actions. */
 export function EditPanel() {
   const t = useI18n((s) => s.t)
-  const size = useCube((s) => s.size)
+  const size = useCube((s) => cubeSize(s.cube))
   const edit = useEditor((s) => s.edit)
   const clearAll = useEditor((s) => s.clearAll)
   const cancel = useEditor((s) => s.cancel)

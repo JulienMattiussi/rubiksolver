@@ -1,6 +1,6 @@
 import { Pencil, RotateCcw, Shuffle, Square } from 'lucide-react'
-import { isSolved } from '@/lib/cube'
-import type { CubeSize } from '@/lib/types'
+import { cubeSize, isSolved } from '@/lib/cube'
+import { CUBE_SIZES, type CubeSize } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -10,8 +10,6 @@ import { MovePad } from './MovePad'
 import { SpeedSlider } from './SpeedSlider'
 import { StatusBadge } from './StatusBadge'
 
-const SIZES: readonly CubeSize[] = [2, 3]
-
 /** Setup block: cube choice + status on one line, scramble/reset/edit actions,
  *  speed, move pad. */
 export function SetupSection() {
@@ -20,7 +18,7 @@ export function SetupSection() {
   const active = useCube((s) => s.active)
   const queue = useCube((s) => s.queue)
   const scramble = useCube((s) => s.scramble)
-  const size = useCube((s) => s.size)
+  const size = useCube((s) => cubeSize(s.cube))
   const setSize = useCube((s) => s.setSize)
   const reset = useCube((s) => s.reset)
   const stop = useCube((s) => s.stop)
@@ -43,7 +41,7 @@ export function SetupSection() {
         onChange={(value) => setSize(Number(value) as CubeSize)}
         trailing={<StatusBadge />}
       >
-        {SIZES.map((s) => (
+        {CUBE_SIZES.map((s) => (
           <option key={s} value={s}>
             {s}x{s}
           </option>

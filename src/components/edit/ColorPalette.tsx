@@ -1,4 +1,5 @@
-import { colorCounts, stickersTotal } from '@/lib/editor'
+import { cubeSize, stickersPerColor } from '@/lib/cube'
+import { colorCounts } from '@/lib/editor'
 import type { Color } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
@@ -10,12 +11,12 @@ const PALETTE: readonly Color[] = ['W', 'Y', 'G', 'B', 'O', 'R']
 /** Color swatches with the remaining count per color; picks the paint color. */
 export function ColorPalette() {
   const t = useI18n((s) => s.t)
-  const size = useCube((s) => s.size)
+  const size = useCube((s) => cubeSize(s.cube))
   const edit = useEditor((s) => s.edit)
   const selected = useEditor((s) => s.selectedColor)
   const setColor = useEditor((s) => s.setColor)
   const counts = colorCounts(edit)
-  const perColor = stickersTotal(size) / 6
+  const perColor = stickersPerColor(size)
 
   return (
     <div>

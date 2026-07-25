@@ -1,4 +1,4 @@
-import type { CubeSize } from '@/lib/types'
+import type { CubeSize, Vec3 } from '@/lib/types'
 
 export interface CubeLayout {
   /** Uniform scale applied to the whole cube group. */
@@ -15,4 +15,9 @@ export interface CubeLayout {
  */
 export function cubeLayout(size: CubeSize): CubeLayout {
   return size === 2 ? { scale: 1.5, positionFactor: 0.5 } : { scale: 1, positionFactor: 1 }
+}
+
+/** Map a logical cubie/slot position to its visual position. */
+export function scalePosition(p: Vec3, factor: number): [number, number, number] {
+  return [p[0] * factor, p[1] * factor, p[2] * factor]
 }

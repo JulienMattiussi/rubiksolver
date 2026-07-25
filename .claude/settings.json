@@ -30,7 +30,9 @@
       "Bash(sort *)",
       "Bash(wc *)",
       "Bash(echo *)",
-      "Bash(sed -n *)"
+      "Bash(sed -n *)",
+      "Bash(make fix *)",
+      "Bash(make check *)"
     ]
   }
 }

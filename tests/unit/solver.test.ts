@@ -24,7 +24,7 @@ import {
   topCrossDone,
   topFaceDone,
 } from '@/lib/solver'
-import { seededRng } from '../helpers'
+import { seededRng, twistedCorner2 } from '../helpers'
 
 describe('solver', () => {
   it('returns no moves for an already-solved cube', () => {
@@ -119,17 +119,6 @@ describe('2x2 solver', () => {
   })
 
   it('throws on an unsolvable 2x2 (one twisted corner)', () => {
-    const twisted = solvedCube(2).map((cubie, i) =>
-      i === 0
-        ? {
-            ...cubie,
-            stickers: cubie.stickers.map((s, j) => ({
-              ...s,
-              color: cubie.stickers[(j + 1) % cubie.stickers.length]!.color,
-            })),
-          }
-        : cubie,
-    )
-    expect(() => solveOptimal2(twisted)).toThrow()
+    expect(() => solveOptimal2(twistedCorner2())).toThrow()
   })
 })

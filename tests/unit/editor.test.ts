@@ -33,9 +33,9 @@ describe('cube editor', () => {
   it('auto-completes a corner once two stickers determine it', () => {
     let edit = emptyEdit(3)
     // Corner (1,1,1): +y (ni 2) is white, +x (ni 0) is red in the solved cube.
-    edit = paint(edit, '1,1,1', 2, 'W')
+    edit = paint(edit, 3, '1,1,1', 2, 'W')
     expect(filledCount(edit)).toBe(7)
-    edit = paint(edit, '1,1,1', 0, 'R')
+    edit = paint(edit, 3, '1,1,1', 0, 'R')
     // The third sticker (+z, ni 4) is forced to green.
     expect(filledCount(edit)).toBe(9)
     expect(edit['1,1,1:4']).toBe('G')
@@ -43,9 +43,9 @@ describe('cube editor', () => {
 
   it('refuses an impossible pair and restarts the piece', () => {
     let edit = emptyEdit(3)
-    edit = paint(edit, '1,1,1', 2, 'W')
+    edit = paint(edit, 3, '1,1,1', 2, 'W')
     // White and yellow are opposite colors: no corner carries both.
-    edit = paint(edit, '1,1,1', 0, 'Y')
+    edit = paint(edit, 3, '1,1,1', 0, 'Y')
     // The white got replaced; only the latest (yellow) sticker remains.
     expect(edit['1,1,1:2']).toBeUndefined()
     expect(edit['1,1,1:0']).toBe('Y')
@@ -60,9 +60,9 @@ describe('cube editor', () => {
 
   it('clears a slot back to empty', () => {
     let edit = emptyEdit(3)
-    edit = paint(edit, '1,1,1', 2, 'W')
-    edit = paint(edit, '1,1,1', 0, 'R')
-    edit = clearSlot(edit, '1,1,1')
+    edit = paint(edit, 3, '1,1,1', 2, 'W')
+    edit = paint(edit, 3, '1,1,1', 0, 'R')
+    edit = clearSlot(edit, 3, '1,1,1')
     expect(filledCount(edit)).toBe(6)
   })
 })
@@ -86,22 +86,23 @@ describe('2x2 cube editor', () => {
 
   it('auto-completes a corner once two stickers determine it', () => {
     let edit = emptyEdit(2)
-    edit = paint(edit, '1,1,1', 2, 'W')
-    edit = paint(edit, '1,1,1', 0, 'R')
+    edit = paint(edit, 2, '1,1,1', 2, 'W')
+    edit = paint(edit, 2, '1,1,1', 0, 'R')
     expect(edit['1,1,1:4']).toBe('G')
     expect(filledCount(edit)).toBe(3)
   })
 
-  it('refuses a piece already used elsewhere', () => {
+  it('never completes to a piece already used elsewhere', () => {
     // Enter the white-red-green corner at (1,1,1)...
     let edit = emptyEdit(2)
-    edit = paint(edit, '1,1,1', 2, 'W')
-    edit = paint(edit, '1,1,1', 0, 'R')
-    // ...then try to start the same piece at another slot: W then R there
-    // must not complete to the same color set.
-    edit = paint(edit, '-1,1,1', 2, 'W')
-    const before = edit
-    edit = paint(edit, '-1,1,1', 1, 'R')
-    expect(edit === before || edit['-1,1,1:4'] !== 'G').toBe(true)
+    edit = paint(edit, 2, '1,1,1', 2, 'W')
+    edit = paint(edit, 2, '1,1,1', 0, 'R')
+    // ...then paint W and R on another corner slot: with white-red-green
+    // taken, the only white-red piece left is white-red-blue.
+    edit = paint(edit, 2, '-1,1,1', 2, 'W')
+    edit = paint(edit, 2, '-1,1,1', 1, 'R')
+    expect(edit['-1,1,1:2']).toBe('W')
+    expect(edit['-1,1,1:1']).toBe('R')
+    expect(edit['-1,1,1:4']).toBe('B')
   })
 })

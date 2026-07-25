@@ -4,7 +4,7 @@ import { buildCube, cubeToEdit } from '@/lib/editor'
 import { scramble } from '@/lib/moves'
 import { validateCube } from '@/lib/validate'
 import type { Color } from '@/lib/types'
-import { seededRng } from '../helpers'
+import { seededRng, twistedCorner2 } from '../helpers'
 
 /** Rebuild a cube from solved with some stickers recolored. */
 function withStickers(overrides: Record<string, Color>) {
@@ -75,9 +75,6 @@ describe('validateCube (2x2)', () => {
   })
 
   it('rejects a single twisted corner', () => {
-    // Corner (1,1,1): +x=R, +y=W, +z=G. Cycle the colors around the piece.
-    expect(validateCube(withStickers2({ '1,1,1:0': 'G', '1,1,1:2': 'R', '1,1,1:4': 'W' }))).toEqual(
-      { ok: false, error: 'impossible' },
-    )
+    expect(validateCube(twistedCorner2())).toEqual({ ok: false, error: 'impossible' })
   }, 30000)
 })

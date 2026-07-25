@@ -1,3 +1,4 @@
+import { cubeSize } from '@/lib/cube'
 import { useCube } from '@/store/cubeStore'
 import { Cubie } from './Cubie'
 import { cubeLayout } from './layout'
@@ -7,7 +8,7 @@ import { useTurnAnimation } from './useTurnAnimation'
  *  parented to an animated group (see useTurnAnimation). */
 export function CubeView() {
   const cube = useCube((s) => s.cube)
-  const size = useCube((s) => s.size)
+  const size = cubeSize(cube)
   const { scale, positionFactor } = cubeLayout(size)
   const { groupRef, isTurning } = useTurnAnimation()
   return (
