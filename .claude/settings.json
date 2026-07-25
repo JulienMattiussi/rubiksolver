@@ -29,7 +29,8 @@
       "Bash(echo \"knip exit=$?\")",
       "Bash(timeout 200 make check)",
       "Bash(timeout 90 npx playwright test -g \"cube editor\")",
-      "Bash(timeout 90 npx playwright test tests/e2e/shot.spec.ts)"
+      "Bash(timeout 90 npx playwright test tests/e2e/shot.spec.ts)",
+      "Bash(timeout 150 npx playwright test)"
     ]
   }
 }

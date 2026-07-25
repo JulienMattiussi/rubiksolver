@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Controls } from './components/Controls'
+import { Controls } from './components/controls/Controls'
 import { useI18n } from './i18n/i18nStore'
 import { useEditor } from './store/editorStore'
 import { Scene } from './three/Scene'

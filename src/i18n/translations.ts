@@ -54,7 +54,7 @@ const fr = {
   sectionSolve: 'Résolution',
   collapse: 'Replier le menu',
   expand: 'Déplier le menu',
-  methodLabel: 'Méthode',
+  methodLabel: 'Méthode de résolution',
   methods: {
     beginner: {
       name: 'Par couches',
@@ -138,7 +138,7 @@ const en: Translations = {
   sectionSolve: 'Solve',
   collapse: 'Collapse menu',
   expand: 'Expand menu',
-  methodLabel: 'Method',
+  methodLabel: 'Solving method',
   methods: {
     beginner: {
       name: 'Layer by layer',

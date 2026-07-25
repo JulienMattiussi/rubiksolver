@@ -45,35 +45,43 @@ voisins (ex : `big-bang-clicker`).
 src/
 ├── lib/                  # Logique pure, zéro React / zéro three.js (entièrement testée)
 │   ├── types.ts          # Types du domaine (Face, Color, Axis, Vec3, Sticker, Cubie, Cube, Move)
-│   ├── cube.ts           # Modèle 27-cubies : solvedCube, applyMove(s), isSolved, moveGeometry (axe/couche/angle pour l'animation)
-│   ├── moves.ts          # Notation (parse/format), inversion, simplification, mélange (scramble) avec RNG injectable
+│   ├── cube.ts           # Modèle 27-cubies : solvedCube, applyMove(s), isSolved, moveGeometry, rotateCube
+│   ├── moves.ts          # Notation US/FR (parse/format, faceLabel), inversion, simplification, scramble (RNG injectable)
 │   ├── solver.ts         # Solveurs par méthode (voir plus bas) : SOLVE_METHODS, chaque méthode renvoie ses étapes nommées (SolveStep[])
-│   ├── editor.ts         # Saisie guidée : 24 orientations -> placements valides par emplacement, peinture contrainte + auto-complétion, buildCube/cubeToEdit
-│   └── validate.ts       # validateCube : comptage des couleurs + solubilité (via une tentative de résolution)
+│   ├── editor.ts         # Saisie guidée : 24 orientations -> placements valides, peinture contrainte + auto-complétion, buildCube/cubeToEdit
+│   ├── validate.ts       # validateCube : comptage des couleurs + solubilité (via une tentative de résolution)
+│   ├── easing.ts         # easeInOut (partagé par les animations)
+│   ├── speed.ts          # Curseur 0..100 <-> secondes par rotation
+│   └── progress.ts       # solveProgress : avancement par étape d'une solution (pour l'UI)
 ├── store/
-│   ├── cubeStore.ts      # Zustand : état logique du cube + file de rotations à animer + pilotage de l'animation ; méthode choisie, étapes de la solution, jouer tout / pas à pas (loadCube pour charger un état)
-│   └── editorStore.ts    # Zustand : mode play/edit, couleur sélectionnée, état de saisie, apply (build + validate + charge dans le jeu)
-├── i18n/                 # i18n custom (FR source de vérité, EN typé complet), locale détectée puis persistée en mémoire
+│   ├── cubeStore.ts      # Zustand : cube + file de rotations + pilotage animation ; méthode, étapes, jouer tout / pas à pas, loadCube
+│   ├── editorStore.ts    # Zustand : mode play/edit, couleur sélectionnée, saisie, apply (build + validate + charge)
+│   └── viewStore.ts      # Zustand : pont DOM -> 3D pour recentrer la caméra (resetToken)
+├── i18n/                 # i18n custom (FR source de vérité, EN typé complet) ; locale + notation US/FR
 │   ├── translations.ts   # `fr` (source) + `en: Translations`
-│   └── i18nStore.ts      # store Zustand `useI18n` (locale, t, setLocale)
-├── three/                # Rendu 3D (React Three Fiber)
-│   ├── Scene.tsx         # <Canvas> : caméra, lumières, OrbitControls ; bascule CubeView / EditView selon le mode
-│   ├── CubeView.tsx      # Rend les 27 cubies depuis le store et anime la rotation active
-│   ├── EditView.tsx      # Mode saisie : stickers cliquables (peinture) ; vides en gris
-│   ├── Cubie.tsx         # Un cubie : corps + stickers colorés orientés par leur normale
+│   └── i18nStore.ts      # store `useI18n` (locale, t, setLocale, notation, setNotation)
+├── three/                # Rendu 3D (React Three Fiber) ; un composant/hook par fichier
+│   ├── Scene.tsx         # <Canvas> : caméra, lumières, OrbitControls ; bascule CubeView / EditView
+│   ├── CubeView.tsx      # Rend les 27 cubies (via useTurnAnimation)
+│   ├── EditView.tsx      # Mode saisie : stickers cliquables ; vides en gris
+│   ├── Cubie.tsx         # Un cubie : corps + stickers
+│   ├── Sticker.tsx       # Sticker orienté à sa normale, mutualisé play/édition (onSelect = cliquable)
+│   ├── useTurnAnimation.ts # Hook : pilote la file de rotations (rotation de la couche active)
+│   ├── CameraReset.tsx   # Recentrage caméra animé (lit viewStore, dans le <Canvas>)
 │   └── colors.ts         # Couleurs des stickers (hex) et plastique
 ├── components/
-│   ├── ui/Button.tsx     # Primitive bouton réutilisable
-│   ├── Controls.tsx      # Panneau : statut, mélanger/reset, saisie, vitesse, pad de rotations
-│   ├── SolvePanel.tsx    # Choix de méthode + Résoudre / Pas à pas + liste des étapes nommées (apprentissage)
-│   └── EditPanel.tsx     # Panneau de saisie : palette (couleurs + restants), progression, effacer, utiliser/annuler
-├── App.tsx               # Coquille : scène 3D plein écran + panneau de contrôles en overlay
+│   ├── ui/               # Primitives réutilisables (Button, IconButton, SegmentedToggle)
+│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge,
+│   │                     #   LanguageToggle, NotationToggle, RecenterButton, CollapseButton, SpeedSlider, MovePad
+│   ├── solve/            # Résolution : SolvePanel, MethodSelect, StepList
+│   └── edit/             # Saisie : EditPanel, ColorPalette
+├── App.tsx               # Coquille : scène 3D plein écran + panneau en overlay (empilé sur mobile en saisie)
 └── main.tsx
 tests/
 ├── helpers.ts            # RNG déterministe (seedRng) pour des scrambles reproductibles
-├── unit/                 # Vitest : cube, moves, solver (dont propriété : N scrambles résolus)
-├── component/            # Vitest + Testing Library (Controls)
-└── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution)
+├── unit/                 # Vitest : cube, moves, solver (propriété), editor, validate, easing, speed, progress
+├── component/            # Vitest + Testing Library (Controls, SegmentedToggle)
+└── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution, saisie)
 ```
 
 ### Les solveurs par méthode (`src/lib/solver.ts`)
