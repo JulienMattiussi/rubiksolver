@@ -35,14 +35,14 @@ describe('moves notation', () => {
   it('inverts moves and sequences', () => {
     expect(invertMove({ face: 'R', amount: 1 })).toEqual({ face: 'R', amount: 3 })
     expect(invertMove({ face: 'R', amount: 2 })).toEqual({ face: 'R', amount: 2 })
-    expect(formatMoves(invertMoves(parseMoves("R U F")))).toBe("F' U' R'")
+    expect(formatMoves(invertMoves(parseMoves('R U F')))).toBe("F' U' R'")
   })
 
   it('simplifies consecutive same-face turns', () => {
     expect(formatMoves(simplifyMoves(parseMoves('R R')))).toBe('R2')
     expect(simplifyMoves(parseMoves("R R'"))).toEqual([])
     expect(simplifyMoves(parseMoves('R2 R2'))).toEqual([])
-    expect(formatMoves(simplifyMoves(parseMoves("R R R")))).toBe("R'")
+    expect(formatMoves(simplifyMoves(parseMoves('R R R')))).toBe("R'")
   })
 
   it('scrambles deterministically with a seed and never repeats a face', () => {

@@ -40,7 +40,7 @@ describe('cube engine', () => {
     }
   })
 
-  it('the sexy move (R U R\' U\') repeated 6 times is identity', () => {
+  it("the sexy move (R U R' U') repeated 6 times is identity", () => {
     const sexy = parseMoves("R U R' U'")
     let cube = solvedCube()
     for (let i = 0; i < 6; i++) cube = applyMoves(cube, sexy)

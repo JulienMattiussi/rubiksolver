@@ -7,15 +7,28 @@ export const ALL_MOVES: readonly Move[] = FACES.flatMap((face) =>
   ([1, 2, 3] as const).map((amount) => ({ face, amount })),
 )
 
-/** Human-readable notation for a move: `U`, `U2`, `U'`. */
-export function formatMove(move: Move): string {
+/** How each face is labelled in a given notation. */
+export type FaceLabels = Record<Face, string>
+
+/** International (US) notation, also the internal move letters. */
+export const NOTATION_US: FaceLabels = { U: 'U', D: 'D', L: 'L', R: 'R', F: 'F', B: 'B' }
+/** Traditional French notation: Haut, Bas, Gauche, Droite, Face, Arrière. */
+export const NOTATION_FR: FaceLabels = { U: 'H', D: 'B', L: 'G', R: 'D', F: 'F', B: 'Ar' }
+
+/** Face label in a notation (defaults to US / internal letters). */
+export function faceLabel(face: Face, labels: FaceLabels = NOTATION_US): string {
+  return labels[face]
+}
+
+/** Human-readable notation for a move: `U`, `U2`, `U'` (or FR labels). */
+export function formatMove(move: Move, labels: FaceLabels = NOTATION_US): string {
   const suffix = move.amount === 1 ? '' : move.amount === 2 ? '2' : "'"
-  return move.face + suffix
+  return labels[move.face] + suffix
 }
 
 /** Format a sequence, space-separated. */
-export function formatMoves(moves: readonly Move[]): string {
-  return moves.map(formatMove).join(' ')
+export function formatMoves(moves: readonly Move[], labels: FaceLabels = NOTATION_US): string {
+  return moves.map((m) => formatMove(m, labels)).join(' ')
 }
 
 /** Parse a single token like `R`, `R2`, `R'` into a Move (undefined if invalid). */

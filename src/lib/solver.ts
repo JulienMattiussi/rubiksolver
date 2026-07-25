@@ -344,22 +344,106 @@ export function solvePermuteEdges(cube: Cube): Move[] {
   return solveWithAlgs(cube, [relMoves(PLL_EDGE, 'F')], isSolved, 6)
 }
 
-/** Full solve: a move sequence turning `cube` into the solved state. */
-export function solve(cube: Cube): Move[] {
-  if (isSolved(cube)) return []
+// F2L solved slot by slot (CFOP structure): for each column the corner then its
+// middle edge is placed, keeping every finished slot intact.
+const F2L_TRIGGERS = [...atEverySide("R U R'"), ...atEverySide("R U' R'")]
+
+function pairPlaced(cube: Cube, s1: Face, s2: Face): boolean {
+  return cornerPlaced(cube, s1, s2) && middleEdgePlaced(cube, s1, s2)
+}
+
+function solveF2L(cube: Cube): Move[] {
   let state = cube
   const all: Move[] = []
-  const run = (fn: (c: Cube) => Move[]) => {
-    const moves = fn(state)
+  const push = (moves: Move[]) => {
     state = applyMoves(state, moves)
     all.push(...moves)
   }
-  run(solveCross)
-  run(solveFirstLayerCorners)
-  run(solveMiddleLayer)
-  run(solveTopCross)
-  run(solveTopFace)
-  run(solvePermuteCorners)
-  run(solvePermuteEdges)
-  return simplifyMoves(all)
+  for (const [s1, s2] of CORNER_PAIRS) {
+    if (pairPlaced(state, s1, s2)) continue
+    const prior = CORNER_PAIRS.filter(([a, b]) => pairPlaced(state, a, b))
+    const priorOk = (c: Cube) => crossDone(c) && prior.every(([a, b]) => pairPlaced(c, a, b))
+    push(solveWithAlgs(state, F2L_TRIGGERS, (c) => priorOk(c) && cornerPlaced(c, s1, s2), 6))
+    push(
+      solveWithAlgs(
+        state,
+        MIDDLE_TRIGGERS,
+        (c) => priorOk(c) && cornerPlaced(c, s1, s2) && middleEdgePlaced(c, s1, s2),
+        6,
+      ),
+    )
+  }
+  return all
+}
+
+/**
+ * One named stage of a method's solution. `key` is an i18n key describing the
+ * step (e.g. the CFOP "F2L"); `moves` are the turns that complete it. Steps let
+ * the UI teach a method by playing it one meaningful stage at a time.
+ */
+export interface SolveStep {
+  readonly key: string
+  readonly moves: readonly Move[]
+}
+
+interface StepSpec {
+  key: string
+  phases: ReadonlyArray<(c: Cube) => Move[]>
+}
+
+/** Run grouped phases, emitting one named step per group. */
+function buildSteps(cube: Cube, groups: readonly StepSpec[]): SolveStep[] {
+  if (isSolved(cube)) return []
+  let state = cube
+  const steps: SolveStep[] = []
+  for (const group of groups) {
+    let moves: Move[] = []
+    for (const phase of group.phases) {
+      const m = phase(state)
+      state = applyMoves(state, m)
+      moves = moves.concat(m)
+    }
+    steps.push({ key: group.key, moves: simplifyMoves(moves) })
+  }
+  return steps.filter((s) => s.moves.length > 0)
+}
+
+/** Beginner "layer by layer" method, taught as its seven classic stages. */
+function beginnerSteps(cube: Cube): SolveStep[] {
+  return buildSteps(cube, [
+    { key: 'stepBottomCross', phases: [solveCross] },
+    { key: 'stepBottomCorners', phases: [solveFirstLayerCorners] },
+    { key: 'stepMiddle', phases: [solveMiddleLayer] },
+    { key: 'stepTopCross', phases: [solveTopCross] },
+    { key: 'stepOrientCorners', phases: [solveTopFace] },
+    { key: 'stepPermuteCorners', phases: [solvePermuteCorners] },
+    { key: 'stepPermuteEdges', phases: [solvePermuteEdges] },
+  ])
+}
+
+/** CFOP (Fridrich), taught as its four stages: Cross, F2L, OLL, PLL. */
+function cfopSteps(cube: Cube): SolveStep[] {
+  return buildSteps(cube, [
+    { key: 'stepCross', phases: [solveCross] },
+    { key: 'stepF2L', phases: [solveF2L] },
+    { key: 'stepOLL', phases: [solveTopCross, solveTopFace] },
+    { key: 'stepPLL', phases: [solvePermuteCorners, solvePermuteEdges] },
+  ])
+}
+
+/** Identifier of an available solving method. */
+export type MethodId = 'beginner' | 'cfop'
+
+/** Registry of solving methods: each returns its solution as named steps. */
+export const SOLVE_METHODS: ReadonlyArray<{
+  id: MethodId
+  solve: (cube: Cube) => SolveStep[]
+}> = [
+  { id: 'beginner', solve: beginnerSteps },
+  { id: 'cfop', solve: cfopSteps },
+]
+
+/** Default full solve (beginner method), kept for validation and callers. */
+export function solve(cube: Cube): Move[] {
+  return beginnerSteps(cube).flatMap((s) => [...s.moves])
 }

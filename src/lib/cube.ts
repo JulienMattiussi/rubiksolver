@@ -153,6 +153,21 @@ export function applyMoves(cube: Cube, moves: readonly Move[]): Cube {
 }
 
 /**
+ * Reorient the whole cube (every cubie, including centers) by `quarterTurns`
+ * about `axis`. Unlike a face turn this is a change of viewpoint, not a move;
+ * used to enumerate the 24 orientations for the cube editor.
+ */
+export function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
+  return cube.map((cubie) => ({
+    position: rotateN(cubie.position, axis, quarterTurns),
+    stickers: cubie.stickers.map((s) => ({
+      normal: rotateN(s.normal, axis, quarterTurns),
+      color: s.color,
+    })),
+  }))
+}
+
+/**
  * A cube is solved when every sticker's color matches the solved color of the
  * face its normal currently points to (centers are fixed, so FACE_COLOR is the
  * fixed reference).

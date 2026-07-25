@@ -24,7 +24,12 @@
       "Bash(npm install *)",
       "Bash(npx tsc *)",
       "Bash(timeout 200 npx playwright test tests/e2e/smoke.spec.ts)",
-      "Bash(timeout 150 make check)"
+      "Bash(timeout 150 make check)",
+      "Bash(npx knip *)",
+      "Bash(echo \"knip exit=$?\")",
+      "Bash(timeout 200 make check)",
+      "Bash(timeout 90 npx playwright test -g \"cube editor\")",
+      "Bash(timeout 90 npx playwright test tests/e2e/shot.spec.ts)"
     ]
   }
 }

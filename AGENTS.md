@@ -47,20 +47,26 @@ src/
 │   ├── types.ts          # Types du domaine (Face, Color, Axis, Vec3, Sticker, Cubie, Cube, Move)
 │   ├── cube.ts           # Modèle 27-cubies : solvedCube, applyMove(s), isSolved, moveGeometry (axe/couche/angle pour l'animation)
 │   ├── moves.ts          # Notation (parse/format), inversion, simplification, mélange (scramble) avec RNG injectable
-│   └── solver.ts         # Solveur par couches (voir plus bas)
+│   ├── solver.ts         # Solveurs par méthode (voir plus bas) : SOLVE_METHODS, chaque méthode renvoie ses étapes nommées (SolveStep[])
+│   ├── editor.ts         # Saisie guidée : 24 orientations -> placements valides par emplacement, peinture contrainte + auto-complétion, buildCube/cubeToEdit
+│   └── validate.ts       # validateCube : comptage des couleurs + solubilité (via une tentative de résolution)
 ├── store/
-│   └── cubeStore.ts      # Zustand : état logique du cube + file de rotations à animer + pilotage de l'animation
+│   ├── cubeStore.ts      # Zustand : état logique du cube + file de rotations à animer + pilotage de l'animation ; méthode choisie, étapes de la solution, jouer tout / pas à pas (loadCube pour charger un état)
+│   └── editorStore.ts    # Zustand : mode play/edit, couleur sélectionnée, état de saisie, apply (build + validate + charge dans le jeu)
 ├── i18n/                 # i18n custom (FR source de vérité, EN typé complet), locale détectée puis persistée en mémoire
 │   ├── translations.ts   # `fr` (source) + `en: Translations`
 │   └── i18nStore.ts      # store Zustand `useI18n` (locale, t, setLocale)
 ├── three/                # Rendu 3D (React Three Fiber)
-│   ├── Scene.tsx         # <Canvas> : caméra, lumières, OrbitControls
+│   ├── Scene.tsx         # <Canvas> : caméra, lumières, OrbitControls ; bascule CubeView / EditView selon le mode
 │   ├── CubeView.tsx      # Rend les 27 cubies depuis le store et anime la rotation active
+│   ├── EditView.tsx      # Mode saisie : stickers cliquables (peinture) ; vides en gris
 │   ├── Cubie.tsx         # Un cubie : corps + stickers colorés orientés par leur normale
 │   └── colors.ts         # Couleurs des stickers (hex) et plastique
 ├── components/
 │   ├── ui/Button.tsx     # Primitive bouton réutilisable
-│   └── Controls.tsx      # Panneau : statut, mélanger/résoudre/reset, vitesse, pad de rotations, solution
+│   ├── Controls.tsx      # Panneau : statut, mélanger/reset, saisie, vitesse, pad de rotations
+│   ├── SolvePanel.tsx    # Choix de méthode + Résoudre / Pas à pas + liste des étapes nommées (apprentissage)
+│   └── EditPanel.tsx     # Panneau de saisie : palette (couleurs + restants), progression, effacer, utiliser/annuler
 ├── App.tsx               # Coquille : scène 3D plein écran + panneau de contrôles en overlay
 └── main.tsx
 tests/
@@ -70,25 +76,51 @@ tests/
 └── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution)
 ```
 
-### Le solveur (`src/lib/solver.ts`)
+### Les solveurs par méthode (`src/lib/solver.ts`)
 
-Méthode **par couches (débutant)**. Repère : le jaune (face D) est la première
-couche, le blanc (face U) la dernière. Phases :
+Le but est **pédagogique** : proposer plusieurs **vraies méthodes** et faire
+**apprendre leurs étapes**, pas minimiser le nombre de coups. Chaque méthode est
+définie par son **cheminement propre** (sa suite d'objectifs) et renvoie ses
+**étapes nommées** (`SolveStep[]`), que l'UI joue une par une. Repère commun :
+le jaune (face D) est la première couche, le blanc (face U) la dernière.
 
-1. Croix du bas (jaune) - recherche de plus court chemin (BFS) sur les faces.
-2. Coins du bas - recherche "aligner U puis appliquer un déclencheur" (jeu de
-   gâchettes `R U R'`), sans casser l'acquis.
-3. Arêtes de la couche du milieu - même principe (gâchettes d'insertion).
-4. Croix du haut (orienter les arêtes) - `F R U R' U' F'` + AUF.
-5. Orienter les coins du haut - Sune `R U R' U R U2 R'` + AUF.
-6. Permuter les coins - A-perm (3-cycle pur) + AUF.
-7. Permuter les arêtes - U-perm (3-cycle pur) + AUF.
+Méthodes (`SOLVE_METHODS`) :
 
-Chaque phase trouve ses coups par une **petite recherche** dont l'objectif
-inclut « ne pas régresser » : une séquence acceptée satisfait donc son but par
-construction. Les solutions sont longues (méthode débutant) mais toujours
-correctes ; c'est validé par un test de propriété qui résout des dizaines de
-scrambles aléatoires et vérifie `isSolved`.
+- **Par couches** (`beginner`) : 1re couche entière (croix + coins), puis arêtes
+  du milieu, puis dernière couche (croix, orientation coins, permutation coins,
+  permutation arêtes) - 7 étapes, cheminement étage par étage.
+- **Fridrich / CFOP** (`cfop`) : Croix, puis **F2L** (paires coin+arête par
+  colonne), puis **OLL**, puis **PLL** - 4 étapes.
+
+Les briques de résolution sont partagées et **correctes par construction** :
+la croix par recherche de plus court chemin (BFS sur les faces) ; les insertions
+et la dernière couche par recherche « aligner U puis appliquer un algorithme »
+(gâchettes `R U R'`, `F R U R' U' F'`, Sune, A-perm/U-perm en 3-cycle) dont
+l'objectif inclut « ne pas régresser ». Ce qui **distingue** les méthodes, c'est
+donc leur *découpage en étapes* (le cheminement), pas la machinerie bas niveau.
+Les solutions ne sont pas optimisées (longues) mais toujours correctes ; validé
+par un test de propriété qui résout des dizaines de scrambles pour chaque
+méthode et vérifie `isSolved`.
+
+> Ajouter une méthode à cheminement vraiment différent (ex. "arêtes d'abord",
+> Petrus par blocs) demande sa propre machinerie (placer les coins sans casser
+> les arêtes, construire des blocs 2x2x2...), pas seulement un réétiquetage.
+
+### La saisie d'un cube (`src/lib/editor.ts`, `validate.ts`)
+
+L'utilisateur peut initialiser le cube depuis une position réelle en peignant
+les stickers directement sur le rendu 3D (mode édition). Deux garde-fous :
+
+- **Saisie guidée** : on précalcule, à partir des 24 orientations d'un cube
+  résolu, tous les placements de pièce valides par emplacement. Un clic n'est
+  accepté que s'il reste compatible avec un placement valide non déjà utilisé ;
+  dès qu'une pièce est déterminée (2 stickers d'un coin), les stickers restants
+  se complètent automatiquement. Impossible donc de créer une pièce ou un
+  compte de couleurs incohérent pendant la saisie.
+- **Validation finale** : `validateCube` vérifie le comptage des couleurs puis
+  la solubilité (parités). La solubilité est testée en demandant une résolution :
+  sur un cube impossible (mauvaise parité, pièce en trop/manquante), les phases
+  du solveur épuisent leurs options et lèvent une exception, qu'on intercepte.
 
 ---
 

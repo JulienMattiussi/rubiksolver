@@ -22,7 +22,10 @@ describe('<Controls />', () => {
     const user = userEvent.setup()
     render(<Controls />)
     expect(useCube.getState().queue).toHaveLength(0)
-    await user.click(screen.getByRole('button', { name: 'R' }))
+    // Move buttons expose a descriptive tooltip as their accessible name.
+    await user.click(
+      screen.getByRole('button', { name: 'Tourner la face de droite dans le sens horaire' }),
+    )
     expect(useCube.getState().queue).toHaveLength(1)
     expect(useCube.getState().queue[0]).toEqual({ face: 'R', amount: 1 })
   })

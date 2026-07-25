@@ -6,6 +6,7 @@ import {
   firstLayerDone,
   secondLayerDone,
   solve,
+  SOLVE_METHODS,
   solveCross,
   solveFirstLayerCorners,
   solveMiddleLayer,
@@ -40,11 +41,27 @@ describe('solver', () => {
     expect(failures).toEqual([])
   }, 120000)
 
+  it('every method solves random scrambles as named steps', () => {
+    const rng = seededRng(808)
+    for (const method of SOLVE_METHODS) {
+      for (let i = 0; i < 5; i++) {
+        const cube = applyMoves(solvedCube(), scramble(25, rng))
+        const steps = method.solve(cube)
+        expect(steps.every((s) => s.key && s.moves.length > 0)).toBe(true)
+        const moves = steps.flatMap((s) => [...s.moves])
+        expect(isSolved(applyMoves(cube, moves))).toBe(true)
+      }
+    }
+  }, 120000)
+
   it('reaches each phase goal in order', () => {
     const rng = seededRng(2026)
     for (let i = 0; i < 6; i++) {
       let state = applyMoves(solvedCube(), scramble(25, rng))
-      const step = (fn: (c: typeof state) => ReturnType<typeof solveCross>, ok: (c: typeof state) => boolean) => {
+      const step = (
+        fn: (c: typeof state) => ReturnType<typeof solveCross>,
+        ok: (c: typeof state) => boolean,
+      ) => {
         state = applyMoves(state, fn(state))
         expect(ok(state)).toBe(true)
       }

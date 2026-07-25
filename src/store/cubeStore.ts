@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { applyMove, solvedCube } from '@/lib/cube'
 import { scramble as makeScramble } from '@/lib/moves'
-import { solve } from '@/lib/solver'
+import { SOLVE_METHODS, type MethodId, type SolveStep } from '@/lib/solver'
 import type { Cube, Move } from '@/lib/types'
 
 /** What the currently playing queue represents (drives status + UI labels). */
@@ -13,20 +13,33 @@ interface CubeStore {
   queue: Move[]
   /** Move currently being animated, or null when idle. */
   active: Move | null
-  /** Last computed solution, kept for display. */
-  solution: Move[] | null
   mode: Mode
   /** Seconds a single quarter turn takes to animate. */
   turnDuration: number
+
+  /** Selected solving method. */
+  method: MethodId
+  /** Named steps of the current solution, or null. */
+  steps: SolveStep[] | null
+  /** How many steps have already been sent to the animation queue. */
+  stepIndex: number
 
   /** True while any move is queued or animating. */
   isBusy: () => boolean
 
   pushMove: (move: Move) => void
   scramble: () => void
-  solveCube: () => void
+  setMethod: (method: MethodId) => void
+  /** Compute the solution steps for the current cube (does not animate). */
+  prepareSolution: () => SolveStep[]
+  /** Queue the whole solution and animate it. */
+  solveAll: () => void
+  /** Queue only the next not-yet-played step (step-by-step learning). */
+  playNextStep: () => void
   reset: () => void
   stop: () => void
+  /** Replace the cube with a specific state (used by the editor). */
+  loadCube: (cube: Cube) => void
   setTurnDuration: (seconds: number) => void
 
   /** Animation driver hooks (called from the 3D loop). */
@@ -34,27 +47,53 @@ interface CubeStore {
   commitActive: () => void
 }
 
+function clearSolution() {
+  return { steps: null, stepIndex: 0 }
+}
+
 export const useCube = create<CubeStore>((set, get) => ({
   cube: solvedCube(),
   queue: [],
   active: null,
-  solution: null,
   mode: 'idle',
   turnDuration: 0.2,
+  method: 'beginner',
+  steps: null,
+  stepIndex: 0,
 
   isBusy: () => get().active !== null || get().queue.length > 0,
 
-  pushMove: (move) => set((s) => ({ queue: [...s.queue, move], mode: 'idle', solution: null })),
+  pushMove: (move) => set((s) => ({ queue: [...s.queue, move], mode: 'idle', ...clearSolution() })),
 
   scramble: () =>
-    set({ queue: makeScramble(20), mode: 'scrambling', solution: null, active: null }),
+    set({ queue: makeScramble(20), mode: 'scrambling', active: null, ...clearSolution() }),
 
-  solveCube: () => {
-    const solution = solve(get().cube)
-    set({ queue: solution, solution, mode: 'solving', active: null })
+  setMethod: (method) => set({ method, ...clearSolution() }),
+
+  prepareSolution: () => {
+    const method = SOLVE_METHODS.find((m) => m.id === get().method) ?? SOLVE_METHODS[0]!
+    const steps = method.solve(get().cube)
+    set({ steps, stepIndex: 0, mode: 'solving', queue: [], active: null })
+    return steps
   },
 
-  reset: () => set({ cube: solvedCube(), queue: [], active: null, solution: null, mode: 'idle' }),
+  solveAll: () => {
+    const steps = get().prepareSolution()
+    set({ queue: steps.flatMap((s) => [...s.moves]), stepIndex: steps.length })
+  },
+
+  playNextStep: () => {
+    const steps = get().steps ?? get().prepareSolution()
+    set((s) => {
+      if (s.stepIndex >= steps.length) return s
+      return { queue: [...s.queue, ...steps[s.stepIndex]!.moves], stepIndex: s.stepIndex + 1 }
+    })
+  },
+
+  reset: () =>
+    set({ cube: solvedCube(), queue: [], active: null, mode: 'idle', ...clearSolution() }),
+
+  loadCube: (cube) => set({ cube, queue: [], active: null, mode: 'idle', ...clearSolution() }),
 
   stop: () => set({ queue: [], active: null, mode: 'idle' }),
 
