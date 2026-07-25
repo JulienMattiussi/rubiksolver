@@ -2,12 +2,18 @@ import { describe, expect, it } from 'vitest'
 import { applyMoves, isSolved, solvedCube } from '@/lib/cube'
 import { formatMoves, parseMoves, scramble } from '@/lib/moves'
 import {
+  bottomLayerDone2,
   crossDone,
   firstLayerDone,
+  methodsFor,
   secondLayerDone,
   solve,
-  SOLVE_METHODS,
+  solveBottomLayer2,
   solveCross,
+  solveOptimal2,
+  solvePermuteTop2,
+  solveTopFace2,
+  topFaceDone2,
   solveFirstLayerCorners,
   solveMiddleLayer,
   solvePermuteCorners,
@@ -43,13 +49,15 @@ describe('solver', () => {
 
   it('every method solves random scrambles as named steps', () => {
     const rng = seededRng(808)
-    for (const method of SOLVE_METHODS) {
-      for (let i = 0; i < 5; i++) {
-        const cube = applyMoves(solvedCube(), scramble(25, rng))
-        const steps = method.solve(cube)
-        expect(steps.every((s) => s.key && s.moves.length > 0)).toBe(true)
-        const moves = steps.flatMap((s) => [...s.moves])
-        expect(isSolved(applyMoves(cube, moves))).toBe(true)
+    for (const size of [2, 3] as const) {
+      for (const method of methodsFor(size)) {
+        for (let i = 0; i < 5; i++) {
+          const cube = applyMoves(solvedCube(size), scramble(size === 2 ? 11 : 25, rng))
+          const steps = method.solve(cube)
+          expect(steps.every((s) => s.key && s.moves.length > 0)).toBe(true)
+          const moves = steps.flatMap((s) => [...s.moves])
+          expect(isSolved(applyMoves(cube, moves))).toBe(true)
+        }
       }
     }
   }, 120000)
@@ -74,4 +82,54 @@ describe('solver', () => {
       step(solvePermuteEdges, isSolved)
     }
   }, 120000)
+})
+
+describe('2x2 solver', () => {
+  it('returns no moves for a solved 2x2', () => {
+    expect(solve(solvedCube(2))).toEqual([])
+    expect(solveOptimal2(solvedCube(2))).toEqual([])
+  })
+
+  it('layer method reaches each phase goal in order', () => {
+    const rng = seededRng(4242)
+    for (let i = 0; i < 8; i++) {
+      let state = applyMoves(solvedCube(2), scramble(11, rng))
+      state = applyMoves(state, solveBottomLayer2(state))
+      expect(bottomLayerDone2(state)).toBe(true)
+      state = applyMoves(state, solveTopFace2(state))
+      expect(topFaceDone2(state)).toBe(true)
+      state = applyMoves(state, solvePermuteTop2(state))
+      expect(isSolved(state)).toBe(true)
+    }
+  }, 120000)
+
+  it('optimal solver solves random scrambles in at most 11 moves', () => {
+    const rng = seededRng(99)
+    for (let i = 0; i < 15; i++) {
+      const scrambled = applyMoves(solvedCube(2), scramble(11, rng))
+      const moves = solveOptimal2(scrambled)
+      expect(moves.length).toBeLessThanOrEqual(11)
+      expect(isSolved(applyMoves(scrambled, moves))).toBe(true)
+    }
+  }, 120000)
+
+  it('optimal solver finds the inverse of a short scramble', () => {
+    const scrambled = applyMoves(solvedCube(2), parseMoves("R U' F2"))
+    expect(solveOptimal2(scrambled)).toHaveLength(3)
+  })
+
+  it('throws on an unsolvable 2x2 (one twisted corner)', () => {
+    const twisted = solvedCube(2).map((cubie, i) =>
+      i === 0
+        ? {
+            ...cubie,
+            stickers: cubie.stickers.map((s, j) => ({
+              ...s,
+              color: cubie.stickers[(j + 1) % cubie.stickers.length]!.color,
+            })),
+          }
+        : cubie,
+    )
+    expect(() => solveOptimal2(twisted)).toThrow()
+  })
 })

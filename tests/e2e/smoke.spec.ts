@@ -38,6 +38,27 @@ test('scrambles then solves back to a solved cube', async ({ page }) => {
   await expect(solve).toBeDisabled()
 })
 
+test('2x2: switch size, scramble, then solve with the optimal method', async ({ page }) => {
+  test.setTimeout(120000)
+  await page.goto('/')
+
+  await page.getByLabel('Vitesse').fill('100')
+  await page.getByLabel('Choix du cube').selectOption('2')
+
+  // The 2x2 offers the optimal method; its solutions are at most 11 moves.
+  await page.getByLabel('Méthode de résolution').selectOption('optimal')
+
+  const scramble = page.getByRole('button', { name: 'Mélanger' })
+  const solve = page.getByRole('button', { name: 'Résoudre' })
+
+  await scramble.click()
+  await expect(solve).toBeEnabled({ timeout: 30000 })
+
+  await solve.click()
+  await expect(scramble).toBeEnabled({ timeout: 60000 })
+  await expect(solve).toBeDisabled()
+})
+
 test('cube editor: enter, fill from current state, apply', async ({ page }) => {
   await page.goto('/')
 

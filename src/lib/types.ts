@@ -1,5 +1,8 @@
 // Domain types for the cube engine. Pure data, zero React / three.js.
 
+/** Supported cube sizes (NxNxN). */
+export type CubeSize = 2 | 3
+
 /** A face of the cube, named with the standard Singmaster letters. */
 export type Face = 'U' | 'D' | 'L' | 'R' | 'F' | 'B'
 
@@ -20,13 +23,16 @@ export interface Sticker {
   readonly color: Color
 }
 
-/** A single small cube (cubie) of the 3x3x3, at an integer grid position. */
+/** A single small cube (cubie), at an integer grid position. */
 export interface Cubie {
   readonly position: Vec3
   readonly stickers: readonly Sticker[]
 }
 
-/** The whole cube: 27 cubies (26 visible + 1 hidden core). */
+/**
+ * The whole cube: 27 cubies for a 3x3 (26 visible + 1 hidden core), or the 8
+ * corner cubies (positions in {-1,1}^3) for a 2x2.
+ */
 export type Cube = readonly Cubie[]
 
 /**

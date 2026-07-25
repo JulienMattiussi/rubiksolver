@@ -1,6 +1,15 @@
-import { applyMove, applyMoves, FACE_COLOR, FACE_NORMAL, isSolved } from './cube'
-import { parseMoves, simplifyMoves } from './moves'
-import type { Color, Cube, Cubie, Face, Move } from './types'
+import {
+  applyMove,
+  applyMoves,
+  cubeOrientations,
+  cubeSize,
+  FACE_COLOR,
+  FACE_NORMAL,
+  isSolved,
+  solvedCube,
+} from './cube'
+import { invertMoves, parseMoves, simplifyMoves } from './moves'
+import type { Color, Cube, CubeSize, Cubie, Face, Move } from './types'
 
 /**
  * Layer-by-layer (beginner method) solver.
@@ -344,6 +353,170 @@ export function solvePermuteEdges(cube: Cube): Move[] {
   return solveWithAlgs(cube, [relMoves(PLL_EDGE, 'F')], isSolved, 6)
 }
 
+// ---------------------------------------------------------------------------
+// 2x2 layer-by-layer solver
+// ---------------------------------------------------------------------------
+//
+// A 2x2 has no centers, so there is no fixed color frame. The corner sitting
+// at DBL (position [-1,-1,-1]) plays that role instead: its three stickers
+// define the D/L/B reference colors (opposites follow from the standard color
+// scheme). Predicates re-derive this frame from the state they inspect, so
+// algorithms that move the anchor corner stay sound: a state satisfies a goal
+// exactly when it is consistent with whatever corner then anchors it.
+
+const OPPOSITE_COLOR: Record<Color, Color> = { W: 'Y', Y: 'W', G: 'B', B: 'G', R: 'O', O: 'R' }
+
+/** Reference color of each face, anchored on the corner currently at DBL. */
+function frame2(cube: Cube): Record<Face, Color> {
+  const dbl = cube.find((c) => c.position[0] === -1 && c.position[1] === -1 && c.position[2] === -1)
+  const d = dbl && colorAt(dbl, 'D')
+  const l = dbl && colorAt(dbl, 'L')
+  const b = dbl && colorAt(dbl, 'B')
+  if (!d || !l || !b) throw new Error('frame2: no corner at DBL')
+  return { D: d, L: l, B: b, U: OPPOSITE_COLOR[d], R: OPPOSITE_COLOR[l], F: OPPOSITE_COLOR[b] }
+}
+
+/** The three bottom corners to place around the DBL anchor (which is the BL one). */
+const BOTTOM_PAIRS_2: ReadonlyArray<readonly [Face, Face]> = [
+  ['L', 'F'],
+  ['F', 'R'],
+  ['R', 'B'],
+]
+
+function bottomCornerPlaced2(cube: Cube, s1: Face, s2: Face): boolean {
+  const f = frame2(cube)
+  const corner = findCorner(cube, f.D, f[s1], f[s2])
+  return (
+    colorAt(corner, 'D') === f.D && colorAt(corner, s1) === f[s1] && colorAt(corner, s2) === f[s2]
+  )
+}
+
+export function bottomLayerDone2(cube: Cube): boolean {
+  return BOTTOM_PAIRS_2.every(([a, b]) => bottomCornerPlaced2(cube, a, b))
+}
+
+/** Bottom layer done and every U sticker shows the frame's U color. */
+export function topFaceDone2(cube: Cube): boolean {
+  if (!bottomLayerDone2(cube)) return false
+  const u = frame2(cube).U
+  return cube.every((c) => {
+    const color = colorAt(c, 'U')
+    return color === undefined || color === u
+  })
+}
+
+export function solveBottomLayer2(cube: Cube): Move[] {
+  let state = cube
+  const all: Move[] = []
+  for (const [s1, s2] of BOTTOM_PAIRS_2) {
+    if (bottomCornerPlaced2(state, s1, s2)) continue
+    const prior = BOTTOM_PAIRS_2.filter(([a, b]) => bottomCornerPlaced2(state, a, b))
+    const goal = (c: Cube) =>
+      prior.every(([a, b]) => bottomCornerPlaced2(c, a, b)) && bottomCornerPlaced2(c, s1, s2)
+    const moves = solveWithAlgs(state, CORNER_TRIGGERS, goal, 5)
+    state = applyMoves(state, moves)
+    all.push(...moves)
+  }
+  return all
+}
+
+export function solveTopFace2(cube: Cube): Move[] {
+  return solveWithAlgs(cube, atEverySide(OLL_SUNE), topFaceDone2, 8)
+}
+
+// Last-layer corner permutation: T-perm swaps two adjacent U corners, Y-perm
+// two diagonal ones (their edge cycles are irrelevant on a 2x2). Both keep the
+// D layer intact, so with an AUF one application reaches every case.
+const PLL_T = "R U R' U' R' F R2 U' R' U' R U R' F'"
+const PLL_Y = "F R U' R' U' R U R' F' R U R' U' R' F R F'"
+
+export function solvePermuteTop2(cube: Cube): Move[] {
+  return solveWithAlgs(cube, [...atEverySide(PLL_T), ...atEverySide(PLL_Y)], isSolved, 3)
+}
+
+// ---------------------------------------------------------------------------
+// 2x2 optimal solver (bidirectional breadth-first search)
+// ---------------------------------------------------------------------------
+
+/** U/R/F generate the whole 2x2 group while never moving the DBL corner. */
+const MOVES_URF: readonly Face[] = ['U', 'R', 'F']
+
+/** God's number for the 2x2 is 11 half-turn-metric moves, so a solvable cube
+ *  always meets within a combined search depth of 11; 12 proves impossibility. */
+const MAX_DEPTH_2 = 12
+
+interface BfsSide {
+  frontier: Array<{ cube: Cube; moves: Move[] }>
+  /** Shortest move sequence (from this side's origin) per visited state key. */
+  visited: Map<string, Move[]>
+}
+
+function bfsSide(origin: Cube): BfsSide {
+  return { frontier: [{ cube: origin, moves: [] }], visited: new Map([[stateKey(origin), []]]) }
+}
+
+/**
+ * Optimal 2x2 solution by bidirectional BFS over U/R/F turns, from `cube`
+ * towards the orientation of the solved cube that shares its DBL corner (URF
+ * turns never move that corner, so both searches walk the same coset).
+ *
+ * A meet gives forward-moves + inverted backward-moves. The first meet may not
+ * be the best one, so the search keeps expanding until the two depths add up
+ * to the best total found; any shorter solution would already have met.
+ * Throws when depth `MAX_DEPTH_2` is exhausted, i.e. the cube is unsolvable.
+ */
+export function solveOptimal2(cube: Cube): Move[] {
+  const target = cubeOrientations(solvedCube(2)).find((t) => {
+    try {
+      const f = frame2(t)
+      const g = frame2(cube)
+      return f.D === g.D && f.L === g.L && f.B === g.B
+    } catch {
+      return false
+    }
+  })
+  if (!target) throw new Error('solveOptimal2: DBL piece is not a real corner')
+  if (stateKey(cube) === stateKey(target)) return []
+
+  const fwd = bfsSide(cube)
+  const bwd = bfsSide(target)
+  let best: Move[] | null = null
+  let fwdDepth = 0
+  let bwdDepth = 0
+
+  while (fwdDepth + bwdDepth < Math.min(best?.length ?? Infinity, MAX_DEPTH_2)) {
+    const expand = fwd.frontier.length <= bwd.frontier.length ? fwd : bwd
+    const other = expand === fwd ? bwd : fwd
+    if (expand === fwd) fwdDepth++
+    else bwdDepth++
+    const next: BfsSide['frontier'] = []
+    for (const node of expand.frontier) {
+      const lastFace = node.moves[node.moves.length - 1]?.face
+      for (const face of MOVES_URF) {
+        if (face === lastFace) continue
+        let state = node.cube
+        for (let amount = 1; amount <= 3; amount++) {
+          state = applyMove(state, { face, amount: 1 })
+          const moves = [...node.moves, { face, amount: amount as 1 | 2 | 3 }]
+          const key = stateKey(state)
+          const met = other.visited.get(key)
+          if (met && (!best || moves.length + met.length < best.length)) {
+            const [f, b] = expand === fwd ? [moves, met] : [met, moves]
+            best = [...f, ...invertMoves(b)]
+          }
+          if (!expand.visited.has(key)) {
+            expand.visited.set(key, moves)
+            next.push({ cube: state, moves })
+          }
+        }
+      }
+    }
+    expand.frontier = next
+  }
+  if (!best) throw new Error('solveOptimal2: no solution (unsolvable cube)')
+  return best
+}
+
 // F2L solved slot by slot (CFOP structure): for each column the corner then its
 // middle edge is placed, keeping every finished slot intact.
 const F2L_TRIGGERS = [...atEverySide("R U R'"), ...atEverySide("R U' R'")]
@@ -431,19 +604,48 @@ function cfopSteps(cube: Cube): SolveStep[] {
   ])
 }
 
+/** 2x2 layer by layer: bottom corners, orient the top, permute the top. */
+function beginner2Steps(cube: Cube): SolveStep[] {
+  return buildSteps(cube, [
+    { key: 'stepBottomCorners', phases: [solveBottomLayer2] },
+    { key: 'stepOrientCorners', phases: [solveTopFace2] },
+    { key: 'stepPermuteCorners', phases: [solvePermuteTop2] },
+  ])
+}
+
+/** 2x2 optimal solution, as a single step. */
+function optimalSteps(cube: Cube): SolveStep[] {
+  return buildSteps(cube, [{ key: 'stepOptimal', phases: [solveOptimal2] }])
+}
+
 /** Identifier of an available solving method. */
-export type MethodId = 'beginner' | 'cfop'
+export type MethodId = 'beginner' | 'cfop' | 'optimal'
 
 /** Registry of solving methods: each returns its solution as named steps. */
-export const SOLVE_METHODS: ReadonlyArray<{
+const SOLVE_METHODS: ReadonlyArray<{
   id: MethodId
+  sizes: readonly CubeSize[]
   solve: (cube: Cube) => SolveStep[]
 }> = [
-  { id: 'beginner', solve: beginnerSteps },
-  { id: 'cfop', solve: cfopSteps },
+  {
+    id: 'beginner',
+    sizes: [2, 3],
+    solve: (cube) => (cubeSize(cube) === 2 ? beginner2Steps(cube) : beginnerSteps(cube)),
+  },
+  { id: 'cfop', sizes: [3], solve: cfopSteps },
+  { id: 'optimal', sizes: [2], solve: optimalSteps },
 ]
 
-/** Default full solve (beginner method), kept for validation and callers. */
+/** The solving methods available for a given cube size. */
+export function methodsFor(size: CubeSize) {
+  return SOLVE_METHODS.filter((m) => m.sizes.includes(size))
+}
+
+/**
+ * Default full solve, kept for validation and callers. Both branches throw on
+ * an unsolvable cube after a bounded search, which is what validate.ts needs.
+ */
 export function solve(cube: Cube): Move[] {
+  if (cubeSize(cube) === 2) return solveOptimal2(cube)
   return beginnerSteps(cube).flatMap((s) => [...s.moves])
 }

@@ -1,6 +1,7 @@
 import { Check, Eraser, X } from 'lucide-react'
-import { filledCount, isComplete } from '@/lib/editor'
+import { filledCount, isComplete, stickersTotal } from '@/lib/editor'
 import { useI18n } from '@/i18n/i18nStore'
+import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { Button } from '@/components/ui/Button'
 import { ColorPalette } from './ColorPalette'
@@ -8,6 +9,7 @@ import { ColorPalette } from './ColorPalette'
 /** "Saisie" panel: hint, color palette, progress, validation error, actions. */
 export function EditPanel() {
   const t = useI18n((s) => s.t)
+  const size = useCube((s) => s.size)
   const edit = useEditor((s) => s.edit)
   const clearAll = useEditor((s) => s.clearAll)
   const cancel = useEditor((s) => s.cancel)
@@ -15,7 +17,7 @@ export function EditPanel() {
   const error = useEditor((s) => s.error)
 
   const filled = filledCount(edit)
-  const complete = isComplete(edit)
+  const complete = isComplete(edit, size)
 
   return (
     <div className="flex flex-col gap-5">
@@ -24,7 +26,9 @@ export function EditPanel() {
       <ColorPalette />
 
       <div className="flex items-center gap-2 text-sm">
-        <span className="font-medium text-slate-200">{t.filledOf(filled)}</span>
+        <span className="font-medium text-slate-200">
+          {t.filledOf(filled, stickersTotal(size))}
+        </span>
         {complete && <Check className="size-4 text-emerald-400" aria-hidden />}
       </div>
 

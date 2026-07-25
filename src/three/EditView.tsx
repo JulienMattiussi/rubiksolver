@@ -1,6 +1,8 @@
-import { SLOTS } from '@/lib/editor'
+import { slotsFor } from '@/lib/editor'
+import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { COLOR_HEX, PLASTIC } from './colors'
+import { cubeLayout } from './layout'
 import { Sticker } from './Sticker'
 
 /** Gray shown on a not-yet-painted sticker slot. */
@@ -9,12 +11,21 @@ const EMPTY_COLOR = '#64748b'
 /** The cube in edit mode: every sticker is shown (gray when empty) and the
  *  corner/edge stickers are clickable to paint the selected color. */
 export function EditView() {
+  const size = useCube((s) => s.size)
   const edit = useEditor((s) => s.edit)
   const paintAt = useEditor((s) => s.paintAt)
+  const { scale, positionFactor } = cubeLayout(size)
   return (
-    <group>
-      {SLOTS.map((slot) => (
-        <group key={slot.key} position={[slot.position[0], slot.position[1], slot.position[2]]}>
+    <group scale={scale}>
+      {slotsFor(size).map((slot) => (
+        <group
+          key={slot.key}
+          position={[
+            slot.position[0] * positionFactor,
+            slot.position[1] * positionFactor,
+            slot.position[2] * positionFactor,
+          ]}
+        >
           <mesh>
             <boxGeometry args={[0.96, 0.96, 0.96]} />
             <meshStandardMaterial color={PLASTIC} roughness={0.65} metalness={0.1} />

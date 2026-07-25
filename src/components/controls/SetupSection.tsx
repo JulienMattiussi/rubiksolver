@@ -1,20 +1,27 @@
 import { Pencil, RotateCcw, Shuffle, Square } from 'lucide-react'
 import { isSolved } from '@/lib/cube'
+import type { CubeSize } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { Button } from '@/components/ui/Button'
+import { Select } from '@/components/ui/Select'
 import { MovePad } from './MovePad'
 import { SpeedSlider } from './SpeedSlider'
 import { StatusBadge } from './StatusBadge'
 
-/** "Initialisation" block: status, scramble/reset/edit actions, speed, move pad. */
+const SIZES: readonly CubeSize[] = [2, 3]
+
+/** Setup block: cube choice + status on one line, scramble/reset/edit actions,
+ *  speed, move pad. */
 export function SetupSection() {
   const t = useI18n((s) => s.t)
   const cube = useCube((s) => s.cube)
   const active = useCube((s) => s.active)
   const queue = useCube((s) => s.queue)
   const scramble = useCube((s) => s.scramble)
+  const size = useCube((s) => s.size)
+  const setSize = useCube((s) => s.setSize)
   const reset = useCube((s) => s.reset)
   const stop = useCube((s) => s.stop)
   const enterEdit = useEditor((s) => s.enter)
@@ -28,12 +35,20 @@ export function SetupSection() {
       aria-label={t.sectionSetup}
       className="flex flex-col gap-3 rounded-xl border border-slate-700/60 bg-slate-950/30 p-4"
     >
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          {t.sectionSetup}
-        </h2>
-        <StatusBadge />
-      </div>
+      <Select
+        id="cube-size"
+        label={t.sizeLabel}
+        value={String(size)}
+        disabled={busy}
+        onChange={(value) => setSize(Number(value) as CubeSize)}
+        trailing={<StatusBadge />}
+      >
+        {SIZES.map((s) => (
+          <option key={s} value={s}>
+            {s}x{s}
+          </option>
+        ))}
+      </Select>
 
       <div className="grid grid-cols-2 gap-2">
         <Button onClick={scramble} disabled={busy}>

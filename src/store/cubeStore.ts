@@ -1,14 +1,19 @@
 import { create } from 'zustand'
 import { applyMove, solvedCube } from '@/lib/cube'
 import { scramble as makeScramble } from '@/lib/moves'
-import { SOLVE_METHODS, type MethodId, type SolveStep } from '@/lib/solver'
-import type { Cube, Move } from '@/lib/types'
+import { methodsFor, type MethodId, type SolveStep } from '@/lib/solver'
+import type { Cube, CubeSize, Move } from '@/lib/types'
 
 /** What the currently playing queue represents (drives status + UI labels). */
 type Mode = 'idle' | 'scrambling' | 'solving'
 
+/** Scramble length per size: enough to reach any state, without dragging on. */
+const SCRAMBLE_LENGTH: Record<CubeSize, number> = { 2: 11, 3: 20 }
+
 interface CubeStore {
   cube: Cube
+  /** Selected cube size; `cube` always matches it. */
+  size: CubeSize
   /** Moves waiting to be animated, in order. */
   queue: Move[]
   /** Move currently being animated, or null when idle. */
@@ -29,6 +34,8 @@ interface CubeStore {
 
   pushMove: (move: Move) => void
   scramble: () => void
+  /** Switch cube size: resets to a solved cube of that size. */
+  setSize: (size: CubeSize) => void
   setMethod: (method: MethodId) => void
   /** Compute the solution steps for the current cube (does not animate). */
   prepareSolution: () => SolveStep[]
@@ -53,6 +60,7 @@ function clearSolution() {
 
 export const useCube = create<CubeStore>((set, get) => ({
   cube: solvedCube(),
+  size: 3,
   queue: [],
   active: null,
   mode: 'idle',
@@ -66,12 +74,34 @@ export const useCube = create<CubeStore>((set, get) => ({
   pushMove: (move) => set((s) => ({ queue: [...s.queue, move], mode: 'idle', ...clearSolution() })),
 
   scramble: () =>
-    set({ queue: makeScramble(20), mode: 'scrambling', active: null, ...clearSolution() }),
+    set((s) => ({
+      queue: makeScramble(SCRAMBLE_LENGTH[s.size]),
+      mode: 'scrambling',
+      active: null,
+      ...clearSolution(),
+    })),
+
+  setSize: (size) =>
+    set((s) => {
+      if (size === s.size) return s
+      const methods = methodsFor(size)
+      const method = methods.some((m) => m.id === s.method) ? s.method : methods[0]!.id
+      return {
+        size,
+        method,
+        cube: solvedCube(size),
+        queue: [],
+        active: null,
+        mode: 'idle',
+        ...clearSolution(),
+      }
+    }),
 
   setMethod: (method) => set({ method, ...clearSolution() }),
 
   prepareSolution: () => {
-    const method = SOLVE_METHODS.find((m) => m.id === get().method) ?? SOLVE_METHODS[0]!
+    const methods = methodsFor(get().size)
+    const method = methods.find((m) => m.id === get().method) ?? methods[0]!
     const steps = method.solve(get().cube)
     set({ steps, stepIndex: 0, mode: 'solving', queue: [], active: null })
     return steps
@@ -91,7 +121,13 @@ export const useCube = create<CubeStore>((set, get) => ({
   },
 
   reset: () =>
-    set({ cube: solvedCube(), queue: [], active: null, mode: 'idle', ...clearSolution() }),
+    set((s) => ({
+      cube: solvedCube(s.size),
+      queue: [],
+      active: null,
+      mode: 'idle',
+      ...clearSolution(),
+    })),
 
   loadCube: (cube) => set({ cube, queue: [], active: null, mode: 'idle', ...clearSolution() }),
 

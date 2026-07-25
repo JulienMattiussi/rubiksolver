@@ -1,8 +1,9 @@
-import type { Axis, Color, Cube, Cubie, Face, Move, Sticker, Vec3 } from './types'
+import type { Axis, Color, Cube, CubeSize, Cubie, Face, Move, Sticker, Vec3 } from './types'
 
 /**
- * Cube model as 27 cubies at integer positions in {-1,0,1}^3.
- * Axes: x = right, y = up, z = towards the viewer (front).
+ * Cube model as cubies at integer positions in {-1,0,1}^3 (a 2x2 simply skips
+ * coordinate 0, so its 8 corners live in {-1,1}^3 and every face layer still
+ * sits at +1 or -1). Axes: x = right, y = up, z = towards the viewer (front).
  *
  * A move rotates a layer of cubies by an exact 90 degree integer rotation, so
  * positions and normals stay in {-1,0,1}: no floating point drift ever enters
@@ -42,11 +43,12 @@ function faceOfNormal(n: Vec3): Face | undefined {
 }
 
 /** Build a solved cube: every exterior cubie face carries its solved color. */
-export function solvedCube(): Cube {
+export function solvedCube(size: CubeSize = 3): Cube {
+  const coords = size === 2 ? [-1, 1] : [-1, 0, 1]
   const cubies: Cubie[] = []
-  for (let x = -1; x <= 1; x++) {
-    for (let y = -1; y <= 1; y++) {
-      for (let z = -1; z <= 1; z++) {
+  for (const x of coords) {
+    for (const y of coords) {
+      for (const z of coords) {
         const position: Vec3 = [x, y, z]
         const stickers: Sticker[] = []
         for (const face of FACES) {
@@ -62,6 +64,11 @@ export function solvedCube(): Cube {
     }
   }
   return cubies
+}
+
+/** Size of a cube from its cubie count (8 -> 2x2, 27 -> 3x3). */
+export function cubeSize(cube: Cube): CubeSize {
+  return cube.length === 8 ? 2 : 3
 }
 
 /** Rotate an integer vector by +90 degrees (right-hand rule) about `axis`. */
@@ -155,9 +162,9 @@ export function applyMoves(cube: Cube, moves: readonly Move[]): Cube {
 /**
  * Reorient the whole cube (every cubie, including centers) by `quarterTurns`
  * about `axis`. Unlike a face turn this is a change of viewpoint, not a move;
- * used to enumerate the 24 orientations for the cube editor.
+ * used to enumerate the 24 orientations (see cubeOrientations).
  */
-export function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
+function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
   return cube.map((cubie) => ({
     position: rotateN(cubie.position, axis, quarterTurns),
     stickers: cubie.stickers.map((s) => ({
@@ -168,16 +175,55 @@ export function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
 }
 
 /**
- * A cube is solved when every sticker's color matches the solved color of the
- * face its normal currently points to (centers are fixed, so FACE_COLOR is the
- * fixed reference).
+ * A cube is solved when each face shows a single uniform color. On a 3x3 the
+ * fixed centers make this equivalent to matching FACE_COLOR; on a 2x2 there is
+ * no fixed reference, so a solved-but-reoriented cube must count as solved.
  */
 export function isSolved(cube: Cube): boolean {
+  const faceColor = new Map<Face, Color>()
   for (const cubie of cube) {
     for (const s of cubie.stickers) {
       const face = faceOfNormal(s.normal)
-      if (!face || FACE_COLOR[face] !== s.color) return false
+      if (!face) return false
+      const seen = faceColor.get(face)
+      if (seen === undefined) faceColor.set(face, s.color)
+      else if (seen !== s.color) return false
     }
   }
   return true
+}
+
+function orientationKey(cube: Cube): string {
+  return cube
+    .map(
+      (c) =>
+        c.position.join(',') + ':' + c.stickers.map((s) => s.normal.join(',') + s.color).join(';'),
+    )
+    .sort()
+    .join('|')
+}
+
+/**
+ * The 24 whole-cube rotations of `cube`, found by closure under x/y turns.
+ * Used by the editor (valid piece placements) and the 2x2 solver (a 2x2 has no
+ * centers, so "solved" is any of the 24 orientations of the solved cube).
+ */
+export function cubeOrientations(cube: Cube): Cube[] {
+  const found = new Map<string, Cube>([[orientationKey(cube), cube]])
+  let frontier = [cube]
+  while (frontier.length) {
+    const next: Cube[] = []
+    for (const state of frontier) {
+      for (const axis of ['x', 'y'] as Axis[]) {
+        const rotated = rotateCube(state, axis, 1)
+        const key = orientationKey(rotated)
+        if (!found.has(key)) {
+          found.set(key, rotated)
+          next.push(rotated)
+        }
+      }
+    }
+    frontier = next
+  }
+  return [...found.values()]
 }

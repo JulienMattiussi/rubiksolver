@@ -3,7 +3,6 @@
 
 const fr = {
   title: 'Rubik Solver',
-  subtitle: 'Manipulez le cube, mélangez, puis laissez le solveur le résoudre.',
   moves: 'Rotations',
   scramble: 'Mélanger',
   solve: 'Résoudre',
@@ -11,14 +10,10 @@ const fr = {
   stop: 'Arrêter',
   speed: 'Vitesse',
   statusSolved: 'Cube résolu',
-  statusScrambled: 'Cube mélangé',
   statusReady: 'Prêt',
   statusPlaying: 'Animation en cours',
   statusSolving: 'Résolution',
-  solutionLabel: 'Solution',
   solutionCount: (n: number) => `${n} rotation${n > 1 ? 's' : ''}`,
-  emptySolution: 'Aucune solution nécessaire',
-  rotateHint: 'Glissez pour tourner la vue, molette pour zoomer.',
   language: 'Langue',
   notation: 'Notation',
   recenter: 'Recentrer la vue',
@@ -41,15 +36,15 @@ const fr = {
   editHint:
     'Choisissez une couleur puis cliquez les stickers. Tournez la vue pour atteindre les autres faces. Les pièces se complètent toutes seules et aucune combinaison impossible n’est acceptée.',
   palette: 'Couleurs',
-  filledOf: (n: number) => `${n} / 54 stickers`,
+  filledOf: (n: number, total: number) => `${n} / ${total} stickers`,
   clearAll: 'Tout effacer',
   fromCurrent: 'Depuis l’état actuel',
   applyCube: 'Utiliser ce cube',
   cancel: 'Annuler',
-  incomplete: 'Complétez les 54 stickers.',
   errorCounts: 'Répartition des couleurs incohérente.',
   errorImpossible: 'Cube impossible : vérifiez l’orientation des pièces.',
   colors: { W: 'Blanc', Y: 'Jaune', G: 'Vert', B: 'Bleu', O: 'Orange', R: 'Rouge' },
+  sizeLabel: 'Choix du cube',
   sectionSetup: 'Initialisation',
   sectionSolve: 'Résolution',
   collapse: 'Replier le menu',
@@ -58,11 +53,15 @@ const fr = {
   methods: {
     beginner: {
       name: 'Par couches',
-      desc: '1re couche entière (arêtes et coins), puis couche du milieu, puis dernière couche.',
+      desc: 'Étage par étage : 1re couche entière, couche du milieu (sur 3x3), puis dernière couche.',
     },
     cfop: {
       name: 'Fridrich (CFOP)',
       desc: 'Croix, puis paires F2L, puis orientation (OLL), puis permutation (PLL) de la dernière couche.',
+    },
+    optimal: {
+      name: 'Optimale',
+      desc: 'Recherche exhaustive de la solution la plus courte possible (11 rotations maximum).',
     },
   },
   stepsLabel: 'Étapes',
@@ -80,6 +79,7 @@ const fr = {
     stepF2L: 'F2L (deux premières couches)',
     stepOLL: 'OLL (orienter la dernière face)',
     stepPLL: 'PLL (permuter la dernière couche)',
+    stepOptimal: 'Solution optimale',
   },
 }
 
@@ -87,7 +87,6 @@ export type Translations = typeof fr
 
 const en: Translations = {
   title: 'Rubik Solver',
-  subtitle: 'Turn the cube, scramble it, then let the solver work it out.',
   moves: 'Turns',
   scramble: 'Scramble',
   solve: 'Solve',
@@ -95,14 +94,10 @@ const en: Translations = {
   stop: 'Stop',
   speed: 'Speed',
   statusSolved: 'Solved',
-  statusScrambled: 'Scrambled',
   statusReady: 'Ready',
   statusPlaying: 'Animating',
   statusSolving: 'Solving',
-  solutionLabel: 'Solution',
   solutionCount: (n: number) => `${n} turn${n > 1 ? 's' : ''}`,
-  emptySolution: 'No solution needed',
-  rotateHint: 'Drag to orbit, scroll to zoom.',
   language: 'Language',
   notation: 'Notation',
   recenter: 'Recenter view',
@@ -125,15 +120,15 @@ const en: Translations = {
   editHint:
     'Pick a color, then click stickers. Orbit the view to reach the other faces. Pieces auto-complete and no impossible combination is accepted.',
   palette: 'Colors',
-  filledOf: (n: number) => `${n} / 54 stickers`,
+  filledOf: (n: number, total: number) => `${n} / ${total} stickers`,
   clearAll: 'Clear all',
   fromCurrent: 'From current state',
   applyCube: 'Use this cube',
   cancel: 'Cancel',
-  incomplete: 'Fill in all 54 stickers.',
   errorCounts: 'Inconsistent color counts.',
   errorImpossible: 'Impossible cube: check the piece orientations.',
   colors: { W: 'White', Y: 'Yellow', G: 'Green', B: 'Blue', O: 'Orange', R: 'Red' },
+  sizeLabel: 'Cube choice',
   sectionSetup: 'Setup',
   sectionSolve: 'Solve',
   collapse: 'Collapse menu',
@@ -142,11 +137,15 @@ const en: Translations = {
   methods: {
     beginner: {
       name: 'Layer by layer',
-      desc: 'Whole first layer (edges and corners), then the middle layer, then the last layer.',
+      desc: 'Floor by floor: whole first layer, middle layer (on 3x3), then the last layer.',
     },
     cfop: {
       name: 'Fridrich (CFOP)',
       desc: 'Cross, then F2L pairs, then orient (OLL) and permute (PLL) the last layer.',
+    },
+    optimal: {
+      name: 'Optimal',
+      desc: 'Exhaustive search for the shortest possible solution (at most 11 turns).',
     },
   },
   stepsLabel: 'Steps',
@@ -164,6 +163,7 @@ const en: Translations = {
     stepF2L: 'F2L (first two layers)',
     stepOLL: 'OLL (orient last face)',
     stepPLL: 'PLL (permute last layer)',
+    stepOptimal: 'Optimal solution',
   },
 }
 

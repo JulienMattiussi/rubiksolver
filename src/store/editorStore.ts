@@ -31,10 +31,10 @@ interface EditorStore {
 export const useEditor = create<EditorStore>((set, get) => ({
   mode: 'play',
   selectedColor: 'W',
-  edit: emptyEdit(),
+  edit: emptyEdit(3),
   error: null,
 
-  enter: () => set({ mode: 'edit', edit: emptyEdit(), error: null }),
+  enter: () => set({ mode: 'edit', edit: emptyEdit(useCube.getState().size), error: null }),
 
   enterFromCurrent: () =>
     set({ mode: 'edit', edit: cubeToEdit(useCube.getState().cube), error: null }),
@@ -46,12 +46,13 @@ export const useEditor = create<EditorStore>((set, get) => ({
   paintAt: (slotKey, ni) =>
     set((s) => ({ edit: paint(s.edit, slotKey, ni, s.selectedColor), error: null })),
 
-  clearAll: () => set({ edit: emptyEdit(), error: null }),
+  clearAll: () => set({ edit: emptyEdit(useCube.getState().size), error: null }),
 
   apply: () => {
     const { edit } = get()
-    if (!isComplete(edit)) return false
-    const cube = buildCube(edit)
+    const size = useCube.getState().size
+    if (!isComplete(edit, size)) return false
+    const cube = buildCube(edit, size)
     const result = validateCube(cube)
     if (!result.ok) {
       set({ error: result.error })

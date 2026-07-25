@@ -1,6 +1,7 @@
-import { colorCounts } from '@/lib/editor'
+import { colorCounts, stickersTotal } from '@/lib/editor'
 import type { Color } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
+import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { COLOR_HEX } from '@/three/colors'
 
@@ -9,10 +10,12 @@ const PALETTE: readonly Color[] = ['W', 'Y', 'G', 'B', 'O', 'R']
 /** Color swatches with the remaining count per color; picks the paint color. */
 export function ColorPalette() {
   const t = useI18n((s) => s.t)
+  const size = useCube((s) => s.size)
   const edit = useEditor((s) => s.edit)
   const selected = useEditor((s) => s.selectedColor)
   const setColor = useEditor((s) => s.setColor)
   const counts = colorCounts(edit)
+  const perColor = stickersTotal(size) / 6
 
   return (
     <div>
@@ -21,7 +24,7 @@ export function ColorPalette() {
       </h2>
       <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t.palette}>
         {PALETTE.map((c) => {
-          const remaining = 9 - counts[c]
+          const remaining = perColor - counts[c]
           return (
             <button
               key={c}

@@ -8,7 +8,12 @@ import { seededRng } from '../helpers'
 
 /** Rebuild a cube from solved with some stickers recolored. */
 function withStickers(overrides: Record<string, Color>) {
-  return buildCube({ ...cubeToEdit(solvedCube()), ...overrides })
+  return buildCube({ ...cubeToEdit(solvedCube()), ...overrides }, 3)
+}
+
+/** Same for a 2x2. */
+function withStickers2(overrides: Record<string, Color>) {
+  return buildCube({ ...cubeToEdit(solvedCube(2)), ...overrides }, 2)
 }
 
 describe('validateCube', () => {
@@ -51,5 +56,28 @@ describe('validateCube', () => {
       ok: false,
       error: 'impossible',
     })
+  }, 30000)
+})
+
+describe('validateCube (2x2)', () => {
+  it('accepts the solved cube and random scrambles', () => {
+    expect(validateCube(solvedCube(2))).toEqual({ ok: true })
+    const rng = seededRng(31)
+    for (let i = 0; i < 5; i++) {
+      const cube = applyMoves(solvedCube(2), scramble(11, rng))
+      expect(validateCube(cube)).toEqual({ ok: true })
+    }
+  }, 60000)
+
+  it('rejects wrong color counts', () => {
+    // Recolor one green sticker to red: red = 5, green = 3.
+    expect(validateCube(withStickers2({ '1,1,1:4': 'R' }))).toEqual({ ok: false, error: 'counts' })
+  })
+
+  it('rejects a single twisted corner', () => {
+    // Corner (1,1,1): +x=R, +y=W, +z=G. Cycle the colors around the piece.
+    expect(validateCube(withStickers2({ '1,1,1:0': 'G', '1,1,1:2': 'R', '1,1,1:4': 'W' }))).toEqual(
+      { ok: false, error: 'impossible' },
+    )
   }, 30000)
 })

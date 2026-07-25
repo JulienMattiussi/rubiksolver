@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { applyMove, applyMoves, isSolved, solvedCube } from '@/lib/cube'
+import { applyMove, applyMoves, cubeOrientations, cubeSize, isSolved, solvedCube } from '@/lib/cube'
 import { ALL_MOVES, invertMoves, parseMoves, scramble } from '@/lib/moves'
 import { seededRng } from '../helpers'
 
@@ -52,5 +52,41 @@ describe('cube engine', () => {
     const scrambled = applyMoves(solvedCube(), moves)
     expect(isSolved(scrambled)).toBe(false)
     expect(isSolved(applyMoves(scrambled, invertMoves(moves)))).toBe(true)
+  })
+
+  it('has exactly 24 orientations', () => {
+    expect(cubeOrientations(solvedCube())).toHaveLength(24)
+    expect(cubeOrientations(solvedCube(2))).toHaveLength(24)
+  })
+})
+
+describe('2x2 cube engine', () => {
+  it('has 8 corner cubies in {-1,1}^3', () => {
+    const cube = solvedCube(2)
+    expect(cube).toHaveLength(8)
+    expect(cubeSize(cube)).toBe(2)
+    expect(cubeSize(solvedCube())).toBe(3)
+    expect(cube.every((c) => c.stickers.length === 3)).toBe(true)
+    expect(cube.every((c) => c.position.every((v) => v === 1 || v === -1))).toBe(true)
+  })
+
+  it('starts solved and a single turn unsolves it', () => {
+    expect(isSolved(solvedCube(2))).toBe(true)
+    for (const move of ALL_MOVES) {
+      expect(isSolved(applyMove(solvedCube(2), move))).toBe(false)
+    }
+  })
+
+  it('a move followed by its inverse is a no-op', () => {
+    for (const move of ALL_MOVES) {
+      const cube = applyMoves(solvedCube(2), [move, ...invertMoves([move])])
+      expect(isSolved(cube)).toBe(true)
+    }
+  })
+
+  it("treats a reoriented solved cube as solved (R L' spins the whole 2x2)", () => {
+    // On a 2x2, R and L' rotate the two layers the same way: the cube ends
+    // solved but reoriented, which the uniform-faces rule must accept.
+    expect(isSolved(applyMoves(solvedCube(2), parseMoves("R L'")))).toBe(true)
   })
 })
