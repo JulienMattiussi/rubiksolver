@@ -4,11 +4,11 @@ import { buildCube, cubeToEdit } from '@/lib/editor'
 import { scramble } from '@/lib/moves'
 import { solve } from '@/lib/solver'
 import { validateCube } from '@/lib/validate'
-import type { Color, CubeSize } from '@/lib/types'
+import type { Color, CubeShape } from '@/lib/types'
 import { seededRng, twistedCorner, twistedCorner2 } from '../helpers'
 
 /** Rebuild a cube from solved with some stickers recolored. */
-function withStickersOn(size: CubeSize, overrides: Record<string, Color>) {
+function withStickersOn(size: CubeShape, overrides: Record<string, Color>) {
   return buildCube({ ...cubeToEdit(solvedCube(size)), ...overrides }, size)
 }
 
@@ -24,7 +24,7 @@ describe('validateCube', () => {
   it('accepts random scrambles', () => {
     const rng = seededRng(77)
     for (let i = 0; i < 5; i++) {
-      const cube = applyMoves(solvedCube(), scramble(3, 20, rng))
+      const cube = applyMoves(solvedCube(), scramble('3', 20, rng))
       expect(validateCube(cube)).toEqual({ ok: true })
     }
   }, 60000)
@@ -61,10 +61,10 @@ describe('validateCube', () => {
 
 describe('validateCube (2x2)', () => {
   it('accepts the solved cube and random scrambles', () => {
-    expect(validateCube(solvedCube(2))).toEqual({ ok: true })
+    expect(validateCube(solvedCube('2'))).toEqual({ ok: true })
     const rng = seededRng(31)
     for (let i = 0; i < 5; i++) {
-      const cube = applyMoves(solvedCube(2), scramble(2, 11, rng))
+      const cube = applyMoves(solvedCube('2'), scramble('2', 11, rng))
       expect(validateCube(cube)).toEqual({ ok: true })
     }
   }, 60000)
@@ -81,10 +81,10 @@ describe('validateCube (2x2)', () => {
 
 describe('validateCube (4x4)', () => {
   it('accepts the solved cube and sliced scrambles', () => {
-    expect(validateCube(solvedCube(4))).toEqual({ ok: true })
+    expect(validateCube(solvedCube('4'))).toEqual({ ok: true })
     const rng = seededRng(41)
     for (let i = 0; i < 5; i++) {
-      const cube = applyMoves(solvedCube(4), scramble(4, 40, rng))
+      const cube = applyMoves(solvedCube('4'), scramble('4', 40, rng))
       expect(validateCube(cube)).toEqual({ ok: true })
     }
   }, 60000)
@@ -92,7 +92,7 @@ describe('validateCube (4x4)', () => {
   it('accepts a lone inner slice turn (a legal parity-looking state)', () => {
     // One inner quarter turn is legal on a real 4x4 even though its projection
     // would be an impossible 3x3: validation must not reject it.
-    const cube = applyMove(solvedCube(4), { face: 'R', amount: 1, depth: 2 })
+    const cube = applyMove(solvedCube('4'), { face: 'R', amount: 1, depth: 2 })
     expect(validateCube(cube)).toEqual({ ok: true })
   })
 
@@ -102,7 +102,7 @@ describe('validateCube (4x4)', () => {
   })
 
   it('rejects a single twisted corner', () => {
-    expect(validateCube(twistedCorner(4))).toEqual({ ok: false, error: 'impossible' })
+    expect(validateCube(twistedCorner('4'))).toEqual({ ok: false, error: 'impossible' })
   }, 30000)
 
   it('rejects a flipped wing (its chiral twin would be used twice)', () => {
@@ -126,7 +126,7 @@ describe('validateCube (4x4)', () => {
   it('agrees with the solver on random scrambles (cross-check)', () => {
     const rng = seededRng(59)
     for (let i = 0; i < 2; i++) {
-      const cube = applyMoves(solvedCube(4), scramble(4, 40, rng))
+      const cube = applyMoves(solvedCube('4'), scramble('4', 40, rng))
       expect(validateCube(cube)).toEqual({ ok: true })
       expect(isSolved(applyMoves(cube, solve(cube)))).toBe(true)
     }

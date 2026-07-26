@@ -49,8 +49,8 @@ describe('moves notation', () => {
   })
 
   it('scrambles deterministically with a seed and never repeats a face', () => {
-    const a = scramble(3, 20, seededRng(42))
-    const b = scramble(3, 20, seededRng(42))
+    const a = scramble('3', 20, seededRng(42))
+    const b = scramble('3', 20, seededRng(42))
     expect(a).toEqual(b)
     expect(a).toHaveLength(20)
     for (let i = 1; i < a.length; i++) expect(a[i]!.face).not.toBe(a[i - 1]!.face)
@@ -70,7 +70,7 @@ describe('layered moves notation (4x4)', () => {
 
   it('round-trips all 54 moves through parse/format in both notations', () => {
     for (const labels of [NOTATION_US, NOTATION_FR]) {
-      for (const move of movesFor(4)) {
+      for (const move of movesFor('4')) {
         expect(parseMove(formatMove(move, labels), labels)).toEqual(move)
       }
     }
@@ -104,18 +104,18 @@ describe('layered moves notation (4x4)', () => {
   })
 
   it('lists 18 moves up to the 3x3 and 54 on the 4x4', () => {
-    expect(movesFor(2)).toHaveLength(18)
-    expect(movesFor(3)).toHaveLength(18)
-    expect(movesFor(4)).toHaveLength(54)
+    expect(movesFor('2')).toHaveLength(18)
+    expect(movesFor('3')).toHaveLength(18)
+    expect(movesFor('4')).toHaveLength(54)
   })
 
   it('4x4 scrambles mix outer, slice and wide moves; smaller sizes stay outer', () => {
-    const moves = scramble(4, 40, seededRng(7))
+    const moves = scramble('4', 40, seededRng(7))
     expect(moves).toHaveLength(40)
     expect(moves.some((m) => m.depth && !m.wide)).toBe(true)
     expect(moves.some((m) => m.wide)).toBe(true)
     expect(moves.some((m) => !m.depth)).toBe(true)
     for (let i = 1; i < moves.length; i++) expect(moves[i]!.face).not.toBe(moves[i - 1]!.face)
-    expect(scramble(3, 30, seededRng(7)).every((m) => !m.depth && !m.wide)).toBe(true)
+    expect(scramble('3', 30, seededRng(7)).every((m) => !m.depth && !m.wide)).toBe(true)
   })
 })

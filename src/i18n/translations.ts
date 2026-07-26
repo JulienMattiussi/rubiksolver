@@ -38,6 +38,7 @@ const fr = {
           : `la ${faceName}`
     return `Tourner ${target} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`
   },
+  moveTitleHalf: (faceName: string) => `Retourner la ${faceName} (demi-tour)`,
   layerLabel: 'Couche tournée',
   layerKinds: { outer: 'Externe', slice: 'Tranche', wide: 'Large' },
   editCube: 'Saisir un cube',
@@ -59,7 +60,7 @@ const fr = {
   errorImpossible: 'Cube impossible : vérifiez l’orientation des pièces.',
   colors: { W: 'Blanc', Y: 'Jaune', G: 'Vert', B: 'Bleu', O: 'Orange', R: 'Rouge' },
   sizeLabel: 'Choix du cube',
-  cubeKind: (size: number, mirror: boolean) => `${size}x${size}${mirror ? ' miroir' : ''}`,
+  cubeKind: (label: string, mirror: boolean) => `${label}${mirror ? ' miroir' : ''}`,
   sectionSetup: 'Initialisation',
   sectionSolve: 'Résolution',
   collapse: 'Replier le menu',
@@ -84,7 +85,7 @@ const fr = {
     },
     optimal: {
       name: 'Optimale',
-      desc: 'Recherche exhaustive de la solution la plus courte possible (11 rotations maximum, 2x2 uniquement).',
+      desc: 'Recherche exhaustive de la solution la plus courte possible (2x2 et 1x2x3, dont les espaces d’états sont assez petits).',
     },
   },
   stepsLabel: 'Étapes',
@@ -148,6 +149,7 @@ const en: Translations = {
           : `the ${faceName}`
     return `Turn ${target} ${clockwise ? 'clockwise' : 'counter-clockwise'}`
   },
+  moveTitleHalf: (faceName: string) => `Turn the ${faceName} a half turn`,
   layerLabel: 'Turned layer',
   layerKinds: { outer: 'Outer', slice: 'Slice', wide: 'Wide' },
   editCube: 'Enter a cube',
@@ -169,7 +171,7 @@ const en: Translations = {
   errorImpossible: 'Impossible cube: check the piece orientations.',
   colors: { W: 'White', Y: 'Yellow', G: 'Green', B: 'Blue', O: 'Orange', R: 'Red' },
   sizeLabel: 'Cube choice',
-  cubeKind: (size: number, mirror: boolean) => `${size}x${size}${mirror ? ' mirror' : ''}`,
+  cubeKind: (label: string, mirror: boolean) => `${label}${mirror ? ' mirror' : ''}`,
   sectionSetup: 'Setup',
   sectionSolve: 'Solve',
   collapse: 'Collapse menu',
@@ -194,7 +196,7 @@ const en: Translations = {
     },
     optimal: {
       name: 'Optimal',
-      desc: 'Exhaustive search for the shortest possible solution (at most 11 turns, 2x2 only).',
+      desc: 'Exhaustive search for the shortest possible solution (2x2 and 1x2x3, whose state spaces are small enough).',
     },
   },
   stepsLabel: 'Steps',

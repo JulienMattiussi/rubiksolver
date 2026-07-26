@@ -1,5 +1,5 @@
 import type { Color, Cube, Vec3 } from './types'
-import { cubeSize, stickersPerColor } from './cube'
+import { cubeShape, stickersOfColor } from './cube'
 import { usesRealPieces } from './editor'
 import { solve, solveOptimal2 } from './solver'
 
@@ -19,10 +19,11 @@ function cornersAsTwoByTwo(cube: Cube): Cube {
 /**
  * Check that a cube is a legal, solvable configuration.
  *
- * 1. `counts`: each of the six colors must appear exactly stickers/6 times
- *    (nine on a 3x3, four on a 2x2, sixteen on a 4x4).
+ * 1. `counts`: each color must appear exactly once per facelet of its own face
+ *    (nine on a 3x3, four on a 2x2, sixteen on a 4x4; a cuboid's faces differ,
+ *    so its six counts do too).
  * 2. `impossible`: the arrangement must be reachable by real turns.
- *    - 2x2/3x3: we ask the solver for a solution; on an unsolvable cube (bad
+ *    - 2x2/3x3/1x2x3: we ask the solver for a solution; on an unsolvable cube (bad
  *      permutation or orientation parity, duplicated/missing piece) it
  *      exhausts its bounded search and throws, which we catch.
  *    - 4x4: solvability has an exact piece-level characterization (its
@@ -34,14 +35,16 @@ function cornersAsTwoByTwo(cube: Cube): Cube {
  *      checks stay fast, unlike a full reduction solve on a bad cube.
  */
 export function validateCube(cube: Cube): ValidationResult {
-  const size = cubeSize(cube)
-  const perColor = stickersPerColor(size)
+  const shape = cubeShape(cube)
   const counts: Record<Color, number> = { W: 0, Y: 0, G: 0, B: 0, O: 0, R: 0 }
   for (const cubie of cube) for (const s of cubie.stickers) counts[s.color]++
-  if (Object.values(counts).some((n) => n !== perColor)) return { ok: false, error: 'counts' }
+  const wrongCount = (Object.keys(counts) as Color[]).some(
+    (color) => counts[color] !== stickersOfColor(shape, color),
+  )
+  if (wrongCount) return { ok: false, error: 'counts' }
 
   try {
-    if (size === 4) {
+    if (shape === '4') {
       if (!usesRealPieces(cube)) return { ok: false, error: 'impossible' }
       solveOptimal2(cornersAsTwoByTwo(cube))
     } else {

@@ -1,11 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import { applyMove, FACE_COLOR, moveGeometry, OPPOSITE_COLOR, solvedCube } from '@/lib/cube'
+import {
+  applyMove,
+  FACE_COLOR,
+  layerCoords,
+  moveGeometry,
+  OPPOSITE_COLOR,
+  solvedCube,
+} from '@/lib/cube'
 import { scramble } from '@/lib/moves'
 import { byThickness, centeringOffset, cubieShape, LAYER_THICKNESS, UNIT_SHAPE } from '@/lib/shape'
-import type { Axis, Color, CubeSize, CubeVariant } from '@/lib/types'
+import { SHAPE_DIMS } from '@/lib/types'
+import type { Axis, Color, CubeShape, CubeVariant } from '@/lib/types'
 import { seededRng } from '../helpers'
 
-const SIZES: readonly CubeSize[] = [2, 3, 4]
+/** The mirror variant only applies where every axis has layers to thicken. */
+const SHAPES: readonly CubeShape[] = ['2', '3', '4']
 const VARIANTS: readonly CubeVariant[] = ['classic', 'mirror']
 
 /** Same convention as the engine's own rotate90: +90 degrees, right-hand rule. */
@@ -23,7 +32,9 @@ function rotateN(v: readonly [number, number, number], axis: Axis, times: number
 }
 
 /** Visual cell center of a logical coordinate (see three/layout.ts). */
-const cellFactor = (size: CubeSize) => (size === 3 ? 1 : 0.5)
+function cellCenter(coord: number, n: number): number {
+  return layerCoords(n).indexOf(coord) - (n - 1) / 2
+}
 
 describe('layer thickness tables', () => {
   it.each(VARIANTS)('%s: opposite colors sum to 2, so a solved cube is a cube', (variant) => {
@@ -34,7 +45,7 @@ describe('layer thickness tables', () => {
   })
 
   it('gives the plain cubie back on the classic variant', () => {
-    for (const cubie of solvedCube(3)) {
+    for (const cubie of solvedCube('3')) {
       expect(cubieShape(cubie.stickers, LAYER_THICKNESS.classic)).toEqual(UNIT_SHAPE)
     }
   })
@@ -49,7 +60,7 @@ describe('layer thickness tables', () => {
   it('grows a mirror cubie outward from its inner face', () => {
     // The URF corner of a solved cube wears the R, U and F layers; whatever
     // their thickness, each box starts at the cell's inner face (-0.5).
-    const corner = solvedCube(3).find((c) => c.position.every((p) => p === 1))!
+    const corner = solvedCube('3').find((c) => c.position.every((p) => p === 1))!
     const { size, center } = cubieShape(corner.stickers, LAYER_THICKNESS.mirror)
     const expected = (['R', 'U', 'F'] as const).map((f) => LAYER_THICKNESS.mirror[FACE_COLOR[f]])
     for (const a of [0, 1, 2] as const) {
@@ -60,15 +71,15 @@ describe('layer thickness tables', () => {
 })
 
 describe('mirror geometry', () => {
-  it.each(SIZES)('%ix%i: a solved cube tiles a perfect cube, gapless', (size) => {
-    const factor = cellFactor(size)
+  it.each(SHAPES)('%s: a solved cube tiles a perfect cube, gapless', (shape) => {
+    const n = SHAPE_DIMS[shape][0]
     const [ox] = centeringOffset(LAYER_THICKNESS.mirror)
     // Group the x-intervals by layer: a layer must be one solid slab, and the
-    // slabs must tile [-size/2, size/2] end to end once recentered.
+    // slabs must tile [-n/2, n/2] end to end once recentered.
     const layers = new Map<number, [number, number]>()
-    for (const cubie of solvedCube(size)) {
+    for (const cubie of solvedCube(shape)) {
       const { size: box, center } = cubieShape(cubie.stickers, LAYER_THICKNESS.mirror)
-      const mid = cubie.position[0] * factor + center[0] + ox
+      const mid = cellCenter(cubie.position[0], n) + center[0] + ox
       const span: [number, number] = [mid - box[0] / 2, mid + box[0] / 2]
       const seen = layers.get(cubie.position[0])
       if (seen) {
@@ -78,20 +89,20 @@ describe('mirror geometry', () => {
     }
 
     const spans = [...layers.entries()].sort(([a], [b]) => a - b).map(([, span]) => span)
-    expect(spans).toHaveLength(size)
-    expect(spans[0]![0]).toBeCloseTo(-size / 2)
-    expect(spans.at(-1)![1]).toBeCloseTo(size / 2)
+    expect(spans).toHaveLength(n)
+    expect(spans[0]![0]).toBeCloseTo(-n / 2)
+    expect(spans.at(-1)![1]).toBeCloseTo(n / 2)
     for (let i = 1; i < spans.length; i++) expect(spans[i]![0]).toBeCloseTo(spans[i - 1]![1])
   })
 
-  it.each(SIZES)('%ix%i: a turn moves the boxes rigidly', (size) => {
+  it.each(SHAPES)('%s: a turn moves the boxes rigidly', (shape) => {
     // The renderer recomputes every box from the stickers after a move; that
     // must give exactly the boxes it just animated, rotated. Otherwise pieces
     // would jump at the end of each turn.
-    let cube = solvedCube(size)
-    for (const move of scramble(size, 30, seededRng(7))) {
+    let cube = solvedCube(shape)
+    for (const move of scramble(shape, 30, seededRng(7))) {
       const before = cube.map((c) => cubieShape(c.stickers, LAYER_THICKNESS.mirror))
-      const geo = moveGeometry(move, size)
+      const geo = moveGeometry(move, SHAPE_DIMS[shape])
       const quarters = Math.round(geo.angle / (Math.PI / 2))
       cube = applyMove(cube, move)
 

@@ -1,6 +1,19 @@
-import type { CubeSize, Face, Move } from './types'
+import { faceAxis, faceLayers, quarterTurnFits } from './cube'
+import { SHAPE_DIMS } from './types'
+import type { CubeShape, Dims, Face, Move } from './types'
 
 export const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
+
+/**
+ * Turns a face can take, from the shape alone. A face on a one-layer axis has
+ * no turn at all (its only layer is the whole puzzle, so turning it just looks
+ * at the puzzle from elsewhere), and a face whose axis cannot take a quarter
+ * turn is limited to half turns. On a cube this is always the three amounts.
+ */
+function amountsFor(dims: Dims, face: Face): readonly (1 | 2 | 3)[] {
+  if (faceLayers(dims, face) < 2) return []
+  return quarterTurnFits(dims, faceAxis(face)) ? [1, 2, 3] : [2]
+}
 
 /** All 18 basic face turns, in a stable order (for UI buttons and tests). */
 export const ALL_MOVES: readonly Move[] = FACES.flatMap((face) =>
@@ -127,17 +140,20 @@ export function simplifyMoves(moves: readonly Move[]): Move[] {
  * turns, so centers and wing edges get shuffled too. `rng` is injectable for
  * deterministic tests; defaults to Math.random.
  */
-export function scramble(size: CubeSize, length = 25, rng: () => number = Math.random): Move[] {
+export function scramble(shape: CubeShape, length = 25, rng: () => number = Math.random): Move[] {
+  const dims = SHAPE_DIMS[shape]
+  const faces = FACES.filter((face) => faceLayers(dims, face) >= 2)
   const moves: Move[] = []
   let prevFace: Face | undefined
   for (let i = 0; i < length; i++) {
     let face: Face
     do {
-      face = FACES[Math.floor(rng() * FACES.length)]!
-    } while (face === prevFace)
+      face = faces[Math.floor(rng() * faces.length)]!
+    } while (face === prevFace && faces.length > 1)
     prevFace = face
-    const amount = (Math.floor(rng() * 3) + 1) as 1 | 2 | 3
-    const kind = size >= 4 ? rng() : 0
+    const amounts = amountsFor(dims, face)
+    const amount = amounts[Math.floor(rng() * amounts.length)]!
+    const kind = faceLayers(dims, face) >= 4 ? rng() : 0
     if (kind < 0.5) moves.push({ face, amount })
     else if (kind < 0.75) moves.push({ face, amount, depth: 2 })
     else moves.push({ face, amount, depth: 2, wide: true })
@@ -145,14 +161,22 @@ export function scramble(size: CubeSize, length = 25, rng: () => number = Math.r
   return moves
 }
 
-/** Every distinct turn available on a cube of `size`, in a stable order. */
-export function movesFor(size: CubeSize): readonly Move[] {
-  if (size < 4) return ALL_MOVES
+/**
+ * Every distinct turn available on a shape, in a stable order. Inner slices
+ * and wide turns need at least four layers on the axis, so only the 4x4 has
+ * them; a 1x2x3 is left with the four half turns of its two turnable axes.
+ */
+export function movesFor(shape: CubeShape): readonly Move[] {
+  const dims = SHAPE_DIMS[shape]
   return FACES.flatMap((face) =>
-    ([1, 2, 3] as const).flatMap((amount): Move[] => [
-      { face, amount },
-      { face, amount, depth: 2 },
-      { face, amount, depth: 2, wide: true },
-    ]),
+    amountsFor(dims, face).flatMap((amount): Move[] =>
+      faceLayers(dims, face) >= 4
+        ? [
+            { face, amount },
+            { face, amount, depth: 2 },
+            { face, amount, depth: 2, wide: true },
+          ]
+        : [{ face, amount }],
+    ),
   )
 }

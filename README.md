@@ -1,7 +1,7 @@
 # Rubik Solver
 
 Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2, 3x3
-ou 4x4**. On manipule le cube, on le mélange **ou on saisit sa propre
+ou 4x4**, plus le cuboïde **1x2x3**. On manipule le cube, on le mélange **ou on saisit sa propre
 configuration** en peignant les stickers en 3D, puis on le résout selon
 **plusieurs vraies méthodes** (par couches, Fridrich/CFOP, réduction sur 4x4,
 optimale sur 2x2). La solution est découpée en **étapes nommées** qu'on joue
@@ -14,6 +14,8 @@ d'un coup ou **pas à pas**, pour apprendre la méthode.
 - **Choix de la taille** : 2x2, 3x3 ou 4x4, avec les méthodes adaptées à
   chacune (dont une résolution **optimale** du 2x2, 11 coups maximum, et la
   **réduction** du 4x4 avec correction des parités).
+- **Cuboïde 1x2x3** : une forme non cubique, où seuls les demi-tours sont
+  possibles (un quart de tour ne rentrerait pas), résolue de façon optimale.
 - **Version miroir** de chaque taille (Mirror Blocks) : couches d'épaisseurs
   différentes et facettes toutes dorées, à résoudre par la forme. Même moteur,
   mêmes méthodes : ce n'est qu'une variante de rendu.
@@ -33,14 +35,14 @@ make start     # http://localhost:6661
 
 ## Commandes utiles
 
-| Commande | Effet |
-|---|---|
-| `make start` | Serveur de dev (port 6661) |
-| `make build` | Build de production |
-| `make test` | Tests unitaires + composants (Vitest) |
-| `make test-e2e` | Tests end-to-end (Playwright) |
-| `make check` | build + lint + typecheck + knip + tests |
-| `make fix` | Format (Prettier) + lint |
+| Commande        | Effet                                   |
+| --------------- | --------------------------------------- |
+| `make start`    | Serveur de dev (port 6661)              |
+| `make build`    | Build de production                     |
+| `make test`     | Tests unitaires + composants (Vitest)   |
+| `make test-e2e` | Tests end-to-end (Playwright)           |
+| `make check`    | build + lint + typecheck + knip + tests |
+| `make fix`      | Format (Prettier) + lint                |
 
 ## Stack
 

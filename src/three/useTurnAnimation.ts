@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { cubeSize, moveGeometry } from '@/lib/cube'
+import { cubeDims, moveGeometry } from '@/lib/cube'
 import { easeInOut } from '@/lib/easing'
 import { useCube } from '@/store/cubeStore'
 
@@ -39,7 +39,7 @@ export function useTurnAnimation(): TurnAnimation {
       if (queueLength > 0) startNext()
       return
     }
-    const geo = moveGeometry(active, cubeSize(cube))
+    const geo = moveGeometry(active, cubeDims(cube))
     // Half turns travel twice as far; give them a little more time.
     const isHalf = Math.abs(geo.angle) > Math.PI / 2 + 0.01
     const duration = turnDuration * (isHalf ? 1.7 : 1)
@@ -49,7 +49,7 @@ export function useTurnAnimation(): TurnAnimation {
     if (t >= 1) commitActive()
   })
 
-  const geo = active ? moveGeometry(active, cubeSize(cube)) : null
+  const geo = active ? moveGeometry(active, cubeDims(cube)) : null
   const isTurning = (index: number): boolean =>
     geo != null && geo.layers.includes(cube[index]!.position[geo.coordIndex])
 

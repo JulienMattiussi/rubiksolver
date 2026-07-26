@@ -2,14 +2,14 @@ import {
   applyMove,
   applyMoves,
   cubeOrientations,
-  cubeSize,
+  cubeShape,
   FACE_COLOR,
   isSolved,
   OPPOSITE_COLOR,
   solvedCube,
   stateKey,
 } from './cube'
-import { invertMoves } from './moves'
+import { invertMoves, movesFor } from './moves'
 import {
   atEverySide,
   buildSteps,
@@ -24,7 +24,7 @@ import {
   type StepSpec,
 } from './solverKit'
 import { reductionSteps } from './solver4/steps'
-import type { Color, Cube, CubeSize, Cubie, Face, Move } from './types'
+import type { Color, Cube, CubeShape, Cubie, Face, Move } from './types'
 
 export type { SolveStep } from './solverKit'
 
@@ -302,7 +302,7 @@ const MOVES_URF: readonly Face[] = ['U', 'R', 'F']
 const MAX_DEPTH_2 = 12
 
 /** The 24 orientations of a solved 2x2 with their DBL frames, computed once. */
-const SOLVED_2 = cubeOrientations(solvedCube(2)).map((c) => ({ cube: c, frame: frame2(c) }))
+const SOLVED_2 = cubeOrientations(solvedCube('2')).map((c) => ({ cube: c, frame: frame2(c) }))
 
 interface BfsSide {
   frontier: Array<{ cube: Cube; moves: Move[] }>
@@ -448,6 +448,52 @@ function optimalSteps(cube: Cube): SolveStep[] {
   return buildSteps(cube, [{ key: 'stepOptimal', phases: [solveOptimal2] }])
 }
 
+// ---------------------------------------------------------------------------
+// 1x2x3 solver (optimal)
+// ---------------------------------------------------------------------------
+
+/** The four half turns of a 1x2x3 (its thin axis has no move of its own). */
+const MOVES_123 = movesFor('123')
+
+/** Depth that exhausts the 1x2x3: its reachable states all sit within 6 half
+ *  turns of solved (asserted in the tests), so 7 proves a cube impossible. */
+const MAX_DEPTH_123 = 7
+
+/**
+ * Shortest solution of a 1x2x3, by plain breadth-first search: every move is
+ * a half turn and the reachable space is tiny, so the whole thing is explored
+ * in a blink and the first hit is optimal. Any orientation of a solved puzzle
+ * counts (a cuboid has no fixed center to anchor a frame). Throws once the
+ * depth is exhausted, which is what validation needs to reject an impossible
+ * puzzle.
+ */
+export function solveFlat123(cube: Cube): Move[] {
+  if (isSolved(cube)) return []
+  let frontier: Array<{ cube: Cube; moves: Move[] }> = [{ cube, moves: [] }]
+  const seen = new Set<string>([stateKey(cube)])
+  for (let depth = 0; depth < MAX_DEPTH_123; depth++) {
+    const next: typeof frontier = []
+    for (const node of frontier) {
+      for (const move of MOVES_123) {
+        const turned = applyMove(node.cube, move)
+        const key = stateKey(turned)
+        if (seen.has(key)) continue
+        const moves = [...node.moves, move]
+        if (isSolved(turned)) return moves
+        seen.add(key)
+        next.push({ cube: turned, moves })
+      }
+    }
+    frontier = next
+  }
+  throw new Error('solveFlat123: no solution within the search depth')
+}
+
+/** 1x2x3 optimal solution, as a single step. */
+function optimal123Steps(cube: Cube): SolveStep[] {
+  return buildSteps(cube, [{ key: 'stepOptimal', phases: [solveFlat123] }])
+}
+
 /** 4x4 reduction: centers, edge pairing, parities, then a 3x3 finish. */
 const reduction4Steps = reductionSteps(BEGINNER_SPECS)
 const reductionCfop4Steps = reductionSteps(CFOP_SPECS)
@@ -456,24 +502,24 @@ const reductionCfop4Steps = reductionSteps(CFOP_SPECS)
 export type MethodId = 'beginner' | 'cfop' | 'optimal' | 'reduction' | 'reductionCfop'
 
 /**
- * Registry of solving methods: one solver per supported cube size, so which
- * sizes a method handles - and how - is declared in a single place.
+ * Registry of solving methods: one solver per supported shape, so which shapes
+ * a method handles - and how - is declared in a single place.
  */
 const SOLVE_METHODS: ReadonlyArray<{
   id: MethodId
-  solvers: Readonly<Partial<Record<CubeSize, (cube: Cube) => SolveStep[]>>>
+  solvers: Readonly<Partial<Record<CubeShape, (cube: Cube) => SolveStep[]>>>
 }> = [
-  { id: 'beginner', solvers: { 2: beginner2Steps, 3: beginnerSteps } },
-  { id: 'cfop', solvers: { 3: cfopSteps } },
-  { id: 'reduction', solvers: { 4: reduction4Steps } },
-  { id: 'reductionCfop', solvers: { 4: reductionCfop4Steps } },
-  { id: 'optimal', solvers: { 2: optimalSteps } },
+  { id: 'beginner', solvers: { '2': beginner2Steps, '3': beginnerSteps } },
+  { id: 'cfop', solvers: { '3': cfopSteps } },
+  { id: 'reduction', solvers: { '4': reduction4Steps } },
+  { id: 'reductionCfop', solvers: { '4': reductionCfop4Steps } },
+  { id: 'optimal', solvers: { '2': optimalSteps, '123': optimal123Steps } },
 ]
 
-/** The solving methods available for a given cube size, each bound to it. */
-export function methodsFor(size: CubeSize) {
+/** The solving methods available for a given shape, each bound to it. */
+export function methodsFor(shape: CubeShape) {
   return SOLVE_METHODS.flatMap((m) => {
-    const solve = m.solvers[size]
+    const solve = m.solvers[shape]
     return solve ? [{ id: m.id, solve }] : []
   })
 }
@@ -483,8 +529,9 @@ export function methodsFor(size: CubeSize) {
  * an unsolvable cube after a bounded search, which is what validate.ts needs.
  */
 export function solve(cube: Cube): Move[] {
-  const size = cubeSize(cube)
-  if (size === 2) return solveOptimal2(cube)
-  if (size === 4) return reduction4Steps(cube).flatMap((s) => [...s.moves])
+  const shape = cubeShape(cube)
+  if (shape === '2') return solveOptimal2(cube)
+  if (shape === '123') return solveFlat123(cube)
+  if (shape === '4') return reduction4Steps(cube).flatMap((s) => [...s.moves])
   return beginnerSteps(cube).flatMap((s) => [...s.moves])
 }

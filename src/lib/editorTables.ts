@@ -1,9 +1,10 @@
 import { cubeOrientations, normalIndex, solvedCube } from './cube'
-import type { Color, CubeSize, Cubie, Vec3 } from './types'
+import { SHAPE_DIMS } from './types'
+import type { Color, CubeShape, Cubie, Vec3 } from './types'
 
 /**
  * Slot and placement tables backing the guided editor (see editor.ts).
- * Everything here is derived per cube size from that size's solved cube and
+ * Everything here is derived per cube shape from that shape's solved cube and
  * memoized: the fixed slots, every valid piece placement per slot (from the
  * 24 whole-cube orientations), and the physical-piece budgets.
  */
@@ -27,8 +28,10 @@ export interface Slot {
   readonly stickers: readonly SlotSticker[]
 }
 
+/** Three stickers or more (a 1x2x3 piece can show four) is a corner: a unique
+ *  piece with an orientation. Two is an edge, one an interchangeable center. */
 function kindOf(stickerCount: number): SlotKind {
-  return stickerCount === 3
+  return stickerCount >= 3
     ? 'corner'
     : stickerCount === 2
       ? 'edge'
@@ -62,13 +65,14 @@ export interface PlacementOption {
   readonly pieceKey: string
 }
 
-/** Fixed centers stay pre-filled; on even sizes the centers move. */
-export function centersArePaintable(size: CubeSize): boolean {
-  return size % 2 === 0
+/** Fixed centers stay pre-filled. A face only has a fixed center piece when
+ *  every dimension is odd, so on any other shape the centers move. */
+export function centersArePaintable(shape: CubeShape): boolean {
+  return !SHAPE_DIMS[shape].every((n) => n % 2 === 1)
 }
 
-export function paintableKind(size: CubeSize, kind: SlotKind): boolean {
-  return kind === 'corner' || kind === 'edge' || (kind === 'center' && centersArePaintable(size))
+export function paintableKind(shape: CubeShape, kind: SlotKind): boolean {
+  return kind === 'corner' || kind === 'edge' || (kind === 'center' && centersArePaintable(shape))
 }
 
 export interface SlotTables {
@@ -82,22 +86,22 @@ export interface SlotTables {
   readonly budgets: ReadonlyMap<string, number>
 }
 
-const TABLES = new Map<CubeSize, SlotTables>()
+const TABLES = new Map<CubeShape, SlotTables>()
 
-/** Slot + placement tables of a cube size, derived from its solved cube. */
-export function tablesFor(size: CubeSize): SlotTables {
-  let tables = TABLES.get(size)
+/** Slot + placement tables of a cube shape, derived from its solved cube. */
+export function tablesFor(shape: CubeShape): SlotTables {
+  let tables = TABLES.get(shape)
   if (!tables) {
-    const slots = solvedCube(size).map(toSlot)
-    const paintableSlots = slots.filter((s) => paintableKind(size, s.kind))
+    const slots = solvedCube(shape).map(toSlot)
+    const paintableSlots = slots.filter((s) => paintableKind(shape, s.kind))
     tables = {
       slots,
       paintableSlots,
       byKey: new Map(slots.map((s) => [s.key, s])),
-      placements: computePlacements(size, paintableSlots),
-      budgets: computeBudgets(size),
+      placements: computePlacements(shape, paintableSlots),
+      budgets: computeBudgets(shape),
     }
-    TABLES.set(size, tables)
+    TABLES.set(shape, tables)
   }
   return tables
 }
@@ -125,10 +129,10 @@ function pieceKeyOf(cubie: Cubie, solvedPosition: Vec3): string {
  * chirality, interchangeable centers share one key).
  */
 function computePlacements(
-  size: CubeSize,
+  shape: CubeShape,
   paintableSlots: readonly Slot[],
 ): Map<string, PlacementOption[]> {
-  const solved = solvedCube(size)
+  const solved = solvedCube(shape)
   const perSlot = new Map<string, Map<string, PlacementOption>>()
   for (const slot of paintableSlots) perSlot.set(slot.key, new Map())
   for (const cube of cubeOrientations(solved)) {
@@ -144,10 +148,10 @@ function computePlacements(
 }
 
 /** Available physical pieces: every unique piece once, centers 4 per color. */
-function computeBudgets(size: CubeSize): Map<string, number> {
+function computeBudgets(shape: CubeShape): Map<string, number> {
   const budgets = new Map<string, number>()
-  for (const cubie of solvedCube(size)) {
-    if (!paintableKind(size, kindOf(cubie.stickers.length))) continue
+  for (const cubie of solvedCube(shape)) {
+    if (!paintableKind(shape, kindOf(cubie.stickers.length))) continue
     const key = pieceKeyOf(cubie, cubie.position)
     budgets.set(key, (budgets.get(key) ?? 0) + 1)
   }

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { cubeSize } from '@/lib/cube'
+import { cubeShape } from '@/lib/cube'
 import {
   buildCube,
   cubeToEdit,
@@ -9,11 +9,11 @@ import {
   type EditStickers,
 } from '@/lib/editor'
 import { validateCube, type ValidationError } from '@/lib/validate'
-import type { Color, CubeSize } from '@/lib/types'
+import type { Color, CubeShape } from '@/lib/types'
 import { useCube } from './cubeStore'
 
 /** Size of the cube currently being edited (the game's cube). */
-const currentSize = (): CubeSize => cubeSize(useCube.getState().cube)
+const currentShape = (): CubeShape => cubeShape(useCube.getState().cube)
 
 interface EditorStore {
   mode: 'play' | 'edit'
@@ -35,10 +35,10 @@ interface EditorStore {
 export const useEditor = create<EditorStore>((set, get) => ({
   mode: 'play',
   selectedColor: 'W',
-  edit: emptyEdit(3),
+  edit: emptyEdit('3'),
   error: null,
 
-  enter: () => set({ mode: 'edit', edit: emptyEdit(currentSize()), error: null }),
+  enter: () => set({ mode: 'edit', edit: emptyEdit(currentShape()), error: null }),
 
   enterFromCurrent: () =>
     set({ mode: 'edit', edit: cubeToEdit(useCube.getState().cube), error: null }),
@@ -48,15 +48,15 @@ export const useEditor = create<EditorStore>((set, get) => ({
   setColor: (selectedColor) => set({ selectedColor }),
 
   paintAt: (slotKey, ni) =>
-    set((s) => ({ edit: paint(s.edit, currentSize(), slotKey, ni, s.selectedColor), error: null })),
+    set((s) => ({ edit: paint(s.edit, currentShape(), slotKey, ni, s.selectedColor), error: null })),
 
-  clearAll: () => set({ edit: emptyEdit(currentSize()), error: null }),
+  clearAll: () => set({ edit: emptyEdit(currentShape()), error: null }),
 
   apply: () => {
     const { edit } = get()
-    const size = currentSize()
-    if (!isComplete(edit, size)) return false
-    const cube = buildCube(edit, size)
+    const shape = currentShape()
+    if (!isComplete(edit, shape)) return false
+    const cube = buildCube(edit, shape)
     const result = validateCube(cube)
     if (!result.ok) {
       set({ error: result.error })

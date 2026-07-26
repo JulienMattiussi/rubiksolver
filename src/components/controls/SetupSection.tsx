@@ -1,6 +1,6 @@
 import { Pencil, RotateCcw, Shuffle, Square } from 'lucide-react'
-import { cubeSize, isSolved } from '@/lib/cube'
-import { CUBE_KINDS, cubeKindId } from '@/lib/types'
+import { cubeShape, isSolved } from '@/lib/cube'
+import { CUBE_KINDS, cubeKindId, SHAPE_LABEL } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -18,8 +18,8 @@ export function SetupSection() {
   const active = useCube((s) => s.active)
   const queue = useCube((s) => s.queue)
   const scramble = useCube((s) => s.scramble)
-  const size = useCube((s) => cubeSize(s.cube))
-  const setSize = useCube((s) => s.setSize)
+  const shape = useCube((s) => cubeShape(s.cube))
+  const setShape = useCube((s) => s.setShape)
   const variant = useCube((s) => s.variant)
   const setVariant = useCube((s) => s.setVariant)
   const reset = useCube((s) => s.reset)
@@ -38,19 +38,19 @@ export function SetupSection() {
       <Select
         id="cube-size"
         label={t.sizeLabel}
-        value={cubeKindId({ size, variant })}
+        value={cubeKindId({ shape, variant })}
         disabled={busy}
         onChange={(value) => {
           const kind = CUBE_KINDS.find((k) => cubeKindId(k) === value)
           if (!kind) return
-          setSize(kind.size)
+          setShape(kind.shape)
           setVariant(kind.variant)
         }}
         trailing={<StatusBadge />}
       >
         {CUBE_KINDS.map((kind) => (
           <option key={cubeKindId(kind)} value={cubeKindId(kind)}>
-            {t.cubeKind(kind.size, kind.variant === 'mirror')}
+            {t.cubeKind(SHAPE_LABEL[kind.shape], kind.variant === 'mirror')}
           </option>
         ))}
       </Select>

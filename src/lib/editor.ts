@@ -1,4 +1,4 @@
-import { cubeSize, normalIndex, stickersTotal } from './cube'
+import { cubeShape, normalIndex, stickersTotal } from './cube'
 import {
   centersArePaintable,
   paintableKind,
@@ -9,7 +9,7 @@ import {
   type Slot,
   type SlotTables,
 } from './editorTables'
-import type { Color, Cube, CubeSize } from './types'
+import type { Color, Cube, CubeShape } from './types'
 
 /**
  * Constraint-guided cube editor logic (pure, no React / three.js).
@@ -34,25 +34,25 @@ import type { Color, Cube, CubeSize } from './types'
  * checked separately, see validate.ts.
  */
 
-/** The slots a cube of `size` exposes to the editor. */
-export function slotsFor(size: CubeSize): readonly Slot[] {
-  return tablesFor(size).slots
+/** The slots a cube of `shape` exposes to the editor. */
+export function slotsFor(shape: CubeShape): readonly Slot[] {
+  return tablesFor(shape).slots
 }
 
-/** Whether the user can paint this slot on a cube of `size`. */
-export function canPaint(size: CubeSize, slotKey: string): boolean {
-  const slot = tablesFor(size).byKey.get(slotKey)
-  return slot !== undefined && paintableKind(size, slot.kind)
+/** Whether the user can paint this slot on a cube of `shape`. */
+export function canPaint(shape: CubeShape, slotKey: string): boolean {
+  const slot = tablesFor(shape).byKey.get(slotKey)
+  return slot !== undefined && paintableKind(shape, slot.kind)
 }
 
 /** Painted stickers, keyed by sticker id. Absent id = not yet painted. */
 export type EditStickers = Record<string, Color>
 
 /** A blank slate: only the fixed centers are set (movable ones stay empty). */
-export function emptyEdit(size: CubeSize): EditStickers {
+export function emptyEdit(shape: CubeShape): EditStickers {
   const edit: EditStickers = {}
-  for (const slot of slotsFor(size)) {
-    if (slot.kind === 'center' && !centersArePaintable(size)) {
+  for (const slot of slotsFor(shape)) {
+    if (slot.kind === 'center' && !centersArePaintable(shape)) {
       edit[slot.stickers[0]!.id] = slot.stickers[0]!.solvedColor
     }
   }
@@ -80,8 +80,8 @@ export function filledCount(edit: EditStickers): number {
   return Object.keys(edit).length
 }
 
-export function isComplete(edit: EditStickers, size: CubeSize): boolean {
-  return filledCount(edit) === stickersTotal(size)
+export function isComplete(edit: EditStickers, shape: CubeShape): boolean {
+  return filledCount(edit) === stickersTotal(shape)
 }
 
 /** Painted colors of a slot, as a normal-index -> color map. */
@@ -141,14 +141,14 @@ function candidates(
  */
 export function paint(
   edit: EditStickers,
-  size: CubeSize,
+  shape: CubeShape,
   slotKey: string,
   ni: number,
   color: Color,
 ): EditStickers {
-  const tables = tablesFor(size)
+  const tables = tablesFor(shape)
   const slot = tables.byKey.get(slotKey)
-  if (!slot || !paintableKind(size, slot.kind)) return edit
+  if (!slot || !paintableKind(shape, slot.kind)) return edit
   const id = stickerId(slot.position, ni)
   if (edit[id] === color) return edit
 
@@ -173,9 +173,9 @@ export function paint(
 }
 
 /** Clear a paintable slot's stickers (fixed centers are untouched). */
-export function clearSlot(edit: EditStickers, size: CubeSize, slotKey: string): EditStickers {
-  const slot = tablesFor(size).byKey.get(slotKey)
-  if (!slot || !paintableKind(size, slot.kind)) return edit
+export function clearSlot(edit: EditStickers, shape: CubeShape, slotKey: string): EditStickers {
+  const slot = tablesFor(shape).byKey.get(slotKey)
+  if (!slot || !paintableKind(shape, slot.kind)) return edit
   const next = { ...edit }
   for (const s of slot.stickers) delete next[s.id]
   return next
@@ -188,7 +188,7 @@ export function clearSlot(edit: EditStickers, size: CubeSize, slotKey: string): 
  * this is the piece-level half of 4x4 solvability (see validate.ts).
  */
 export function usesRealPieces(cube: Cube): boolean {
-  const tables = tablesFor(cubeSize(cube))
+  const tables = tablesFor(cubeShape(cube))
   const edit = cubeToEdit(cube)
   const used = new Map<string, number>()
   for (const slot of tables.paintableSlots) {
@@ -203,8 +203,8 @@ export function usesRealPieces(cube: Cube): boolean {
 }
 
 /** Build a full Cube from a complete edit state (throws if incomplete). */
-export function buildCube(edit: EditStickers, size: CubeSize): Cube {
-  return slotsFor(size).map((slot) => ({
+export function buildCube(edit: EditStickers, shape: CubeShape): Cube {
+  return slotsFor(shape).map((slot) => ({
     position: slot.position,
     stickers: slot.stickers.map((s) => {
       const color = edit[s.id]

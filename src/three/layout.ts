@@ -1,32 +1,25 @@
-import type { CubeSize, Vec3 } from '@/lib/types'
-
-export interface CubeLayout {
-  /** Uniform scale applied to the whole cube group. */
-  readonly scale: number
-  /** Factor mapping logical cubie coordinates to visual positions. */
-  readonly positionFactor: number
-}
+import { layerCoords } from '@/lib/cube'
+import type { Dims, Vec3 } from '@/lib/types'
 
 /**
- * Visual layout per cube size. Logical 2x2 and 4x4 coordinates are spaced two
- * units apart (to stay integers), so positions are halved to make the cubies
- * adjacent, then the whole cube is scaled so every size occupies the same
- * volume in front of the camera (an extent of 3 world units).
+ * Visual layout of a puzzle. Logical coordinates are spaced by their own axis
+ * (see `layerCoords`), so the renderer maps each one to its layer index: every
+ * cubie then occupies exactly one unit cell whatever the shape, and the whole
+ * puzzle is scaled so its longest side always spans the same 3 world units.
  */
-const LAYOUTS: Record<CubeSize, CubeLayout> = {
-  2: { scale: 1.5, positionFactor: 0.5 },
-  3: { scale: 1, positionFactor: 1 },
-  4: { scale: 0.75, positionFactor: 0.5 },
+
+/** Uniform scale applied to the whole puzzle group. */
+export function cubeScale(dims: Dims): number {
+  return 3 / Math.max(...dims)
 }
 
-export function cubeLayout(size: CubeSize): CubeLayout {
-  return LAYOUTS[size]
+/** Map a logical cubie/slot position to its visual position (unit cells). */
+export function visualPosition(p: Vec3, dims: Dims): [number, number, number] {
+  return [0, 1, 2].map((a) => {
+    const coords = layerCoords(dims[a]!)
+    return coords.indexOf(p[a]!) - (coords.length - 1) / 2
+  }) as [number, number, number]
 }
 
 /** Gap between two neighboring cubies, so the pieces read as separate blocks. */
 export const CUBIE_GAP = 0.04
-
-/** Map a logical cubie/slot position to its visual position. */
-export function scalePosition(p: Vec3, factor: number): [number, number, number] {
-  return [p[0] * factor, p[1] * factor, p[2] * factor]
-}

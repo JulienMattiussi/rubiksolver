@@ -25,7 +25,7 @@ function representative(p: Vec3): Vec3 {
   return [p[0] === 0 ? 1 : 3 * p[0], p[1] === 0 ? 1 : 3 * p[1], p[2] === 0 ? 1 : 3 * p[2]]
 }
 
-const TEMPLATE_3 = solvedCube(3)
+const TEMPLATE_3 = solvedCube('3')
 
 export function to3x3(cube4: Cube): Cube {
   if (!isReduced(cube4)) throw new Error('to3x3: cube is not reduced')

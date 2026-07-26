@@ -1,17 +1,17 @@
 import { create } from 'zustand'
-import { applyMove, cubeSize, solvedCube } from '@/lib/cube'
+import { applyMove, cubeShape, solvedCube } from '@/lib/cube'
 import { scramble as makeScramble } from '@/lib/moves'
 import { methodsFor, type MethodId, type SolveStep } from '@/lib/solver'
-import type { Cube, CubeSize, CubeVariant, Move } from '@/lib/types'
+import { supportsMirror, type Cube, type CubeShape, type CubeVariant, type Move } from '@/lib/types'
 
 /** What the currently playing queue represents (drives status + UI labels). */
 type Mode = 'idle' | 'scrambling' | 'solving'
 
-/** Scramble length per size: enough to reach any state, without dragging on. */
-const SCRAMBLE_LENGTH: Record<CubeSize, number> = { 2: 11, 3: 20, 4: 40 }
+/** Scramble length per shape: enough to reach any state, without dragging on. */
+const SCRAMBLE_LENGTH: Record<CubeShape, number> = { '2': 11, '3': 20, '4': 40, '123': 10 }
 
 interface CubeStore {
-  /** Logical cube state; its size is derived via `cubeSize(cube)`. */
+  /** Logical cube state; its shape is derived via `cubeShape(cube)`. */
   cube: Cube
   /** How the cube is drawn. Purely visual: nothing else reads it. */
   variant: CubeVariant
@@ -35,8 +35,8 @@ interface CubeStore {
 
   pushMove: (move: Move) => void
   scramble: () => void
-  /** Switch cube size: resets to a solved cube of that size. */
-  setSize: (size: CubeSize) => void
+  /** Switch shape: resets to a solved puzzle of that shape. */
+  setShape: (shape: CubeShape) => void
   /** Switch rendering variant. Keeps the current state: it is only a skin. */
   setVariant: (variant: CubeVariant) => void
   setMethod: (method: MethodId) => void
@@ -89,20 +89,22 @@ export const useCube = create<CubeStore>((set, get) => ({
 
   scramble: () =>
     set((s) => ({
-      queue: makeScramble(cubeSize(s.cube), SCRAMBLE_LENGTH[cubeSize(s.cube)]),
+      queue: makeScramble(cubeShape(s.cube), SCRAMBLE_LENGTH[cubeShape(s.cube)]),
       mode: 'scrambling',
       active: null,
       ...clearSolution(),
     })),
 
-  setSize: (size) =>
+  setShape: (shape) =>
     set((s) => {
-      if (size === cubeSize(s.cube)) return s
-      const methods = methodsFor(size)
+      if (shape === cubeShape(s.cube)) return s
+      const methods = methodsFor(shape)
       const method = methods.some((m) => m.id === s.method)
         ? s.method
         : (methods[0]?.id ?? s.method)
-      return { method, ...loadedCube(solvedCube(size)) }
+      // A shape without a mirror version falls back to the classic rendering.
+      const variant = supportsMirror(shape) ? s.variant : 'classic'
+      return { method, variant, ...loadedCube(solvedCube(shape)) }
     }),
 
   setVariant: (variant) => set({ variant }),
@@ -110,9 +112,9 @@ export const useCube = create<CubeStore>((set, get) => ({
   setMethod: (method) => set({ method, ...clearSolution() }),
 
   prepareSolution: () => {
-    const methods = methodsFor(cubeSize(get().cube))
+    const methods = methodsFor(cubeShape(get().cube))
     const method = methods.find((m) => m.id === get().method) ?? methods[0]
-    if (!method) throw new Error('prepareSolution: no solving method for this cube size')
+    if (!method) throw new Error('prepareSolution: no solving method for this shape')
     const steps = method.solve(get().cube)
     set({ steps, stepIndex: 0, mode: 'solving', queue: [], active: null })
     return steps
@@ -131,7 +133,7 @@ export const useCube = create<CubeStore>((set, get) => ({
     })
   },
 
-  reset: () => set((s) => loadedCube(solvedCube(cubeSize(s.cube)))),
+  reset: () => set((s) => loadedCube(solvedCube(cubeShape(s.cube)))),
 
   loadCube: (cube) => set(loadedCube(cube)),
 

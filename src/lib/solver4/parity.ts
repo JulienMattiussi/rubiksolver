@@ -80,7 +80,7 @@ function permutationSign(cube3: Cube, stickers: number): 1 | -1 {
   return inversions % 2 === 0 ? 1 : -1
 }
 
-const SOLVED_3 = solvedCube(3)
+const SOLVED_3 = solvedCube('3')
 
 /**
  * On a legal 3x3 every quarter turn 4-cycles corners and edges together, so

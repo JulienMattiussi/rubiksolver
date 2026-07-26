@@ -40,7 +40,7 @@ describe('solver', () => {
     const rng = seededRng(12345)
     const failures: string[] = []
     for (let i = 0; i < 40; i++) {
-      const moves = scramble(3, 25, rng)
+      const moves = scramble('3', 25, rng)
       const scrambled = applyMoves(solvedCube(), moves)
       if (!isSolved(applyMoves(scrambled, solve(scrambled)))) failures.push(formatMoves(moves))
     }
@@ -66,7 +66,7 @@ describe('solver', () => {
   it('reaches each phase goal in order', () => {
     const rng = seededRng(2026)
     for (let i = 0; i < 6; i++) {
-      let state = applyMoves(solvedCube(), scramble(3, 25, rng))
+      let state = applyMoves(solvedCube(), scramble('3', 25, rng))
       const step = (
         fn: (c: typeof state) => ReturnType<typeof solveCross>,
         ok: (c: typeof state) => boolean,
@@ -87,14 +87,14 @@ describe('solver', () => {
 
 describe('2x2 solver', () => {
   it('returns no moves for a solved 2x2', () => {
-    expect(solve(solvedCube(2))).toEqual([])
-    expect(solveOptimal2(solvedCube(2))).toEqual([])
+    expect(solve(solvedCube('2'))).toEqual([])
+    expect(solveOptimal2(solvedCube('2'))).toEqual([])
   })
 
   it('layer method reaches each phase goal in order', () => {
     const rng = seededRng(4242)
     for (let i = 0; i < 8; i++) {
-      let state = applyMoves(solvedCube(2), scramble(2, 11, rng))
+      let state = applyMoves(solvedCube('2'), scramble('2', 11, rng))
       state = applyMoves(state, solveBottomLayer2(state))
       expect(bottomLayerDone2(state)).toBe(true)
       state = applyMoves(state, solveTopFace2(state))
@@ -107,7 +107,7 @@ describe('2x2 solver', () => {
   it('optimal solver solves random scrambles in at most 11 moves', () => {
     const rng = seededRng(99)
     for (let i = 0; i < 15; i++) {
-      const scrambled = applyMoves(solvedCube(2), scramble(2, 11, rng))
+      const scrambled = applyMoves(solvedCube('2'), scramble('2', 11, rng))
       const moves = solveOptimal2(scrambled)
       expect(moves.length).toBeLessThanOrEqual(11)
       expect(isSolved(applyMoves(scrambled, moves))).toBe(true)
@@ -115,7 +115,7 @@ describe('2x2 solver', () => {
   }, 120000)
 
   it('optimal solver finds the inverse of a short scramble', () => {
-    const scrambled = applyMoves(solvedCube(2), parseMoves("R U' F2"))
+    const scrambled = applyMoves(solvedCube('2'), parseMoves("R U' F2"))
     expect(solveOptimal2(scrambled)).toHaveLength(3)
   })
 

@@ -25,7 +25,7 @@ describe('cube editor', () => {
   })
 
   it('round-trips a cube through edit and back', () => {
-    const cube = applyMoves(solvedCube(), scramble(3, 20, seededRng(3)))
+    const cube = applyMoves(solvedCube(), scramble('3', 20, seededRng(3)))
     const edit = cubeToEdit(cube)
     expect(isComplete(edit, 3)).toBe(true)
     expect(cubeToEdit(buildCube(edit, 3))).toEqual(edit)
@@ -54,7 +54,7 @@ describe('cube editor', () => {
   })
 
   it('never lets a color exceed nine', () => {
-    const cube = applyMoves(solvedCube(), scramble(3, 15, seededRng(9)))
+    const cube = applyMoves(solvedCube(), scramble('3', 15, seededRng(9)))
     const counts = colorCounts(cubeToEdit(cube))
     expect(Object.values(counts).every((n) => n === 9)).toBe(true)
   })
@@ -78,7 +78,7 @@ describe('2x2 cube editor', () => {
   })
 
   it('round-trips a 2x2 through edit and back', () => {
-    const cube = applyMoves(solvedCube(2), scramble(2, 11, seededRng(5)))
+    const cube = applyMoves(solvedCube('2'), scramble('2', 11, seededRng(5)))
     const edit = cubeToEdit(cube)
     expect(isComplete(edit, 2)).toBe(true)
     expect(filledCount(edit)).toBe(24)
@@ -123,7 +123,7 @@ describe('4x4 cube editor', () => {
   })
 
   it('round-trips a sliced scramble through edit and back', () => {
-    const cube = applyMoves(solvedCube(4), scramble(4, 30, seededRng(13)))
+    const cube = applyMoves(solvedCube('4'), scramble('4', 30, seededRng(13)))
     const edit = cubeToEdit(cube)
     expect(isComplete(edit, 4)).toBe(true)
     expect(filledCount(edit)).toBe(96)
@@ -133,7 +133,7 @@ describe('4x4 cube editor', () => {
   it('lets the user paint any legal position sticker by sticker', () => {
     // Repainting the true colors of a scrambled cube must never be refused,
     // and auto-completion, when it fires, must agree with the truth.
-    const cube = applyMoves(solvedCube(4), scramble(4, 25, seededRng(21)))
+    const cube = applyMoves(solvedCube('4'), scramble('4', 25, seededRng(21)))
     const target = cubeToEdit(cube)
     let edit = emptyEdit(4)
     for (const slot of slotsFor(4)) {

@@ -70,6 +70,29 @@ test('mirror cube: the variant is a skin, it keeps the state and renders', async
   expect(errors).toEqual([])
 })
 
+test('1x2x3: half turns only, scramble then solve optimally', async ({ page }) => {
+  test.setTimeout(120000)
+  await page.goto('/')
+
+  await page.getByLabel('Vitesse').fill('100')
+  await page.getByLabel('Choix du cube').selectOption('123')
+
+  // Its shape allows no quarter turn at all, and nothing on its thin axis:
+  // four half-turn buttons, no clockwise/counter-clockwise pair.
+  await expect(page.getByRole('button', { name: /Retourner la face/ })).toHaveCount(4)
+  await expect(page.getByRole('button', { name: /sens horaire/ })).toHaveCount(0)
+
+  const scramble = page.getByRole('button', { name: 'Mélanger' })
+  const solve = page.getByRole('button', { name: 'Résoudre' })
+
+  await scramble.click()
+  await expect(solve).toBeEnabled({ timeout: 30000 })
+
+  await solve.click()
+  await expect(scramble).toBeEnabled({ timeout: 30000 })
+  await expect(solve).toBeDisabled()
+})
+
 test('2x2: switch size, scramble, then solve with the optimal method', async ({ page }) => {
   test.setTimeout(120000)
   await page.goto('/')

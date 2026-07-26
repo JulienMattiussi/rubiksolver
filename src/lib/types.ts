@@ -1,10 +1,35 @@
 // Domain types for the cube engine. Pure data, zero React / three.js.
 
-/** Supported cube sizes (NxNxN). */
-export type CubeSize = 2 | 3 | 4
+/** Number of layers along x, y and z. Everything geometric derives from it. */
+export type Dims = readonly [number, number, number]
 
-/** Sizes exposed in the UI, in display order. */
-const CUBE_SIZES: readonly CubeSize[] = [2, 3, 4]
+/** The puzzles the app can build, by id (also the picker's option values). */
+export type CubeShape = '2' | '3' | '4' | '123'
+
+/**
+ * Layer counts per shape: the NxNxN cubes, plus the 1x2x3 flat cuboid, laid
+ * out 3 wide, 2 tall and 1 thick so the rectangle you face is its 3x2 side.
+ * A one-layer axis has no move of its own (turning its only layer just turns
+ * the whole puzzle), and a quarter turn about an axis needs the two other
+ * dimensions to be equal, so the 1x2x3 only ever does half turns.
+ */
+export const SHAPE_DIMS: Record<CubeShape, Dims> = {
+  '2': [2, 2, 2],
+  '3': [3, 3, 3],
+  '4': [4, 4, 4],
+  '123': [3, 2, 1],
+}
+
+/** Name of each shape in the picker (identical in every language). */
+export const SHAPE_LABEL: Record<CubeShape, string> = {
+  '2': '2x2',
+  '3': '3x3',
+  '4': '4x4',
+  '123': '1x2x3',
+}
+
+/** Shapes exposed in the UI, in display order. */
+const SHAPES = Object.keys(SHAPE_DIMS) as readonly CubeShape[]
 
 /**
  * How a cube is rendered. Purely visual: the engine, the solvers and the
@@ -14,22 +39,30 @@ const CUBE_SIZES: readonly CubeSize[] = [2, 3, 4]
  */
 export type CubeVariant = 'classic' | 'mirror'
 
-const CUBE_VARIANTS: readonly CubeVariant[] = ['classic', 'mirror']
+/**
+ * A mirror cube needs one thickness per face, which a one-layer axis cannot
+ * have: its two opposite stickers sit on the same piece, so its faces carry no
+ * shape at all. Only shapes with at least two layers everywhere are mirrored.
+ */
+export function supportsMirror(shape: CubeShape): boolean {
+  return SHAPE_DIMS[shape].every((n) => n >= 2)
+}
 
-/** One entry of the cube picker: a size plus a rendering variant. */
+/** One entry of the cube picker: a shape plus a rendering variant. */
 interface CubeKind {
-  readonly size: CubeSize
+  readonly shape: CubeShape
   readonly variant: CubeVariant
 }
 
 /** Cube choices exposed in the UI, in display order (classics, then mirrors). */
-export const CUBE_KINDS: readonly CubeKind[] = CUBE_VARIANTS.flatMap((variant) =>
-  CUBE_SIZES.map((size) => ({ size, variant })),
-)
+export const CUBE_KINDS: readonly CubeKind[] = [
+  ...SHAPES.map((shape): CubeKind => ({ shape, variant: 'classic' })),
+  ...SHAPES.filter(supportsMirror).map((shape): CubeKind => ({ shape, variant: 'mirror' })),
+]
 
 /** Stable id of a cube choice, used as the picker's option value. */
-export function cubeKindId({ size, variant }: CubeKind): string {
-  return variant === 'mirror' ? `${size}m` : `${size}`
+export function cubeKindId({ shape, variant }: CubeKind): string {
+  return variant === 'mirror' ? `${shape}m` : shape
 }
 
 /** A face of the cube, named with the standard Singmaster letters. */
@@ -43,7 +76,7 @@ export type Color = 'W' | 'Y' | 'G' | 'B' | 'O' | 'R'
 export type Axis = 'x' | 'y' | 'z'
 
 /** Integer 3D vector. Sticker normals are unit axis vectors; cubie positions
- *  live on the integer grid of their size (see `layerCoords` in cube.ts). */
+ *  live on the integer grid of their dimensions (`layerCoords` in cube.ts). */
 export type Vec3 = readonly [number, number, number]
 
 /** One colored sticker on a cubie face, identified by its outward normal. */
@@ -60,9 +93,10 @@ export interface Cubie {
 }
 
 /**
- * The whole cube: 27 cubies for a 3x3 (26 visible + 1 hidden core), the 8
- * corner cubies (positions in {-1,1}^3) for a 2x2, or 64 cubies (8 hidden
- * inner ones) for a 4x4.
+ * The whole puzzle: 27 cubies for a 3x3 (26 visible + 1 hidden core), the 8
+ * corner cubies (positions in {-1,1}^3) for a 2x2, 64 cubies (8 hidden inner
+ * ones) for a 4x4, or the 6 pieces of a 1x2x3. The cubie count identifies the
+ * shape (see `cubeShape`).
  */
 export type Cube = readonly Cubie[]
 

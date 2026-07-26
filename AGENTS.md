@@ -3,16 +3,16 @@
 ## Description du projet
 
 POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2, 3x3 ou 4x4**,
-**classique ou miroir** (choix dans une liste unique). On manipule le cube
-(rotations de faces à la
-souris/aux boutons, tranches internes et coups larges sur 4x4, orbite caméra),
+**classique ou miroir**, plus le cuboïde **1x2x3** (choix dans une liste
+unique). On manipule le cube (rotations de faces à la souris/aux boutons,
+tranches internes et coups larges sur 4x4, orbite caméra),
 on le mélange **ou on saisit sa propre configuration** en peignant les stickers
 directement en 3D, puis on le résout selon **plusieurs vraies méthodes** (par
 couches, Fridrich/CFOP, réduction du 4x4...). La solution est découpée en
 **étapes nommées** qu'on joue d'un coup ou **pas à pas**, pour apprendre la
 méthode. Le but est pédagogique, pas l'optimalité du nombre de coups (à
-l'exception de la méthode **Optimale** du 2x2, qui exploite son espace d'états
-réduit).
+l'exception de la méthode **Optimale** du 2x2 et du 1x2x3, qui exploite leurs
+espaces d'états réduits).
 
 Application **100% front-end**, sans backend. Interface **français par défaut**
 (bascule anglais), langue détectée depuis le navigateur ; **notation des
@@ -25,19 +25,19 @@ tranche interne (`2R` / `2D`), suffixe `w` pour le coup large (`Rw` / `Dw`).
 
 ## Stack technique
 
-| Outil | Usage |
-|---|---|
-| React 19 + TypeScript | UI |
-| Vite | Build / dev server |
-| React Three Fiber + drei | Rendu 3D déclaratif (three.js) et OrbitControls |
-| three | Moteur 3D sous-jacent |
-| Tailwind CSS v4 | Styles (via `@tailwindcss/vite`, pas de config JS) |
-| Zustand | État global (cube + animation, saisie, vue caméra, i18n/notation) |
-| Vitest + Testing Library | Tests unitaires et composants |
-| Playwright | Tests e2e |
-| Prettier | Formatage |
-| ESLint (typescript-eslint) | Linting |
-| Knip | Détection du code / dépendances inutilisés |
+| Outil                      | Usage                                                             |
+| -------------------------- | ----------------------------------------------------------------- |
+| React 19 + TypeScript      | UI                                                                |
+| Vite                       | Build / dev server                                                |
+| React Three Fiber + drei   | Rendu 3D déclaratif (three.js) et OrbitControls                   |
+| three                      | Moteur 3D sous-jacent                                             |
+| Tailwind CSS v4            | Styles (via `@tailwindcss/vite`, pas de config JS)                |
+| Zustand                    | État global (cube + animation, saisie, vue caméra, i18n/notation) |
+| Vitest + Testing Library   | Tests unitaires et composants                                     |
+| Playwright                 | Tests e2e                                                         |
+| Prettier                   | Formatage                                                         |
+| ESLint (typescript-eslint) | Linting                                                           |
+| Knip                       | Détection du code / dépendances inutilisés                        |
 
 Standard maison React + Vite + Zustand + Tailwind, aligné sur les dépôts
 voisins (ex : `big-bang-clicker`).
@@ -54,10 +54,13 @@ voisins (ex : `big-bang-clicker`).
 > cube est modélisé par des cubies à coordonnées entières : `{-1,0,1}^3` pour
 > le 3x3 (27 cubies), `{-1,1}^3` pour le 2x2 (8 coins, il saute la coordonnée
 > 0), `{-3,-1,1,3}^3` pour le 4x4 (64 cubies espacés de 2 pour rester entiers :
-> 8 coins, 24 ailes, 24 centres mobiles, 8 internes). Un `Move` désigne une
+> 8 coins, 24 ailes, 24 centres mobiles, 8 internes). **Rien n'y suppose un
+> cube** : une forme n'est qu'un triplet de nombres de couches (`SHAPE_DIMS`),
+> une grille par axe, ce qui donne le 1x2x3 (`{-1,0,1} x {-1,1} x {0}`, 6
+> pièces). Un `Move` désigne une
 > face + éventuellement `depth: 2` (tranche interne) et `wide` (couches 1+2) ;
-> `moveLayerCoords` en déduit les coordonnées de couche par taille, source
-> unique partagée par `applyMove` et l'animation. Une rotation est une rotation
+> `moveLayerCoords` en déduit les coordonnées de couche à partir des
+> dimensions, source unique partagée par `applyMove` et l'animation. Une rotation est une rotation
 > entière exacte à 90 degres, donc l'état logique ne dérive jamais. Le rendu 3D
 > est une **fonction pure de cet état** (le 2x2 et le 4x4 ne sont que des mises
 > à l'échelle, voir `three/layout.ts` ; la variante miroir n'est qu'une table
@@ -66,24 +69,24 @@ voisins (ex : `big-bang-clicker`).
 ```
 src/
 ├── lib/                  # Logique pure, zéro React / zéro three.js (entièrement testée)
-│   ├── types.ts          # Types du domaine (CubeSize, CubeVariant, Face, Color, Axis, Vec3, Sticker, Cubie, Cube, Move avec depth/wide)
-│   │                     #   + CUBE_KINDS : les choix de cube exposés (taille x variante) et leur id
-│   ├── cube.ts           # Modèle cubies : solvedCube(size), applyMove(s), moveLayerCoords, isSolved (faces uniformes),
-│   │                     #   moveGeometry, cubeOrientations, stateKey, comptages de stickers, couleurs opposées (source unique)
+│   ├── types.ts          # Types du domaine (CubeShape + SHAPE_DIMS, Dims, CubeVariant, Face, Color, Axis, Vec3, Sticker, Cubie, Cube, Move avec depth/wide)
+│   │                     #   + CUBE_KINDS : les choix exposés (forme x variante), leur id et leur libellé
+│   ├── cube.ts           # Modèle cubies : solvedCube(shape), applyMove(s), layerCoords/moveLayerCoords, isSolved (faces uniformes),
+│   │                     #   quarterTurnFits, moveGeometry, cubeOrientations, stateKey, comptages de stickers, couleurs opposées
 │   ├── moves.ts          # Notation US/FR (parse/format, 2R/Rw), inversion, simplification (par couches),
-│   │                     #   scramble (RNG injectable ; le 4x4 mélange faces, tranches et coups larges), movesFor(size)
+│   │                     #   scramble (RNG injectable ; le 4x4 mélange faces, tranches et coups larges), movesFor(shape) déduit de la forme
 │   ├── solverKit.ts      # Briques partagées des solveurs : search (BFS bornée, clé de dédup injectable),
 │   │                     #   solveWithAlgs ("aligner U puis algorithme"), relMoves/atEverySide, buildSteps (SolveStep[])
-│   ├── solver.ts         # Solveurs 2x2/3x3 + registre des méthodes par taille : methodsFor(size), solve() (validation)
+│   ├── solver.ts         # Solveurs 2x2/3x3/1x2x3 + registre des méthodes par forme : methodsFor(shape), solve() (validation)
 │   ├── solver4/          # Solveur 4x4 par réduction :
 │   │   ├── centers.ts    #   centres par comptage (D, U, puis ceinture), recherches bornées sans régression
 │   │   ├── edges.ts      #   appariement des ailes (échanges nets FR-bas <-> BR/FL-haut, goal-checkés), flip L2E
 │   │   ├── project.ts    #   projection homomorphe du 4x4 réduit vers un 3x3 virtuel (via3x3)
 │   │   ├── parity.ts     #   détecteurs (flip, signes de permutation, vrille) + algos de parité OLL/PLL
 │   │   └── steps.ts      #   reductionSteps(specs 3x3) : préfixe centres/arêtes/parité + étapes 3x3 projetées
-│   ├── editorTables.ts   # Tables de saisie par taille : slots, placements valides étiquetés par pièce physique, budgets
+│   ├── editorTables.ts   # Tables de saisie par forme : slots, placements valides étiquetés par pièce physique, budgets
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
-│   ├── validate.ts       # validateCube : comptage + solubilité (résolution 2x2/3x3 ; invariants de pièces + vrille sur 4x4)
+│   ├── validate.ts       # validateCube : comptage par face + solubilité (résolution 2x2/3x3/1x2x3 ; invariants de pièces + vrille sur 4x4)
 │   ├── shape.ts          # Cube miroir : épaisseur de couche par couleur, boîte d'un cubie déduite de ses stickers
 │   ├── easing.ts         # easeInOut (partagé par les animations)
 │   ├── speed.ts          # Curseur 0..100 <-> secondes par rotation
@@ -101,7 +104,7 @@ src/
 │   ├── CubeView.tsx      # Rend les cubies (via useTurnAnimation), à l'échelle de la taille, recentré selon la variante
 │   ├── EditView.tsx      # Mode saisie : stickers cliquables ; vides en gris (toujours en cubies classiques colorés)
 │   ├── Cubie.tsx         # Un cubie : corps + stickers, à la boîte de sa variante
-│   ├── layout.ts         # Échelle visuelle par taille (le 2x2 resserre ses positions ±1 et grossit)
+│   ├── layout.ts         # Échelle et position visuelles déduites des dimensions (une cellule par cubie, plus grand côté = 3 unités)
 │   ├── Sticker.tsx       # Sticker orienté à sa normale et dimensionné à sa face, mutualisé play/édition (onSelect = cliquable)
 │   ├── useTurnAnimation.ts # Hook : pilote la file de rotations (rotation de la couche active)
 │   ├── CameraReset.tsx   # Recentrage caméra animé (lit viewStore, dans le <Canvas>)
@@ -116,7 +119,7 @@ src/
 └── main.tsx
 tests/
 ├── helpers.ts            # RNG déterministe (seedRng) pour des scrambles reproductibles
-├── unit/                 # Vitest : cube, moves, solver + solver4 (propriété), editor, validate, shape, easing, speed, progress
+├── unit/                 # Vitest : cube, moves, solver + solver4 (propriété), flat123 (espace d'états entier), editor, validate, shape, easing, speed, progress
 ├── component/            # Vitest + Testing Library (Controls, SegmentedToggle)
 └── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution, saisie)
 ```
@@ -169,7 +172,7 @@ l'aile FR-bas avec BR-haut ou FL-haut, tout le reste intact, centres compris) ;
 comme le partenaire amené est par définition non apparié, chaque application
 gagne exactement une arête. Le cas « croisé » final (flip) passe par un
 algorithme dédié. (3) **Parités** : un 4x4 réduit peut projeter sur un état de
-3x3 *impossible* (une arête composite flippée = parité OLL ; deux arêtes
+3x3 _impossible_ (une arête composite flippée = parité OLL ; deux arêtes
 échangées = parité PLL) ; des invariants déterministes les détectent (somme des
 flips, signes des permutations) et les algorithmes standards en tranches les
 corrigent AVANT la phase 3x3. Une vrille de coin (somme des twists non nulle
@@ -185,7 +188,7 @@ Les briques de résolution sont partagées (`src/lib/solverKit.ts`) et
 insertions et la dernière couche par recherche « aligner U puis appliquer un
 algorithme » (gâchettes `R U R'`, `F R U R' U' F'`, Sune, A-perm/U-perm en
 3-cycle) dont l'objectif inclut « ne pas régresser ». Ce qui **distingue** les
-méthodes, c'est donc leur *découpage en étapes* (le cheminement), pas la
+méthodes, c'est donc leur _découpage en étapes_ (le cheminement), pas la
 machinerie bas niveau. Les solutions ne sont pas optimisées (longues) mais
 toujours correctes ; validé par un test de propriété qui résout des dizaines
 de scrambles pour chaque méthode et vérifie `isSolved`.
@@ -227,15 +230,57 @@ prennent la taille avec l'état. Sans centres fixes, la saisie 2x2 part
 entièrement vide (24 stickers), et le 4x4 aussi (96 stickers, centres
 peignables car mobiles) ; seul le 3x3 garde ses 6 centres pré-remplis.
 
+### Les formes non cubiques (le 1x2x3)
+
+Une forme est un triplet de nombres de couches (`SHAPE_DIMS`), pas une taille :
+le 1x2x3 est `[3, 2, 1]`, posé 3 de large, 2 de haut et 1 d'épaisseur, si bien
+que le rectangle 3x2 qu'on regarde est sa face avant. Tout le reste **se déduit
+de ces trois nombres**, sans cas particulier :
+
+- **grille** : une liste de coordonnées par axe (`layerCoords`), centrée, sur
+  les entiers pour un nombre impair de couches et de deux en deux pour un
+  nombre pair. Les cubes existants retrouvent exactement leurs coordonnées ;
+- **coups légaux** (`movesFor`) : un quart de tour autour d'un axe échange ses
+  deux autres axes, donc il n'est possible que si leurs dimensions sont égales
+  (`quarterTurnFits`) ; et un axe à une seule couche n'a aucun coup, puisque
+  tourner sa couche unique revient à tourner le puzzle entier. Le 1x2x3 se
+  retrouve ainsi avec exactement **U2, D2, L2, R2**, et les cubes gardent leurs
+  18 (2x2/3x3) et 54 (4x4) coups ;
+- **orientations** (`cubeOrientations`) : même critère, donc 24 pour un cube et
+  4 pour le 1x2x3, ce qui suffit à dériver ses tables de saisie ;
+- **comptage des stickers** : une face porte le produit des deux dimensions
+  qu'elle couvre, donc les six faces d'un cuboïde n'ont pas le même nombre de
+  facettes (2, 3 et 6 sur le 1x2x3, soit 22 en tout) ;
+- **rendu** : chaque cubie occupe une cellule d'une unité, quel que soit son
+  axe, et l'échelle ramène le plus grand côté à 3 unités.
+
+Comme son axe fin expose ses deux côtés, les pièces d'extrémité du 1x2x3 portent
+**quatre stickers** (les autres trois) : elles restent des « coins » pour la
+saisie, c'est-à-dire des pièces uniques et orientées.
+
+**Résolution** : 96 états seulement, diamètre 6, donc une BFS exhaustive
+(`solveFlat123`) rend la solution la plus courte, exposée par la méthode
+**Optimale** (partagée avec le 2x2). La borne de recherche vaut 7 : un état
+solvable est toujours trouvé avant, donc l'échec prouve un puzzle impossible,
+ce dont la validation se sert. Le test parcourt **tout l'espace d'états** et
+vérifie que chacun se résout, et que 6 coups suffisent toujours.
+
+> La tranche du milieu (la colonne centrale) n'est volontairement pas proposée :
+> la tourner équivaut à `L2 R2` suivi d'une rotation du puzzle entier, qui ne
+> change pas ce que « résolu » veut dire (pas de centre fixe pour ancrer un
+> repère). Aucun état n'est donc perdu.
+
 ### Le cube miroir (`src/lib/shape.ts`)
 
-Le **cube miroir** (Mirror Blocks) est un *shape mod* : mécaniquement un NxN
+Le **cube miroir** (Mirror Blocks) est un _shape mod_ : mécaniquement un NxN
 ordinaire, mais tous ses stickers ont la même couleur et ses couches ont des
 épaisseurs différentes, si bien qu'on le résout **par la forme**. C'est donc
 **une variante de rendu et rien d'autre** (`CubeVariant`, dans le store à côté
 de la taille) : le modèle, les coups, `isSolved`, les solveurs, la saisie et la
 validation l'ignorent complètement. Chaque taille est proposée dans les deux
-variantes (`CUBE_KINDS`).
+variantes (`CUBE_KINDS`) - sauf celles dont un axe n'a qu'une couche, comme le
+1x2x3 : ses deux grandes faces sont portées par les mêmes pièces, donc elles ne
+peuvent pas avoir d'épaisseur (`supportsMirror`).
 
 La correspondance est **couleur -> épaisseur** (`LAYER_THICKNESS`), **bijective** :
 les six épaisseurs sont distinctes (groupées en fines et épaisses pour garder
@@ -270,7 +315,7 @@ Trois propriétés en découlent, toutes testées (`tests/unit/shape.test.ts`) :
 La variante `classic` est le cas dégénéré de la même table (toutes les
 épaisseurs à 1) : un seul chemin de rendu, pas de branche.
 
-**La saisie d'un cube miroir se fait en épaisseurs**, et c'est *exactement* la
+**La saisie d'un cube miroir se fait en épaisseurs**, et c'est _exactement_ la
 saisie en couleurs : la bijection couleur <-> épaisseur fait que peindre une
 épaisseur, c'est peindre une couleur. `lib/editor.ts`, `editorTables.ts` et
 `validate.ts` sont donc inchangés, avec les mêmes garde-fous (placements
@@ -287,13 +332,16 @@ sa forme au fur et à mesure.
 Panneau d'overlay en **deux blocs** :
 
 - **Initialisation** (titre non affiché, `aria-label` seulement) : **choix du
-  cube** (liste déroulante : 2x2/3x3/4x4, classiques puis miroirs ; changer de
-  taille réinitialise le cube et rabat la méthode si besoin, changer de
-  variante conserve l'état) avec le **statut** sur la même ligne, mélanger /
+  cube** (liste déroulante : 2x2/3x3/4x4/1x2x3, classiques puis miroirs ;
+  changer de forme réinitialise le cube et rabat la méthode si besoin, changer
+  de variante conserve l'état) avec le **statut** sur la même ligne, mélanger /
   réinitialiser, saisie d'un cube (vierge ou depuis l'état courant), vitesse
-  d'animation, et **pad de rotations** (une gâchette horaire + une anti-horaire
-  par face ; sur 4x4, un sélecteur Externe / Tranche / Large choisit la couche
-  tournée) avec **recentrage caméra animé** et **bascule de notation FR/US**.
+  d'animation, et **pad de rotations** construit à partir des coups que la
+  forme autorise (une gâchette horaire + une anti-horaire par face ; un seul
+  bouton de demi-tour là où le quart de tour est impossible ; rien pour une
+  face dont l'axe n'a qu'une couche ; sur 4x4, un sélecteur Externe / Tranche /
+  Large choisit la couche tournée) avec **recentrage caméra animé** et
+  **bascule de notation FR/US**.
 - **Résolution** : choix de la **méthode** (liste déroulante, filtrée par
   taille via `methodsFor`), **Résoudre**
   (joue tout) ou **Pas à pas** (une étape à la fois), et la **liste des étapes**
@@ -353,16 +401,16 @@ lint + typecheck + knip + tests unitaires).
 
 ## Commandes (Makefile)
 
-| Commande | Effet |
-|---|---|
-| `make install` | Installe les dépendances |
-| `make start` | Serveur de dev (http://localhost:6661) |
-| `make build` | Build de production |
-| `make lint` / `make typecheck` / `make knip` | Vérifications |
-| `make format` | Prettier |
-| `make test` | Tests unitaires + composants |
-| `make test-e2e` | Tests Playwright (installe Chromium au 1er run) |
-| `make fix` | Format + lint |
-| `make check` | build + lint + typecheck + knip + tests unitaires |
+| Commande                                     | Effet                                             |
+| -------------------------------------------- | ------------------------------------------------- |
+| `make install`                               | Installe les dépendances                          |
+| `make start`                                 | Serveur de dev (http://localhost:6661)            |
+| `make build`                                 | Build de production                               |
+| `make lint` / `make typecheck` / `make knip` | Vérifications                                     |
+| `make format`                                | Prettier                                          |
+| `make test`                                  | Tests unitaires + composants                      |
+| `make test-e2e`                              | Tests Playwright (installe Chromium au 1er run)   |
+| `make fix`                                   | Format + lint                                     |
+| `make check`                                 | build + lint + typecheck + knip + tests unitaires |
 
 - **Port de dev** : 6661.

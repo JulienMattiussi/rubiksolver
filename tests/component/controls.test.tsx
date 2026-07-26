@@ -6,7 +6,7 @@ import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 
 beforeEach(() => {
-  useCube.getState().setSize(3)
+  useCube.getState().setShape('3')
   useCube.getState().reset()
   useI18n.getState().setLocale('fr')
 })

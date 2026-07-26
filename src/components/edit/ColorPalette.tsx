@@ -1,4 +1,4 @@
-import { cubeSize, stickersPerColor } from '@/lib/cube'
+import { cubeShape, stickersOfColor } from '@/lib/cube'
 import { colorCounts } from '@/lib/editor'
 import { byThickness, LAYER_THICKNESS } from '@/lib/shape'
 import type { Color } from '@/lib/types'
@@ -25,13 +25,12 @@ function swatchWidth(thickness: number): string {
  *  editor underneath is the same). */
 export function ColorPalette() {
   const t = useI18n((s) => s.t)
-  const size = useCube((s) => cubeSize(s.cube))
+  const shape = useCube((s) => cubeShape(s.cube))
   const mirror = useCube((s) => s.variant === 'mirror')
   const edit = useEditor((s) => s.edit)
   const selected = useEditor((s) => s.selectedColor)
   const setColor = useEditor((s) => s.setColor)
   const counts = colorCounts(edit)
-  const perColor = stickersPerColor(size)
   // Thinnest first, so the swatches read as a scale.
   const palette = mirror ? byThickness(MIRROR_THICKNESS) : PALETTE
   const title = mirror ? t.paletteMirror : t.palette
@@ -41,7 +40,7 @@ export function ColorPalette() {
       <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{title}</h2>
       <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={title}>
         {palette.map((c, rank) => {
-          const remaining = perColor - counts[c]
+          const remaining = stickersOfColor(shape, c) - counts[c]
           return (
             <button
               key={c}
