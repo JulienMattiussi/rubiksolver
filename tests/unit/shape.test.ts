@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { applyMove, moveGeometry, OPPOSITE_COLOR, solvedCube } from '@/lib/cube'
+import { applyMove, FACE_COLOR, moveGeometry, OPPOSITE_COLOR, solvedCube } from '@/lib/cube'
 import { scramble } from '@/lib/moves'
-import { centeringOffset, cubieShape, LAYER_THICKNESS, UNIT_SHAPE } from '@/lib/shape'
+import { byThickness, centeringOffset, cubieShape, LAYER_THICKNESS, UNIT_SHAPE } from '@/lib/shape'
 import type { Axis, Color, CubeSize, CubeVariant } from '@/lib/types'
 import { seededRng } from '../helpers'
 
@@ -39,13 +39,23 @@ describe('layer thickness tables', () => {
     }
   })
 
+  it('gives every color its own mirror thickness, so a shape names its piece', () => {
+    // What makes painting thicknesses equivalent to painting colors.
+    const values = Object.values(LAYER_THICKNESS.mirror)
+    expect(new Set(values).size).toBe(values.length)
+    expect(byThickness(LAYER_THICKNESS.mirror)).toEqual(['O', 'Y', 'B', 'G', 'W', 'R'])
+  })
+
   it('grows a mirror cubie outward from its inner face', () => {
-    // The URF corner of a solved cube wears three thick layers (1.34): each of
-    // its boxes runs from the cell's inner face (-0.5) out to 0.84.
+    // The URF corner of a solved cube wears the R, U and F layers; whatever
+    // their thickness, each box starts at the cell's inner face (-0.5).
     const corner = solvedCube(3).find((c) => c.position.every((p) => p === 1))!
     const { size, center } = cubieShape(corner.stickers, LAYER_THICKNESS.mirror)
-    expect(size).toEqual([1.34, 1.34, 1.34])
-    for (const c of center) expect(c).toBeCloseTo(0.17)
+    const expected = (['R', 'U', 'F'] as const).map((f) => LAYER_THICKNESS.mirror[FACE_COLOR[f]])
+    for (const a of [0, 1, 2] as const) {
+      expect(size[a]).toBe(expected[a])
+      expect(center[a] - size[a] / 2).toBeCloseTo(-0.5)
+    }
   })
 })
 

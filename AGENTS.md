@@ -197,7 +197,8 @@ de scrambles pour chaque méthode et vérifie `isSolved`.
 ### La saisie d'un cube (`src/lib/editor.ts`, `validate.ts`)
 
 L'utilisateur peut initialiser le cube depuis une position réelle en peignant
-les stickers directement sur le rendu 3D (mode édition). Deux garde-fous :
+les stickers directement sur le rendu 3D (mode édition), en couleurs ou en
+épaisseurs sur un cube miroir (même code, voir plus haut). Deux garde-fous :
 
 - **Saisie guidée** : on précalcule, à partir des 24 orientations d'un cube
   résolu, tous les placements de pièce valides par emplacement, chacun
@@ -236,8 +237,12 @@ de la taille) : le modèle, les coups, `isSolved`, les solveurs, la saisie et la
 validation l'ignorent complètement. Chaque taille est proposée dans les deux
 variantes (`CUBE_KINDS`).
 
-La correspondance est **couleur -> épaisseur** (`LAYER_THICKNESS`), ce qui suffit
-à tout déduire :
+La correspondance est **couleur -> épaisseur** (`LAYER_THICKNESS`), **bijective** :
+les six épaisseurs sont distinctes (groupées en fines et épaisses pour garder
+l'allure du puzzle, chaque axe ayant sa paire, comme un noyau décentré
+différemment sur chaque axe). Une forme désigne donc une pièce et une seule,
+ce qui rend la **saisie par épaisseurs** possible et supprime les pièces
+d'apparence identique du vrai Mirror Blocks. Cette table suffit à tout déduire :
 
 - l'épaisseur d'un cubie selon un axe est celle de la couleur du sticker qui
   regarde cet axe ; sans sticker sur cet axe, le cubie est dans une couche du
@@ -265,13 +270,17 @@ Trois propriétés en découlent, toutes testées (`tests/unit/shape.test.ts`) :
 La variante `classic` est le cas dégénéré de la même table (toutes les
 épaisseurs à 1) : un seul chemin de rendu, pas de branche.
 
-Deux conséquences assumées : la **saisie reste en couleurs** (on ne peint pas du
-monochrome ; le panneau l'explique, et les formes reviennent en sortant), et
-comme `isSolved` reste basé sur les couleurs alors que le vrai puzzle a des
-pièces de forme identique (le coin tout fin, le coin tout épais, les arêtes de
-même gabarit), un cube **d'apparence lisse** peut être annoncé non résolu. Pour
-supprimer ce cas, il suffirait de donner 6 épaisseurs distinctes (une paire par
-axe, toujours de somme 2), au prix de la fidélité.
+**La saisie d'un cube miroir se fait en épaisseurs**, et c'est *exactement* la
+saisie en couleurs : la bijection couleur <-> épaisseur fait que peindre une
+épaisseur, c'est peindre une couleur. `lib/editor.ts`, `editorTables.ts` et
+`validate.ts` sont donc inchangés, avec les mêmes garde-fous (placements
+valides, budgets par pièce, auto-complétion). Seul l'habillage diffère : la
+palette affiche six barres ordonnées de la plus fine à la plus épaisse (échelle
+étirée pour rester lisible dans une puce), les stickers peints sont dorés, et
+`EditView` donne à chaque emplacement la forme de ses stickers **déjà peints**
+(un axe non peint garde 1). Comme les pièces ne grandissent que vers
+l'extérieur, une saisie à moitié faite ne se chevauche jamais : la pièce prend
+sa forme au fur et à mesure.
 
 ### Interface
 

@@ -27,16 +27,29 @@ import type { Color, CubeVariant, Face, Sticker } from './types'
 type Point = readonly [number, number, number]
 
 /**
- * Layer thickness per sticker color. Opposite colors must sum to 2: an axis
- * then measures thickness(neg) + 1 per middle layer + thickness(pos) = size,
- * i.e. the solved cube is a perfect cube. Middle layers of the same axis are
- * necessarily equal (a piece moves freely between them), so on a 4x4 only the
- * two end layers differ.
+ * Layer thickness per sticker color. Two rules shape this table:
+ *
+ * - **opposite colors sum to 2**, so an axis measures thickness(neg) + 1 per
+ *   middle layer + thickness(pos) = size: the solved cube is a perfect cube.
+ *   Middle layers of the same axis are necessarily equal (a piece moves freely
+ *   between them), so on a 4x4 only the two end layers differ.
+ * - **the six values are distinct**, close to the Mirror Blocks proportions
+ *   (12.5 / 19 / 25.5 mm layers on a 57 mm cube) but grouped rather than
+ *   shared. A thickness therefore identifies its color: the shape of a piece
+ *   tells exactly which piece it is, which is what lets the editor paint
+ *   thicknesses instead of colors. The real puzzle reuses one pair on all
+ *   three axes, which leaves pieces of identical shape (its three all-but-one
+ *   -thick corners, for instance); here each axis gets its own pair, like a
+ *   core offset by a different amount along each axis.
  */
 export const LAYER_THICKNESS: Record<CubeVariant, Record<Color, number>> = {
   classic: { W: 1, Y: 1, G: 1, B: 1, O: 1, R: 1 },
-  // Mirror Blocks proportions: 12.5 / 19 / 25.5 mm layers on a 57 mm cube.
-  mirror: { W: 1.34, Y: 0.66, G: 1.34, B: 0.66, R: 1.34, O: 0.66 },
+  mirror: { O: 0.58, Y: 0.68, B: 0.78, G: 1.22, W: 1.32, R: 1.42 },
+}
+
+/** Colors ordered from the thinnest layer to the thickest. */
+export function byThickness(thickness: Record<Color, number>): Color[] {
+  return (Object.keys(thickness) as Color[]).sort((a, b) => thickness[a] - thickness[b])
 }
 
 /** Box of one cubie, in cell units. */

@@ -39,6 +39,8 @@ test('scrambles then solves back to a solved cube', async ({ page }) => {
 })
 
 test('mirror cube: the variant is a skin, it keeps the state and renders', async ({ page }) => {
+  // A scramble animation plus two cube mounts; slow when the suite runs in parallel.
+  test.setTimeout(120000)
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
   await page.goto('/')
@@ -57,6 +59,14 @@ test('mirror cube: the variant is a skin, it keeps the state and renders', async
   await page.getByLabel('Choix du cube').selectOption('4m')
   await expect(page.getByText('Cube résolu')).toBeVisible()
   await expect(page.locator('canvas')).toBeVisible()
+
+  // The editor paints thicknesses instead of colors, and still applies.
+  await page.getByRole('button', { name: /Depuis l.?.tat actuel/ }).click()
+  await expect(page.getByRole('radiogroup', { name: 'Épaisseurs' })).toBeVisible()
+  await expect(page.getByText('96 / 96 stickers')).toBeVisible()
+  await page.getByRole('button', { name: 'Utiliser ce cube' }).click()
+  await expect(page.getByRole('button', { name: 'Mélanger' })).toBeVisible()
+
   expect(errors).toEqual([])
 })
 

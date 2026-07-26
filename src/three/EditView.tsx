@@ -1,43 +1,65 @@
 import { cubeSize } from '@/lib/cube'
 import { canPaint, slotsFor } from '@/lib/editor'
+import { centeringOffset, cubieShape, LAYER_THICKNESS } from '@/lib/shape'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
-import { COLOR_HEX, PLASTIC } from './colors'
-import { cubeLayout, scalePosition } from './layout'
+import { COLOR_HEX, MIRROR_STICKER, PLASTIC } from './colors'
+import { CUBIE_GAP, cubeLayout, scalePosition } from './layout'
 import { Sticker } from './Sticker'
 
 /** Gray shown on a not-yet-painted sticker slot. */
 const EMPTY_COLOR = '#64748b'
 
-/** The cube in edit mode: every sticker is shown (gray when empty) and the
- *  corner/edge stickers are clickable to paint the selected color. */
+/**
+ * The cube in edit mode: every sticker is shown (gray when empty) and the
+ * corner/edge stickers are clickable to paint the selected value.
+ *
+ * On a mirror cube the value painted is a thickness, so a piece takes its
+ * shape as it is painted: each axis grows to the thickness of the sticker
+ * facing it, and an axis with nothing painted yet keeps a plain 1. Pieces only
+ * ever grow outward (see lib/shape.ts), so a half-painted cube never overlaps.
+ */
 export function EditView() {
   const size = useCube((s) => cubeSize(s.cube))
+  const mirror = useCube((s) => s.variant === 'mirror')
   const edit = useEditor((s) => s.edit)
   const paintAt = useEditor((s) => s.paintAt)
   const { scale, positionFactor } = cubeLayout(size)
+  const thickness = LAYER_THICKNESS[mirror ? 'mirror' : 'classic']
+  const [ox, oy, oz] = centeringOffset(thickness)
   return (
     <group scale={scale}>
-      {slotsFor(size).map((slot) => (
-        <group key={slot.key} position={scalePosition(slot.position, positionFactor)}>
-          <mesh>
-            <boxGeometry args={[0.96, 0.96, 0.96]} />
-            <meshStandardMaterial color={PLASTIC} roughness={0.65} metalness={0.1} />
-          </mesh>
-          {slot.stickers.map((s) => {
-            const paintable = canPaint(size, slot.key)
+      <group position={[ox, oy, oz]}>
+        {slotsFor(size).map((slot) => {
+          const paintable = canPaint(size, slot.key)
+          const painted = slot.stickers.flatMap((s) => {
             const color = edit[s.id]
-            return (
-              <Sticker
-                key={s.id}
-                normal={s.normal}
-                color={color ? COLOR_HEX[color] : EMPTY_COLOR}
-                onSelect={paintable ? () => paintAt(slot.key, s.ni) : undefined}
-              />
-            )
-          })}
-        </group>
-      ))}
+            return color ? [{ normal: s.normal, color }] : []
+          })
+          const { size: box, center } = cubieShape(painted, thickness)
+          return (
+            <group key={slot.key} position={scalePosition(slot.position, positionFactor)}>
+              <mesh position={[center[0], center[1], center[2]]}>
+                <boxGeometry args={[box[0] - CUBIE_GAP, box[1] - CUBIE_GAP, box[2] - CUBIE_GAP]} />
+                <meshStandardMaterial color={PLASTIC} roughness={0.65} metalness={0.1} />
+              </mesh>
+              {slot.stickers.map((s) => {
+                const color = edit[s.id]
+                return (
+                  <Sticker
+                    key={s.id}
+                    normal={s.normal}
+                    color={color ? (mirror ? MIRROR_STICKER : COLOR_HEX[color]) : EMPTY_COLOR}
+                    shape={{ size: box, center }}
+                    metal={mirror && color !== undefined}
+                    onSelect={paintable ? () => paintAt(slot.key, s.ni) : undefined}
+                  />
+                )
+              })}
+            </group>
+          )
+        })}
+      </group>
     </group>
   )
 }

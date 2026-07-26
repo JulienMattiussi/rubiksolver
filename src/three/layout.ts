@@ -23,6 +23,9 @@ export function cubeLayout(size: CubeSize): CubeLayout {
   return LAYOUTS[size]
 }
 
+/** Gap between two neighboring cubies, so the pieces read as separate blocks. */
+export const CUBIE_GAP = 0.04
+
 /** Map a logical cubie/slot position to its visual position. */
 export function scalePosition(p: Vec3, factor: number): [number, number, number] {
   return [p[0] * factor, p[1] * factor, p[2] * factor]
