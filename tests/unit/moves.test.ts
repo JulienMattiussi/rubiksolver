@@ -6,6 +6,9 @@ import {
   formatMoves,
   invertMove,
   invertMoves,
+  movesFor,
+  NOTATION_FR,
+  NOTATION_US,
   parseMove,
   parseMoves,
   scramble,
@@ -46,11 +49,73 @@ describe('moves notation', () => {
   })
 
   it('scrambles deterministically with a seed and never repeats a face', () => {
-    const a = scramble(20, seededRng(42))
-    const b = scramble(20, seededRng(42))
+    const a = scramble(3, 20, seededRng(42))
+    const b = scramble(3, 20, seededRng(42))
     expect(a).toEqual(b)
     expect(a).toHaveLength(20)
     for (let i = 1; i < a.length; i++) expect(a[i]!.face).not.toBe(a[i - 1]!.face)
     expect(FACES).toContain(a[0]!.face)
+  })
+})
+
+describe('layered moves notation (4x4)', () => {
+  it('formats slices and wide turns in both notations', () => {
+    expect(formatMove({ face: 'R', amount: 1, depth: 2 })).toBe('2R')
+    expect(formatMove({ face: 'R', amount: 3, depth: 2 })).toBe("2R'")
+    expect(formatMove({ face: 'R', amount: 2, depth: 2, wide: true })).toBe('Rw2')
+    expect(formatMove({ face: 'R', amount: 1, depth: 2 }, NOTATION_FR)).toBe('2D')
+    expect(formatMove({ face: 'B', amount: 1, depth: 2 }, NOTATION_FR)).toBe('2Ar')
+    expect(formatMove({ face: 'B', amount: 1, depth: 2, wide: true }, NOTATION_FR)).toBe('Arw')
+  })
+
+  it('round-trips all 54 moves through parse/format in both notations', () => {
+    for (const labels of [NOTATION_US, NOTATION_FR]) {
+      for (const move of movesFor(4)) {
+        expect(parseMove(formatMove(move, labels), labels)).toEqual(move)
+      }
+    }
+  })
+
+  it('rejects non-canonical or unknown tokens', () => {
+    expect(parseMove('2Rw')).toBeUndefined()
+    expect(parseMove('w')).toBeUndefined()
+    expect(parseMove('2X')).toBeUndefined()
+    expect(parseMove('2')).toBeUndefined()
+    expect(parseMove('2H')).toBeUndefined() // FR label in US notation
+  })
+
+  it('keeps layers through inversion and simplification', () => {
+    expect(invertMove({ face: 'R', amount: 1, depth: 2 })).toEqual({
+      face: 'R',
+      amount: 3,
+      depth: 2,
+    })
+    expect(invertMove({ face: 'R', amount: 1, depth: 2, wide: true })).toEqual({
+      face: 'R',
+      amount: 3,
+      depth: 2,
+      wide: true,
+    })
+    expect(formatMoves(simplifyMoves(parseMoves('2R 2R')))).toBe('2R2')
+    expect(simplifyMoves(parseMoves("Rw Rw'"))).toEqual([])
+    // Same face but different layers must never merge.
+    expect(formatMoves(simplifyMoves(parseMoves('R 2R')))).toBe('R 2R')
+    expect(formatMoves(simplifyMoves(parseMoves('R Rw')))).toBe('R Rw')
+  })
+
+  it('lists 18 moves up to the 3x3 and 54 on the 4x4', () => {
+    expect(movesFor(2)).toHaveLength(18)
+    expect(movesFor(3)).toHaveLength(18)
+    expect(movesFor(4)).toHaveLength(54)
+  })
+
+  it('4x4 scrambles mix outer, slice and wide moves; smaller sizes stay outer', () => {
+    const moves = scramble(4, 40, seededRng(7))
+    expect(moves).toHaveLength(40)
+    expect(moves.some((m) => m.depth && !m.wide)).toBe(true)
+    expect(moves.some((m) => m.wide)).toBe(true)
+    expect(moves.some((m) => !m.depth)).toBe(true)
+    for (let i = 1; i < moves.length; i++) expect(moves[i]!.face).not.toBe(moves[i - 1]!.face)
+    expect(scramble(3, 30, seededRng(7)).every((m) => !m.depth && !m.wide)).toBe(true)
   })
 })

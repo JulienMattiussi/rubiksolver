@@ -1,5 +1,15 @@
-import { cubeOrientations, normalIndex, solvedCube, stickersTotal } from './cube'
-import type { Color, Cube, CubeSize, Cubie, Vec3 } from './types'
+import { cubeSize, normalIndex, stickersTotal } from './cube'
+import {
+  centersArePaintable,
+  paintableKind,
+  stickerId,
+  tablesFor,
+  type Placement,
+  type PlacementOption,
+  type Slot,
+  type SlotTables,
+} from './editorTables'
+import type { Color, Cube, CubeSize } from './types'
 
 /**
  * Constraint-guided cube editor logic (pure, no React / three.js).
@@ -7,130 +17,44 @@ import type { Color, Cube, CubeSize, Cubie, Vec3 } from './types'
  * The user paints sticker colors onto the fixed slots. To make it impossible
  * to enter an inconsistent piece, we precompute - from the 24 orientations of
  * a solved cube - every valid (normal -> color) placement a real piece can
- * take at each corner/edge slot. A paint is only accepted if the slot's
- * painted stickers still match some available placement, and when a placement
- * becomes the only option its remaining stickers auto-complete.
+ * take at each paintable slot (see editorTables.ts). A paint is only accepted
+ * if the slot's painted stickers still match some available placement, and
+ * when a placement becomes the only option its remaining stickers
+ * auto-complete.
  *
- * Slots and placements are derived per cube size from that size's solved cube
- * (memoized in `tablesFor`), so every entry point takes the size alongside the
- * edit state.
+ * Each placement carries the identity of the physical piece it corresponds to
+ * (corners and edges are unique; the two wings of a 4x4 color pair are told
+ * apart by their chirality, which the placements encode; same-color centers
+ * share one identity with a budget of four). A placement stays available only
+ * while its piece has budget left, so no duplicate piece can ever be entered.
+ * On a 3x3 the centers are fixed and pre-filled; on even sizes they move, so
+ * their slots are paintable like any piece.
  *
- * This guarantees valid, unique pieces during entry. Global solvability
- * (parity) is checked separately, see validate.ts.
+ * This guarantees valid pieces during entry. Global solvability (parity) is
+ * checked separately, see validate.ts.
  */
-
-const posKey = (p: Vec3): string => p.join(',')
-const stickerId = (p: Vec3, ni: number): string => `${posKey(p)}:${ni}`
-
-type SlotKind = 'corner' | 'edge' | 'center' | 'core'
-
-interface SlotSticker {
-  readonly ni: number
-  readonly normal: Vec3
-  readonly id: string
-  readonly solvedColor: Color
-}
-
-export interface Slot {
-  readonly key: string
-  readonly position: Vec3
-  readonly kind: SlotKind
-  readonly stickers: readonly SlotSticker[]
-}
-
-function kindOf(stickerCount: number): SlotKind {
-  return stickerCount === 3
-    ? 'corner'
-    : stickerCount === 2
-      ? 'edge'
-      : stickerCount === 1
-        ? 'center'
-        : 'core'
-}
-
-/** A cubie of a solved cube as a slot (fixed position + exterior normals). */
-function toSlot(cubie: Cubie): Slot {
-  return {
-    key: posKey(cubie.position),
-    position: cubie.position,
-    kind: kindOf(cubie.stickers.length),
-    stickers: cubie.stickers.map((s) => ({
-      ni: normalIndex(s.normal),
-      normal: s.normal,
-      id: stickerId(cubie.position, normalIndex(s.normal)),
-      solvedColor: s.color,
-    })),
-  }
-}
-
-/** A placement maps each of a slot's normal indices to a color. */
-type Placement = Record<number, Color>
-
-interface SlotTables {
-  readonly slots: readonly Slot[]
-  /** Paintable slots (corners and edges). */
-  readonly pieceSlots: readonly Slot[]
-  readonly byKey: ReadonlyMap<string, Slot>
-  /** Valid piece placements per slot key, from the 24 solved orientations. */
-  readonly placements: ReadonlyMap<string, readonly Placement[]>
-}
-
-const TABLES = new Map<CubeSize, SlotTables>()
-
-/** Slot + placement tables of a cube size, derived from its solved cube. */
-function tablesFor(size: CubeSize): SlotTables {
-  let tables = TABLES.get(size)
-  if (!tables) {
-    const slots = solvedCube(size).map(toSlot)
-    const pieceSlots = slots.filter((s) => s.kind === 'corner' || s.kind === 'edge')
-    tables = {
-      slots,
-      pieceSlots,
-      byKey: new Map(slots.map((s) => [s.key, s])),
-      placements: computePlacements(size, pieceSlots),
-    }
-    TABLES.set(size, tables)
-  }
-  return tables
-}
 
 /** The slots a cube of `size` exposes to the editor. */
 export function slotsFor(size: CubeSize): readonly Slot[] {
   return tablesFor(size).slots
 }
 
-function placementKey(p: Placement): string {
-  return Object.keys(p)
-    .map(Number)
-    .sort((a, b) => a - b)
-    .map((ni) => ni + p[ni]!)
-    .join('')
-}
-
-/** For each corner/edge slot, all valid piece placements (from the 24 orientations). */
-function computePlacements(size: CubeSize, pieceSlots: readonly Slot[]): Map<string, Placement[]> {
-  const perSlot = new Map<string, Map<string, Placement>>()
-  for (const slot of pieceSlots) perSlot.set(slot.key, new Map())
-  for (const cube of cubeOrientations(solvedCube(size))) {
-    for (const cubie of cube) {
-      const bucket = perSlot.get(posKey(cubie.position))
-      if (!bucket) continue // center / core
-      const placement: Placement = {}
-      for (const s of cubie.stickers) placement[normalIndex(s.normal)] = s.color
-      bucket.set(placementKey(placement), placement)
-    }
-  }
-  return new Map([...perSlot].map(([k, m]) => [k, [...m.values()]]))
+/** Whether the user can paint this slot on a cube of `size`. */
+export function canPaint(size: CubeSize, slotKey: string): boolean {
+  const slot = tablesFor(size).byKey.get(slotKey)
+  return slot !== undefined && paintableKind(size, slot.kind)
 }
 
 /** Painted stickers, keyed by sticker id. Absent id = not yet painted. */
 export type EditStickers = Record<string, Color>
 
-/** A blank slate: only the fixed centers are set (a 2x2 has none). */
+/** A blank slate: only the fixed centers are set (movable ones stay empty). */
 export function emptyEdit(size: CubeSize): EditStickers {
   const edit: EditStickers = {}
   for (const slot of slotsFor(size)) {
-    if (slot.kind === 'center') edit[slot.stickers[0]!.id] = slot.stickers[0]!.solvedColor
+    if (slot.kind === 'center' && !centersArePaintable(size)) {
+      edit[slot.stickers[0]!.id] = slot.stickers[0]!.solvedColor
+    }
   }
   return edit
 }
@@ -170,39 +94,43 @@ function paintedOf(edit: EditStickers, slot: Slot): Placement {
   return out
 }
 
-/** Color-sets of every fully painted piece slot other than `exceptKey`. */
-function committedColorSets(
+/** The unique placement option a fully painted slot shows, if any. */
+function optionOf(tables: SlotTables, slot: Slot, painted: Placement): PlacementOption | undefined {
+  return (tables.placements.get(slot.key) ?? []).find((option) =>
+    slot.stickers.every((s) => option.colors[s.ni] === painted[s.ni]),
+  )
+}
+
+/** Piece usage of every fully painted paintable slot other than `exceptKey`. */
+function committedPieceUse(
   edit: EditStickers,
-  pieceSlots: readonly Slot[],
+  tables: SlotTables,
   exceptKey: string,
-): Set<string> {
-  const sets = new Set<string>()
-  for (const slot of pieceSlots) {
+): Map<string, number> {
+  const used = new Map<string, number>()
+  for (const slot of tables.paintableSlots) {
     if (slot.key === exceptKey) continue
     const painted = paintedOf(edit, slot)
     if (Object.keys(painted).length !== slot.stickers.length) continue
-    sets.add(colorSetKey(Object.values(painted)))
+    const option = optionOf(tables, slot, painted)
+    if (option) used.set(option.pieceKey, (used.get(option.pieceKey) ?? 0) + 1)
   }
-  return sets
+  return used
 }
 
-function colorSetKey(colors: Color[]): string {
-  return [...colors].sort().join('')
-}
-
-/** Placements of a slot matching its painted stickers and not already used. */
+/** Placements of a slot matching its painted stickers, with budget left. */
 function candidates(
   edit: EditStickers,
   tables: SlotTables,
   slot: Slot,
   painted: Placement,
-): readonly Placement[] {
-  const committed = committedColorSets(edit, tables.pieceSlots, slot.key)
-  return (tables.placements.get(slot.key) ?? []).filter((placement) => {
+): readonly PlacementOption[] {
+  const used = committedPieceUse(edit, tables, slot.key)
+  return (tables.placements.get(slot.key) ?? []).filter((option) => {
     for (const ni of Object.keys(painted).map(Number)) {
-      if (placement[ni] !== painted[ni]) return false
+      if (option.colors[ni] !== painted[ni]) return false
     }
-    return !committed.has(colorSetKey(Object.values(placement)))
+    return (used.get(option.pieceKey) ?? 0) < (tables.budgets.get(option.pieceKey) ?? 0)
   })
 }
 
@@ -220,7 +148,7 @@ export function paint(
 ): EditStickers {
   const tables = tablesFor(size)
   const slot = tables.byKey.get(slotKey)
-  if (!slot || slot.kind === 'center' || slot.kind === 'core') return edit
+  if (!slot || !paintableKind(size, slot.kind)) return edit
   const id = stickerId(slot.position, ni)
   if (edit[id] === color) return edit
 
@@ -230,7 +158,7 @@ export function paint(
     const matches = candidates(next, tables, slot, painted)
     if (matches.length === 0) return null
     if (matches.length === 1) {
-      for (const s of slot.stickers) next[s.id] = matches[0]![s.ni]!
+      for (const s of slot.stickers) next[s.id] = matches[0]!.colors[s.ni]!
     }
     return next
   }
@@ -244,13 +172,34 @@ export function paint(
   return tryPlace(cleared) ?? edit
 }
 
-/** Clear a piece slot's stickers (centers are untouched). */
+/** Clear a paintable slot's stickers (fixed centers are untouched). */
 export function clearSlot(edit: EditStickers, size: CubeSize, slotKey: string): EditStickers {
   const slot = tablesFor(size).byKey.get(slotKey)
-  if (!slot || (slot.kind !== 'corner' && slot.kind !== 'edge')) return edit
+  if (!slot || !paintableKind(size, slot.kind)) return edit
   const next = { ...edit }
   for (const s of slot.stickers) delete next[s.id]
   return next
+}
+
+/**
+ * True when every paintable slot of a complete cube shows a real physical
+ * piece and the piece usage matches the budgets exactly (each corner and each
+ * wing once, four centers per color). With the color counts already checked,
+ * this is the piece-level half of 4x4 solvability (see validate.ts).
+ */
+export function usesRealPieces(cube: Cube): boolean {
+  const tables = tablesFor(cubeSize(cube))
+  const edit = cubeToEdit(cube)
+  const used = new Map<string, number>()
+  for (const slot of tables.paintableSlots) {
+    const option = optionOf(tables, slot, paintedOf(edit, slot))
+    if (!option) return false
+    used.set(option.pieceKey, (used.get(option.pieceKey) ?? 0) + 1)
+  }
+  for (const [key, count] of used) {
+    if (count > (tables.budgets.get(key) ?? 0)) return false
+  }
+  return true
 }
 
 /** Build a full Cube from a complete edit state (throws if incomplete). */

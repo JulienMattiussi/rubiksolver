@@ -1,17 +1,19 @@
 # Rubik Solver
 
-Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2 ou
-3x3**. On manipule le cube, on le mélange **ou on saisit sa propre
+Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2, 3x3
+ou 4x4**. On manipule le cube, on le mélange **ou on saisit sa propre
 configuration** en peignant les stickers en 3D, puis on le résout selon
-**plusieurs vraies méthodes** (par couches, Fridrich/CFOP, optimale sur 2x2).
-La solution est découpée en **étapes nommées** qu'on joue d'un coup ou **pas à
-pas**, pour apprendre la méthode.
+**plusieurs vraies méthodes** (par couches, Fridrich/CFOP, réduction sur 4x4,
+optimale sur 2x2). La solution est découpée en **étapes nommées** qu'on joue
+d'un coup ou **pas à pas**, pour apprendre la méthode.
 
 ## Fonctionnalités
 
-- Cube 3D manipulable (rotations de faces, orbite caméra, recentrage animé).
-- **Choix de la taille** : 2x2 ou 3x3, avec les méthodes adaptées à chacune
-  (dont une résolution **optimale** du 2x2, 11 coups maximum).
+- Cube 3D manipulable (rotations de faces, et de tranches internes ou coups
+  larges sur 4x4, orbite caméra, recentrage animé).
+- **Choix de la taille** : 2x2, 3x3 ou 4x4, avec les méthodes adaptées à
+  chacune (dont une résolution **optimale** du 2x2, 11 coups maximum, et la
+  **réduction** du 4x4 avec correction des parités).
 - Mélange aléatoire, ou **saisie guidée** de son propre cube en peignant les
   stickers (aucune configuration incohérente possible, validation de solubilité).
 - **Résolution par méthode** au choix, expliquée **étape par étape**.

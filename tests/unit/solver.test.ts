@@ -40,7 +40,7 @@ describe('solver', () => {
     const rng = seededRng(12345)
     const failures: string[] = []
     for (let i = 0; i < 40; i++) {
-      const moves = scramble(25, rng)
+      const moves = scramble(3, 25, rng)
       const scrambled = applyMoves(solvedCube(), moves)
       if (!isSolved(applyMoves(scrambled, solve(scrambled)))) failures.push(formatMoves(moves))
     }
@@ -49,10 +49,11 @@ describe('solver', () => {
 
   it('every method solves random scrambles as named steps', () => {
     const rng = seededRng(808)
-    for (const size of [2, 3] as const) {
+    const lengths = { 2: 11, 3: 25, 4: 40 } as const
+    for (const size of [2, 3, 4] as const) {
       for (const method of methodsFor(size)) {
         for (let i = 0; i < 5; i++) {
-          const cube = applyMoves(solvedCube(size), scramble(size === 2 ? 11 : 25, rng))
+          const cube = applyMoves(solvedCube(size), scramble(size, lengths[size], rng))
           const steps = method.solve(cube)
           expect(steps.every((s) => s.key && s.moves.length > 0)).toBe(true)
           const moves = steps.flatMap((s) => [...s.moves])
@@ -60,12 +61,12 @@ describe('solver', () => {
         }
       }
     }
-  }, 120000)
+  }, 240000)
 
   it('reaches each phase goal in order', () => {
     const rng = seededRng(2026)
     for (let i = 0; i < 6; i++) {
-      let state = applyMoves(solvedCube(), scramble(25, rng))
+      let state = applyMoves(solvedCube(), scramble(3, 25, rng))
       const step = (
         fn: (c: typeof state) => ReturnType<typeof solveCross>,
         ok: (c: typeof state) => boolean,
@@ -93,7 +94,7 @@ describe('2x2 solver', () => {
   it('layer method reaches each phase goal in order', () => {
     const rng = seededRng(4242)
     for (let i = 0; i < 8; i++) {
-      let state = applyMoves(solvedCube(2), scramble(11, rng))
+      let state = applyMoves(solvedCube(2), scramble(2, 11, rng))
       state = applyMoves(state, solveBottomLayer2(state))
       expect(bottomLayerDone2(state)).toBe(true)
       state = applyMoves(state, solveTopFace2(state))
@@ -106,7 +107,7 @@ describe('2x2 solver', () => {
   it('optimal solver solves random scrambles in at most 11 moves', () => {
     const rng = seededRng(99)
     for (let i = 0; i < 15; i++) {
-      const scrambled = applyMoves(solvedCube(2), scramble(11, rng))
+      const scrambled = applyMoves(solvedCube(2), scramble(2, 11, rng))
       const moves = solveOptimal2(scrambled)
       expect(moves.length).toBeLessThanOrEqual(11)
       expect(isSolved(applyMoves(scrambled, moves))).toBe(true)

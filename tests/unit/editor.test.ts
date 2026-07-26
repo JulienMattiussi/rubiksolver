@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { applyMoves, solvedCube } from '@/lib/cube'
 import {
   buildCube,
+  canPaint,
   clearSlot,
   colorCounts,
   cubeToEdit,
@@ -24,7 +25,7 @@ describe('cube editor', () => {
   })
 
   it('round-trips a cube through edit and back', () => {
-    const cube = applyMoves(solvedCube(), scramble(20, seededRng(3)))
+    const cube = applyMoves(solvedCube(), scramble(3, 20, seededRng(3)))
     const edit = cubeToEdit(cube)
     expect(isComplete(edit, 3)).toBe(true)
     expect(cubeToEdit(buildCube(edit, 3))).toEqual(edit)
@@ -53,7 +54,7 @@ describe('cube editor', () => {
   })
 
   it('never lets a color exceed nine', () => {
-    const cube = applyMoves(solvedCube(), scramble(15, seededRng(9)))
+    const cube = applyMoves(solvedCube(), scramble(3, 15, seededRng(9)))
     const counts = colorCounts(cubeToEdit(cube))
     expect(Object.values(counts).every((n) => n === 9)).toBe(true)
   })
@@ -77,7 +78,7 @@ describe('2x2 cube editor', () => {
   })
 
   it('round-trips a 2x2 through edit and back', () => {
-    const cube = applyMoves(solvedCube(2), scramble(11, seededRng(5)))
+    const cube = applyMoves(solvedCube(2), scramble(2, 11, seededRng(5)))
     const edit = cubeToEdit(cube)
     expect(isComplete(edit, 2)).toBe(true)
     expect(filledCount(edit)).toBe(24)
@@ -104,5 +105,89 @@ describe('2x2 cube editor', () => {
     expect(edit['-1,1,1:2']).toBe('W')
     expect(edit['-1,1,1:1']).toBe('R')
     expect(edit['-1,1,1:4']).toBe('B')
+  })
+})
+
+describe('4x4 cube editor', () => {
+  it('exposes 64 slots, movable centers included, and starts fully blank', () => {
+    const slots = slotsFor(4)
+    expect(slots).toHaveLength(64)
+    expect(slots.filter((s) => s.kind === 'corner')).toHaveLength(8)
+    expect(slots.filter((s) => s.kind === 'edge')).toHaveLength(24)
+    expect(slots.filter((s) => s.kind === 'center')).toHaveLength(24)
+    expect(slots.filter((s) => s.kind === 'core')).toHaveLength(8)
+    // Centers move on a 4x4, so they are paintable and not pre-filled.
+    expect(canPaint(4, '1,3,1')).toBe(true)
+    expect(canPaint(3, '0,1,0')).toBe(false)
+    expect(filledCount(emptyEdit(4))).toBe(0)
+  })
+
+  it('round-trips a sliced scramble through edit and back', () => {
+    const cube = applyMoves(solvedCube(4), scramble(4, 30, seededRng(13)))
+    const edit = cubeToEdit(cube)
+    expect(isComplete(edit, 4)).toBe(true)
+    expect(filledCount(edit)).toBe(96)
+    expect(cubeToEdit(buildCube(edit, 4))).toEqual(edit)
+  })
+
+  it('lets the user paint any legal position sticker by sticker', () => {
+    // Repainting the true colors of a scrambled cube must never be refused,
+    // and auto-completion, when it fires, must agree with the truth.
+    const cube = applyMoves(solvedCube(4), scramble(4, 25, seededRng(21)))
+    const target = cubeToEdit(cube)
+    let edit = emptyEdit(4)
+    for (const slot of slotsFor(4)) {
+      if (!canPaint(4, slot.key)) continue
+      for (const s of slot.stickers) {
+        edit = paint(edit, 4, slot.key, s.ni, target[s.id]!)
+      }
+    }
+    expect(edit).toEqual(target)
+  })
+
+  it('accepts both wings of a color pair, then refuses a third', () => {
+    let edit = emptyEdit(4)
+    // The two white-green wings, in their two chiral dispositions (same
+    // visible colors on the two UF cells).
+    edit = paint(edit, 4, '1,3,3', 2, 'W')
+    edit = paint(edit, 4, '1,3,3', 4, 'G')
+    edit = paint(edit, 4, '-1,3,3', 2, 'W')
+    edit = paint(edit, 4, '-1,3,3', 4, 'G')
+    expect(edit['1,3,3:4']).toBe('G')
+    expect(edit['-1,3,3:4']).toBe('G')
+    // A third white-green wing does not exist: the G paint restarts the piece.
+    edit = paint(edit, 4, '3,1,3', 0, 'W')
+    edit = paint(edit, 4, '3,1,3', 4, 'G')
+    expect(edit['3,1,3:0']).toBeUndefined()
+    expect(edit['3,1,3:4']).toBe('G')
+  })
+
+  it('tracks center budgets: four per color, the fifth is refused', () => {
+    let edit = emptyEdit(4)
+    for (const key of ['1,3,1', '1,3,-1', '-1,3,1', '-1,3,-1']) {
+      edit = paint(edit, 4, key, 2, 'W')
+      expect(edit[`${key}:2`]).toBe('W')
+    }
+    const before = edit
+    edit = paint(edit, 4, '3,1,1', 0, 'W')
+    expect(edit).toBe(before)
+    // Clearing a center frees its budget.
+    edit = clearSlot(edit, 4, '1,3,1')
+    edit = paint(edit, 4, '3,1,1', 0, 'W')
+    expect(edit['3,1,1:0']).toBe('W')
+  })
+
+  it('keeps fixed 3x3 centers unpaintable and unclearable', () => {
+    const edit = emptyEdit(3)
+    expect(paint(edit, 3, '0,1,0', 2, 'R')).toBe(edit)
+    expect(clearSlot(edit, 3, '0,1,0')).toBe(edit)
+  })
+
+  it('auto-completes a corner once two stickers determine it', () => {
+    let edit = emptyEdit(4)
+    edit = paint(edit, 4, '3,3,3', 2, 'W')
+    edit = paint(edit, 4, '3,3,3', 0, 'R')
+    expect(edit['3,3,3:4']).toBe('G')
+    expect(filledCount(edit)).toBe(3)
   })
 })

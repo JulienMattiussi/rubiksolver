@@ -29,8 +29,17 @@ const fr = {
     F: 'face avant',
     B: 'face arrière',
   },
-  moveTitle: (faceName: string, clockwise: boolean) =>
-    `Tourner la ${faceName} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
+  moveTitle: (faceName: string, clockwise: boolean, kind: 'outer' | 'slice' | 'wide' = 'outer') => {
+    const target =
+      kind === 'slice'
+        ? `la tranche interne de la ${faceName}`
+        : kind === 'wide'
+          ? `les deux couches de la ${faceName}`
+          : `la ${faceName}`
+    return `Tourner ${target} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`
+  },
+  layerLabel: 'Couche tournée',
+  layerKinds: { outer: 'Externe', slice: 'Tranche', wide: 'Large' },
   editCube: 'Saisir un cube',
   editTitle: 'Saisie du cube',
   editHint:
@@ -59,9 +68,17 @@ const fr = {
       name: 'Fridrich (CFOP)',
       desc: 'Croix, puis paires F2L, puis orientation (OLL), puis permutation (PLL) de la dernière couche.',
     },
+    reduction: {
+      name: 'Réduction par couches',
+      desc: 'Centres, appariement des arêtes, puis résolution par couches comme un 3x3.',
+    },
+    reductionCfop: {
+      name: 'Réduction CFOP',
+      desc: 'Centres, appariement des arêtes, puis Croix, F2L, OLL et PLL comme un 3x3.',
+    },
     optimal: {
       name: 'Optimale',
-      desc: 'Recherche exhaustive de la solution la plus courte possible (11 rotations maximum).',
+      desc: 'Recherche exhaustive de la solution la plus courte possible (11 rotations maximum, 2x2 uniquement).',
     },
   },
   stepsLabel: 'Étapes',
@@ -80,6 +97,9 @@ const fr = {
     stepOLL: 'OLL (orienter la dernière face)',
     stepPLL: 'PLL (permuter la dernière couche)',
     stepOptimal: 'Solution optimale',
+    stepCenters: 'Centres',
+    stepPairEdges: 'Appariement des arêtes',
+    stepParity: 'Correction de parité',
   },
 }
 
@@ -113,8 +133,17 @@ const en: Translations = {
     F: 'front face',
     B: 'back face',
   },
-  moveTitle: (faceName: string, clockwise: boolean) =>
-    `Turn the ${faceName} ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
+  moveTitle: (faceName: string, clockwise: boolean, kind: 'outer' | 'slice' | 'wide' = 'outer') => {
+    const target =
+      kind === 'slice'
+        ? `the inner slice of the ${faceName}`
+        : kind === 'wide'
+          ? `both layers of the ${faceName}`
+          : `the ${faceName}`
+    return `Turn ${target} ${clockwise ? 'clockwise' : 'counter-clockwise'}`
+  },
+  layerLabel: 'Turned layer',
+  layerKinds: { outer: 'Outer', slice: 'Slice', wide: 'Wide' },
   editCube: 'Enter a cube',
   editTitle: 'Cube input',
   editHint:
@@ -143,9 +172,17 @@ const en: Translations = {
       name: 'Fridrich (CFOP)',
       desc: 'Cross, then F2L pairs, then orient (OLL) and permute (PLL) the last layer.',
     },
+    reduction: {
+      name: 'Reduction (layer by layer)',
+      desc: 'Centers, edge pairing, then a layer-by-layer finish like a 3x3.',
+    },
+    reductionCfop: {
+      name: 'Reduction (CFOP)',
+      desc: 'Centers, edge pairing, then Cross, F2L, OLL and PLL like a 3x3.',
+    },
     optimal: {
       name: 'Optimal',
-      desc: 'Exhaustive search for the shortest possible solution (at most 11 turns).',
+      desc: 'Exhaustive search for the shortest possible solution (at most 11 turns, 2x2 only).',
     },
   },
   stepsLabel: 'Steps',
@@ -164,6 +201,9 @@ const en: Translations = {
     stepOLL: 'OLL (orient last face)',
     stepPLL: 'PLL (permute last layer)',
     stepOptimal: 'Optimal solution',
+    stepCenters: 'Centers',
+    stepPairEdges: 'Edge pairing',
+    stepParity: 'Parity fix',
   },
 }
 

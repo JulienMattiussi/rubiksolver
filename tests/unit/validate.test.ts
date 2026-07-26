@@ -1,20 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import { applyMoves, solvedCube } from '@/lib/cube'
+import { applyMove, applyMoves, isSolved, solvedCube } from '@/lib/cube'
 import { buildCube, cubeToEdit } from '@/lib/editor'
 import { scramble } from '@/lib/moves'
+import { solve } from '@/lib/solver'
 import { validateCube } from '@/lib/validate'
-import type { Color } from '@/lib/types'
-import { seededRng, twistedCorner2 } from '../helpers'
+import type { Color, CubeSize } from '@/lib/types'
+import { seededRng, twistedCorner, twistedCorner2 } from '../helpers'
 
 /** Rebuild a cube from solved with some stickers recolored. */
-function withStickers(overrides: Record<string, Color>) {
-  return buildCube({ ...cubeToEdit(solvedCube()), ...overrides }, 3)
+function withStickersOn(size: CubeSize, overrides: Record<string, Color>) {
+  return buildCube({ ...cubeToEdit(solvedCube(size)), ...overrides }, size)
 }
 
-/** Same for a 2x2. */
-function withStickers2(overrides: Record<string, Color>) {
-  return buildCube({ ...cubeToEdit(solvedCube(2)), ...overrides }, 2)
-}
+const withStickers = (overrides: Record<string, Color>) => withStickersOn(3, overrides)
+const withStickers2 = (overrides: Record<string, Color>) => withStickersOn(2, overrides)
+const withStickers4 = (overrides: Record<string, Color>) => withStickersOn(4, overrides)
 
 describe('validateCube', () => {
   it('accepts the solved cube', () => {
@@ -24,7 +24,7 @@ describe('validateCube', () => {
   it('accepts random scrambles', () => {
     const rng = seededRng(77)
     for (let i = 0; i < 5; i++) {
-      const cube = applyMoves(solvedCube(), scramble(20, rng))
+      const cube = applyMoves(solvedCube(), scramble(3, 20, rng))
       expect(validateCube(cube)).toEqual({ ok: true })
     }
   }, 60000)
@@ -64,7 +64,7 @@ describe('validateCube (2x2)', () => {
     expect(validateCube(solvedCube(2))).toEqual({ ok: true })
     const rng = seededRng(31)
     for (let i = 0; i < 5; i++) {
-      const cube = applyMoves(solvedCube(2), scramble(11, rng))
+      const cube = applyMoves(solvedCube(2), scramble(2, 11, rng))
       expect(validateCube(cube)).toEqual({ ok: true })
     }
   }, 60000)
@@ -77,4 +77,58 @@ describe('validateCube (2x2)', () => {
   it('rejects a single twisted corner', () => {
     expect(validateCube(twistedCorner2())).toEqual({ ok: false, error: 'impossible' })
   }, 30000)
+})
+
+describe('validateCube (4x4)', () => {
+  it('accepts the solved cube and sliced scrambles', () => {
+    expect(validateCube(solvedCube(4))).toEqual({ ok: true })
+    const rng = seededRng(41)
+    for (let i = 0; i < 5; i++) {
+      const cube = applyMoves(solvedCube(4), scramble(4, 40, rng))
+      expect(validateCube(cube)).toEqual({ ok: true })
+    }
+  }, 60000)
+
+  it('accepts a lone inner slice turn (a legal parity-looking state)', () => {
+    // One inner quarter turn is legal on a real 4x4 even though its projection
+    // would be an impossible 3x3: validation must not reject it.
+    const cube = applyMove(solvedCube(4), { face: 'R', amount: 1, depth: 2 })
+    expect(validateCube(cube)).toEqual({ ok: true })
+  })
+
+  it('rejects wrong color counts', () => {
+    // Recolor one white center to red: red = 17, white = 15.
+    expect(validateCube(withStickers4({ '1,3,1:2': 'R' }))).toEqual({ ok: false, error: 'counts' })
+  })
+
+  it('rejects a single twisted corner', () => {
+    expect(validateCube(twistedCorner(4))).toEqual({ ok: false, error: 'impossible' })
+  }, 30000)
+
+  it('rejects a flipped wing (its chiral twin would be used twice)', () => {
+    // Swapping the two stickers of one wing shows the disposition of its
+    // twin, which already sits on the other UF cell: duplicate piece.
+    expect(validateCube(withStickers4({ '1,3,3:2': 'G', '1,3,3:4': 'W' }))).toEqual({
+      ok: false,
+      error: 'impossible',
+    })
+  })
+
+  it('rejects a non-existent piece (opposite colors on one wing)', () => {
+    // Trade a wing sticker for a center sticker: counts stay right, but a
+    // white-yellow wing does not exist on a real cube.
+    expect(validateCube(withStickers4({ '1,3,3:4': 'Y', '1,-3,1:3': 'G' }))).toEqual({
+      ok: false,
+      error: 'impossible',
+    })
+  })
+
+  it('agrees with the solver on random scrambles (cross-check)', () => {
+    const rng = seededRng(59)
+    for (let i = 0; i < 2; i++) {
+      const cube = applyMoves(solvedCube(4), scramble(4, 40, rng))
+      expect(validateCube(cube)).toEqual({ ok: true })
+      expect(isSolved(applyMoves(cube, solve(cube)))).toBe(true)
+    }
+  }, 120000)
 })

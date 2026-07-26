@@ -59,6 +59,39 @@ test('2x2: switch size, scramble, then solve with the optimal method', async ({ 
   await expect(solve).toBeDisabled()
 })
 
+test('4x4: switch size, scramble, then solve by reduction', async ({ page }) => {
+  // Reduction solutions run to ~300 turns; even at max speed this takes a while.
+  test.setTimeout(300000)
+  await page.goto('/')
+
+  await page.getByLabel('Vitesse').fill('100')
+  await page.getByLabel('Choix du cube').selectOption('4')
+  await page.getByLabel('Méthode de résolution').selectOption('reduction')
+
+  const scramble = page.getByRole('button', { name: 'Mélanger' })
+  const solve = page.getByRole('button', { name: 'Résoudre' })
+
+  await scramble.click()
+  await expect(solve).toBeEnabled({ timeout: 60000 })
+
+  await solve.click()
+  await expect(scramble).toBeEnabled({ timeout: 240000 })
+  await expect(solve).toBeDisabled()
+})
+
+test('4x4 cube editor: movable centers count toward the 96 stickers', async ({ page }) => {
+  await page.goto('/')
+
+  await page.getByLabel('Choix du cube').selectOption('4')
+  await page.getByRole('button', { name: /Depuis l.?.tat actuel/ }).click()
+  await expect(page.getByText('96 / 96 stickers')).toBeVisible()
+
+  const use = page.getByRole('button', { name: 'Utiliser ce cube' })
+  await expect(use).toBeEnabled()
+  await use.click()
+  await expect(page.getByRole('button', { name: 'Mélanger' })).toBeVisible()
+})
+
 test('cube editor: enter, fill from current state, apply', async ({ page }) => {
   await page.goto('/')
 

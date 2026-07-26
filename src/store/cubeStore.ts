@@ -8,7 +8,7 @@ import type { Cube, CubeSize, Move } from '@/lib/types'
 type Mode = 'idle' | 'scrambling' | 'solving'
 
 /** Scramble length per size: enough to reach any state, without dragging on. */
-const SCRAMBLE_LENGTH: Record<CubeSize, number> = { 2: 11, 3: 20 }
+const SCRAMBLE_LENGTH: Record<CubeSize, number> = { 2: 11, 3: 20, 4: 40 }
 
 interface CubeStore {
   /** Logical cube state; its size is derived via `cubeSize(cube)`. */
@@ -84,7 +84,7 @@ export const useCube = create<CubeStore>((set, get) => ({
 
   scramble: () =>
     set((s) => ({
-      queue: makeScramble(SCRAMBLE_LENGTH[cubeSize(s.cube)]),
+      queue: makeScramble(cubeSize(s.cube), SCRAMBLE_LENGTH[cubeSize(s.cube)]),
       mode: 'scrambling',
       active: null,
       ...clearSolution(),
@@ -94,7 +94,9 @@ export const useCube = create<CubeStore>((set, get) => ({
     set((s) => {
       if (size === cubeSize(s.cube)) return s
       const methods = methodsFor(size)
-      const method = methods.some((m) => m.id === s.method) ? s.method : methods[0]!.id
+      const method = methods.some((m) => m.id === s.method)
+        ? s.method
+        : (methods[0]?.id ?? s.method)
       return { method, ...loadedCube(solvedCube(size)) }
     }),
 
@@ -102,7 +104,8 @@ export const useCube = create<CubeStore>((set, get) => ({
 
   prepareSolution: () => {
     const methods = methodsFor(cubeSize(get().cube))
-    const method = methods.find((m) => m.id === get().method) ?? methods[0]!
+    const method = methods.find((m) => m.id === get().method) ?? methods[0]
+    if (!method) throw new Error('prepareSolution: no solving method for this cube size')
     const steps = method.solve(get().cube)
     set({ steps, stepIndex: 0, mode: 'solving', queue: [], active: null })
     return steps

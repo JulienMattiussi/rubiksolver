@@ -4,14 +4,29 @@ import {
   cubeOrientations,
   cubeSize,
   FACE_COLOR,
-  FACE_NORMAL,
   isSolved,
   OPPOSITE_COLOR,
   solvedCube,
   stateKey,
 } from './cube'
-import { invertMoves, parseMoves, simplifyMoves } from './moves'
+import { invertMoves } from './moves'
+import {
+  atEverySide,
+  buildSteps,
+  colorAt,
+  faceGenerators,
+  relMoves,
+  sameColorSet,
+  search,
+  SIDES,
+  solveWithAlgs,
+  type SolveStep,
+  type StepSpec,
+} from './solverKit'
+import { reductionSteps } from './solver4/steps'
 import type { Color, Cube, CubeSize, Cubie, Face, Move } from './types'
+
+export type { SolveStep } from './solverKit'
 
 /**
  * Layer-by-layer (beginner method) solver.
@@ -33,8 +48,8 @@ import type { Color, Cube, CubeSize, Cubie, Face, Move } from './types'
  * tests) generate every case. Solutions are long but always correct.
  */
 
-const SIDES: readonly Face[] = ['F', 'R', 'B', 'L']
 const ALL_TURN_FACES: readonly Face[] = ['U', 'D', 'F', 'B', 'L', 'R']
+const OUTER_GENERATORS = faceGenerators(ALL_TURN_FACES)
 
 // Base last-layer algorithms, written for front = F (remapped per side below).
 const OLL_EDGE = "F R U R' U' F'" // orients last-layer edges (top cross)
@@ -45,21 +60,6 @@ const PLL_EDGE = "R U' R U R U R U' R' U' R2" // Ua-perm: pure 3-cycle of U edge
 // ---------------------------------------------------------------------------
 // Piece queries
 // ---------------------------------------------------------------------------
-
-/** Color of the sticker on `cubie` pointing along face `f`, if any. */
-function colorAt(cubie: Cubie, f: Face): Color | undefined {
-  const n = FACE_NORMAL[f]
-  return cubie.stickers.find(
-    (s) => s.normal[0] === n[0] && s.normal[1] === n[1] && s.normal[2] === n[2],
-  )?.color
-}
-
-function sameColorSet(cubie: Cubie, colors: readonly Color[]): boolean {
-  if (cubie.stickers.length !== colors.length) return false
-  const have = cubie.stickers.map((s) => s.color).sort()
-  const want = [...colors].sort()
-  return have.every((c, i) => c === want[i])
-}
 
 /** Find the edge cubie carrying exactly the two given colors. */
 function findEdge(cube: Cube, a: Color, b: Color): Cubie {
@@ -149,123 +149,6 @@ export function topCornersDone(cube: Cube): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Shortest-path search over face turns
-// ---------------------------------------------------------------------------
-
-/**
- * Breadth-first search for the shortest sequence from `start` to a state
- * satisfying `goal`, turning only faces in `faces`. Kept fast by restricting
- * `faces` and by only ever solving shallow goals. Throws past `maxDepth`.
- */
-function search(
-  start: Cube,
-  goal: (c: Cube) => boolean,
-  faces: readonly Face[],
-  maxDepth: number,
-): Move[] {
-  if (goal(start)) return []
-  interface Node {
-    cube: Cube
-    moves: Move[]
-    lastFace: Face | null
-  }
-  let frontier: Node[] = [{ cube: start, moves: [], lastFace: null }]
-  const seen = new Set<string>([stateKey(start)])
-  for (let depth = 0; depth < maxDepth; depth++) {
-    const next: Node[] = []
-    for (const node of frontier) {
-      for (const face of faces) {
-        if (face === node.lastFace) continue
-        let cube = node.cube
-        for (let amount = 1; amount <= 3; amount++) {
-          cube = applyMove(cube, { face, amount: 1 })
-          const move: Move = { face, amount: amount as 1 | 2 | 3 }
-          if (goal(cube)) return [...node.moves, move]
-          const key = stateKey(cube)
-          if (!seen.has(key)) {
-            seen.add(key)
-            next.push({ cube, moves: [...node.moves, move], lastFace: face })
-          }
-        }
-      }
-    }
-    frontier = next
-  }
-  throw new Error('search: no solution within depth')
-}
-
-// ---------------------------------------------------------------------------
-// Frame remapping + "align U, then apply an algorithm" search
-// ---------------------------------------------------------------------------
-
-/** Map a relative move (algorithm written for front = F) to a given front face. */
-function relToAbs(rel: Face, front: Face): Face {
-  if (rel === 'U' || rel === 'D') return rel
-  const i = SIDES.indexOf(rel)
-  const j = SIDES.indexOf(front)
-  return SIDES[(i + j) % 4]!
-}
-
-function relMoves(alg: string, front: Face): Move[] {
-  return parseMoves(alg).map((m) => ({ face: relToAbs(m.face, front), amount: m.amount }))
-}
-
-function auf(k: number): Move[] {
-  return k === 0 ? [] : [{ face: 'U', amount: k as 1 | 2 | 3 }]
-}
-
-/** The same relative algorithm applied with each side face as "front". */
-function atEverySide(alg: string): Move[][] {
-  return SIDES.map((f) => relMoves(alg, f))
-}
-
-/**
- * Search for a solution built from steps of the form "(align U by k) then
- * apply one of `algs`", up to `maxApps` steps, ending with an optional U
- * alignment. Every candidate algorithm restores the layers already solved, so
- * any sequence reaching `goal` does so without regressing earlier work.
- *
- * Branching is tiny (4 AUF x |algs|) and duplicate states are pruned, so the
- * reachable set stays small and the search is fast despite the object model.
- */
-function solveWithAlgs(
-  state: Cube,
-  algs: Move[][],
-  goal: (c: Cube) => boolean,
-  maxApps: number,
-): Move[] {
-  interface Node {
-    cube: Cube
-    moves: Move[]
-  }
-  let frontier: Node[] = [{ cube: state, moves: [] }]
-  const seen = new Set<string>([stateKey(state)])
-  for (let app = 0; ; app++) {
-    for (const node of frontier) {
-      for (let k = 0; k <= 3; k++) {
-        const m = auf(k)
-        if (goal(applyMoves(node.cube, m))) return [...node.moves, ...m]
-      }
-    }
-    if (app === maxApps) throw new Error('solveWithAlgs: no solution')
-    const next: Node[] = []
-    for (const node of frontier) {
-      for (let k = 0; k <= 3; k++) {
-        for (const alg of algs) {
-          const seq = [...auf(k), ...alg]
-          const cube = applyMoves(node.cube, seq)
-          const key = stateKey(cube)
-          if (seen.has(key)) continue
-          seen.add(key)
-          next.push({ cube, moves: [...node.moves, ...seq] })
-        }
-      }
-    }
-    frontier = next
-  }
-}
-
-// ---------------------------------------------------------------------------
 // Phases
 // ---------------------------------------------------------------------------
 
@@ -276,7 +159,7 @@ export function solveCross(cube: Cube): Move[] {
     if (edgePlaced(state, s)) continue
     const placed = SIDES.filter((x) => edgePlaced(state, x))
     const goal = (c: Cube) => placed.every((x) => edgePlaced(c, x)) && edgePlaced(c, s)
-    const moves = search(state, goal, ALL_TURN_FACES, 8)
+    const moves = search(state, goal, OUTER_GENERATORS, 8)
     state = applyMoves(state, moves)
     all.push(...moves)
   }
@@ -522,59 +405,33 @@ function solveF2L(cube: Cube): Move[] {
   return all
 }
 
-/**
- * One named stage of a method's solution. `key` is an i18n key describing the
- * step (e.g. the CFOP "F2L"); `moves` are the turns that complete it. Steps let
- * the UI teach a method by playing it one meaningful stage at a time.
- */
-export interface SolveStep {
-  readonly key: string
-  readonly moves: readonly Move[]
-}
+/** The seven classic stages of the beginner "layer by layer" 3x3 method. */
+const BEGINNER_SPECS: readonly StepSpec[] = [
+  { key: 'stepBottomCross', phases: [solveCross] },
+  { key: 'stepBottomCorners', phases: [solveFirstLayerCorners] },
+  { key: 'stepMiddle', phases: [solveMiddleLayer] },
+  { key: 'stepTopCross', phases: [solveTopCross] },
+  { key: 'stepOrientCorners', phases: [solveTopFace] },
+  { key: 'stepPermuteCorners', phases: [solvePermuteCorners] },
+  { key: 'stepPermuteEdges', phases: [solvePermuteEdges] },
+]
 
-interface StepSpec {
-  key: string
-  phases: ReadonlyArray<(c: Cube) => Move[]>
-}
-
-/** Run grouped phases, emitting one named step per group. */
-function buildSteps(cube: Cube, groups: readonly StepSpec[]): SolveStep[] {
-  if (isSolved(cube)) return []
-  let state = cube
-  const steps: SolveStep[] = []
-  for (const group of groups) {
-    let moves: Move[] = []
-    for (const phase of group.phases) {
-      const m = phase(state)
-      state = applyMoves(state, m)
-      moves = moves.concat(m)
-    }
-    steps.push({ key: group.key, moves: simplifyMoves(moves) })
-  }
-  return steps.filter((s) => s.moves.length > 0)
-}
+/** The four CFOP (Fridrich) stages: Cross, F2L, OLL, PLL. */
+const CFOP_SPECS: readonly StepSpec[] = [
+  { key: 'stepCross', phases: [solveCross] },
+  { key: 'stepF2L', phases: [solveF2L] },
+  { key: 'stepOLL', phases: [solveTopCross, solveTopFace] },
+  { key: 'stepPLL', phases: [solvePermuteCorners, solvePermuteEdges] },
+]
 
 /** Beginner "layer by layer" method, taught as its seven classic stages. */
 function beginnerSteps(cube: Cube): SolveStep[] {
-  return buildSteps(cube, [
-    { key: 'stepBottomCross', phases: [solveCross] },
-    { key: 'stepBottomCorners', phases: [solveFirstLayerCorners] },
-    { key: 'stepMiddle', phases: [solveMiddleLayer] },
-    { key: 'stepTopCross', phases: [solveTopCross] },
-    { key: 'stepOrientCorners', phases: [solveTopFace] },
-    { key: 'stepPermuteCorners', phases: [solvePermuteCorners] },
-    { key: 'stepPermuteEdges', phases: [solvePermuteEdges] },
-  ])
+  return buildSteps(cube, BEGINNER_SPECS)
 }
 
 /** CFOP (Fridrich), taught as its four stages: Cross, F2L, OLL, PLL. */
 function cfopSteps(cube: Cube): SolveStep[] {
-  return buildSteps(cube, [
-    { key: 'stepCross', phases: [solveCross] },
-    { key: 'stepF2L', phases: [solveF2L] },
-    { key: 'stepOLL', phases: [solveTopCross, solveTopFace] },
-    { key: 'stepPLL', phases: [solvePermuteCorners, solvePermuteEdges] },
-  ])
+  return buildSteps(cube, CFOP_SPECS)
 }
 
 /** 2x2 layer by layer: bottom corners, orient the top, permute the top. */
@@ -591,8 +448,12 @@ function optimalSteps(cube: Cube): SolveStep[] {
   return buildSteps(cube, [{ key: 'stepOptimal', phases: [solveOptimal2] }])
 }
 
+/** 4x4 reduction: centers, edge pairing, parities, then a 3x3 finish. */
+const reduction4Steps = reductionSteps(BEGINNER_SPECS)
+const reductionCfop4Steps = reductionSteps(CFOP_SPECS)
+
 /** Identifier of an available solving method. */
-export type MethodId = 'beginner' | 'cfop' | 'optimal'
+export type MethodId = 'beginner' | 'cfop' | 'optimal' | 'reduction' | 'reductionCfop'
 
 /**
  * Registry of solving methods: one solver per supported cube size, so which
@@ -604,6 +465,8 @@ const SOLVE_METHODS: ReadonlyArray<{
 }> = [
   { id: 'beginner', solvers: { 2: beginner2Steps, 3: beginnerSteps } },
   { id: 'cfop', solvers: { 3: cfopSteps } },
+  { id: 'reduction', solvers: { 4: reduction4Steps } },
+  { id: 'reductionCfop', solvers: { 4: reductionCfop4Steps } },
   { id: 'optimal', solvers: { 2: optimalSteps } },
 ]
 
@@ -616,10 +479,12 @@ export function methodsFor(size: CubeSize) {
 }
 
 /**
- * Default full solve, kept for validation and callers. Both branches throw on
+ * Default full solve, kept for validation and callers. Every branch throws on
  * an unsolvable cube after a bounded search, which is what validate.ts needs.
  */
 export function solve(cube: Cube): Move[] {
-  if (cubeSize(cube) === 2) return solveOptimal2(cube)
+  const size = cubeSize(cube)
+  if (size === 2) return solveOptimal2(cube)
+  if (size === 4) return reduction4Steps(cube).flatMap((s) => [...s.moves])
   return beginnerSteps(cube).flatMap((s) => [...s.moves])
 }

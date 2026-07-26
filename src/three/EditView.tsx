@@ -1,5 +1,5 @@
 import { cubeSize } from '@/lib/cube'
-import { slotsFor } from '@/lib/editor'
+import { canPaint, slotsFor } from '@/lib/editor'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { COLOR_HEX, PLASTIC } from './colors'
@@ -25,7 +25,7 @@ export function EditView() {
             <meshStandardMaterial color={PLASTIC} roughness={0.65} metalness={0.1} />
           </mesh>
           {slot.stickers.map((s) => {
-            const paintable = slot.kind === 'corner' || slot.kind === 'edge'
+            const paintable = canPaint(size, slot.key)
             const color = edit[s.id]
             return (
               <Sticker

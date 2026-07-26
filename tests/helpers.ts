@@ -1,5 +1,5 @@
 import { solvedCube } from '@/lib/cube'
-import type { Cube } from '@/lib/types'
+import type { Cube, CubeSize } from '@/lib/types'
 
 /**
  * Deterministic PRNG (mulberry32) for reproducible scramble/solve tests.
@@ -17,12 +17,14 @@ export function seededRng(seed: number): () => number {
 }
 
 /**
- * A solved 2x2 with one corner twisted in place: every piece is real, but the
- * corner-twist parity is off, so no sequence of moves can solve it.
+ * A solved cube with one corner twisted in place: every piece is real, but
+ * the corner-twist parity is off, so no sequence of moves can solve it.
  */
-export function twistedCorner2(): Cube {
-  return solvedCube(2).map((cubie, i) =>
-    i === 0
+export function twistedCorner(size: CubeSize): Cube {
+  const cube = solvedCube(size)
+  const corner = cube.findIndex((c) => c.stickers.length === 3)
+  return cube.map((cubie, i) =>
+    i === corner
       ? {
           ...cubie,
           stickers: cubie.stickers.map((s, j) => ({
@@ -32,4 +34,9 @@ export function twistedCorner2(): Cube {
         }
       : cubie,
   )
+}
+
+/** The 2x2 variant, kept for the existing suites. */
+export function twistedCorner2(): Cube {
+  return twistedCorner(2)
 }

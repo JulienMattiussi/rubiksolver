@@ -8,13 +8,19 @@ export interface CubeLayout {
 }
 
 /**
- * Visual layout per cube size. Logical 2x2 coordinates live in {-1,1} (one
- * unit of empty space between cubies), so positions are halved to make the
- * cubies adjacent, then the whole cube is scaled up so both sizes occupy a
- * similar volume in front of the camera.
+ * Visual layout per cube size. Logical 2x2 and 4x4 coordinates are spaced two
+ * units apart (to stay integers), so positions are halved to make the cubies
+ * adjacent, then the whole cube is scaled so every size occupies the same
+ * volume in front of the camera (an extent of 3 world units).
  */
+const LAYOUTS: Record<CubeSize, CubeLayout> = {
+  2: { scale: 1.5, positionFactor: 0.5 },
+  3: { scale: 1, positionFactor: 1 },
+  4: { scale: 0.75, positionFactor: 0.5 },
+}
+
 export function cubeLayout(size: CubeSize): CubeLayout {
-  return size === 2 ? { scale: 1.5, positionFactor: 0.5 } : { scale: 1, positionFactor: 1 }
+  return LAYOUTS[size]
 }
 
 /** Map a logical cubie/slot position to its visual position. */

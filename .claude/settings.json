@@ -32,7 +32,8 @@
       "Bash(echo *)",
       "Bash(sed -n *)",
       "Bash(make fix *)",
-      "Bash(make check *)"
+      "Bash(make check *)",
+      "Bash(make test-e2e *)"
     ]
   }
 }

@@ -6,6 +6,7 @@ import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 
 beforeEach(() => {
+  useCube.getState().setSize(3)
   useCube.getState().reset()
   useI18n.getState().setLocale('fr')
 })
@@ -35,5 +36,32 @@ describe('<Controls />', () => {
     render(<Controls />)
     await user.click(screen.getByRole('button', { name: 'en' }))
     expect(screen.getByRole('button', { name: 'Scramble' })).toBeInTheDocument()
+  })
+
+  it('offers inner-slice and wide turns on the 4x4 only', async () => {
+    const user = userEvent.setup()
+    render(<Controls />)
+    // No layer selector on the 3x3.
+    expect(screen.queryByRole('group', { name: 'Couche tournée' })).not.toBeInTheDocument()
+
+    await user.selectOptions(screen.getByLabelText('Choix du cube'), '4')
+    await user.click(screen.getByRole('button', { name: 'Tranche' }))
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Tourner la tranche interne de la face de droite dans le sens horaire',
+      }),
+    )
+    expect(useCube.getState().queue.at(-1)).toEqual({ face: 'R', amount: 1, depth: 2 })
+
+    // Without a 3D loop the queue never drains and keeps the pad disabled.
+    useCube.getState().stop()
+
+    await user.click(screen.getByRole('button', { name: 'Large' }))
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Tourner les deux couches de la face de droite dans le sens anti-horaire',
+      }),
+    )
+    expect(useCube.getState().queue.at(-1)).toEqual({ face: 'R', amount: 3, depth: 2, wide: true })
   })
 })

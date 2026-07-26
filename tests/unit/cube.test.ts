@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { applyMove, applyMoves, cubeOrientations, cubeSize, isSolved, solvedCube } from '@/lib/cube'
-import { ALL_MOVES, invertMoves, parseMoves, scramble } from '@/lib/moves'
+import {
+  applyMove,
+  applyMoves,
+  cubeOrientations,
+  cubeSize,
+  isSolved,
+  moveLayerCoords,
+  solvedCube,
+  stateKey,
+} from '@/lib/cube'
+import { ALL_MOVES, invertMoves, movesFor, parseMoves, scramble } from '@/lib/moves'
 import { seededRng } from '../helpers'
 
 describe('cube engine', () => {
@@ -48,7 +57,7 @@ describe('cube engine', () => {
   })
 
   it('undoing a scramble restores the solved cube', () => {
-    const moves = scramble(30, seededRng(1))
+    const moves = scramble(3, 30, seededRng(1))
     const scrambled = applyMoves(solvedCube(), moves)
     expect(isSolved(scrambled)).toBe(false)
     expect(isSolved(applyMoves(scrambled, invertMoves(moves)))).toBe(true)
@@ -88,5 +97,68 @@ describe('2x2 cube engine', () => {
     // On a 2x2, R and L' rotate the two layers the same way: the cube ends
     // solved but reoriented, which the uniform-faces rule must accept.
     expect(isSolved(applyMoves(solvedCube(2), parseMoves("R L'")))).toBe(true)
+  })
+})
+
+describe('4x4 cube engine', () => {
+  it('has 64 cubies in {-3,-1,1,3}^3 with the right sticker counts', () => {
+    const cube = solvedCube(4)
+    expect(cube).toHaveLength(64)
+    expect(cubeSize(cube)).toBe(4)
+    const counts = cube.map((c) => c.stickers.length)
+    // 8 corners (3 stickers), 24 wing edges (2), 24 movable centers (1), 8 hidden inner (0).
+    expect(counts.filter((n) => n === 3)).toHaveLength(8)
+    expect(counts.filter((n) => n === 2)).toHaveLength(24)
+    expect(counts.filter((n) => n === 1)).toHaveLength(24)
+    expect(counts.filter((n) => n === 0)).toHaveLength(8)
+    expect(cube.every((c) => c.position.every((v) => [-3, -1, 1, 3].includes(v)))).toBe(true)
+    expect(isSolved(cube)).toBe(true)
+  })
+
+  it('selects the right layers for outer, slice and wide moves', () => {
+    expect(moveLayerCoords({ face: 'R', amount: 1 }, 4)).toEqual([3])
+    expect(moveLayerCoords({ face: 'R', amount: 1, depth: 2 }, 4)).toEqual([1])
+    expect(moveLayerCoords({ face: 'R', amount: 1, depth: 2, wide: true }, 4)).toEqual([3, 1])
+    expect(moveLayerCoords({ face: 'L', amount: 1, depth: 2 }, 4)).toEqual([-1])
+    expect(moveLayerCoords({ face: 'L', amount: 1 }, 3)).toEqual([-1])
+    expect(moveLayerCoords({ face: 'U', amount: 1 }, 2)).toEqual([1])
+    expect(() => moveLayerCoords({ face: 'R', amount: 1, depth: 2 }, 3)).toThrow()
+  })
+
+  it('any single turn unsolves, four quarter turns and move+inverse are no-ops', () => {
+    for (const move of movesFor(4)) {
+      expect(isSolved(applyMove(solvedCube(4), move))).toBe(false)
+      expect(isSolved(applyMoves(solvedCube(4), [move, ...invertMoves([move])]))).toBe(true)
+      if (move.amount === 1) {
+        expect(isSolved(applyMoves(solvedCube(4), [move, move, move, move]))).toBe(true)
+      }
+    }
+  })
+
+  it('a wide turn equals the outer turn plus the inner slice', () => {
+    for (const move of movesFor(4).filter((m) => m.wide)) {
+      const viaWide = applyMove(solvedCube(4), move)
+      const viaTwo = applyMoves(solvedCube(4), [
+        { face: move.face, amount: move.amount },
+        { face: move.face, amount: move.amount, depth: 2 },
+      ])
+      expect(stateKey(viaWide)).toBe(stateKey(viaTwo))
+    }
+  })
+
+  it('has 24 orientations with distinct state keys', () => {
+    const orientations = cubeOrientations(solvedCube(4))
+    expect(orientations).toHaveLength(24)
+    expect(new Set(orientations.map(stateKey)).size).toBe(24)
+    // stateKey must tell an inner slice turn apart from the solved state.
+    const sliced = applyMove(solvedCube(4), { face: 'R', amount: 1, depth: 2 })
+    expect(stateKey(sliced)).not.toBe(stateKey(solvedCube(4)))
+  })
+
+  it('undoing a sliced scramble restores the solved cube', () => {
+    const moves = scramble(4, 40, seededRng(11))
+    const scrambled = applyMoves(solvedCube(4), moves)
+    expect(isSolved(scrambled)).toBe(false)
+    expect(isSolved(applyMoves(scrambled, invertMoves(moves)))).toBe(true)
   })
 })

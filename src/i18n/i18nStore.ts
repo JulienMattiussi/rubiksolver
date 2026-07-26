@@ -22,7 +22,8 @@ const initial = detectLocale()
 export const useI18n = create<I18nState>((set) => ({
   locale: initial,
   t: LOCALES[initial],
-  notation: initial === 'fr' ? 'fr' : 'us',
+  // International notation by default, whatever the locale (toggleable).
+  notation: 'us',
   setLocale: (locale) => {
     if (typeof document !== 'undefined') document.documentElement.lang = locale
     set({ locale, t: LOCALES[locale] })
