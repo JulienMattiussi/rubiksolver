@@ -14,11 +14,14 @@ d'un coup ou **pas à pas**, pour apprendre la méthode.
 - **Choix de la taille** : 2x2, 3x3 ou 4x4, avec les méthodes adaptées à
   chacune (dont une résolution **optimale** du 2x2, 11 coups maximum, et la
   **réduction** du 4x4 avec correction des parités).
+- **Version miroir** de chaque taille (Mirror Blocks) : couches d'épaisseurs
+  différentes et facettes toutes dorées, à résoudre par la forme. Même moteur,
+  mêmes méthodes : ce n'est qu'une variante de rendu.
 - Mélange aléatoire, ou **saisie guidée** de son propre cube en peignant les
   stickers (aucune configuration incohérente possible, validation de solubilité).
 - **Résolution par méthode** au choix, expliquée **étape par étape**.
-- Bilingue **FR/EN** et notation des mouvements **française (H B G D F Ar)** ou
-  **internationale (U D L R F B)**.
+- Bilingue **FR/EN** et notation des mouvements **internationale (U D L R F B,
+  par défaut)** ou **française (H B G D F Ar)**.
 - Responsive : panneau repliable et cube empilé au-dessus de la saisie sur mobile.
 
 ## Démarrage

@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { applyMove, cubeSize, solvedCube } from '@/lib/cube'
 import { scramble as makeScramble } from '@/lib/moves'
 import { methodsFor, type MethodId, type SolveStep } from '@/lib/solver'
-import type { Cube, CubeSize, Move } from '@/lib/types'
+import type { Cube, CubeSize, CubeVariant, Move } from '@/lib/types'
 
 /** What the currently playing queue represents (drives status + UI labels). */
 type Mode = 'idle' | 'scrambling' | 'solving'
@@ -13,6 +13,8 @@ const SCRAMBLE_LENGTH: Record<CubeSize, number> = { 2: 11, 3: 20, 4: 40 }
 interface CubeStore {
   /** Logical cube state; its size is derived via `cubeSize(cube)`. */
   cube: Cube
+  /** How the cube is drawn. Purely visual: nothing else reads it. */
+  variant: CubeVariant
   /** Moves waiting to be animated, in order. */
   queue: Move[]
   /** Move currently being animated, or null when idle. */
@@ -35,6 +37,8 @@ interface CubeStore {
   scramble: () => void
   /** Switch cube size: resets to a solved cube of that size. */
   setSize: (size: CubeSize) => void
+  /** Switch rendering variant. Keeps the current state: it is only a skin. */
+  setVariant: (variant: CubeVariant) => void
   setMethod: (method: MethodId) => void
   /** Compute the solution steps for the current cube (does not animate). */
   prepareSolution: () => SolveStep[]
@@ -70,6 +74,7 @@ function loadedCube(cube: Cube) {
 
 export const useCube = create<CubeStore>((set, get) => ({
   cube: solvedCube(),
+  variant: 'classic',
   queue: [],
   active: null,
   mode: 'idle',
@@ -99,6 +104,8 @@ export const useCube = create<CubeStore>((set, get) => ({
         : (methods[0]?.id ?? s.method)
       return { method, ...loadedCube(solvedCube(size)) }
     }),
+
+  setVariant: (variant) => set({ variant }),
 
   setMethod: (method) => set({ method, ...clearSolution() }),
 

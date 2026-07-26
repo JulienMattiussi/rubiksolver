@@ -12,3 +12,7 @@ export const COLOR_HEX: Record<Color, string> = {
 
 /** Dark plastic body of a cubie. */
 export const PLASTIC = '#0b0f1a'
+
+/** Mirror cube: every facelet wears the same gold, pieces are told apart by
+ *  their size. */
+export const MIRROR_STICKER = '#d8a63f'

@@ -38,6 +38,28 @@ test('scrambles then solves back to a solved cube', async ({ page }) => {
   await expect(solve).toBeDisabled()
 })
 
+test('mirror cube: the variant is a skin, it keeps the state and renders', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/')
+  await page.getByLabel('Vitesse').fill('100')
+
+  const scramble = page.getByRole('button', { name: 'Mélanger' })
+  await scramble.click()
+  await expect(page.getByRole('button', { name: 'Résoudre' })).toBeEnabled({ timeout: 30000 })
+
+  // Same cube, still scrambled: only its rendering changed.
+  await page.getByLabel('Choix du cube').selectOption('3m')
+  await expect(page.getByText('Prêt')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Réinitialiser' })).toBeEnabled()
+
+  // A mirror size switch mounts fine too (the 4x4 has middle layers).
+  await page.getByLabel('Choix du cube').selectOption('4m')
+  await expect(page.getByText('Cube résolu')).toBeVisible()
+  await expect(page.locator('canvas')).toBeVisible()
+  expect(errors).toEqual([])
+})
+
 test('2x2: switch size, scramble, then solve with the optimal method', async ({ page }) => {
   test.setTimeout(120000)
   await page.goto('/')

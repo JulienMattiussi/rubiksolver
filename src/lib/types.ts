@@ -4,7 +4,33 @@
 export type CubeSize = 2 | 3 | 4
 
 /** Sizes exposed in the UI, in display order. */
-export const CUBE_SIZES: readonly CubeSize[] = [2, 3, 4]
+const CUBE_SIZES: readonly CubeSize[] = [2, 3, 4]
+
+/**
+ * How a cube is rendered. Purely visual: the engine, the solvers and the
+ * editor never look at it. `mirror` is the shape mod (Mirror Blocks): every
+ * facelet is the same color and the layers have different thicknesses, so the
+ * pieces are told apart by their size (see `lib/shape.ts`).
+ */
+export type CubeVariant = 'classic' | 'mirror'
+
+const CUBE_VARIANTS: readonly CubeVariant[] = ['classic', 'mirror']
+
+/** One entry of the cube picker: a size plus a rendering variant. */
+interface CubeKind {
+  readonly size: CubeSize
+  readonly variant: CubeVariant
+}
+
+/** Cube choices exposed in the UI, in display order (classics, then mirrors). */
+export const CUBE_KINDS: readonly CubeKind[] = CUBE_VARIANTS.flatMap((variant) =>
+  CUBE_SIZES.map((size) => ({ size, variant })),
+)
+
+/** Stable id of a cube choice, used as the picker's option value. */
+export function cubeKindId({ size, variant }: CubeKind): string {
+  return variant === 'mirror' ? `${size}m` : `${size}`
+}
 
 /** A face of the cube, named with the standard Singmaster letters. */
 export type Face = 'U' | 'D' | 'L' | 'R' | 'F' | 'B'

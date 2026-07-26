@@ -2,8 +2,9 @@
 
 ## Description du projet
 
-POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2, 3x3 ou 4x4**
-(taille sélectionnable). On manipule le cube (rotations de faces à la
+POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2, 3x3 ou 4x4**,
+**classique ou miroir** (choix dans une liste unique). On manipule le cube
+(rotations de faces à la
 souris/aux boutons, tranches internes et coups larges sur 4x4, orbite caméra),
 on le mélange **ou on saisit sa propre configuration** en peignant les stickers
 directement en 3D, puis on le résout selon **plusieurs vraies méthodes** (par
@@ -59,12 +60,14 @@ voisins (ex : `big-bang-clicker`).
 > unique partagée par `applyMove` et l'animation. Une rotation est une rotation
 > entière exacte à 90 degres, donc l'état logique ne dérive jamais. Le rendu 3D
 > est une **fonction pure de cet état** (le 2x2 et le 4x4 ne sont que des mises
-> à l'échelle, voir `three/layout.ts`) ; le solveur lit le même modèle.
+> à l'échelle, voir `three/layout.ts` ; la variante miroir n'est qu'une table
+> d'épaisseurs, voir `lib/shape.ts`) ; le solveur lit le même modèle.
 
 ```
 src/
 ├── lib/                  # Logique pure, zéro React / zéro three.js (entièrement testée)
-│   ├── types.ts          # Types du domaine (CubeSize, Face, Color, Axis, Vec3, Sticker, Cubie, Cube, Move avec depth/wide)
+│   ├── types.ts          # Types du domaine (CubeSize, CubeVariant, Face, Color, Axis, Vec3, Sticker, Cubie, Cube, Move avec depth/wide)
+│   │                     #   + CUBE_KINDS : les choix de cube exposés (taille x variante) et leur id
 │   ├── cube.ts           # Modèle cubies : solvedCube(size), applyMove(s), moveLayerCoords, isSolved (faces uniformes),
 │   │                     #   moveGeometry, cubeOrientations, stateKey, comptages de stickers, couleurs opposées (source unique)
 │   ├── moves.ts          # Notation US/FR (parse/format, 2R/Rw), inversion, simplification (par couches),
@@ -81,11 +84,13 @@ src/
 │   ├── editorTables.ts   # Tables de saisie par taille : slots, placements valides étiquetés par pièce physique, budgets
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
 │   ├── validate.ts       # validateCube : comptage + solubilité (résolution 2x2/3x3 ; invariants de pièces + vrille sur 4x4)
+│   ├── shape.ts          # Cube miroir : épaisseur de couche par couleur, boîte d'un cubie déduite de ses stickers
 │   ├── easing.ts         # easeInOut (partagé par les animations)
 │   ├── speed.ts          # Curseur 0..100 <-> secondes par rotation
 │   └── progress.ts       # solveProgress : avancement par étape d'une solution (pour l'UI)
 ├── store/
-│   ├── cubeStore.ts      # Zustand : cube + file de rotations + pilotage animation ; méthode, étapes, jouer tout / pas à pas, loadCube
+│   ├── cubeStore.ts      # Zustand : cube + variante de rendu + file de rotations + pilotage animation ;
+│   │                     #   méthode, étapes, jouer tout / pas à pas, loadCube
 │   ├── editorStore.ts    # Zustand : mode play/edit, couleur sélectionnée, saisie, apply (build + validate + charge)
 │   └── viewStore.ts      # Zustand : pont DOM -> 3D pour recentrer la caméra (resetToken)
 ├── i18n/                 # i18n custom (FR source de vérité, EN typé complet) ; locale + notation US/FR
@@ -93,14 +98,14 @@ src/
 │   └── i18nStore.ts      # store `useI18n` (locale, t, setLocale, notation, setNotation)
 ├── three/                # Rendu 3D (React Three Fiber) ; un composant/hook par fichier
 │   ├── Scene.tsx         # <Canvas> : caméra, lumières, OrbitControls ; bascule CubeView / EditView
-│   ├── CubeView.tsx      # Rend les cubies (via useTurnAnimation), à l'échelle de la taille
-│   ├── EditView.tsx      # Mode saisie : stickers cliquables ; vides en gris
-│   ├── Cubie.tsx         # Un cubie : corps + stickers
+│   ├── CubeView.tsx      # Rend les cubies (via useTurnAnimation), à l'échelle de la taille, recentré selon la variante
+│   ├── EditView.tsx      # Mode saisie : stickers cliquables ; vides en gris (toujours en cubies classiques colorés)
+│   ├── Cubie.tsx         # Un cubie : corps + stickers, à la boîte de sa variante
 │   ├── layout.ts         # Échelle visuelle par taille (le 2x2 resserre ses positions ±1 et grossit)
-│   ├── Sticker.tsx       # Sticker orienté à sa normale, mutualisé play/édition (onSelect = cliquable)
+│   ├── Sticker.tsx       # Sticker orienté à sa normale et dimensionné à sa face, mutualisé play/édition (onSelect = cliquable)
 │   ├── useTurnAnimation.ts # Hook : pilote la file de rotations (rotation de la couche active)
 │   ├── CameraReset.tsx   # Recentrage caméra animé (lit viewStore, dans le <Canvas>)
-│   └── colors.ts         # Couleurs des stickers (hex) et plastique
+│   └── colors.ts         # Couleurs des stickers (hex), plastique, doré du cube miroir
 ├── components/
 │   ├── ui/               # Primitives réutilisables (Button, IconButton, SegmentedToggle)
 │   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge,
@@ -111,7 +116,7 @@ src/
 └── main.tsx
 tests/
 ├── helpers.ts            # RNG déterministe (seedRng) pour des scrambles reproductibles
-├── unit/                 # Vitest : cube, moves, solver + solver4 (propriété), editor, validate, easing, speed, progress
+├── unit/                 # Vitest : cube, moves, solver + solver4 (propriété), editor, validate, shape, easing, speed, progress
 ├── component/            # Vitest + Testing Library (Controls, SegmentedToggle)
 └── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution, saisie)
 ```
@@ -221,13 +226,61 @@ prennent la taille avec l'état. Sans centres fixes, la saisie 2x2 part
 entièrement vide (24 stickers), et le 4x4 aussi (96 stickers, centres
 peignables car mobiles) ; seul le 3x3 garde ses 6 centres pré-remplis.
 
+### Le cube miroir (`src/lib/shape.ts`)
+
+Le **cube miroir** (Mirror Blocks) est un *shape mod* : mécaniquement un NxN
+ordinaire, mais tous ses stickers ont la même couleur et ses couches ont des
+épaisseurs différentes, si bien qu'on le résout **par la forme**. C'est donc
+**une variante de rendu et rien d'autre** (`CubeVariant`, dans le store à côté
+de la taille) : le modèle, les coups, `isSolved`, les solveurs, la saisie et la
+validation l'ignorent complètement. Chaque taille est proposée dans les deux
+variantes (`CUBE_KINDS`).
+
+La correspondance est **couleur -> épaisseur** (`LAYER_THICKNESS`), ce qui suffit
+à tout déduire :
+
+- l'épaisseur d'un cubie selon un axe est celle de la couleur du sticker qui
+  regarde cet axe ; sans sticker sur cet axe, le cubie est dans une couche du
+  milieu (épaisseur 1) ;
+- sa boîte est **ancrée sur sa face interne** (celle qui regarde le centre) et
+  grandit vers l'extérieur : c'est ce qui fait dépasser une pièce épaisse posée
+  là où il en faut une fine, donc les **bosses**.
+
+Trois propriétés en découlent, toutes testées (`tests/unit/shape.test.ts`) :
+
+- **couleurs opposées de somme 2** : un axe mesure alors
+  `épaisseur(-) + 1 par couche du milieu + épaisseur(+) = taille`, donc le cube
+  résolu est un cube plein. Les couches du milieu d'un même axe sont
+  forcément égales (une pièce circule de l'une à l'autre) : sur 4x4, seules les
+  deux couches extrêmes diffèrent, exactement comme sur le vrai puzzle ;
+- **rigidité** : la boîte recalculée après un coup est exactement la boîte
+  d'avant, tournée. L'animation (qui fait tourner un groupe autour de l'origine
+  du réseau) reste donc juste, sans état supplémentaire ni pièce qui saute en
+  fin de rotation ;
+- **recentrage** : les couches extrêmes étant inégales, le solide résolu est
+  décalé de la moitié de leur différence (le noyau décentré du vrai puzzle) ;
+  `centeringOffset` le remet au centre via un groupe **externe** au groupe
+  animé.
+
+La variante `classic` est le cas dégénéré de la même table (toutes les
+épaisseurs à 1) : un seul chemin de rendu, pas de branche.
+
+Deux conséquences assumées : la **saisie reste en couleurs** (on ne peint pas du
+monochrome ; le panneau l'explique, et les formes reviennent en sortant), et
+comme `isSolved` reste basé sur les couleurs alors que le vrai puzzle a des
+pièces de forme identique (le coin tout fin, le coin tout épais, les arêtes de
+même gabarit), un cube **d'apparence lisse** peut être annoncé non résolu. Pour
+supprimer ce cas, il suffirait de donner 6 épaisseurs distinctes (une paire par
+axe, toujours de somme 2), au prix de la fidélité.
+
 ### Interface
 
 Panneau d'overlay en **deux blocs** :
 
 - **Initialisation** (titre non affiché, `aria-label` seulement) : **choix du
-  cube 2x2/3x3/4x4** (liste déroulante ; réinitialise le cube et rabat la
-  méthode si besoin) avec le **statut** sur la même ligne, mélanger /
+  cube** (liste déroulante : 2x2/3x3/4x4, classiques puis miroirs ; changer de
+  taille réinitialise le cube et rabat la méthode si besoin, changer de
+  variante conserve l'état) avec le **statut** sur la même ligne, mélanger /
   réinitialiser, saisie d'un cube (vierge ou depuis l'état courant), vitesse
   d'animation, et **pad de rotations** (une gâchette horaire + une anti-horaire
   par face ; sur 4x4, un sélecteur Externe / Tranche / Large choisit la couche

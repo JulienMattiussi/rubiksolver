@@ -44,6 +44,8 @@ const fr = {
   editTitle: 'Saisie du cube',
   editHint:
     'Choisissez une couleur puis cliquez les stickers. Tournez la vue pour atteindre les autres faces. Les pièces se complètent toutes seules et aucune combinaison impossible n’est acceptée.',
+  editHintMirror:
+    'Le cube miroir se saisit en couleurs : chaque couleur correspond à une épaisseur, les formes reviennent en quittant la saisie.',
   palette: 'Couleurs',
   filledOf: (n: number, total: number) => `${n} / ${total} stickers`,
   clearAll: 'Tout effacer',
@@ -54,6 +56,7 @@ const fr = {
   errorImpossible: 'Cube impossible : vérifiez l’orientation des pièces.',
   colors: { W: 'Blanc', Y: 'Jaune', G: 'Vert', B: 'Bleu', O: 'Orange', R: 'Rouge' },
   sizeLabel: 'Choix du cube',
+  cubeKind: (size: number, mirror: boolean) => `${size}x${size}${mirror ? ' miroir' : ''}`,
   sectionSetup: 'Initialisation',
   sectionSolve: 'Résolution',
   collapse: 'Replier le menu',
@@ -148,6 +151,8 @@ const en: Translations = {
   editTitle: 'Cube input',
   editHint:
     'Pick a color, then click stickers. Orbit the view to reach the other faces. Pieces auto-complete and no impossible combination is accepted.',
+  editHintMirror:
+    'A mirror cube is entered in colors: each color maps to a layer thickness, and the shapes come back when you leave the editor.',
   palette: 'Colors',
   filledOf: (n: number, total: number) => `${n} / ${total} stickers`,
   clearAll: 'Clear all',
@@ -158,6 +163,7 @@ const en: Translations = {
   errorImpossible: 'Impossible cube: check the piece orientations.',
   colors: { W: 'White', Y: 'Yellow', G: 'Green', B: 'Blue', O: 'Orange', R: 'Red' },
   sizeLabel: 'Cube choice',
+  cubeKind: (size: number, mirror: boolean) => `${size}x${size}${mirror ? ' mirror' : ''}`,
   sectionSetup: 'Setup',
   sectionSolve: 'Solve',
   collapse: 'Collapse menu',

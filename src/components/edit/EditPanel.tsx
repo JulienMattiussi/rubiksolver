@@ -11,6 +11,7 @@ import { ColorPalette } from './ColorPalette'
 export function EditPanel() {
   const t = useI18n((s) => s.t)
   const size = useCube((s) => cubeSize(s.cube))
+  const mirror = useCube((s) => s.variant === 'mirror')
   const edit = useEditor((s) => s.edit)
   const clearAll = useEditor((s) => s.clearAll)
   const cancel = useEditor((s) => s.cancel)
@@ -22,7 +23,10 @@ export function EditPanel() {
 
   return (
     <div className="flex flex-col gap-5">
-      <p className="text-xs leading-relaxed text-slate-400">{t.editHint}</p>
+      <p className="text-xs leading-relaxed text-slate-400">
+        {t.editHint}
+        {mirror && ` ${t.editHintMirror}`}
+      </p>
 
       <ColorPalette />
 
