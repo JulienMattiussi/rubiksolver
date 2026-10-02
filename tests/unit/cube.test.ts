@@ -5,12 +5,16 @@ import {
   cubeOrientations,
   cubeShape,
   isSolved,
-  moveLayerCoords,
+  faceLayers,
+  inLayer,
+  layerCoords,
+  moveLayerRange,
   solvedCube,
   stateKey,
 } from '@/lib/cube'
 import { ALL_MOVES, invertMoves, movesFor, parseMoves, scramble } from '@/lib/moves'
 import { SHAPE_DIMS } from '@/lib/types'
+import type { CubeShape, Move } from '@/lib/types'
 import { seededRng } from '../helpers'
 
 describe('cube engine', () => {
@@ -117,15 +121,22 @@ describe('4x4 cube engine', () => {
   })
 
   it('selects the right layers for outer, slice and wide moves', () => {
-    expect(moveLayerCoords({ face: 'R', amount: 1 }, SHAPE_DIMS['4'])).toEqual([3])
-    expect(moveLayerCoords({ face: 'R', amount: 1, depth: 2 }, SHAPE_DIMS['4'])).toEqual([1])
-    expect(moveLayerCoords({ face: 'R', amount: 1, depth: 2, wide: true }, SHAPE_DIMS['4'])).toEqual([3, 1])
-    expect(moveLayerCoords({ face: 'L', amount: 1, depth: 2 }, SHAPE_DIMS['4'])).toEqual([-1])
-    expect(moveLayerCoords({ face: 'L', amount: 1 }, SHAPE_DIMS['3'])).toEqual([-1])
-    expect(moveLayerCoords({ face: 'U', amount: 1 }, SHAPE_DIMS['2'])).toEqual([1])
+    // A slab is named by its cut planes; which layers it holds is what the
+    // engine reads back through `inLayer`.
+    const holds = (move: Move, shape: CubeShape) => {
+      const dims = SHAPE_DIMS[shape]
+      const range = moveLayerRange(move, dims)
+      return layerCoords(faceLayers(dims, move.face)).filter((c) => inLayer(c, range))
+    }
+    expect(holds({ face: 'R', amount: 1 }, '4')).toEqual([3])
+    expect(holds({ face: 'R', amount: 1, depth: 2 }, '4')).toEqual([1])
+    expect(holds({ face: 'R', amount: 1, depth: 2, wide: true }, '4')).toEqual([1, 3])
+    expect(holds({ face: 'L', amount: 1, depth: 2 }, '4')).toEqual([-1])
+    expect(holds({ face: 'L', amount: 1 }, '3')).toEqual([-1])
+    expect(holds({ face: 'U', amount: 1 }, '2')).toEqual([1])
     // Three layers do have an inner one (the M slice); two do not.
-    expect(moveLayerCoords({ face: 'R', amount: 1, depth: 2 }, SHAPE_DIMS['3'])).toEqual([0])
-    expect(() => moveLayerCoords({ face: 'R', amount: 1, depth: 2 }, SHAPE_DIMS['2'])).toThrow()
+    expect(holds({ face: 'R', amount: 1, depth: 2 }, '3')).toEqual([0])
+    expect(() => moveLayerRange({ face: 'R', amount: 1, depth: 2 }, SHAPE_DIMS['2'])).toThrow()
   })
 
   it('any single turn unsolves, four quarter turns and move+inverse are no-ops', () => {

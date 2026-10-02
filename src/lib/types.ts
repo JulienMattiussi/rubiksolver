@@ -4,20 +4,38 @@
 export type Dims = readonly [number, number, number]
 
 /** The puzzles the app can build, by id (also the picker's option values). */
-export type CubeShape = '2' | '3' | '4' | '123'
+export type CubeShape = '2' | '3' | '4' | '123' | '224'
 
 /**
- * Layer counts per shape: the NxNxN cubes, plus the 1x2x3 flat cuboid, laid
- * out 3 wide, 2 tall and 1 thick so the rectangle you face is its 3x2 side.
- * A one-layer axis has no move of its own (turning its only layer just turns
- * the whole puzzle), and a quarter turn about an axis needs the two other
- * dimensions to be equal, so the 1x2x3 only ever does half turns.
+ * Layer counts per shape: the NxNxN cubes, the 1x2x3 flat cuboid (3 wide, 2
+ * tall, 1 thick, so the rectangle you face is its 3x2 side) and the 2x2x4
+ * tower (4 layers on a square 2x2 section).
+ *
+ * A one-layer axis has no move of its own: turning its only layer just turns
+ * the whole puzzle. Which turns exist beyond that comes from the grids these
+ * counts define, see `cube.ts`.
  */
 export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   '2': [2, 2, 2],
   '3': [3, 3, 3],
   '4': [4, 4, 4],
   '123': [3, 2, 1],
+  '224': [2, 4, 2],
+}
+
+/**
+ * Shapes whose mechanism also allows the quarter turns that push pieces out of
+ * the box, leaving it in a shape that is no longer a cuboid. A property of the
+ * real puzzle's core, not of its dimensions: a 1x3x3 Floppy forbids them where
+ * its Super Floppy cousin allows them. The grid still has to survive the turn,
+ * which `quarterTurnKeepsGrid` checks.
+ */
+export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
+  '2': false,
+  '3': false,
+  '4': false,
+  '123': false,
+  '224': true,
 }
 
 /** Name of each shape in the picker (identical in every language). */
@@ -26,6 +44,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '3': '3x3',
   '4': '4x4',
   '123': '1x2x3',
+  '224': '2x2x4',
 }
 
 /** Shapes exposed in the UI, in display order. */

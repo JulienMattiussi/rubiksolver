@@ -106,6 +106,19 @@ export function quarterTurnFits(dims: Dims, axis: Axis): boolean {
   return dims[(a + 1) % 3] === dims[(a + 2) % 3]
 }
 
+/**
+ * Whether a quarter turn about `axis` keeps every piece on the puzzle's grid,
+ * even when it pushes some out of the box. The turn swaps the two other axes,
+ * so their coordinates must have the same parity: all-even dimensions share
+ * one grid (the odd integers), all-odd ones share another (every integer).
+ * Otherwise the turn would land a piece between two cells, which is exactly
+ * what jams the real puzzle.
+ */
+export function quarterTurnKeepsGrid(dims: Dims, axis: Axis): boolean {
+  const a = AXIS_INDEX[axis]
+  return dims[(a + 1) % 3]! % 2 === dims[(a + 2) % 3]! % 2
+}
+
 /** Build a solved puzzle: every exterior cubie face carries its solved color. */
 export function solvedCube(shape: CubeShape = '3'): Cube {
   const dims = SHAPE_DIMS[shape]
@@ -221,20 +234,40 @@ const FACE_SPEC: Record<Face, FaceSpec> = {
 }
 
 /**
- * Signed coordinates (along the move's axis) of the layer(s) `move` turns on a
- * puzzle of `dims`. Single source of the layer predicate, shared by applyMove
- * and the renderer.
+ * The slab `move` turns, as the open interval between the cut planes bounding
+ * it along the move's axis. A cut sits halfway between two layers, so a piece
+ * is inside when `lo < coord < hi`, and no piece ever sits on a cut.
+ *
+ * Naming a slab by its cuts rather than by layer coordinates is what keeps
+ * this right on a shape that shifts: a piece pushed out of the box stays on
+ * the same side of the same cut, so its face still carries it along.
+ *
+ * Single source of the layer predicate, shared by applyMove and the renderer.
  */
-export function moveLayerCoords(move: Move, dims: Dims): readonly number[] {
+export function moveLayerRange(move: Move, dims: Dims): { lo: number; hi: number } {
   const spec = FACE_SPEC[move.face]
   const coords = layerCoords(dims[spec.coordIndex])
-  const from = spec.dir > 0 ? coords.length - 1 : 0
-  const outer = coords[from]!
-  if (!move.depth) return [outer]
-  // An inner slice needs a layer that is not an outer one on either side.
-  if (coords.length < 3) throw new Error(`moveLayerCoords: no inner layer on face ${move.face}`)
-  const inner = coords[from - spec.dir]!
-  return move.wide ? [outer, inner] : [inner]
+  const outermost = spec.dir > 0 ? coords.length - 1 : 0
+  /** Cut between layer `i` and layer `i + 1`, counted from the face inwards. */
+  const cut = (i: number): number => {
+    const a = coords[outermost - spec.dir * i]
+    const b = coords[outermost - spec.dir * (i + 1)]
+    if (a === undefined || b === undefined) {
+      throw new Error(`moveLayerRange: no layer ${i + 2} in from face ${move.face}`)
+    }
+    return (a + b) / 2
+  }
+  const deep = move.depth ?? 1
+  const inward = cut(deep - 1)
+  const outward = spec.dir > 0 ? { lo: inward, hi: Infinity } : { lo: -Infinity, hi: inward }
+  if (deep === 1 || move.wide) return outward
+  // A lone inner slice is bounded on its outer side too.
+  return spec.dir > 0 ? { lo: inward, hi: cut(deep - 2) } : { lo: cut(deep - 2), hi: inward }
+}
+
+/** Whether a coordinate falls inside a slab. */
+export function inLayer(coord: number, range: { lo: number; hi: number }): boolean {
+  return coord > range.lo && coord < range.hi
 }
 
 /** Geometry a renderer needs to animate a move: which layers turn, and how. */
@@ -242,8 +275,8 @@ export interface MoveGeometry {
   readonly axis: Axis
   /** Vec3 index selecting the layers (0=x, 1=y, 2=z). */
   readonly coordIndex: 0 | 1 | 2
-  /** Coordinate values of the turning layers along the axis. */
-  readonly layers: readonly number[]
+  /** The turning slab, as the open interval between its cut planes. */
+  readonly layers: { lo: number; hi: number }
   /** Visual rotation in radians (right-hand rule), taking the shortest path. */
   readonly angle: number
 }
@@ -256,7 +289,7 @@ export function moveGeometry(move: Move, dims: Dims): MoveGeometry {
   return {
     axis: spec.axis,
     coordIndex: spec.coordIndex,
-    layers: moveLayerCoords(move, dims),
+    layers: moveLayerRange(move, dims),
     angle,
   }
 }
@@ -264,10 +297,10 @@ export function moveGeometry(move: Move, dims: Dims): MoveGeometry {
 /** Apply one move, returning a new cube (the input is left untouched). */
 export function applyMove(cube: Cube, move: Move): Cube {
   const spec = FACE_SPEC[move.face]
-  const layers = moveLayerCoords(move, cubeDims(cube))
+  const layers = moveLayerRange(move, cubeDims(cube))
   const times = spec.sign * move.amount
   return cube.map((cubie) => {
-    if (!layers.includes(cubie.position[spec.coordIndex])) return cubie
+    if (!inLayer(cubie.position[spec.coordIndex], layers)) return cubie
     return {
       position: rotateN(cubie.position, spec.axis, times),
       stickers: cubie.stickers.map((s) => ({
@@ -299,13 +332,13 @@ function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
 }
 
 /**
- * A cube is solved when each face shows a single uniform color. On a 3x3 the
- * fixed centers make this equivalent to matching FACE_COLOR; on a 2x2 there is
- * no fixed reference, so a solved-but-reoriented cube must count as solved.
+ * Whether these cubies show a single color per face. On the whole puzzle this
+ * is half of `isSolved`; on a subset it says that subset is solved, which is
+ * what a solver phase checks.
  */
-export function isSolved(cube: Cube): boolean {
+export function facesUniform(cubies: readonly Cubie[]): boolean {
   const faceColor = new Map<Face, Color>()
-  for (const cubie of cube) {
+  for (const cubie of cubies) {
     for (const s of cubie.stickers) {
       const face = faceOfNormal(s.normal)
       if (!face) return false
@@ -315,6 +348,27 @@ export function isSolved(cube: Cube): boolean {
     }
   }
   return true
+}
+
+/**
+ * Whether every piece is back inside the puzzle's own box. Always true unless
+ * the shape shifts: pieces are distinct and exactly fill the box when solved,
+ * so "all inside" already means "the box again".
+ */
+export function isBoxed(cube: Cube): boolean {
+  const dims = cubeDims(cube)
+  const max = [0, 1, 2].map((a) => outerCoord(dims[a]!, 1))
+  return cube.every((c) => c.position.every((v, a) => Math.abs(v) <= max[a]!))
+}
+
+/**
+ * A puzzle is solved when it is back in its box and each face shows a single
+ * uniform color. On a 3x3 the fixed centers make this equivalent to matching
+ * FACE_COLOR; without fixed centers (2x2, cuboids) there is no fixed
+ * reference, so a solved-but-reoriented puzzle must count as solved.
+ */
+export function isSolved(cube: Cube): boolean {
+  return facesUniform(cube) && isBoxed(cube)
 }
 
 /** Index 0..5 of a face normal, for compact hashing and sticker ids. */

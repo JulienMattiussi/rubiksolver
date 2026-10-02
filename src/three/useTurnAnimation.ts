@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { cubeDims, moveGeometry } from '@/lib/cube'
+import { cubeDims, inLayer, moveGeometry } from '@/lib/cube'
 import { easeInOut } from '@/lib/easing'
 import { useCube } from '@/store/cubeStore'
 
@@ -51,7 +51,7 @@ export function useTurnAnimation(): TurnAnimation {
 
   const geo = active ? moveGeometry(active, cubeDims(cube)) : null
   const isTurning = (index: number): boolean =>
-    geo != null && geo.layers.includes(cube[index]!.position[geo.coordIndex])
+    geo != null && inLayer(cube[index]!.position[geo.coordIndex], geo.layers)
 
   return { groupRef, isTurning }
 }

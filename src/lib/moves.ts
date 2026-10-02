@@ -1,18 +1,26 @@
-import { faceAxis, faceLayers, quarterTurnFits } from './cube'
-import { SHAPE_DIMS } from './types'
-import type { CubeShape, Dims, Face, Move } from './types'
+import { faceAxis, faceLayers, quarterTurnFits, quarterTurnKeepsGrid } from './cube'
+import { SHAPE_DIMS, SHAPE_SHIFTS } from './types'
+import type { CubeShape, Face, Move } from './types'
 
 export const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
 
 /**
- * Turns a face can take, from the shape alone. A face on a one-layer axis has
- * no turn at all (its only layer is the whole puzzle, so turning it just looks
- * at the puzzle from elsewhere), and a face whose axis cannot take a quarter
- * turn is limited to half turns. On a cube this is always the three amounts.
+ * Turns a face can take, from the shape alone.
+ *
+ * A face on a one-layer axis has no turn at all: its only layer is the whole
+ * puzzle, so turning it just looks at the puzzle from elsewhere. A quarter
+ * turn needs the two other dimensions to be equal, otherwise the slab does not
+ * land back in the box - unless the puzzle is one that happily leaves its box
+ * (SHAPE_SHIFTS), where the grid alone has to survive. Everything else is
+ * limited to half turns. On a cube this is always the three amounts.
  */
-function amountsFor(dims: Dims, face: Face): readonly (1 | 2 | 3)[] {
+function amountsFor(shape: CubeShape, face: Face): readonly (1 | 2 | 3)[] {
+  const dims = SHAPE_DIMS[shape]
   if (faceLayers(dims, face) < 2) return []
-  return quarterTurnFits(dims, faceAxis(face)) ? [1, 2, 3] : [2]
+  const axis = faceAxis(face)
+  const quarter =
+    quarterTurnFits(dims, axis) || (SHAPE_SHIFTS[shape] && quarterTurnKeepsGrid(dims, axis))
+  return quarter ? [1, 2, 3] : [2]
 }
 
 /** All 18 basic face turns, in a stable order (for UI buttons and tests). */
@@ -151,7 +159,7 @@ export function scramble(shape: CubeShape, length = 25, rng: () => number = Math
       face = faces[Math.floor(rng() * faces.length)]!
     } while (face === prevFace && faces.length > 1)
     prevFace = face
-    const amounts = amountsFor(dims, face)
+    const amounts = amountsFor(shape, face)
     const amount = amounts[Math.floor(rng() * amounts.length)]!
     const kind = faceLayers(dims, face) >= 4 ? rng() : 0
     if (kind < 0.5) moves.push({ face, amount })
@@ -169,7 +177,7 @@ export function scramble(shape: CubeShape, length = 25, rng: () => number = Math
 export function movesFor(shape: CubeShape): readonly Move[] {
   const dims = SHAPE_DIMS[shape]
   return FACES.flatMap((face) =>
-    amountsFor(dims, face).flatMap((amount): Move[] =>
+    amountsFor(shape, face).flatMap((amount): Move[] =>
       faceLayers(dims, face) >= 4
         ? [
             { face, amount },

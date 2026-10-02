@@ -8,7 +8,13 @@ import { supportsMirror, type Cube, type CubeShape, type CubeVariant, type Move 
 type Mode = 'idle' | 'scrambling' | 'solving'
 
 /** Scramble length per shape: enough to reach any state, without dragging on. */
-const SCRAMBLE_LENGTH: Record<CubeShape, number> = { '2': 11, '3': 20, '4': 40, '123': 10 }
+const SCRAMBLE_LENGTH: Record<CubeShape, number> = {
+  '2': 11,
+  '3': 20,
+  '4': 40,
+  '123': 10,
+  '224': 25,
+}
 
 interface CubeStore {
   /** Logical cube state; its shape is derived via `cubeShape(cube)`. */
