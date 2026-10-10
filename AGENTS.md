@@ -335,6 +335,28 @@ vérifie que chacun se résout, et que 6 coups suffisent toujours.
 > change pas ce que « résolu » veut dire (pas de centre fixe pour ancrer un
 > repère). Aucun état n'est donc perdu.
 
+### La tour 2x2x4 (forme qui se déforme)
+
+La tour (`[2, 4, 2]`, `SHAPE_SHIFTS`) sort de sa boîte : son mécanisme est **un
+4x4x4 auquel il manque des pièces**. Ses coups se calculent donc sur la grille
+du 4x4 (`turnDims` : `[4, 4, 4]`, coordonnées `{-3,-1,1,3}` qui contiennent
+celles de la tour) et seules ses pièces existent :
+
+- **coups larges** (`Rw`, `Uw`...) : la moitié du mécanisme, **toujours
+  possibles**. Dans la boîte, `Rw` tourne toute la moitié droite, qui se couche
+  et dépasse devant et derrière ;
+- **coups externes** (`R`, `U`...) : la tranche d'extrémité du 4x4, possible
+  seulement si la tour fait **4 cubes de large** sur cet axe et que cette
+  tranche est un **2x2 complet** (`turnAllowed`). Dans la boîte : U et D
+  seulement ; après `Rw`, plus aucun (le haut n'a plus que deux cubes) ;
+- **pas de tranches internes** : un coup large puis un coup externe en font
+  une, et elles servent rarement.
+
+Le pad grise les coups bloqués, le mélange ne tire que des coups possibles
+(il simule l'état depuis le cube courant), et le rendu place linéairement les
+pièces sorties de la boîte (`visualPosition`). La tour n'a pas encore de
+méthode de résolution (`solver224.ts`, non branché, est à reprendre).
+
 ### Le cube miroir (`src/lib/shape.ts`)
 
 Le **cube miroir** (Mirror Blocks) est un _shape mod_ : mécaniquement un NxN
@@ -409,10 +431,12 @@ mobile et en saisie, une seule carte) :
   pour comparer deux méthodes sur le même mélange ; remplacer un autre état
   mémorisé demande confirmation dans une modale), vitesse
   d'animation, et **pad de rotations** construit à partir des coups que la
-  forme autorise (une gâchette horaire + une anti-horaire par face ; un seul
-  bouton de demi-tour là où le quart de tour est impossible ; rien pour une
-  face dont l'axe n'a qu'une couche ; sur 4x4, un sélecteur Externe / Tranche /
-  Large choisit la couche tournée) avec **recentrage caméra animé** et
+  forme autorise, lus dans `movesFor` (une gâchette horaire + une anti-horaire
+  par face ; un seul bouton de demi-tour là où la forme n'a pas de quart de
+  tour ; rien pour une face dont l'axe n'a qu'une couche ; un sélecteur
+  Externe / Tranche / Large, limité aux sortes de coups de la forme (Externe /
+  Large sur la tour), choisit la couche tournée ; un coup bloqué par l'état de
+  la tour reste grisé) avec **recentrage caméra animé** et
   **bascule de notation FR/US**.
 - **Résolution** : choix de la **méthode** (liste déroulante, filtrée par
   taille via `methodsFor`), **Résoudre**

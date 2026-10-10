@@ -95,7 +95,13 @@ export const useCube = create<CubeStore>((set, get) => ({
 
   scramble: () =>
     set((s) => ({
-      queue: makeScramble(cubeShape(s.cube), SCRAMBLE_LENGTH[cubeShape(s.cube)]),
+      // From the current state: a shape-shifting puzzle's legal turns depend on it.
+      queue: makeScramble(
+        cubeShape(s.cube),
+        SCRAMBLE_LENGTH[cubeShape(s.cube)],
+        Math.random,
+        s.cube,
+      ),
       mode: 'scrambling',
       active: null,
       ...clearSolution(),

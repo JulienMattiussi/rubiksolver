@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   applyMove,
   FACE_COLOR,
+  inLayer,
   layerCoords,
   moveGeometry,
   OPPOSITE_COLOR,
@@ -110,7 +111,7 @@ describe('mirror geometry', () => {
         const now = cubieShape(cubie.stickers, LAYER_THICKNESS.mirror)
         const was = before[i]!
         // Only the turning layer moved; the rest must be untouched.
-        const turned = geo.layers.includes(cubie.position[geo.coordIndex])
+        const turned = inLayer(cubie.position[geo.coordIndex], geo.layers)
         const spun = rotateN(was.size, geo.axis, quarters)
         const size = turned ? ([...spun].map(Math.abs) as [number, number, number]) : was.size
         const center = turned ? rotateN(was.center, geo.axis, quarters) : was.center

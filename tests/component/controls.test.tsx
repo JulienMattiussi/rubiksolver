@@ -125,4 +125,48 @@ describe('<Controls />', () => {
     expect(savedKey()).not.toBe(before)
     expect(screen.getByRole('button', { name: 'Mémoriser' })).toBeDisabled()
   })
+
+  it('on the 2x2x4 tower, offers outer and wide turns, jamming incomplete ends', async () => {
+    const user = userEvent.setup()
+    render(<Controls />)
+    await user.selectOptions(screen.getByLabelText('Choix du cube'), '224')
+    // A 4x4x4 mechanism with pieces missing: no inner slice to pick.
+    expect(screen.queryByRole('button', { name: 'Tranche' })).not.toBeInTheDocument()
+    const jammed = (face: string) =>
+      screen.getAllByRole('button', {
+        name: `Bloqué : la tour n’a pas de couche complète sur la ${face} dans cette position`,
+      })[0]
+    // In its box, only its ends turn as outer layers; R has nothing to turn.
+    expect(jammed('face de droite')).toBeDisabled()
+    await user.click(
+      screen.getByRole('button', { name: 'Tourner la face du haut dans le sens horaire' }),
+    )
+    expect(useCube.getState().queue.at(-1)).toEqual({ face: 'U', amount: 1 })
+    useCube.getState().stop()
+
+    // Wide turns always go: Rw lays the right half down.
+    await user.click(screen.getByRole('button', { name: 'Large' }))
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Tourner les deux couches de la face de droite dans le sens anti-horaire',
+      }),
+    )
+    expect(useCube.getState().queue.at(-1)).toEqual({ face: 'R', amount: 3, depth: 2, wide: true })
+    useCube.getState().stop()
+
+    // Then the top end keeps two cubes only: U jams.
+    useCube.getState().loadCube(applyMoves(solvedCube('224'), parseMoves('Rw')))
+    await user.click(screen.getByRole('button', { name: 'Externe' }))
+    expect(jammed('face du haut')).toBeDisabled()
+  })
+
+  it('says a puzzle has no method yet instead of offering to solve it', async () => {
+    const user = userEvent.setup()
+    render(<Controls />)
+    await user.selectOptions(screen.getByLabelText('Choix du cube'), '224')
+    expect(
+      screen.getByText('Pas encore de méthode de résolution pour ce puzzle.'),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Pas à pas' })).not.toBeInTheDocument()
+  })
 })

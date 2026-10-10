@@ -11,8 +11,9 @@ import {
   moveLayerRange,
   solvedCube,
   stateKey,
+  turnAllowed,
 } from '@/lib/cube'
-import { ALL_MOVES, invertMoves, movesFor, parseMoves, scramble } from '@/lib/moves'
+import { ALL_MOVES, formatMove, invertMoves, movesFor, parseMoves, scramble } from '@/lib/moves'
 import { SHAPE_DIMS } from '@/lib/types'
 import type { CubeShape, Move } from '@/lib/types'
 import { seededRng } from '../helpers'
@@ -176,3 +177,53 @@ describe('4x4 cube engine', () => {
     expect(isSolved(applyMoves(scrambled, invertMoves(moves)))).toBe(true)
   })
 })
+
+describe('tower turns (a 4x4x4 mechanism with pieces missing)', () => {
+  /** Quarter turns the tower can make after `moves`, as notation. */
+  const allowed = (moves: string) => {
+    const cube = applyMoves(solvedCube('224'), parseMoves(moves))
+    return movesFor('224')
+      .filter((m) => m.amount === 1 && turnAllowed(cube, m))
+      .map((m) => formatMove(m))
+  }
+  const WIDE = ['Uw', 'Dw', 'Lw', 'Rw', 'Fw', 'Bw']
+
+  it('has outer and wide turns on every face, no inner slice', () => {
+    const moves = movesFor('224')
+    expect(moves.some((m) => m.depth && !m.wide)).toBe(false)
+    expect(moves).toHaveLength(6 * 3 * 2)
+  })
+
+  it('in its box, turns its ends (U, D) and every wide turn', () => {
+    expect(allowed('')).toEqual(['U', 'Uw', 'D', 'Dw', 'Lw', 'Rw', 'Fw', 'Bw'])
+  })
+
+  it('jams an end that is not a complete 2x2, and an axis less than 4 wide', () => {
+    // Rw lays the right half down: the top keeps two cubes, the front too.
+    expect(allowed('Rw')).toEqual(WIDE)
+    // Both halves laid down: front and back ends are full 2x2 again.
+    expect(allowed("Rw Lw'")).toEqual([...WIDE.slice(0, 4), 'F', 'Fw', 'B', 'Bw'].sort(byFace))
+  })
+
+  it('every other puzzle allows every one of its turns', () => {
+    for (const shape of ['2', '3', '4', '123'] as CubeShape[]) {
+      const cube = applyMoves(solvedCube(shape), scramble(shape, 20, seededRng(4)))
+      expect(movesFor(shape).every((m) => turnAllowed(cube, m))).toBe(true)
+    }
+  })
+
+  it('scrambles a tower with turns it can actually make', () => {
+    const rng = seededRng(21)
+    let cube = solvedCube('224')
+    for (const move of scramble('224', 60, rng, cube)) {
+      expect(turnAllowed(cube, move)).toBe(true)
+      cube = applyMove(cube, move)
+    }
+  })
+})
+
+/** Notation order of movesFor: U D L R F B, outer before wide. */
+function byFace(a: string, b: string): number {
+  const rank = (m: string) => 'UDLRFB'.indexOf(m[0]!) * 2 + (m.endsWith('w') ? 1 : 0)
+  return rank(a) - rank(b)
+}

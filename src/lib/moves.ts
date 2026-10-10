@@ -1,26 +1,42 @@
-import { faceAxis, faceLayers, quarterTurnFits, quarterTurnKeepsGrid } from './cube'
-import { SHAPE_DIMS, SHAPE_SHIFTS } from './types'
-import type { CubeShape, Dims, Face, Move } from './types'
+import {
+  applyMove,
+  faceAxis,
+  faceLayers,
+  quarterTurnFits,
+  solvedCube,
+  turnAllowed,
+  turnDims,
+} from './cube'
+import { SHAPE_SHIFTS } from './types'
+import type { Cube, CubeShape, Dims, Face, Move } from './types'
 
 export const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
 
 /**
- * Turns a face can take, from the shape alone.
+ * Turns a face can take, from the shape alone (the mechanism's, see
+ * `turnDims`: a tower turns like a 4x4x4).
  *
  * A face on a one-layer axis has no turn at all: its only layer is the whole
  * puzzle, so turning it just looks at the puzzle from elsewhere. A quarter
  * turn needs the two other dimensions to be equal, otherwise the slab does not
- * land back in the box - unless the puzzle is one that happily leaves its box
- * (SHAPE_SHIFTS), where the grid alone has to survive. Everything else is
- * limited to half turns. On a cube this is always the three amounts.
+ * land back in the box; a shape-shifting puzzle's mechanism is a cube, so it
+ * always has them. Everything else is limited to half turns.
  */
 function amountsFor(shape: CubeShape, face: Face): readonly (1 | 2 | 3)[] {
-  const dims = SHAPE_DIMS[shape]
+  const dims = turnDims(shape)
   if (faceLayers(dims, face) < 2) return []
-  const axis = faceAxis(face)
-  const quarter =
-    quarterTurnFits(dims, axis) || (SHAPE_SHIFTS[shape] && quarterTurnKeepsGrid(dims, axis))
-  return quarter ? [1, 2, 3] : [2]
+  return quarterTurnFits(dims, faceAxis(face)) ? [1, 2, 3] : [2]
+}
+
+/** The layers a face turn can take: an axis with 4 layers adds the inner
+ *  slice (2R) and the wide turn (Rw). A shape-shifting puzzle keeps only the
+ *  wide turn: a slice is a wide then an outer turn there, and rarely useful. */
+type LayerVariant = Pick<Move, 'depth' | 'wide'>
+
+function layerVariants(shape: CubeShape, face: Face): readonly LayerVariant[] {
+  if (faceLayers(turnDims(shape), face) < 4) return [{}]
+  const wide: LayerVariant = { depth: 2, wide: true }
+  return SHAPE_SHIFTS[shape] ? [{}, wide] : [{}, { depth: 2 }, wide]
 }
 
 /** All 18 basic face turns, in a stable order (for UI buttons and tests). */
@@ -174,46 +190,59 @@ export function simplifyMoves(moves: readonly Move[]): Move[] {
  * Random scramble of `length` moves for a cube of `size`. Avoids consecutive
  * turns of the same face (they could collapse) so the length is meaningful.
  * On a 4x4 half the moves are outer turns and the rest inner slices and wide
- * turns, so centers and wing edges get shuffled too. `rng` is injectable for
+ * turns, so centers and wing edges get shuffled too; a tower mixes outer and
+ * wide turns, and only those it can make from where it stands. `rng` is injectable for
  * deterministic tests; defaults to Math.random.
  */
-export function scramble(shape: CubeShape, length = 25, rng: () => number = Math.random): Move[] {
-  const dims = SHAPE_DIMS[shape]
-  const faces = FACES.filter((face) => faceLayers(dims, face) >= 2)
+export function scramble(
+  shape: CubeShape,
+  length = 25,
+  rng: () => number = Math.random,
+  start: Cube = solvedCube(shape),
+): Move[] {
+  const faces = FACES.filter((face) => amountsFor(shape, face).length > 0)
+  // A shape-shifting puzzle jams some turns once out of its box, so its
+  // scramble plays along from `start` and only draws turns it can make.
+  const shifts = SHAPE_SHIFTS[shape]
+  let state = start
   const moves: Move[] = []
   let prevFace: Face | undefined
-  for (let i = 0; i < length; i++) {
+  while (moves.length < length) {
     let face: Face
     do {
       face = faces[Math.floor(rng() * faces.length)]!
     } while (face === prevFace && faces.length > 1)
-    prevFace = face
     const amounts = amountsFor(shape, face)
     const amount = amounts[Math.floor(rng() * amounts.length)]!
-    const kind = faceLayers(dims, face) >= 4 ? rng() : 0
-    if (kind < 0.5) moves.push({ face, amount })
-    else if (kind < 0.75) moves.push({ face, amount, depth: 2 })
-    else moves.push({ face, amount, depth: 2, wide: true })
+    // Half outer turns, the rest shared by the other layer variants.
+    const variants = layerVariants(shape, face)
+    const kind = variants.length > 1 ? rng() : 0
+    const variant =
+      kind < 0.5
+        ? variants[0]!
+        : variants[1 + Math.floor((kind - 0.5) * 2 * (variants.length - 1))]!
+    const move: Move = { face, amount, ...variant }
+    if (shifts) {
+      if (!turnAllowed(state, move)) continue
+      state = applyMove(state, move)
+    }
+    prevFace = face
+    moves.push(move)
   }
   return moves
 }
 
 /**
  * Every distinct turn available on a shape, in a stable order. Inner slices
- * and wide turns need at least four layers on the axis, so only the 4x4 has
- * them; a 1x2x3 is left with the four half turns of its two turnable axes.
+ * and wide turns need at least four layers on the axis (the 4x4, and the
+ * tower's 4x4x4 mechanism, which only keeps the wide ones); a 1x2x3 is left
+ * with the four half turns of its two turnable axes. On a shape-shifting
+ * puzzle some of these jam depending on the state (`turnAllowed`).
  */
 export function movesFor(shape: CubeShape): readonly Move[] {
-  const dims = SHAPE_DIMS[shape]
   return FACES.flatMap((face) =>
-    amountsFor(shape, face).flatMap((amount): Move[] =>
-      faceLayers(dims, face) >= 4
-        ? [
-            { face, amount },
-            { face, amount, depth: 2 },
-            { face, amount, depth: 2, wide: true },
-          ]
-        : [{ face, amount }],
+    amountsFor(shape, face).flatMap((amount) =>
+      layerVariants(shape, face).map((variant): Move => ({ face, amount, ...variant })),
     ),
   )
 }

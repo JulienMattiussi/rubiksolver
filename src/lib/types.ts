@@ -24,11 +24,12 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
 }
 
 /**
- * Shapes whose mechanism also allows the quarter turns that push pieces out of
- * the box, leaving it in a shape that is no longer a cuboid. A property of the
- * real puzzle's core, not of its dimensions: a 1x3x3 Floppy forbids them where
- * its Super Floppy cousin allows them. The grid still has to survive the turn,
- * which `quarterTurnKeepsGrid` checks.
+ * Shapes that leave their box: their mechanism is a bigger cube with pieces
+ * missing, so they turn like that cube and come out bumpy. The 2x2x4 tower
+ * turns like a 4x4x4 (`turnDims`): its wide turns (Rw: half the puzzle) always
+ * go, an outer turn (R) only when its end is a complete layer (`turnAllowed`).
+ * A property of the real puzzle's core, not of its dimensions: a 1x3x3 Floppy
+ * forbids such turns where its Super Floppy cousin allows them.
  */
 export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '2': false,

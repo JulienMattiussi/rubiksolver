@@ -39,6 +39,8 @@ const fr = {
     return `Tourner ${target} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`
   },
   moveTitleHalf: (faceName: string) => `Retourner la ${faceName} (demi-tour)`,
+  jammedTurn: (faceName: string) =>
+    `Bloqué : la tour n’a pas de couche complète sur la ${faceName} dans cette position`,
   layerLabel: 'Couche tournée',
   layerKinds: { outer: 'Externe', slice: 'Tranche', wide: 'Large' },
   editCube: 'Saisir un cube',
@@ -77,6 +79,7 @@ const fr = {
   collapse: 'Replier le menu',
   expand: 'Déplier le menu',
   methodLabel: 'Méthode de résolution',
+  noMethod: 'Pas encore de méthode de résolution pour ce puzzle.',
   methods: {
     beginner: {
       name: 'Par couches',
@@ -188,6 +191,8 @@ const en: Translations = {
     return `Turn ${target} ${clockwise ? 'clockwise' : 'counter-clockwise'}`
   },
   moveTitleHalf: (faceName: string) => `Turn the ${faceName} a half turn`,
+  jammedTurn: (faceName: string) =>
+    `Jammed: the tower has no complete layer on the ${faceName} in this position`,
   layerLabel: 'Turned layer',
   layerKinds: { outer: 'Outer', slice: 'Slice', wide: 'Wide' },
   editCube: 'Enter a cube',
@@ -226,6 +231,7 @@ const en: Translations = {
   collapse: 'Collapse menu',
   expand: 'Expand menu',
   methodLabel: 'Solving method',
+  noMethod: 'No solving method for this puzzle yet.',
   methods: {
     beginner: {
       name: 'Layer by layer',

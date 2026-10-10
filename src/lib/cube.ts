@@ -1,4 +1,4 @@
-import { SHAPE_DIMS } from './types'
+import { SHAPE_DIMS, SHAPE_SHIFTS } from './types'
 import type { Axis, Color, Cube, CubeShape, Cubie, Dims, Face, Move, Sticker, Vec3 } from './types'
 
 /**
@@ -106,19 +106,6 @@ export function quarterTurnFits(dims: Dims, axis: Axis): boolean {
   return dims[(a + 1) % 3] === dims[(a + 2) % 3]
 }
 
-/**
- * Whether a quarter turn about `axis` keeps every piece on the puzzle's grid,
- * even when it pushes some out of the box. The turn swaps the two other axes,
- * so their coordinates must have the same parity: all-even dimensions share
- * one grid (the odd integers), all-odd ones share another (every integer).
- * Otherwise the turn would land a piece between two cells, which is exactly
- * what jams the real puzzle.
- */
-export function quarterTurnKeepsGrid(dims: Dims, axis: Axis): boolean {
-  const a = AXIS_INDEX[axis]
-  return dims[(a + 1) % 3]! % 2 === dims[(a + 2) % 3]! % 2
-}
-
 /** Build a solved puzzle: every exterior cubie face carries its solved color. */
 export function solvedCube(shape: CubeShape = '3'): Cube {
   const dims = SHAPE_DIMS[shape]
@@ -163,6 +150,19 @@ export function cubeShape(cube: Cube): CubeShape {
 /** Layer counts of a puzzle. */
 export function cubeDims(cube: Cube): Dims {
   return SHAPE_DIMS[cubeShape(cube)]
+}
+
+/**
+ * Layer counts of the mechanism a shape's turns act on. The puzzle itself on
+ * every shape, except one that shifts (SHAPE_SHIFTS): that one is a cube of its
+ * longest side with pieces missing, and turns like it. The 2x2x4 tower turns
+ * like a 4x4x4, whose grid ({-3,-1,1,3}) holds the tower's own coordinates.
+ */
+export function turnDims(shape: CubeShape): Dims {
+  const dims = SHAPE_DIMS[shape]
+  if (!SHAPE_SHIFTS[shape]) return dims
+  const n = Math.max(...dims)
+  return [n, n, n]
 }
 
 /** Facelets on one face: the product of the two dimensions it spans. */
@@ -270,6 +270,33 @@ export function inLayer(coord: number, range: { lo: number; hi: number }): boole
   return coord > range.lo && coord < range.hi
 }
 
+/**
+ * Whether the mechanism lets `move` turn in this state. Always, on a puzzle
+ * that keeps its box. On one that shifts (the tower, turning like a 4x4x4):
+ * - a wide turn (Rw) turns half the mechanism, which always goes;
+ * - an outer turn (R) turns the end layer of the mechanism, which only exists
+ *   when the puzzle spans the whole mechanism along that axis (4 cubes wide)
+ *   and its end is a complete layer (2x2 on the tower). In its box the tower
+ *   has U and D only; after Rw, its top holds two cubes and U jams;
+ * - inner slices are not part of it (a wide then an outer turn makes one).
+ */
+export function turnAllowed(cube: Cube, move: Move): boolean {
+  const shape = cubeShape(cube)
+  if (!SHAPE_SHIFTS[shape]) return true
+  if (move.wide) return true
+  if (move.depth) return false
+  const dims = turnDims(shape)
+  const a = FACE_SPEC[move.face].coordIndex
+  const [lo, hi] = [outerCoord(dims[a], -1), outerCoord(dims[a], 1)]
+  const spansAxis = cube.some((c) => c.position[a] === lo) && cube.some((c) => c.position[a] === hi)
+  const slab = moveLayerRange(move, dims)
+  const inEnd = cube.filter((c) => inLayer(c.position[a], slab)).length
+  // A complete end: as many cubes as the boxed puzzle's end layer (its two
+  // shortest sides), 4 on the tower.
+  const [s1, s2] = [...SHAPE_DIMS[shape]].sort((p, q) => p - q)
+  return spansAxis && inEnd === s1! * s2!
+}
+
 /** Geometry a renderer needs to animate a move: which layers turn, and how. */
 export interface MoveGeometry {
   readonly axis: Axis
@@ -299,7 +326,7 @@ export function moveGeometry(move: Move, dims: Dims): MoveGeometry {
  * defaults to the puzzle's own; passing it lets a search turn a handful of
  * tracked pieces without the rest of the puzzle (see pieceSearch.ts).
  */
-export function applyMove(cube: Cube, move: Move, dims: Dims = cubeDims(cube)): Cube {
+export function applyMove(cube: Cube, move: Move, dims: Dims = turnDims(cubeShape(cube))): Cube {
   const spec = FACE_SPEC[move.face]
   const layers = moveLayerRange(move, dims)
   const times = spec.sign * move.amount
@@ -316,7 +343,11 @@ export function applyMove(cube: Cube, move: Move, dims: Dims = cubeDims(cube)): 
 }
 
 /** Apply a sequence of moves left to right. */
-export function applyMoves(cube: Cube, moves: readonly Move[], dims: Dims = cubeDims(cube)): Cube {
+export function applyMoves(
+  cube: Cube,
+  moves: readonly Move[],
+  dims: Dims = turnDims(cubeShape(cube)),
+): Cube {
   return moves.reduce((state, move) => applyMove(state, move, dims), cube)
 }
 

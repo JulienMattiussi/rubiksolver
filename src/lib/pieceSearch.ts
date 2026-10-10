@@ -1,4 +1,4 @@
-import { applyMoves, cubeDims, cubeShape, solvedCube, stateKey } from './cube'
+import { applyMoves, cubeShape, solvedCube, stateKey, turnDims } from './cube'
 import { invertMoves } from './moves'
 import type { MoveSet } from './moveSet'
 import type { Color, Cube, Cubie, Dims, Move, Vec3 } from './types'
@@ -118,7 +118,7 @@ function expand(
 
 /** Moves solving the tracked pieces as `spec` asks. Throws past `maxDepth`. */
 export function solvePieces(cube: Cube, spec: PieceSearch): Move[] {
-  const dims = cubeDims(cube)
+  const dims = turnDims(cubeShape(cube))
   const { start, home } = trackedPieces(cube, spec.track)
   return spec.goal
     ? forward(start, spec.goal, spec, dims)

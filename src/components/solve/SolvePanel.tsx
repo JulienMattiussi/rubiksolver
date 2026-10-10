@@ -1,5 +1,6 @@
 import { Sparkles, StepForward } from 'lucide-react'
-import { isSolved } from '@/lib/cube'
+import { cubeShape, isSolved } from '@/lib/cube'
+import { methodsFor } from '@/lib/solver'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { Button } from '@/components/ui/Button'
@@ -20,6 +21,10 @@ export function SolvePanel() {
   const busy = active !== null || queue.length > 0
   const solved = isSolved(cube)
   const allPlayed = steps ? stepIndex >= steps.length : false
+
+  if (methodsFor(cubeShape(cube)).length === 0) {
+    return <p className="text-xs leading-relaxed text-slate-400">{t.noMethod}</p>
+  }
 
   return (
     <div className="flex flex-col gap-3">
