@@ -198,7 +198,15 @@ describe('tower turns (a 4x4x4 mechanism with pieces missing)', () => {
     expect(allowed('')).toEqual(['U', 'Uw', 'D', 'Dw', 'Lw', 'Rw', 'Fw', 'Bw'])
   })
 
-  it('jams an end that is not a complete 2x2, and an axis less than 4 wide', () => {
+  it('turns an end that is a complete 2x2, however short the axis', () => {
+    // A 2x2x2 block standing on a laid-down plank: three cubes tall, yet its
+    // top is a full 2x2, so U turns; the bottom (the plank) has no 2x2 end.
+    const state = 'Rw Dw2 Rw2'
+    expect(allowed(state)).toContain('U')
+    expect(allowed(state)).not.toContain('D')
+  })
+
+  it('jams an end that is not a complete 2x2', () => {
     // Rw lays the right half down: the top keeps two cubes, the front too.
     expect(allowed('Rw')).toEqual(WIDE)
     // Both halves laid down: front and back ends are full 2x2 again.

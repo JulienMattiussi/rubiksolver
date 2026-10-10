@@ -346,9 +346,9 @@ celles de la tour) et seules ses pièces existent :
   possibles**. Dans la boîte, `Rw` tourne toute la moitié droite, qui se couche
   et dépasse devant et derrière ;
 - **coups externes** (`R`, `U`...) : la tranche d'extrémité du 4x4, possible
-  seulement si la tour fait **4 cubes de large** sur cet axe et que cette
-  tranche est un **2x2 complet** (`turnAllowed`). Dans la boîte : U et D
-  seulement ; après `Rw`, plus aucun (le haut n'a plus que deux cubes) ;
+  seulement si cette tranche est un **2x2 complet** (`turnAllowed`), quelle
+  que soit la hauteur derrière elle. Dans la boîte : U et D seulement ; après
+  `Rw`, plus aucun (le haut n'a plus que deux cubes) ;
 - **pas de tranches internes** : un coup large puis un coup externe en font
   une, et elles servent rarement.
 

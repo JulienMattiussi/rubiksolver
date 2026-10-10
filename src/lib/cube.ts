@@ -274,10 +274,10 @@ export function inLayer(coord: number, range: { lo: number; hi: number }): boole
  * Whether the mechanism lets `move` turn in this state. Always, on a puzzle
  * that keeps its box. On one that shifts (the tower, turning like a 4x4x4):
  * - a wide turn (Rw) turns half the mechanism, which always goes;
- * - an outer turn (R) turns the end layer of the mechanism, which only exists
- *   when the puzzle spans the whole mechanism along that axis (4 cubes wide)
- *   and its end is a complete layer (2x2 on the tower). In its box the tower
- *   has U and D only; after Rw, its top holds two cubes and U jams;
+ * - an outer turn (R) turns the end layer of the mechanism, which only goes
+ *   when that layer is complete: a 2x2 on the tower, whatever stands behind
+ *   it. In its box the tower has U and D only; after Rw, its top holds two
+ *   cubes and U jams;
  * - inner slices are not part of it (a wide then an outer turn makes one).
  */
 export function turnAllowed(cube: Cube, move: Move): boolean {
@@ -285,16 +285,14 @@ export function turnAllowed(cube: Cube, move: Move): boolean {
   if (!SHAPE_SHIFTS[shape]) return true
   if (move.wide) return true
   if (move.depth) return false
-  const dims = turnDims(shape)
   const a = FACE_SPEC[move.face].coordIndex
-  const [lo, hi] = [outerCoord(dims[a], -1), outerCoord(dims[a], 1)]
-  const spansAxis = cube.some((c) => c.position[a] === lo) && cube.some((c) => c.position[a] === hi)
-  const slab = moveLayerRange(move, dims)
+  const slab = moveLayerRange(move, turnDims(shape))
   const inEnd = cube.filter((c) => inLayer(c.position[a], slab)).length
-  // A complete end: as many cubes as the boxed puzzle's end layer (its two
-  // shortest sides), 4 on the tower.
+  // Complete: as many cubes as the boxed puzzle's end layer (its two shortest
+  // sides), 4 on the tower. Only corners reach an end layer, at +-1 on the
+  // other axes, so four of them always form the full square.
   const [s1, s2] = [...SHAPE_DIMS[shape]].sort((p, q) => p - q)
-  return spansAxis && inEnd === s1! * s2!
+  return inEnd === s1! * s2!
 }
 
 /** Geometry a renderer needs to animate a move: which layers turn, and how. */
