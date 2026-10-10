@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react'
+import { cubeDims } from '@/lib/cube'
 import { formatMoves, NOTATION_FR, NOTATION_US } from '@/lib/moves'
 import { solveProgress } from '@/lib/progress'
 import type { SolveStep } from '@/lib/solver'
@@ -13,6 +14,7 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
   const stepIndex = useCube((s) => s.stepIndex)
   const active = useCube((s) => s.active)
   const queue = useCube((s) => s.queue)
+  const dims = useCube((s) => cubeDims(s.cube))
 
   const labels = notation === 'fr' ? NOTATION_FR : NOTATION_US
   const stepName = (key: string) => (t.steps as Record<string, string>)[key] ?? key
@@ -56,8 +58,16 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
                   {t.solutionCount(step.moves.length)}
                 </span>
               </div>
+              {step.allowed && (
+                <p className="mt-0.5 text-[11px] text-slate-500">
+                  {t.allowedTurns}{' '}
+                  <span className="font-mono text-slate-300">
+                    {step.allowed.map((m) => formatMoves([m], labels, dims)).join(', ')}
+                  </span>
+                </p>
+              )}
               <p className="mt-0.5 font-mono text-[11px] leading-relaxed text-slate-400">
-                {formatMoves([...step.moves], labels)}
+                {formatMoves([...step.moves], labels, dims)}
               </p>
             </li>
           )

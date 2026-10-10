@@ -294,10 +294,14 @@ export function moveGeometry(move: Move, dims: Dims): MoveGeometry {
   }
 }
 
-/** Apply one move, returning a new cube (the input is left untouched). */
-export function applyMove(cube: Cube, move: Move): Cube {
+/**
+ * Apply one move, returning a new cube (the input is left untouched). `dims`
+ * defaults to the puzzle's own; passing it lets a search turn a handful of
+ * tracked pieces without the rest of the puzzle (see pieceSearch.ts).
+ */
+export function applyMove(cube: Cube, move: Move, dims: Dims = cubeDims(cube)): Cube {
   const spec = FACE_SPEC[move.face]
-  const layers = moveLayerRange(move, cubeDims(cube))
+  const layers = moveLayerRange(move, dims)
   const times = spec.sign * move.amount
   return cube.map((cubie) => {
     if (!inLayer(cubie.position[spec.coordIndex], layers)) return cubie
@@ -312,8 +316,8 @@ export function applyMove(cube: Cube, move: Move): Cube {
 }
 
 /** Apply a sequence of moves left to right. */
-export function applyMoves(cube: Cube, moves: readonly Move[]): Cube {
-  return moves.reduce(applyMove, cube)
+export function applyMoves(cube: Cube, moves: readonly Move[], dims: Dims = cubeDims(cube)): Cube {
+  return moves.reduce((state, move) => applyMove(state, move, dims), cube)
 }
 
 /**
@@ -407,9 +411,10 @@ export function stateKey(cube: Cube): string {
  */
 export function cubeOrientations(cube: Cube): Cube[] {
   const dims = cubeDims(cube)
-  const generators = (['x', 'y', 'z'] as Axis[]).map(
-    (axis): [Axis, number] => [axis, quarterTurnFits(dims, axis) ? 1 : 2],
-  )
+  const generators = (['x', 'y', 'z'] as Axis[]).map((axis): [Axis, number] => [
+    axis,
+    quarterTurnFits(dims, axis) ? 1 : 2,
+  ])
   const found = new Map<string, Cube>([[stateKey(cube), cube]])
   let frontier = [cube]
   while (frontier.length) {

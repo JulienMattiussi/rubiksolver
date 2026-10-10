@@ -76,6 +76,18 @@ const fr = {
       name: 'Fridrich (CFOP)',
       desc: 'Croix, puis paires F2L, puis orientation (OLL), puis permutation (PLL) de la dernière couche.',
     },
+    roux: {
+      name: 'Roux',
+      desc: 'Deux blocs 1x2x3 (le second en R, U, M et r seulement), les coins du haut (CMLL), puis les six dernières arêtes en M et U.',
+    },
+    petrus: {
+      name: 'Petrus',
+      desc: 'Bloc 2x2x2, étendu en 2x2x3, orientation des arêtes, fin des deux couches en R et U seulement, puis la dernière couche.',
+    },
+    zz: {
+      name: 'ZZ',
+      desc: 'Toutes les arêtes orientées et la ligne du bas d’abord (EOLine), puis les deux blocs sans jamais tourner F ni B, puis OCLL et PLL.',
+    },
     reduction: {
       name: 'Réduction par couches',
       desc: 'Centres, appariement des arêtes, puis résolution par couches comme un 3x3.',
@@ -90,6 +102,7 @@ const fr = {
     },
   },
   stepsLabel: 'Étapes',
+  allowedTurns: 'Coups autorisés :',
   stepByStep: 'Pas à pas',
   nextStep: 'Étape suivante',
   steps: {
@@ -108,6 +121,20 @@ const fr = {
     stepCenters: 'Centres',
     stepPairEdges: 'Appariement des arêtes',
     stepParity: 'Correction de parité',
+    stepFirstBlock: 'Premier bloc (1x2x3 à gauche)',
+    stepSecondBlock: 'Second bloc (1x2x3 à droite)',
+    stepCMLL: 'CMLL (coins du haut)',
+    stepLSEOrient: 'Orienter les six arêtes',
+    stepLSEUlUr: 'Placer UL et UR',
+    stepLSEMiddle: 'Finir la tranche M',
+    stepBlock222: 'Bloc 2x2x2',
+    stepBlock223: 'Extension en 2x2x3',
+    stepFixEdges: 'Orienter les arêtes',
+    stepF2LRU: 'Finir les deux couches',
+    stepEOLine: 'EOLine (arêtes orientées + ligne)',
+    stepLeftBlock: 'Bloc de gauche',
+    stepRightBlock: 'Bloc de droite',
+    stepOCLL: 'OCLL (orienter les coins)',
   },
 }
 
@@ -188,6 +215,18 @@ const en: Translations = {
       name: 'Fridrich (CFOP)',
       desc: 'Cross, then F2L pairs, then orient (OLL) and permute (PLL) the last layer.',
     },
+    roux: {
+      name: 'Roux',
+      desc: 'Two 1x2x3 blocks (the second with R, U, M and r only), the top corners (CMLL), then the last six edges with M and U.',
+    },
+    petrus: {
+      name: 'Petrus',
+      desc: '2x2x2 block, extended to 2x2x3, edge orientation, first two layers finished with R and U only, then the last layer.',
+    },
+    zz: {
+      name: 'ZZ',
+      desc: 'Every edge oriented and the bottom line first (EOLine), then both blocks without ever turning F or B, then OCLL and PLL.',
+    },
     reduction: {
       name: 'Reduction (layer by layer)',
       desc: 'Centers, edge pairing, then a layer-by-layer finish like a 3x3.',
@@ -202,6 +241,7 @@ const en: Translations = {
     },
   },
   stepsLabel: 'Steps',
+  allowedTurns: 'Allowed turns:',
   stepByStep: 'Step by step',
   nextStep: 'Next step',
   steps: {
@@ -220,6 +260,20 @@ const en: Translations = {
     stepCenters: 'Centers',
     stepPairEdges: 'Edge pairing',
     stepParity: 'Parity fix',
+    stepFirstBlock: 'First block (1x2x3 on the left)',
+    stepSecondBlock: 'Second block (1x2x3 on the right)',
+    stepCMLL: 'CMLL (top corners)',
+    stepLSEOrient: 'Orient the six edges',
+    stepLSEUlUr: 'Place UL and UR',
+    stepLSEMiddle: 'Finish the M slice',
+    stepBlock222: '2x2x2 block',
+    stepBlock223: 'Extend to 2x2x3',
+    stepFixEdges: 'Orient the edges',
+    stepF2LRU: 'Finish the first two layers',
+    stepEOLine: 'EOLine (oriented edges + line)',
+    stepLeftBlock: 'Left block',
+    stepRightBlock: 'Right block',
+    stepOCLL: 'OCLL (orient corners)',
   },
 }
 

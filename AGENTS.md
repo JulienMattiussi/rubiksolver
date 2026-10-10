@@ -73,17 +73,31 @@ src/
 │   │                     #   + CUBE_KINDS : les choix exposés (forme x variante), leur id, libellé et catégorie
 │   ├── cube.ts           # Modèle cubies : solvedCube(shape), applyMove(s), layerCoords/moveLayerCoords, isSolved (faces uniformes),
 │   │                     #   quarterTurnFits, moveGeometry, cubeOrientations, stateKey, comptages de stickers, couleurs opposées
-│   ├── moves.ts          # Notation US/FR (parse/format, 2R/Rw), inversion, simplification (par couches),
+│   ├── moves.ts          # Notation US/FR (parse/format, 2R/Rw, M/E/S sur 3x3), inversion, simplification (par couches),
 │   │                     #   scramble (RNG injectable ; le 4x4 mélange faces, tranches et coups larges), movesFor(shape) déduit de la forme
 │   ├── solverKit.ts      # Briques partagées des solveurs : search (BFS bornée, clé de dédup injectable),
-│   │                     #   solveWithAlgs ("aligner U puis algorithme"), relMoves/atEverySide, buildSteps (SolveStep[])
-│   ├── solver.ts         # Solveurs 2x2/3x3/1x2x3 + registre des méthodes par forme : methodsFor(shape), solve() (validation)
+│   │                     #   solveWithAlgs ("aligner U puis algorithme"), relMoves/atEverySide,
+│   │                     #   StepSpec/MethodPlan + buildSteps (vérifie objectif et coups autorisés de chaque étape)
+│   ├── moveSet.ts        # Jeux de coups d'une étape (`moveSet('M U')`, `'M U2'` = demi-tours seuls), allows
+│   ├── pieceSearch.ts    # solvePieces : recherche sur les seules pièces suivies, avec les coups de l'étape
+│   │                     #   (bidirectionnelle vers "pièces à leur place", ou BFS vers un objectif + clé projetée)
+│   ├── solver.ts         # Registre des méthodes par forme (une ligne par méthode) : methodsFor(shape), solve() (validation)
+│   ├── methods/          # Un fichier par famille de méthodes, chacune déclarée comme un MethodPlan :
+│   │   ├── algs.ts       #   catalogue des algorithmes nommés (Sune, Aa, Ua, T, Y, Niklas, CMLL...), effets testés
+│   │   ├── pieces3.ts    #   pièces du 3x3 nommées par leurs faces ('DFL', 'UR', 'L'), piecesHome, buildBlock,
+│   │   │                 #   orientation des arêtes (axe F/B) + clé de recherche projetée sur l'orientation
+│   │   ├── layers3.ts    #   3x3 par couches et CFOP (prédicats et phases réutilisés par Petrus et ZZ)
+│   │   ├── roux.ts       #   Roux : blocs 1x2x3, CMLL, LSE en <M, U>
+│   │   ├── petrus.ts     #   Petrus : 2x2x2, 2x2x3 en <U, R, F>, arêtes, F2L en <R, U>, dernière couche en 3 temps
+│   │   ├── zz.ts         #   ZZ : EOLine, blocs en <L, U, R> puis <R, U>, OCLL, PLL
+│   │   ├── cube2.ts      #   2x2 : par couches (repère DBL) et optimal (BFS bidirectionnelle)
+│   │   └── flat123.ts    #   1x2x3 : optimal (BFS exhaustive)
 │   ├── solver4/          # Solveur 4x4 par réduction :
 │   │   ├── centers.ts    #   centres par comptage (D, U, puis ceinture), recherches bornées sans régression
 │   │   ├── edges.ts      #   appariement des ailes (échanges nets FR-bas <-> BR/FL-haut, goal-checkés), flip L2E
 │   │   ├── project.ts    #   projection homomorphe du 4x4 réduit vers un 3x3 virtuel (via3x3)
 │   │   ├── parity.ts     #   détecteurs (flip, signes de permutation, vrille) + algos de parité OLL/PLL
-│   │   └── steps.ts      #   reductionSteps(specs 3x3) : préfixe centres/arêtes/parité + étapes 3x3 projetées
+│   │   └── steps.ts      #   reductionPlan(plan 3x3) : préfixe centres/arêtes/parité + étapes 3x3 projetées
 │   ├── editorTables.ts   # Tables de saisie par forme : slots, placements valides étiquetés par pièce physique, budgets
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
 │   ├── validate.ts       # validateCube : comptage par face + solubilité (résolution 2x2/3x3/1x2x3 ; invariants de pièces + vrille sur 4x4)
@@ -121,7 +135,8 @@ src/
 └── main.tsx
 tests/
 ├── helpers.ts            # RNG déterministe (seedRng) pour des scrambles reproductibles
-├── unit/                 # Vitest : cube, moves, solver + solver4 (propriété), flat123 (espace d'états entier), editor, validate, shape, easing, speed, progress
+├── unit/                 # Vitest : cube, moves, solver + solver4 (propriété), methods (Roux/Petrus/ZZ : objectifs et jeux de coups),
+│                         #   algs (effet de chaque algorithme), pieceSearch, flat123 (espace d'états entier), editor, validate, shape, easing, speed, progress
 ├── component/            # Vitest + Testing Library (Controls, SegmentedToggle)
 └── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution, saisie)
 ```
@@ -134,10 +149,20 @@ définie par son **cheminement propre** (sa suite d'objectifs) et renvoie ses
 **étapes nommées** (`SolveStep[]`), que l'UI joue une par une. Repère commun :
 le jaune (face D) est la première couche, le blanc (face U) la dernière.
 
-Le registre déclare, pour chaque méthode, **un solveur par taille supportée**
-(source unique : pas de dispatch séparé) ; `methodsFor(size)` renvoie les
-méthodes disponibles pour une taille, chacune liée à son solveur (l'UI et le
-store ne voient que ça) :
+Une méthode est **déclarée, pas codée en dur** : un `MethodPlan` est une liste
+d'étapes (`StepSpec`), chacune avec sa clé i18n, **l'objectif qu'elle doit
+atteindre** (`goal`), **les coups qu'elle a le droit d'utiliser** (`moves`, un
+`MoveSet`) et ses phases (le travail). `buildSteps` vérifie ce contrat à chaque
+résolution : une étape qui s'arrête avant son objectif ou glisse un coup
+interdit lève une exception. C'est ce qui empêche une méthode de dégénérer en
+« par couches déguisé » : les jeux de coups (`<M, U>` pour la fin de Roux,
+`<R, U>` pour le F2L de Petrus...) sont imposés, et affichés à l'apprenant
+dans la liste des étapes quand ils restreignent vraiment.
+
+Le registre (`solver.ts`) déclare, pour chaque méthode, **un plan par forme
+supportée** (source unique : pas de dispatch séparé) ; `methodsFor(shape)`
+renvoie les méthodes disponibles pour une forme, chacune liée à son plan (l'UI
+et le store ne voient que ça) :
 
 - **Par couches** (`beginner`, 3x3 et 2x2) : sur 3x3, 1re couche entière
   (croix + coins), puis arêtes du milieu, puis dernière couche (croix,
@@ -149,6 +174,20 @@ store ne voient que ça) :
 - **Réduction** (`reduction` et `reductionCfop`, 4x4) : Centres, Appariement
   des arêtes, Correction de parité (étape émise seulement si nécessaire), puis
   la phase 3x3 de la méthode choisie (par couches ou CFOP) - voir plus bas.
+- **Roux** (`roux`, 3x3) : premier bloc 1x2x3 à gauche (arête DL, paire
+  avant, paire arrière), second bloc à droite en `<U, R, M, r>` seulement,
+  CMLL en 2 temps (orienter avec Sune/Antisune, permuter), puis les six
+  dernières arêtes en `<M, U>` : orientation, UL/UR, tranche M en `<M, U2>`
+  - 6 étapes.
+- **Petrus** (`petrus`, 3x3), les 7 étapes de Lars Petrus : bloc 2x2x2 (DBL),
+  extension en 2x2x3 en `<U, R, F>` (ne touchent pas le 2x2x2), arêtes
+  orientées (F et B n'apparaissent que dans `F' U F` / `B U B'`, qui
+  préservent le bloc), fin du F2L en `<R, U>` seulement, puis coins placés
+  (Niklas), coins tournés (Sune/Antisune), arêtes placées (Ua).
+- **ZZ** (`zz`, 3x3) : EOLine (les 12 arêtes orientées, puis DF/DB en coups
+  qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
+  droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL
+  - 5 étapes.
 - **Optimale** (`optimal`, 2x2) : recherche exhaustive, solution la plus
   courte possible (11 coups max), une seule étape.
 
@@ -184,20 +223,42 @@ mod 3) fait lever une exception : cube réellement impossible. (4) **Phase
 projection (`via3x3`) et leurs coups se rejouent tels quels : zéro duplication
 des étapes.
 
-Les briques de résolution sont partagées (`src/lib/solverKit.ts`) et
-**correctes par construction** : la croix par recherche de plus court chemin
-(BFS sur des générateurs de coups, clé de déduplication injectable) ; les
-insertions et la dernière couche par recherche « aligner U puis appliquer un
-algorithme » (gâchettes `R U R'`, `F R U R' U' F'`, Sune, A-perm/U-perm en
-3-cycle) dont l'objectif inclut « ne pas régresser ». Ce qui **distingue** les
-méthodes, c'est donc leur _découpage en étapes_ (le cheminement), pas la
-machinerie bas niveau. Les solutions ne sont pas optimisées (longues) mais
-toujours correctes ; validé par un test de propriété qui résout des dizaines
-de scrambles pour chaque méthode et vérifie `isSolved`.
+Les briques de résolution sont partagées et **correctes par construction** :
 
-> Ajouter une méthode à cheminement vraiment différent (ex. "arêtes d'abord",
-> Petrus par blocs) demande sa propre machinerie (placer les coins sans casser
-> les arêtes, construire des blocs 2x2x2...), pas seulement un réétiquetage.
+- **algorithmes** (`solverKit.ts`) : recherche « aligner U puis appliquer un
+  algorithme » (gâchettes `R U R'`, Sune, A-perm/U-perm...) dont l'objectif
+  inclut « ne pas régresser » ; les algorithmes viennent tous du catalogue
+  `methods/algs.ts`, et chacun a son effet vérifié par un test ;
+- **construction de blocs** (`pieceSearch.ts`) : une recherche qui ne fait
+  tourner **que les pièces suivies** (avec `applyMove(..., dims)` sur un
+  sous-ensemble de cubies), donc minuscule même avec un jeu de coups
+  restreint. Vers « ces pièces à leur place », l'objectif est un état unique :
+  la recherche part des deux bouts et se rejoint au milieu (profondeur divisée
+  par deux). Vers un objectif plus large (« toutes les arêtes orientées »),
+  BFS avec une clé projetée sur ce que l'objectif lit (`orientationKey` :
+  2^11 motifs au lieu de milliards d'états). `buildBlock(noms, coups)` en fait
+  une phase : il faut relister les pièces déjà construites que ces coups
+  pourraient déranger.
+
+Les tranches du 3x3 ne demandent rien au moteur : sur 3 couches, la couche
+`depth: 2` est celle du milieu, donc `M` = `2L` (même sens que L), `E` = `2D`,
+`S` = `2F`, et `r` = `Rw`. `formatMove(move, labels, dims)` les affiche `M`,
+`E`, `S` quand on lui passe les dimensions.
+
+**Ajouter une méthode à un puzzle** : (1) écrire son plan dans
+`src/lib/methods/<méthode>.ts` (étapes avec objectif, jeu de coups et phases ;
+réutiliser `buildBlock`, `solvePieces`, `solveWithAlgs`, les prédicats
+existants, et ajouter les algorithmes au catalogue) ; (2) l'ajouter au registre
+de `solver.ts` sous les formes qu'elle couvre ; (3) nommer la méthode et ses
+étapes dans les deux langues. Le test de registre résout alors des mélanges
+avec elle, sans rien toucher d'autre ; y ajouter un test qui fige ses jeux de
+coups (voir `tests/unit/methods.test.ts`). Une méthode 3x3 n'utilisant que des
+coups externes peut aussi servir de phase 3x3 au 4x4 (`reductionPlan`, qui
+refuse les tranches : `M` sur un 3x3 n'est pas un coup du 4x4 réduit).
+
+Les solutions ne sont pas optimisées mais toujours correctes ; validé par des
+tests de propriété qui résolvent des dizaines de mélanges par méthode en
+vérifiant l'objectif de chaque étape.
 
 ### La saisie d'un cube (`src/lib/editor.ts`, `validate.ts`)
 
@@ -351,7 +412,8 @@ mobile et en saisie, une seule carte) :
 - **Résolution** : choix de la **méthode** (liste déroulante, filtrée par
   taille via `methodsFor`), **Résoudre**
   (joue tout) ou **Pas à pas** (une étape à la fois), et la **liste des étapes**
-  nommées avec le total de rotations et le surlignage de l'étape en cours.
+  nommées avec le total de rotations, le surlignage de l'étape en cours et,
+  quand l'étape est restreinte, ses **coups autorisés** (`<M, U>`...).
 
 **Mobile** : le panneau se **replie** en une barre compacte (Mélanger +
 Résoudre) ; en mode saisie, le cube est empilé **au-dessus** du panneau pour

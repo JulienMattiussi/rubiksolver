@@ -2,18 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { applyMoves, isSolved, solvedCube } from '@/lib/cube'
 import { formatMoves, parseMoves, scramble } from '@/lib/moves'
 import {
-  bottomLayerDone2,
   crossDone,
   firstLayerDone,
-  methodsFor,
   secondLayerDone,
-  solve,
-  solveBottomLayer2,
   solveCross,
-  solveOptimal2,
-  solvePermuteTop2,
-  solveTopFace2,
-  topFaceDone2,
   solveFirstLayerCorners,
   solveMiddleLayer,
   solvePermuteCorners,
@@ -23,7 +15,16 @@ import {
   topCornersDone,
   topCrossDone,
   topFaceDone,
-} from '@/lib/solver'
+} from '@/lib/methods/layers3'
+import {
+  bottomLayerDone2,
+  solveBottomLayer2,
+  solveOptimal2,
+  solvePermuteTop2,
+  solveTopFace2,
+  topFaceDone2,
+} from '@/lib/methods/cube2'
+import { methodsFor, solve } from '@/lib/solver'
 import { seededRng, twistedCorner2 } from '../helpers'
 
 describe('solver', () => {

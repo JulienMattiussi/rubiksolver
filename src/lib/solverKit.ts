@@ -1,5 +1,6 @@
 import { applyMove, applyMoves, FACE_NORMAL, isSolved, stateKey } from './cube'
-import { parseMoves, simplifyMoves } from './moves'
+import { formatMove, parseMoves, simplifyMoves } from './moves'
+import { allows, type MoveSet } from './moveSet'
 import type { Color, Cube, Cubie, Face, Move } from './types'
 
 /**
@@ -201,30 +202,53 @@ export function solveWithAlgs(
  * One named stage of a method's solution. `key` is an i18n key describing the
  * step (e.g. the CFOP "F2L"); `moves` are the turns that complete it. Steps let
  * the UI teach a method by playing it one meaningful stage at a time.
+ * `allowed` lists the layers the step was restricted to (`<M, U>`), when it
+ * was, so the learner sees what the method lets them turn.
  */
 export interface SolveStep {
   readonly key: string
   readonly moves: readonly Move[]
+  readonly allowed?: readonly Move[]
 }
 
-export interface StepSpec {
-  key: string
-  phases: ReadonlyArray<(c: Cube) => Move[]>
+/**
+ * One step of a method, declared rather than coded: what it is called, the
+ * state it must reach and the turns it may use. Its phases do the work (in
+ * order, each from the state the previous one left); `buildSteps` then checks
+ * the contract, so a step can neither stop short of its goal nor sneak in a
+ * turn its method forbids.
+ */
+interface StepSpec {
+  readonly key: string
+  readonly goal: (c: Cube) => boolean
+  readonly moves: MoveSet
+  readonly phases: ReadonlyArray<(c: Cube) => Move[]>
 }
 
-/** Run grouped phases, emitting one named step per group. */
-export function buildSteps(cube: Cube, groups: readonly StepSpec[]): SolveStep[] {
+/** A solving method for one shape: its steps, in order. */
+export type MethodPlan = readonly StepSpec[]
+
+/** Run a method's steps, emitting one named step each (empty ones dropped). */
+export function buildSteps(cube: Cube, plan: MethodPlan): SolveStep[] {
   if (isSolved(cube)) return []
   let state = cube
   const steps: SolveStep[] = []
-  for (const group of groups) {
+  for (const spec of plan) {
     let moves: Move[] = []
-    for (const phase of group.phases) {
+    for (const phase of spec.phases) {
       const m = phase(state)
       state = applyMoves(state, m)
       moves = moves.concat(m)
     }
-    steps.push({ key: group.key, moves: simplifyMoves(moves) })
+    moves = simplifyMoves(moves)
+    const stray = moves.find((m) => !allows(spec.moves, m))
+    if (stray) throw new Error(`${spec.key}: ${formatMove(stray)} is not an allowed turn`)
+    if (!spec.goal(state)) throw new Error(`${spec.key}: goal not reached`)
+    steps.push({
+      key: spec.key,
+      moves,
+      ...(spec.moves.restricted && { allowed: spec.moves.generators }),
+    })
   }
   return steps.filter((s) => s.moves.length > 0)
 }

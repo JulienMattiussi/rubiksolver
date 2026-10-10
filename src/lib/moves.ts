@@ -1,6 +1,6 @@
 import { faceAxis, faceLayers, quarterTurnFits, quarterTurnKeepsGrid } from './cube'
 import { SHAPE_DIMS, SHAPE_SHIFTS } from './types'
-import type { CubeShape, Face, Move } from './types'
+import type { CubeShape, Dims, Face, Move } from './types'
 
 export const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
 
@@ -41,17 +41,44 @@ export const NOTATION_US: FaceLabels = { U: 'U', D: 'D', L: 'L', R: 'R', F: 'F',
 /** Traditional French notation: Haut, Bas, Gauche, Droite, Face, Arrière. */
 export const NOTATION_FR: FaceLabels = { U: 'H', D: 'B', L: 'G', R: 'D', F: 'F', B: 'Ar' }
 
-/** Human-readable notation for a move: `U`, `U2`, `U'`, `2U`, `Uw2`... */
-export function formatMove(move: Move, labels: FaceLabels = NOTATION_US): string {
-  const suffix = move.amount === 1 ? '' : move.amount === 2 ? '2' : "'"
+/**
+ * Middle slices of a 3-layer axis, named after the face they turn like (the
+ * standard convention): M follows L, E follows D, S follows F. The same
+ * letters in every notation. Internally a slice is the inner layer `2L`,
+ * `2D` or `2F`, so the engine needs nothing new.
+ */
+const SLICES: ReadonlyArray<{ letter: string; face: Face; opposite: Face }> = [
+  { letter: 'M', face: 'L', opposite: 'R' },
+  { letter: 'E', face: 'D', opposite: 'U' },
+  { letter: 'S', face: 'F', opposite: 'B' },
+]
+
+const AMOUNT_SUFFIX = { 1: '', 2: '2', 3: "'" } as const
+
+/**
+ * Human-readable notation for a move: `U`, `U2`, `U'`, `2U`, `Uw2`... Given
+ * the puzzle's `dims`, the inner slice of a 3-layer axis reads as M, E or S
+ * (`2L` is M, `2R` is M', which turns the same slice the other way).
+ */
+export function formatMove(move: Move, labels: FaceLabels = NOTATION_US, dims?: Dims): string {
+  if (dims && move.depth && !move.wide && faceLayers(dims, move.face) === 3) {
+    const slice = SLICES.find((s) => s.face === move.face || s.opposite === move.face)!
+    const amount = slice.face === move.face ? move.amount : invertMove(move).amount
+    return slice.letter + AMOUNT_SUFFIX[amount]
+  }
+  const suffix = AMOUNT_SUFFIX[move.amount]
   const slice = move.depth && !move.wide ? '2' : ''
   const wide = move.wide ? 'w' : ''
   return slice + labels[move.face] + wide + suffix
 }
 
 /** Format a sequence, space-separated. */
-export function formatMoves(moves: readonly Move[], labels: FaceLabels = NOTATION_US): string {
-  return moves.map((m) => formatMove(m, labels)).join(' ')
+export function formatMoves(
+  moves: readonly Move[],
+  labels: FaceLabels = NOTATION_US,
+  dims?: Dims,
+): string {
+  return moves.map((m) => formatMove(m, labels, dims)).join(' ')
 }
 
 /** Memoized reverse lookup of a notation's labels. */
@@ -66,9 +93,9 @@ function faceOfLabel(labels: FaceLabels, label: string): Face | undefined {
 }
 
 /**
- * Parse a single token like `R`, `R2`, `2R'`, `Rw2` into a Move (undefined if
- * invalid). Only the canonical spellings are accepted: a wide turn is `Rw`,
- * never `2Rw`.
+ * Parse a single token like `R`, `R2`, `2R'`, `Rw2`, `M'` into a Move
+ * (undefined if invalid). Only the canonical spellings are accepted: a wide
+ * turn is `Rw`, never `2Rw`. M, E and S are the middle slices of a 3x3.
  */
 export function parseMove(token: string, labels: FaceLabels = NOTATION_US): Move | undefined {
   let t = token.trim()
@@ -90,6 +117,8 @@ export function parseMove(token: string, labels: FaceLabels = NOTATION_US): Move
     wide = true
     t = t.slice(0, -1)
   }
+  const middle = SLICES.find((s) => s.letter === t)
+  if (middle) return slice || wide ? undefined : { face: middle.face, amount, depth: 2 }
   const face = faceOfLabel(labels, t)
   if (!face || (slice && wide)) return undefined
   if (wide) return { face, amount, depth: 2, wide: true }

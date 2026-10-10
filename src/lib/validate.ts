@@ -1,7 +1,8 @@
 import type { Color, Cube, Vec3 } from './types'
 import { cubeShape, stickersOfColor } from './cube'
 import { usesRealPieces } from './editor'
-import { solve, solveOptimal2 } from './solver'
+import { solveOptimal2 } from './methods/cube2'
+import { solve } from './solver'
 
 export type ValidationError = 'counts' | 'impossible'
 export type ValidationResult = { ok: true } | { ok: false; error: ValidationError }

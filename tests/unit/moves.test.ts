@@ -35,6 +35,20 @@ describe('moves notation', () => {
     expect(() => parseMoves('R Q')).toThrow()
   })
 
+  it('reads M, E and S as the middle slices of a 3x3, in every notation', () => {
+    expect(parseMove("M'")).toEqual({ face: 'L', amount: 3, depth: 2 })
+    expect(parseMove('E2', NOTATION_FR)).toEqual({ face: 'D', amount: 2, depth: 2 })
+    expect(parseMove('S')).toEqual({ face: 'F', amount: 1, depth: 2 })
+    expect(parseMove('2M')).toBeUndefined()
+    const dims = [3, 3, 3] as const
+    expect(formatMoves(parseMoves("M' E2 S"), NOTATION_FR, dims)).toBe("M' E2 S")
+    // The slice is named after the face it follows: 2R turns it the M' way.
+    expect(formatMove({ face: 'R', amount: 1, depth: 2 }, NOTATION_US, dims)).toBe("M'")
+    // Without the dims (or on a 4x4) it stays an inner slice.
+    expect(formatMove({ face: 'L', amount: 1, depth: 2 })).toBe('2L')
+    expect(formatMove({ face: 'L', amount: 1, depth: 2 }, NOTATION_US, [4, 4, 4])).toBe('2L')
+  })
+
   it('inverts moves and sequences', () => {
     expect(invertMove({ face: 'R', amount: 1 })).toEqual({ face: 'R', amount: 3 })
     expect(invertMove({ face: 'R', amount: 2 })).toEqual({ face: 'R', amount: 2 })

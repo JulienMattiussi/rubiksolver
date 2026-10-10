@@ -11,7 +11,8 @@ import {
   stickersTotal,
 } from '@/lib/cube'
 import { formatMoves, movesFor, scramble } from '@/lib/moves'
-import { solve, solveFlat123 } from '@/lib/solver'
+import { solveFlat123 } from '@/lib/methods/flat123'
+import { solve } from '@/lib/solver'
 import { buildCube, cubeToEdit } from '@/lib/editor'
 import { validateCube } from '@/lib/validate'
 import type { Cube } from '@/lib/types'
@@ -138,7 +139,13 @@ describe('1x2x3 editor and validation', () => {
     // sequence of half turns produces it.
     const [first, ...rest] = SOLVED
     const flipped = [
-      { ...first!, stickers: first!.stickers.map((s) => ({ ...s, normal: [-s.normal[0], -s.normal[1], -s.normal[2]] as const })) },
+      {
+        ...first!,
+        stickers: first!.stickers.map((s) => ({
+          ...s,
+          normal: [-s.normal[0], -s.normal[1], -s.normal[2]] as const,
+        })),
+      },
       ...rest,
     ]
     expect(validateCube(flipped)).toEqual({ ok: false, error: 'impossible' })
