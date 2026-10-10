@@ -1,14 +1,24 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Controls } from '@/components/controls/Controls'
 import { useI18n } from '@/i18n/i18nStore'
+import { applyMoves, solvedCube, stateKey } from '@/lib/cube'
+import { parseMoves } from '@/lib/moves'
 import { useCube } from '@/store/cubeStore'
+import { useSaved } from '@/store/savedStore'
 
 beforeEach(() => {
   useCube.getState().setShape('3')
   useCube.getState().reset()
   useI18n.getState().setLocale('fr')
+  useSaved.setState({ saved: {} })
+  // An in-memory Storage: the runtime's own may be missing or inert.
+  const items = new Map<string, string>()
+  vi.stubGlobal('localStorage', {
+    getItem: (key: string) => items.get(key) ?? null,
+    setItem: (key: string, value: string) => items.set(key, value),
+  })
 })
 
 describe('<Controls />', () => {
@@ -63,5 +73,56 @@ describe('<Controls />', () => {
       }),
     )
     expect(useCube.getState().queue.at(-1)).toEqual({ face: 'R', amount: 3, depth: 2, wide: true })
+  })
+
+  it('saves a state and restores it after the cube moved on', async () => {
+    const user = userEvent.setup()
+    render(<Controls />)
+    const restore = screen.getByRole('button', { name: 'Restaurer' })
+    expect(restore).toBeDisabled()
+
+    const scrambled = applyMoves(solvedCube('3'), parseMoves("R U F' L2 D"))
+    useCube.getState().loadCube(scrambled)
+    await user.click(screen.getByRole('button', { name: 'Mémoriser' }))
+    // Saving the very state it holds again would be a no-op.
+    expect(screen.getByRole('button', { name: 'Mémoriser' })).toBeDisabled()
+    expect(localStorage.getItem('rubiksolver.saved')).toContain('"3"')
+
+    await user.click(screen.getByRole('button', { name: 'Réinitialiser' }))
+    expect(restore).toBeEnabled()
+    await user.click(restore)
+    expect(stateKey(useCube.getState().cube)).toBe(stateKey(scrambled))
+  })
+
+  it('asks before replacing another saved state, not before a first save', async () => {
+    const user = userEvent.setup()
+    render(<Controls />)
+    const first = applyMoves(solvedCube('3'), parseMoves('R U'))
+    useCube.getState().loadCube(first)
+    await user.click(screen.getByRole('button', { name: 'Mémoriser' }))
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+
+    const second = applyMoves(solvedCube('3'), parseMoves("F' D2"))
+    useCube.getState().loadCube(second)
+    const savedKey = () => useSaved.getState().saved['3']?.cube
+    const before = savedKey()
+
+    // Cancelling keeps the first state.
+    await user.click(screen.getByRole('button', { name: 'Mémoriser' }))
+    expect(
+      screen.getByRole('alertdialog', { name: 'Remplacer l’état mémorisé ?' }),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Annuler' }))
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    expect(savedKey()).toBe(before)
+
+    // Escape cancels too; confirming replaces it.
+    await user.click(screen.getByRole('button', { name: 'Mémoriser' }))
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Mémoriser' }))
+    await user.click(screen.getByRole('button', { name: 'Remplacer' }))
+    expect(savedKey()).not.toBe(before)
+    expect(screen.getByRole('button', { name: 'Mémoriser' })).toBeDisabled()
   })
 })

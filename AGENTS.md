@@ -102,6 +102,7 @@ src/
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
 │   ├── validate.ts       # validateCube : comptage par face + solubilité (résolution 2x2/3x3/1x2x3 ; invariants de pièces + vrille sur 4x4)
 │   ├── shape.ts          # Cube miroir : épaisseur de couche par couleur, boîte d'un cubie déduite de ses stickers
+│   ├── snapshot.ts       # encodeCube/decodeCube : forme texte d'un état (mémorisation), décodage qui rejette un texte corrompu
 │   ├── easing.ts         # easeInOut (partagé par les animations)
 │   ├── speed.ts          # Curseur 0..100 <-> secondes par rotation
 │   └── progress.ts       # solveProgress : avancement par étape d'une solution (pour l'UI)
@@ -111,6 +112,7 @@ src/
 │   ├── cubeStore.ts      # Zustand : cube + variante de rendu + file de rotations + pilotage animation ;
 │   │                     #   méthode, étapes, jouer tout / pas à pas, loadCube
 │   ├── editorStore.ts    # Zustand : mode play/edit, couleur sélectionnée, saisie, apply (build + validate + charge)
+│   ├── savedStore.ts     # Zustand : un état mémorisé par forme, persisté en localStorage (try/catch : sans stockage, juste la session)
 │   └── viewStore.ts      # Zustand : pont DOM -> 3D pour recentrer la caméra (resetToken)
 ├── i18n/                 # i18n custom (FR source de vérité, EN typé complet) ; locale + notation US/FR
 │   ├── translations.ts   # `fr` (source) + `en: Translations`
@@ -126,7 +128,7 @@ src/
 │   ├── CameraReset.tsx   # Recentrage caméra animé (lit viewStore, dans le <Canvas>)
 │   └── colors.ts         # Couleurs des stickers (hex), plastique, doré du cube miroir
 ├── components/
-│   ├── ui/               # Primitives réutilisables (Button, IconButton, SegmentedToggle)
+│   ├── ui/               # Primitives réutilisables (Button, IconButton, SegmentedToggle, Select, ConfirmDialog)
 │   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge,
 │   │                     #   LanguageToggle, NotationToggle, RecenterButton, CollapseButton, SpeedSlider, MovePad
 │   ├── solve/            # Résolution : SolvePanel, MethodSelect, StepList
@@ -402,7 +404,10 @@ mobile et en saisie, une seule carte) :
   2x2/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 1x2x3/2x2x4 ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer
   de variante conserve l'état) avec le **statut** sur la même ligne, mélanger /
-  réinitialiser, saisie d'un cube (vierge ou depuis l'état courant), vitesse
+  réinitialiser, saisie d'un cube (vierge ou depuis l'état courant),
+  **Mémoriser / Restaurer** (un état par forme, gardé entre deux visites,
+  pour comparer deux méthodes sur le même mélange ; remplacer un autre état
+  mémorisé demande confirmation dans une modale), vitesse
   d'animation, et **pad de rotations** construit à partir des coups que la
   forme autorise (une gâchette horaire + une anti-horaire par face ; un seul
   bouton de demi-tour là où le quart de tour est impossible ; rien pour une

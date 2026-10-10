@@ -1,17 +1,21 @@
-import { Pencil, RotateCcw, Shuffle, Square } from 'lucide-react'
+import { ArchiveRestore, Bookmark, Pencil, RotateCcw, Shuffle, Square } from 'lucide-react'
+import { useState } from 'react'
 import { cubeShape, isSolved } from '@/lib/cube'
+import { encodeCube } from '@/lib/snapshot'
 import { CUBE_CATEGORIES, CUBE_KINDS, cubeCategory, cubeKindId, SHAPE_LABEL } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
+import { useSaved } from '@/store/savedStore'
 import { Button } from '@/components/ui/Button'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Select } from '@/components/ui/Select'
 import { MovePad } from './MovePad'
 import { SpeedSlider } from './SpeedSlider'
 import { StatusBadge } from './StatusBadge'
 
 /** Setup block: cube choice + status on one line, scramble/reset/edit actions,
- *  speed, move pad. */
+ *  save/restore a state (one per shape, kept across reloads), speed, move pad. */
 export function SetupSection() {
   const t = useI18n((s) => s.t)
   const cube = useCube((s) => s.cube)
@@ -26,9 +30,18 @@ export function SetupSection() {
   const stop = useCube((s) => s.stop)
   const enterEdit = useEditor((s) => s.enter)
   const enterFromCurrent = useEditor((s) => s.enterFromCurrent)
+  const locale = useI18n((s) => s.locale)
+  const saved = useSaved((s) => s.saved[shape])
+  const save = useSaved((s) => s.save)
+  const restore = useSaved((s) => s.restore)
 
+  const [confirmReplace, setConfirmReplace] = useState(false)
   const busy = active !== null || queue.length > 0
   const solved = isSolved(cube)
+  const alreadySaved = saved?.cube === encodeCube(cube)
+  const savedTime = saved
+    ? new Date(saved.savedAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+    : ''
 
   return (
     <section
@@ -82,7 +95,40 @@ export function SetupSection() {
         <Button onClick={enterFromCurrent} disabled={busy} variant="ghost">
           {t.fromCurrent}
         </Button>
+        <Button
+          // Overwriting another memorized state asks first; a first save does not.
+          onClick={() => (saved ? setConfirmReplace(true) : save(cube))}
+          disabled={busy || alreadySaved}
+          variant="ghost"
+          title={alreadySaved ? t.savedAlready : t.saveStateTitle}
+        >
+          <Bookmark className="size-4" aria-hidden />
+          {t.saveState}
+        </Button>
+        <Button
+          onClick={() => restore(shape)}
+          disabled={busy || !saved || alreadySaved}
+          variant="ghost"
+          title={saved ? t.restoreStateTitle(savedTime) : t.nothingSaved}
+        >
+          <ArchiveRestore className="size-4" aria-hidden />
+          {t.restoreState}
+        </Button>
       </div>
+
+      {confirmReplace && (
+        <ConfirmDialog
+          title={t.replaceSavedTitle}
+          message={t.replaceSavedMessage(savedTime)}
+          confirmLabel={t.replaceSaved}
+          cancelLabel={t.cancel}
+          onConfirm={() => {
+            save(cube)
+            setConfirmReplace(false)
+          }}
+          onCancel={() => setConfirmReplace(false)}
+        />
+      )}
 
       <SpeedSlider />
       <MovePad disabled={busy} />

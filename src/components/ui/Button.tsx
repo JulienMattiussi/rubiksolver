@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import type { ComponentPropsWithRef, ReactNode } from 'react'
 
 type Variant = 'primary' | 'default' | 'ghost'
 
@@ -13,7 +13,7 @@ const VARIANTS: Record<Variant, string> = {
   ghost: 'bg-transparent text-slate-300 hover:bg-slate-700/60',
 }
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ComponentPropsWithRef<'button'> {
   variant?: Variant
   children: ReactNode
 }
