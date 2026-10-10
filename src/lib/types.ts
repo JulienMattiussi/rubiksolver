@@ -59,12 +59,20 @@ const SHAPES = Object.keys(SHAPE_DIMS) as readonly CubeShape[]
 export type CubeVariant = 'classic' | 'mirror'
 
 /**
- * A mirror cube needs one thickness per face, which a one-layer axis cannot
- * have: its two opposite stickers sit on the same piece, so its faces carry no
- * shape at all. Only shapes with at least two layers everywhere are mirrored.
+ * Shapes sold as a mirror puzzle. Only real puzzles are offered: the 2x2x4 has
+ * no mirror version, and the 1x2x3 cannot have one (a one-layer axis puts two
+ * opposite stickers on the same piece, so its faces carry no thickness).
  */
+const SHAPE_MIRROR: Record<CubeShape, boolean> = {
+  '2': true,
+  '3': true,
+  '4': true,
+  '123': false,
+  '224': false,
+}
+
 export function supportsMirror(shape: CubeShape): boolean {
-  return SHAPE_DIMS[shape].every((n) => n >= 2)
+  return SHAPE_MIRROR[shape]
 }
 
 /** One entry of the cube picker: a shape plus a rendering variant. */
@@ -73,7 +81,19 @@ interface CubeKind {
   readonly variant: CubeVariant
 }
 
-/** Cube choices exposed in the UI, in display order (classics, then mirrors). */
+/** Groups of the cube picker, in display order: the classic NxNxN cubes, their
+ *  mirror versions, then the non-cubic puzzles (towers and other cuboids). */
+export const CUBE_CATEGORIES = ['standard', 'mirror', 'tower'] as const
+export type CubeCategory = (typeof CUBE_CATEGORIES)[number]
+
+/** Picker group of a cube choice, derived from its variant and dimensions. */
+export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
+  if (variant === 'mirror') return 'mirror'
+  const [x, y, z] = SHAPE_DIMS[shape]
+  return x === y && y === z ? 'standard' : 'tower'
+}
+
+/** Cube choices exposed in the UI (the picker groups them by `cubeCategory`). */
 export const CUBE_KINDS: readonly CubeKind[] = [
   ...SHAPES.map((shape): CubeKind => ({ shape, variant: 'classic' })),
   ...SHAPES.filter(supportsMirror).map((shape): CubeKind => ({ shape, variant: 'mirror' })),

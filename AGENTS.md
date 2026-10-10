@@ -70,7 +70,7 @@ voisins (ex : `big-bang-clicker`).
 src/
 ├── lib/                  # Logique pure, zéro React / zéro three.js (entièrement testée)
 │   ├── types.ts          # Types du domaine (CubeShape + SHAPE_DIMS, Dims, CubeVariant, Face, Color, Axis, Vec3, Sticker, Cubie, Cube, Move avec depth/wide)
-│   │                     #   + CUBE_KINDS : les choix exposés (forme x variante), leur id et leur libellé
+│   │                     #   + CUBE_KINDS : les choix exposés (forme x variante), leur id, libellé et catégorie
 │   ├── cube.ts           # Modèle cubies : solvedCube(shape), applyMove(s), layerCoords/moveLayerCoords, isSolved (faces uniformes),
 │   │                     #   quarterTurnFits, moveGeometry, cubeOrientations, stateKey, comptages de stickers, couleurs opposées
 │   ├── moves.ts          # Notation US/FR (parse/format, 2R/Rw), inversion, simplification (par couches),
@@ -91,6 +91,8 @@ src/
 │   ├── easing.ts         # easeInOut (partagé par les animations)
 │   ├── speed.ts          # Curseur 0..100 <-> secondes par rotation
 │   └── progress.ts       # solveProgress : avancement par étape d'une solution (pour l'UI)
+├── hooks/
+│   └── useIsDesktop.ts   # Breakpoint `sm` via matchMedia (bascule panneau unique / deux panneaux)
 ├── store/
 │   ├── cubeStore.ts      # Zustand : cube + variante de rendu + file de rotations + pilotage animation ;
 │   │                     #   méthode, étapes, jouer tout / pas à pas, loadCube
@@ -277,10 +279,11 @@ ordinaire, mais tous ses stickers ont la même couleur et ses couches ont des
 épaisseurs différentes, si bien qu'on le résout **par la forme**. C'est donc
 **une variante de rendu et rien d'autre** (`CubeVariant`, dans le store à côté
 de la taille) : le modèle, les coups, `isSolved`, les solveurs, la saisie et la
-validation l'ignorent complètement. Chaque taille est proposée dans les deux
-variantes (`CUBE_KINDS`) - sauf celles dont un axe n'a qu'une couche, comme le
-1x2x3 : ses deux grandes faces sont portées par les mêmes pièces, donc elles ne
-peuvent pas avoir d'épaisseur (`supportsMirror`).
+validation l'ignorent complètement. Seuls les puzzles miroirs qui existent
+vraiment sont proposés (`SHAPE_MIRROR` / `supportsMirror`, puis `CUBE_KINDS`) :
+2x2, 3x3 et 4x4. Le 2x2x4 n'a pas de version miroir, et le 1x2x3 ne peut pas en
+avoir : un axe à une seule couche porte ses deux grandes faces sur les mêmes
+pièces, donc elles ne peuvent pas avoir d'épaisseur.
 
 La correspondance est **couleur -> épaisseur** (`LAYER_THICKNESS`), **bijective** :
 les six épaisseurs sont distinctes (groupées en fines et épaisses pour garder
@@ -329,10 +332,13 @@ sa forme au fur et à mesure.
 
 ### Interface
 
-Panneau d'overlay en **deux blocs** :
+Panneau d'overlay en **deux blocs** (sur desktop, deux cartes séparées : le
+titre et l'initialisation à gauche, la langue et la résolution à droite ; sur
+mobile et en saisie, une seule carte) :
 
 - **Initialisation** (titre non affiché, `aria-label` seulement) : **choix du
-  cube** (liste déroulante : 2x2/3x3/4x4/1x2x3, classiques puis miroirs ;
+  cube** (liste déroulante groupée par catégorie, `cubeCategory` : Standard
+  2x2/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 1x2x3/2x2x4 ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer
   de variante conserve l'état) avec le **statut** sur la même ligne, mélanger /
   réinitialiser, saisie d'un cube (vierge ou depuis l'état courant), vitesse

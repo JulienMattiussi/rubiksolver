@@ -23,9 +23,11 @@ export default function App() {
       >
         <Scene />
       </div>
-      <div className="pointer-events-none absolute inset-0 flex items-end justify-center p-3 sm:items-start sm:justify-end sm:p-5">
+      {/* On desktop the wrapper spans the whole screen and lets clicks through
+          to the scene: the panel cards opt back in (see Controls). */}
+      <div className="pointer-events-none absolute inset-0 flex items-end justify-center p-3 sm:p-5">
         <div
-          className={`pointer-events-auto w-full max-w-sm overflow-auto sm:w-auto ${
+          className={`pointer-events-auto w-full max-w-sm overflow-auto sm:pointer-events-none sm:h-full sm:max-w-none sm:overflow-visible ${
             editing ? 'max-h-[48vh] sm:max-h-full' : 'max-h-full'
           }`}
         >

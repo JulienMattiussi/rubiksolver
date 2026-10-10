@@ -1,6 +1,6 @@
 import { Pencil, RotateCcw, Shuffle, Square } from 'lucide-react'
 import { cubeShape, isSolved } from '@/lib/cube'
-import { CUBE_KINDS, cubeKindId, SHAPE_LABEL } from '@/lib/types'
+import { CUBE_CATEGORIES, CUBE_KINDS, cubeCategory, cubeKindId, SHAPE_LABEL } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -48,10 +48,14 @@ export function SetupSection() {
         }}
         trailing={<StatusBadge />}
       >
-        {CUBE_KINDS.map((kind) => (
-          <option key={cubeKindId(kind)} value={cubeKindId(kind)}>
-            {t.cubeKind(SHAPE_LABEL[kind.shape], kind.variant === 'mirror')}
-          </option>
+        {CUBE_CATEGORIES.map((category) => (
+          <optgroup key={category} label={t.cubeCategories[category]}>
+            {CUBE_KINDS.filter((kind) => cubeCategory(kind) === category).map((kind) => (
+              <option key={cubeKindId(kind)} value={cubeKindId(kind)}>
+                {t.cubeKind(SHAPE_LABEL[kind.shape], kind.variant === 'mirror')}
+              </option>
+            ))}
+          </optgroup>
         ))}
       </Select>
 
