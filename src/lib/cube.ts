@@ -369,7 +369,7 @@ function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
  * is half of `isSolved`; on a subset it says that subset is solved, which is
  * what a solver phase checks.
  */
-export function facesUniform(cubies: readonly Cubie[]): boolean {
+function facesUniform(cubies: readonly Cubie[]): boolean {
   const faceColor = new Map<Face, Color>()
   for (const cubie of cubies) {
     for (const s of cubie.stickers) {

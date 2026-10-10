@@ -41,40 +41,6 @@ export function faceGenerators(faces: readonly Face[]): readonly Move[] {
 }
 
 /**
- * Breadth-first search over whole move SEQUENCES: every generator is applied
- * as a block, so a shape that forbids quarter turns, or a phase that may only
- * use sequences preserving earlier work, hands over exactly what it allows.
- * Same dedup rules as `search`. Throws past `maxDepth`.
- */
-export function searchSequences(
-  start: Cube,
-  goal: (c: Cube) => boolean,
-  generators: readonly (readonly Move[])[],
-  maxDepth: number,
-  keyFn: (c: Cube) => string = stateKey,
-): Move[] {
-  if (goal(start)) return []
-  let frontier: Array<{ cube: Cube; moves: Move[] }> = [{ cube: start, moves: [] }]
-  const seen = new Set<string>([keyFn(start)])
-  for (let depth = 0; depth < maxDepth; depth++) {
-    const next: typeof frontier = []
-    for (const node of frontier) {
-      for (const gen of generators) {
-        const cube = applyMoves(node.cube, gen)
-        const key = keyFn(cube)
-        if (seen.has(key)) continue
-        const moves = [...node.moves, ...gen]
-        if (goal(cube)) return moves
-        seen.add(key)
-        next.push({ cube, moves })
-      }
-    }
-    frontier = next
-  }
-  throw new Error('searchSequences: no solution within the search depth')
-}
-
-/**
  * Breadth-first search for the shortest sequence from `start` to a state
  * satisfying `goal`, using the quarter-turn `generators` (amount is explored
  * 1..3 for each). Kept fast by restricting the generators and by only ever

@@ -4,6 +4,7 @@ import { OPTIMAL_123_PLAN, solveFlat123 } from './methods/flat123'
 import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { PETRUS_PLAN } from './methods/petrus'
 import { ROUX_PLAN } from './methods/roux'
+import { TOWER_PLAN } from './methods/tower'
 import { ZZ_PLAN } from './methods/zz'
 import { reductionPlan } from './solver4/steps'
 import { buildSteps, type MethodPlan, type SolveStep } from './solverKit'
@@ -35,6 +36,7 @@ const SOLVE_METHODS = [
   { id: 'reduction', plans: { '4': reductionPlan(BEGINNER_PLAN) } },
   { id: 'reductionCfop', plans: { '4': reductionPlan(CFOP_PLAN) } },
   { id: 'optimal', plans: { '2': OPTIMAL_2_PLAN, '123': OPTIMAL_123_PLAN } },
+  { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
 ] as const satisfies ReadonlyArray<{
   id: string
   plans: Readonly<Partial<Record<CubeShape, MethodPlan>>>
@@ -59,6 +61,7 @@ export function solve(cube: Cube): Move[] {
   const shape = cubeShape(cube)
   if (shape === '2') return solveOptimal2(cube)
   if (shape === '123') return solveFlat123(cube)
-  const plan = shape === '4' ? reductionPlan(BEGINNER_PLAN) : BEGINNER_PLAN
+  const plan =
+    shape === '4' ? reductionPlan(BEGINNER_PLAN) : shape === '224' ? TOWER_PLAN : BEGINNER_PLAN
   return buildSteps(cube, plan).flatMap((s: SolveStep) => [...s.moves])
 }

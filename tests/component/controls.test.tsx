@@ -159,14 +159,4 @@ describe('<Controls />', () => {
     await user.click(screen.getByRole('button', { name: 'Externe' }))
     expect(jammed('face du haut')).toBeDisabled()
   })
-
-  it('says a puzzle has no method yet instead of offering to solve it', async () => {
-    const user = userEvent.setup()
-    render(<Controls />)
-    await user.selectOptions(screen.getByLabelText('Choix du cube'), '224')
-    expect(
-      screen.getByText('Pas encore de méthode de résolution pour ce puzzle.'),
-    ).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Pas à pas' })).not.toBeInTheDocument()
-  })
 })

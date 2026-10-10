@@ -18,8 +18,10 @@ import type { Color, Cube, Cubie, Dims, Move, Vec3 } from './types'
  * - custom goal (say "every edge oriented"): plain breadth-first search, with
  *   an optional `key` projecting the state on what the goal reads.
  *
- * Pieces are named by their home position and must be unique (true on a 3x3,
- * whose centers are fixed). Solutions are shortest for a custom goal and at
+ * Pieces are named by their home position. With the default goal they must be
+ * unique (true on a 3x3, whose centers are fixed); identical pieces (the
+ * tower's twin middles) need a custom goal and key reading colors, not
+ * identities, since either twin may end up in either spot. Solutions are shortest for a custom goal and at
  * most one move longer than shortest for the default one (first meet wins).
  */
 export interface PieceSearch {
@@ -67,16 +69,17 @@ function trackedPieces(cube: Cube, track: readonly Vec3[]): { start: Cube; home:
     solved = solvedCube(shape)
     SOLVED.set(shape, solved)
   }
-  const byColors = new Map(cube.map((c) => [colorKey(c), c]))
   const home = track.map((p) => {
     const piece = solved.find((c) => c.position.every((v, i) => v === p[i]))
     if (!piece) throw new Error(`pieceSearch: no piece at ${p.join(',')}`)
     return normalized(piece)
   })
+  // Twins (identical pieces) each take a distinct cubie of their colors.
+  const unused = [...cube]
   const start = home.map((h) => {
-    const piece = byColors.get(colorKey(h))
-    if (!piece) throw new Error(`pieceSearch: piece ${colorKey(h)} missing`)
-    return normalized(piece)
+    const i = unused.findIndex((c) => colorKey(c) === colorKey(h))
+    if (i < 0) throw new Error(`pieceSearch: piece ${colorKey(h)} missing`)
+    return normalized(unused.splice(i, 1)[0]!)
   })
   return { start, home }
 }

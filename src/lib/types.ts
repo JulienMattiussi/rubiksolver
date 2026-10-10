@@ -41,7 +41,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
 
 /** Name of each shape in the picker (identical in every language). */
 export const SHAPE_LABEL: Record<CubeShape, string> = {
-  '2': '2x2',
+  '2': '2x2 (Pocket)',
   '3': '3x3',
   '4': '4x4',
   '123': '1x2x3',

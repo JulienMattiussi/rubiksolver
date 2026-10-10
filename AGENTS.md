@@ -192,6 +192,8 @@ et le store ne voient que ça) :
   - 5 étapes.
 - **Optimale** (`optimal`, 2x2) : recherche exhaustive, solution la plus
   courte possible (11 coups max), une seule étape.
+- **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
+  Pocket extérieur - voir « La tour 2x2x4 ».
 
 **Repère du 2x2** : sans centres, pas de repère fixe. Le coin en **DBL**
 (position `[-1,-1,-1]`) joue ce rôle : ses stickers définissent les couleurs
@@ -354,8 +356,31 @@ celles de la tour) et seules ses pièces existent :
 
 Le pad grise les coups bloqués, le mélange ne tire que des coups possibles
 (il simule l'état depuis le cube courant), et le rendu place linéairement les
-pièces sorties de la boîte (`visualPosition`). La tour n'a pas encore de
-méthode de résolution (`solver224.ts`, non branché, est à reprendre).
+pièces sorties de la boîte (`visualPosition`).
+
+**Résolution** (`methods/tower.ts`, méthode **Deux Pockets**, d'après
+fan2cube.fr/tower2242.php et domino2.php) : la tour est deux Pockets empilés,
+un intérieur (les 8 pièces du milieu) et un extérieur (les 8 coins).
+
+1. **Remettre en forme** (`Uw Dw Rw Fw`) : vue comme un long Pocket dont les
+   « sommets » sont des barres (un coin + la pièce du milieu voisine), on
+   redresse chaque barre avec la formule de pivot de la page (deux barres à la
+   fois), amenée par des coups larges. Clé de recherche : la façon dont chaque
+   barre est couchée (3^8 motifs).
+2. **Pocket intérieur** (`Uw Dw Rw2 Fw2`), comme un Domino : sommets du bas
+   (« descendre un sommet »), puis du haut (« permuter deux sommets »). h et b
+   s'y jouent en `Uw`/`Dw`, comme la page le suggère.
+3. **Pocket extérieur** (`U D Rw2 Fw2`), mêmes formules. Descendre un sommet
+   retourne la moitié avant du Pocket intérieur : la recherche, qui exige le
+   Pocket intérieur intact, descend donc les coins **deux par deux**, comme le
+   prescrit la page.
+
+Correspondance des notations : H B A P G D = U D F B L R, H\* B\* = Uw Dw, une
+face latérale de la tour en est la moitié (A = Fw), « D = D² » en parties II
+et III. Les deux pièces du milieu d'une colonne sont **jumelles** (mêmes
+couleurs) : objectifs et clés comparent des couleurs, pas des identités
+(`pieceSearch` sait suivre des jumelles). L'effet de chaque formule est testé
+(`tests/unit/tower.test.ts`).
 
 ### Le cube miroir (`src/lib/shape.ts`)
 
@@ -423,7 +448,7 @@ mobile et en saisie, une seule carte) :
 
 - **Initialisation** (titre non affiché, `aria-label` seulement) : **choix du
   cube** (liste déroulante groupée par catégorie, `cubeCategory` : Standard
-  2x2/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 1x2x3/2x2x4 ;
+  2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 1x2x3/2x2x4 ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer
   de variante conserve l'état) avec le **statut** sur la même ligne, mélanger /
   réinitialiser, saisie d'un cube (vierge ou depuis l'état courant),

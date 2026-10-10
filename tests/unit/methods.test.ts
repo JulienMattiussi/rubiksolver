@@ -47,7 +47,7 @@ describe('method registry', () => {
   })
 
   it('names every method and step in both languages', () => {
-    const shapes: CubeShape[] = ['2', '3', '4', '123']
+    const shapes: CubeShape[] = ['2', '3', '4', '123', '224']
     for (const locale of Object.values(LOCALES)) {
       for (const shape of shapes) {
         for (const method of methodsFor(shape)) {

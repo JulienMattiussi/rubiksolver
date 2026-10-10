@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Shuffle, Sparkles } from 'lucide-react'
-import { cubeShape, isSolved } from '@/lib/cube'
-import { methodsFor } from '@/lib/solver'
+import { isSolved } from '@/lib/cube'
 import { useIsDesktop } from '@/hooks/useIsDesktop'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
@@ -87,7 +86,7 @@ export function Controls() {
                 <Button
                   variant="primary"
                   onClick={solveAll}
-                  disabled={busy || solved || methodsFor(cubeShape(cube)).length === 0}
+                  disabled={busy || solved}
                   className="flex-1"
                 >
                   <Sparkles className="size-4" aria-hidden />

@@ -79,7 +79,6 @@ const fr = {
   collapse: 'Replier le menu',
   expand: 'Déplier le menu',
   methodLabel: 'Méthode de résolution',
-  noMethod: 'Pas encore de méthode de résolution pour ce puzzle.',
   methods: {
     beginner: {
       name: 'Par couches',
@@ -108,6 +107,10 @@ const fr = {
     reductionCfop: {
       name: 'Réduction CFOP',
       desc: 'Centres, appariement des arêtes, puis Croix, F2L, OLL et PLL comme un 3x3.',
+    },
+    twoPockets: {
+      name: 'Deux Pockets',
+      desc: 'La tour vue comme deux Pockets empilés : la remettre en forme en pivotant ses sommets, puis finir le Pocket intérieur, puis le Pocket extérieur, avec deux formules du Domino (descendre un sommet, permuter deux sommets).',
     },
     optimal: {
       name: 'Optimale',
@@ -148,6 +151,9 @@ const fr = {
     stepLeftBlock: 'Bloc de gauche',
     stepRightBlock: 'Bloc de droite',
     stepOCLL: 'OCLL (orienter les coins)',
+    stepTowerShape: 'Remettre en forme (pivoter les sommets)',
+    stepInnerPocket: 'Pocket intérieur',
+    stepOuterPocket: 'Pocket extérieur',
   },
 }
 
@@ -231,7 +237,6 @@ const en: Translations = {
   collapse: 'Collapse menu',
   expand: 'Expand menu',
   methodLabel: 'Solving method',
-  noMethod: 'No solving method for this puzzle yet.',
   methods: {
     beginner: {
       name: 'Layer by layer',
@@ -260,6 +265,10 @@ const en: Translations = {
     reductionCfop: {
       name: 'Reduction (CFOP)',
       desc: 'Centers, edge pairing, then Cross, F2L, OLL and PLL like a 3x3.',
+    },
+    twoPockets: {
+      name: 'Two Pockets',
+      desc: 'The tower seen as two stacked Pockets: put it back in shape by pivoting its corners, then finish the inner Pocket, then the outer Pocket, with two Domino formulas (descend a corner, swap two corners).',
     },
     optimal: {
       name: 'Optimal',
@@ -300,6 +309,9 @@ const en: Translations = {
     stepLeftBlock: 'Left block',
     stepRightBlock: 'Right block',
     stepOCLL: 'OCLL (orient corners)',
+    stepTowerShape: 'Back in shape (pivot the corners)',
+    stepInnerPocket: 'Inner Pocket',
+    stepOuterPocket: 'Outer Pocket',
   },
 }
 
