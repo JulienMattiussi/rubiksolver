@@ -1,5 +1,6 @@
 import { cubeShape } from './cube'
 import { BEGINNER_2_PLAN, OPTIMAL_2_PLAN, solveOptimal2 } from './methods/cube2'
+import { DOMINO_PLAN } from './methods/domino'
 import { OPTIMAL_123_PLAN, solveFlat123 } from './methods/flat123'
 import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { PETRUS_PLAN } from './methods/petrus'
@@ -37,6 +38,7 @@ const SOLVE_METHODS = [
   { id: 'reductionCfop', plans: { '4': reductionPlan(CFOP_PLAN) } },
   { id: 'optimal', plans: { '2': OPTIMAL_2_PLAN, '123': OPTIMAL_123_PLAN } },
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
+  { id: 'cornersFirst', plans: { '332': DOMINO_PLAN } },
 ] as const satisfies ReadonlyArray<{
   id: string
   plans: Readonly<Partial<Record<CubeShape, MethodPlan>>>
@@ -61,7 +63,8 @@ export function solve(cube: Cube): Move[] {
   const shape = cubeShape(cube)
   if (shape === '2') return solveOptimal2(cube)
   if (shape === '123') return solveFlat123(cube)
-  const plan =
-    shape === '4' ? reductionPlan(BEGINNER_PLAN) : shape === '224' ? TOWER_PLAN : BEGINNER_PLAN
-  return buildSteps(cube, plan).flatMap((s: SolveStep) => [...s.moves])
+  // Otherwise the shape's first method (beginner, reduction, ...).
+  const method = methodsFor(shape)[0]
+  if (!method) throw new Error(`solve: no method for shape ${shape}`)
+  return method.solve(cube).flatMap((s: SolveStep) => [...s.moves])
 }

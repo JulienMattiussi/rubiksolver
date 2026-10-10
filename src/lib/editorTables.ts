@@ -1,5 +1,4 @@
 import { cubeOrientations, normalIndex, solvedCube } from './cube'
-import { SHAPE_DIMS } from './types'
 import type { Color, CubeShape, Cubie, Vec3 } from './types'
 
 /**
@@ -65,10 +64,13 @@ export interface PlacementOption {
   readonly pieceKey: string
 }
 
-/** Fixed centers stay pre-filled. A face only has a fixed center piece when
- *  every dimension is odd, so on any other shape the centers move. */
+/** Fixed centers stay pre-filled. A center is fixed when it sits on its
+ *  face's axis (the 3x3's six, the Domino's U and D): no turn moves it, it
+ *  only spins. Off the axis (4x4) centers travel, so they are painted. */
 export function centersArePaintable(shape: CubeShape): boolean {
-  return !SHAPE_DIMS[shape].every((n) => n % 2 === 1)
+  return solvedCube(shape).some(
+    (c) => c.stickers.length === 1 && c.position.filter((v) => v !== 0).length > 1,
+  )
 }
 
 export function paintableKind(shape: CubeShape, kind: SlotKind): boolean {

@@ -12,6 +12,7 @@ import {
   solvedCube,
   stateKey,
   turnAllowed,
+  turnedBy,
 } from '@/lib/cube'
 import { ALL_MOVES, formatMove, invertMoves, movesFor, parseMoves, scramble } from '@/lib/moves'
 import { SHAPE_DIMS } from '@/lib/types'
@@ -235,3 +236,21 @@ function byFace(a: string, b: string): number {
   const rank = (m: string) => 'UDLRFB'.indexOf(m[0]!) * 2 + (m.endsWith('w') ? 1 : 0)
   return rank(a) - rank(b)
 }
+
+describe('turnedBy', () => {
+  const count = (shape: CubeShape, move: string) => {
+    const cube = solvedCube(shape)
+    const turned = turnedBy(cube, parseMoves(move)[0]!)
+    return cube.filter((_, i) => turned(i)).length
+  }
+
+  it('names the cubies a turn moves, on every shape', () => {
+    expect(count('3', 'R')).toBe(9)
+    expect(count('3', 'M')).toBe(9)
+    expect(count('4', 'Rw')).toBe(32)
+    expect(count('332', 'U')).toBe(9)
+    // The tower turns like a 4x4x4: Rw is its whole right half, U its top end.
+    expect(count('224', 'Rw')).toBe(8)
+    expect(count('224', 'U')).toBe(4)
+  })
+})

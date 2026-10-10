@@ -112,6 +112,10 @@ const fr = {
       name: 'Deux Pockets',
       desc: 'La tour vue comme deux Pockets empilés : la remettre en forme en pivotant ses sommets, puis finir le Pocket intérieur, puis le Pocket extérieur, avec deux formules du Domino (descendre un sommet, permuter deux sommets).',
     },
+    cornersFirst: {
+      name: 'Coins puis arêtes',
+      desc: 'Comme un Rubik’s Cube sans couche du milieu : coins du bas, coins du haut, arêtes du bas, puis arêtes du haut, chaque fois avec une formule qui ne touche que ce qui reste à faire.',
+    },
     optimal: {
       name: 'Optimale',
       desc: 'Recherche exhaustive de la solution la plus courte possible (2x2 et 1x2x3, dont les espaces d’états sont assez petits).',
@@ -152,6 +156,9 @@ const fr = {
     stepRightBlock: 'Bloc de droite',
     stepOCLL: 'OCLL (orienter les coins)',
     stepTowerShape: 'Remettre en forme (pivoter les sommets)',
+    stepTopCorners: 'Coins du haut',
+    stepBottomEdges: 'Arêtes du bas',
+    stepTopEdges: 'Arêtes du haut',
     stepInnerPocket: 'Pocket intérieur',
     stepOuterPocket: 'Pocket extérieur',
   },
@@ -270,6 +277,10 @@ const en: Translations = {
       name: 'Two Pockets',
       desc: 'The tower seen as two stacked Pockets: put it back in shape by pivoting its corners, then finish the inner Pocket, then the outer Pocket, with two Domino formulas (descend a corner, swap two corners).',
     },
+    cornersFirst: {
+      name: 'Corners then edges',
+      desc: 'Like a Rubik’s Cube without its middle layer: bottom corners, top corners, bottom edges, then top edges, each time with a formula that only touches what is left to do.',
+    },
     optimal: {
       name: 'Optimal',
       desc: 'Exhaustive search for the shortest possible solution (2x2 and 1x2x3, whose state spaces are small enough).',
@@ -310,6 +321,9 @@ const en: Translations = {
     stepRightBlock: 'Right block',
     stepOCLL: 'OCLL (orient corners)',
     stepTowerShape: 'Back in shape (pivot the corners)',
+    stepTopCorners: 'Top corners',
+    stepBottomEdges: 'Bottom edges',
+    stepTopEdges: 'Top edges',
     stepInnerPocket: 'Inner Pocket',
     stepOuterPocket: 'Outer Pocket',
   },

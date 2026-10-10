@@ -295,6 +295,14 @@ export function turnAllowed(cube: Cube, move: Move): boolean {
   return inEnd === s1! * s2!
 }
 
+/** Which cubies `move` turns, by index: the animation turns them, the move
+ *  preview highlights them. */
+export function turnedBy(cube: Cube, move: Move): (index: number) => boolean {
+  const spec = FACE_SPEC[move.face]
+  const slab = moveLayerRange(move, turnDims(cubeShape(cube)))
+  return (index) => inLayer(cube[index]!.position[spec.coordIndex], slab)
+}
+
 /** Geometry a renderer needs to animate a move: which layers turn, and how. */
 export interface MoveGeometry {
   readonly axis: Axis

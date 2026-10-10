@@ -7,6 +7,7 @@ import { applyMoves, solvedCube, stateKey } from '@/lib/cube'
 import { parseMoves } from '@/lib/moves'
 import { useCube } from '@/store/cubeStore'
 import { useSaved } from '@/store/savedStore'
+import { useView } from '@/store/viewStore'
 
 beforeEach(() => {
   useCube.getState().setShape('3')
@@ -158,5 +159,17 @@ describe('<Controls />', () => {
     useCube.getState().loadCube(applyMoves(solvedCube('224'), parseMoves('Rw')))
     await user.click(screen.getByRole('button', { name: 'Externe' }))
     expect(jammed('face du haut')).toBeDisabled()
+  })
+
+  it('previews the pieces of a turn while its button is hovered', async () => {
+    const user = userEvent.setup()
+    render(<Controls />)
+    const button = screen.getByRole('button', {
+      name: 'Tourner la face de droite dans le sens horaire',
+    })
+    await user.hover(button)
+    expect(useView.getState().preview).toEqual({ face: 'R', amount: 1 })
+    await user.unhover(button)
+    expect(useView.getState().preview).toBeNull()
   })
 })

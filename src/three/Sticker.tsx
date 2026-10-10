@@ -19,6 +19,8 @@ export interface StickerProps {
   shape?: CubieShape
   /** Brushed metal finish (mirror cube). */
   metal?: boolean
+  /** Lit up a little: its piece is part of a previewed turn. */
+  glow?: boolean
   /** When provided, the sticker is clickable (paint) with a pointer cursor. */
   onSelect?: () => void
 }
@@ -30,6 +32,7 @@ export function Sticker({
   color,
   shape = UNIT_SHAPE,
   metal = false,
+  glow = false,
   onSelect,
 }: StickerProps) {
   const [sx, sy, sz] = shape.size
@@ -76,6 +79,8 @@ export function Sticker({
         color={color}
         roughness={metal ? 0.28 : 0.4}
         metalness={metal ? 0.4 : 0.05}
+        emissive={color}
+        emissiveIntensity={glow ? 0.25 : 0}
       />
     </mesh>
   )

@@ -91,7 +91,9 @@ src/
 │   │   ├── petrus.ts     #   Petrus : 2x2x2, 2x2x3 en <U, R, F>, arêtes, F2L en <R, U>, dernière couche en 3 temps
 │   │   ├── zz.ts         #   ZZ : EOLine, blocs en <L, U, R> puis <R, U>, OCLL, PLL
 │   │   ├── cube2.ts      #   2x2 : par couches (repère DBL) et optimal (BFS bidirectionnelle)
-│   │   └── flat123.ts    #   1x2x3 : optimal (BFS exhaustive)
+│   │   ├── flat123.ts    #   1x2x3 : optimal (BFS exhaustive)
+│   │   ├── tower.ts      #   tour 2x2x4 : Deux Pockets (forme, Pocket intérieur, Pocket extérieur)
+│   │   └── domino.ts     #   Domino 3x3x2 : coins puis arêtes (formules de fan2cube.fr)
 │   ├── solver4/          # Solveur 4x4 par réduction :
 │   │   ├── centers.ts    #   centres par comptage (D, U, puis ceinture), recherches bornées sans régression
 │   │   ├── edges.ts      #   appariement des ailes (échanges nets FR-bas <-> BR/FL-haut, goal-checkés), flip L2E
@@ -113,7 +115,7 @@ src/
 │   │                     #   méthode, étapes, jouer tout / pas à pas, loadCube
 │   ├── editorStore.ts    # Zustand : mode play/edit, couleur sélectionnée, saisie, apply (build + validate + charge)
 │   ├── savedStore.ts     # Zustand : un état mémorisé par forme, persisté en localStorage (try/catch : sans stockage, juste la session)
-│   └── viewStore.ts      # Zustand : pont DOM -> 3D pour recentrer la caméra (resetToken)
+│   └── viewStore.ts      # Zustand : pont DOM -> 3D (recentrage caméra : resetToken ; coup survolé : preview)
 ├── i18n/                 # i18n custom (FR source de vérité, EN typé complet) ; locale + notation US/FR
 │   ├── translations.ts   # `fr` (source) + `en: Translations`
 │   └── i18nStore.ts      # store `useI18n` (locale, t, setLocale, notation, setNotation)
@@ -121,7 +123,7 @@ src/
 │   ├── Scene.tsx         # <Canvas> : caméra, lumières, OrbitControls ; bascule CubeView / EditView
 │   ├── CubeView.tsx      # Rend les cubies (via useTurnAnimation), à l'échelle de la taille, recentré selon la variante
 │   ├── EditView.tsx      # Mode saisie : stickers cliquables ; vides en gris (toujours en cubies classiques colorés)
-│   ├── Cubie.tsx         # Un cubie : corps + stickers, à la boîte de sa variante
+│   ├── Cubie.tsx         # Un cubie : corps + stickers, à la boîte de sa variante, en surbrillance si un coup survolé le tourne
 │   ├── layout.ts         # Échelle et position visuelles déduites des dimensions (une cellule par cubie, plus grand côté = 3 unités)
 │   ├── Sticker.tsx       # Sticker orienté à sa normale et dimensionné à sa face, mutualisé play/édition (onSelect = cliquable)
 │   ├── useTurnAnimation.ts # Hook : pilote la file de rotations (rotation de la couche active)
@@ -194,6 +196,8 @@ et le store ne voient que ça) :
   courte possible (11 coups max), une seule étape.
 - **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
   Pocket extérieur - voir « La tour 2x2x4 ».
+- **Coins puis arêtes** (`cornersFirst`, Domino 3x3x2) : coins du bas, coins
+  du haut, arêtes du bas, arêtes du haut - voir « Le Domino ».
 
 **Repère du 2x2** : sans centres, pas de repère fixe. Le coin en **DBL**
 (position `[-1,-1,-1]`) joue ce rôle : ses stickers définissent les couleurs
@@ -295,7 +299,8 @@ Les tables de saisie (emplacements + placements étiquetés + budgets) sont
 (`tablesFor`, dans `src/lib/editorTables.ts`) ; toutes les fonctions de saisie
 prennent la taille avec l'état. Sans centres fixes, la saisie 2x2 part
 entièrement vide (24 stickers), et le 4x4 aussi (96 stickers, centres
-peignables car mobiles) ; seul le 3x3 garde ses 6 centres pré-remplis.
+peignables car mobiles). Un centre posé sur l'axe de sa face ne bouge jamais :
+il reste pré-rempli (`centersArePaintable`), les 6 du 3x3 comme les 2 du Domino.
 
 ### Les formes non cubiques (le 1x2x3)
 
@@ -382,6 +387,22 @@ couleurs) : objectifs et clés comparent des couleurs, pas des identités
 (`pieceSearch` sait suivre des jumelles). L'effet de chaque formule est testé
 (`tests/unit/tower.test.ts`).
 
+### Le Domino 3x3x2
+
+Le Domino (`[3, 2, 3]`) est un 3x3 sans couche du milieu, et rien n'y est
+spécial : ses coups se déduisent de la forme (U et D en quarts de tour, les
+faces latérales en demi-tours seulement), ses deux centres sont fixes, ses
+pièces sont uniques et sans orientation.
+
+**Résolution** (`methods/domino.ts`, méthode **Coins puis arêtes**, d'après
+fan2cube.fr/domino1.php et domino2.php) : (A) coins du bas, descendus un à un
+(`F2 U' F2 U F2`) ; (B) coins du haut, échangés deux à deux ; (C) arêtes du
+bas, descendues une à une (`D2 R2 (D2 F2)3 R2 D2`, qui ne touche rien
+d'autre) ; (D) arêtes du haut, par 3-cycle ou échange. Chaque phase cherche
+parmi ses seules formules, U et D plaçant les pièces dessous, avec une
+recherche bidirectionnelle vers « ces pièces à leur place ». La tour réutilise
+les formules A et B pour ses deux Pockets.
+
 ### Le cube miroir (`src/lib/shape.ts`)
 
 Le **cube miroir** (Mirror Blocks) est un _shape mod_ : mécaniquement un NxN
@@ -448,7 +469,7 @@ mobile et en saisie, une seule carte) :
 
 - **Initialisation** (titre non affiché, `aria-label` seulement) : **choix du
   cube** (liste déroulante groupée par catégorie, `cubeCategory` : Standard
-  2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 1x2x3/2x2x4 ;
+  2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 1x2x3/2x2x4/3x3x2 (Domino) ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer
   de variante conserve l'état) avec le **statut** sur la même ligne, mélanger /
   réinitialiser, saisie d'un cube (vierge ou depuis l'état courant),
@@ -472,6 +493,12 @@ mobile et en saisie, une seule carte) :
 **Mobile** : le panneau se **replie** en une barre compacte (Mélanger +
 Résoudre) ; en mode saisie, le cube est empilé **au-dessus** du panneau pour
 rester entièrement visible pendant la peinture.
+
+**Aperçu d'un coup** : survoler (ou focaliser au clavier) un bouton du pad met
+en surbrillance les pièces que ce coup tournerait (corps bleu ciel, stickers
+éclaircis) : `MovePad` écrit le coup dans `viewStore.preview`, `CubeView` lit
+les pièces concernées avec `turnedBy` (la même fonction que l'animation), sauf
+pendant une animation ou si le coup est bloqué.
 
 Tout mouvement affiché passe par `formatMove` (notation US ou FR) ;
 tout texte passe par `t`. Le recentrage caméra transite par `viewStore`

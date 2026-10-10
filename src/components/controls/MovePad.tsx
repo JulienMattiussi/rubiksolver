@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { cubeShape, turnAllowed } from '@/lib/cube'
 import { formatMove, FACES, movesFor, NOTATION_FR, NOTATION_US } from '@/lib/moves'
 import type { Face, Move } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
+import { useView } from '@/store/viewStore'
 import { Button } from '@/components/ui/Button'
 import { SegmentedToggle } from '@/components/ui/SegmentedToggle'
 import { NotationToggle } from './NotationToggle'
@@ -19,6 +20,7 @@ type LayerKind = 'outer' | 'slice' | 'wide'
  * layer kinds, a selector picks what the buttons turn: the outer face, the
  * inner slice (2R, 4x4 only) or both layers together (Rw). A turn the state
  * jams (a tower's incomplete end, see `turnAllowed`) stays disabled.
+ * Hovering or focusing a button highlights the pieces it would turn.
  */
 
 const KIND_OF = (m: Move): LayerKind => (m.wide ? 'wide' : m.depth ? 'slice' : 'outer')
@@ -30,6 +32,8 @@ export function MovePad({ disabled }: { disabled: boolean }) {
   const shape = useCube((s) => cubeShape(s.cube))
   const cube = useCube((s) => s.cube)
   const [layerKind, setLayerKind] = useState<LayerKind>('outer')
+  const setPreview = useView((s) => s.setPreview)
+  useEffect(() => () => setPreview(null), [setPreview])
   const labels = notation === 'fr' ? NOTATION_FR : NOTATION_US
   const moves = movesFor(shape)
   const kinds = (['outer', 'slice', 'wide'] as const).filter((k) =>
@@ -50,17 +54,25 @@ export function MovePad({ disabled }: { disabled: boolean }) {
       : amount === 2
         ? t.moveTitleHalf(t.faceNames[face])
         : t.moveTitle(t.faceNames[face], amount === 1, kind)
+    const show = () => setPreview(turn(face, amount))
+    const hide = () => setPreview(null)
+    // The wrapper hears the pointer even while the button is disabled, so the
+    // highlight never sticks once a click starts the animation.
     return (
-      <Button
-        disabled={disabled || jammed}
-        onClick={() => pushMove(turn(face, amount))}
-        variant={ghost ? 'ghost' : undefined}
-        className={`flex-1 rounded-none px-2${ghost ? ' border-l border-slate-800 bg-slate-800' : ''}`}
-        aria-label={title}
-        title={title}
-      >
-        {formatMove(turn(face, amount), labels)}
-      </Button>
+      <div className="flex flex-1" onPointerEnter={show} onPointerLeave={hide}>
+        <Button
+          disabled={disabled || jammed}
+          onFocus={show}
+          onBlur={hide}
+          onClick={() => pushMove(turn(face, amount))}
+          variant={ghost ? 'ghost' : undefined}
+          className={`flex-1 rounded-none px-2${ghost ? ' border-l border-slate-800 bg-slate-800' : ''}`}
+          aria-label={title}
+          title={title}
+        >
+          {formatMove(turn(face, amount), labels)}
+        </Button>
+      </div>
     )
   }
   return (

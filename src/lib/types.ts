@@ -4,12 +4,13 @@
 export type Dims = readonly [number, number, number]
 
 /** The puzzles the app can build, by id (also the picker's option values). */
-export type CubeShape = '2' | '3' | '4' | '123' | '224'
+export type CubeShape = '2' | '3' | '4' | '123' | '224' | '332'
 
 /**
  * Layer counts per shape: the NxNxN cubes, the 1x2x3 flat cuboid (3 wide, 2
- * tall, 1 thick, so the rectangle you face is its 3x2 side) and the 2x2x4
- * tower (4 layers on a square 2x2 section).
+ * tall, 1 thick, so the rectangle you face is its 3x2 side), the 2x2x4
+ * tower (4 layers on a square 2x2 section) and the Domino (a 3x3 two layers
+ * tall: U and D turn freely, its sides only take half turns).
  *
  * A one-layer axis has no move of its own: turning its only layer just turns
  * the whole puzzle. Which turns exist beyond that comes from the grids these
@@ -21,6 +22,7 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   '4': [4, 4, 4],
   '123': [3, 2, 1],
   '224': [2, 4, 2],
+  '332': [3, 2, 3],
 }
 
 /**
@@ -37,6 +39,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '4': false,
   '123': false,
   '224': true,
+  '332': false,
 }
 
 /** Name of each shape in the picker (identical in every language). */
@@ -46,6 +49,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '4': '4x4',
   '123': '1x2x3',
   '224': '2x2x4',
+  '332': '3x3x2 (Domino)',
 }
 
 /** Shapes exposed in the UI, in display order. */
@@ -70,6 +74,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   '4': true,
   '123': false,
   '224': false,
+  '332': false,
 }
 
 export function supportsMirror(shape: CubeShape): boolean {
