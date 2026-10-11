@@ -3,9 +3,11 @@ import { createPortal, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { easeInOut } from '@/lib/easing'
 import { turnAllowed, turnedBy, turnRotation } from '@/lib/turn'
-import { isStarMove, type Cube, type CubeVariant, type Turn } from '@/lib/types'
+import { cubeShape } from '@/lib/cube'
+import { isStar, type Cube, type CubeVariant, type Turn } from '@/lib/types'
 import { CubeModel } from './CubeModel'
 import { guideCameraPosition } from './guideCamera'
+import { NO_PIECES } from './noPieces'
 import { StarModel } from './StarModel'
 
 export interface GuideTileProps {
@@ -25,7 +27,6 @@ const QUARTER = 1
 const HALF = 1.6
 const BACKGROUND = new THREE.Color('#1e293b')
 const AXIS = new THREE.Vector3()
-const NONE = () => false
 
 /** Narrowest box the framing fits as is; a narrower one (a phone) backs the
  *  camera off so the puzzle keeps its sides. */
@@ -56,7 +57,7 @@ export function GuideTile({ track, cube, variant, turn, playing }: GuideTileProp
   const groupRef = useRef<THREE.Group>(null)
   const clock = useRef(0)
   const blocked = !turnAllowed(cube, turn)
-  const isTurning = blocked ? NONE : turnedBy(cube, turn)
+  const isTurning = blocked ? NO_PIECES : turnedBy(cube, turn)
   const { axis, angle } = turnRotation(turn)
   const duration = Math.abs(angle) > Math.PI / 2 + 0.01 ? HALF : QUARTER
 
@@ -97,7 +98,11 @@ export function GuideTile({ track, cube, variant, turn, playing }: GuideTileProp
       <ambientLight intensity={1.05} />
       <directionalLight position={[6, 9, 7]} intensity={0.5} />
       <directionalLight position={[-6, -7, -6]} intensity={0.45} />
-      {isStarMove(turn) ? <StarModel {...model} /> : <CubeModel {...model} variant={variant} />}
+      {isStar(cubeShape(cube)) ? (
+        <StarModel {...model} />
+      ) : (
+        <CubeModel {...model} variant={variant} />
+      )}
     </>,
     scene,
   )

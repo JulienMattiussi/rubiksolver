@@ -250,5 +250,7 @@ describe('cubeOrientations', () => {
     expect(count('123')).toBe(4)
     expect(count('224')).toBe(8)
     expect(count('332')).toBe(8)
+    expect(count('star')).toBe(12)
+    expect(count('star4')).toBe(12)
   })
 })

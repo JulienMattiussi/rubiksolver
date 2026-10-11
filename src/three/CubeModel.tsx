@@ -5,6 +5,7 @@ import { centeringOffset, LAYER_THICKNESS } from '@/lib/shape'
 import type { Cube, CubeVariant } from '@/lib/types'
 import { Cubie } from './Cubie'
 import { cubeScale } from './layout'
+import { NO_PIECES } from './noPieces'
 
 export interface ModelProps {
   cube: Cube
@@ -14,8 +15,6 @@ export interface ModelProps {
   highlighted?: (index: number) => boolean
 }
 
-const NONE = () => false
-
 /** A grid puzzle drawn from its logical state, the turning layer in its own
  *  group. The recentering group sits outside it, so turns keep rotating
  *  around the cube's own axes. Shared by the scene and the move guide. */
@@ -24,7 +23,7 @@ export function CubeModel({
   variant,
   groupRef,
   isTurning,
-  highlighted = NONE,
+  highlighted = NO_PIECES,
 }: ModelProps & { variant: CubeVariant }) {
   const dims = cubeDims(cube)
   const [ox, oy, oz] = centeringOffset(LAYER_THICKNESS[variant])

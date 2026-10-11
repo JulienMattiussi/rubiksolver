@@ -155,10 +155,15 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   return cubies
 }
 
-/** Cubie count of each shape, the signature `cubeShape` recognizes. */
-const SHAPE_OF_COUNT = new Map<number, CubeShape>(
-  (Object.keys(SHAPE_DIMS) as CubeShape[]).map((shape) => [solvedCube(shape).length, shape]),
-)
+/** Cubie count of each shape, the signature `cubeShape` recognizes: every
+ *  shape needs its own, which this checks as the module loads. */
+const SHAPE_OF_COUNT = new Map<number, CubeShape>()
+for (const shape of Object.keys(SHAPE_DIMS) as CubeShape[]) {
+  const count = solvedCube(shape).length
+  const other = SHAPE_OF_COUNT.get(count)
+  if (other) throw new Error(`cubeShape: ${shape} and ${other} both have ${count} pieces`)
+  SHAPE_OF_COUNT.set(count, shape)
+}
 
 /** Shape of a puzzle from its cubie count (6 -> 1x2x3, 8 -> 2x2, 14 -> star...). */
 export function cubeShape(cube: Cube): CubeShape {
@@ -281,11 +286,12 @@ function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
 
 /**
  * Every whole-puzzle rotation of `cube`, found by closure over the rotations
- * its shape allows: a quarter turn per axis on a cube (24 orientations), only
- * half turns where the shape forbids quarter ones (4 on a 1x2x3, 8 on the
- * tower and the Domino); a star prism's own symmetries (12). Used by the editor (valid piece placements) and the
- * 2x2 solver (a 2x2 has no centers, so "solved" is any orientation of the
- * solved cube).
+ * its shape allows. On a cuboid, a quarter turn per axis (24 orientations of
+ * a cube), or a half turn where the shape forbids quarter ones (4 on a
+ * 1x2x3, 8 on the tower and the Domino). On a star prism, its own
+ * symmetries (12, see `STAR_SYMMETRIES`). Used by the editor (valid piece
+ * placements) and the 2x2 solver (a 2x2 has no centers, so "solved" is any
+ * orientation of the solved cube).
  */
 export function cubeOrientations(cube: Cube): Cube[] {
   const dims = cubeDims(cube)

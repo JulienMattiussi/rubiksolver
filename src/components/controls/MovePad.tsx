@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { cubeDims, cubeShape } from '@/lib/cube'
 import { describeMove } from '@/lib/moveGuide'
 import { turnAllowed } from '@/lib/turn'
@@ -14,10 +14,9 @@ import {
 import type { Face, Move } from '@/lib/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
-import { useView } from '@/store/viewStore'
-import { Button } from '@/components/ui/Button'
 import { SegmentedToggle } from '@/components/ui/SegmentedToggle'
 import { TURN_PAIR } from '@/components/ui/styles'
+import { PadButton } from './PadButton'
 import { PadHeader } from './PadHeader'
 
 /** A tab of the pad: a kind of layer, or the shape's advanced turns. */
@@ -39,13 +38,10 @@ type PadTab = LayerKind | 'advanced'
 export function MovePad({ disabled }: { disabled: boolean }) {
   const t = useI18n((s) => s.t)
   const labels = useI18n(selectMoveLabels)
-  const pushMove = useCube((s) => s.pushMove)
   const shape = useCube((s) => cubeShape(s.cube))
   const cube = useCube((s) => s.cube)
   const dims = cubeDims(cube)
   const [tab, setTab] = useState<PadTab>('outer')
-  const setPreview = useView((s) => s.setPreview)
-  useEffect(() => () => setPreview(null), [setPreview])
   const moves = movesFor(shape)
   const advanced = advancedMovesFor(shape)
   const tabs: PadTab[] = [
@@ -76,26 +72,16 @@ export function MovePad({ disabled }: { disabled: boolean }) {
           : move.amount === 2
             ? t.moveTitleHalf(name)
             : t.moveTitle(name, move.amount === 1, kind)
-    const show = () => setPreview(exists ? move : null)
-    const hide = () => setPreview(null)
-    const compact = current !== 'outer'
-    // The wrapper hears the pointer even while the button is disabled, so the
-    // highlight never sticks once a click starts the animation.
     return (
-      <div className="flex flex-1" onPointerEnter={show} onPointerLeave={hide}>
-        <Button
-          disabled={disabled || !exists || jammed}
-          onFocus={show}
-          onBlur={hide}
-          onClick={() => pushMove(move)}
-          variant={ghost ? 'ghost' : undefined}
-          className={`flex-1 rounded-none whitespace-nowrap ${compact ? 'px-1 text-xs' : 'px-2'}`}
-          aria-label={title}
-          title={title}
-        >
-          {formatMove(move, labels, dims)}
-        </Button>
-      </div>
+      <PadButton
+        key={formatMove(move)}
+        move={exists ? move : null}
+        label={formatMove(move, labels, dims)}
+        title={title}
+        disabled={disabled || jammed}
+        ghost={ghost}
+        compact={current !== 'outer'}
+      />
     )
   }
 

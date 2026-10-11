@@ -12,8 +12,8 @@ export const EMPTY_COLOR = '#64748b'
 
 /**
  * The cube in edit mode: every sticker is shown (gray when empty) and every
- * paintable one (corners, edges, movable centers: `canPaint`) is clickable to
- * paint the selected value.
+ * paintable one (any piece a turn moves or flips: `Slot.paintable`, read by
+ * `canPaint`) is clickable to paint the selected value.
  *
  * On a mirror cube the value painted is a thickness, so a piece takes its
  * shape as it is painted: each axis grows to the thickness of the sticker

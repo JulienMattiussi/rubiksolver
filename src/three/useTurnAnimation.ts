@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { turnRotation, turnedBy } from '@/lib/turn'
 import { easeInOut } from '@/lib/easing'
 import { useCube } from '@/store/cubeStore'
+import { NO_PIECES } from './noPieces'
 
 interface TurnAnimation {
   /** Ref for the group that holds the currently turning layer. */
@@ -55,7 +56,7 @@ export function useTurnAnimation(): TurnAnimation {
     if (t >= 1) commitActive()
   })
 
-  const isTurning = active ? turnedBy(cube, active) : () => false
+  const isTurning = active ? turnedBy(cube, active) : NO_PIECES
 
   return { groupRef, isTurning }
 }

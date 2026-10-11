@@ -10,15 +10,18 @@ et 4 étages (une étoile à six branches de la famille du Square-1) (choix par
 vignettes).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
 coups larges là où la forme en a, orbite caméra, aperçu des pièces qui vont
-tourner au survol d'un bouton), on le mélange **ou on saisit sa propre
-configuration** en peignant les stickers directement en 3D, on peut
-**mémoriser un état** pour y revenir, puis on le résout selon **plusieurs
-vraies méthodes** (par couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4,
-méthodes de la tour et du Domino...). La solution est découpée en **étapes
-nommées** qu'on joue d'un coup ou **pas à pas**, pour apprendre la méthode. Le
-but est pédagogique, pas l'optimalité du nombre de coups (à l'exception de la
-méthode **Optimale** du 2x2 et du 1x2x3, qui exploite leurs espaces d'états
-réduits).
+tourner au survol d'un bouton ; sur 3x3, un onglet « Avancé » pour `M`, `E`,
+`S` et les coups larges), on consulte un **guide des mouvements** (chaque coup
+animé sur l'état actuel, avec sa notation et une phrase), on le mélange **ou
+on saisit sa propre configuration** en peignant les stickers directement en
+3D (sur tous les puzzles, étoiles comprises), on peut **mémoriser un état**
+pour y revenir, puis on le résout selon **plusieurs vraies méthodes** (par
+couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4, méthodes de la tour, du
+Domino et des étoiles...). La solution est découpée en **étapes nommées**
+qu'on joue d'un coup ou **pas à pas**, pour apprendre la méthode. Le but est
+pédagogique, pas l'optimalité du nombre de coups (à l'exception de la méthode
+**Optimale** du 2x2, du 1x2x3 et du Floppy, qui exploite leurs espaces
+d'états réduits).
 
 Application **100% front-end**, sans backend. Interface **français par défaut**
 (bascule anglais), langue détectée depuis le navigateur ; **notation des
@@ -119,9 +122,9 @@ src/
 │   │   ├── parity.ts     #   détecteurs (flip, signes de permutation, vrille) + algos de parité OLL/PLL
 │   │   └── steps.ts      #   reductionPlan(plan 3x3) : préfixe centres/arêtes/parité + étapes 3x3 projetées
 │   ├── editorTables.ts   # Tables de saisie par forme : slots, placements valides étiquetés par pièce physique, budgets,
-│   │                     #   centres fixes (sur l'axe de leur face) pré-remplis
+│   │                     #   pièces fixes pré-remplies (centres du 3x3, demi-vis gauche des étoiles), stickers cachés (4-Star)
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
-│   ├── validate.ts       # validateCube : comptage par face + solubilité (résolution bornée ; invariants de pièces + vrille sur 4x4)
+│   ├── validate.ts       # validateCube : comptage par couleur (déduit du puzzle résolu) + solubilité (résolution bornée ; invariants de pièces + vrille sur 4x4)
 │   ├── shape.ts          # Cube miroir : épaisseur de couche par couleur, boîte d'un cubie (cubieBox) déduite de ses stickers
 │   ├── moveGuide.ts      # Guide des mouvements : lignes par forme (coup + opposé, puis quantifié), describeMove
 │   ├── snapshot.ts       # encodeCube/decodeCube : forme texte d'un état (mémorisation), décodage qui rejette un texte corrompu
@@ -138,9 +141,10 @@ src/
 │   └── viewStore.ts      # Zustand : pont DOM -> 3D (recentrage caméra : resetToken ; coup survolé : preview)
 ├── i18n/                 # i18n custom (FR source de vérité, EN typé complet) ; locale + notation US/FR
 │   ├── translations.ts   # `fr` (source) + `en: Translations`
+│   ├── moveSentences.ts  # Noms des faces et des étages, phrases du guide des mouvements (describeFr / describeEn)
 │   └── i18nStore.ts      # store `useI18n` (locale, t, setLocale, notation, setNotation) + selectMoveLabels
 ├── three/                # Rendu 3D (React Three Fiber) ; un composant/hook par fichier
-│   ├── Scene.tsx         # <Canvas> : caméra, lumières, OrbitControls ; bascule CubeView / EditView
+│   ├── Scene.tsx         # <Canvas> : caméra, lumières, OrbitControls ; bascule CubeView / StarView, ou EditView / StarEditView
 │   ├── CubeView.tsx      # Rend les cubies (via useTurnAnimation), à l'échelle de la forme, recentré selon la variante,
 │   │                     #   pièces du coup survolé en surbrillance
 │   ├── EditView.tsx      # Mode saisie : stickers peignables cliquables, vides en gris ; en épaisseurs (dorés) sur un miroir
@@ -149,6 +153,8 @@ src/
 │   ├── starGeometry.ts   # Géométrie des pièces de l'étoile (cerfs-volants extrudés), partagée vue 3D / vignette
 │   ├── CubeModel.tsx     # Rendu d'un puzzle à grille depuis un état (couche qui tourne dans son groupe), partagé scène / guide
 │   ├── StarModel.tsx     # Idem pour l'étoile
+│   ├── StarPiece.tsx     # Une pièce de l'étoile (corps + stickers), partagée vue / saisie / guide
+│   ├── noPieces.ts       # NO_PIECES : l'ensemble vide de pièces (rien ne tourne, rien en surbrillance)
 │   ├── StarView.tsx      # Vue 3D de l'étoile (StarModel), animée comme les cubes
 │   ├── StarEditView.tsx  # Saisie d'une étoile : stickers cliquables, gris tant que vides
 │   ├── GuideCanvas.tsx   # Guide des mouvements : un seul canvas WebGL sous la liste, chaque vignette y dessine sa scène
@@ -163,9 +169,10 @@ src/
 │   └── colors.ts         # Couleurs des stickers (hex), plastique, doré du cube miroir
 ├── components/
 │   ├── ui/               # Primitives réutilisables (Button, IconButton, SegmentedToggle, Select, Modal, ConfirmDialog)
-│   │                     #   + styles.ts : classes partagées (SECTION_BOX, SECTION_LABEL)
-│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad (+ PadHeader),
-│   │                     #   LanguageToggle, NotationToggle, RecenterButton, CollapseButton, SpeedSlider, MovePad
+│   │                     #   + styles.ts : classes partagées (SECTION_BOX, SECTION_LABEL, TURN_PAIR)
+│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad (+ PadHeader,
+│   │                     #   PadButton : un coup, sa surbrillance au survol), LanguageToggle, NotationToggle,
+│   │                     #   RecenterButton, CollapseButton, SpeedSlider
 │   ├── picker/           # Choix du cube : CubePicker (bouton + modale), PickerTile, PuzzleIcon (vignette SVG),
 │   │                     #   CategoryIcon (plusieurs puzzles groupés : une catégorie se distingue d'un puzzle)
 │   ├── guide/            # Guide des mouvements : MoveGuideButton (dans PadHeader), MoveGuideDialog
@@ -178,9 +185,11 @@ tests/
 ├── unit/                 # Vitest : cube (coups, tour), moves, solver (registre : chaque méthode de chaque forme) + solver4,
 │                         #   methods (Roux/Petrus/ZZ : objectifs et jeux de coups), algs, tower, domino (effet de chaque
 │                         #   formule), floppy, slimTower, pieceSearch, flat123 (espaces d'états entiers), editor, validate, shape, snapshot,
-│                         #   layout, stores, easing, speed, progress
+│                         #   star (modèle, formules fan2cube, méthodes des deux étoiles), starEditor (saisie des étoiles),
+│                         #   moveGuide, isometric, layout, stores, easing, speed, progress
 ├── component/            # Vitest + Testing Library (Controls, SegmentedToggle)
-└── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution sur chaque forme, saisie, miroir)
+└── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution (3x3, 2x2, 1x2x3, 4x4), saisie (cube,
+                          #   4x4, 4-Star), miroir, guide des mouvements sur chaque puzzle)
 ```
 
 ### Les solveurs par méthode (`src/lib/solver.ts`)
@@ -205,6 +214,10 @@ Le registre (`solver.ts`) déclare, pour chaque méthode, **un plan par forme
 supportée** (source unique : pas de dispatch séparé) ; `methodsFor(shape)`
 renvoie les méthodes disponibles pour une forme, chacune liée à son plan (l'UI
 et le store ne voient que ça) :
+
+Toutes les méthodes 3x3 commencent par **Remettre les centres**
+(`withCentersHome`, voir « Coups avancés du 3x3 »), étape retirée quand elle
+est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 
 - **Par couches** (`beginner`, 3x3 et 2x2) : sur 3x3, 1re couche entière
   (croix + coins), puis arêtes du milieu, puis dernière couche (croix,
@@ -497,7 +510,7 @@ soit les 241 920 de fan2cube fois les 8 façons de poser la tour.
 
 ### Le Star Prism (`src/lib/star.ts`)
 
-Premier puzzle **non cubique** : une étoile à six branches sur deux étages
+Le 2-Star Prism, premier puzzle **non cubique** : une étoile à six branches sur deux étages
 (un Rubik's UFO), 12 pièces (une branche chacune) et une vis centrale coupée
 en deux. Ses coups (famille du Square-1) : tourner le haut ou le bas d'une
 pièce (60°), ou le **slash**, demi-tour de toute la moitié droite, qui échange
@@ -517,8 +530,8 @@ Intégration : un coup est un `Turn` = `Move` (cubes) | `StarMove` (`RingMove` |
 slash) dans le code générique (file d'animation, rendu, notation) ; les
 solveurs des cubes gardent `Move`. `turn.ts` et `moves.ts` aiguillent vers
 `star.ts` ; l'animation tourne autour d'un axe quelconque (`turnRotation`
-renvoie un vecteur). Vue 3D (`StarView`), vignette et pad (`StarPad` : haut
-±1, bas ±1, slash) dédiés ; notation de fan2cube (`3`, `-2B`/`-2D`, `/`). Les
+renvoie un vecteur). Vue 3D (`StarView`), vignette et pad (`StarPad` : chaque
+étage, deux ou quatre, par paire +1 / -1, puis le slash) dédiés ; notation de fan2cube (`3`, `-2B`/`-2D`, `/`). Les
 formules de fan2cube.fr/2-star1 sont vérifiées sur le modèle (`K =
 /-1/1+B/-B/` échange deux sommets en haut et les deux du dessous ; `/3/3/`
 retourne la demi-vis, le haut à remettre d'un `3`).
@@ -634,9 +647,10 @@ mobile et en saisie, une seule carte) :
   cube** : un bouton montre le puzzle courant (vignette + nom) et ouvre un
   sélecteur en modale, d'abord les **catégories** en vignettes, puis les
   **puzzles** de la catégorie choisie (toujours ouvert sur les catégories ; le
-  puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`) : Standard
-  2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 2x2x3 (Slim)/2x2x4/3x3x2 (Domino), Étoiles 2-Star/4-Star Prism, Plats
-  1x2x3/3x3x1 (Floppy), un puzzle d'une seule couche d'épaisseur étant plat.
+  puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`), dans
+  l'ordre : Standard 2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 2x2x3
+  (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy) (un puzzle d'une
+  seule couche d'épaisseur étant plat), Étoiles 2-Star Prism (UFO)/4-Star Prism.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

@@ -86,7 +86,7 @@ function withFixedHome(cube: Cube): Cube {
   return cubeOrientations(cube).find(home) ?? cube
 }
 
-/** Number of painted stickers (out of `stickersTotal`). */
+/** Number of painted stickers, hidden ones included (see `progress`). */
 export function filledCount(edit: EditStickers): number {
   return Object.keys(edit).length
 }

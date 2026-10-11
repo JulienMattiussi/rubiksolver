@@ -116,7 +116,11 @@ export function starTurns(move: StarMove, position: Vec3): boolean {
 }
 
 /** Whether a ring turns clockwise seen from above (the top ones). */
-const fromAbove = (ring: RingMove['ring']): boolean => RING_Y[ring] > 0
+export const fromAbove = (ring: RingMove['ring']): boolean => RING_Y[ring] > 0
+
+/** A ring turn in pieces, the short way round: -2 rather than 4. */
+export const signedPieces = (move: RingMove): number =>
+  move.amount > 3 ? move.amount - 6 : move.amount
 
 function mapOf(move: StarMove): (v: Vec3) => Vec3 {
   if ('slash' in move) return slashTurn
@@ -174,7 +178,7 @@ export function starRotation(move: StarMove): {
     return { axis: [x / length, 0, z / length], angle: Math.PI }
   }
   // Clockwise seen from above is a negative turn about +y; from below, positive.
-  const pieces = move.amount > 3 ? move.amount - 6 : move.amount
+  const pieces = signedPieces(move)
   const sign = fromAbove(move.ring) ? -1 : 1
   return { axis: [0, 1, 0], angle: (sign * pieces * Math.PI) / 3 }
 }
@@ -225,7 +229,7 @@ function ringLetters(labels: FaceLabels): Record<Exclude<RingMove['ring'], 'U'>,
  */
 export function formatStarMove(move: StarMove, labels: FaceLabels): string {
   if ('slash' in move) return '/'
-  const k = move.amount > 3 ? move.amount - 6 : move.amount
+  const k = signedPieces(move)
   if (move.ring === 'U') return String(k)
   return `${k === 1 ? '' : k === -1 ? '-' : k}${ringLetters(labels)[move.ring]}`
 }

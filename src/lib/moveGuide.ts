@@ -2,7 +2,7 @@ import { turnDims } from './cube'
 import { faceLayers } from './geometry'
 import { advancedMovesFor, amountsFor, FACES, movesFor, sameLayer } from './moves'
 import { methodTurns } from './solver'
-import { STAR_RINGS } from './star'
+import { signedPieces, STAR_RINGS } from './star'
 import { isStar, isStarMove, SHAPE_DIMS } from './types'
 import type { CubeShape, Dims, Face, Move, RingMove, StarMove, StarShape, Turn } from './types'
 
@@ -108,7 +108,7 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
 export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
   if (isStarMove(turn)) {
     if ('slash' in turn) return { kind: 'slash' }
-    const pieces = (turn.amount > 3 ? 6 - turn.amount : turn.amount) as 1 | 2 | 3
+    const pieces = Math.abs(signedPieces(turn)) as 1 | 2 | 3
     return { kind: 'ring', ring: turn.ring, pieces, clockwise: turn.amount <= 3 }
   }
   const direction = turn.amount === 2 ? 'half' : turn.amount === 1 ? 'cw' : 'ccw'

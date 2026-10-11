@@ -12,7 +12,8 @@ qu'on joue d'un coup ou **pas à pas**, pour apprendre la méthode.
 ## Fonctionnalités
 
 - Cube 3D manipulable : rotations de faces, tranches (`M`, `E`, `S` sur 3x3,
-  tranches internes sur 4x4) et coups larges, orbite caméra, recentrage animé.
+  dans un onglet « Avancé » avec les coups larges ; tranches internes sur 4x4)
+  et coups larges, orbite caméra, recentrage animé.
   Au survol d'un bouton, les pièces qui vont tourner s'illuminent.
 - **Guide des mouvements** : chaque coup du puzzle animé sur le cube dans son
   état actuel, avec sa notation et une phrase qui le décrit (le coup et son
@@ -33,11 +34,14 @@ qu'on joue d'un coup ou **pas à pas**, pour apprendre la méthode.
   - 4-Star Prism : **deux étoiles** (l'interne puis l'externe).
 - **Formes non cubiques** : le 1x2x3 (demi-tours seulement), la tour 2x2x4,
   qui se déforme comme la vraie (un coup est bloqué quand sa face n'est pas
-  complète), le Domino et le Floppy (une seule couche, demi-tours seulement).
+  complète), la Slim Tower et le Domino (côtés en demi-tours), le Floppy (une
+  seule couche, demi-tours seulement) et les Star Prism (tours d'étages et
+  slash).
 - **Version miroir** du 2x2, du 3x3 et du 4x4 (Mirror Blocks) : couches
   d'épaisseurs différentes et facettes toutes dorées, à résoudre par la forme.
-- Mélange aléatoire, ou **saisie guidée** de son propre cube en peignant les
-  stickers (aucune configuration incohérente possible, validation de solubilité).
+- Mélange aléatoire, ou **saisie guidée** de son propre puzzle (tous, étoiles
+  comprises) en peignant les stickers (aucune configuration incohérente
+  possible, validation de solubilité).
 - **Mémoriser / Restaurer** un état, conservé entre deux visites : pratique pour
   comparer deux méthodes sur le même mélange.
 - Choix du cube par **vignettes** : les catégories, puis les puzzles, chacun
