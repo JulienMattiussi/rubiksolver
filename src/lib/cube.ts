@@ -9,8 +9,20 @@ import {
   quarterTurnFits,
   rotateN,
 } from './geometry'
-import { COLORS, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
-import type { Axis, Color, Cube, CubeShape, Cubie, Dims, Face, Sticker, Vec3 } from './types'
+import { solvedStar } from './star'
+import { COLORS, isStar, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
+import type {
+  Axis,
+  Color,
+  Cube,
+  CubeColor,
+  CubeShape,
+  Cubie,
+  Dims,
+  Face,
+  Sticker,
+  Vec3,
+} from './types'
 
 /**
  * The puzzle as cubies at integer positions: {-1,0,1}^3 for a 3x3, {-1,1}^3
@@ -25,7 +37,7 @@ import type { Axis, Color, Cube, CubeShape, Cubie, Dims, Face, Sticker, Vec3 } f
  */
 
 /** Solved color of each face (standard Western scheme: white up, green front). */
-export const FACE_COLOR: Record<Face, Color> = {
+export const FACE_COLOR: Record<Face, CubeColor> = {
   U: 'W',
   D: 'Y',
   F: 'G',
@@ -35,12 +47,12 @@ export const FACE_COLOR: Record<Face, Color> = {
 }
 
 /** Opposite color of each color: the color of the face with the negated normal. */
-export const OPPOSITE_COLOR: Record<Color, Color> = Object.fromEntries(
+export const OPPOSITE_COLOR: Record<CubeColor, CubeColor> = Object.fromEntries(
   FACES_BY_NORMAL.map((face) => {
     const [x, y, z] = FACE_NORMAL[face]
     return [FACE_COLOR[face], FACE_COLOR[faceOfNormal([-x, -y, -z])]]
   }),
-) as Record<Color, Color>
+) as Record<CubeColor, CubeColor>
 
 // ---------------------------------------------------------------------------
 // Piece queries
@@ -116,8 +128,10 @@ export function homesOf(shape: CubeShape, keep: (c: Cubie) => boolean): Vec3[] {
 // Puzzles
 // ---------------------------------------------------------------------------
 
-/** Build a solved puzzle: every exterior cubie face carries its solved color. */
+/** Build a solved puzzle: every exterior cubie face carries its solved color
+ *  (the star prism, no grid, comes from star.ts). */
 export function solvedCube(shape: CubeShape = '3'): Cube {
+  if (isStar(shape)) return solvedStar()
   const dims = SHAPE_DIMS[shape]
   const cubies: Cubie[] = []
   for (const x of layerCoords(dims[0])) {
@@ -143,13 +157,10 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
 
 /** Cubie count of each shape, the signature `cubeShape` recognizes. */
 const SHAPE_OF_COUNT = new Map<number, CubeShape>(
-  (Object.keys(SHAPE_DIMS) as CubeShape[]).map((shape) => [
-    SHAPE_DIMS[shape].reduce((n, d) => n * d, 1),
-    shape,
-  ]),
+  (Object.keys(SHAPE_DIMS) as CubeShape[]).map((shape) => [solvedCube(shape).length, shape]),
 )
 
-/** Shape of a puzzle from its cubie count (6 -> 1x2x3, 8 -> 2x2, 27 -> 3x3...). */
+/** Shape of a puzzle from its cubie count (6 -> 1x2x3, 8 -> 2x2, 14 -> star...). */
 export function cubeShape(cube: Cube): CubeShape {
   const shape = SHAPE_OF_COUNT.get(cube.length)
   if (!shape) throw new Error(`cubeShape: malformed cube with ${cube.length} cubies`)
@@ -197,12 +208,13 @@ export function stickersTotal(shape: CubeShape): number {
   return FACES_BY_NORMAL.reduce((total, face) => total + faceletCount(dims, face), 0)
 }
 
-/** Whether the cubies show a single color per face. */
+/** Whether the cubies show a single color per face (stickers grouped by the
+ *  direction they face: a cube face, or a star prism's valley). */
 function facesUniform(cubies: readonly Cubie[]): boolean {
-  const faceColor = new Map<Face, Color>()
+  const faceColor = new Map<number, Color>()
   for (const cubie of cubies) {
     for (const s of cubie.stickers) {
-      const face = faceOfNormal(s.normal)
+      const face = normalIndex(s.normal)
       const seen = faceColor.get(face)
       if (seen === undefined) faceColor.set(face, s.color)
       else if (seen !== s.color) return false
@@ -246,7 +258,7 @@ export function stateKey(cube: Cube): string {
     out += String.fromCharCode(
       256 + (c.position[0] + 3) * 49 + (c.position[1] + 3) * 7 + (c.position[2] + 3),
     )
-    for (const s of c.stickers) out += normalIndex(s.normal).toString() + s.color
+    for (const s of c.stickers) out += normalIndex(s.normal).toString(36) + s.color
     out += '|'
   }
   return out

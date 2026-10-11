@@ -1,5 +1,5 @@
 import { FACE_COLOR } from './cube'
-import type { Color, CubeVariant, Face, Sticker } from './types'
+import type { CubeColor, CubeVariant, Face, Sticker } from './types'
 
 /**
  * Piece shapes: what turns a cube into a mirror cube.
@@ -42,14 +42,14 @@ type Point = readonly [number, number, number]
  *   -thick corners, for instance); here each axis gets its own pair, like a
  *   core offset by a different amount along each axis.
  */
-export const LAYER_THICKNESS: Record<CubeVariant, Record<Color, number>> = {
+export const LAYER_THICKNESS: Record<CubeVariant, Record<CubeColor, number>> = {
   classic: { W: 1, Y: 1, G: 1, B: 1, O: 1, R: 1 },
   mirror: { O: 0.58, Y: 0.68, B: 0.78, G: 1.22, W: 1.32, R: 1.42 },
 }
 
 /** Colors ordered from the thinnest layer to the thickest. */
-export function byThickness(thickness: Record<Color, number>): Color[] {
-  return (Object.keys(thickness) as Color[]).sort((a, b) => thickness[a] - thickness[b])
+export function byThickness(thickness: Record<CubeColor, number>): CubeColor[] {
+  return (Object.keys(thickness) as CubeColor[]).sort((a, b) => thickness[a] - thickness[b])
 }
 
 /** Box of one cubie, in cell units. */
@@ -67,11 +67,12 @@ export const UNIT_BOX: CubieBox = { size: [1, 1, 1], center: [0, 0, 0] }
 function axisExtent(
   stickers: readonly Sticker[],
   axis: 0 | 1 | 2,
-  thickness: Record<Color, number>,
+  thickness: Record<CubeColor, number>,
 ): { size: number; center: number } {
   const sticker = stickers.find((s) => s.normal[axis] !== 0)
   if (!sticker) return { size: 1, center: 0 }
-  const t = thickness[sticker.color]
+  // A color no cube wears (the star prism's) keeps a plain layer.
+  const t = thickness[sticker.color as CubeColor] ?? 1
   const dir = (sticker.normal[axis] ?? 0) > 0 ? 1 : -1
   // Anchored on the inner face, at -0.5 from the cell center along `dir`.
   // `|| 0` keeps a plain zero (instead of -0) on a uniform thickness table.
@@ -79,7 +80,10 @@ function axisExtent(
 }
 
 /** Box of the cubie carrying `stickers`, for the given thickness table. */
-export function cubieBox(stickers: readonly Sticker[], thickness: Record<Color, number>): CubieBox {
+export function cubieBox(
+  stickers: readonly Sticker[],
+  thickness: Record<CubeColor, number>,
+): CubieBox {
   const x = axisExtent(stickers, 0, thickness)
   const y = axisExtent(stickers, 1, thickness)
   const z = axisExtent(stickers, 2, thickness)
@@ -90,7 +94,7 @@ export function cubieBox(stickers: readonly Sticker[], thickness: Record<Color, 
  * Translation that recenters the solid: with unequal end layers, a solved cube
  * sits off-origin by half their difference (the real puzzle's offset core).
  */
-export function centeringOffset(thickness: Record<Color, number>): Point {
+export function centeringOffset(thickness: Record<CubeColor, number>): Point {
   const half = (pos: Face, neg: Face) =>
     (thickness[FACE_COLOR[neg]] - thickness[FACE_COLOR[pos]]) / 2
   return [half('R', 'L'), half('U', 'D'), half('F', 'B')]

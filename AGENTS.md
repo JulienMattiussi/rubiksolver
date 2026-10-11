@@ -5,7 +5,8 @@
 POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3
 ou 4x4**, **classique ou miroir**, plus cinq cuboïdes : le **1x2x3**, la
 **tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**
-et le **Floppy 3x3x1** (choix par vignettes).
+et le **Floppy 3x3x1**, et un premier puzzle non cubique, le **Star Prism**
+(une étoile à six branches de la famille du Square-1) (choix par vignettes).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
 coups larges là où la forme en a, orbite caméra, aperçu des pièces qui vont
 tourner au survol d'un bouton), on le mélange **ou on saisit sa propre
@@ -81,6 +82,7 @@ src/
 │   ├── geometry.ts       # Géométrie entière : normales des faces, normalIndex, grilles par axe (layerCoords), rotations exactes
 │   ├── cube.ts           # Le puzzle : solvedCube, cubeShape/cubeDims/turnDims, isSolved/isBoxed, stateKey, cubeOrientations,
 │   │                     #   requêtes de pièces (colorAt, colorsOf, cubieAt, atHome/homeAt), comptages de stickers et de couleurs
+│   ├── star.ts           # Star Prism : modèle hexagonal entier (anneaux + slash), notation fan2cube, mélange
 │   ├── turn.ts           # Les coups : moveSlab/inSlab, applyMove(s), turnAllowed (tour), turnedBy, turnRotation (animation)
 │   ├── moves.ts          # Notation US/FR (parse/format, 2R/Rw, M/E/S sur 3x3), sameLayer, inversion, simplification,
 │   │                     #   movesFor(shape) déduit de la forme, scramble (RNG injectable, joué depuis l'état courant pour la tour)
@@ -139,6 +141,9 @@ src/
 │   ├── EditView.tsx      # Mode saisie : stickers peignables cliquables, vides en gris ; en épaisseurs (dorés) sur un miroir
 │   ├── Cubie.tsx         # Un cubie : corps + stickers, à la boîte de sa variante, en surbrillance si un coup survolé le tourne
 │   ├── layout.ts         # Échelle et position visuelles (coordonnée / pas de la grille : linéaire, juste hors de la boîte)
+│   ├── starGeometry.ts   # Géométrie des pièces de l'étoile (cerfs-volants extrudés), partagée vue 3D / vignette
+│   ├── StarView.tsx      # Vue 3D de l'étoile (StarPiece par pièce), animée comme les cubes
+│   ├── usePreviewed.ts   # Pièces que le coup survolé ferait tourner (surbrillance, cubes et étoile)
 │   ├── isometric.ts      # Vignette d'un puzzle résolu en vue isométrique (polygones SVG), déduite du même layout
 │   ├── Sticker.tsx       # Sticker orienté à sa normale et dimensionné à sa face, mutualisé play/édition (onSelect = cliquable)
 │   ├── useTurnAnimation.ts # Hook : pilote la file de rotations (rotation de la couche active)
@@ -148,7 +153,7 @@ src/
 ├── components/
 │   ├── ui/               # Primitives réutilisables (Button, IconButton, SegmentedToggle, Select, Modal, ConfirmDialog)
 │   │                     #   + styles.ts : classes partagées (SECTION_BOX, SECTION_LABEL)
-│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge,
+│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad (+ PadHeader),
 │   │                     #   LanguageToggle, NotationToggle, RecenterButton, CollapseButton, SpeedSlider, MovePad
 │   ├── picker/           # Choix du cube : CubePicker (bouton + modale), PickerTile, PuzzleIcon (vignette SVG),
 │   │                     #   CategoryIcon (plusieurs puzzles groupés : une catégorie se distingue d'un puzzle)
@@ -461,6 +466,35 @@ l'équateur, d'où une descente deux par deux ; (III) les coins du haut avec
 l'échange du Domino, pur sur ce puzzle. Le modèle compte 1 935 360 états,
 soit les 241 920 de fan2cube fois les 8 façons de poser la tour.
 
+### Le Star Prism (`src/lib/star.ts`)
+
+Premier puzzle **non cubique** : une étoile à six branches sur deux étages
+(un Rubik's UFO), 12 pièces (une branche chacune) et une vis centrale coupée
+en deux. Ses coups (famille du Square-1) : tourner le haut ou le bas d'une
+pièce (60°), ou le **slash**, demi-tour de toute la moitié droite, qui échange
+ses 3 pièces du haut avec ses 3 du bas et retourne la demi-vis droite. Le
+disque central ne tourne pas avec les pièces.
+
+Le modèle reste **entier et exact** : des cubies en coordonnées hexagonales
+axiales `[q, y, r]`, où un pas de 60° est l'application linéaire entière
+`(q, r) -> (-r, q + r)` et le slash `(q, y, r) -> (-r, -y, -q)`. Chaque creux
+de l'étoile a sa normale (`HEX_NORMALS`, indices 6 à 11 après les 6 faces du
+cube), partagée par les deux faces qui le forment : « résolu » reste « chaque
+direction d'une seule couleur » (`isSolved` inchangé). Couleurs : vert dessus,
+bleu dessous, et sur les côtés orange, blanc, jaune, rouge, violet, rose (les
+deux dernières sont propres à l'étoile : `Color` = `CubeColor` + `P`, `V`).
+
+Intégration : un coup est un `Turn` = `Move` (cubes) | `StarMove` (`RingMove` |
+slash) dans le code générique (file d'animation, rendu, notation) ; les
+solveurs des cubes gardent `Move`. `turn.ts` et `moves.ts` aiguillent vers
+`star.ts` ; l'animation tourne autour d'un axe quelconque (`turnRotation`
+renvoie un vecteur). Vue 3D (`StarView`), vignette et pad (`StarPad` : haut
+±1, bas ±1, slash) dédiés ; notation de fan2cube (`3`, `-2B`/`-2D`, `/`). Les
+formules de fan2cube.fr/2-star1 sont vérifiées sur le modèle (`K =
+/-1/1+B/-B/` échange deux sommets en haut et les deux du dessous ; `/3/3/`
+retourne la demi-vis, le haut à remettre d'un `3`). **Pas encore de méthode
+de résolution ni de saisie** sur ce puzzle (le panneau l'indique).
+
 ### Le cube miroir (`src/lib/shape.ts`)
 
 Le **cube miroir** (Mirror Blocks) est un _shape mod_ : mécaniquement un NxN
@@ -530,7 +564,7 @@ mobile et en saisie, une seule carte) :
   sélecteur en modale, d'abord les **catégories** en vignettes, puis les
   **puzzles** de la catégorie choisie (toujours ouvert sur les catégories ; le
   puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`) : Standard
-  2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 2x2x3 (Slim)/2x2x4/3x3x2 (Domino), Plats
+  2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 2x2x3 (Slim)/2x2x4/3x3x2 (Domino), Étoiles Star Prism, Plats
   1x2x3/3x3x1 (Floppy), un puzzle d'une seule couche d'épaisseur étant plat.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;

@@ -1,10 +1,9 @@
 import { cubeDims } from '@/lib/cube'
-import { turnAllowed, turnedBy } from '@/lib/turn'
 import { centeringOffset, LAYER_THICKNESS } from '@/lib/shape'
-import { selectBusy, useCube } from '@/store/cubeStore'
-import { useView } from '@/store/viewStore'
+import { useCube } from '@/store/cubeStore'
 import { Cubie } from './Cubie'
 import { cubeScale } from './layout'
+import { usePreviewed } from './usePreviewed'
 import { useTurnAnimation } from './useTurnAnimation'
 
 /** Renders the cubies from the logical cube state; the turning layer is
@@ -17,10 +16,7 @@ export function CubeView() {
   const dims = cubeDims(cube)
   const [ox, oy, oz] = centeringOffset(LAYER_THICKNESS[variant])
   const { groupRef, isTurning } = useTurnAnimation()
-  const preview = useView((s) => s.preview)
-  const idle = !useCube(selectBusy)
-  const highlighted =
-    preview && idle && turnAllowed(cube, preview) ? turnedBy(cube, preview) : () => false
+  const highlighted = usePreviewed()
   return (
     <group scale={cubeScale(dims)}>
       <group position={[ox, oy, oz]}>

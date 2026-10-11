@@ -18,6 +18,9 @@ interface TurnAnimation {
  * commits the move so the cubies snap to their new logical positions. Rendering
  * stays a pure function of the (integer, drift-free) engine state.
  */
+/** Scratch axis of the running turn (reused every frame). */
+const AXIS = new THREE.Vector3()
+
 export function useTurnAnimation(): TurnAnimation {
   const cube = useCube((s) => s.cube)
   const active = useCube((s) => s.active)
@@ -45,7 +48,10 @@ export function useTurnAnimation(): TurnAnimation {
     const duration = turnDuration * (isHalf ? 1.7 : 1)
     elapsed.current += delta
     const t = Math.min(1, elapsed.current / duration)
-    if (groupRef.current) groupRef.current.rotation[geo.axis] = geo.angle * easeInOut(t)
+    if (groupRef.current) {
+      AXIS.set(geo.axis[0], geo.axis[1], geo.axis[2])
+      groupRef.current.setRotationFromAxisAngle(AXIS, geo.angle * easeInOut(t))
+    }
     if (t >= 1) commitActive()
   })
 

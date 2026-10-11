@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Shuffle, Sparkles } from 'lucide-react'
 import { useIsDesktop } from '@/hooks/useIsDesktop'
 import { useI18n } from '@/i18n/i18nStore'
-import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
+import { selectBusy, selectSolvable, selectSolved, useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { Button } from '@/components/ui/Button'
 import { EditPanel } from '@/components/edit/EditPanel'
@@ -29,6 +29,7 @@ export function Controls() {
 
   const busy = useCube(selectBusy)
   const solved = useCube(selectSolved)
+  const solvable = useCube(selectSolvable)
   const title = <h1 className="text-lg font-bold text-white">{editing ? t.editTitle : t.title}</h1>
 
   if (desktop && !editing) {
@@ -74,7 +75,7 @@ export function Controls() {
                 <Button
                   variant="primary"
                   onClick={solveAll}
-                  disabled={busy || solved}
+                  disabled={busy || solved || !solvable}
                   className="flex-1"
                 >
                   <Sparkles className="size-4" aria-hidden />

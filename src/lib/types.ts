@@ -4,7 +4,7 @@
 export type Dims = readonly [number, number, number]
 
 /** The puzzles the app can build, by id (also the picker's option values). */
-export type CubeShape = '2' | '3' | '4' | '123' | '224' | '223' | '332' | '331'
+export type CubeShape = '2' | '3' | '4' | '123' | '224' | '223' | '332' | '331' | 'star'
 
 /**
  * Layer counts per shape: the NxNxN cubes, the 1x2x3 flat cuboid (3 wide, 2
@@ -26,7 +26,14 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   '223': [2, 3, 2],
   '332': [3, 2, 3],
   '331': [3, 1, 3],
+  // The star prism (star.ts) is no grid: its own module builds and turns it.
+  // These only bound its hexagonal model (q, y and r all within +-1).
+  star: [3, 2, 3],
 }
+
+/** Whether a shape is the star prism, which turns by rings and slash (star.ts)
+ *  rather than by face layers. */
+export const isStar = (shape: CubeShape): boolean => shape === 'star'
 
 /**
  * Shapes that leave their box: their mechanism is a bigger cube with pieces
@@ -45,6 +52,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '224': true,
   '332': false,
   '331': false,
+  star: false,
 }
 
 /**
@@ -63,6 +71,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   '223': ['wide'],
   '332': [],
   '331': [],
+  star: [],
 }
 
 /** Name of each shape in the picker (identical in every language). */
@@ -75,6 +84,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '223': '2x2x3 (Slim Tower)',
   '332': '3x3x2 (Domino)',
   '331': '3x3x1 (Floppy)',
+  star: 'Star Prism (UFO)',
 }
 
 /** Shapes exposed in the UI, in display order. */
@@ -102,6 +112,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   '224': false,
   '332': false,
   '331': false,
+  star: false,
 }
 
 export function supportsMirror(shape: CubeShape): boolean {
@@ -115,14 +126,15 @@ interface CubeKind {
 }
 
 /** Groups of the cube picker, in display order: the classic NxNxN cubes, their
- *  mirror versions, the other cuboids (tower, Domino), then the flat puzzles
- *  (one layer thick: 1x2x3, Floppy). */
-export const CUBE_CATEGORIES = ['standard', 'mirror', 'tower', 'flat'] as const
+ *  mirror versions, the other cuboids (tower, Domino), the flat puzzles (one
+ *  layer thick: 1x2x3, Floppy), then the star prisms. */
+export const CUBE_CATEGORIES = ['standard', 'mirror', 'tower', 'flat', 'star'] as const
 export type CubeCategory = (typeof CUBE_CATEGORIES)[number]
 
 /** Picker group of a cube choice, derived from its variant and dimensions. */
 export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (variant === 'mirror') return 'mirror'
+  if (isStar(shape)) return 'star'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
   // One layer thick: the 1x2x3 and the Floppy.
@@ -145,10 +157,17 @@ export type Face = 'U' | 'D' | 'L' | 'R' | 'F' | 'B'
 
 /** Sticker colors. Kept distinct from Face letters (a sticker's color is not
  *  the same concept as the face it currently sits on). */
-export type Color = 'W' | 'Y' | 'G' | 'B' | 'O' | 'R'
+export type Color = CubeColor | 'P' | 'V'
 
-/** Every color, in palette order. */
-export const COLORS: readonly Color[] = ['W', 'Y', 'G', 'B', 'O', 'R']
+/** The six colors of the cubes (the standard scheme); the star prism adds
+ *  pink and violet for its six valleys. */
+export type CubeColor = 'W' | 'Y' | 'G' | 'B' | 'O' | 'R'
+
+/** Every cube color, in palette order. */
+export const COLORS: readonly CubeColor[] = ['W', 'Y', 'G', 'B', 'O', 'R']
+
+/** Every sticker color of every puzzle. */
+export const ALL_COLORS: readonly Color[] = [...COLORS, 'P', 'V']
 
 /** Integer coordinate axis. */
 export type Axis = 'x' | 'y' | 'z'
@@ -199,3 +218,25 @@ export interface Move {
   /** Wide turn: layers 1..depth turn together. Requires `depth`. */
   readonly wide?: true
 }
+
+/** A turn of the star prism's top (`U`) or bottom (`D`) layer by `amount`
+ *  pieces (60 degrees each), clockwise seen from that side. */
+export interface RingMove {
+  readonly ring: 'U' | 'D'
+  readonly amount: 1 | 2 | 3 | 4 | 5
+}
+
+/** The star prism's slash: a half turn of its right half. */
+interface SlashMove {
+  readonly slash: true
+}
+
+export type StarMove = RingMove | SlashMove
+
+/** Any turn of any puzzle: a face-layer move, or a star prism's. Generic code
+ *  (the animation queue, the display) handles turns; solvers of the cubes,
+ *  which only ever make face moves, keep `Move`. */
+export type Turn = Move | StarMove
+
+/** Whether a turn is a star prism's. */
+export const isStarMove = (turn: Turn): turn is StarMove => 'ring' in turn || 'slash' in turn

@@ -1,8 +1,9 @@
 import { solvedCube, turnDims } from './cube'
 import { faceAxis, faceLayers, quarterTurnFits } from './geometry'
 import { applyMove, turnAllowed } from './turn'
-import { SHAPE_INNER_TURNS, SHAPE_SHIFTS } from './types'
-import type { Cube, CubeShape, Dims, Face, Move } from './types'
+import { formatStarMove, scrambleStar } from './star'
+import { isStar, isStarMove, SHAPE_INNER_TURNS, SHAPE_SHIFTS } from './types'
+import type { Cube, CubeShape, Dims, Face, Move, Turn } from './types'
 
 export const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
 
@@ -76,7 +77,8 @@ const AMOUNT_SUFFIX = { 1: '', 2: '2', 3: "'" } as const
  * the puzzle's `dims`, the inner slice of a 3-layer axis reads as M, E or S
  * (`2L` is M, `2R` is M', which turns the same slice the other way).
  */
-export function formatMove(move: Move, labels: FaceLabels = NOTATION_US, dims?: Dims): string {
+export function formatMove(move: Turn, labels: FaceLabels = NOTATION_US, dims?: Dims): string {
+  if (isStarMove(move)) return formatStarMove(move, labels)
   if (dims && move.depth && !move.wide && faceLayers(dims, move.face) === 3) {
     const slice = SLICES.find((s) => s.face === move.face || s.opposite === move.face)!
     const amount = slice.face === move.face ? move.amount : invertMove(move).amount
@@ -90,7 +92,7 @@ export function formatMove(move: Move, labels: FaceLabels = NOTATION_US, dims?: 
 
 /** Format a sequence, space-separated. */
 export function formatMoves(
-  moves: readonly Move[],
+  moves: readonly Turn[],
   labels: FaceLabels = NOTATION_US,
   dims?: Dims,
 ): string {
@@ -237,6 +239,16 @@ export function scramble(
   return moves
 }
 
+/** A scramble of any puzzle, face moves or a star prism's turns (the store's). */
+export function scrambleTurns(
+  shape: CubeShape,
+  length: number,
+  rng: () => number,
+  start: Cube,
+): Turn[] {
+  return isStar(shape) ? scrambleStar(length, rng) : scramble(shape, length, rng, start)
+}
+
 /**
  * Every distinct turn available on a shape, in a stable order. Inner slices
  * and wide turns need at least four layers on the axis (the 4x4, and the
@@ -245,6 +257,7 @@ export function scramble(
  * puzzle some of these jam depending on the state (`turnAllowed`).
  */
 export function movesFor(shape: CubeShape): readonly Move[] {
+  if (isStar(shape)) return [] // it turns by rings and slash (star.ts)
   return FACES.flatMap((face) =>
     amountsFor(shape, face).flatMap((amount) =>
       layerVariants(shape, face).map((variant): Move => ({ face, amount, ...variant })),

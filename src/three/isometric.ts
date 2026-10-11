@@ -1,8 +1,9 @@
 import { cubeDims, solvedCube } from '@/lib/cube'
 import { normalIndex } from '@/lib/geometry'
 import { cubieBox, LAYER_THICKNESS } from '@/lib/shape'
-import type { Color, CubeShape, CubeVariant } from '@/lib/types'
+import { isStar, type Color, type CubeShape, type CubeVariant } from '@/lib/types'
 import { visualPosition } from './layout'
+import { STAR_YAW, starPolygons } from './starGeometry'
 
 /**
  * Flat isometric drawing of a solved puzzle, for its picker thumbnail: the
@@ -86,9 +87,10 @@ export function isometricDrawing(shape: CubeShape, variant: CubeVariant): IsoDra
 }
 
 function drawPuzzle(shape: CubeShape, variant: CubeVariant): IsoDrawing {
+  if (isStar(shape)) return drawStar()
   const cube = solvedCube(shape)
   const dims = cubeDims(cube)
-  const faces: Array<{ depth: number; polygons: IsoPolygon[] }> = []
+  const faces: IsoFace[] = []
   for (const cubie of cube) {
     const { size, center } = cubieBox(cubie.stickers, LAYER_THICKNESS[variant])
     const cell = visualPosition(cubie.position, dims)
@@ -108,9 +110,18 @@ function drawPuzzle(shape: CubeShape, variant: CubeVariant): IsoDrawing {
       })
     }
   }
-  // Painter's order: farthest from the viewer first.
-  faces.sort((a, b) => a.depth - b.depth)
-  const polygons = faces.flatMap((f) => f.polygons)
+  return finish(faces)
+}
+
+interface IsoFace {
+  readonly depth: number
+  readonly polygons: IsoPolygon[]
+}
+
+/** Painter's order (farthest from the viewer first), then a viewBox fitted
+ *  around everything drawn. */
+function finish(faces: IsoFace[]): IsoDrawing {
+  const polygons = [...faces].sort((a, b) => a.depth - b.depth).flatMap((f) => f.polygons)
   const xs: number[] = []
   const ys: number[] = []
   for (const { points } of polygons) {
@@ -124,4 +135,38 @@ function drawPuzzle(shape: CubeShape, variant: CubeVariant): IsoDrawing {
   const [x0, y0] = [Math.min(...xs) - pad, Math.min(...ys) - pad]
   const [w, h] = [Math.max(...xs) - x0 + pad, Math.max(...ys) - y0 + pad]
   return { polygons, viewBox: `${x0.toFixed(3)} ${y0.toFixed(3)} ${w.toFixed(3)} ${h.toFixed(3)}` }
+}
+
+/** The star prism, from the same polygons as its 3D view, turned by its yaw;
+ *  faces turned away from the viewer are left out. */
+function drawStar(): IsoDrawing {
+  const [cos, sin] = [Math.cos(STAR_YAW), Math.sin(STAR_YAW)]
+  const yaw = ([x, y, z]: readonly number[]): Point => [
+    x! * cos + z! * sin,
+    y!,
+    -x! * sin + z! * cos,
+  ]
+  const faces: IsoFace[] = []
+  for (const cubie of solvedCube('star')) {
+    const polygons = starPolygons(cubie)
+    for (let i = 0; i < polygons.length; i++) {
+      const body = polygons[i]!
+      if (body.paint !== 'body') continue
+      const normal = yaw(body.normal)
+      if (normal[0] + normal[1] + normal[2] <= 0) continue // facing away
+      const sticker = polygons[i + 1]?.paint !== 'body' ? polygons[i + 1] : undefined
+      const shade = normal[1] > 0.5 ? 0 : 0.12 + 0.16 * Math.max(0, normal[0])
+      const points = body.points.map(yaw)
+      faces.push({
+        depth: points.reduce((d, p) => d + p[0] + p[1] + p[2], 0) / points.length,
+        polygons: [
+          { points: toSvg(points), paint: 'body', shade },
+          ...(sticker
+            ? [{ points: toSvg(sticker.points.map(yaw)), paint: sticker.paint, shade }]
+            : []),
+        ],
+      })
+    }
+  }
+  return finish(faces)
 }

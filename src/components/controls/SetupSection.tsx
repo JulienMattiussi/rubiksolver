@@ -1,6 +1,7 @@
 import { ArchiveRestore, Bookmark, Pencil, RotateCcw, Shuffle, Square } from 'lucide-react'
 import { useState } from 'react'
 import { cubeShape, isBoxed } from '@/lib/cube'
+import { isStar } from '@/lib/types'
 import { encodeCube } from '@/lib/snapshot'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
@@ -11,6 +12,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { CubePicker } from '@/components/picker/CubePicker'
 import { SECTION_BOX } from '@/components/ui/styles'
 import { MovePad } from './MovePad'
+import { StarPad } from './StarPad'
 import { SpeedSlider } from './SpeedSlider'
 import { StatusBadge } from './StatusBadge'
 
@@ -32,6 +34,8 @@ export function SetupSection() {
 
   const [confirmReplace, setConfirmReplace] = useState(false)
   const busy = useCube(selectBusy)
+  // The editor knows grid puzzles only (not the star prism yet).
+  const editable = !isStar(shape)
   const solved = useCube(selectSolved)
   const alreadySaved = saved?.cube === encodeCube(cube)
   const savedTime = saved
@@ -58,15 +62,20 @@ export function SetupSection() {
             {t.reset}
           </Button>
         )}
-        <Button onClick={enterEdit} disabled={busy} variant="ghost">
+        <Button
+          onClick={enterEdit}
+          disabled={busy || !editable}
+          title={editable ? undefined : t.noEditor}
+          variant="ghost"
+        >
           <Pencil className="size-4" aria-hidden />
           {t.editCube}
         </Button>
         <Button
           onClick={enterFromCurrent}
           // Off its box a tower has pieces no editor slot can hold.
-          disabled={busy || !isBoxed(cube)}
-          title={isBoxed(cube) ? undefined : t.fromCurrentUnboxed}
+          disabled={busy || !editable || !isBoxed(cube)}
+          title={!editable ? t.noEditor : isBoxed(cube) ? undefined : t.fromCurrentUnboxed}
           variant="ghost"
         >
           {t.fromCurrent}
@@ -107,7 +116,7 @@ export function SetupSection() {
       )}
 
       <SpeedSlider />
-      <MovePad disabled={busy} />
+      {isStar(shape) ? <StarPad disabled={busy} /> : <MovePad disabled={busy} />}
     </section>
   )
 }

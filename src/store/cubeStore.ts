@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 import { cubeShape, isSolved, solvedCube } from '@/lib/cube'
 import { applyMove } from '@/lib/turn'
-import { scramble as makeScramble } from '@/lib/moves'
+import { scrambleTurns } from '@/lib/moves'
 import { methodsFor, type MethodId, type SolveStep } from '@/lib/solver'
-import { supportsMirror, type Cube, type CubeShape, type CubeVariant, type Move } from '@/lib/types'
+import { supportsMirror, type Cube, type CubeShape, type CubeVariant, type Turn } from '@/lib/types'
 
 /** Scramble length per shape: enough to reach any state, without dragging on. */
 const SCRAMBLE_LENGTH: Record<CubeShape, number> = {
@@ -15,6 +15,7 @@ const SCRAMBLE_LENGTH: Record<CubeShape, number> = {
   '223': 20,
   '332': 20,
   '331': 12,
+  star: 20,
 }
 
 interface CubeStore {
@@ -23,9 +24,9 @@ interface CubeStore {
   /** How the cube is drawn. Purely visual: nothing else reads it. */
   variant: CubeVariant
   /** Moves waiting to be animated, in order. */
-  queue: Move[]
+  queue: Turn[]
   /** Move currently being animated, or null when idle. */
-  active: Move | null
+  active: Turn | null
   /** The queue plays a solution (the status says so), not a scramble or a
    *  hand turn. */
   solving: boolean
@@ -39,7 +40,7 @@ interface CubeStore {
   /** How many steps have already been sent to the animation queue. */
   stepIndex: number
 
-  pushMove: (move: Move) => void
+  pushMove: (move: Turn) => void
   scramble: () => void
   /** Switch shape: resets to a solved puzzle of that shape. */
   setShape: (shape: CubeShape) => void
@@ -73,8 +74,8 @@ function clearSolution() {
 function loadedCube(cube: Cube) {
   return {
     cube,
-    queue: [] as Move[],
-    active: null as Move | null,
+    queue: [] as Turn[],
+    active: null as Turn | null,
     solving: false,
     ...clearSolution(),
   }
@@ -84,6 +85,9 @@ function loadedCube(cube: Cube) {
 export const selectBusy = (s: CubeStore): boolean => s.active !== null || s.queue.length > 0
 
 export const selectSolved = (s: CubeStore): boolean => isSolved(s.cube)
+
+/** The puzzle has a solving method (the star prism has none yet). */
+export const selectSolvable = (s: CubeStore): boolean => methodsFor(cubeShape(s.cube)).length > 0
 
 export const useCube = create<CubeStore>((set, get) => ({
   cube: solvedCube(),
@@ -102,7 +106,7 @@ export const useCube = create<CubeStore>((set, get) => ({
   scramble: () =>
     set((s) => ({
       // From the current state: a shape-shifting puzzle's legal turns depend on it.
-      queue: makeScramble(
+      queue: scrambleTurns(
         cubeShape(s.cube),
         SCRAMBLE_LENGTH[cubeShape(s.cube)],
         Math.random,

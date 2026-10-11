@@ -8,6 +8,9 @@ export const COLOR_HEX: Record<Color, string> = {
   B: '#3b82f6',
   O: '#f97316',
   R: '#ef4444',
+  // The star prism's two extra valley colors.
+  P: '#ec4899',
+  V: '#8b5cf6',
 }
 
 /** Dark plastic body of a cubie. */

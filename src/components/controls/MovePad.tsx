@@ -8,9 +8,7 @@ import { useCube } from '@/store/cubeStore'
 import { useView } from '@/store/viewStore'
 import { Button } from '@/components/ui/Button'
 import { SegmentedToggle } from '@/components/ui/SegmentedToggle'
-import { NotationToggle } from './NotationToggle'
-import { RecenterButton } from './RecenterButton'
-import { SECTION_LABEL } from '@/components/ui/styles'
+import { PadHeader } from './PadHeader'
 
 /**
  * Manual rotation pad, built from the turns the shape allows (`movesFor`):
@@ -81,13 +79,7 @@ export function MovePad({ disabled }: { disabled: boolean }) {
   }
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <h2 className={SECTION_LABEL}>{t.moves}</h2>
-        <div className="flex items-center gap-2">
-          <RecenterButton />
-          <NotationToggle />
-        </div>
-      </div>
+      <PadHeader />
       {kinds.length > 1 && (
         <div className="mb-2">
           <SegmentedToggle

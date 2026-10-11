@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { FACE_COLOR, OPPOSITE_COLOR, solvedCube } from '@/lib/cube'
-import { layerCoords, rotateN } from '@/lib/geometry'
+import { faceAxis, layerCoords, rotateN } from '@/lib/geometry'
 import { applyMove, turnedBy, turnRotation } from '@/lib/turn'
 import { scramble } from '@/lib/moves'
 import { byThickness, centeringOffset, cubieBox, LAYER_THICKNESS, UNIT_BOX } from '@/lib/shape'
 import { SHAPE_DIMS } from '@/lib/types'
-import type { Color, CubeShape, CubeVariant } from '@/lib/types'
+import type { CubeColor, CubeShape, CubeVariant } from '@/lib/types'
 import { seededRng } from '../helpers'
 
 /** The mirror variant only applies where every axis has layers to thicken. */
@@ -20,7 +20,7 @@ function cellCenter(coord: number, n: number): number {
 describe('layer thickness tables', () => {
   it.each(VARIANTS)('%s: opposite colors sum to 2, so a solved cube is a cube', (variant) => {
     const thickness = LAYER_THICKNESS[variant]
-    for (const [color, opposite] of Object.entries(OPPOSITE_COLOR) as [Color, Color][]) {
+    for (const [color, opposite] of Object.entries(OPPOSITE_COLOR) as [CubeColor, CubeColor][]) {
       expect(thickness[color] + thickness[opposite]).toBeCloseTo(2)
     }
   })
@@ -92,9 +92,9 @@ describe('mirror geometry', () => {
         const now = cubieBox(cubie.stickers, LAYER_THICKNESS.mirror)
         const was = before[i]!
         // Only the turning layer moved; the rest must be untouched.
-        const spun = rotateN(was.size, geo.axis, quarters)
+        const spun = rotateN(was.size, faceAxis(move.face), quarters)
         const size = turned(i) ? ([...spun].map(Math.abs) as [number, number, number]) : was.size
-        const center = turned(i) ? rotateN(was.center, geo.axis, quarters) : was.center
+        const center = turned(i) ? rotateN(was.center, faceAxis(move.face), quarters) : was.center
         for (const a of [0, 1, 2] as const) {
           expect(now.size[a]).toBeCloseTo(size[a])
           expect(now.center[a]).toBeCloseTo(center[a])

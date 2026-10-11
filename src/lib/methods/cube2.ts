@@ -11,7 +11,7 @@ import { applyMove } from '../turn'
 import { invertMoves } from '../moves'
 import { OUTER_TURNS } from '../moveSet'
 import { atEverySide, solveWithAlgs, type MethodPlan } from '../solverKit'
-import type { Color, Cube, Face, Move } from '../types'
+import type { Color, Cube, CubeColor, Face, Move } from '../types'
 import { PLL_T, PLL_Y, SUNE } from './algs'
 import { CORNER_TRIGGERS, cornerPlacedIn, placePieces } from './layers3'
 
@@ -30,9 +30,10 @@ import { CORNER_TRIGGERS, cornerPlacedIn, placePieces } from './layers3'
 function frame2(cube: Cube): Record<Face, Color> {
   const dbl = cubieAt(cube, [-1, -1, -1])
   if (!dbl) throw new Error('frame2: no corner at DBL')
-  const d = colorAt(dbl, 'D')
-  const l = colorAt(dbl, 'L')
-  const b = colorAt(dbl, 'B')
+  // A 2x2 only wears cube colors.
+  const d = colorAt(dbl, 'D') as CubeColor | undefined
+  const l = colorAt(dbl, 'L') as CubeColor | undefined
+  const b = colorAt(dbl, 'B') as CubeColor | undefined
   if (!d || !l || !b) throw new Error('frame2: DBL corner is missing stickers')
   return { D: d, L: l, B: b, U: OPPOSITE_COLOR[d], R: OPPOSITE_COLOR[l], F: OPPOSITE_COLOR[b] }
 }

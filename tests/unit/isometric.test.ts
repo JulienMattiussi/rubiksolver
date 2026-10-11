@@ -3,7 +3,8 @@ import { FACE_COLOR, stickersOfColor } from '@/lib/cube'
 import { SHAPE_DIMS, type CubeShape, type CubeVariant } from '@/lib/types'
 import { isometricDrawing } from '@/three/isometric'
 
-const SHAPES = Object.keys(SHAPE_DIMS) as CubeShape[]
+// Grid puzzles; the star prism has its own drawing (tested below).
+const SHAPES = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter((shape) => shape !== 'star')
 
 describe('isometric thumbnails', () => {
   it.each(SHAPES)('%s: draws every facelet of its U, F and R faces, body then sticker', (shape) => {
@@ -32,5 +33,14 @@ describe('isometric thumbnail cache', () => {
   it('computes each drawing once, then hands the same one back', () => {
     expect(isometricDrawing('4', 'mirror')).toBe(isometricDrawing('4', 'mirror'))
     expect(isometricDrawing('4', 'mirror')).not.toBe(isometricDrawing('4', 'classic'))
+  })
+})
+
+describe('star prism thumbnail', () => {
+  it('draws the faces turned toward the viewer, with their stickers', () => {
+    const { polygons, viewBox } = isometricDrawing('star', 'classic')
+    expect(polygons.some((p) => p.paint === 'G')).toBe(true) // its green top
+    expect(polygons.some((p) => p.paint === 'body')).toBe(true)
+    expect(viewBox.split(' ').map(Number).every(Number.isFinite)).toBe(true)
   })
 })

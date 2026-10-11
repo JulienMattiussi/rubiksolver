@@ -41,6 +41,9 @@ const fr = {
     return `Tourner ${target} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`
   },
   moveTitleHalf: (faceName: string) => `Retourner la ${faceName} (demi-tour)`,
+  starTurnTitle: (layer: 'top' | 'bottom', clockwise: boolean) =>
+    `Tourner l’étage du ${layer === 'top' ? 'haut' : 'bas'} d’une pièce dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
+  slashTitle: 'Slash : retourner la moitié droite',
   noSuchLayer: (faceName: string, kind: LayerKind) =>
     `Pas de ${kind === 'wide' ? 'coup large' : 'tranche interne'} pour la ${faceName} sur ce puzzle`,
   jammedTurn: (faceName: string) =>
@@ -60,6 +63,7 @@ const fr = {
   clearAll: 'Tout effacer',
   fromCurrent: 'Depuis l’état actuel',
   fromCurrentUnboxed: 'Remettez d’abord la tour en forme',
+  noEditor: 'La saisie n’est pas encore disponible pour ce puzzle',
   saveState: 'Mémoriser',
   saveStateTitle: 'Mémoriser cet état pour y revenir (remplace le précédent)',
   savedAlready: 'Cet état est déjà mémorisé',
@@ -82,12 +86,19 @@ const fr = {
   close: 'Fermer',
   puzzleCount: (n: number) => `${n} puzzle${n > 1 ? 's' : ''}`,
   cubeKind: (label: string, mirror: boolean) => `${label}${mirror ? ' miroir' : ''}`,
-  cubeCategories: { standard: 'Standard', mirror: 'Miroir', tower: 'Tower', flat: 'Plats' },
+  cubeCategories: {
+    standard: 'Standard',
+    mirror: 'Miroir',
+    tower: 'Tower',
+    flat: 'Plats',
+    star: 'Étoiles',
+  },
   sectionSetup: 'Initialisation',
   sectionSolve: 'Résolution',
   collapse: 'Replier le menu',
   expand: 'Déplier le menu',
   methodLabel: 'Méthode de résolution',
+  noMethod: 'Pas encore de méthode de résolution pour ce puzzle.',
   methods: {
     beginner: {
       name: 'Par couches',
@@ -220,6 +231,9 @@ const en: Translations = {
     return `Turn ${target} ${clockwise ? 'clockwise' : 'counter-clockwise'}`
   },
   moveTitleHalf: (faceName: string) => `Turn the ${faceName} a half turn`,
+  starTurnTitle: (layer: 'top' | 'bottom', clockwise: boolean) =>
+    `Turn the ${layer} layer one piece ${clockwise ? 'clockwise' : 'counterclockwise'}`,
+  slashTitle: 'Slash: flip the right half',
   noSuchLayer: (faceName: string, kind: LayerKind) =>
     `No ${kind === 'wide' ? 'wide turn' : 'inner slice'} for the ${faceName} on this puzzle`,
   jammedTurn: (faceName: string) =>
@@ -239,6 +253,7 @@ const en: Translations = {
   clearAll: 'Clear all',
   fromCurrent: 'From current state',
   fromCurrentUnboxed: 'Put the tower back in shape first',
+  noEditor: 'Entering a state is not available for this puzzle yet',
   saveState: 'Save',
   saveStateTitle: 'Save this state to come back to it (replaces the previous one)',
   savedAlready: 'This state is already saved',
@@ -261,12 +276,19 @@ const en: Translations = {
   close: 'Close',
   puzzleCount: (n: number) => `${n} puzzle${n > 1 ? 's' : ''}`,
   cubeKind: (label: string, mirror: boolean) => `${label}${mirror ? ' mirror' : ''}`,
-  cubeCategories: { standard: 'Standard', mirror: 'Mirror', tower: 'Tower', flat: 'Flat' },
+  cubeCategories: {
+    standard: 'Standard',
+    mirror: 'Mirror',
+    tower: 'Tower',
+    flat: 'Flat',
+    star: 'Stars',
+  },
   sectionSetup: 'Setup',
   sectionSolve: 'Solve',
   collapse: 'Collapse menu',
   expand: 'Expand menu',
   methodLabel: 'Solving method',
+  noMethod: 'No solving method for this puzzle yet.',
   methods: {
     beginner: {
       name: 'Layer by layer',

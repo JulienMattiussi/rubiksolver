@@ -3,7 +3,7 @@ import { FACE_NORMAL } from '../geometry'
 import { moveSet, type MoveSet } from '../moveSet'
 import { solvePieces } from '../pieceSearch'
 import { secondLayerDone } from './layers3'
-import type { Cube, Cubie, Face, Move, Vec3 } from '../types'
+import type { Color, Cube, Cubie, Face, Move, Vec3 } from '../types'
 
 /**
  * 3x3 pieces named the way cubers name them: by the faces they sit on, so
@@ -83,8 +83,8 @@ export const RU_F2L_PHASES = [
   buildBlock(pieces('DR FR DFR BR DBR'), RU),
 ]
 
-const UD_COLORS = [FACE_COLOR.U, FACE_COLOR.D]
-const FB_COLORS = [FACE_COLOR.F, FACE_COLOR.B]
+const UD_COLORS: readonly Color[] = [FACE_COLOR.U, FACE_COLOR.D]
+const FB_COLORS: readonly Color[] = [FACE_COLOR.F, FACE_COLOR.B]
 
 const isEdge = (c: Cubie): boolean => c.stickers.length === 2
 

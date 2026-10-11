@@ -19,21 +19,45 @@ export const FACE_NORMAL: Record<Face, Vec3> = {
 /** The faces in normal-index order (R L U D F B, see `normalIndex`). */
 export const FACES_BY_NORMAL = Object.keys(FACE_NORMAL) as Face[]
 
-/** Index 0..5 of a face normal, for compact hashing and sticker ids. */
+/**
+ * Side-face normals of the hexagonal puzzles (the star prism's six valleys),
+ * in axial coordinates [q, 0, r]: a 60 degree turn maps each to the next
+ * with integers only (see star.ts).
+ */
+export const HEX_NORMALS: readonly Vec3[] = [
+  [2, 0, -1],
+  [1, 0, -2],
+  [-1, 0, -1],
+  [-2, 0, 1],
+  [-1, 0, 2],
+  [1, 0, 1],
+]
+
+const HEX_INDEX = new Map(HEX_NORMALS.map((n, i) => [n.join(), 6 + i]))
+
+/** Index of a sticker normal, for compact hashing and sticker ids: 0..5 for
+ *  the cube faces (R L U D F B), 6..11 for the hexagonal side faces. */
 export function normalIndex(n: Vec3): number {
-  if (n[0] !== 0) return n[0] > 0 ? 0 : 1
-  if (n[1] !== 0) return n[1] > 0 ? 2 : 3
-  return n[2] > 0 ? 4 : 5
+  const zeros = (n[0] === 0 ? 1 : 0) + (n[1] === 0 ? 1 : 0) + (n[2] === 0 ? 1 : 0)
+  if (zeros === 2) {
+    if (n[0] !== 0) return n[0] > 0 ? 0 : 1
+    if (n[1] !== 0) return n[1] > 0 ? 2 : 3
+    return n[2] > 0 ? 4 : 5
+  }
+  const index = HEX_INDEX.get(n.join())
+  if (index === undefined) throw new Error(`normalIndex: unknown normal ${n.join()}`)
+  return index
 }
 
 /** The normal of a normal index, the inverse of `normalIndex`. */
 export function normalOfIndex(index: number): Vec3 {
   const face = FACES_BY_NORMAL[index]
-  if (!face) throw new Error(`normalOfIndex: no normal ${index}`)
-  return FACE_NORMAL[face]
+  const normal = face ? FACE_NORMAL[face] : HEX_NORMALS[index - 6]
+  if (!normal) throw new Error(`normalOfIndex: no normal ${index}`)
+  return normal
 }
 
-/** The face whose outward normal is `n` (a unit axis vector). */
+/** The cube face whose outward normal is `n` (a unit axis vector). */
 export function faceOfNormal(n: Vec3): Face {
   return FACES_BY_NORMAL[normalIndex(n)]!
 }

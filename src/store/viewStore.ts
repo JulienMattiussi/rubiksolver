@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Move } from '@/lib/types'
+import type { Turn } from '@/lib/types'
 
 /** Bridges view requests from the DOM controls to the 3D scene. */
 interface ViewStore {
@@ -8,8 +8,8 @@ interface ViewStore {
   resetView: () => void
   /** Turn whose pieces the scene highlights (a pad button is hovered or
    *  focused), or null. */
-  preview: Move | null
-  setPreview: (move: Move | null) => void
+  preview: Turn | null
+  setPreview: (move: Turn | null) => void
 }
 
 export const useView = create<ViewStore>((set) => ({

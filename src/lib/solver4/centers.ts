@@ -3,7 +3,7 @@ import { faceOfNormal } from '../geometry'
 import { applyMoves } from '../turn'
 import { FACES } from '../moves'
 import { search } from '../solverKit'
-import type { Color, Cube, Cubie, Face, Move } from '../types'
+import type { Cube, CubeColor, Cubie, Face, Move } from '../types'
 
 /**
  * 4x4 centers: build the four center facelets of every face in its FACE_COLOR
@@ -40,7 +40,7 @@ export function centersDone(cube: Cube): boolean {
   return FACES.every((f) => centerCount(cube, f) === 4)
 }
 
-const COLOR_CODE: Record<Color, number> = { W: 0, Y: 1, G: 2, B: 3, O: 4, R: 5 }
+const COLOR_CODE: Record<CubeColor, number> = { W: 0, Y: 1, G: 2, B: 3, O: 4, R: 5 }
 
 function centerIndices(cube: Cube): number[] {
   const idx: number[] = []
@@ -59,7 +59,8 @@ function centersKeyFor(indices: readonly number[]): (cube: Cube) => string {
       const c = cube[i]!
       const p = c.position
       codes.push(
-        ((p[0] + 3) * 49 + (p[1] + 3) * 7 + (p[2] + 3)) * 6 + COLOR_CODE[c.stickers[0]!.color],
+        ((p[0] + 3) * 49 + (p[1] + 3) * 7 + (p[2] + 3)) * 6 +
+          COLOR_CODE[c.stickers[0]!.color as CubeColor],
       )
     }
     codes.sort((a, b) => a - b)

@@ -1,7 +1,8 @@
 import { cubeShape, turnDims } from './cube'
 import { FACE_SPEC, layerCoords, rotateN } from './geometry'
-import { SHAPE_DIMS, SHAPE_SHIFTS } from './types'
-import type { Axis, Cube, Dims, Move } from './types'
+import { applyStarMove, starRotation, starTurns } from './star'
+import { isStarMove, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
+import type { Cube, Dims, Move, Turn } from './types'
 
 /**
  * What a move turns, whether it can, and the turn itself. A move rotates a
@@ -62,7 +63,8 @@ function turnsPosition(move: Move, mechanism: Dims): (position: readonly number[
 
 /** Which cubies `move` turns, by index: the animation turns them, the move
  *  preview highlights them. */
-export function turnedBy(cube: Cube, move: Move): (index: number) => boolean {
+export function turnedBy(cube: Cube, move: Turn): (index: number) => boolean {
+  if (isStarMove(move)) return (index) => starTurns(move, cube[index]!.position)
   const turns = turnsPosition(move, turnDims(cubeShape(cube)))
   return (index) => turns(cube[index]!.position)
 }
@@ -77,7 +79,8 @@ export function turnedBy(cube: Cube, move: Move): (index: number) => boolean {
  *   cubes and U jams;
  * - inner slices are not part of it (a wide then an outer turn makes one).
  */
-export function turnAllowed(cube: Cube, move: Move): boolean {
+export function turnAllowed(cube: Cube, move: Turn): boolean {
+  if (isStarMove(move)) return true // pieces are whole 60 degree sectors
   const shape = cubeShape(cube)
   if (!SHAPE_SHIFTS[shape]) return true
   if (move.wide) return true
@@ -91,17 +94,21 @@ export function turnAllowed(cube: Cube, move: Move): boolean {
   return inEnd === s1! * s2!
 }
 
-/** How a renderer animates a move: about which axis, by which angle. */
-export interface TurnRotation {
-  readonly axis: Axis
+/** How a renderer animates a turn: about which axis, by which angle. */
+interface TurnRotation {
+  /** Unit vector of the axis, in the renderer's frame. */
+  readonly axis: readonly [number, number, number]
   /** Radians (right-hand rule), taking the shortest path. */
   readonly angle: number
 }
 
-export function turnRotation(move: Move): TurnRotation {
+const AXIS_VECTOR = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1] } as const
+
+export function turnRotation(move: Turn): TurnRotation {
+  if (isStarMove(move)) return starRotation(move)
   const spec = FACE_SPEC[move.face]
   const t = (((spec.sign * move.amount) % 4) + 4) % 4 // 1, 2 or 3 quarter turns
-  return { axis: spec.axis, angle: (t === 3 ? -1 : t) * (Math.PI / 2) }
+  return { axis: AXIS_VECTOR[spec.axis], angle: (t === 3 ? -1 : t) * (Math.PI / 2) }
 }
 
 /**
@@ -111,9 +118,10 @@ export function turnRotation(move: Move): TurnRotation {
  */
 export function applyMove(
   cube: Cube,
-  move: Move,
+  move: Turn,
   mechanism: Dims = turnDims(cubeShape(cube)),
 ): Cube {
+  if (isStarMove(move)) return applyStarMove(cube, move)
   const spec = FACE_SPEC[move.face]
   const turns = turnsPosition(move, mechanism)
   const times = spec.sign * move.amount
@@ -132,7 +140,7 @@ export function applyMove(
 /** Apply a sequence of moves left to right. */
 export function applyMoves(
   cube: Cube,
-  moves: readonly Move[],
+  moves: readonly Turn[],
   mechanism: Dims = turnDims(cubeShape(cube)),
 ): Cube {
   return moves.reduce((state, move) => applyMove(state, move, mechanism), cube)
