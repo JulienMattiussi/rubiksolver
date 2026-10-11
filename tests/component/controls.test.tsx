@@ -3,12 +3,20 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Controls } from '@/components/controls/Controls'
 import { useI18n } from '@/i18n/i18nStore'
-import { solvedCube, stateKey } from '@/lib/cube'
+import { cubeShape, solvedCube, stateKey } from '@/lib/cube'
 import { applyMoves } from '@/lib/turn'
 import { parseMoves } from '@/lib/moves'
 import { useCube } from '@/store/cubeStore'
 import { useSaved } from '@/store/savedStore'
 import { useView } from '@/store/viewStore'
+
+/** Choose a puzzle through the picker: open it, its category, then the puzzle. */
+async function pickCube(user: ReturnType<typeof userEvent.setup>, category: string, name: string) {
+  await user.click(screen.getByRole('button', { name: /^Choix du cube/ }))
+  await user.click(screen.getByRole('button', { name: 'Toutes les catégories' }))
+  await user.click(screen.getByRole('button', { name: new RegExp(`^${category}`) }))
+  await user.click(screen.getByRole('button', { name }))
+}
 
 beforeEach(() => {
   useCube.getState().setShape('3')
@@ -56,7 +64,7 @@ describe('<Controls />', () => {
     // No layer selector on the 3x3.
     expect(screen.queryByRole('group', { name: 'Couche tournée' })).not.toBeInTheDocument()
 
-    await user.selectOptions(screen.getByLabelText('Choix du cube'), '4')
+    await pickCube(user, 'Standard', '4x4')
     await user.click(screen.getByRole('button', { name: 'Tranche' }))
     await user.click(
       screen.getByRole('button', {
@@ -131,7 +139,7 @@ describe('<Controls />', () => {
   it('on the 2x2x4 tower, offers outer and wide turns, jamming incomplete ends', async () => {
     const user = userEvent.setup()
     render(<Controls />)
-    await user.selectOptions(screen.getByLabelText('Choix du cube'), '224')
+    await pickCube(user, 'Tower', '2x2x4')
     // A 4x4x4 mechanism with pieces missing: no inner slice to pick.
     expect(screen.queryByRole('button', { name: 'Tranche' })).not.toBeInTheDocument()
     const jammed = (face: string) =>
@@ -172,5 +180,23 @@ describe('<Controls />', () => {
     expect(useView.getState().preview).toEqual({ face: 'R', amount: 1 })
     await user.unhover(button)
     expect(useView.getState().preview).toBeNull()
+  })
+
+  it('picks a puzzle by category, then by thumbnail', async () => {
+    const user = userEvent.setup()
+    render(<Controls />)
+    // The picker opens on the current puzzle's category, the puzzle marked.
+    await user.click(screen.getByRole('button', { name: 'Choix du cube : 3x3' }))
+    expect(screen.getByRole('dialog', { name: 'Standard' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '3x3' })).toHaveAttribute('aria-current', 'true')
+    await user.click(screen.getByRole('button', { name: 'Toutes les catégories' }))
+    expect(screen.getByRole('dialog', { name: 'Choisir un cube' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Plats, 2 puzzles' }))
+    await user.click(screen.getByRole('button', { name: '3x3x1 (Floppy)' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(cubeShape(useCube.getState().cube)).toBe('331')
+    expect(
+      screen.getByRole('button', { name: 'Choix du cube : 3x3x1 (Floppy)' }),
+    ).toBeInTheDocument()
   })
 })

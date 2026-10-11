@@ -1,4 +1,12 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
+
+/** Choose a puzzle through the picker: open it, its category, then the puzzle. */
+async function pickCube(page: Page, category: string, name: string) {
+  await page.getByRole('button', { name: /^Choix du cube/ }).click()
+  await page.getByRole('button', { name: 'Toutes les catégories' }).click()
+  await page.getByRole('button', { name: new RegExp(`^${category},`) }).click()
+  await page.getByRole('button', { name, exact: true }).click()
+}
 
 test('loads, renders the cube canvas and the controls', async ({ page }) => {
   const errors: string[] = []
@@ -51,12 +59,12 @@ test('mirror cube: the variant is a skin, it keeps the state and renders', async
   await expect(page.getByRole('button', { name: 'Résoudre' })).toBeEnabled({ timeout: 30000 })
 
   // Same cube, still scrambled: only its rendering changed.
-  await page.getByLabel('Choix du cube').selectOption('3m')
+  await pickCube(page, 'Miroir', '3x3 miroir')
   await expect(page.getByText('Prêt')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Réinitialiser' })).toBeEnabled()
 
   // A mirror size switch mounts fine too (the 4x4 has middle layers).
-  await page.getByLabel('Choix du cube').selectOption('4m')
+  await pickCube(page, 'Miroir', '4x4 miroir')
   await expect(page.getByText('Cube résolu')).toBeVisible()
   await expect(page.locator('canvas')).toBeVisible()
 
@@ -75,7 +83,7 @@ test('1x2x3: half turns only, scramble then solve optimally', async ({ page }) =
   await page.goto('/')
 
   await page.getByLabel('Vitesse').fill('100')
-  await page.getByLabel('Choix du cube').selectOption('123')
+  await pickCube(page, 'Plats', '1x2x3')
 
   // Its shape allows no quarter turn at all, and nothing on its thin axis:
   // four half-turn buttons, no clockwise/counter-clockwise pair.
@@ -98,7 +106,7 @@ test('2x2: switch size, scramble, then solve with the optimal method', async ({ 
   await page.goto('/')
 
   await page.getByLabel('Vitesse').fill('100')
-  await page.getByLabel('Choix du cube').selectOption('2')
+  await pickCube(page, 'Standard', '2x2 (Pocket)')
 
   // The 2x2 offers the optimal method; its solutions are at most 11 moves.
   await page.getByLabel('Méthode de résolution').selectOption('optimal')
@@ -120,7 +128,7 @@ test('4x4: switch size, scramble, then solve by reduction', async ({ page }) => 
   await page.goto('/')
 
   await page.getByLabel('Vitesse').fill('100')
-  await page.getByLabel('Choix du cube').selectOption('4')
+  await pickCube(page, 'Standard', '4x4')
   await page.getByLabel('Méthode de résolution').selectOption('reduction')
 
   const scramble = page.getByRole('button', { name: 'Mélanger' })
@@ -137,7 +145,7 @@ test('4x4: switch size, scramble, then solve by reduction', async ({ page }) => 
 test('4x4 cube editor: movable centers count toward the 96 stickers', async ({ page }) => {
   await page.goto('/')
 
-  await page.getByLabel('Choix du cube').selectOption('4')
+  await pickCube(page, 'Standard', '4x4')
   await page.getByRole('button', { name: /Depuis l.?.tat actuel/ }).click()
   await expect(page.getByText('96 / 96 stickers')).toBeVisible()
 

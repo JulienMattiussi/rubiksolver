@@ -138,16 +138,19 @@ src/
 │   ├── EditView.tsx      # Mode saisie : stickers peignables cliquables, vides en gris ; en épaisseurs (dorés) sur un miroir
 │   ├── Cubie.tsx         # Un cubie : corps + stickers, à la boîte de sa variante, en surbrillance si un coup survolé le tourne
 │   ├── layout.ts         # Échelle et position visuelles (coordonnée / pas de la grille : linéaire, juste hors de la boîte)
+│   ├── isometric.ts      # Vignette d'un puzzle résolu en vue isométrique (polygones SVG), déduite du même layout
 │   ├── Sticker.tsx       # Sticker orienté à sa normale et dimensionné à sa face, mutualisé play/édition (onSelect = cliquable)
 │   ├── useTurnAnimation.ts # Hook : pilote la file de rotations (rotation de la couche active)
 │   ├── camera.ts         # Cadrage caméra de référence (position de départ et de recentrage)
 │   ├── CameraReset.tsx   # Recentrage caméra animé (lit viewStore, dans le <Canvas>)
 │   └── colors.ts         # Couleurs des stickers (hex), plastique, doré du cube miroir
 ├── components/
-│   ├── ui/               # Primitives réutilisables (Button, IconButton, SegmentedToggle, Select, ConfirmDialog)
+│   ├── ui/               # Primitives réutilisables (Button, IconButton, SegmentedToggle, Select, Modal, ConfirmDialog)
 │   │                     #   + styles.ts : classes partagées (SECTION_BOX, SECTION_LABEL)
 │   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge,
 │   │                     #   LanguageToggle, NotationToggle, RecenterButton, CollapseButton, SpeedSlider, MovePad
+│   ├── picker/           # Choix du cube : CubePicker (bouton + modale), PickerTile, PuzzleIcon (vignette SVG),
+│   │                     #   CategoryIcon (plusieurs puzzles groupés : une catégorie se distingue d'un puzzle)
 │   ├── solve/            # Résolution : SolvePanel, MethodSelect, StepList
 │   └── edit/             # Saisie : EditPanel, ColorPalette
 ├── App.tsx               # Coquille : scène 3D plein écran + panneau en overlay (empilé sur mobile en saisie)
@@ -505,9 +508,14 @@ titre et l'initialisation à gauche, la langue et la résolution à droite ; sur
 mobile et en saisie, une seule carte) :
 
 - **Initialisation** (titre non affiché, `aria-label` seulement) : **choix du
-  cube** (liste déroulante groupée par catégorie, `cubeCategory` : Standard
+  cube** : un bouton montre le puzzle courant (vignette + nom) et ouvre un
+  sélecteur en modale, d'abord les **catégories** en vignettes, puis les
+  **puzzles** de la catégorie choisie (ouvert sur la catégorie du puzzle
+  courant, mis en évidence). Catégories (`cubeCategory`) : Standard
   2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 2x2x4/3x3x2 (Domino), Plats
-  1x2x3/3x3x1 (Floppy), un puzzle d'une seule couche d'épaisseur étant plat ;
+  1x2x3/3x3x1 (Floppy), un puzzle d'une seule couche d'épaisseur étant plat.
+  Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
+  depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer
   de variante conserve l'état) avec le **statut** sur la même ligne, mélanger /
   réinitialiser, saisie d'un cube (vierge ou depuis l'état courant),

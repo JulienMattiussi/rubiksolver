@@ -31,6 +31,8 @@ qu'on joue d'un coup ou **pas à pas**, pour apprendre la méthode.
   stickers (aucune configuration incohérente possible, validation de solubilité).
 - **Mémoriser / Restaurer** un état, conservé entre deux visites : pratique pour
   comparer deux méthodes sur le même mélange.
+- Choix du cube par **vignettes** : les catégories, puis les puzzles, chacun
+  avec son image (dessinée à partir de sa forme).
 - Bilingue **FR/EN** et notation des mouvements **internationale (U D L R F B,
   par défaut)** ou **française (H B G D F Ar)**.
 - Responsive : panneau repliable et cube empilé au-dessus de la saisie sur mobile.
