@@ -6,6 +6,7 @@ import { FLOPPY_PLAN } from './methods/floppy'
 import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { PETRUS_PLAN } from './methods/petrus'
 import { ROUX_PLAN } from './methods/roux'
+import { SLIM_TOWER_PLAN } from './methods/slimTower'
 import { TOWER_PLAN } from './methods/tower'
 import { ZZ_PLAN } from './methods/zz'
 import { reductionPlan } from './solver4/steps'
@@ -38,6 +39,7 @@ const SOLVE_METHODS = [
   { id: 'reduction', plans: { '4': reductionPlan(BEGINNER_PLAN) } },
   { id: 'reductionCfop', plans: { '4': reductionPlan(CFOP_PLAN) } },
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
+  { id: 'equatorFirst', plans: { '223': SLIM_TOWER_PLAN } },
   { id: 'cornersFirst', plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN } },
   {
     id: 'optimal',

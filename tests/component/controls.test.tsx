@@ -13,7 +13,6 @@ import { useView } from '@/store/viewStore'
 /** Choose a puzzle through the picker: open it, its category, then the puzzle. */
 async function pickCube(user: ReturnType<typeof userEvent.setup>, category: string, name: string) {
   await user.click(screen.getByRole('button', { name: /^Choix du cube/ }))
-  await user.click(screen.getByRole('button', { name: 'Toutes les catégories' }))
   await user.click(screen.getByRole('button', { name: new RegExp(`^${category}`) }))
   await user.click(screen.getByRole('button', { name }))
 }
@@ -185,12 +184,16 @@ describe('<Controls />', () => {
   it('picks a puzzle by category, then by thumbnail', async () => {
     const user = userEvent.setup()
     render(<Controls />)
-    // The picker opens on the current puzzle's category, the puzzle marked.
+    // The picker always opens on the categories, the current one marked.
     await user.click(screen.getByRole('button', { name: 'Choix du cube : 3x3' }))
-    expect(screen.getByRole('dialog', { name: 'Standard' })).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Choisir un cube' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Standard, 3 puzzles' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    )
+    await user.click(screen.getByRole('button', { name: 'Standard, 3 puzzles' }))
     expect(screen.getByRole('button', { name: '3x3' })).toHaveAttribute('aria-current', 'true')
     await user.click(screen.getByRole('button', { name: 'Toutes les catégories' }))
-    expect(screen.getByRole('dialog', { name: 'Choisir un cube' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Plats, 2 puzzles' }))
     await user.click(screen.getByRole('button', { name: '3x3x1 (Floppy)' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
@@ -198,5 +201,24 @@ describe('<Controls />', () => {
     expect(
       screen.getByRole('button', { name: 'Choix du cube : 3x3x1 (Floppy)' }),
     ).toBeInTheDocument()
+  })
+
+  it('on the slim tower, offers wide turns on U and D only', async () => {
+    const user = userEvent.setup()
+    render(<Controls />)
+    await pickCube(user, 'Tower', '2x2x3 (Slim Tower)')
+    await user.click(screen.getByRole('button', { name: 'Large' }))
+    // Its sides are two layers deep: no wide turn there.
+    expect(
+      screen.getByRole('button', {
+        name: 'Pas de coup large pour la face de droite sur ce puzzle',
+      }),
+    ).toBeDisabled()
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Tourner les deux couches de la face du haut dans le sens horaire',
+      }),
+    )
+    expect(useCube.getState().queue.at(-1)).toEqual({ face: 'U', amount: 1, depth: 2, wide: true })
   })
 })

@@ -3,9 +3,9 @@
 ## Description du projet
 
 POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3
-ou 4x4**, **classique ou miroir**, plus quatre cuboïdes : le **1x2x3**, la
-**tour 2x2x4** (qui se déforme), le **Domino 3x3x2** et le **Floppy 3x3x1**
-(choix dans une liste unique).
+ou 4x4**, **classique ou miroir**, plus cinq cuboïdes : le **1x2x3**, la
+**tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**
+et le **Floppy 3x3x1** (choix par vignettes).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
 coups larges là où la forme en a, orbite caméra, aperçu des pièces qui vont
 tourner au survol d'un bouton), on le mélange **ou on saisit sa propre
@@ -76,7 +76,7 @@ voisins (ex : `big-bang-clicker`).
 ```
 src/
 ├── lib/                  # Logique pure, zéro React / zéro three.js (entièrement testée)
-│   ├── types.ts          # Types du domaine (CubeShape + SHAPE_DIMS, Dims, CubeVariant, Face, Color, Axis, Vec3, Sticker, Cubie, Cube, Move avec depth/wide)
+│   ├── types.ts          # Types du domaine (CubeShape + SHAPE_DIMS/SHAPE_SHIFTS/SHAPE_INNER_TURNS, Dims, CubeVariant, Face, Color, Axis, Vec3, Sticker, Cubie, Cube, Move avec depth/wide)
 │   │                     #   + CUBE_KINDS : les choix exposés (forme x variante), leur id, libellé et catégorie
 │   ├── geometry.ts       # Géométrie entière : normales des faces, normalIndex, grilles par axe (layerCoords), rotations exactes
 │   ├── cube.ts           # Le puzzle : solvedCube, cubeShape/cubeDims/turnDims, isSolved/isBoxed, stateKey, cubeOrientations,
@@ -103,6 +103,7 @@ src/
 │   │   ├── cube2.ts      #   2x2 : par couches (repère DBL) et optimal (BFS bidirectionnelle)
 │   │   ├── exhaustive.ts #   optimal des petits puzzles (1x2x3, Floppy) : BFS exhaustive via solvePieces
 │   │   ├── tower.ts      #   tour 2x2x4 : Deux Pockets (forme, Pocket intérieur, Pocket extérieur)
+│   │   ├── slimTower.ts  #   Slim Tower 2x2x3 : équateur puis coins (formules du Domino, fan2cube.fr)
 │   │   ├── domino.ts     #   Domino 3x3x2 : coins puis arêtes (formules de fan2cube.fr, reprises élargies par la tour)
 │   │   └── floppy.ts     #   Floppy 3x3x1 : coins puis arêtes retournées deux par deux (fan2cube.fr)
 │   ├── solver4/          # Solveur 4x4 par réduction :
@@ -159,7 +160,7 @@ tests/
 ├── helpers.ts            # RNG déterministe (seededRng), coin vrillé (twistedCorner)
 ├── unit/                 # Vitest : cube (coups, tour), moves, solver (registre : chaque méthode de chaque forme) + solver4,
 │                         #   methods (Roux/Petrus/ZZ : objectifs et jeux de coups), algs, tower, domino (effet de chaque
-│                         #   formule), floppy, pieceSearch, flat123 (espaces d'états entiers), editor, validate, shape, snapshot,
+│                         #   formule), floppy, slimTower, pieceSearch, flat123 (espaces d'états entiers), editor, validate, shape, snapshot,
 │                         #   layout, stores, easing, speed, progress
 ├── component/            # Vitest + Testing Library (Controls, SegmentedToggle)
 └── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution sur chaque forme, saisie, miroir)
@@ -217,6 +218,9 @@ et le store ne voient que ça) :
   Floppy), une seule étape.
 - **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
   Pocket extérieur - voir « La tour 2x2x4 ».
+- **Équateur puis coins** (`equatorFirst`, Slim Tower 2x2x3) : les arêtes de
+  l'équateur, puis les coins du bas descendus deux par deux, puis ceux du haut
+  - voir « Le Domino, le Floppy et la Slim Tower ».
 - **Coins puis arêtes** (`cornersFirst`, Domino 3x3x2 et Floppy 3x3x1) : sur
   le Domino, coins du bas, coins du haut, arêtes du bas, arêtes du haut ; sur
   le Floppy, coins placés puis arêtes retournées - voir « Le Domino et le
@@ -418,7 +422,7 @@ couleurs) : objectifs et clés comparent des couleurs, pas des identités
 (`pieceSearch` sait suivre des jumelles). L'effet de chaque formule est testé
 (`tests/unit/tower.test.ts`).
 
-### Le Domino 3x3x2 et le Floppy 3x3x1
+### Le Domino, le Floppy et la Slim Tower
 
 Le Domino (`[3, 2, 3]`) est un 3x3 sans couche du milieu, et rien n'y est
 spécial : ses coups se déduisent de la forme (U et D en quarts de tour, les
@@ -442,6 +446,20 @@ méthode **Coins puis arêtes** : (1) coins placés en demi-tours, (2) arêtes
 retournées deux par deux par `(F2 R2)3`, qui retourne l'avant et la droite
 sans rien toucher d'autre. En saisie, son centre (deux stickers, jamais
 touché) reste pré-rempli, ses arêtes (qui se retournent) se peignent.
+
+La **Slim Tower** (`[2, 3, 2]`, `methods/slimTower.ts`, d'après
+fan2cube.fr/tower2231 et tower2232) est un Domino debout : U et D en quarts de
+tour, avec leurs blocs `Uw`/`Dw` (le `H*` de fan2cube, qui fait tourner
+l'équateur avec), et les côtés en demi-tours seulement ; elle ne se déforme
+pas. Le coup large sur son axe de 3 couches vient de `SHAPE_INNER_TURNS`
+(types.ts), qui déclare par forme les couches intérieures que tourne le
+mécanisme (tranches et/ou coups larges, sur tout axe d'au moins 3 couches) :
+le pad grise les faces sans cette sorte de couche. Méthode **Équateur puis
+coins** : (I) l'équateur, intuitivement ; (II) les coins du bas avec la
+formule de descente du Domino, qui échange au passage deux arêtes de
+l'équateur, d'où une descente deux par deux ; (III) les coins du haut avec
+l'échange du Domino, pur sur ce puzzle. Le modèle compte 1 935 360 états,
+soit les 241 920 de fan2cube fois les 8 façons de poser la tour.
 
 ### Le cube miroir (`src/lib/shape.ts`)
 
@@ -510,9 +528,9 @@ mobile et en saisie, une seule carte) :
 - **Initialisation** (titre non affiché, `aria-label` seulement) : **choix du
   cube** : un bouton montre le puzzle courant (vignette + nom) et ouvre un
   sélecteur en modale, d'abord les **catégories** en vignettes, puis les
-  **puzzles** de la catégorie choisie (ouvert sur la catégorie du puzzle
-  courant, mis en évidence). Catégories (`cubeCategory`) : Standard
-  2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 2x2x4/3x3x2 (Domino), Plats
+  **puzzles** de la catégorie choisie (toujours ouvert sur les catégories ; le
+  puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`) : Standard
+  2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 2x2x3 (Slim)/2x2x4/3x3x2 (Domino), Plats
   1x2x3/3x3x1 (Floppy), un puzzle d'une seule couche d'épaisseur étant plat.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;

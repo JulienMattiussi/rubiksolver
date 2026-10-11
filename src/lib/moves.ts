@@ -1,7 +1,7 @@
 import { solvedCube, turnDims } from './cube'
 import { faceAxis, faceLayers, quarterTurnFits } from './geometry'
 import { applyMove, turnAllowed } from './turn'
-import { SHAPE_SHIFTS } from './types'
+import { SHAPE_INNER_TURNS, SHAPE_SHIFTS } from './types'
 import type { Cube, CubeShape, Dims, Face, Move } from './types'
 
 export const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
@@ -31,13 +31,17 @@ export function layerKindOf(move: Move): LayerKind {
 
 type LayerVariant = Pick<Move, 'depth' | 'wide'>
 
-/** The layers a face turn can take: an axis with 4 layers adds the inner
- *  slice (2R) and the wide turn (Rw). A shape-shifting puzzle keeps only the
- *  wide turn: a slice is a wide then an outer turn there, and rarely useful. */
+/** The layers a face turn can take: its outer face, plus the inner layers
+ *  the shape's mechanism turns (SHAPE_INNER_TURNS) on an axis of 3 layers
+ *  or more. */
 function layerVariants(shape: CubeShape, face: Face): readonly LayerVariant[] {
-  if (faceLayers(turnDims(shape), face) < 4) return [{}]
-  const wide: LayerVariant = { depth: 2, wide: true }
-  return SHAPE_SHIFTS[shape] ? [{}, wide] : [{}, { depth: 2 }, wide]
+  if (faceLayers(turnDims(shape), face) < 3) return [{}]
+  return [
+    {},
+    ...SHAPE_INNER_TURNS[shape].map((kind): LayerVariant =>
+      kind === 'wide' ? { depth: 2, wide: true } : { depth: 2 },
+    ),
+  ]
 }
 
 /**

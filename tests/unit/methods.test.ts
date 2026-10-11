@@ -49,7 +49,7 @@ describe('method registry', () => {
   })
 
   it('names every method and step in both languages', () => {
-    const shapes: CubeShape[] = ['2', '3', '4', '123', '224', '332']
+    const shapes: CubeShape[] = ['2', '3', '4', '123', '224', '223', '332']
     for (const locale of Object.values(LOCALES)) {
       for (const shape of shapes) {
         for (const method of methodsFor(shape)) {
@@ -170,7 +170,7 @@ describe('cube picker', () => {
     expect(groups).toEqual({
       standard: ['2', '3', '4'],
       mirror: ['2m', '3m', '4m'],
-      tower: ['224', '332'],
+      tower: ['223', '224', '332'],
       flat: ['123', '331'],
     })
   })

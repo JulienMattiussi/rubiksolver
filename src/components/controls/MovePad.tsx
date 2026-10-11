@@ -18,8 +18,10 @@ import { SECTION_LABEL } from '@/components/ui/styles'
  * button where the puzzle has no quarter turn (every face of a 1x2x3), and
  * nothing for a face whose axis has a single layer. When the shape has other
  * layer kinds, a selector picks what the buttons turn: the outer face, the
- * inner slice (2R, 4x4 only) or both layers together (Rw). A turn the state
- * jams (a tower's incomplete end, see `turnAllowed`) stays disabled.
+ * inner slice (2R) or both layers together (Rw), as SHAPE_INNER_TURNS
+ * offers them. A face without that kind of layer (a slim tower's side) or a
+ * turn the state jams (a tower's incomplete end, see `turnAllowed`) stays
+ * disabled.
  * Hovering or focusing a button highlights the pieces it would turn.
  */
 export function MovePad({ disabled }: { disabled: boolean }) {
@@ -43,26 +45,32 @@ export function MovePad({ disabled }: { disabled: boolean }) {
       : kind === 'wide'
         ? { face, amount, depth: 2, wide: true }
         : { face, amount }
+  /** The face has the selected kind of layer (the slim tower's sides have
+   *  no wide turn: their axis is two layers deep). */
+  const offered = (face: Face) => moves.some((m) => m.face === face && layerKindOf(m) === kind)
   const button = (face: Face, amount: 1 | 2 | 3, ghost: boolean) => {
-    const jammed = !turnAllowed(cube, turn(face, amount))
-    const title = jammed
-      ? t.jammedTurn(t.faceNames[face])
-      : amount === 2
-        ? t.moveTitleHalf(t.faceNames[face])
-        : t.moveTitle(t.faceNames[face], amount === 1, kind)
-    const show = () => setPreview(turn(face, amount))
+    const exists = offered(face)
+    const jammed = exists && !turnAllowed(cube, turn(face, amount))
+    const title = !exists
+      ? t.noSuchLayer(t.faceNames[face], kind)
+      : jammed
+        ? t.jammedTurn(t.faceNames[face])
+        : amount === 2
+          ? t.moveTitleHalf(t.faceNames[face])
+          : t.moveTitle(t.faceNames[face], amount === 1, kind)
+    const show = () => setPreview(exists ? turn(face, amount) : null)
     const hide = () => setPreview(null)
     // The wrapper hears the pointer even while the button is disabled, so the
     // highlight never sticks once a click starts the animation.
     return (
       <div className="flex flex-1" onPointerEnter={show} onPointerLeave={hide}>
         <Button
-          disabled={disabled || jammed}
+          disabled={disabled || !exists || jammed}
           onFocus={show}
           onBlur={hide}
           onClick={() => pushMove(turn(face, amount))}
           variant={ghost ? 'ghost' : undefined}
-          className={`flex-1 rounded-none px-2${ghost ? ' border-l border-slate-800 bg-slate-800' : ''}`}
+          className={`flex-1 rounded-none whitespace-nowrap ${kind === 'outer' ? 'px-2' : 'px-1 text-xs'}${ghost ? ' border-l border-slate-800 bg-slate-800' : ''}`}
           aria-label={title}
           title={title}
         >

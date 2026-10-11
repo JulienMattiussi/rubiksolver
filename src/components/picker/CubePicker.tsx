@@ -34,7 +34,7 @@ function showcase(category: CubeCategory): { cover: Kind; others: Kind[] } {
 /**
  * The cube choice: a button showing the current puzzle, which opens a picker
  * of thumbnails, the categories first, then the puzzles of the chosen one.
- * The picker opens on the current puzzle's category, the puzzle highlighted.
+ * The current puzzle and its category are highlighted.
  */
 export function CubePicker({ disabled, trailing }: { disabled: boolean; trailing?: ReactNode }) {
   const t = useI18n((s) => s.t)
@@ -51,7 +51,7 @@ export function CubePicker({ disabled, trailing }: { disabled: boolean; trailing
   const isCurrent = (kind: Kind) => cubeKindId(kind) === cubeKindId(current)
 
   const openPicker = () => {
-    setCategory(cubeCategory(current))
+    setCategory(null)
     setOpen(true)
   }
   const choose = (kind: Kind) => {

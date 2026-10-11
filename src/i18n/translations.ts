@@ -41,6 +41,8 @@ const fr = {
     return `Tourner ${target} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`
   },
   moveTitleHalf: (faceName: string) => `Retourner la ${faceName} (demi-tour)`,
+  noSuchLayer: (faceName: string, kind: LayerKind) =>
+    `Pas de ${kind === 'wide' ? 'coup large' : 'tranche interne'} pour la ${faceName} sur ce puzzle`,
   jammedTurn: (faceName: string) =>
     `Bloqué : la tour n’a pas de couche complète sur la ${faceName} dans cette position`,
   layerLabel: 'Couche tournée',
@@ -119,6 +121,10 @@ const fr = {
       name: 'Deux Pockets',
       desc: 'La tour vue comme deux Pockets empilés : la remettre en forme en pivotant ses sommets, puis finir le Pocket intérieur, puis le Pocket extérieur, avec deux formules du Domino (descendre un sommet, permuter deux sommets).',
     },
+    equatorFirst: {
+      name: 'Équateur puis coins',
+      desc: 'Comme un Domino debout : les quatre arêtes de l’équateur, puis les coins du bas descendus deux par deux, puis les coins du haut échangés deux à deux.',
+    },
     cornersFirst: {
       name: 'Coins puis arêtes',
       desc: 'Les coins d’abord, puis les arêtes, chaque fois avec une formule qui ne touche que ce qui reste à faire (Domino : bas puis haut ; Floppy : les coins placés, puis les arêtes retournées deux par deux).',
@@ -167,6 +173,7 @@ const fr = {
     stepBottomEdges: 'Arêtes du bas',
     stepTopEdges: 'Arêtes du haut',
     stepCorners: 'Placer les coins',
+    stepEquator: 'Équateur',
     stepFlipEdges: 'Retourner les arêtes',
     stepInnerPocket: 'Pocket intérieur',
     stepOuterPocket: 'Pocket extérieur',
@@ -213,6 +220,8 @@ const en: Translations = {
     return `Turn ${target} ${clockwise ? 'clockwise' : 'counter-clockwise'}`
   },
   moveTitleHalf: (faceName: string) => `Turn the ${faceName} a half turn`,
+  noSuchLayer: (faceName: string, kind: LayerKind) =>
+    `No ${kind === 'wide' ? 'wide turn' : 'inner slice'} for the ${faceName} on this puzzle`,
   jammedTurn: (faceName: string) =>
     `Jammed: the tower has no complete layer on the ${faceName} in this position`,
   layerLabel: 'Turned layer',
@@ -291,6 +300,10 @@ const en: Translations = {
       name: 'Two Pockets',
       desc: 'The tower seen as two stacked Pockets: put it back in shape by pivoting its corners, then finish the inner Pocket, then the outer Pocket, with two Domino formulas (descend a corner, swap two corners).',
     },
+    equatorFirst: {
+      name: 'Equator then corners',
+      desc: 'Like a Domino standing up: the four equator edges, then the bottom corners brought down two by two, then the top corners swapped two at a time.',
+    },
     cornersFirst: {
       name: 'Corners then edges',
       desc: 'Corners first, then edges, each time with a formula that only touches what is left to do (Domino: bottom then top; Floppy: corners placed, then edges flipped two at a time).',
@@ -339,6 +352,7 @@ const en: Translations = {
     stepBottomEdges: 'Bottom edges',
     stepTopEdges: 'Top edges',
     stepCorners: 'Place the corners',
+    stepEquator: 'Equator',
     stepFlipEdges: 'Flip the edges',
     stepInnerPocket: 'Inner Pocket',
     stepOuterPocket: 'Outer Pocket',

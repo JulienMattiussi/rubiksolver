@@ -4,12 +4,12 @@
 export type Dims = readonly [number, number, number]
 
 /** The puzzles the app can build, by id (also the picker's option values). */
-export type CubeShape = '2' | '3' | '4' | '123' | '224' | '332' | '331'
+export type CubeShape = '2' | '3' | '4' | '123' | '224' | '223' | '332' | '331'
 
 /**
  * Layer counts per shape: the NxNxN cubes, the 1x2x3 flat cuboid (3 wide, 2
  * tall, 1 thick, so the rectangle you face is its 3x2 side), the 2x2x4
- * tower (4 layers on a square 2x2 section), the Domino (a 3x3 two layers
+ * tower (4 layers on a square 2x2 section), its slim 2x2x3 cousin, the Domino (a 3x3 two layers
  * tall: U and D turn freely, its sides only take half turns) and the Floppy
  * (a 3x3 one layer tall: half turns of its sides only).
  *
@@ -23,6 +23,7 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   '4': [4, 4, 4],
   '123': [3, 2, 1],
   '224': [2, 4, 2],
+  '223': [2, 3, 2],
   '332': [3, 2, 3],
   '331': [3, 1, 3],
 }
@@ -40,9 +41,28 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '3': false,
   '4': false,
   '123': false,
+  '223': false,
   '224': true,
   '332': false,
   '331': false,
+}
+
+/**
+ * Inner layers a puzzle's mechanism turns besides its outer faces, on every
+ * axis of 3 layers or more: the 4x4 its inner slices (2R) and wide turns
+ * (Rw); the tower only its wide turns (a slice is a wide then an outer turn
+ * there, rarely useful); the slim tower its wide turns (Uw: the top block,
+ * fan2cube's H*). Like SHAPE_SHIFTS, a property of the real puzzle.
+ */
+export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]> = {
+  '2': [],
+  '3': [],
+  '4': ['slice', 'wide'],
+  '123': [],
+  '224': ['wide'],
+  '223': ['wide'],
+  '332': [],
+  '331': [],
 }
 
 /** Name of each shape in the picker (identical in every language). */
@@ -52,6 +72,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '4': '4x4',
   '123': '1x2x3',
   '224': '2x2x4',
+  '223': '2x2x3 (Slim Tower)',
   '332': '3x3x2 (Domino)',
   '331': '3x3x1 (Floppy)',
 }
@@ -77,6 +98,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   '3': true,
   '4': true,
   '123': false,
+  '223': false,
   '224': false,
   '332': false,
   '331': false,

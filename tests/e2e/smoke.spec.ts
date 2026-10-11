@@ -3,7 +3,6 @@ import { expect, test, type Page } from '@playwright/test'
 /** Choose a puzzle through the picker: open it, its category, then the puzzle. */
 async function pickCube(page: Page, category: string, name: string) {
   await page.getByRole('button', { name: /^Choix du cube/ }).click()
-  await page.getByRole('button', { name: 'Toutes les catégories' }).click()
   await page.getByRole('button', { name: new RegExp(`^${category},`) }).click()
   await page.getByRole('button', { name, exact: true }).click()
 }
