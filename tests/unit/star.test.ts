@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/cube'
 import { NOTATION_FR, NOTATION_US, scrambleTurns } from '@/lib/moves'
 import { STAR_PLAN } from '@/lib/methods/starPrism'
+import { STAR4_PLAN } from '@/lib/methods/starPrism4'
 import { methodsFor } from '@/lib/solver'
 import { buildSteps } from '@/lib/solverKit'
 import { seededRng } from '../helpers'
@@ -121,6 +122,69 @@ describe('Isolate then permute (Star Prism method)', () => {
       for (const step of buildSteps(state, STAR_PLAN)) {
         state = applyMoves(state, step.moves)
         expect(STAR_PLAN.find((s) => s.key === step.key)!.goal(state)).toBe(true)
+      }
+      expect(isSolved(state)).toBe(true)
+    }
+  }, 120000)
+})
+
+describe('4-Star Prism', () => {
+  const SOLVED4 = solvedCube('star4')
+  const play4 = (text: string, from: Cube = SOLVED4) =>
+    applyMoves(from, parseStarMoves(text, NOTATION_FR))
+  const layer = (cube: Cube, y: number) => cube.filter((c) => c.position[1] === y)
+
+  it('has 4 layers of 6 points and the screw, recognized by their count', () => {
+    expect(SOLVED4).toHaveLength(26)
+    expect(cubeShape(SOLVED4)).toBe('star4')
+    expect(isSolved(SOLVED4)).toBe(true)
+    for (const y of [2, 1, -1, -2]) expect(layer(SOLVED4, y)).toHaveLength(6)
+  })
+
+  it('turns each layer on its own, named in lowercase for the inner ones', () => {
+    const moves = parseStarMoves('2h -b B /', NOTATION_FR)
+    expect(moves).toEqual([
+      { ring: 'u', amount: 2 },
+      { ring: 'd', amount: 5 },
+      { ring: 'D', amount: 1 },
+      { slash: true },
+    ])
+    expect(moves.map((m) => formatStarMove(m, NOTATION_US)).join(' ')).toBe('2u -d D /')
+    const turned = play4('h')
+    expect(layer(turned, 1).map((c) => c.position.join())).not.toEqual(
+      layer(SOLVED4, 1).map((c) => c.position.join()),
+    )
+    for (const y of [2, -1, -2]) expect(layer(turned, y)).toEqual(layer(SOLVED4, y))
+  })
+
+  it('slashes through the four layers: outer onto outer, inner onto inner', () => {
+    const slashed = play4('/')
+    SOLVED4.forEach((c, i) => {
+      expect(Math.abs(slashed[i]!.position[1])).toBe(Math.abs(c.position[1]))
+    })
+    expect(stateKey(play4('//'))).toBe(stateKey(SOLVED4))
+  })
+
+  it('is not solved with its inner star turned against the outer one', () => {
+    expect(isSolved(play4('h -b'))).toBe(false)
+    expect(isSolved(play4('1 h -b -B'))).toBe(true)
+  })
+
+  it('K on the inner layers leaves the outer star alone (an even number of slashes)', () => {
+    const after = play4('/-h/h+b/-b/')
+    expect(layer(after, 2)).toEqual(layer(SOLVED4, 2))
+    expect(layer(after, -2)).toEqual(layer(SOLVED4, -2))
+    expect(isSolved(after)).toBe(false)
+  })
+
+  it('is solved by "Two stars", every step reaching its goal', () => {
+    expect(methodsFor('star4').map((m) => m.id)).toEqual(['twoStars'])
+    const rng = seededRng(43)
+    for (let i = 0; i < 12; i++) {
+      let state = applyMoves(SOLVED4, scrambleTurns('star4', 40, rng, SOLVED4))
+      for (const step of buildSteps(state, STAR4_PLAN)) {
+        state = applyMoves(state, step.moves)
+        expect(STAR4_PLAN.find((s) => s.key === step.key)!.goal(state)).toBe(true)
       }
       expect(isSolved(state)).toBe(true)
     }

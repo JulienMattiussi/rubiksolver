@@ -4,7 +4,7 @@
 export type Dims = readonly [number, number, number]
 
 /** The puzzles the app can build, by id (also the picker's option values). */
-export type CubeShape = '2' | '3' | '4' | '123' | '224' | '223' | '332' | '331' | 'star'
+export type CubeShape = '2' | '3' | '4' | '123' | '224' | '223' | '332' | '331' | 'star' | 'star4'
 
 /**
  * Layer counts per shape: the NxNxN cubes, the 1x2x3 flat cuboid (3 wide, 2
@@ -26,14 +26,20 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   '223': [2, 3, 2],
   '332': [3, 2, 3],
   '331': [3, 1, 3],
-  // The star prism (star.ts) is no grid: its own module builds and turns it.
-  // These only bound its hexagonal model (q, y and r all within +-1).
-  star: [3, 2, 3],
+  // The star prisms (star.ts) are no grid: their own module builds and turns
+  // them. These only bound their hexagonal model (q and r within +-1, the
+  // layers at y = +-1 and +-2).
+  star: [3, 4, 3],
+  star4: [3, 4, 3],
 }
 
-/** Whether a shape is the star prism, which turns by rings and slash (star.ts)
+/** The star prisms: 2 or 4 layers. */
+export type StarShape = 'star' | 'star4'
+
+/** Whether a shape is a star prism, which turns by rings and slash (star.ts)
  *  rather than by face layers. */
-export const isStar = (shape: CubeShape): boolean => shape === 'star'
+export const isStar = (shape: CubeShape): shape is StarShape =>
+  shape === 'star' || shape === 'star4'
 
 /**
  * Shapes that leave their box: their mechanism is a bigger cube with pieces
@@ -53,6 +59,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '332': false,
   '331': false,
   star: false,
+  star4: false,
 }
 
 /**
@@ -72,6 +79,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   '332': [],
   '331': [],
   star: [],
+  star4: [],
 }
 
 /** Name of each shape in the picker (identical in every language). */
@@ -84,7 +92,8 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '223': '2x2x3 (Slim Tower)',
   '332': '3x3x2 (Domino)',
   '331': '3x3x1 (Floppy)',
-  star: 'Star Prism (UFO)',
+  star: '2-Star Prism (UFO)',
+  star4: '4-Star Prism',
 }
 
 /** Shapes exposed in the UI, in display order. */
@@ -113,6 +122,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   '332': false,
   '331': false,
   star: false,
+  star4: false,
 }
 
 export function supportsMirror(shape: CubeShape): boolean {
@@ -219,10 +229,11 @@ export interface Move {
   readonly wide?: true
 }
 
-/** A turn of the star prism's top (`U`) or bottom (`D`) layer by `amount`
- *  pieces (60 degrees each), clockwise seen from that side. */
+/** A turn of a star prism's top (`U`) or bottom (`D`) layer, or of the 4-star's
+ *  inner ones (`u` below the top, `d` above the bottom), by `amount` pieces
+ *  (60 degrees each), clockwise seen from that side. */
 export interface RingMove {
-  readonly ring: 'U' | 'D'
+  readonly ring: 'U' | 'u' | 'd' | 'D'
   readonly amount: 1 | 2 | 3 | 4 | 5
 }
 

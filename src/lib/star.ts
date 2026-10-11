@@ -1,6 +1,6 @@
 import { HEX_NORMALS } from './geometry'
 import type { FaceLabels } from './moves'
-import type { Color, Cube, Cubie, RingMove, StarMove, Sticker, Vec3 } from './types'
+import type { Color, Cube, Cubie, RingMove, StarMove, StarShape, Sticker, Vec3 } from './types'
 
 /**
  * The 2-Super Star Prism (a Rubik's UFO shaped as a six-pointed star): two
@@ -9,6 +9,16 @@ import type { Color, Cube, Cubie, RingMove, StarMove, Sticker, Vec3 } from './ty
  * layer by whole pieces (60 degrees each), or the slash, a half turn of the
  * whole right half, which swaps its three top pieces with its three bottom
  * ones and flips the right half-screw.
+ *
+ * The 4-Super Star Prism adds two inner layers (h and b) between them, each
+ * turning on its own; the slash still cuts through everything. It sends the
+ * outer layers onto each other and the inner ones onto each other, so the
+ * puzzle is two 2-stars sharing a screw. An inner point shows only its two
+ * sides, yet it keeps which way up it is (its two colors read left to right
+ * or right to left), and the slash, which moves it to the other layer, also
+ * turns it over: so it stays a "top" or a "bottom" point for good. The model
+ * gives it the hidden top or bottom sticker that says so (never drawn), which
+ * makes it exactly an outer point one layer in.
  *
  * Exact integer model, like the cubes: positions in axial hexagonal
  * coordinates [q, y, r], where a 60 degree turn is the integer map
@@ -34,6 +44,16 @@ const VALLEY_COLORS: readonly Color[] = ['O', 'P', 'V', 'R', 'Y', 'W']
 const TOP: Color = 'G'
 const BOTTOM: Color = 'B'
 
+/** Height of each ring's layer: the outer ones at 2, the inner ones at 1
+ *  (the screw, between them, at 0). */
+const RING_Y: Record<RingMove['ring'], number> = { U: 2, u: 1, d: -1, D: -2 }
+
+/** The layers of each star prism, top to bottom. */
+export const STAR_RINGS: Record<StarShape, readonly RingMove['ring'][]> = {
+  star: ['U', 'D'],
+  star4: ['U', 'u', 'd', 'D'],
+}
+
 const UP: Vec3 = [0, 1, 0]
 const DOWN: Vec3 = [0, -1, 0]
 
@@ -41,7 +61,7 @@ const DOWN: Vec3 = [0, -1, 0]
  *  half on their side, toward slot 1) form the right half. */
 const inRightHalf = (p: Vec3): boolean => p[0] - p[2] > 0
 
-function point(slot: number, y: 1 | -1): Cubie {
+function point(slot: number, y: number): Cubie {
   const [q, r] = SLOTS[slot]!
   const stickers: Sticker[] = [
     { normal: y > 0 ? UP : DOWN, color: y > 0 ? TOP : BOTTOM },
@@ -62,11 +82,12 @@ function screwHalf(position: Vec3): Cubie {
   }
 }
 
-/** The solved star prism: 12 points (6 top, 6 bottom), then the 2 screw halves. */
-export function solvedStar(): Cube {
+/** The solved star prism: 6 points per layer (outer layers first, so the
+ *  outer star reads like a 2-star), then the 2 screw halves. */
+export function solvedStar(shape: StarShape): Cube {
+  const rings = [...STAR_RINGS[shape]].sort((a, b) => Math.abs(RING_Y[b]) - Math.abs(RING_Y[a]))
   return [
-    ...SLOTS.map((_, k) => point(k, 1)),
-    ...SLOTS.map((_, k) => point(k, -1)),
+    ...rings.flatMap((ring) => SLOTS.map((_, k) => point(k, RING_Y[ring]))),
     screwHalf([1, 0, -1]),
     screwHalf([-1, 0, 1]),
   ]
@@ -91,13 +112,16 @@ function times(map: (v: Vec3) => Vec3, n: number): (v: Vec3) => Vec3 {
 /** Whether `move` turns the piece at `position`. */
 export function starTurns(move: StarMove, position: Vec3): boolean {
   if ('slash' in move) return inRightHalf(position)
-  return move.ring === 'U' ? position[1] > 0 : position[1] < 0
+  return position[1] === RING_Y[move.ring]
 }
+
+/** Whether a ring turns clockwise seen from above (the top ones). */
+const fromAbove = (ring: RingMove['ring']): boolean => RING_Y[ring] > 0
 
 function mapOf(move: StarMove): (v: Vec3) => Vec3 {
   if ('slash' in move) return slashTurn
   // Clockwise seen from below is counterclockwise seen from above.
-  return times(move.ring === 'U' ? clockwise : counterclockwise, move.amount)
+  return times(fromAbove(move.ring) ? clockwise : counterclockwise, move.amount)
 }
 
 export function applyStarMove(cube: Cube, move: StarMove): Cube {
@@ -133,16 +157,16 @@ export function starRotation(move: StarMove): {
   }
   // Clockwise seen from above is a negative turn about +y; from below, positive.
   const pieces = move.amount > 3 ? move.amount - 6 : move.amount
-  const sign = move.ring === 'U' ? -1 : 1
+  const sign = fromAbove(move.ring) ? -1 : 1
   return { axis: [0, 1, 0], angle: (sign * pieces * Math.PI) / 3 }
 }
 
-/** A Square-1 style scramble: top turn, bottom turn, slash, again and again. */
-export function scrambleStar(length: number, rng: () => number): StarMove[] {
+/** A Square-1 style scramble: turn every layer, slash, again and again. */
+export function scrambleStar(shape: StarShape, length: number, rng: () => number): StarMove[] {
   const moves: StarMove[] = []
   const amount = () => (1 + Math.floor(rng() * 5)) as RingMove['amount']
   while (moves.length < length) {
-    moves.push({ ring: 'U', amount: amount() }, { ring: 'D', amount: amount() }, { slash: true })
+    moves.push(...STAR_RINGS[shape].map((ring) => ({ ring, amount: amount() })), { slash: true })
   }
   return moves.slice(0, length)
 }
@@ -168,23 +192,31 @@ export function simplifyStarMoves(moves: readonly StarMove[]): StarMove[] {
   return out
 }
 
+/** The letter of each ring but the top one: the bottom label (`D`, `B` in
+ *  French), and both in lowercase for the inner layers (`u` / `d`, `h` / `b`). */
+function ringLetters(labels: FaceLabels): Record<Exclude<RingMove['ring'], 'U'>, string> {
+  return { D: labels.D, u: labels.U.toLowerCase(), d: labels.D.toLowerCase() }
+}
+
 /**
  * Square-1 style notation, as fan2cube writes it: `3` turns the top 3 pieces
  * clockwise, `-2D` the bottom 2 pieces back (`-2B` in French notation, its
- * bottom label), `/` is the slash. A one-piece bottom turn drops the 1 (`D`,
+ * bottom label), `/` is the slash. A one-piece lettered turn drops the 1 (`D`,
  * `-D`), and turns are written the short way round (`-1` rather than `5`).
+ * The inner layers of the 4-star take the lowercase letters: `2u`, `-d`.
  */
 export function formatStarMove(move: StarMove, labels: FaceLabels): string {
   if ('slash' in move) return '/'
   const k = move.amount > 3 ? move.amount - 6 : move.amount
   if (move.ring === 'U') return String(k)
-  return `${k === 1 ? '' : k === -1 ? '-' : k}${labels.D}`
+  return `${k === 1 ? '' : k === -1 ? '-' : k}${ringLetters(labels)[move.ring]}`
 }
 
 /** Parse fan2cube's notation, `/-1/1+B/-B/` style: slashes, `+` and spaces
  *  separate turns, parentheses only help reading. */
 export function parseStarMoves(text: string, labels: FaceLabels): StarMove[] {
-  const bottom = new RegExp(`^(-?\\d*)${labels.D}$`)
+  const letters = Object.entries(ringLetters(labels)) as [RingMove['ring'], string][]
+  const lettered = new RegExp(`^(-?\\d*)(${letters.map(([, l]) => l).join('|')})$`)
   const tokens = text
     .replace(/[()]/g, '')
     .replace(/\//g, ' / ')
@@ -196,12 +228,13 @@ export function parseStarMoves(text: string, labels: FaceLabels): StarMove[] {
       moves.push({ slash: true })
       continue
     }
-    const b = bottom.exec(token)
+    const b = lettered.exec(token)
     const raw = b ? b[1]! : token
     if (!/^-?\d*$/.test(raw) || (!b && raw === '')) throw new Error(`Invalid star turn: "${token}"`)
     const n = raw === '' ? 1 : raw === '-' ? -1 : Number(raw)
     const amount = ((n % 6) + 6) % 6
-    if (amount !== 0) moves.push({ ring: b ? 'D' : 'U', amount: amount as RingMove['amount'] })
+    const ring = b ? letters.find(([, l]) => l === b[2])![0] : 'U'
+    if (amount !== 0) moves.push({ ring, amount: amount as RingMove['amount'] })
   }
   return moves
 }

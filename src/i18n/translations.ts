@@ -2,6 +2,23 @@
 // the `Translations` type below). Values are content, not code.
 
 import type { LayerKind } from '@/lib/moves'
+import type { RingMove } from '@/lib/types'
+
+type StarLayer = RingMove['ring']
+
+const STAR_LAYER_FR: Record<StarLayer, string> = {
+  U: 'l’étage du haut',
+  u: 'l’étage interne du haut',
+  d: 'l’étage interne du bas',
+  D: 'l’étage du bas',
+}
+
+const STAR_LAYER_EN: Record<StarLayer, string> = {
+  U: 'top',
+  u: 'inner top',
+  d: 'inner bottom',
+  D: 'bottom',
+}
 
 const fr = {
   title: 'Rubik Solver',
@@ -41,8 +58,8 @@ const fr = {
     return `Tourner ${target} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`
   },
   moveTitleHalf: (faceName: string) => `Retourner la ${faceName} (demi-tour)`,
-  starTurnTitle: (layer: 'top' | 'bottom', clockwise: boolean) =>
-    `Tourner l’étage du ${layer === 'top' ? 'haut' : 'bas'} d’une pièce dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
+  starTurnTitle: (layer: StarLayer, clockwise: boolean) =>
+    `Tourner ${STAR_LAYER_FR[layer]} d’une pièce dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
   slashTitle: 'Slash : retourner la moitié droite',
   noSuchLayer: (faceName: string, kind: LayerKind) =>
     `Pas de ${kind === 'wide' ? 'coup large' : 'tranche interne'} pour la ${faceName} sur ce puzzle`,
@@ -135,6 +152,10 @@ const fr = {
       name: 'Isoler puis permuter',
       desc: 'Séparer les sommets verts (en haut) et bleus (en bas), puis finir le bas et le haut avec une seule formule, K, qui échange deux sommets de chaque étage.',
     },
+    twoStars: {
+      name: 'Deux étoiles',
+      desc: 'Le 4-Star Prism est fait de deux 2-Star Prism : on résout l’étoile interne (h, b) puis l’externe (H, B), chacune comme un 2-Star, avec la même formule K.',
+    },
     equatorFirst: {
       name: 'Équateur puis coins',
       desc: 'Comme un Domino debout : les quatre arêtes de l’équateur, puis les coins du bas descendus deux par deux, puis les coins du haut échangés deux à deux.',
@@ -191,6 +212,13 @@ const fr = {
     stepIsolate: 'Isoler les sommets',
     stepStarBottom: 'Finir le bas',
     stepStarTop: 'Finir le haut',
+    stepInnerIsolate: 'Étoile interne : isoler',
+    stepInnerBottom: 'Étoile interne : finir b',
+    stepInnerTop: 'Étoile interne : finir h',
+    stepOuterIsolate: 'Étoile externe : isoler',
+    stepOuterBottom: 'Étoile externe : finir le bas',
+    stepOuterTop: 'Étoile externe : finir le haut',
+    stepAlignStars: 'Aligner les deux étoiles',
     stepFlipEdges: 'Retourner les arêtes',
     stepInnerPocket: 'Pocket intérieur',
     stepOuterPocket: 'Pocket extérieur',
@@ -237,8 +265,8 @@ const en: Translations = {
     return `Turn ${target} ${clockwise ? 'clockwise' : 'counter-clockwise'}`
   },
   moveTitleHalf: (faceName: string) => `Turn the ${faceName} a half turn`,
-  starTurnTitle: (layer: 'top' | 'bottom', clockwise: boolean) =>
-    `Turn the ${layer} layer one piece ${clockwise ? 'clockwise' : 'counterclockwise'}`,
+  starTurnTitle: (layer: StarLayer, clockwise: boolean) =>
+    `Turn the ${STAR_LAYER_EN[layer]} layer one piece ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   slashTitle: 'Slash: flip the right half',
   noSuchLayer: (faceName: string, kind: LayerKind) =>
     `No ${kind === 'wide' ? 'wide turn' : 'inner slice'} for the ${faceName} on this puzzle`,
@@ -331,6 +359,10 @@ const en: Translations = {
       name: 'Isolate then permute',
       desc: 'Separate the green points (up) from the blue ones (down), then finish the bottom and the top with a single formula, K, which swaps two points of each layer.',
     },
+    twoStars: {
+      name: 'Two stars',
+      desc: 'The 4-Star Prism is made of two 2-Star Prisms: solve the inner star (u, d), then the outer one (U, D), each like a 2-Star, with the same formula K.',
+    },
     equatorFirst: {
       name: 'Equator then corners',
       desc: 'Like a Domino standing up: the four equator edges, then the bottom corners brought down two by two, then the top corners swapped two at a time.',
@@ -387,6 +419,13 @@ const en: Translations = {
     stepIsolate: 'Isolate the points',
     stepStarBottom: 'Finish the bottom',
     stepStarTop: 'Finish the top',
+    stepInnerIsolate: 'Inner star: isolate',
+    stepInnerBottom: 'Inner star: finish d',
+    stepInnerTop: 'Inner star: finish u',
+    stepOuterIsolate: 'Outer star: isolate',
+    stepOuterBottom: 'Outer star: finish the bottom',
+    stepOuterTop: 'Outer star: finish the top',
+    stepAlignStars: 'Align the two stars',
     stepFlipEdges: 'Flip the edges',
     stepInnerPocket: 'Inner Pocket',
     stepOuterPocket: 'Outer Pocket',

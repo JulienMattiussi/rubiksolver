@@ -8,6 +8,7 @@ import { PETRUS_PLAN } from './methods/petrus'
 import { ROUX_PLAN } from './methods/roux'
 import { SLIM_TOWER_PLAN } from './methods/slimTower'
 import { STAR_PLAN } from './methods/starPrism'
+import { STAR4_PLAN } from './methods/starPrism4'
 import { TOWER_PLAN } from './methods/tower'
 import { ZZ_PLAN } from './methods/zz'
 import { reductionPlan } from './solver4/steps'
@@ -42,6 +43,7 @@ const SOLVE_METHODS = [
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
   { id: 'equatorFirst', plans: { '223': SLIM_TOWER_PLAN } },
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },
+  { id: 'twoStars', plans: { star4: STAR4_PLAN } },
   { id: 'cornersFirst', plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN } },
   {
     id: 'optimal',

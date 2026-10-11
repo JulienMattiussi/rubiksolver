@@ -2,9 +2,9 @@
 
 Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2
 (Pocket), 3x3 ou 4x4**, plus cinq cuboïdes : le **1x2x3**, la **tour 2x2x4**,
-la **Slim Tower 2x2x3**, le **Domino 3x3x2** et le **Floppy 3x3x1**, et un
-premier puzzle non cubique, le **Star Prism** (étoile à six branches, famille
-du Square-1). On manipule le cube, on le mélange **ou on saisit sa
+la **Slim Tower 2x2x3**, le **Domino 3x3x2** et le **Floppy 3x3x1**, et deux
+puzzles non cubiques, les **Star Prism** à 2 et 4 étages (étoile à six
+branches, famille du Square-1). On manipule le cube, on le mélange **ou on saisit sa
 propre configuration** en peignant les stickers en 3D, puis on le résout selon
 **plusieurs vraies méthodes**. La solution est découpée en **étapes nommées**
 qu'on joue d'un coup ou **pas à pas**, pour apprendre la méthode.
@@ -25,7 +25,8 @@ qu'on joue d'un coup ou **pas à pas**, pour apprendre la méthode.
     extérieur) ;
   - Slim Tower : **équateur puis coins** ;
   - Domino : **coins puis arêtes** ;
-  - Star Prism : **isoler puis permuter**.
+  - Star Prism : **isoler puis permuter** ;
+  - 4-Star Prism : **deux étoiles** (l'interne puis l'externe).
 - **Formes non cubiques** : le 1x2x3 (demi-tours seulement), la tour 2x2x4,
   qui se déforme comme la vraie (un coup est bloqué quand sa face n'est pas
   complète), le Domino et le Floppy (une seule couche, demi-tours seulement).

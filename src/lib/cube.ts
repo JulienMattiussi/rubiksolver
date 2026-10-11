@@ -131,7 +131,7 @@ export function homesOf(shape: CubeShape, keep: (c: Cubie) => boolean): Vec3[] {
 /** Build a solved puzzle: every exterior cubie face carries its solved color
  *  (the star prism, no grid, comes from star.ts). */
 export function solvedCube(shape: CubeShape = '3'): Cube {
-  if (isStar(shape)) return solvedStar()
+  if (isStar(shape)) return solvedStar(shape)
   const dims = SHAPE_DIMS[shape]
   const cubies: Cubie[] = []
   for (const x of layerCoords(dims[0])) {

@@ -21,12 +21,19 @@ function polygonGeometry(polygon: StarPolygon): THREE.BufferGeometry {
   return geometry
 }
 
-/** One piece of the star prism (a point or a screw half): its body faces in
+interface StarPieceProps {
+  cubie: Cubie
+  /** The 4-star (four layers). */
+  tall: boolean
+  highlighted?: boolean
+}
+
+/** One piece of a star prism (a point or a screw half): its body faces in
  *  plastic, its stickers in their colors. */
-export function StarPiece({ cubie, highlighted = false }: { cubie: Cubie; highlighted?: boolean }) {
+export function StarPiece({ cubie, tall, highlighted = false }: StarPieceProps) {
   const polygons = useMemo(
-    () => starPolygons(cubie).map((p) => ({ paint: p.paint, geometry: polygonGeometry(p) })),
-    [cubie],
+    () => starPolygons(cubie, tall).map((p) => ({ paint: p.paint, geometry: polygonGeometry(p) })),
+    [cubie, tall],
   )
   return (
     <group>

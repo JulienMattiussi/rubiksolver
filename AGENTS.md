@@ -5,8 +5,9 @@
 POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3
 ou 4x4**, **classique ou miroir**, plus cinq cuboïdes : le **1x2x3**, la
 **tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**
-et le **Floppy 3x3x1**, et un premier puzzle non cubique, le **Star Prism**
-(une étoile à six branches de la famille du Square-1) (choix par vignettes).
+et le **Floppy 3x3x1**, et deux puzzles non cubiques, les **Star Prism** à 2
+et 4 étages (une étoile à six branches de la famille du Square-1) (choix par
+vignettes).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
 coups larges là où la forme en a, orbite caméra, aperçu des pièces qui vont
 tourner au survol d'un bouton), on le mélange **ou on saisit sa propre
@@ -82,7 +83,7 @@ src/
 │   ├── geometry.ts       # Géométrie entière : normales des faces, normalIndex, grilles par axe (layerCoords), rotations exactes
 │   ├── cube.ts           # Le puzzle : solvedCube, cubeShape/cubeDims/turnDims, isSolved/isBoxed, stateKey, cubeOrientations,
 │   │                     #   requêtes de pièces (colorAt, colorsOf, cubieAt, atHome/homeAt), comptages de stickers et de couleurs
-│   ├── star.ts           # Star Prism : modèle hexagonal entier (anneaux + slash), notation fan2cube, mélange
+│   ├── star.ts           # Star Prism 2 et 4 étages : modèle hexagonal entier (anneaux + slash), notation fan2cube, mélange
 │   ├── turn.ts           # Les coups : moveSlab/inSlab, applyMove(s), turnAllowed (tour), turnedBy, turnRotation (animation)
 │   ├── moves.ts          # Notation US/FR (parse/format, 2R/Rw, M/E/S sur 3x3), sameLayer, inversion, simplification,
 │   │                     #   movesFor(shape) déduit de la forme, scramble (RNG injectable, joué depuis l'état courant pour la tour)
@@ -106,6 +107,7 @@ src/
 │   │   ├── exhaustive.ts #   optimal des petits puzzles (1x2x3, Floppy) : BFS exhaustive via solvePieces
 │   │   ├── tower.ts      #   tour 2x2x4 : Deux Pockets (forme, Pocket intérieur, Pocket extérieur)
 │   │   ├── starPrism.ts  #   Star Prism : isoler puis permuter (formule K de fan2cube.fr)
+│   │   ├── starPrism4.ts #   4-Star : deux étoiles (le plan du 2-Star projeté sur l'interne puis l'externe)
 │   │   ├── slimTower.ts  #   Slim Tower 2x2x3 : équateur puis coins (formules du Domino, fan2cube.fr)
 │   │   ├── domino.ts     #   Domino 3x3x2 : coins puis arêtes (formules de fan2cube.fr, reprises élargies par la tour)
 │   │   └── floppy.ts     #   Floppy 3x3x1 : coins puis arêtes retournées deux par deux (fan2cube.fr)
@@ -229,6 +231,8 @@ et le store ne voient que ça) :
   - voir « Le Domino, le Floppy et la Slim Tower ».
 - **Isoler puis permuter** (`isolateFirst`, Star Prism) : sommets isolés,
   puis le bas et le haut avec la formule `K` - voir « Le Star Prism ».
+- **Deux étoiles** (`twoStars`, 4-Star Prism) : l'étoile interne puis
+  l'externe, chacune par « isoler puis permuter », puis alignement.
 - **Coins puis arêtes** (`cornersFirst`, Domino 3x3x2 et Floppy 3x3x1) : sur
   le Domino, coins du bas, coins du haut, arêtes du bas, arêtes du haut ; sur
   le Floppy, coins placés puis arêtes retournées - voir « Le Domino et le
@@ -507,6 +511,27 @@ et l'échange de deux sommets du haut (`4(1+K)`). La recherche par pièces, les
 jeux de coups et les étapes acceptent n'importe quel `Turn`. La saisie d'un
 état n'existe pas encore sur ce puzzle (boutons grisés).
 
+**Le 4-Star Prism** (`star4`, fan2cube.fr/4-star1) : un Super Square-1 en
+étoile, quatre étages (H, h, b, B ; `U`, `u`, `d`, `D` dans le modèle) qui
+tournent chacun seul, le slash traversant tout. Les étages externes sont à
+`y = ±2`, les internes à `y = ±1` (le 2-Star a donc aussi ses étages à ±2).
+Le slash envoie l'externe sur l'externe et l'interne sur l'interne : ce sont
+**deux 2-Stars** qui partagent la vis. Une pièce interne ne montre que ses
+deux côtés, mais elle garde son sens (ses deux couleurs se lisent dans un
+ordre ou l'autre) et le slash, qui la change d'étage, la retourne aussi :
+elle reste à jamais une pièce « du haut » ou « du bas ». Le modèle lui donne
+donc le sticker caché qui le dit (jamais dessiné), ce qui en fait exactement
+une pièce externe un cran plus bas : `isSolved` reste juste. Notation : les
+internes en minuscules (`2h`, `-b` ; `2u`, `-d` en US).
+
+**Résolution** (`methods/starPrism4.ts`, méthode **Deux étoiles**, sans
+nouvelle machinerie) : le plan du 2-Star est **projeté** (comme `via3x3` sur
+le 4x4) sur l'étoile interne (ses pièces ramenées à ±2, ses tours joués sur
+`u`/`d`), qui remet aussi la vis, puis sur l'externe. Celle-ci part et finit
+vis en place, donc slashe un nombre pair de fois sans tourner l'interne
+entre deux slashs : l'étoile interne ne voit rien. Reste à aligner les deux
+étoiles (`u` et `d` ensemble), chacune pouvant finir tournée d'un bloc.
+
 ### Le cube miroir (`src/lib/shape.ts`)
 
 Le **cube miroir** (Mirror Blocks) est un _shape mod_ : mécaniquement un NxN
@@ -576,7 +601,7 @@ mobile et en saisie, une seule carte) :
   sélecteur en modale, d'abord les **catégories** en vignettes, puis les
   **puzzles** de la catégorie choisie (toujours ouvert sur les catégories ; le
   puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`) : Standard
-  2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 2x2x3 (Slim)/2x2x4/3x3x2 (Domino), Étoiles Star Prism, Plats
+  2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 2x2x3 (Slim)/2x2x4/3x3x2 (Domino), Étoiles 2-Star/4-Star Prism, Plats
   1x2x3/3x3x1 (Floppy), un puzzle d'une seule couche d'épaisseur étant plat.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;

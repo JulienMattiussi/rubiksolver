@@ -8,6 +8,8 @@ import type { Color, Cubie, Vec3 } from '@/lib/types'
  * of the star is a kite (center, valley vertex, tip, valley vertex) extruded
  * over its layer; its outer faces carry the colors of its stickers, found by
  * the direction they face. The screw halves are half discs on top and below.
+ * The 4-star stacks two more layers inside: its pieces are drawn the same,
+ * except the inner points' flat faces, always hidden (plastic only).
  */
 
 type P3 = [number, number, number]
@@ -81,10 +83,21 @@ function face(points: P3[], normal: P3, color: Color | undefined): StarPolygon[]
   return color ? [body, { points: sticker(points, normal), paint: color, normal }] : [body]
 }
 
-function pointPolygons(cubie: Cubie): StarPolygon[] {
+/** Vertical extent of a layer (seen from its side of the screw): its inner
+ *  face then its outer one. On a 2-star the outer points (y = +-2) take the
+ *  first layer; on a 4-star the second, past the inner points (y = +-1). */
+function layerSpan(y: number, tall: boolean): [number, number] {
+  const band = tall && Math.abs(y) === 2 ? 1 : 0
+  const inner = GAP / 2 + band * (LAYER + GAP)
+  return [inner, inner + LAYER]
+}
+
+function pointPolygons(cubie: Cubie, tall: boolean): StarPolygon[] {
   const k = slotOf(cubie.position)
   const up = cubie.position[1] > 0
-  const [outerY, innerY] = up ? [LAYER, GAP / 2] : [-LAYER, -GAP / 2]
+  const [near, far] = layerSpan(cubie.position[1], tall)
+  const [outerY, innerY] = up ? [far, near] : [-far, -near]
+  const exposed = Math.abs(cubie.position[1]) === 2
   const a = scale(VALLEY_DIRECTIONS[(k + 5) % 6]!, VALLEY)
   const t = scale(SLOT_DIRECTIONS[k]!, TIP)
   const b = scale(VALLEY_DIRECTIONS[k]!, VALLEY)
@@ -103,13 +116,14 @@ function pointPolygons(cubie: Cubie): StarPolygon[] {
     ...face(kite(innerY), inwardFlat, undefined),
     ...face(side(o, a), away(outward(o, a), scale(a, -1)), undefined),
     ...face(side(b, o), away(outward(b, o), scale(b, -1)), undefined),
-    ...face(kite(outerY), flatNormal, colorFacing(cubie, up ? 2 : 3)),
+    ...face(kite(outerY), flatNormal, exposed ? colorFacing(cubie, up ? 2 : 3) : undefined),
     ...face(side(a, t), away(left, t), colorFacing(cubie, 6 + ((k + 5) % 6))),
     ...face(side(t, b), away(right, t), colorFacing(cubie, 6 + k)),
   ]
 }
 
-function screwPolygons(cubie: Cubie): StarPolygon[] {
+function screwPolygons(cubie: Cubie, tall: boolean): StarPolygon[] {
+  const top = layerSpan(2, tall)[1]
   const direction = unit(starToCartesian(cubie.position))
   const middle = Math.atan2(direction[2], direction[0])
   /** A half disc on the side of `direction`, pushed off the split line by
@@ -127,7 +141,7 @@ function screwPolygons(cubie: Cubie): StarPolygon[] {
   // Raised above the points, with a plastic rim around the colored half.
   const rise = 0.02
   const side = (up: boolean): StarPolygon[] => {
-    const y = up ? LAYER + rise : -LAYER - rise
+    const y = up ? top + rise : -top - rise
     const normal: P3 = [0, up ? 1 : -1, 0]
     const color = colorFacing(cubie, up ? 2 : 3)
     const lifted = up ? y + 0.004 : y - 0.004
@@ -139,9 +153,10 @@ function screwPolygons(cubie: Cubie): StarPolygon[] {
   return [...side(true), ...side(false)]
 }
 
-/** Every visible polygon of a star prism piece (a point or a screw half). */
-export function starPolygons(cubie: Cubie): StarPolygon[] {
-  return cubie.position[1] === 0 ? screwPolygons(cubie) : pointPolygons(cubie)
+/** Every visible polygon of a star prism piece (a point or a screw half);
+ *  `tall` for the 4-star. */
+export function starPolygons(cubie: Cubie, tall: boolean): StarPolygon[] {
+  return cubie.position[1] === 0 ? screwPolygons(cubie, tall) : pointPolygons(cubie, tall)
 }
 
 /** The star's yaw on screen: the slash plane faces the viewer, its turning

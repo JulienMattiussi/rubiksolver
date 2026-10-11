@@ -34,10 +34,11 @@ const HALF_SCREW = formula('/3/3/')
 const SWAP_TOP = formula(Array(4).fill('1 + /-1/1+B/-B/').join(' '))
 
 const AMOUNTS: RingMove['amount'][] = [1, 2, 3, 4, 5]
-const ringTurns = (ring: 'U' | 'D'): StarMove[] => AMOUNTS.map((amount) => ({ ring, amount }))
+export const ringTurns = (ring: RingMove['ring']): StarMove[] =>
+  AMOUNTS.map((amount) => ({ ring, amount }))
 
 /** A move set of star turns, shown as the turns it allows. */
-function starSet(turns: StarMove[], restricted = false): MoveSet {
+export function starSet(turns: StarMove[], restricted = false): MoveSet {
   return { generators: turns, turns, restricted }
 }
 

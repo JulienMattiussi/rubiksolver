@@ -1,7 +1,7 @@
 import { cubeDims, solvedCube } from '@/lib/cube'
 import { normalIndex } from '@/lib/geometry'
 import { cubieBox, LAYER_THICKNESS } from '@/lib/shape'
-import { isStar, type Color, type CubeShape, type CubeVariant } from '@/lib/types'
+import { isStar, type Color, type CubeShape, type CubeVariant, type StarShape } from '@/lib/types'
 import { visualPosition } from './layout'
 import { STAR_YAW, starPolygons } from './starGeometry'
 
@@ -87,7 +87,7 @@ export function isometricDrawing(shape: CubeShape, variant: CubeVariant): IsoDra
 }
 
 function drawPuzzle(shape: CubeShape, variant: CubeVariant): IsoDrawing {
-  if (isStar(shape)) return drawStar()
+  if (isStar(shape)) return drawStar(shape)
   const cube = solvedCube(shape)
   const dims = cubeDims(cube)
   const faces: IsoFace[] = []
@@ -139,7 +139,7 @@ function finish(faces: IsoFace[]): IsoDrawing {
 
 /** The star prism, from the same polygons as its 3D view, turned by its yaw;
  *  faces turned away from the viewer are left out. */
-function drawStar(): IsoDrawing {
+function drawStar(shape: StarShape): IsoDrawing {
   const [cos, sin] = [Math.cos(STAR_YAW), Math.sin(STAR_YAW)]
   const yaw = ([x, y, z]: readonly number[]): Point => [
     x! * cos + z! * sin,
@@ -147,8 +147,8 @@ function drawStar(): IsoDrawing {
     -x! * sin + z! * cos,
   ]
   const faces: IsoFace[] = []
-  for (const cubie of solvedCube('star')) {
-    const polygons = starPolygons(cubie)
+  for (const cubie of solvedCube(shape)) {
+    const polygons = starPolygons(cubie, shape === 'star4')
     for (let i = 0; i < polygons.length; i++) {
       const body = polygons[i]!
       if (body.paint !== 'body') continue

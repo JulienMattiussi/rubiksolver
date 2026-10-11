@@ -252,7 +252,7 @@ export function scrambleTurns(
   rng: () => number,
   start: Cube,
 ): Turn[] {
-  return isStar(shape) ? scrambleStar(length, rng) : scramble(shape, length, rng, start)
+  return isStar(shape) ? scrambleStar(shape, length, rng) : scramble(shape, length, rng, start)
 }
 
 /**
