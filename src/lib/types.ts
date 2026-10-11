@@ -4,13 +4,14 @@
 export type Dims = readonly [number, number, number]
 
 /** The puzzles the app can build, by id (also the picker's option values). */
-export type CubeShape = '2' | '3' | '4' | '123' | '224' | '332'
+export type CubeShape = '2' | '3' | '4' | '123' | '224' | '332' | '331'
 
 /**
  * Layer counts per shape: the NxNxN cubes, the 1x2x3 flat cuboid (3 wide, 2
  * tall, 1 thick, so the rectangle you face is its 3x2 side), the 2x2x4
- * tower (4 layers on a square 2x2 section) and the Domino (a 3x3 two layers
- * tall: U and D turn freely, its sides only take half turns).
+ * tower (4 layers on a square 2x2 section), the Domino (a 3x3 two layers
+ * tall: U and D turn freely, its sides only take half turns) and the Floppy
+ * (a 3x3 one layer tall: half turns of its sides only).
  *
  * A one-layer axis has no move of its own: turning its only layer just turns
  * the whole puzzle. Which turns exist beyond that follows from these counts,
@@ -23,6 +24,7 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   '123': [3, 2, 1],
   '224': [2, 4, 2],
   '332': [3, 2, 3],
+  '331': [3, 1, 3],
 }
 
 /**
@@ -40,6 +42,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '123': false,
   '224': true,
   '332': false,
+  '331': false,
 }
 
 /** Name of each shape in the picker (identical in every language). */
@@ -50,6 +53,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '123': '1x2x3',
   '224': '2x2x4',
   '332': '3x3x2 (Domino)',
+  '331': '3x3x1 (Floppy)',
 }
 
 /** Shapes exposed in the UI, in display order. */
@@ -75,6 +79,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   '123': false,
   '224': false,
   '332': false,
+  '331': false,
 }
 
 export function supportsMirror(shape: CubeShape): boolean {
@@ -88,15 +93,18 @@ interface CubeKind {
 }
 
 /** Groups of the cube picker, in display order: the classic NxNxN cubes, their
- *  mirror versions, then the non-cubic puzzles (towers and other cuboids). */
-export const CUBE_CATEGORIES = ['standard', 'mirror', 'tower'] as const
+ *  mirror versions, the other cuboids (tower, Domino), then the flat puzzles
+ *  (one layer thick: 1x2x3, Floppy). */
+export const CUBE_CATEGORIES = ['standard', 'mirror', 'tower', 'flat'] as const
 export type CubeCategory = (typeof CUBE_CATEGORIES)[number]
 
 /** Picker group of a cube choice, derived from its variant and dimensions. */
 export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (variant === 'mirror') return 'mirror'
   const [x, y, z] = SHAPE_DIMS[shape]
-  return x === y && y === z ? 'standard' : 'tower'
+  if (x === y && y === z) return 'standard'
+  // One layer thick: the 1x2x3 and the Floppy.
+  return x === 1 || y === 1 || z === 1 ? 'flat' : 'tower'
 }
 
 /** Cube choices exposed in the UI (the picker groups them by `cubeCategory`). */

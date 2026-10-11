@@ -1,8 +1,6 @@
 import { countColors, cubeShape } from './cube'
 import { normalIndex } from './geometry'
 import {
-  centersArePaintable,
-  paintableKind,
   stickerId,
   tablesFor,
   type Placement,
@@ -43,19 +41,18 @@ export function slotsFor(shape: CubeShape): readonly Slot[] {
 /** Whether the user can paint this slot on a cube of `shape`. */
 export function canPaint(shape: CubeShape, slotKey: string): boolean {
   const slot = tablesFor(shape).byKey.get(slotKey)
-  return slot !== undefined && paintableKind(shape, slot.kind)
+  return slot?.paintable ?? false
 }
 
 /** Painted stickers, keyed by sticker id. Absent id = not yet painted. */
 export type EditStickers = Record<string, Color>
 
-/** A blank slate: only the fixed centers are set (movable ones stay empty). */
+/** A blank slate: only the fixed pieces are set (see `Slot.paintable`). */
 export function emptyEdit(shape: CubeShape): EditStickers {
   const edit: EditStickers = {}
   for (const slot of slotsFor(shape)) {
-    if (slot.kind === 'center' && !centersArePaintable(shape)) {
-      edit[slot.stickers[0]!.id] = slot.stickers[0]!.solvedColor
-    }
+    if (slot.paintable) continue
+    for (const s of slot.stickers) edit[s.id] = s.solvedColor
   }
   return edit
 }
@@ -149,7 +146,7 @@ export function paint(
 ): EditStickers {
   const tables = tablesFor(shape)
   const slot = tables.byKey.get(slotKey)
-  if (!slot || !paintableKind(shape, slot.kind)) return edit
+  if (!slot?.paintable) return edit
   const id = stickerId(slot.position, ni)
   if (edit[id] === color) return edit
 

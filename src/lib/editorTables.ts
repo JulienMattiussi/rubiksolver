@@ -1,5 +1,7 @@
 import { cubeOrientations, solvedCube } from './cube'
 import { normalIndex } from './geometry'
+import { movesFor } from './moves'
+import { applyMove } from './turn'
 import type { Color, CubeShape, Cubie, Vec3 } from './types'
 
 /**
@@ -26,6 +28,9 @@ export interface Slot {
   readonly position: Vec3
   readonly kind: SlotKind
   readonly stickers: readonly SlotSticker[]
+  /** The user paints it: a piece with stickers that some turn can move or
+   *  turn over. A fixed one (a 3x3 center) stays pre-filled. */
+  readonly paintable: boolean
 }
 
 /** Three stickers or more (a 1x2x3 piece can show four) is a corner: a unique
@@ -41,11 +46,12 @@ function kindOf(stickerCount: number): SlotKind {
 }
 
 /** A cubie of a solved cube as a slot (fixed position + exterior normals). */
-function toSlot(cubie: Cubie): Slot {
+function toSlot(cubie: Cubie, fixed: boolean): Slot {
   return {
     key: posKey(cubie.position),
     position: cubie.position,
     kind: kindOf(cubie.stickers.length),
+    paintable: cubie.stickers.length > 0 && !fixed,
     stickers: cubie.stickers.map((s) => ({
       ni: normalIndex(s.normal),
       normal: s.normal,
@@ -65,29 +71,28 @@ export interface PlacementOption {
   readonly pieceKey: string
 }
 
-const PAINTABLE_CENTERS = new Map<CubeShape, boolean>()
-
-/** Fixed centers stay pre-filled. A center is fixed when it sits on its
- *  face's axis (the 3x3's six, the Domino's U and D): no turn moves it, it
- *  only spins. Off the axis (4x4) centers travel, so they are painted. */
-export function centersArePaintable(shape: CubeShape): boolean {
-  let paintable = PAINTABLE_CENTERS.get(shape)
-  if (paintable === undefined) {
-    paintable = solvedCube(shape).some(
-      (c) => c.stickers.length === 1 && c.position.filter((v) => v !== 0).length > 1,
-    )
-    PAINTABLE_CENTERS.set(shape, paintable)
+/**
+ * Indices of the solved cubies no turn ever moves nor turns over: each keeps
+ * its position and the normals of its stickers. The 3x3's centers (which only
+ * spin), the Domino's, the Floppy's; never a 4x4 center, nor a Floppy edge
+ * (a half turn flips it in place).
+ */
+function fixedPieces(shape: CubeShape): Set<number> {
+  const solved = solvedCube(shape)
+  // Turns keep the sticker order, so each sticker's normal can be compared.
+  const pose = (c: Cubie) => [c.position, ...c.stickers.map((s) => s.normal)].join('|')
+  const fixed = new Set(solved.keys())
+  for (const move of movesFor(shape)) {
+    applyMove(solved, move).forEach((c, i) => {
+      if (pose(c) !== pose(solved[i]!)) fixed.delete(i)
+    })
   }
-  return paintable
-}
-
-export function paintableKind(shape: CubeShape, kind: SlotKind): boolean {
-  return kind === 'corner' || kind === 'edge' || (kind === 'center' && centersArePaintable(shape))
+  return fixed
 }
 
 export interface SlotTables {
   readonly slots: readonly Slot[]
-  /** Slots the user can paint (corners, edges, movable centers). */
+  /** Slots the user can paint (see `Slot.paintable`). */
   readonly paintableSlots: readonly Slot[]
   readonly byKey: ReadonlyMap<string, Slot>
   /** Valid piece placements per slot key, from the solved puzzle's orientations. */
@@ -102,14 +107,15 @@ const TABLES = new Map<CubeShape, SlotTables>()
 export function tablesFor(shape: CubeShape): SlotTables {
   let tables = TABLES.get(shape)
   if (!tables) {
-    const slots = solvedCube(shape).map(toSlot)
-    const paintableSlots = slots.filter((s) => paintableKind(shape, s.kind))
+    const fixed = fixedPieces(shape)
+    const slots = solvedCube(shape).map((c, i) => toSlot(c, fixed.has(i)))
+    const paintableSlots = slots.filter((s) => s.paintable)
     tables = {
       slots,
       paintableSlots,
       byKey: new Map(slots.map((s) => [s.key, s])),
       placements: computePlacements(shape, paintableSlots),
-      budgets: computeBudgets(shape),
+      budgets: computeBudgets(shape, paintableSlots),
     }
     TABLES.set(shape, tables)
   }
@@ -148,7 +154,7 @@ function computePlacements(
   for (const cube of cubeOrientations(solved)) {
     cube.forEach((cubie, i) => {
       const bucket = perSlot.get(posKey(cubie.position))
-      if (!bucket) return // fixed center / core
+      if (!bucket) return // fixed piece / core
       const colors: Placement = {}
       for (const s of cubie.stickers) colors[normalIndex(s.normal)] = s.color
       bucket.set(placementKey(colors), { colors, pieceKey: pieceKeyOf(cubie, solved[i]!.position) })
@@ -158,10 +164,11 @@ function computePlacements(
 }
 
 /** Available physical pieces: every unique piece once, centers 4 per color. */
-function computeBudgets(shape: CubeShape): Map<string, number> {
+function computeBudgets(shape: CubeShape, paintableSlots: readonly Slot[]): Map<string, number> {
+  const paintable = new Set(paintableSlots.map((s) => s.key))
   const budgets = new Map<string, number>()
   for (const cubie of solvedCube(shape)) {
-    if (!paintableKind(shape, kindOf(cubie.stickers.length))) continue
+    if (!paintable.has(posKey(cubie.position))) continue
     const key = pieceKeyOf(cubie, cubie.position)
     budgets.set(key, (budgets.get(key) ?? 0) + 1)
   }

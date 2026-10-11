@@ -13,6 +13,7 @@ const SCRAMBLE_LENGTH: Record<CubeShape, number> = {
   '123': 10,
   '224': 25,
   '332': 20,
+  '331': 12,
 }
 
 interface CubeStore {

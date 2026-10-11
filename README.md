@@ -1,8 +1,8 @@
 # Rubik Solver
 
 Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2
-(Pocket), 3x3 ou 4x4**, plus trois cuboïdes : le **1x2x3**, la **tour 2x2x4**
-et le **Domino 3x3x2**. On manipule le cube, on le mélange **ou on saisit sa
+(Pocket), 3x3 ou 4x4**, plus quatre cuboïdes : le **1x2x3**, la **tour 2x2x4**,
+le **Domino 3x3x2** et le **Floppy 3x3x1**. On manipule le cube, on le mélange **ou on saisit sa
 propre configuration** en peignant les stickers en 3D, puis on le résout selon
 **plusieurs vraies méthodes**. La solution est découpée en **étapes nommées**
 qu'on joue d'un coup ou **pas à pas**, pour apprendre la méthode.
@@ -18,12 +18,13 @@ qu'on joue d'un coup ou **pas à pas**, pour apprendre la méthode.
   - 2x2 : par couches, et **optimale** (11 coups maximum) ;
   - 4x4 : **réduction** (centres, arêtes, parités) puis par couches ou CFOP ;
   - 1x2x3 : optimale ;
+  - Floppy : **coins puis arêtes**, et optimale ;
   - tour 2x2x4 : **Deux Pockets** (remise en forme, Pocket intérieur, Pocket
     extérieur) ;
   - Domino : **coins puis arêtes**.
 - **Formes non cubiques** : le 1x2x3 (demi-tours seulement), la tour 2x2x4,
   qui se déforme comme la vraie (un coup est bloqué quand sa face n'est pas
-  complète), et le Domino.
+  complète), le Domino et le Floppy (une seule couche, demi-tours seulement).
 - **Version miroir** du 2x2, du 3x3 et du 4x4 (Mirror Blocks) : couches
   d'épaisseurs différentes et facettes toutes dorées, à résoudre par la forme.
 - Mélange aléatoire, ou **saisie guidée** de son propre cube en peignant les

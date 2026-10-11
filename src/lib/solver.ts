@@ -1,7 +1,8 @@
 import { cubeShape } from './cube'
 import { BEGINNER_2_PLAN, OPTIMAL_2_PLAN, solveOptimal2 } from './methods/cube2'
 import { DOMINO_PLAN } from './methods/domino'
-import { OPTIMAL_123_PLAN } from './methods/flat123'
+import { optimalPlan } from './methods/exhaustive'
+import { FLOPPY_PLAN } from './methods/floppy'
 import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { PETRUS_PLAN } from './methods/petrus'
 import { ROUX_PLAN } from './methods/roux'
@@ -36,9 +37,12 @@ const SOLVE_METHODS = [
   { id: 'zz', plans: { '3': ZZ_PLAN } },
   { id: 'reduction', plans: { '4': reductionPlan(BEGINNER_PLAN) } },
   { id: 'reductionCfop', plans: { '4': reductionPlan(CFOP_PLAN) } },
-  { id: 'optimal', plans: { '2': OPTIMAL_2_PLAN, '123': OPTIMAL_123_PLAN } },
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
-  { id: 'cornersFirst', plans: { '332': DOMINO_PLAN } },
+  { id: 'cornersFirst', plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN } },
+  {
+    id: 'optimal',
+    plans: { '2': OPTIMAL_2_PLAN, '123': optimalPlan('123'), '331': optimalPlan('331') },
+  },
 ] as const satisfies ReadonlyArray<{
   id: string
   plans: Readonly<Partial<Record<CubeShape, MethodPlan>>>

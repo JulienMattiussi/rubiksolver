@@ -3,8 +3,9 @@
 ## Description du projet
 
 POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3
-ou 4x4**, **classique ou miroir**, plus trois cuboïdes : le **1x2x3**, la **tour
-2x2x4** (qui se déforme) et le **Domino 3x3x2** (choix dans une liste unique).
+ou 4x4**, **classique ou miroir**, plus quatre cuboïdes : le **1x2x3**, la
+**tour 2x2x4** (qui se déforme), le **Domino 3x3x2** et le **Floppy 3x3x1**
+(choix dans une liste unique).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
 coups larges là où la forme en a, orbite caméra, aperçu des pièces qui vont
 tourner au survol d'un bouton), on le mélange **ou on saisit sa propre
@@ -100,9 +101,10 @@ src/
 │   │   ├── petrus.ts     #   Petrus : 2x2x2, 2x2x3 en <U, R, F>, arêtes, F2L en <R, U>, dernière couche en 3 temps
 │   │   ├── zz.ts         #   ZZ : EOLine, blocs en <L, U, R> puis <R, U>, OCLL, PLL
 │   │   ├── cube2.ts      #   2x2 : par couches (repère DBL) et optimal (BFS bidirectionnelle)
-│   │   ├── flat123.ts    #   1x2x3 : optimal (BFS exhaustive via solvePieces)
+│   │   ├── exhaustive.ts #   optimal des petits puzzles (1x2x3, Floppy) : BFS exhaustive via solvePieces
 │   │   ├── tower.ts      #   tour 2x2x4 : Deux Pockets (forme, Pocket intérieur, Pocket extérieur)
-│   │   └── domino.ts     #   Domino 3x3x2 : coins puis arêtes (formules de fan2cube.fr, reprises élargies par la tour)
+│   │   ├── domino.ts     #   Domino 3x3x2 : coins puis arêtes (formules de fan2cube.fr, reprises élargies par la tour)
+│   │   └── floppy.ts     #   Floppy 3x3x1 : coins puis arêtes retournées deux par deux (fan2cube.fr)
 │   ├── solver4/          # Solveur 4x4 par réduction :
 │   │   ├── centers.ts    #   centres par comptage (D, U, puis ceinture), recherches bornées sans régression
 │   │   ├── edges.ts      #   appariement des ailes (échanges nets FR-bas <-> BR/FL-haut, goal-checkés), flip L2E
@@ -154,7 +156,7 @@ tests/
 ├── helpers.ts            # RNG déterministe (seededRng), coin vrillé (twistedCorner)
 ├── unit/                 # Vitest : cube (coups, tour), moves, solver (registre : chaque méthode de chaque forme) + solver4,
 │                         #   methods (Roux/Petrus/ZZ : objectifs et jeux de coups), algs, tower, domino (effet de chaque
-│                         #   formule), pieceSearch, flat123 (espace d'états entier), editor, validate, shape, snapshot,
+│                         #   formule), floppy, pieceSearch, flat123 (espaces d'états entiers), editor, validate, shape, snapshot,
 │                         #   layout, stores, easing, speed, progress
 ├── component/            # Vitest + Testing Library (Controls, SegmentedToggle)
 └── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution sur chaque forme, saisie, miroir)
@@ -207,12 +209,15 @@ et le store ne voient que ça) :
   qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
   droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL
   - 5 étapes.
-- **Optimale** (`optimal`, 2x2 et 1x2x3) : recherche exhaustive, solution la
-  plus courte possible (11 coups max sur 2x2, 6 sur 1x2x3), une seule étape.
+- **Optimale** (`optimal`, 2x2, 1x2x3 et Floppy) : recherche exhaustive,
+  solution la plus courte possible (11 coups max sur 2x2, 6 sur 1x2x3, 8 sur
+  Floppy), une seule étape.
 - **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
   Pocket extérieur - voir « La tour 2x2x4 ».
-- **Coins puis arêtes** (`cornersFirst`, Domino 3x3x2) : coins du bas, coins
-  du haut, arêtes du bas, arêtes du haut - voir « Le Domino ».
+- **Coins puis arêtes** (`cornersFirst`, Domino 3x3x2 et Floppy 3x3x1) : sur
+  le Domino, coins du bas, coins du haut, arêtes du bas, arêtes du haut ; sur
+  le Floppy, coins placés puis arêtes retournées - voir « Le Domino et le
+  Floppy ».
 
 **Repère du 2x2** : sans centres, pas de repère fixe. Le coin en **DBL**
 (position `[-1,-1,-1]`) joue ce rôle : ses stickers définissent les couleurs
@@ -322,7 +327,7 @@ est peint (`isComplete`) : une tour déformée, dont des pièces sont hors des
 emplacements, ne l'est jamais (« Depuis l'état actuel » y est grisé). Sans centres fixes, la saisie 2x2 part
 entièrement vide (24 stickers), et le 4x4 aussi (96 stickers, centres
 peignables car mobiles). Un centre posé sur l'axe de sa face ne bouge jamais :
-il reste pré-rempli (`centersArePaintable`), les 6 du 3x3 comme les 2 du Domino.
+il reste pré-rempli (`Slot.paintable` : aucun coup ne le déplace ni ne le retourne), les 6 du 3x3 comme ceux du Domino et du Floppy.
 
 ### Les formes non cubiques (le 1x2x3)
 
@@ -354,8 +359,8 @@ Comme son axe fin expose ses deux côtés, les pièces d'extrémité du 1x2x3 po
 saisie, c'est-à-dire des pièces uniques et orientées.
 
 **Résolution** : 96 états seulement, diamètre 6, donc une BFS exhaustive
-(`solveFlat123`) rend la solution la plus courte, exposée par la méthode
-**Optimale** (partagée avec le 2x2). La borne de recherche vaut 7 : un état
+(`solveExhaustively`, `methods/exhaustive.ts`, partagé avec le Floppy) rend
+la solution la plus courte, exposée par la méthode **Optimale**. La borne de recherche vaut 7 : un état
 solvable est toujours trouvé avant, donc l'échec prouve un puzzle impossible,
 ce dont la validation se sert. Le test parcourt **tout l'espace d'états** et
 vérifie que chacun se résout, et que 6 coups suffisent toujours.
@@ -410,7 +415,7 @@ couleurs) : objectifs et clés comparent des couleurs, pas des identités
 (`pieceSearch` sait suivre des jumelles). L'effet de chaque formule est testé
 (`tests/unit/tower.test.ts`).
 
-### Le Domino 3x3x2
+### Le Domino 3x3x2 et le Floppy 3x3x1
 
 Le Domino (`[3, 2, 3]`) est un 3x3 sans couche du milieu, et rien n'y est
 spécial : ses coups se déduisent de la forme (U et D en quarts de tour, les
@@ -425,6 +430,15 @@ d'autre) ; (D) arêtes du haut, par 3-cycle ou échange. Chaque phase cherche
 parmi ses seules formules, U et D plaçant les pièces dessous, avec une
 recherche bidirectionnelle vers « ces pièces à leur place ». La tour réutilise
 les formules A et B pour ses deux Pockets.
+
+Le **Floppy** (`[3, 1, 3]`, `methods/floppy.ts`, d'après fan2cube.fr/floppy1)
+est un 3x3 d'une seule couche : seulement `R2 L2 F2 B2`, 192 états, diamètre
+8 (tout est vérifié en parcourant l'espace entier). Les arêtes ne quittent
+jamais leur place, un demi-tour les retourne ; seuls les coins voyagent. Même
+méthode **Coins puis arêtes** : (1) coins placés en demi-tours, (2) arêtes
+retournées deux par deux par `(F2 R2)3`, qui retourne l'avant et la droite
+sans rien toucher d'autre. En saisie, son centre (deux stickers, jamais
+touché) reste pré-rempli, ses arêtes (qui se retournent) se peignent.
 
 ### Le cube miroir (`src/lib/shape.ts`)
 
@@ -492,7 +506,8 @@ mobile et en saisie, une seule carte) :
 
 - **Initialisation** (titre non affiché, `aria-label` seulement) : **choix du
   cube** (liste déroulante groupée par catégorie, `cubeCategory` : Standard
-  2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 1x2x3/2x2x4/3x3x2 (Domino) ;
+  2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 2x2x4/3x3x2 (Domino), Plats
+  1x2x3/3x3x1 (Floppy), un puzzle d'une seule couche d'épaisseur étant plat ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer
   de variante conserve l'état) avec le **statut** sur la même ligne, mélanger /
   réinitialiser, saisie d'un cube (vierge ou depuis l'état courant),

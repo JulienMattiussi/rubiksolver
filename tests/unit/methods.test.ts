@@ -9,6 +9,7 @@ import { ROUX_PLAN } from '@/lib/methods/roux'
 import { ZZ_PLAN } from '@/lib/methods/zz'
 import { methodsFor } from '@/lib/solver'
 import { buildSteps, type MethodPlan, type SolveStep } from '@/lib/solverKit'
+import { CUBE_CATEGORIES, CUBE_KINDS, cubeCategory, cubeKindId } from '@/lib/types'
 import type { CubeShape, Move } from '@/lib/types'
 import { seededRng } from '../helpers'
 
@@ -156,4 +157,21 @@ describe('ZZ', () => {
       expect(blocks.flatMap((s) => s.moves).some(isQuarterFB)).toBe(false)
     }
   }, 120000)
+})
+
+describe('cube picker', () => {
+  it('groups the puzzles: cubes, mirrors, other cuboids, flat ones', () => {
+    const groups = Object.fromEntries(
+      CUBE_CATEGORIES.map((category) => [
+        category,
+        CUBE_KINDS.filter((kind) => cubeCategory(kind) === category).map(cubeKindId),
+      ]),
+    )
+    expect(groups).toEqual({
+      standard: ['2', '3', '4'],
+      mirror: ['2m', '3m', '4m'],
+      tower: ['224', '332'],
+      flat: ['123', '331'],
+    })
+  })
 })

@@ -10,7 +10,7 @@ import {
 import { normalIndex } from '@/lib/geometry'
 import { applyMove, applyMoves } from '@/lib/turn'
 import { formatMoves, movesFor, scramble } from '@/lib/moves'
-import { solveFlat123 } from '@/lib/methods/flat123'
+import { solveExhaustively } from '@/lib/methods/exhaustive'
 import { solve } from '@/lib/solver'
 import { buildCube, cubeToEdit } from '@/lib/editor'
 import { validateCube } from '@/lib/validate'
@@ -86,7 +86,7 @@ describe('1x2x3 shape', () => {
 describe('1x2x3 solver', () => {
   it('leaves a solved puzzle alone', () => {
     expect(solve(SOLVED)).toEqual([])
-    expect(solveFlat123(SOLVED)).toEqual([])
+    expect(solveExhaustively(SOLVED)).toEqual([])
   })
 
   it('solves every reachable state, none needing more than six half turns', () => {
@@ -95,7 +95,7 @@ describe('1x2x3 solver', () => {
     expect(states.size).toBe(96)
     let longest = 0
     for (const cube of states.values()) {
-      const moves = solveFlat123(cube)
+      const moves = solveExhaustively(cube)
       expect(isSolved(applyMoves(cube, moves))).toBe(true)
       longest = Math.max(longest, moves.length)
     }
