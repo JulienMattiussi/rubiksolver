@@ -5,10 +5,10 @@ import { applyMoves } from '@/lib/turn'
 import {
   buildCube,
   canPaint,
-  colorCounts,
   cubeToEdit,
   emptyEdit,
   filledCount,
+  progress,
   isComplete,
   paint,
   slotsFor,
@@ -22,8 +22,9 @@ describe('cube editor', () => {
     const edit = emptyEdit('3')
     expect(filledCount(edit)).toBe(6)
     expect(isComplete(edit, '3')).toBe(false)
-    const counts = colorCounts(edit)
-    expect(Object.values(counts).every((n) => n === 1)).toBe(true)
+    // Eight of each of the six colors left to paint, none of any other.
+    const { remaining } = progress(edit, '3')
+    expect(Object.values(remaining).filter((n) => n > 0)).toEqual(Array(6).fill(8))
   })
 
   it('round-trips a cube through edit and back', () => {
@@ -57,8 +58,9 @@ describe('cube editor', () => {
 
   it('never lets a color exceed nine', () => {
     const cube = applyMoves(solvedCube(), scramble('3', 15, seededRng(9)))
-    const counts = colorCounts(cubeToEdit(cube))
-    expect(Object.values(counts).every((n) => n === 9)).toBe(true)
+    const { remaining, filled } = progress(cubeToEdit(cube), '3')
+    expect(filled).toBe(54)
+    expect(Object.values(remaining).every((n) => n === 0)).toBe(true)
   })
 })
 

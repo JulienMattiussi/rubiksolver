@@ -8,6 +8,7 @@ import { HOME_POSITION } from './camera'
 import { CameraReset } from './CameraReset'
 import { CubeView } from './CubeView'
 import { EditView } from './EditView'
+import { StarEditView } from './StarEditView'
 import { StarView } from './StarView'
 
 /** The 3D canvas: camera, lighting, the cube (play or edit), orbit controls. */
@@ -22,7 +23,7 @@ export function Scene() {
       <ambientLight intensity={1.05} />
       <directionalLight position={[6, 9, 7]} intensity={0.5} />
       <directionalLight position={[-6, -7, -6]} intensity={0.45} />
-      {editing ? <EditView /> : star ? <StarView /> : <CubeView />}
+      {editing ? star ? <StarEditView /> : <EditView /> : star ? <StarView /> : <CubeView />}
       <OrbitControls
         makeDefault
         enablePan={false}

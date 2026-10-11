@@ -8,7 +8,7 @@ import { CUBIE_GAP, cubeScale, visualPosition } from './layout'
 import { Sticker } from './Sticker'
 
 /** Gray shown on a not-yet-painted sticker slot. */
-const EMPTY_COLOR = '#64748b'
+export const EMPTY_COLOR = '#64748b'
 
 /**
  * The cube in edit mode: every sticker is shown (gray when empty) and every

@@ -1,7 +1,7 @@
-import { cubeShape, stickersOfColor } from '@/lib/cube'
-import { colorCounts } from '@/lib/editor'
+import { cubeShape, shapeColors } from '@/lib/cube'
+import { progress } from '@/lib/editor'
 import { byThickness, LAYER_THICKNESS } from '@/lib/shape'
-import { COLORS } from '@/lib/types'
+import type { CubeColor } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -29,9 +29,9 @@ export function ColorPalette() {
   const edit = useEditor((s) => s.edit)
   const selected = useEditor((s) => s.selectedColor)
   const setColor = useEditor((s) => s.setColor)
-  const counts = colorCounts(edit)
+  const { remaining } = progress(edit, shape)
   // Thinnest first, so the swatches read as a scale.
-  const palette = mirror ? byThickness(MIRROR_THICKNESS) : COLORS
+  const palette = mirror ? byThickness(MIRROR_THICKNESS) : shapeColors(shape)
   const title = mirror ? t.paletteMirror : t.palette
 
   return (
@@ -39,14 +39,14 @@ export function ColorPalette() {
       <h2 className={`mb-2 ${SECTION_LABEL}`}>{title}</h2>
       <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={title}>
         {palette.map((c, rank) => {
-          const remaining = stickersOfColor(shape, c) - counts[c]
+          const left = remaining[c]
           return (
             <button
               key={c}
               role="radio"
               aria-checked={selected === c}
-              aria-label={`${mirror ? t.thickness(rank + 1) : t.colors[c]} (${remaining})`}
-              disabled={remaining <= 0 && selected !== c}
+              aria-label={`${mirror ? t.thickness(rank + 1) : t.colors[c]} (${left})`}
+              disabled={left <= 0 && selected !== c}
               onClick={() => setColor(c)}
               className={`flex items-center justify-center gap-2 rounded-lg border-2 px-2 py-2 text-sm font-semibold transition disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 ${
                 selected === c ? 'border-white' : 'border-transparent hover:border-slate-500'
@@ -58,7 +58,8 @@ export function ColorPalette() {
                   <span
                     className="block h-3.5 rounded-sm"
                     style={{
-                      width: swatchWidth(MIRROR_THICKNESS[c]),
+                      // Only the cubes come as mirrors: their six colors.
+                      width: swatchWidth(MIRROR_THICKNESS[c as CubeColor]),
                       backgroundColor: MIRROR_STICKER,
                     }}
                   />
@@ -66,7 +67,7 @@ export function ColorPalette() {
               ) : (
                 t.colors[c].charAt(0)
               )}
-              <span className="tabular-nums">{remaining}</span>
+              <span className="tabular-nums">{left}</span>
             </button>
           )
         })}

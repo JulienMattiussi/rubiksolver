@@ -150,6 +150,7 @@ src/
 │   ├── CubeModel.tsx     # Rendu d'un puzzle à grille depuis un état (couche qui tourne dans son groupe), partagé scène / guide
 │   ├── StarModel.tsx     # Idem pour l'étoile
 │   ├── StarView.tsx      # Vue 3D de l'étoile (StarModel), animée comme les cubes
+│   ├── StarEditView.tsx  # Saisie d'une étoile : stickers cliquables, gris tant que vides
 │   ├── GuideCanvas.tsx   # Guide des mouvements : un seul canvas WebGL sous la liste, chaque vignette y dessine sa scène
 │   ├── GuideTile.tsx     #   une vignette : scène + caméra propres, scissor sur sa boîte DOM, coup joué en boucle
 │   ├── guideCamera.ts    #   point de vue d'une vignette (la couche qui tourne face à la caméra)
@@ -364,7 +365,10 @@ est peint (`isComplete`) : une tour déformée, dont des pièces sont hors des
 emplacements, ne l'est jamais (« Depuis l'état actuel » y est grisé). Sans centres fixes, la saisie 2x2 part
 entièrement vide (24 stickers), et le 4x4 aussi (96 stickers, centres
 peignables car mobiles). Un centre posé sur l'axe de sa face ne bouge jamais :
-il reste pré-rempli (`Slot.paintable` : aucun coup ne le déplace ni ne le retourne), les 6 du 3x3 comme ceux du Domino et du Floppy.
+il reste pré-rempli (`Slot.paintable` : aucun coup ne le déplace ni ne le retourne), les 6 du 3x3 comme ceux du Domino et du Floppy, et la demi-vis gauche des étoiles.
+Les comptes de couleurs se déduisent du puzzle résolu (`stickersOfColor`,
+`shapeColors`), pas des faces d'un cube : la saisie marche sur toutes les
+formes, étoiles comprises (voir « Le Star Prism »).
 
 ### Les formes non cubiques (le 1x2x3)
 
@@ -526,8 +530,20 @@ page (`/-1/1`, `/1+3B/`) ; (2) finir le bas avec `K` et des tours du bas ;
 (3) finir le haut avec `K` et des tours du haut (deux `K` remettent le bas),
 plus les deux cas singuliers de la page en formules : la demi-vis (`/3/3/`)
 et l'échange de deux sommets du haut (`4(1+K)`). La recherche par pièces, les
-jeux de coups et les étapes acceptent n'importe quel `Turn`. La saisie d'un
-état n'existe pas encore sur ce puzzle (boutons grisés).
+jeux de coups et les étapes acceptent n'importe quel `Turn`.
+
+**Saisie** : la même saisie guidée que les cubes, rien de propre à l'étoile
+dans `editor.ts` : les orientations du puzzle entier sont ses symétries
+(`STAR_SYMMETRIES` : un sixième de tour et le demi-tour du slash, 12
+orientations), donc chaque emplacement de branche accepte les 12 branches
+dans le seul sens où elles y tiennent ; la demi-vis gauche, qu'aucun coup ne
+bouge, reste pré-remplie ; la droite se peint dans un sens ou l'autre. Vue
+dédiée (`StarEditView`, `StarPiece` en mode saisie). Sur le 4-Star, une
+branche interne ne montre que ses deux côtés : une fois peints, leur ordre
+dit dans quel sens elle est posée, et l'éditeur complète sa face cachée
+(`SlotSticker.hidden`, jamais affichée ni comptée : `progress` ne compte que
+les stickers visibles, 64 sur le 4-Star, 40 sur le 2-Star). La palette
+montre les couleurs de la forme (`shapeColors` : rose et violet en plus).
 
 **Le 4-Star Prism** (`star4`, fan2cube.fr/4-star1) : un Super Square-1 en
 étoile, quatre étages (H, h, b, B ; `U`, `u`, `d`, `D` dans le modèle) qui

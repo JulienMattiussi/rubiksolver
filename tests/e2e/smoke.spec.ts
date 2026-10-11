@@ -218,3 +218,22 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
   }
   expect(errors).toEqual([])
 })
+
+test('star prism editor: enter from a scrambled state, apply, then solve', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/')
+  await pickCube(page, 'Étoiles', '4-Star Prism')
+  await page.getByRole('button', { name: 'Mélanger' }).click()
+  const fromCurrent = page.getByRole('button', { name: /Depuis l.?.tat actuel/ })
+  await expect(fromCurrent).toBeEnabled({ timeout: 30000 })
+  await fromCurrent.click()
+  // Only the stickers one sees count: the inner points' flat faces fill in.
+  await expect(page.getByText('64 / 64 stickers')).toBeVisible()
+  await expect(page.getByRole('radio', { name: /^Rose/ })).toBeVisible()
+  await page.getByRole('button', { name: 'Utiliser ce cube' }).click()
+  await expect(page.getByRole('button', { name: 'Résoudre' })).toBeEnabled()
+  await page.getByRole('button', { name: 'Résoudre' }).click()
+  await expect(page.getByText('Étoile interne', { exact: false }).first()).toBeVisible()
+  expect(errors).toEqual([])
+})

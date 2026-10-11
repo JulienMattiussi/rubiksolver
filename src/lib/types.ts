@@ -192,7 +192,7 @@ export type Color = CubeColor | 'P' | 'V'
 export type CubeColor = 'W' | 'Y' | 'G' | 'B' | 'O' | 'R'
 
 /** Every cube color, in palette order. */
-export const COLORS: readonly CubeColor[] = ['W', 'Y', 'G', 'B', 'O', 'R']
+const COLORS: readonly CubeColor[] = ['W', 'Y', 'G', 'B', 'O', 'R']
 
 /** Every sticker color of every puzzle. */
 export const ALL_COLORS: readonly Color[] = [...COLORS, 'P', 'V']

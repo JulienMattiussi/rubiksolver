@@ -1,8 +1,9 @@
 import { cubeOrientations, solvedCube } from './cube'
 import { normalIndex } from './geometry'
 import { movesFor } from './moves'
+import { STAR_RINGS } from './star'
 import { applyMove } from './turn'
-import type { Color, CubeShape, Cubie, Vec3 } from './types'
+import { isStar, type Color, type CubeShape, type Cubie, type Turn, type Vec3 } from './types'
 
 /**
  * Slot and placement tables backing the guided editor (see editor.ts).
@@ -21,6 +22,8 @@ interface SlotSticker {
   readonly normal: Vec3
   readonly id: string
   readonly solvedColor: Color
+  /** Never seen nor clicked: the editor fills it in itself (see `hiddenSticker`). */
+  readonly hidden: boolean
 }
 
 export interface Slot {
@@ -45,8 +48,15 @@ function kindOf(stickerCount: number): SlotKind {
         : 'core'
 }
 
+/** The face of a 4-star inner point that faces up or down: covered by the
+ *  outer layer, it only records which way up the piece sits (star.ts), so
+ *  painting its two sides fills it in. */
+function hiddenSticker(shape: CubeShape, position: Vec3, normal: Vec3): boolean {
+  return isStar(shape) && Math.abs(position[1]) === 1 && normal[1] !== 0
+}
+
 /** A cubie of a solved cube as a slot (fixed position + exterior normals). */
-function toSlot(cubie: Cubie, fixed: boolean): Slot {
+function toSlot(shape: CubeShape, cubie: Cubie, fixed: boolean): Slot {
   return {
     key: posKey(cubie.position),
     position: cubie.position,
@@ -57,6 +67,7 @@ function toSlot(cubie: Cubie, fixed: boolean): Slot {
       normal: s.normal,
       id: stickerId(cubie.position, normalIndex(s.normal)),
       solvedColor: s.color,
+      hidden: hiddenSticker(shape, cubie.position, s.normal),
     })),
   }
 }
@@ -74,7 +85,8 @@ export interface PlacementOption {
 /**
  * Indices of the solved cubies no turn ever moves nor turns over: each keeps
  * its position and the normals of its stickers. The 3x3's centers (which only
- * spin), the Domino's, the Floppy's; never a 4x4 center, nor a Floppy edge
+ * spin), the Domino's, the Floppy's, a star prism's left screw half (the
+ * slash only turns the right one); never a 4x4 center, nor a Floppy edge
  * (a half turn flips it in place).
  */
 function fixedPieces(shape: CubeShape): Set<number> {
@@ -82,7 +94,10 @@ function fixedPieces(shape: CubeShape): Set<number> {
   // Turns keep the sticker order, so each sticker's normal can be compared.
   const pose = (c: Cubie) => [c.position, ...c.stickers.map((s) => s.normal)].join('|')
   const fixed = new Set(solved.keys())
-  for (const move of movesFor(shape)) {
+  const turns: readonly Turn[] = isStar(shape)
+    ? [...STAR_RINGS[shape].map((ring) => ({ ring, amount: 1 as const })), { slash: true }]
+    : movesFor(shape)
+  for (const move of turns) {
     applyMove(solved, move).forEach((c, i) => {
       if (pose(c) !== pose(solved[i]!)) fixed.delete(i)
     })
@@ -108,7 +123,7 @@ export function tablesFor(shape: CubeShape): SlotTables {
   let tables = TABLES.get(shape)
   if (!tables) {
     const fixed = fixedPieces(shape)
-    const slots = solvedCube(shape).map((c, i) => toSlot(c, fixed.has(i)))
+    const slots = solvedCube(shape).map((c, i) => toSlot(shape, c, fixed.has(i)))
     const paintableSlots = slots.filter((s) => s.paintable)
     tables = {
       slots,

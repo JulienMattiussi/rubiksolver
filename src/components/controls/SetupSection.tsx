@@ -34,8 +34,6 @@ export function SetupSection() {
 
   const [confirmReplace, setConfirmReplace] = useState(false)
   const busy = useCube(selectBusy)
-  // The editor knows grid puzzles only (not the star prism yet).
-  const editable = !isStar(shape)
   const solved = useCube(selectSolved)
   const alreadySaved = saved?.cube === encodeCube(cube)
   const savedTime = saved
@@ -62,20 +60,15 @@ export function SetupSection() {
             {t.reset}
           </Button>
         )}
-        <Button
-          onClick={enterEdit}
-          disabled={busy || !editable}
-          title={editable ? undefined : t.noEditor}
-          variant="ghost"
-        >
+        <Button onClick={enterEdit} disabled={busy} variant="ghost">
           <Pencil className="size-4" aria-hidden />
           {t.editCube}
         </Button>
         <Button
           onClick={enterFromCurrent}
           // Off its box a tower has pieces no editor slot can hold.
-          disabled={busy || !editable || !isBoxed(cube)}
-          title={!editable ? t.noEditor : isBoxed(cube) ? undefined : t.fromCurrentUnboxed}
+          disabled={busy || !isBoxed(cube)}
+          title={isBoxed(cube) ? undefined : t.fromCurrentUnboxed}
           variant="ghost"
         >
           {t.fromCurrent}

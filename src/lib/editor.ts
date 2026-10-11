@@ -86,14 +86,27 @@ function withFixedHome(cube: Cube): Cube {
   return cubeOrientations(cube).find(home) ?? cube
 }
 
-/** Count of each color currently painted (centers included). */
-export function colorCounts(edit: EditStickers): Record<Color, number> {
-  return countColors(Object.values(edit))
-}
-
 /** Number of painted stickers (out of `stickersTotal`). */
 export function filledCount(edit: EditStickers): number {
   return Object.keys(edit).length
+}
+
+/** Painted stickers out of those one can see (a 4-star's hidden faces left
+ *  out: they fill in by themselves), and what each color has left. */
+export function progress(
+  edit: EditStickers,
+  shape: CubeShape,
+): { filled: number; total: number; remaining: Record<Color, number> } {
+  const shown = slotsFor(shape).flatMap((slot) => slot.stickers.filter((s) => !s.hidden))
+  const remaining = countColors(shown.map((s) => s.solvedColor))
+  let filled = 0
+  for (const s of shown) {
+    const color = edit[s.id]
+    if (!color) continue
+    filled++
+    remaining[color]--
+  }
+  return { filled, total: shown.length, remaining }
 }
 
 /** Every sticker slot of the shape is painted. Read off the slots, not a

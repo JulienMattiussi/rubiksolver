@@ -1,6 +1,6 @@
 import { Check, Eraser, X } from 'lucide-react'
-import { cubeShape, stickersTotal } from '@/lib/cube'
-import { filledCount, isComplete } from '@/lib/editor'
+import { cubeShape } from '@/lib/cube'
+import { isComplete, progress } from '@/lib/editor'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -18,7 +18,7 @@ export function EditPanel() {
   const apply = useEditor((s) => s.apply)
   const error = useEditor((s) => s.error)
 
-  const filled = filledCount(edit)
+  const { filled, total } = progress(edit, shape)
   const complete = isComplete(edit, shape)
 
   return (
@@ -30,9 +30,7 @@ export function EditPanel() {
       <ColorPalette />
 
       <div className="flex items-center gap-2 text-sm">
-        <span className="font-medium text-slate-200">
-          {t.filledOf(filled, stickersTotal(shape))}
-        </span>
+        <span className="font-medium text-slate-200">{t.filledOf(filled, total)}</span>
         {complete && <Check className="size-4 text-emerald-400" aria-hidden />}
       </div>
 

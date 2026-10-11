@@ -124,6 +124,24 @@ function mapOf(move: StarMove): (v: Vec3) => Vec3 {
   return times(fromAbove(move.ring) ? clockwise : counterclockwise, move.amount)
 }
 
+/** The same map applied to every piece: the whole puzzle turned. */
+const whole =
+  (map: (v: Vec3) => Vec3) =>
+  (cube: Cube): Cube =>
+    cube.map((c) => ({
+      position: map(c.position),
+      stickers: c.stickers.map((st) => ({ normal: map(st.normal), color: st.color })),
+    }))
+
+/** The star prism's whole-puzzle symmetries: a sixth of a turn about its
+ *  axis, and the slash's half turn applied to everything (upside down).
+ *  Their closure, 12 orientations, gives the editor every way a piece can
+ *  sit in a slot. */
+export const STAR_SYMMETRIES: readonly ((cube: Cube) => Cube)[] = [
+  whole(clockwise),
+  whole(slashTurn),
+]
+
 export function applyStarMove(cube: Cube, move: StarMove): Cube {
   const map = mapOf(move)
   return cube.map((cubie) =>

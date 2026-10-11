@@ -33,6 +33,8 @@ export interface StarPolygon {
   readonly paint: 'body' | Color
   /** Outward normal (unit), for lighting and back-face culling. */
   readonly normal: P3
+  /** On a sticker: the normal index of the piece's sticker it shows. */
+  readonly ni?: number
 }
 
 const unit = ([x, , z]: P3): P3 => {
@@ -77,10 +79,12 @@ function colorFacing(cubie: Cubie, index: number): Color | undefined {
   return cubie.stickers.find((s) => normalIndex(s.normal) === index)?.color
 }
 
-/** A face of the body, plus its sticker when the piece shows a color there. */
-function face(points: P3[], normal: P3, color: Color | undefined): StarPolygon[] {
+/** A face of the body, plus its sticker when the piece shows a color there
+ *  (the piece's sticker facing normal index `ni`). */
+function face(points: P3[], normal: P3, cubie?: Cubie, ni?: number): StarPolygon[] {
   const body: StarPolygon = { points, paint: 'body', normal }
-  return color ? [body, { points: sticker(points, normal), paint: color, normal }] : [body]
+  const color = cubie && ni !== undefined ? colorFacing(cubie, ni) : undefined
+  return color ? [body, { points: sticker(points, normal), paint: color, normal, ni }] : [body]
 }
 
 /** Vertical extent of a layer (seen from its side of the screw): its inner
@@ -113,12 +117,12 @@ function pointPolygons(cubie: Cubie, tall: boolean): StarPolygon[] {
   const inwardFlat: P3 = [0, up ? -1 : 1, 0]
   return [
     // The inner faces close the piece (plastic only): no seeing through the gaps.
-    ...face(kite(innerY), inwardFlat, undefined),
-    ...face(side(o, a), away(outward(o, a), scale(a, -1)), undefined),
-    ...face(side(b, o), away(outward(b, o), scale(b, -1)), undefined),
-    ...face(kite(outerY), flatNormal, exposed ? colorFacing(cubie, up ? 2 : 3) : undefined),
-    ...face(side(a, t), away(left, t), colorFacing(cubie, 6 + ((k + 5) % 6))),
-    ...face(side(t, b), away(right, t), colorFacing(cubie, 6 + k)),
+    ...face(kite(innerY), inwardFlat),
+    ...face(side(o, a), away(outward(o, a), scale(a, -1))),
+    ...face(side(b, o), away(outward(b, o), scale(b, -1))),
+    ...face(kite(outerY), flatNormal, exposed ? cubie : undefined, up ? 2 : 3),
+    ...face(side(a, t), away(left, t), cubie, 6 + ((k + 5) % 6)),
+    ...face(side(t, b), away(right, t), cubie, 6 + k),
   ]
 }
 
@@ -143,11 +147,12 @@ function screwPolygons(cubie: Cubie, tall: boolean): StarPolygon[] {
   const side = (up: boolean): StarPolygon[] => {
     const y = up ? top + rise : -top - rise
     const normal: P3 = [0, up ? 1 : -1, 0]
-    const color = colorFacing(cubie, up ? 2 : 3)
+    const ni = up ? 2 : 3
+    const color = colorFacing(cubie, ni)
     const lifted = up ? y + 0.004 : y - 0.004
     return [
       { points: half(SCREW, y, 0), paint: 'body', normal },
-      ...(color ? [{ points: half(SCREW_STICKER, lifted, 0.04), paint: color, normal }] : []),
+      ...(color ? [{ points: half(SCREW_STICKER, lifted, 0.04), paint: color, normal, ni }] : []),
     ]
   }
   return [...side(true), ...side(false)]

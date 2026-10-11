@@ -9,8 +9,8 @@ import {
   quarterTurnFits,
   rotateN,
 } from './geometry'
-import { solvedStar } from './star'
-import { COLORS, isStar, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
+import { solvedStar, STAR_SYMMETRIES } from './star'
+import { ALL_COLORS, isStar, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
 import type {
   Axis,
   Color,
@@ -73,7 +73,7 @@ export function colorsOf(cubie: Cubie): string {
 
 /** How many stickers of each color. */
 export function countColors(colors: Iterable<Color>): Record<Color, number> {
-  const counts = Object.fromEntries(COLORS.map((c) => [c, 0])) as Record<Color, number>
+  const counts = Object.fromEntries(ALL_COLORS.map((c) => [c, 0])) as Record<Color, number>
   for (const color of colors) counts[color]++
   return counts
 }
@@ -185,27 +185,31 @@ export function turnDims(shape: CubeShape): Dims {
   return [n, n, n]
 }
 
-/** Facelets on one face: the product of the two dimensions it spans. */
-function faceletCount(dims: Dims, face: Face): number {
-  const a = FACE_SPEC[face].coordIndex
-  return dims[(a + 1) % 3]! * dims[(a + 2) % 3]!
+/** Stickers of each color on a solved puzzle, by shape (memoized). */
+const SOLVED_COUNTS = new Map<CubeShape, Record<Color, number>>()
+function solvedCounts(shape: CubeShape): Record<Color, number> {
+  let counts = SOLVED_COUNTS.get(shape)
+  if (!counts) {
+    counts = countColors(solvedCube(shape).flatMap((c) => c.stickers.map((s) => s.color)))
+    SOLVED_COUNTS.set(shape, counts)
+  }
+  return counts
 }
 
-/** Face wearing each solved color, the inverse of FACE_COLOR. */
-const COLOR_FACE = Object.fromEntries(FACES_BY_NORMAL.map((f) => [FACE_COLOR[f], f])) as Record<
-  Color,
-  Face
->
-
-/** Stickers of one color on a solved puzzle: the facelets of its own face. */
+/** Stickers of one color on a solved puzzle (a cuboid's faces differ, a
+ *  star prism has its own colors). */
 export function stickersOfColor(shape: CubeShape, color: Color): number {
-  return faceletCount(SHAPE_DIMS[shape], COLOR_FACE[color])
+  return solvedCounts(shape)[color]
 }
 
-/** Total sticker count of a shape (its six faces). */
+/** Total sticker count of a shape. */
 export function stickersTotal(shape: CubeShape): number {
-  const dims = SHAPE_DIMS[shape]
-  return FACES_BY_NORMAL.reduce((total, face) => total + faceletCount(dims, face), 0)
+  return Object.values(solvedCounts(shape)).reduce((a, b) => a + b, 0)
+}
+
+/** The colors a shape wears, in palette order. */
+export function shapeColors(shape: CubeShape): Color[] {
+  return ALL_COLORS.filter((color) => stickersOfColor(shape, color) > 0)
 }
 
 /** Whether the cubies show a single color per face (stickers grouped by the
@@ -279,23 +283,24 @@ function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
  * Every whole-puzzle rotation of `cube`, found by closure over the rotations
  * its shape allows: a quarter turn per axis on a cube (24 orientations), only
  * half turns where the shape forbids quarter ones (4 on a 1x2x3, 8 on the
- * tower and the Domino). Used by the editor (valid piece placements) and the
+ * tower and the Domino); a star prism's own symmetries (12). Used by the editor (valid piece placements) and the
  * 2x2 solver (a 2x2 has no centers, so "solved" is any orientation of the
  * solved cube).
  */
 export function cubeOrientations(cube: Cube): Cube[] {
   const dims = cubeDims(cube)
-  const generators = (['x', 'y', 'z'] as Axis[]).map((axis): [Axis, number] => [
-    axis,
-    quarterTurnFits(dims, axis) ? 1 : 2,
-  ])
+  const generators = isStar(cubeShape(cube))
+    ? STAR_SYMMETRIES
+    : (['x', 'y', 'z'] as Axis[]).map(
+        (axis) => (c: Cube) => rotateCube(c, axis, quarterTurnFits(dims, axis) ? 1 : 2),
+      )
   const found = new Map<string, Cube>([[stateKey(cube), cube]])
   let frontier = [cube]
   while (frontier.length) {
     const next: Cube[] = []
     for (const state of frontier) {
-      for (const [axis, quarters] of generators) {
-        const rotated = rotateCube(state, axis, quarters)
+      for (const turn of generators) {
+        const rotated = turn(state)
         const key = stateKey(rotated)
         if (!found.has(key)) {
           found.set(key, rotated)
