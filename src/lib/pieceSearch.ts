@@ -2,7 +2,7 @@ import { colorsOf, cubeShape, solvedCube, stateKey, turnDims } from './cube'
 import { applyMoves } from './turn'
 import { invertMoves, sameLayer } from './moves'
 import type { MoveSet } from './moveSet'
-import type { Cube, Cubie, Dims, Move, Vec3 } from './types'
+import type { Cube, Cubie, Dims, Move, Turn, Vec3 } from './types'
 
 /**
  * Search over a handful of tracked pieces, the brick of blockbuilding and
@@ -26,14 +26,14 @@ import type { Cube, Cubie, Dims, Move, Vec3 } from './types'
  * Solutions are shortest for a custom goal and at most one move longer than
  * shortest for the default one (first meet wins).
  */
-export interface PieceSearch {
+export interface PieceSearch<T extends Turn = Move> {
   /** Home positions of the pieces to track. */
   readonly track: readonly Vec3[]
   /** Turns the search may use. */
   readonly moves: MoveSet
   /** Sequences usable as a single generator (setup-move conjugates...). They
    *  must only produce turns `moves` allows. */
-  readonly macros?: readonly (readonly Move[])[]
+  readonly macros?: readonly (readonly T[])[]
   /** Goal on the tracked pieces; absent means every tracked piece at home. */
   readonly goal?: (pieces: readonly Cubie[]) => boolean
   /** Dedup key; it must determine the goal and how the key evolves, e.g. the
@@ -44,7 +44,7 @@ export interface PieceSearch {
 
 interface Node {
   readonly pieces: Cube
-  readonly moves: readonly Move[]
+  readonly moves: readonly Turn[]
 }
 
 /** Stickers in color order, so the same piece always encodes the same way
@@ -80,22 +80,22 @@ function trackedPieces(cube: Cube, track: readonly Vec3[]): { start: Cube; home:
 }
 
 /** Every generator as a sequence: single turns, then the macros. */
-function generatorsOf(spec: PieceSearch): ReadonlyArray<readonly Move[]> {
+function generatorsOf(spec: PieceSearch<Turn>): ReadonlyArray<readonly Turn[]> {
   return [...spec.moves.turns.map((t) => [t]), ...(spec.macros ?? [])]
 }
 
 /** A single turn of the layer just turned would merge with it: skipped. */
-function sameLayerTwice(last: Move | undefined, gen: readonly Move[]): boolean {
+function sameLayerTwice(last: Turn | undefined, gen: readonly Turn[]): boolean {
   return gen.length === 1 && last !== undefined && sameLayer(last, gen[0]!)
 }
 
 /** Children of `node`; `visit` returns a solution to stop the search. */
 function expand(
   node: Node,
-  generators: ReadonlyArray<readonly Move[]>,
+  generators: ReadonlyArray<readonly Turn[]>,
   dims: Dims,
-  visit: (child: Node) => Move[] | null,
-): Move[] | null {
+  visit: (child: Node) => Turn[] | null,
+): Turn[] | null {
   const last = node.moves[node.moves.length - 1]
   for (const gen of generators) {
     if (sameLayerTwice(last, gen)) continue
@@ -106,21 +106,26 @@ function expand(
   return null
 }
 
-/** Moves solving the tracked pieces as `spec` asks. Throws past `maxDepth`. */
-export function solvePieces(cube: Cube, spec: PieceSearch): Move[] {
+/** Moves solving the tracked pieces as `spec` asks (face moves on the cubes,
+ *  the star prism's turns on it). Throws past `maxDepth`. */
+export function solvePieces<T extends Turn = Move>(cube: Cube, spec: PieceSearch<T>): T[] {
   const dims = turnDims(cubeShape(cube))
   const { start, home } = trackedPieces(cube, spec.track)
-  return spec.goal
-    ? forward(start, spec.goal, spec, dims)
-    : meetInTheMiddle(start, home, spec, dims)
+  // The generators are the set's turns and `T` macros: the result holds T.
+  const generic = spec as PieceSearch<Turn>
+  return (
+    spec.goal
+      ? forward(start, spec.goal, generic, dims)
+      : meetInTheMiddle(start, home, generic, dims)
+  ) as T[]
 }
 
 function forward(
   start: Cube,
   goal: (pieces: readonly Cubie[]) => boolean,
-  spec: PieceSearch,
+  spec: PieceSearch<Turn>,
   dims: Dims,
-): Move[] {
+): Turn[] {
   if (goal(start)) return []
   const keyOf = spec.key ?? stateKey
   const generators = generatorsOf(spec)
@@ -147,11 +152,11 @@ function forward(
 interface Side {
   frontier: Node[]
   /** Moves reaching each visited state from this side's origin. */
-  readonly seen: Map<string, readonly Move[]>
-  readonly generators: ReadonlyArray<readonly Move[]>
+  readonly seen: Map<string, readonly Turn[]>
+  readonly generators: ReadonlyArray<readonly Turn[]>
 }
 
-function meetInTheMiddle(start: Cube, home: Cube, spec: PieceSearch, dims: Dims): Move[] {
+function meetInTheMiddle(start: Cube, home: Cube, spec: PieceSearch<Turn>, dims: Dims): Turn[] {
   const startKey = stateKey(start)
   const homeKey = stateKey(home)
   if (startKey === homeKey) return []

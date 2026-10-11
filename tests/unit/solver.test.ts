@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/cube'
 import { applyMoves } from '@/lib/turn'
-import { formatMoves, parseMoves, scramble } from '@/lib/moves'
+import { formatMoves, parseMoves, scramble, scrambleTurns } from '@/lib/moves'
 import {
   crossDone,
   firstLayerDone,
@@ -57,7 +57,8 @@ describe('solver', () => {
     for (const shape of shapes) {
       for (const method of methodsFor(shape)) {
         for (let i = 0; i < 3; i++) {
-          const cube = applyMoves(solvedCube(shape), scramble(shape, 25, rng))
+          const solved = solvedCube(shape)
+          const cube = applyMoves(solved, scrambleTurns(shape, 25, rng, solved))
           const steps = method.solve(cube)
           for (const step of steps) {
             expect(step.moves.length).toBeGreaterThan(0)

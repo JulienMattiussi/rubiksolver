@@ -5,13 +5,13 @@ import { formatMove, invertMoves, scramble } from '@/lib/moves'
 import { DESCEND, PIVOT, SWAP, TOWER_PLAN } from '@/lib/methods/tower'
 import { methodsFor } from '@/lib/solver'
 import { buildSteps } from '@/lib/solverKit'
-import type { Cube, Move } from '@/lib/types'
+import type { Cube, Turn } from '@/lib/types'
 import { seededRng } from '../helpers'
 
 const SOLVED = solvedCube('224')
 
 /** Play a formula, checking the tower lets every turn of it through. */
-function play(moves: readonly Move[], from: Cube = SOLVED): Cube {
+function play(moves: readonly Turn[], from: Cube = SOLVED): Cube {
   return moves.reduce((cube, move) => {
     expect(turnAllowed(cube, move)).toBe(true)
     return applyMove(cube, move)

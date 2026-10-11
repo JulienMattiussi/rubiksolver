@@ -1,5 +1,5 @@
 import { movesFor, parseMoves, sameLayer } from './moves'
-import type { CubeShape, Move } from './types'
+import type { CubeShape, Move, Turn } from './types'
 
 /**
  * The turns a solving step is allowed to use, e.g. `<M, U>` for the end of
@@ -13,9 +13,9 @@ import type { CubeShape, Move } from './types'
  */
 export interface MoveSet {
   /** One move per allowed layer, as written (amount 2 = half turns only). */
-  readonly generators: readonly Move[]
+  readonly generators: readonly Turn[]
   /** Every concrete turn the set allows. */
-  readonly turns: readonly Move[]
+  readonly turns: readonly Turn[]
   /** Whether the set is a real restriction worth showing to the learner. */
   readonly restricted: boolean
 }
@@ -39,6 +39,8 @@ export function allTurnsOf(shape: CubeShape): MoveSet {
 }
 
 /** Whether `move` is one of the turns `set` allows. */
-export function allows(set: MoveSet, move: Move): boolean {
-  return set.turns.some((t) => sameLayer(t, move) && t.amount === move.amount)
+export function allows(set: MoveSet, move: Turn): boolean {
+  return set.turns.some((t) => sameLayer(t, move) && amountOf(t) === amountOf(move))
 }
+
+const amountOf = (turn: Turn): number => ('amount' in turn ? turn.amount : 0)

@@ -1,6 +1,6 @@
 import { Sparkles, StepForward } from 'lucide-react'
 import { useI18n } from '@/i18n/i18nStore'
-import { selectBusy, selectSolvable, selectSolved, useCube } from '@/store/cubeStore'
+import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
 import { Button } from '@/components/ui/Button'
 import { SECTION_BOX } from '@/components/ui/styles'
 import { MethodSelect } from './MethodSelect'
@@ -16,15 +16,6 @@ export function SolvePanel() {
   const busy = useCube(selectBusy)
   const solved = useCube(selectSolved)
   const allPlayed = steps ? stepIndex >= steps.length : false
-  const solvable = useCube(selectSolvable)
-
-  if (!solvable) {
-    return (
-      <section aria-label={t.sectionSolve} className={SECTION_BOX}>
-        <p className="text-xs leading-relaxed text-slate-400">{t.noMethod}</p>
-      </section>
-    )
-  }
 
   return (
     <section aria-label={t.sectionSolve} className={SECTION_BOX}>

@@ -113,7 +113,7 @@ describe('Roux', () => {
     for (const steps of solveScrambles(ROUX_PLAN, 25, 101)) {
       expect(steps.map((s) => s.key)).toContain('stepCMLL')
       // The last six edges really are M and U only.
-      const lse = steps.filter((s) => s.key.startsWith('stepLSE')).flatMap((s) => s.moves)
+      const lse = steps.filter((s) => s.key.startsWith('stepLSE')).flatMap((s) => s.moves as Move[])
       expect(lse.every((m) => m.face === 'U' || (m.face === 'L' && m.depth === 2))).toBe(true)
     }
   }, 120000)
@@ -135,7 +135,9 @@ describe('Petrus', () => {
   it('solves scrambles, every step reaching its goal within its moves', () => {
     for (const steps of solveScrambles(PETRUS_PLAN, 25, 202)) {
       const f2l = steps.find((s) => s.key === 'stepF2LRU')
-      expect(f2l?.moves.every((m) => m.face === 'R' || m.face === 'U') ?? true).toBe(true)
+      expect(
+        (f2l?.moves as Move[] | undefined)?.every((m) => m.face === 'R' || m.face === 'U') ?? true,
+      ).toBe(true)
     }
   }, 120000)
 })
@@ -154,7 +156,7 @@ describe('ZZ', () => {
   it('never turns F or B a quarter turn during the F2L, after EOLine', () => {
     for (const steps of solveScrambles(ZZ_PLAN, 25, 303)) {
       const blocks = steps.filter((s) => s.key === 'stepLeftBlock' || s.key === 'stepRightBlock')
-      expect(blocks.flatMap((s) => s.moves).some(isQuarterFB)).toBe(false)
+      expect(blocks.flatMap((s) => s.moves as Move[]).some(isQuarterFB)).toBe(false)
     }
   }, 120000)
 })

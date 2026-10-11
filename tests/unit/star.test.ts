@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/cube'
-import { NOTATION_FR, NOTATION_US } from '@/lib/moves'
+import { NOTATION_FR, NOTATION_US, scrambleTurns } from '@/lib/moves'
+import { STAR_PLAN } from '@/lib/methods/starPrism'
+import { methodsFor } from '@/lib/solver'
+import { buildSteps } from '@/lib/solverKit'
+import { seededRng } from '../helpers'
 import {
   applyStarMove,
   formatStarMove,
@@ -103,4 +107,22 @@ describe('star prism formulas (from fan2cube.fr)', () => {
     )
     expect(isSolved(fixed)).toBe(false)
   })
+})
+
+describe('Isolate then permute (Star Prism method)', () => {
+  it('is the method offered for the star prism', () => {
+    expect(methodsFor('star').map((m) => m.id)).toEqual(['isolateFirst'])
+  })
+
+  it('solves scrambles, every step reaching its goal', () => {
+    const rng = seededRng(41)
+    for (let i = 0; i < 15; i++) {
+      let state = applyMoves(SOLVED, scrambleTurns('star', 30, rng, SOLVED))
+      for (const step of buildSteps(state, STAR_PLAN)) {
+        state = applyMoves(state, step.moves)
+        expect(STAR_PLAN.find((s) => s.key === step.key)!.goal(state)).toBe(true)
+      }
+      expect(isSolved(state)).toBe(true)
+    }
+  }, 120000)
 })

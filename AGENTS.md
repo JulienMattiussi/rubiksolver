@@ -105,6 +105,7 @@ src/
 │   │   ├── cube2.ts      #   2x2 : par couches (repère DBL) et optimal (BFS bidirectionnelle)
 │   │   ├── exhaustive.ts #   optimal des petits puzzles (1x2x3, Floppy) : BFS exhaustive via solvePieces
 │   │   ├── tower.ts      #   tour 2x2x4 : Deux Pockets (forme, Pocket intérieur, Pocket extérieur)
+│   │   ├── starPrism.ts  #   Star Prism : isoler puis permuter (formule K de fan2cube.fr)
 │   │   ├── slimTower.ts  #   Slim Tower 2x2x3 : équateur puis coins (formules du Domino, fan2cube.fr)
 │   │   ├── domino.ts     #   Domino 3x3x2 : coins puis arêtes (formules de fan2cube.fr, reprises élargies par la tour)
 │   │   └── floppy.ts     #   Floppy 3x3x1 : coins puis arêtes retournées deux par deux (fan2cube.fr)
@@ -226,6 +227,8 @@ et le store ne voient que ça) :
 - **Équateur puis coins** (`equatorFirst`, Slim Tower 2x2x3) : les arêtes de
   l'équateur, puis les coins du bas descendus deux par deux, puis ceux du haut
   - voir « Le Domino, le Floppy et la Slim Tower ».
+- **Isoler puis permuter** (`isolateFirst`, Star Prism) : sommets isolés,
+  puis le bas et le haut avec la formule `K` - voir « Le Star Prism ».
 - **Coins puis arêtes** (`cornersFirst`, Domino 3x3x2 et Floppy 3x3x1) : sur
   le Domino, coins du bas, coins du haut, arêtes du bas, arêtes du haut ; sur
   le Floppy, coins placés puis arêtes retournées - voir « Le Domino et le
@@ -492,8 +495,17 @@ renvoie un vecteur). Vue 3D (`StarView`), vignette et pad (`StarPad` : haut
 ±1, bas ±1, slash) dédiés ; notation de fan2cube (`3`, `-2B`/`-2D`, `/`). Les
 formules de fan2cube.fr/2-star1 sont vérifiées sur le modèle (`K =
 /-1/1+B/-B/` échange deux sommets en haut et les deux du dessous ; `/3/3/`
-retourne la demi-vis, le haut à remettre d'un `3`). **Pas encore de méthode
-de résolution ni de saisie** sur ce puzzle (le panneau l'indique).
+retourne la demi-vis, le haut à remettre d'un `3`).
+
+**Résolution** (`methods/starPrism.ts`, méthode **Isoler puis permuter**) :
+(1) isoler les sommets (verts en haut, bleus en bas), recherche keyée sur la
+seule répartition des couleurs, avec le slash et les deux placements de la
+page (`/-1/1`, `/1+3B/`) ; (2) finir le bas avec `K` et des tours du bas ;
+(3) finir le haut avec `K` et des tours du haut (deux `K` remettent le bas),
+plus les deux cas singuliers de la page en formules : la demi-vis (`/3/3/`)
+et l'échange de deux sommets du haut (`4(1+K)`). La recherche par pièces, les
+jeux de coups et les étapes acceptent n'importe quel `Turn`. La saisie d'un
+état n'existe pas encore sur ce puzzle (boutons grisés).
 
 ### Le cube miroir (`src/lib/shape.ts`)
 

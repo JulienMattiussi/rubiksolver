@@ -1,7 +1,7 @@
 import { solvedCube } from '../cube'
 import { centersDone } from './centers'
 import { edgesPaired } from './edges'
-import type { Cube, Cubie, Move, Vec3 } from '../types'
+import type { Cube, Cubie, Turn, Vec3 } from '../types'
 
 /**
  * Projection of a reduced 4x4 onto a virtual 3x3. Once centers are solved and
@@ -38,6 +38,6 @@ export function to3x3(cube4: Cube): Cube {
 }
 
 /** Run a 3x3 phase on the projection; its (outer) moves replay on the 4x4. */
-export function via3x3(phase: (c: Cube) => Move[]): (c: Cube) => Move[] {
+export function via3x3(phase: (c: Cube) => Turn[]): (c: Cube) => Turn[] {
   return (cube4) => phase(to3x3(cube4))
 }

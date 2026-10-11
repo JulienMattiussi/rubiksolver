@@ -37,7 +37,7 @@ const REDUCTION_PREFIX: MethodPlan = [
  */
 export function reductionPlan(plan3x3: MethodPlan): MethodPlan {
   for (const spec of plan3x3) {
-    if (spec.moves.turns.some((t) => t.depth)) {
+    if (spec.moves.turns.some((t) => 'depth' in t && t.depth)) {
       throw new Error(`reductionPlan: ${spec.key} turns inner layers`)
     }
   }

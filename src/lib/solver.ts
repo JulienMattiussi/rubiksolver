@@ -7,11 +7,12 @@ import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { PETRUS_PLAN } from './methods/petrus'
 import { ROUX_PLAN } from './methods/roux'
 import { SLIM_TOWER_PLAN } from './methods/slimTower'
+import { STAR_PLAN } from './methods/starPrism'
 import { TOWER_PLAN } from './methods/tower'
 import { ZZ_PLAN } from './methods/zz'
 import { reductionPlan } from './solver4/steps'
 import { buildSteps, type MethodPlan, type SolveStep } from './solverKit'
-import type { Cube, CubeShape, Move } from './types'
+import type { Cube, CubeShape, Turn } from './types'
 
 export type { SolveStep } from './solverKit'
 
@@ -40,6 +41,7 @@ const SOLVE_METHODS = [
   { id: 'reductionCfop', plans: { '4': reductionPlan(CFOP_PLAN) } },
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
   { id: 'equatorFirst', plans: { '223': SLIM_TOWER_PLAN } },
+  { id: 'isolateFirst', plans: { star: STAR_PLAN } },
   { id: 'cornersFirst', plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN } },
   {
     id: 'optimal',
@@ -65,7 +67,7 @@ export function methodsFor(shape: CubeShape) {
  * Default full solve, kept for validation and callers. Every branch throws on
  * an unsolvable cube after a bounded search, which is what validate.ts needs.
  */
-export function solve(cube: Cube): Move[] {
+export function solve(cube: Cube): Turn[] {
   const shape = cubeShape(cube)
   // On a 2x2 the optimal search is the quickest to prove a cube impossible.
   if (shape === '2') return solveOptimal2(cube)

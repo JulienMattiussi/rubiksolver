@@ -98,7 +98,6 @@ const fr = {
   collapse: 'Replier le menu',
   expand: 'Déplier le menu',
   methodLabel: 'Méthode de résolution',
-  noMethod: 'Pas encore de méthode de résolution pour ce puzzle.',
   methods: {
     beginner: {
       name: 'Par couches',
@@ -131,6 +130,10 @@ const fr = {
     twoPockets: {
       name: 'Deux Pockets',
       desc: 'La tour vue comme deux Pockets empilés : la remettre en forme en pivotant ses sommets, puis finir le Pocket intérieur, puis le Pocket extérieur, avec deux formules du Domino (descendre un sommet, permuter deux sommets).',
+    },
+    isolateFirst: {
+      name: 'Isoler puis permuter',
+      desc: 'Séparer les sommets verts (en haut) et bleus (en bas), puis finir le bas et le haut avec une seule formule, K, qui échange deux sommets de chaque étage.',
     },
     equatorFirst: {
       name: 'Équateur puis coins',
@@ -185,6 +188,9 @@ const fr = {
     stepTopEdges: 'Arêtes du haut',
     stepCorners: 'Placer les coins',
     stepEquator: 'Équateur',
+    stepIsolate: 'Isoler les sommets',
+    stepStarBottom: 'Finir le bas',
+    stepStarTop: 'Finir le haut',
     stepFlipEdges: 'Retourner les arêtes',
     stepInnerPocket: 'Pocket intérieur',
     stepOuterPocket: 'Pocket extérieur',
@@ -288,7 +294,6 @@ const en: Translations = {
   collapse: 'Collapse menu',
   expand: 'Expand menu',
   methodLabel: 'Solving method',
-  noMethod: 'No solving method for this puzzle yet.',
   methods: {
     beginner: {
       name: 'Layer by layer',
@@ -321,6 +326,10 @@ const en: Translations = {
     twoPockets: {
       name: 'Two Pockets',
       desc: 'The tower seen as two stacked Pockets: put it back in shape by pivoting its corners, then finish the inner Pocket, then the outer Pocket, with two Domino formulas (descend a corner, swap two corners).',
+    },
+    isolateFirst: {
+      name: 'Isolate then permute',
+      desc: 'Separate the green points (up) from the blue ones (down), then finish the bottom and the top with a single formula, K, which swaps two points of each layer.',
     },
     equatorFirst: {
       name: 'Equator then corners',
@@ -375,6 +384,9 @@ const en: Translations = {
     stepTopEdges: 'Top edges',
     stepCorners: 'Place the corners',
     stepEquator: 'Equator',
+    stepIsolate: 'Isolate the points',
+    stepStarBottom: 'Finish the bottom',
+    stepStarTop: 'Finish the top',
     stepFlipEdges: 'Flip the edges',
     stepInnerPocket: 'Inner Pocket',
     stepOuterPocket: 'Outer Pocket',

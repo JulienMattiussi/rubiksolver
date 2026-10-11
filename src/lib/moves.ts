@@ -1,9 +1,9 @@
 import { solvedCube, turnDims } from './cube'
 import { faceAxis, faceLayers, quarterTurnFits } from './geometry'
 import { applyMove, turnAllowed } from './turn'
-import { formatStarMove, scrambleStar } from './star'
+import { formatStarMove, invertStarMove, scrambleStar, simplifyStarMoves } from './star'
 import { isStar, isStarMove, SHAPE_INNER_TURNS, SHAPE_SHIFTS } from './types'
-import type { Cube, CubeShape, Dims, Face, Move, Turn } from './types'
+import type { Cube, CubeShape, Dims, Face, Move, StarMove, Turn } from './types'
 
 export const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
 
@@ -157,7 +157,11 @@ export function parseMoves(input: string, labels: FaceLabels = NOTATION_US): Mov
 }
 
 /** Whether two moves turn the same layers (whatever their amounts). */
-export function sameLayer(a: Move, b: Move): boolean {
+export function sameLayer(a: Turn, b: Turn): boolean {
+  if (isStarMove(a) || isStarMove(b)) {
+    if (!isStarMove(a) || !isStarMove(b)) return false
+    return 'ring' in a && 'ring' in b ? a.ring === b.ring : 'slash' in a && 'slash' in b
+  }
   return a.face === b.face && a.depth === b.depth && a.wide === b.wide
 }
 
@@ -168,8 +172,8 @@ export function invertMove(move: Move): Move {
 }
 
 /** The sequence that undoes `moves` (reversed and each inverted). */
-export function invertMoves(moves: readonly Move[]): Move[] {
-  return [...moves].reverse().map(invertMove)
+export function invertMoves<T extends Turn>(moves: readonly T[]): T[] {
+  return [...moves].reverse().map((m) => (isStarMove(m) ? invertStarMove(m) : invertMove(m)) as T)
 }
 
 /**
@@ -178,9 +182,10 @@ export function invertMoves(moves: readonly Move[]): Move[] {
  * share a face but not their layers (`R` then `2R`) are left alone. Keeps
  * generated solutions tidy without changing what they do.
  */
-export function simplifyMoves(moves: readonly Move[]): Move[] {
+export function simplifyMoves<T extends Turn>(moves: readonly T[]): T[] {
+  if (moves.some(isStarMove)) return simplifyStarMoves(moves as readonly StarMove[]) as T[]
   const out: Move[] = []
-  for (const move of moves) {
+  for (const move of moves as readonly Move[]) {
     const last = out[out.length - 1]
     if (last && sameLayer(last, move)) {
       const total = (last.amount + move.amount) % 4
@@ -190,7 +195,7 @@ export function simplifyMoves(moves: readonly Move[]): Move[] {
       out.push(move)
     }
   }
-  return out
+  return out as T[]
 }
 
 /**
@@ -207,6 +212,7 @@ export function scramble(
   rng: () => number = Math.random,
   start: Cube = solvedCube(shape),
 ): Move[] {
+  if (isStar(shape)) throw new Error('scramble: the star prism turns by rings, see scrambleTurns')
   const faces = FACES.filter((face) => amountsFor(shape, face).length > 0)
   // A shape-shifting puzzle jams some turns once out of its box, so its
   // scramble plays along from `start` and only draws turns it can make.

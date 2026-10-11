@@ -2,7 +2,7 @@ import { isSolved, stateKey } from './cube'
 import { applyMove, applyMoves } from './turn'
 import { formatMove, parseMoves, simplifyMoves } from './moves'
 import { allows, type MoveSet } from './moveSet'
-import type { Cube, Face, Move } from './types'
+import type { Cube, Face, Move, Turn } from './types'
 
 /**
  * Shared solving machinery: bounded searches whose goals encode "do not
@@ -159,8 +159,8 @@ export function solveWithAlgs(
  */
 export interface SolveStep {
   readonly key: string
-  readonly moves: readonly Move[]
-  readonly allowed?: readonly Move[]
+  readonly moves: readonly Turn[]
+  readonly allowed?: readonly Turn[]
 }
 
 /**
@@ -174,7 +174,7 @@ interface StepSpec {
   readonly key: string
   readonly goal: (c: Cube) => boolean
   readonly moves: MoveSet
-  readonly phases: ReadonlyArray<(c: Cube) => Move[]>
+  readonly phases: ReadonlyArray<(c: Cube) => Turn[]>
 }
 
 /** A solving method for one shape: its steps, in order. */
@@ -186,7 +186,7 @@ export function buildSteps(cube: Cube, plan: MethodPlan): SolveStep[] {
   let state = cube
   const steps: SolveStep[] = []
   for (const spec of plan) {
-    let moves: Move[] = []
+    let moves: Turn[] = []
     for (const phase of spec.phases) {
       const m = phase(state)
       state = applyMoves(state, m)

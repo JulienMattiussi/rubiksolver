@@ -86,9 +86,6 @@ export const selectBusy = (s: CubeStore): boolean => s.active !== null || s.queu
 
 export const selectSolved = (s: CubeStore): boolean => isSolved(s.cube)
 
-/** The puzzle has a solving method (the star prism has none yet). */
-export const selectSolvable = (s: CubeStore): boolean => methodsFor(cubeShape(s.cube)).length > 0
-
 export const useCube = create<CubeStore>((set, get) => ({
   cube: solvedCube(),
   variant: 'classic',
