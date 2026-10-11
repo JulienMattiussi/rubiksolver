@@ -46,6 +46,7 @@ export function ColorPalette() {
               role="radio"
               aria-checked={selected === c}
               aria-label={`${mirror ? t.thickness(rank + 1) : t.colors[c]} (${left})`}
+              title={mirror ? t.thickness(rank + 1) : t.colors[c]}
               disabled={left <= 0 && selected !== c}
               onClick={() => setColor(c)}
               className={`flex items-center justify-center gap-2 rounded-lg border-2 px-2 py-2 text-sm font-semibold transition disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 ${
@@ -53,7 +54,7 @@ export function ColorPalette() {
               } ${mirror ? 'bg-slate-800 text-slate-200' : ''}`}
               style={mirror ? undefined : { backgroundColor: COLOR_HEX[c], color: '#0b0f1a' }}
             >
-              {mirror ? (
+              {mirror && (
                 <span className="flex-1" aria-hidden>
                   <span
                     className="block h-3.5 rounded-sm"
@@ -64,8 +65,6 @@ export function ColorPalette() {
                     }}
                   />
                 </span>
-              ) : (
-                t.colors[c].charAt(0)
               )}
               <span className="tabular-nums">{left}</span>
             </button>

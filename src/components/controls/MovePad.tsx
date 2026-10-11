@@ -72,7 +72,7 @@ export function MovePad({ disabled }: { disabled: boolean }) {
       : jammed
         ? t.jammedTurn(name)
         : current === 'advanced'
-          ? t.describeMove(describeMove(move, dims))
+          ? t.describeMove(describeMove(move, shape))
           : move.amount === 2
             ? t.moveTitleHalf(name)
             : t.moveTitle(name, move.amount === 1, kind)

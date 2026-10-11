@@ -33,6 +33,25 @@ const FACE_NAMES_FR: Record<Face, string> = {
   B: 'face arrière',
 }
 
+/** The half of the puzzle on a face's side (a wide turn on four layers). */
+const HALF_NAMES_FR: Record<Face, string> = {
+  U: 'la moitié du haut',
+  D: 'la moitié du bas',
+  L: 'la moitié gauche',
+  R: 'la moitié droite',
+  F: 'la moitié avant',
+  B: 'la moitié arrière',
+}
+
+const HALF_NAMES_EN: Record<Face, string> = {
+  U: 'the top half',
+  D: 'the bottom half',
+  L: 'the left half',
+  R: 'the right half',
+  F: 'the front half',
+  B: 'the back half',
+}
+
 const FACE_NAMES_EN: Record<Face, string> = {
   U: 'top face',
   D: 'bottom face',
@@ -62,7 +81,9 @@ function describeFr(d: MoveDescription): string {
     face: `la ${face}`,
     middle: `la tranche du milieu, parallèle à la ${face},`,
     slice: `la tranche interne voisine de la ${face}`,
-    wide: `la ${face} et la tranche interne voisine ensemble`,
+    wide: d.halfPuzzle
+      ? `toute ${HALF_NAMES_FR[d.face]} du puzzle`
+      : `la ${face} et la tranche interne voisine ensemble`,
   }[d.kind]
   const how =
     d.turn === 'half'
@@ -90,7 +111,9 @@ function describeEn(d: MoveDescription): string {
     face: `the ${face}`,
     middle: `the middle slice, parallel to the ${face},`,
     slice: `the inner slice next to the ${face}`,
-    wide: `the ${face} and the inner slice next to it together`,
+    wide: d.halfPuzzle
+      ? `${HALF_NAMES_EN[d.face]} of the puzzle`
+      : `the ${face} and the inner slice next to it together`,
   }[d.kind]
   const how =
     d.turn === 'half'

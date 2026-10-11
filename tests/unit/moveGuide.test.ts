@@ -51,32 +51,40 @@ describe('move guide', () => {
 })
 
 describe('move descriptions', () => {
-  const dims3 = SHAPE_DIMS['3']
-
   it('reads the layer, the face and the direction of a face turn', () => {
-    expect(describeMove({ face: 'R', amount: 3 }, dims3)).toEqual({
+    expect(describeMove({ face: 'R', amount: 3 }, '3')).toEqual({
       kind: 'face',
       face: 'R',
       turn: 'ccw',
     })
-    expect(describeMove({ face: 'L', amount: 2, depth: 2 }, dims3)).toEqual({
+    expect(describeMove({ face: 'L', amount: 2, depth: 2 }, '3')).toEqual({
       kind: 'middle',
       face: 'L',
       turn: 'half',
     })
-    expect(describeMove({ face: 'R', amount: 1, depth: 2 }, SHAPE_DIMS['4'])).toMatchObject({
+    expect(describeMove({ face: 'R', amount: 1, depth: 2 }, '4')).toMatchObject({
       kind: 'slice',
     })
   })
 
+  it('calls a wide turn on four layers what it is: half the puzzle', () => {
+    const rw = { face: 'R', amount: 1, depth: 2, wide: true } as const
+    expect(describeMove(rw, '224')).toMatchObject({ kind: 'wide', halfPuzzle: true })
+    expect(describeMove(rw, '4')).toMatchObject({ halfPuzzle: true })
+    expect(describeMove(rw, '3')).not.toHaveProperty('halfPuzzle')
+    expect(LOCALES.fr.describeMove(describeMove(rw, '224'))).toBe(
+      'On tourne toute la moitié droite du puzzle d’un quart de tour dans le sens des aiguilles d’une montre, vu depuis la face de droite.',
+    )
+  })
+
   it('counts a star turn in notches, the short way round', () => {
-    expect(describeMove({ ring: 'D', amount: 4 }, SHAPE_DIMS.star)).toEqual({
+    expect(describeMove({ ring: 'D', amount: 4 }, 'star')).toEqual({
       kind: 'ring',
       ring: 'D',
       pieces: 2,
       clockwise: false,
     })
-    expect(describeMove({ slash: true }, SHAPE_DIMS.star)).toEqual({ kind: 'slash' })
+    expect(describeMove({ slash: true }, 'star')).toEqual({ kind: 'slash' })
   })
 })
 
@@ -84,7 +92,6 @@ describe('the guide of every puzzle', () => {
   it.each(Object.keys(SHAPE_DIMS) as CubeShape[])(
     '%s: every pad turn is in it, each with a sentence in both languages',
     (shape) => {
-      const dims = SHAPE_DIMS[shape]
       const turns = moveGuide(shape).flatMap((g) => g.rows.flat())
       expect(turns.length).toBeGreaterThan(0)
       for (const turn of movesFor(shape)) {
@@ -94,7 +101,7 @@ describe('the guide of every puzzle', () => {
       }
       for (const turn of turns) {
         for (const t of [LOCALES.fr, LOCALES.en]) {
-          const sentence = t.describeMove(describeMove(turn, dims))
+          const sentence = t.describeMove(describeMove(turn, shape))
           expect(sentence).not.toMatch(/undefined|NaN/)
         }
       }

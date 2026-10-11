@@ -1,3 +1,4 @@
+import { turnDims } from './cube'
 import { faceLayers } from './geometry'
 import { advancedMovesFor, amountsFor, FACES, movesFor, sameLayer } from './moves'
 import { methodTurns } from './solver'
@@ -28,6 +29,8 @@ export type MoveDescription =
       readonly kind: 'face' | 'middle' | 'slice' | 'wide'
       readonly face: Face
       readonly turn: 'cw' | 'ccw' | 'half'
+      /** A wide turn taking half the mechanism (a 4x4's Rw, a tower's). */
+      readonly halfPuzzle?: true
     }
   | {
       readonly kind: 'ring'
@@ -101,13 +104,16 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
   return isStar(shape) ? starGuide(shape) : cubeGuide(shape)
 }
 
-/** What a turn does, read from the turn and the puzzle's dimensions. */
-export function describeMove(turn: Turn, dims: Dims): MoveDescription {
+/** What a turn does on a shape. */
+export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
   if (isStarMove(turn)) {
     if ('slash' in turn) return { kind: 'slash' }
     const pieces = (turn.amount > 3 ? 6 - turn.amount : turn.amount) as 1 | 2 | 3
     return { kind: 'ring', ring: turn.ring, pieces, clockwise: turn.amount <= 3 }
   }
   const direction = turn.amount === 2 ? 'half' : turn.amount === 1 ? 'cw' : 'ccw'
-  return { kind: kindOf(turn, dims), face: turn.face, turn: direction }
+  const kind = kindOf(turn, SHAPE_DIMS[shape])
+  // Two layers out of the mechanism's four: half of it.
+  const halfPuzzle = kind === 'wide' && faceLayers(turnDims(shape), turn.face) === 4
+  return { kind, face: turn.face, turn: direction, ...(halfPuzzle ? { halfPuzzle } : {}) }
 }

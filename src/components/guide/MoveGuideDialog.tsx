@@ -121,7 +121,7 @@ export function MoveGuideDialog({ onClose }: { onClose: () => void }) {
                         )}
                       </div>
                       <figcaption className="mt-2 text-xs leading-snug text-slate-300">
-                        {t.describeMove(describeMove(turn, dims))}
+                        {t.describeMove(describeMove(turn, shape))}
                       </figcaption>
                     </figure>
                   )
