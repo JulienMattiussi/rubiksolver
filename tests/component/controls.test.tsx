@@ -57,11 +57,28 @@ describe('<Controls />', () => {
     expect(screen.getByRole('button', { name: 'Scramble' })).toBeInTheDocument()
   })
 
-  it('offers inner-slice and wide turns on the 4x4 only', async () => {
+  it("offers the 3x3's middle slices and wide turns on an advanced tab", async () => {
     const user = userEvent.setup()
     render(<Controls />)
-    // No layer selector on the 3x3.
-    expect(screen.queryByRole('group', { name: 'Couche tournée' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Tranche' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Avancé' }))
+    expect(
+      screen.getByRole('button', {
+        name: /^On tourne la tranche du milieu, parallèle à la face de gauche, d’un quart de tour dans le sens des aiguilles/,
+      }),
+    ).toBeInTheDocument()
+    await user.click(
+      screen.getByRole('button', {
+        name: /^On tourne la tranche du milieu, parallèle à la face du bas, d’un quart de tour dans le sens inverse/,
+      }),
+    )
+    expect(useCube.getState().queue.at(-1)).toEqual({ face: 'D', amount: 3, depth: 2 })
+    useCube.getState().stop()
+  })
+
+  it('offers inner-slice and wide turns on the 4x4', async () => {
+    const user = userEvent.setup()
+    render(<Controls />)
 
     await pickCube(user, 'Standard', '4x4')
     await user.click(screen.getByRole('button', { name: 'Tranche' }))

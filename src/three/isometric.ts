@@ -139,6 +139,9 @@ function finish(faces: IsoFace[]): IsoDrawing {
 
 /** The star prism, from the same polygons as its 3D view, turned by its yaw;
  *  faces turned away from the viewer are left out. */
+/** Painter's depth bonus of the screw's half discs, over every point. */
+const SCREW_FIRST = 100
+
 function drawStar(shape: StarShape): IsoDrawing {
   const [cos, sin] = [Math.cos(STAR_YAW), Math.sin(STAR_YAW)]
   const yaw = ([x, y, z]: readonly number[]): Point => [
@@ -157,8 +160,10 @@ function drawStar(shape: StarShape): IsoDrawing {
       const sticker = polygons[i + 1]?.paint !== 'body' ? polygons[i + 1] : undefined
       const shade = normal[1] > 0.5 ? 0 : 0.12 + 0.16 * Math.max(0, normal[0])
       const points = body.points.map(yaw)
+      // The screw's disc sits on top of the points around it: drawn last.
+      const onTop = cubie.position[1] === 0 ? SCREW_FIRST : 0
       faces.push({
-        depth: points.reduce((d, p) => d + p[0] + p[1] + p[2], 0) / points.length,
+        depth: onTop + points.reduce((d, p) => d + p[0] + p[1] + p[2], 0) / points.length,
         polygons: [
           { points: toSvg(points), paint: 'body', shade },
           ...(sticker

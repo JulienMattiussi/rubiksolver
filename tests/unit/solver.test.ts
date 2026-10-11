@@ -139,3 +139,22 @@ describe('2x2 solver', () => {
     expect(() => solveOptimal2(twistedCorner2())).toThrow()
   })
 })
+
+describe('3x3 methods with the centers moved (M, E, S on the advanced tab)', () => {
+  it('put the centers back first, then solve', () => {
+    const rng = seededRng(77)
+    for (const text of ['M', 'E S', "M U Rw' E2 S'"]) {
+      const start = applyMoves(
+        applyMoves(solvedCube('3'), scramble('3', 20, rng)),
+        parseMoves(text),
+      )
+      for (const method of methodsFor('3')) {
+        const steps = method.solve(start)
+        expect(steps[0]!.key).toBe('stepRecenter')
+        let state = start
+        for (const step of steps) state = applyMoves(state, step.moves)
+        expect(isSolved(state)).toBe(true)
+      }
+    }
+  }, 120000)
+})

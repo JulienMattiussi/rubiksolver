@@ -6,6 +6,7 @@ import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useView } from '@/store/viewStore'
 import { Button } from '@/components/ui/Button'
+import { TURN_PAIR } from '@/components/ui/styles'
 import { PadHeader } from './PadHeader'
 
 /**
@@ -20,10 +21,10 @@ export function StarPad({ disabled }: { disabled: boolean }) {
   const shape = useCube((s) => cubeShape(s.cube))
   const setPreview = useView((s) => s.setPreview)
 
-  const button = (move: StarMove, title: string, className = '') => (
+  const button = (move: StarMove, title: string, ghost = false) => (
     <div
       key={JSON.stringify(move)}
-      className={`flex ${className}`}
+      className="flex flex-1"
       onPointerEnter={() => setPreview(move)}
       onPointerLeave={() => setPreview(null)}
     >
@@ -32,7 +33,8 @@ export function StarPad({ disabled }: { disabled: boolean }) {
         onFocus={() => setPreview(move)}
         onBlur={() => setPreview(null)}
         onClick={() => pushMove(move)}
-        className="flex-1"
+        variant={ghost ? 'ghost' : undefined}
+        className="flex-1 rounded-none px-2 whitespace-nowrap"
         aria-label={title}
         title={title}
       >
@@ -44,11 +46,13 @@ export function StarPad({ disabled }: { disabled: boolean }) {
     <div>
       <PadHeader />
       <div className="grid grid-cols-2 gap-2">
-        {(isStar(shape) ? STAR_RINGS[shape] : []).flatMap((ring) => [
-          button({ ring, amount: 1 }, t.starTurnTitle(ring, true)),
-          button({ ring, amount: 5 }, t.starTurnTitle(ring, false)),
-        ])}
-        {button({ slash: true }, t.slashTitle, 'col-span-2')}
+        {(isStar(shape) ? STAR_RINGS[shape] : []).map((ring) => (
+          <div key={ring} className={TURN_PAIR}>
+            {button({ ring, amount: 1 }, t.starTurnTitle(ring, true))}
+            {button({ ring, amount: 5 }, t.starTurnTitle(ring, false), true)}
+          </div>
+        ))}
+        <div className={`col-span-2 ${TURN_PAIR}`}>{button({ slash: true }, t.slashTitle)}</div>
       </div>
     </div>
   )

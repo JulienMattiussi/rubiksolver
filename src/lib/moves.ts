@@ -2,7 +2,7 @@ import { solvedCube, turnDims } from './cube'
 import { faceAxis, faceLayers, quarterTurnFits } from './geometry'
 import { applyMove, turnAllowed } from './turn'
 import { formatStarMove, invertStarMove, scrambleStar, simplifyStarMoves } from './star'
-import { isStar, isStarMove, SHAPE_INNER_TURNS, SHAPE_SHIFTS } from './types'
+import { isStar, isStarMove, SHAPE_ADVANCED_TURNS, SHAPE_INNER_TURNS, SHAPE_SHIFTS } from './types'
 import type { Cube, CubeShape, Dims, Face, Move, StarMove, Turn } from './types'
 
 export const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
@@ -17,7 +17,7 @@ export const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
  * land back in the box; a shape-shifting puzzle's mechanism is a cube, so it
  * always has them. Everything else is limited to half turns.
  */
-function amountsFor(shape: CubeShape, face: Face): readonly (1 | 2 | 3)[] {
+export function amountsFor(shape: CubeShape, face: Face): readonly (1 | 2 | 3)[] {
   const dims = turnDims(shape)
   if (faceLayers(dims, face) < 2) return []
   return quarterTurnFits(dims, faceAxis(face)) ? [1, 2, 3] : [2]
@@ -43,6 +43,27 @@ function layerVariants(shape: CubeShape, face: Face): readonly LayerVariant[] {
       kind === 'wide' ? { depth: 2, wide: true } : { depth: 2 },
     ),
   ]
+}
+
+/**
+ * The shape's advanced turns (SHAPE_ADVANCED_TURNS), every amount: the wide
+ * turn of each face, and each middle slice once, by the face it follows (M
+ * by L, E by D, S by F: `2R` is just M').
+ */
+export function advancedMovesFor(shape: CubeShape): readonly Move[] {
+  const dims = turnDims(shape)
+  const kinds = SHAPE_ADVANCED_TURNS[shape]
+  return (['slice', 'wide'] as const)
+    .filter((kind) => kinds.includes(kind))
+    .flatMap((kind) =>
+      (kind === 'wide' ? FACES : SLICES.map((s) => s.face))
+        .filter((face) => faceLayers(dims, face) >= 3)
+        .flatMap((face) =>
+          amountsFor(shape, face).map((amount): Move =>
+            kind === 'wide' ? { face, amount, depth: 2, wide: true } : { face, amount, depth: 2 },
+          ),
+        ),
+    )
 }
 
 /**

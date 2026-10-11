@@ -1,4 +1,4 @@
-import { countColors, cubeShape } from './cube'
+import { countColors, cubeOrientations, cubeShape } from './cube'
 import { normalIndex } from './geometry'
 import {
   stickerId,
@@ -60,10 +60,30 @@ export function emptyEdit(shape: CubeShape): EditStickers {
 /** Extract a paintable state from an existing cube (e.g. the current one). */
 export function cubeToEdit(cube: Cube): EditStickers {
   const edit: EditStickers = {}
-  for (const cubie of cube) {
+  for (const cubie of withFixedHome(cube)) {
     for (const s of cubie.stickers) edit[stickerId(cubie.position, normalIndex(s.normal))] = s.color
   }
   return edit
+}
+
+/**
+ * The cube turned as a whole so its fixed pieces show their solved colors
+ * (the editor keeps them still): only the 3x3's middle slices (M, E, S)
+ * move its centers, and the centers they leave always match a whole-cube
+ * rotation. Turning the cube that way is the same position, seen otherwise.
+ */
+function withFixedHome(cube: Cube): Cube {
+  const fixed = tablesFor(cubeShape(cube)).slots.filter((s) => !s.paintable && s.stickers.length)
+  const home = (c: Cube) =>
+    fixed.every((slot) => {
+      const cubie = c.find((p) => p.position.join() === slot.position.join())
+      return slot.stickers.every(
+        (st) =>
+          cubie?.stickers.find((x) => normalIndex(x.normal) === st.ni)?.color === st.solvedColor,
+      )
+    })
+  if (!fixed.length || home(cube)) return cube
+  return cubeOrientations(cube).find(home) ?? cube
 }
 
 /** Count of each color currently painted (centers included). */

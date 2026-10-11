@@ -6,3 +6,7 @@ export const SECTION_BOX =
 
 /** Small-caps heading of a section, also used for field labels. */
 export const SECTION_LABEL = 'text-xs font-semibold uppercase tracking-wide text-slate-400'
+
+/** A rotation pad's pair of buttons (a turn and its opposite, the first
+ *  filled, the second outlined), framed as one control. */
+export const TURN_PAIR = 'flex overflow-hidden rounded-lg border border-slate-600'

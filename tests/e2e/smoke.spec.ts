@@ -174,3 +174,47 @@ test('cube editor: enter, fill from current state, apply', async ({ page }) => {
   // Back to play mode.
   await expect(page.getByRole('button', { name: 'Mélanger' })).toBeVisible()
 })
+
+test('move guide: every turn of the current puzzle, a jammed one marked', async ({ page }) => {
+  await page.goto('/')
+  await pickCube(page, 'Tower', '2x2x4')
+  await page.getByRole('button', { name: 'Guide des mouvements' }).click()
+  const guide = page.getByRole('dialog', { name: 'Guide des mouvements' })
+  await expect(guide).toBeVisible()
+  await expect(
+    guide.getByText('On tourne la face du haut d’un demi-tour', { exact: false }),
+  ).toBeVisible()
+  // In its box, the tower jams its side faces.
+  await expect(
+    guide.getByText('Ce mouvement n’est pas possible dans cette configuration').first(),
+  ).toBeAttached()
+  await page.keyboard.press('Escape')
+  await expect(guide).toBeHidden()
+})
+
+test('move guide: opens on every puzzle, without an error', async ({ page }) => {
+  test.setTimeout(120000)
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/')
+  const puzzles: [string, string][] = [
+    ['Standard', '2x2 (Pocket)'],
+    ['Standard', '3x3'],
+    ['Standard', '4x4'],
+    ['Miroir', '3x3 miroir'],
+    ['Tower', '2x2x3 (Slim Tower)'],
+    ['Tower', '3x3x2 (Domino)'],
+    ['Plats', '1x2x3'],
+    ['Plats', '3x3x1 (Floppy)'],
+    ['Étoiles', '2-Star Prism (UFO)'],
+    ['Étoiles', '4-Star Prism'],
+  ]
+  for (const [category, name] of puzzles) {
+    await pickCube(page, category, name)
+    await page.getByRole('button', { name: 'Guide des mouvements' }).click()
+    const guide = page.getByRole('dialog', { name: 'Guide des mouvements' })
+    await expect(guide.locator('figure').first()).toBeVisible()
+    await page.keyboard.press('Escape')
+  }
+  expect(errors).toEqual([])
+})

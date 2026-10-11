@@ -82,6 +82,24 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   star4: [],
 }
 
+/**
+ * Turns a puzzle takes beyond its everyday ones, offered apart (the pad's
+ * "advanced" tab) and never scrambled with: the 3x3's middle slices (M, E, S)
+ * and wide turns (Rw), which the solutions of some methods use (Roux).
+ */
+export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]> = {
+  '2': [],
+  '3': ['slice', 'wide'],
+  '4': [],
+  '123': [],
+  '224': [],
+  '223': [],
+  '332': [],
+  '331': [],
+  star: [],
+  star4: [],
+}
+
 /** Name of each shape in the picker (identical in every language). */
 export const SHAPE_LABEL: Record<CubeShape, string> = {
   '2': '2x2 (Pocket)',

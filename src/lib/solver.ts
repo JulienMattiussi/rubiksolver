@@ -5,6 +5,7 @@ import { optimalPlan } from './methods/exhaustive'
 import { FLOPPY_PLAN } from './methods/floppy'
 import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { PETRUS_PLAN } from './methods/petrus'
+import { withCentersHome } from './methods/recenter'
 import { ROUX_PLAN } from './methods/roux'
 import { SLIM_TOWER_PLAN } from './methods/slimTower'
 import { STAR_PLAN } from './methods/starPrism'
@@ -33,11 +34,11 @@ export type { SolveStep } from './solverKit'
  * test solves scrambles with every entry, so nothing else needs touching.
  */
 const SOLVE_METHODS = [
-  { id: 'beginner', plans: { '2': BEGINNER_2_PLAN, '3': BEGINNER_PLAN } },
-  { id: 'cfop', plans: { '3': CFOP_PLAN } },
-  { id: 'roux', plans: { '3': ROUX_PLAN } },
-  { id: 'petrus', plans: { '3': PETRUS_PLAN } },
-  { id: 'zz', plans: { '3': ZZ_PLAN } },
+  { id: 'beginner', plans: { '2': BEGINNER_2_PLAN, '3': withCentersHome(BEGINNER_PLAN) } },
+  { id: 'cfop', plans: { '3': withCentersHome(CFOP_PLAN) } },
+  { id: 'roux', plans: { '3': withCentersHome(ROUX_PLAN) } },
+  { id: 'petrus', plans: { '3': withCentersHome(PETRUS_PLAN) } },
+  { id: 'zz', plans: { '3': withCentersHome(ZZ_PLAN) } },
   { id: 'reduction', plans: { '4': reductionPlan(BEGINNER_PLAN) } },
   { id: 'reductionCfop', plans: { '4': reductionPlan(CFOP_PLAN) } },
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
@@ -62,6 +63,15 @@ export function methodsFor(shape: CubeShape) {
   return SOLVE_METHODS.flatMap((m) => {
     const plan: MethodPlan | undefined = (m.plans as Partial<Record<CubeShape, MethodPlan>>)[shape]
     return plan ? [{ id: m.id as MethodId, solve: (cube: Cube) => buildSteps(cube, plan) }] : []
+  })
+}
+
+/** Every layer the shape's methods turn (their steps' move sets): the
+ *  notation a solution may show, beyond the pad's turns (M on a 3x3). */
+export function methodTurns(shape: CubeShape): Turn[] {
+  return SOLVE_METHODS.flatMap((m) => {
+    const plan: MethodPlan | undefined = (m.plans as Partial<Record<CubeShape, MethodPlan>>)[shape]
+    return (plan ?? []).flatMap((step) => step.moves.generators)
   })
 }
 

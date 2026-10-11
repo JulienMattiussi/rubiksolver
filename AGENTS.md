@@ -99,6 +99,7 @@ src/
 │   │   ├── algs.ts       #   catalogue des algorithmes nommés (Sune, Aa, Ua, T, Y, Niklas, CMLL...), effets testés
 │   │   ├── pieces3.ts    #   pièces du 3x3 nommées par leurs faces ('DFL', 'UR', 'L' : homeOf), piecesHome, buildBlock,
 │   │   │                 #   orientation des arêtes (axe F/B, partagée avec la parité du 4x4), orientAllEdges, F2L en <R, U>
+│   │   ├── recenter.ts   #   préfixe des méthodes 3x3 : remettre les centres (M, E, S), étape vide sinon
 │   │   ├── layers3.ts    #   3x3 par couches et CFOP (prédicats et phases réutilisés par Petrus et ZZ)
 │   │   ├── roux.ts       #   Roux : blocs 1x2x3, CMLL, LSE en <M, U>
 │   │   ├── petrus.ts     #   Petrus : 2x2x2, 2x2x3 en <U, R, F>, arêtes, F2L en <R, U>, dernière couche en 3 temps
@@ -122,6 +123,7 @@ src/
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
 │   ├── validate.ts       # validateCube : comptage par face + solubilité (résolution bornée ; invariants de pièces + vrille sur 4x4)
 │   ├── shape.ts          # Cube miroir : épaisseur de couche par couleur, boîte d'un cubie (cubieBox) déduite de ses stickers
+│   ├── moveGuide.ts      # Guide des mouvements : lignes par forme (coup + opposé, puis quantifié), describeMove
 │   ├── snapshot.ts       # encodeCube/decodeCube : forme texte d'un état (mémorisation), décodage qui rejette un texte corrompu
 │   ├── easing.ts         # easeInOut (partagé par les animations)
 │   ├── speed.ts          # Curseur 0..100 <-> secondes par rotation
@@ -145,7 +147,12 @@ src/
 │   ├── Cubie.tsx         # Un cubie : corps + stickers, à la boîte de sa variante, en surbrillance si un coup survolé le tourne
 │   ├── layout.ts         # Échelle et position visuelles (coordonnée / pas de la grille : linéaire, juste hors de la boîte)
 │   ├── starGeometry.ts   # Géométrie des pièces de l'étoile (cerfs-volants extrudés), partagée vue 3D / vignette
-│   ├── StarView.tsx      # Vue 3D de l'étoile (StarPiece par pièce), animée comme les cubes
+│   ├── CubeModel.tsx     # Rendu d'un puzzle à grille depuis un état (couche qui tourne dans son groupe), partagé scène / guide
+│   ├── StarModel.tsx     # Idem pour l'étoile
+│   ├── StarView.tsx      # Vue 3D de l'étoile (StarModel), animée comme les cubes
+│   ├── GuideCanvas.tsx   # Guide des mouvements : un seul canvas WebGL sous la liste, chaque vignette y dessine sa scène
+│   ├── GuideTile.tsx     #   une vignette : scène + caméra propres, scissor sur sa boîte DOM, coup joué en boucle
+│   ├── guideCamera.ts    #   point de vue d'une vignette (la couche qui tourne face à la caméra)
 │   ├── usePreviewed.ts   # Pièces que le coup survolé ferait tourner (surbrillance, cubes et étoile)
 │   ├── isometric.ts      # Vignette d'un puzzle résolu en vue isométrique (polygones SVG), déduite du même layout
 │   ├── Sticker.tsx       # Sticker orienté à sa normale et dimensionné à sa face, mutualisé play/édition (onSelect = cliquable)
@@ -160,6 +167,7 @@ src/
 │   │                     #   LanguageToggle, NotationToggle, RecenterButton, CollapseButton, SpeedSlider, MovePad
 │   ├── picker/           # Choix du cube : CubePicker (bouton + modale), PickerTile, PuzzleIcon (vignette SVG),
 │   │                     #   CategoryIcon (plusieurs puzzles groupés : une catégorie se distingue d'un puzzle)
+│   ├── guide/            # Guide des mouvements : MoveGuideButton (dans PadHeader), MoveGuideDialog
 │   ├── solve/            # Résolution : SolvePanel, MethodSelect, StepList
 │   └── edit/             # Saisie : EditPanel, ColorPalette
 ├── App.tsx               # Coquille : scène 3D plein écran + panneau en overlay (empilé sur mobile en saisie)
@@ -290,6 +298,16 @@ Les briques de résolution sont partagées et **correctes par construction** :
   2^11 motifs au lieu de milliards d'états). `buildBlock(noms, coups)` en fait
   une phase : il faut relister les pièces déjà construites que ces coups
   pourraient déranger.
+
+**Coups avancés du 3x3** (`SHAPE_ADVANCED_TURNS`, `advancedMovesFor`) : `M`,
+`E`, `S` et les coups larges, jouables depuis l'onglet « Avancé » du pad,
+jamais mélangés (`movesFor`, donc le mélange et les tables de saisie, ne les
+voient pas). Ils déplacent les centres, qui servent de repère à toutes les
+méthodes 3x3 : chacune commence donc par **Remettre les centres**
+(`withCentersHome`, recherche en `<M, E, S>` sur les 6 centres), étape vide
+et retirée quand ils n'ont pas bougé. La saisie « depuis l'état actuel »
+tourne d'abord le cube entier pour que ses centres (pré-remplis, fixes)
+retrouvent leur couleur : même position, vue autrement.
 
 Les tranches du 3x3 ne demandent rien au moteur : sur 3 couches, la couche
 `depth: 2` est celle du milieu, donc `M` = `2L` (même sens que L), `E` = `2D`,
@@ -616,7 +634,8 @@ mobile et en saisie, une seule carte) :
   par face ; un seul bouton de demi-tour là où la forme n'a pas de quart de
   tour ; rien pour une face dont l'axe n'a qu'une couche ; un sélecteur
   Externe / Tranche / Large, limité aux sortes de coups de la forme (Externe /
-  Large sur la tour), choisit la couche tournée ; un coup bloqué par l'état de
+  Large sur la tour), choisit la couche tournée, plus un onglet « Avancé »
+  sur le 3x3 (`M`, `E`, `S`, coups larges) ; un coup bloqué par l'état de
   la tour reste grisé) avec **recentrage caméra animé** et
   **bascule de notation FR/US**.
 - **Résolution** : choix de la **méthode** (liste déroulante, filtrée par
@@ -629,6 +648,29 @@ mobile et en saisie, une seule carte) :
 **Mobile** : le panneau se **replie** en une barre compacte (Mélanger +
 Résoudre) ; en mode saisie, le cube est empilé **au-dessus** du panneau pour
 rester entièrement visible pendant la peinture.
+
+**Guide des mouvements** (bouton au-dessus du pad, modale) : chaque coup de
+la forme, montré **sur le cube dans son état actuel**, avec sa notation et une
+phrase qui le décrit. Une ligne par couche et par sens : le coup et son
+opposé côte à côte (`R` / `R'`, `1` / `-1`), puis le coup quantifié (`R2` ;
+`2` / `-2` puis `3` sur l'étoile, où trois crans font un demi-tour dans les
+deux sens). Les couches sont celles du pad (onglet « Avancé » compris) plus
+celles que tournent les méthodes de la forme (`methodTurns`), groupées par sections (faces, tranches du milieu,
+tranches internes, coups larges ; étages et slash sur l'étoile), sans
+sélecteur : tout défile verticalement. Le contenu est **pur et dérivé**
+(`lib/moveGuide.ts`) : `moveGuide(shape)` et `describeMove` (une description
+structurée que `t.describeMove` met en phrase), donc un nouveau puzzle a son
+guide sans travail. Rendu : **un seul contexte WebGL** (`GuideCanvas`, posé
+sous la liste, transparent) ; chaque vignette a sa scène et sa caméra et se
+dessine en scissor dans sa boîte DOM, les vignettes hors de la zone visible
+sont sautées. Seules les lignes au **centre** de la liste s'animent
+(IntersectionObserver sur une bande centrale) : le coup se joue, marque une
+pause, puis le cube revient à l'état actuel et le coup recommence, jamais
+rejoué à l'envers. Un coup bloqué dans l'état (la tour) reste figé, avec la
+mention « Ce mouvement n'est pas possible dans cette configuration ». La
+caméra d'une vignette est le cadrage de la scène, rapproché et retourné pour
+que la couche qui tourne soit face à elle (dessous pour `D`, derrière pour
+`B`), reculée sur une vignette étroite.
 
 **Aperçu d'un coup** : survoler (ou focaliser au clavier) un bouton du pad met
 en surbrillance les pièces que ce coup tournerait (corps bleu ciel, stickers

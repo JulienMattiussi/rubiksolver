@@ -2,7 +2,8 @@
 // the `Translations` type below). Values are content, not code.
 
 import type { LayerKind } from '@/lib/moves'
-import type { RingMove } from '@/lib/types'
+import type { MoveDescription } from '@/lib/moveGuide'
+import type { Face, RingMove } from '@/lib/types'
 
 type StarLayer = RingMove['ring']
 
@@ -18,6 +19,84 @@ const STAR_LAYER_EN: Record<StarLayer, string> = {
   u: 'inner top',
   d: 'inner bottom',
   D: 'bottom',
+}
+
+/** The top layers turn clockwise seen from above, the others from below. */
+const fromAbove = (ring: StarLayer): boolean => ring === 'U' || ring === 'u'
+
+const FACE_NAMES_FR: Record<Face, string> = {
+  U: 'face du haut',
+  D: 'face du bas',
+  L: 'face de gauche',
+  R: 'face de droite',
+  F: 'face avant',
+  B: 'face arrière',
+}
+
+const FACE_NAMES_EN: Record<Face, string> = {
+  U: 'top face',
+  D: 'bottom face',
+  L: 'left face',
+  R: 'right face',
+  F: 'front face',
+  B: 'back face',
+}
+
+/** The move guide's sentence for a turn. */
+function describeFr(d: MoveDescription): string {
+  if (d.kind === 'slash') {
+    return 'Le slash : toute la moitié droite fait un demi-tour, ses pièces du haut passent en bas et celles du bas en haut.'
+  }
+  if (d.kind === 'ring') {
+    const layer = STAR_LAYER_FR[d.ring]
+    if (d.pieces === 3) {
+      return `On tourne ${layer} de trois crans, soit un demi-tour : le sens n’a pas d’importance.`
+    }
+    const notches = d.pieces === 1 ? 'd’un cran' : 'de deux crans'
+    const sense = d.clockwise ? 'des aiguilles' : 'inverse des aiguilles'
+    const seen = fromAbove(d.ring) ? 'vu de dessus' : 'vu de dessous'
+    return `On tourne ${layer} ${notches} (${60 * d.pieces}°) dans le sens ${sense} d’une montre, ${seen}.`
+  }
+  const face = FACE_NAMES_FR[d.face]
+  const target = {
+    face: `la ${face}`,
+    middle: `la tranche du milieu, parallèle à la ${face},`,
+    slice: `la tranche interne voisine de la ${face}`,
+    wide: `la ${face} et la tranche interne voisine ensemble`,
+  }[d.kind]
+  const how =
+    d.turn === 'half'
+      ? 'd’un demi-tour : le sens n’a pas d’importance'
+      : `d’un quart de tour dans le sens ${d.turn === 'cw' ? 'des aiguilles' : 'inverse des aiguilles'} d’une montre, vu depuis la ${face}`
+  return `On tourne ${target} ${how}.`
+}
+
+function describeEn(d: MoveDescription): string {
+  if (d.kind === 'slash') {
+    return 'The slash: the whole right half makes a half turn, its top pieces going down and its bottom ones up.'
+  }
+  if (d.kind === 'ring') {
+    const layer = `the ${STAR_LAYER_EN[d.ring]} layer`
+    if (d.pieces === 3) {
+      return `Turn ${layer} three notches, a half turn: the direction does not matter.`
+    }
+    const notches = d.pieces === 1 ? 'one notch' : 'two notches'
+    const sense = d.clockwise ? 'clockwise' : 'counterclockwise'
+    const seen = fromAbove(d.ring) ? 'as seen from above' : 'as seen from below'
+    return `Turn ${layer} ${notches} (${60 * d.pieces}°) ${sense}, ${seen}.`
+  }
+  const face = FACE_NAMES_EN[d.face]
+  const target = {
+    face: `the ${face}`,
+    middle: `the middle slice, parallel to the ${face},`,
+    slice: `the inner slice next to the ${face}`,
+    wide: `the ${face} and the inner slice next to it together`,
+  }[d.kind]
+  const how =
+    d.turn === 'half'
+      ? 'a half turn: the direction does not matter'
+      : `a quarter turn ${d.turn === 'cw' ? 'clockwise' : 'counterclockwise'}, as seen from the ${face}`
+  return `Turn ${target} ${how}.`
 }
 
 const fr = {
@@ -40,14 +119,7 @@ const fr = {
     us: 'Notation internationale (U D L R F B)',
     fr: 'Notation française (H B G D F Ar)',
   },
-  faceNames: {
-    U: 'face du haut',
-    D: 'face du bas',
-    L: 'face de gauche',
-    R: 'face de droite',
-    F: 'face avant',
-    B: 'face arrière',
-  },
+  faceNames: FACE_NAMES_FR,
   moveTitle: (faceName: string, clockwise: boolean, kind: LayerKind = 'outer') => {
     const target =
       kind === 'slice'
@@ -66,7 +138,7 @@ const fr = {
   jammedTurn: (faceName: string) =>
     `Bloqué : la tour n’a pas de couche complète sur la ${faceName} dans cette position`,
   layerLabel: 'Couche tournée',
-  layerKinds: { outer: 'Externe', slice: 'Tranche', wide: 'Large' },
+  layerKinds: { outer: 'Externe', slice: 'Tranche', wide: 'Large', advanced: 'Avancé' },
   editCube: 'Saisir un cube',
   editTitle: 'Saisie du cube',
   editHint:
@@ -101,6 +173,19 @@ const fr = {
   chooseCube: 'Choisir un cube',
   allCategories: 'Toutes les catégories',
   close: 'Fermer',
+  moveGuide: 'Guide des mouvements',
+  moveGuideIntro:
+    'Chaque mouvement est montré sur le cube dans son état actuel. Faites défiler : ceux du centre s’animent.',
+  guideSections: {
+    faces: 'Faces',
+    middle: 'Tranches du milieu',
+    slices: 'Tranches internes',
+    wide: 'Coups larges',
+    rings: 'Étages',
+    slash: 'Slash',
+  },
+  describeMove: describeFr,
+  guideBlocked: 'Ce mouvement n’est pas possible dans cette configuration',
   puzzleCount: (n: number) => `${n} puzzle${n > 1 ? 's' : ''}`,
   cubeKind: (label: string, mirror: boolean) => `${label}${mirror ? ' miroir' : ''}`,
   cubeCategories: {
@@ -212,6 +297,7 @@ const fr = {
     stepIsolate: 'Isoler les sommets',
     stepStarBottom: 'Finir le bas',
     stepStarTop: 'Finir le haut',
+    stepRecenter: 'Remettre les centres',
     stepInnerIsolate: 'Étoile interne : isoler',
     stepInnerBottom: 'Étoile interne : finir b',
     stepInnerTop: 'Étoile interne : finir h',
@@ -247,14 +333,7 @@ const en: Translations = {
     us: 'International notation (U D L R F B)',
     fr: 'French notation (H B G D F Ar)',
   },
-  faceNames: {
-    U: 'top face',
-    D: 'bottom face',
-    L: 'left face',
-    R: 'right face',
-    F: 'front face',
-    B: 'back face',
-  },
+  faceNames: FACE_NAMES_EN,
   moveTitle: (faceName: string, clockwise: boolean, kind: LayerKind = 'outer') => {
     const target =
       kind === 'slice'
@@ -273,7 +352,7 @@ const en: Translations = {
   jammedTurn: (faceName: string) =>
     `Jammed: the tower has no complete layer on the ${faceName} in this position`,
   layerLabel: 'Turned layer',
-  layerKinds: { outer: 'Outer', slice: 'Slice', wide: 'Wide' },
+  layerKinds: { outer: 'Outer', slice: 'Slice', wide: 'Wide', advanced: 'Advanced' },
   editCube: 'Enter a cube',
   editTitle: 'Cube input',
   editHint:
@@ -308,6 +387,19 @@ const en: Translations = {
   chooseCube: 'Choose a cube',
   allCategories: 'All categories',
   close: 'Close',
+  moveGuide: 'Move guide',
+  moveGuideIntro:
+    'Each move is shown on the cube as it is now. Scroll: the ones in the middle play.',
+  guideSections: {
+    faces: 'Faces',
+    middle: 'Middle slices',
+    slices: 'Inner slices',
+    wide: 'Wide turns',
+    rings: 'Layers',
+    slash: 'Slash',
+  },
+  describeMove: describeEn,
+  guideBlocked: 'This move is not possible in this configuration',
   puzzleCount: (n: number) => `${n} puzzle${n > 1 ? 's' : ''}`,
   cubeKind: (label: string, mirror: boolean) => `${label}${mirror ? ' mirror' : ''}`,
   cubeCategories: {
@@ -419,6 +511,7 @@ const en: Translations = {
     stepIsolate: 'Isolate the points',
     stepStarBottom: 'Finish the bottom',
     stepStarTop: 'Finish the top',
+    stepRecenter: 'Put the centers back',
     stepInnerIsolate: 'Inner star: isolate',
     stepInnerBottom: 'Inner star: finish d',
     stepInnerTop: 'Inner star: finish u',

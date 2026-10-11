@@ -14,6 +14,10 @@ qu'on joue d'un coup ou **pas à pas**, pour apprendre la méthode.
 - Cube 3D manipulable : rotations de faces, tranches (`M`, `E`, `S` sur 3x3,
   tranches internes sur 4x4) et coups larges, orbite caméra, recentrage animé.
   Au survol d'un bouton, les pièces qui vont tourner s'illuminent.
+- **Guide des mouvements** : chaque coup du puzzle animé sur le cube dans son
+  état actuel, avec sa notation et une phrase qui le décrit (le coup et son
+  opposé côte à côte, puis le coup quantifié) ; un coup impossible dans la
+  configuration est signalé.
 - **Méthodes de résolution**, chacune avec ses étapes, ses objectifs et ses
   coups autorisés (affichés, et vérifiés par le moteur) :
   - 3x3 : par couches, Fridrich (CFOP), **Roux**, **Petrus**, **ZZ** ;

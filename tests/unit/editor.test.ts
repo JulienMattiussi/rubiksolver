@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { solvedCube } from '@/lib/cube'
+import { cubeOrientations, solvedCube } from '@/lib/cube'
+import { validateCube } from '@/lib/validate'
 import { applyMoves } from '@/lib/turn'
 import {
   buildCube,
@@ -198,5 +199,20 @@ describe('editor on the cuboids', () => {
     // Out of its box, some stickers sit where no editor slot is.
     const shifted = applyMoves(solvedCube('224'), parseMoves('Rw'))
     expect(isComplete(cubeToEdit(shifted), '224')).toBe(false)
+  })
+})
+
+describe('editing a 3x3 whose centers moved', () => {
+  it('turns the cube whole first, so the fixed centers read right', () => {
+    const moved = applyMoves(solvedCube('3'), parseMoves("R M E' U"))
+    const rebuilt = buildCube(cubeToEdit(moved), '3')
+    // The same position: legal, and one whole-cube turn away from it.
+    expect(validateCube(rebuilt)).toEqual({ ok: true })
+    const colors = (cube: Cube) =>
+      cube
+        .flatMap((c) => c.stickers.map((st) => `${c.position}:${st.normal}:${st.color}`))
+        .sort()
+        .join()
+    expect(cubeOrientations(moved).some((o) => colors(o) === colors(rebuilt))).toBe(true)
   })
 })
