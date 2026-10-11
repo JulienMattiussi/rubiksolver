@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { applyMove, applyMoves, isSolved, solvedCube } from '@/lib/cube'
+import { isSolved, solvedCube } from '@/lib/cube'
+import { applyMove, applyMoves } from '@/lib/turn'
 import { buildCube, cubeToEdit } from '@/lib/editor'
 import { scramble } from '@/lib/moves'
 import { solve } from '@/lib/solver'
@@ -12,9 +13,9 @@ function withStickersOn(size: CubeShape, overrides: Record<string, Color>) {
   return buildCube({ ...cubeToEdit(solvedCube(size)), ...overrides }, size)
 }
 
-const withStickers = (overrides: Record<string, Color>) => withStickersOn(3, overrides)
-const withStickers2 = (overrides: Record<string, Color>) => withStickersOn(2, overrides)
-const withStickers4 = (overrides: Record<string, Color>) => withStickersOn(4, overrides)
+const withStickers = (overrides: Record<string, Color>) => withStickersOn('3', overrides)
+const withStickers2 = (overrides: Record<string, Color>) => withStickersOn('2', overrides)
+const withStickers4 = (overrides: Record<string, Color>) => withStickersOn('4', overrides)
 
 describe('validateCube', () => {
   it('accepts the solved cube', () => {
@@ -131,4 +132,19 @@ describe('validateCube (4x4)', () => {
       expect(isSolved(applyMoves(cube, solve(cube)))).toBe(true)
     }
   }, 120000)
+})
+
+describe('validateCube (tower and Domino)', () => {
+  it.each(['224', '332'] as CubeShape[])(
+    '%s: accepts scrambles, rejects a twisted corner',
+    (shape) => {
+      const rng = seededRng(61)
+      for (let i = 0; i < 3; i++) {
+        expect(validateCube(applyMoves(solvedCube(shape), scramble(shape, 20, rng)))).toEqual({
+          ok: true,
+        })
+      }
+      expect(validateCube(twistedCorner(shape))).toEqual({ ok: false, error: 'impossible' })
+    },
+  )
 })

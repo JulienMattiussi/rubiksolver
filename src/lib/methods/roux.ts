@@ -1,4 +1,4 @@
-import { FACE_COLOR, isSolved } from '../cube'
+import { colorAt, cubieAt, FACE_COLOR, isSolved } from '../cube'
 import { moveSet, OUTER_TURNS } from '../moveSet'
 import { solvePieces } from '../pieceSearch'
 import { relMoves, solveWithAlgs, type MethodPlan } from '../solverKit'
@@ -7,11 +7,12 @@ import { ANTISUNE, CMLL_ADJACENT, PLL_Y, SUNE } from './algs'
 import {
   buildBlock,
   edgesOriented,
-  home,
+  homeOf,
   joined,
   orientationKey,
   pieces,
   piecesHome,
+  U_CORNERS,
 } from './pieces3'
 
 /**
@@ -36,7 +37,6 @@ import {
 const FIRST_BLOCK = pieces('DL FL BL DFL DBL')
 const SECOND_BLOCK = pieces('DR FR BR DFR DBR')
 const BLOCKS = joined(FIRST_BLOCK, SECOND_BLOCK)
-const U_CORNERS = pieces('UFL UFR UBL UBR')
 const LSE_EDGES = pieces('UF UB UL UR DF DB')
 const M_CENTERS = pieces('U F D B')
 
@@ -45,13 +45,15 @@ const SECOND_BLOCK_TURNS = moveSet('U R M Rw')
 const LSE_TURNS = moveSet('M U')
 const M_SLICE_TURNS = moveSet('M U2')
 
+/** Color of the center now on U (M turns the centers of U, F, D and B). */
+function upCenter(cubies: readonly Cubie[]) {
+  const center = cubieAt(cubies, homeOf('U'))
+  return center && colorAt(center, 'U')
+}
+
 /** The U center shows white or yellow: the M slice sits on its U/D axis. */
 function centersOnAxis(cubies: readonly Cubie[]): boolean {
-  const [x, y, z] = home('U')
-  const center = cubies.find(
-    (c) => c.position[0] === x && c.position[1] === y && c.position[2] === z,
-  )
-  const color = center?.stickers[0]?.color
+  const color = upCenter(cubies)
   return color === FACE_COLOR.U || color === FACE_COLOR.D
 }
 
@@ -67,11 +69,8 @@ function cornersOriented(cube: Cube): boolean {
   return (
     blocksDone(cube) &&
     U_CORNERS.every((name) => {
-      const [x, y, z] = home(name)
-      const corner = cube.find(
-        (c) => c.position[0] === x && c.position[1] === y && c.position[2] === z,
-      )
-      return corner?.stickers.some((s) => s.normal[1] === 1 && s.color === FACE_COLOR.U)
+      const corner = cubieAt(cube, homeOf(name))
+      return corner !== undefined && colorAt(corner, 'U') === FACE_COLOR.U
     })
   )
 }
@@ -90,11 +89,10 @@ const LSE_PIECES = joined(LSE_EDGES, M_CENTERS)
  *  matter, so the search is keyed on just that. */
 function solveLseOrientation(cube: Cube): Move[] {
   return solvePieces(cube, {
-    track: LSE_PIECES.map(home),
+    track: LSE_PIECES.map(homeOf),
     moves: LSE_TURNS,
     goal: (p) => edgesOriented(p) && centersOnAxis(p),
-    key: (p) =>
-      `${orientationKey(p)}|${p.find((c) => c.stickers.length === 1 && c.position[1] === 1)?.stickers[0]?.color}`,
+    key: (p) => `${orientationKey(p)}|${upCenter(p)}`,
     maxDepth: 14,
   })
 }
@@ -103,7 +101,7 @@ function solveLseOrientation(cube: Cube): Move[] {
 function solveUlUr(cube: Cube): Move[] {
   const goalPieces = joined(U_CORNERS, pieces('UL UR'))
   return solvePieces(cube, {
-    track: joined(LSE_PIECES, U_CORNERS).map(home),
+    track: joined(LSE_PIECES, U_CORNERS).map(homeOf),
     moves: LSE_TURNS,
     goal: (p) => edgesOriented(p) && centersOnAxis(p) && piecesHome(p, goalPieces),
     maxDepth: 16,

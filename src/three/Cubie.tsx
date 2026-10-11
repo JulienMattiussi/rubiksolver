@@ -1,4 +1,4 @@
-import { cubieShape, LAYER_THICKNESS } from '@/lib/shape'
+import { cubieBox, LAYER_THICKNESS } from '@/lib/shape'
 import type { CubeVariant, Cubie as CubieType, Dims } from '@/lib/types'
 import { COLOR_HEX, HIGHLIGHT, MIRROR_STICKER, PLASTIC } from './colors'
 import { CUBIE_GAP, visualPosition } from './layout'
@@ -19,7 +19,7 @@ export function Cubie({
   /** Part of the turn a hovered pad button would make. */
   highlighted?: boolean
 }) {
-  const { size, center } = cubieShape(cubie.stickers, LAYER_THICKNESS[variant])
+  const { size, center } = cubieBox(cubie.stickers, LAYER_THICKNESS[variant])
   const mirror = variant === 'mirror'
   return (
     <group position={visualPosition(cubie.position, dims)}>
@@ -38,7 +38,7 @@ export function Cubie({
           key={i}
           normal={s.normal}
           color={mirror ? MIRROR_STICKER : COLOR_HEX[s.color]}
-          shape={{ size, center }}
+          box={{ size, center }}
           metal={mirror}
           glow={highlighted}
         />

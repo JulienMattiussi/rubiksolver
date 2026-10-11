@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { applyMoves, isSolved, solvedCube } from '@/lib/cube'
+import { isSolved, solvedCube } from '@/lib/cube'
+import { applyMoves } from '@/lib/turn'
 import { LOCALES } from '@/i18n/translations'
 import { formatMove, formatMoves, scramble } from '@/lib/moves'
 import { moveSet, OUTER_TURNS } from '@/lib/moveSet'

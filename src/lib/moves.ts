@@ -1,12 +1,6 @@
-import {
-  applyMove,
-  faceAxis,
-  faceLayers,
-  quarterTurnFits,
-  solvedCube,
-  turnAllowed,
-  turnDims,
-} from './cube'
+import { solvedCube, turnDims } from './cube'
+import { faceAxis, faceLayers, quarterTurnFits } from './geometry'
+import { applyMove, turnAllowed } from './turn'
 import { SHAPE_SHIFTS } from './types'
 import type { Cube, CubeShape, Dims, Face, Move } from './types'
 
@@ -28,21 +22,23 @@ function amountsFor(shape: CubeShape, face: Face): readonly (1 | 2 | 3)[] {
   return quarterTurnFits(dims, faceAxis(face)) ? [1, 2, 3] : [2]
 }
 
+/** What a turn turns: the outer face, the inner slice (2R) or both (Rw). */
+export type LayerKind = 'outer' | 'slice' | 'wide'
+
+export function layerKindOf(move: Move): LayerKind {
+  return move.wide ? 'wide' : move.depth ? 'slice' : 'outer'
+}
+
+type LayerVariant = Pick<Move, 'depth' | 'wide'>
+
 /** The layers a face turn can take: an axis with 4 layers adds the inner
  *  slice (2R) and the wide turn (Rw). A shape-shifting puzzle keeps only the
  *  wide turn: a slice is a wide then an outer turn there, and rarely useful. */
-type LayerVariant = Pick<Move, 'depth' | 'wide'>
-
 function layerVariants(shape: CubeShape, face: Face): readonly LayerVariant[] {
   if (faceLayers(turnDims(shape), face) < 4) return [{}]
   const wide: LayerVariant = { depth: 2, wide: true }
   return SHAPE_SHIFTS[shape] ? [{}, wide] : [{}, { depth: 2 }, wide]
 }
-
-/** All 18 basic face turns, in a stable order (for UI buttons and tests). */
-export const ALL_MOVES: readonly Move[] = FACES.flatMap((face) =>
-  ([1, 2, 3] as const).map((amount) => ({ face, amount })),
-)
 
 /**
  * How each face is labelled in a given notation. Layered moves decorate the
@@ -154,6 +150,11 @@ export function parseMoves(input: string, labels: FaceLabels = NOTATION_US): Mov
     })
 }
 
+/** Whether two moves turn the same layers (whatever their amounts). */
+export function sameLayer(a: Move, b: Move): boolean {
+  return a.face === b.face && a.depth === b.depth && a.wide === b.wide
+}
+
 /** The move that undoes `move` (same layers, opposite amount). */
 export function invertMove(move: Move): Move {
   const amount = move.amount === 2 ? 2 : move.amount === 1 ? 3 : 1
@@ -175,7 +176,7 @@ export function simplifyMoves(moves: readonly Move[]): Move[] {
   const out: Move[] = []
   for (const move of moves) {
     const last = out[out.length - 1]
-    if (last && last.face === move.face && last.depth === move.depth && last.wide === move.wide) {
+    if (last && sameLayer(last, move)) {
       const total = (last.amount + move.amount) % 4
       out.pop()
       if (total !== 0) out.push({ ...move, amount: total as 1 | 2 | 3 })
@@ -187,12 +188,12 @@ export function simplifyMoves(moves: readonly Move[]): Move[] {
 }
 
 /**
- * Random scramble of `length` moves for a cube of `size`. Avoids consecutive
- * turns of the same face (they could collapse) so the length is meaningful.
- * On a 4x4 half the moves are outer turns and the rest inner slices and wide
- * turns, so centers and wing edges get shuffled too; a tower mixes outer and
- * wide turns, and only those it can make from where it stands. `rng` is injectable for
- * deterministic tests; defaults to Math.random.
+ * Random scramble of `length` moves for `shape`, played from `start`. Avoids
+ * consecutive turns of the same face (they could collapse) so the length is
+ * meaningful. Half the moves are outer turns, the rest shared by the other
+ * layer variants (slices and wide turns on a 4x4, wide turns on a tower), so
+ * centers and wings get shuffled too. A tower only draws turns it can make
+ * from where it stands. `rng` is injectable for deterministic tests.
  */
 export function scramble(
   shape: CubeShape,
@@ -216,11 +217,11 @@ export function scramble(
     const amount = amounts[Math.floor(rng() * amounts.length)]!
     // Half outer turns, the rest shared by the other layer variants.
     const variants = layerVariants(shape, face)
-    const kind = variants.length > 1 ? rng() : 0
+    const roll = variants.length > 1 ? rng() : 0
     const variant =
-      kind < 0.5
+      roll < 0.5
         ? variants[0]!
-        : variants[1 + Math.floor((kind - 0.5) * 2 * (variants.length - 1))]!
+        : variants[1 + Math.floor((roll - 0.5) * 2 * (variants.length - 1))]!
     const move: Move = { face, amount, ...variant }
     if (shifts) {
       if (!turnAllowed(state, move)) continue

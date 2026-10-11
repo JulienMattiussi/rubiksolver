@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { applyMoves, solvedCube } from '@/lib/cube'
+import { solvedCube } from '@/lib/cube'
+import { applyMoves } from '@/lib/turn'
 import { parseMoves } from '@/lib/moves'
 import {
   ANTISUNE,

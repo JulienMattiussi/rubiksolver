@@ -1,7 +1,8 @@
-import { FACE_COLOR, FACE_NORMAL } from '../cube'
-import type { MoveSet } from '../moveSet'
+import { cubieAt, FACE_COLOR, hasColors, homeAt } from '../cube'
+import { FACE_NORMAL } from '../geometry'
+import { moveSet, type MoveSet } from '../moveSet'
 import { solvePieces } from '../pieceSearch'
-import { colorAt } from '../solverKit'
+import { secondLayerDone } from './layers3'
 import type { Cube, Cubie, Face, Move, Vec3 } from '../types'
 
 /**
@@ -21,14 +22,14 @@ function facesOf(name: string): Face[] {
 }
 
 /** Home position of a named piece. */
-export function home(name: string): Vec3 {
+export function homeOf(name: string): Vec3 {
   return facesOf(name).reduce<Vec3>(
     (p, f) => [p[0] + FACE_NORMAL[f][0], p[1] + FACE_NORMAL[f][1], p[2] + FACE_NORMAL[f][2]],
     [0, 0, 0],
   )
 }
 
-/** Space-separated piece names, e.g. `'L DL FL BL DFL DBL'` (the Roux first block). */
+/** Space-separated piece names, e.g. `'DL FL BL DFL DBL'` (the Roux first block). */
 export function pieces(names: string): readonly string[] {
   return names.split(/\s+/).filter(Boolean)
 }
@@ -38,32 +39,24 @@ export function joined(...groups: ReadonlyArray<readonly string[]>): readonly st
   return groups.flat()
 }
 
-/**
- * Whether every named piece is home and turned the right way: the cubie at
- * its home position shows each of the piece's faces in that face's color.
- * Works on a whole cube or on the few cubies a piece search tracks.
- */
+/** The four last-layer corners, and the twelve edges. */
+export const U_CORNERS = pieces('UFL UFR UBL UBR')
+const ALL_EDGES = pieces('UF UB UL UR DF DB DL DR FL FR BL BR')
+
+/** Whether every named piece is home (whole cube or tracked pieces). */
 export function piecesHome(cubies: readonly Cubie[], names: readonly string[]): boolean {
-  return names.every((name) => {
-    const [x, y, z] = home(name)
-    const cubie = cubies.find(
-      (c) => c.position[0] === x && c.position[1] === y && c.position[2] === z,
-    )
-    return cubie !== undefined && facesOf(name).every((f) => colorAt(cubie, f) === FACE_COLOR[f])
-  })
+  return homeAt(cubies, names.map(homeOf), '3')
 }
 
 /** The piece belonging at `name` sits there, however it is twisted. */
 export function pieceInSlot(cubies: readonly Cubie[], name: string): boolean {
-  const [x, y, z] = home(name)
-  const cubie = cubies.find(
-    (c) => c.position[0] === x && c.position[1] === y && c.position[2] === z,
-  )
-  const want = facesOf(name).map((f) => FACE_COLOR[f])
+  const cubie = cubieAt(cubies, homeOf(name))
   return (
     cubie !== undefined &&
-    cubie.stickers.length === want.length &&
-    cubie.stickers.every((s) => want.includes(s.color))
+    hasColors(
+      cubie,
+      facesOf(name).map((f) => FACE_COLOR[f]),
+    )
   )
 }
 
@@ -72,14 +65,23 @@ export function pieceInSlot(cubies: readonly Cubie[], name: string): boolean {
  * search tracks just these pieces, so pieces solved earlier must be listed
  * again when the moves could disturb them.
  */
-export function buildBlock(
-  names: readonly string[],
-  moves: MoveSet,
-  maxDepth = 20,
-): (cube: Cube) => Move[] {
-  const track = names.map(home)
-  return (cube) => solvePieces(cube, { track, moves, maxDepth })
+export function buildBlock(names: readonly string[], moves: MoveSet): (cube: Cube) => Move[] {
+  const track = names.map(homeOf)
+  return (cube) => solvePieces(cube, { track, moves, maxDepth: 20 })
 }
+
+/** First two layers solved and every edge oriented (Petrus, ZZ). */
+export function orientedF2LDone(cube: Cube): boolean {
+  return secondLayerDone(cube) && edgesOriented(cube)
+}
+
+/** The F2L finished with <R, U> only, pair by pair (Petrus step 4, the ZZ
+ *  right block): possible once every edge is oriented. */
+export const RU = moveSet('R U')
+export const RU_F2L_PHASES = [
+  buildBlock(pieces('DR FR DFR'), RU),
+  buildBlock(pieces('DR FR DFR BR DBR'), RU),
+]
 
 const UD_COLORS = [FACE_COLOR.U, FACE_COLOR.D]
 const FB_COLORS = [FACE_COLOR.F, FACE_COLOR.B]
@@ -87,14 +89,15 @@ const FB_COLORS = [FACE_COLOR.F, FACE_COLOR.B]
 const isEdge = (c: Cubie): boolean => c.stickers.length === 2
 
 /**
- * Edge orientation on the F/B axis, the one ZZ and Petrus build on: an edge
+ * Edge orientation on the F/B axis, the one ZZ and Petrus build on (and the
+ * 4x4 OLL parity detector, see solver4/parity.ts): an edge
  * is "good" when it can be solved without quarter turns of F or B. Its
  * reference sticker (U/D color, else F/B color) must lie on its slot's
  * reference side (U/D in the top and bottom layers, F/B in the middle one).
  * U, D, L, R, F2, B2 and M2 keep every edge good; F, B (and M) quarter turns
  * flip the edges they move.
  */
-function edgeOriented(edge: Cubie): boolean {
+export function edgeOriented(edge: Cubie): boolean {
   const ref =
     edge.stickers.find((s) => UD_COLORS.includes(s.color)) ??
     edge.stickers.find((s) => FB_COLORS.includes(s.color))
@@ -119,4 +122,21 @@ export function orientationKey(cubies: readonly Cubie[]): string {
     .map((e) => `${e.position.join(',')}${edgeOriented(e) ? '+' : '-'}`)
     .sort()
     .join(' ')
+}
+
+/**
+ * Phase orienting all twelve edges with `moves` (and `macros`), searched on
+ * the orientation pattern alone. Only for move sets that keep the rest of
+ * the step's work, since nothing else is tracked.
+ */
+export function orientAllEdges(moves: MoveSet, macros?: readonly (readonly Move[])[]) {
+  return (cube: Cube): Move[] =>
+    solvePieces(cube, {
+      track: ALL_EDGES.map(homeOf),
+      moves,
+      macros,
+      goal: edgesOriented,
+      key: orientationKey,
+      maxDepth: 10,
+    })
 }

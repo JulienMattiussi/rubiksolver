@@ -1,6 +1,7 @@
-import { cubeDims, turnAllowed, turnedBy } from '@/lib/cube'
+import { cubeDims } from '@/lib/cube'
+import { turnAllowed, turnedBy } from '@/lib/turn'
 import { centeringOffset, LAYER_THICKNESS } from '@/lib/shape'
-import { useCube } from '@/store/cubeStore'
+import { selectBusy, useCube } from '@/store/cubeStore'
 import { useView } from '@/store/viewStore'
 import { Cubie } from './Cubie'
 import { cubeScale } from './layout'
@@ -17,7 +18,7 @@ export function CubeView() {
   const [ox, oy, oz] = centeringOffset(LAYER_THICKNESS[variant])
   const { groupRef, isTurning } = useTurnAnimation()
   const preview = useView((s) => s.preview)
-  const idle = useCube((s) => s.active === null && s.queue.length === 0)
+  const idle = !useCube(selectBusy)
   const highlighted =
     preview && idle && turnAllowed(cube, preview) ? turnedBy(cube, preview) : () => false
   return (

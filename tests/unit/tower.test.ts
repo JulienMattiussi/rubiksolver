@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { applyMove, applyMoves, isBoxed, isSolved, solvedCube, turnAllowed } from '@/lib/cube'
+import { isBoxed, isSolved, solvedCube } from '@/lib/cube'
+import { applyMove, applyMoves, turnAllowed } from '@/lib/turn'
 import { formatMove, invertMoves, scramble } from '@/lib/moves'
 import { DESCEND, PIVOT, SWAP, TOWER_PLAN } from '@/lib/methods/tower'
 import { methodsFor } from '@/lib/solver'

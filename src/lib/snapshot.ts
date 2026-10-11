@@ -1,5 +1,6 @@
-import { cubeShape, normalIndex, solvedCube } from './cube'
-import type { Color, Cube, Cubie, Vec3 } from './types'
+import { colorsOf, cubeShape, solvedCube } from './cube'
+import { normalIndex, normalOfIndex } from './geometry'
+import { COLORS, type Color, type Cube, type Cubie } from './types'
 
 /**
  * Text form of a cube state, to keep it across reloads (see savedStore).
@@ -9,16 +10,7 @@ import type { Color, Cube, Cubie, Vec3 } from './types'
  * pieces stand out of the box.
  */
 
-const NORMALS: readonly Vec3[] = [
-  [1, 0, 0],
-  [-1, 0, 0],
-  [0, 1, 0],
-  [0, -1, 0],
-  [0, 0, 1],
-  [0, 0, -1],
-]
-
-const COLORS = new Set<string>(['W', 'Y', 'G', 'B', 'O', 'R'])
+const KNOWN_COLORS = new Set<string>(COLORS)
 
 export function encodeCube(cube: Cube): string {
   return cube
@@ -33,24 +25,16 @@ function decodeCubie(token: string): Cubie | null {
   const match = /^(-?\d+),(-?\d+),(-?\d+):((?:[0-5][A-Z])*)$/.exec(token)
   if (!match) return null
   const stickers = (match[4]!.match(/../g) ?? []).map((s) => ({
-    normal: NORMALS[Number(s[0])]!,
+    normal: normalOfIndex(Number(s[0])),
     color: s[1] as Color,
   }))
-  if (!stickers.every((s) => COLORS.has(s.color))) return null
+  if (!stickers.every((s) => KNOWN_COLORS.has(s.color))) return null
   return { position: [Number(match[1]), Number(match[2]), Number(match[3])], stickers }
 }
 
 /** Color sets of a cube's pieces, sorted: equal for two states of one puzzle. */
 function pieceSignature(cube: Cube): string {
-  return cube
-    .map((c) =>
-      c.stickers
-        .map((s) => s.color)
-        .sort()
-        .join(''),
-    )
-    .sort()
-    .join(' ')
+  return cube.map(colorsOf).sort().join(' ')
 }
 
 /**

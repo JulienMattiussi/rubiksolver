@@ -1,4 +1,4 @@
-import { layerCoords } from '@/lib/cube'
+import { layerCoords } from '@/lib/geometry'
 import type { Dims, Vec3 } from '@/lib/types'
 
 /**

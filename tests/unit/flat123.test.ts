@@ -1,15 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import {
-  applyMove,
-  applyMoves,
   cubeOrientations,
   cubeShape,
   isSolved,
-  normalIndex,
   solvedCube,
   stateKey,
   stickersTotal,
 } from '@/lib/cube'
+import { normalIndex } from '@/lib/geometry'
+import { applyMove, applyMoves } from '@/lib/turn'
 import { formatMoves, movesFor, scramble } from '@/lib/moves'
 import { solveFlat123 } from '@/lib/methods/flat123'
 import { solve } from '@/lib/solver'

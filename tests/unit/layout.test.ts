@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { applyMoves, cubeDims, solvedCube } from '@/lib/cube'
+import { cubeDims, solvedCube } from '@/lib/cube'
+import { applyMoves } from '@/lib/turn'
 import { parseMoves } from '@/lib/moves'
 import type { CubeShape } from '@/lib/types'
 import { visualPosition } from '@/three/layout'

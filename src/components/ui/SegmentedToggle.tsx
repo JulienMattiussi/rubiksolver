@@ -10,7 +10,7 @@ interface SegmentedToggleProps<T extends string> {
   value: T
   onChange: (value: T) => void
   ariaLabel: string
-  /** 'md' for the language switch, 'sm' for the compact notation switch. */
+  /** 'md' for the language switch, 'sm' for the compact ones (notation, layer kind). */
   size?: 'sm' | 'md'
 }
 
@@ -19,7 +19,8 @@ const SIZE = {
   sm: 'px-1.5 py-0.5 text-[10px]',
 }
 
-/** A small segmented control: one active option among a few (language, notation). */
+/** A small segmented control: one active option among a few (language,
+ *  notation, layer kind). */
 export function SegmentedToggle<T extends string>({
   options,
   value,

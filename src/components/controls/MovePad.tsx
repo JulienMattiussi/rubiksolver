@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react'
-import { cubeShape, turnAllowed } from '@/lib/cube'
-import { formatMove, FACES, movesFor, NOTATION_FR, NOTATION_US } from '@/lib/moves'
+import { cubeShape } from '@/lib/cube'
+import { turnAllowed } from '@/lib/turn'
+import { formatMove, FACES, layerKindOf, movesFor, type LayerKind } from '@/lib/moves'
 import type { Face, Move } from '@/lib/types'
-import { useI18n } from '@/i18n/i18nStore'
+import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useView } from '@/store/viewStore'
 import { Button } from '@/components/ui/Button'
 import { SegmentedToggle } from '@/components/ui/SegmentedToggle'
 import { NotationToggle } from './NotationToggle'
 import { RecenterButton } from './RecenterButton'
-
-type LayerKind = 'outer' | 'slice' | 'wide'
+import { SECTION_LABEL } from '@/components/ui/styles'
 
 /**
  * Manual rotation pad, built from the turns the shape allows (`movesFor`):
@@ -22,22 +22,18 @@ type LayerKind = 'outer' | 'slice' | 'wide'
  * jams (a tower's incomplete end, see `turnAllowed`) stays disabled.
  * Hovering or focusing a button highlights the pieces it would turn.
  */
-
-const KIND_OF = (m: Move): LayerKind => (m.wide ? 'wide' : m.depth ? 'slice' : 'outer')
-
 export function MovePad({ disabled }: { disabled: boolean }) {
   const t = useI18n((s) => s.t)
-  const notation = useI18n((s) => s.notation)
+  const labels = useI18n(selectMoveLabels)
   const pushMove = useCube((s) => s.pushMove)
   const shape = useCube((s) => cubeShape(s.cube))
   const cube = useCube((s) => s.cube)
   const [layerKind, setLayerKind] = useState<LayerKind>('outer')
   const setPreview = useView((s) => s.setPreview)
   useEffect(() => () => setPreview(null), [setPreview])
-  const labels = notation === 'fr' ? NOTATION_FR : NOTATION_US
   const moves = movesFor(shape)
   const kinds = (['outer', 'slice', 'wide'] as const).filter((k) =>
-    moves.some((m) => KIND_OF(m) === k),
+    moves.some((m) => layerKindOf(m) === k),
   )
   const kind = kinds.includes(layerKind) ? layerKind : 'outer'
   const quarter = (face: Face) => moves.some((m) => m.face === face && m.amount === 1)
@@ -78,7 +74,7 @@ export function MovePad({ disabled }: { disabled: boolean }) {
   return (
     <div>
       <div className="mb-2 flex items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t.moves}</h2>
+        <h2 className={SECTION_LABEL}>{t.moves}</h2>
         <div className="flex items-center gap-2">
           <RecenterButton />
           <NotationToggle />
@@ -89,7 +85,7 @@ export function MovePad({ disabled }: { disabled: boolean }) {
           <SegmentedToggle
             size="sm"
             ariaLabel={t.layerLabel}
-            value={layerKind}
+            value={kind}
             onChange={setLayerKind}
             options={kinds.map((k) => ({ value: k, label: t.layerKinds[k] }))}
           />

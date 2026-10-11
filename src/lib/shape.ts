@@ -53,7 +53,7 @@ export function byThickness(thickness: Record<Color, number>): Color[] {
 }
 
 /** Box of one cubie, in cell units. */
-export interface CubieShape {
+export interface CubieBox {
   /** Extents along x, y, z. */
   readonly size: Point
   /** Box center, relative to the center of the cubie's cell. */
@@ -61,7 +61,7 @@ export interface CubieShape {
 }
 
 /** The plain cubie: a unit cube centered on its cell. */
-export const UNIT_SHAPE: CubieShape = { size: [1, 1, 1], center: [0, 0, 0] }
+export const UNIT_BOX: CubieBox = { size: [1, 1, 1], center: [0, 0, 0] }
 
 /** Extent of a cubie along one axis, from the sticker facing that axis. */
 function axisExtent(
@@ -79,10 +79,7 @@ function axisExtent(
 }
 
 /** Box of the cubie carrying `stickers`, for the given thickness table. */
-export function cubieShape(
-  stickers: readonly Sticker[],
-  thickness: Record<Color, number>,
-): CubieShape {
+export function cubieBox(stickers: readonly Sticker[], thickness: Record<Color, number>): CubieBox {
   const x = axisExtent(stickers, 0, thickness)
   const y = axisExtent(stickers, 1, thickness)
   const z = axisExtent(stickers, 2, thickness)

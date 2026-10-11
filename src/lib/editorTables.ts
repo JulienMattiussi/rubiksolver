@@ -1,11 +1,12 @@
-import { cubeOrientations, normalIndex, solvedCube } from './cube'
+import { cubeOrientations, solvedCube } from './cube'
+import { normalIndex } from './geometry'
 import type { Color, CubeShape, Cubie, Vec3 } from './types'
 
 /**
  * Slot and placement tables backing the guided editor (see editor.ts).
  * Everything here is derived per cube shape from that shape's solved cube and
  * memoized: the fixed slots, every valid piece placement per slot (from the
- * 24 whole-cube orientations), and the physical-piece budgets.
+ * whole-puzzle orientations), and the physical-piece budgets.
  */
 
 const posKey = (p: Vec3): string => p.join(',')
@@ -64,13 +65,20 @@ export interface PlacementOption {
   readonly pieceKey: string
 }
 
+const PAINTABLE_CENTERS = new Map<CubeShape, boolean>()
+
 /** Fixed centers stay pre-filled. A center is fixed when it sits on its
  *  face's axis (the 3x3's six, the Domino's U and D): no turn moves it, it
  *  only spins. Off the axis (4x4) centers travel, so they are painted. */
 export function centersArePaintable(shape: CubeShape): boolean {
-  return solvedCube(shape).some(
-    (c) => c.stickers.length === 1 && c.position.filter((v) => v !== 0).length > 1,
-  )
+  let paintable = PAINTABLE_CENTERS.get(shape)
+  if (paintable === undefined) {
+    paintable = solvedCube(shape).some(
+      (c) => c.stickers.length === 1 && c.position.filter((v) => v !== 0).length > 1,
+    )
+    PAINTABLE_CENTERS.set(shape, paintable)
+  }
+  return paintable
 }
 
 export function paintableKind(shape: CubeShape, kind: SlotKind): boolean {
@@ -82,7 +90,7 @@ export interface SlotTables {
   /** Slots the user can paint (corners, edges, movable centers). */
   readonly paintableSlots: readonly Slot[]
   readonly byKey: ReadonlyMap<string, Slot>
-  /** Valid piece placements per slot key, from the 24 solved orientations. */
+  /** Valid piece placements per slot key, from the solved puzzle's orientations. */
   readonly placements: ReadonlyMap<string, readonly PlacementOption[]>
   /** Physical pieces available per pieceKey (1 each, 4 per center color). */
   readonly budgets: ReadonlyMap<string, number>

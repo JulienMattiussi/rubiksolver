@@ -1,6 +1,7 @@
 import { durationFromSlider, sliderFromDuration } from '@/lib/speed'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
+import { SECTION_LABEL } from '@/components/ui/styles'
 
 /** Animation speed slider (fast on the right). */
 export function SpeedSlider() {
@@ -9,10 +10,7 @@ export function SpeedSlider() {
   const setTurnDuration = useCube((s) => s.setTurnDuration)
   return (
     <div className="flex items-center gap-3">
-      <label
-        htmlFor="speed"
-        className="text-xs font-semibold uppercase tracking-wide text-slate-400"
-      >
+      <label htmlFor="speed" className={SECTION_LABEL}>
         {t.speed}
       </label>
       <input

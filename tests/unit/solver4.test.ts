@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { applyMoves, isSolved, solvedCube, stateKey } from '@/lib/cube'
+import { isSolved, solvedCube, stateKey } from '@/lib/cube'
+import { applyMoves } from '@/lib/turn'
 import { scramble } from '@/lib/moves'
 import { methodsFor, solve } from '@/lib/solver'
 import { centersDone, solveCenters } from '@/lib/solver4/centers'
 import { edgesPaired, pairedCount, pairEdges } from '@/lib/solver4/edges'
 import { cornerTwistSum, edgeFlipParity, fixParities, permSignsMatch } from '@/lib/solver4/parity'
 import { isReduced, to3x3 } from '@/lib/solver4/project'
+import { reductionPlan } from '@/lib/solver4/steps'
+import { ROUX_PLAN } from '@/lib/methods/roux'
 import { seededRng, twistedCorner } from '../helpers'
 import type { Cube, Vec3 } from '@/lib/types'
 
@@ -120,7 +123,7 @@ describe('4x4 parities', () => {
     const rng = seededRng(31)
     for (const base of [ollParityCube(), pllParityCube()]) {
       const cube = applyMoves(base, scramble('3', 15, rng))
-      const method = methodsFor(4).find((m) => m.id === 'reduction')!
+      const method = methodsFor('4').find((m) => m.id === 'reduction')!
       const steps = method.solve(cube)
       expect(steps.some((s) => s.key === 'stepParity' && s.moves.length > 0)).toBe(true)
       expect(
@@ -159,4 +162,10 @@ describe('4x4 solver', () => {
     expect(edgesPaired(cube)).toBe(true)
     expect(centersDone(cube)).toBe(true)
   }, 120000)
+})
+
+describe('reductionPlan', () => {
+  it('refuses a 3x3 plan that turns inner layers (M is no 4x4 turn)', () => {
+    expect(() => reductionPlan(ROUX_PLAN)).toThrow(/inner layers/)
+  })
 })

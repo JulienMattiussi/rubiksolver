@@ -2,42 +2,46 @@
 
 ## Description du projet
 
-POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2, 3x3 ou 4x4**,
-**classique ou miroir**, plus le cuboïde **1x2x3** (choix dans une liste
-unique). On manipule le cube (rotations de faces à la souris/aux boutons,
-tranches internes et coups larges sur 4x4, orbite caméra),
-on le mélange **ou on saisit sa propre configuration** en peignant les stickers
-directement en 3D, puis on le résout selon **plusieurs vraies méthodes** (par
-couches, Fridrich/CFOP, réduction du 4x4...). La solution est découpée en
-**étapes nommées** qu'on joue d'un coup ou **pas à pas**, pour apprendre la
-méthode. Le but est pédagogique, pas l'optimalité du nombre de coups (à
-l'exception de la méthode **Optimale** du 2x2 et du 1x2x3, qui exploite leurs
-espaces d'états réduits).
+POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3
+ou 4x4**, **classique ou miroir**, plus trois cuboïdes : le **1x2x3**, la **tour
+2x2x4** (qui se déforme) et le **Domino 3x3x2** (choix dans une liste unique).
+On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
+coups larges là où la forme en a, orbite caméra, aperçu des pièces qui vont
+tourner au survol d'un bouton), on le mélange **ou on saisit sa propre
+configuration** en peignant les stickers directement en 3D, on peut
+**mémoriser un état** pour y revenir, puis on le résout selon **plusieurs
+vraies méthodes** (par couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4,
+méthodes de la tour et du Domino...). La solution est découpée en **étapes
+nommées** qu'on joue d'un coup ou **pas à pas**, pour apprendre la méthode. Le
+but est pédagogique, pas l'optimalité du nombre de coups (à l'exception de la
+méthode **Optimale** du 2x2 et du 1x2x3, qui exploite leurs espaces d'états
+réduits).
 
 Application **100% front-end**, sans backend. Interface **français par défaut**
 (bascule anglais), langue détectée depuis le navigateur ; **notation des
 mouvements internationale (U D L R F B) par défaut, ou française
-(H B G D F Ar)**, avec la
-même convention dans les deux pour les coups du 4x4 : préfixe `2` pour la
-tranche interne (`2R` / `2D`), suffixe `w` pour le coup large (`Rw` / `Dw`).
+(H B G D F Ar)**, avec la même convention dans les deux pour les autres
+coups : préfixe `2` pour la tranche interne du 4x4 (`2R` / `2D`), suffixe `w`
+pour le coup large (`Rw` / `Dw`), et `M`, `E`, `S` pour les tranches du
+milieu du 3x3.
 
 ---
 
 ## Stack technique
 
-| Outil                      | Usage                                                             |
-| -------------------------- | ----------------------------------------------------------------- |
-| React 19 + TypeScript      | UI                                                                |
-| Vite                       | Build / dev server                                                |
-| React Three Fiber + drei   | Rendu 3D déclaratif (three.js) et OrbitControls                   |
-| three                      | Moteur 3D sous-jacent                                             |
-| Tailwind CSS v4            | Styles (via `@tailwindcss/vite`, pas de config JS)                |
-| Zustand                    | État global (cube + animation, saisie, vue caméra, i18n/notation) |
-| Vitest + Testing Library   | Tests unitaires et composants                                     |
-| Playwright                 | Tests e2e                                                         |
-| Prettier                   | Formatage                                                         |
-| ESLint (typescript-eslint) | Linting                                                           |
-| Knip                       | Détection du code / dépendances inutilisés                        |
+| Outil                      | Usage                                                              |
+| -------------------------- | ------------------------------------------------------------------ |
+| React 19 + TypeScript      | UI                                                                 |
+| Vite                       | Build / dev server                                                 |
+| React Three Fiber + drei   | Rendu 3D déclaratif (three.js) et OrbitControls                    |
+| three                      | Moteur 3D sous-jacent                                              |
+| Tailwind CSS v4            | Styles (via `@tailwindcss/vite`, pas de config JS)                 |
+| Zustand                    | État global (cube + animation, saisie, états mémorisés, vue, i18n) |
+| Vitest + Testing Library   | Tests unitaires et composants                                      |
+| Playwright                 | Tests e2e                                                          |
+| Prettier                   | Formatage                                                          |
+| ESLint (typescript-eslint) | Linting                                                            |
+| Knip                       | Détection du code / dépendances inutilisés                         |
 
 Standard maison React + Vite + Zustand + Tailwind, aligné sur les dépôts
 voisins (ex : `big-bang-clicker`).
@@ -57,53 +61,59 @@ voisins (ex : `big-bang-clicker`).
 > 8 coins, 24 ailes, 24 centres mobiles, 8 internes). **Rien n'y suppose un
 > cube** : une forme n'est qu'un triplet de nombres de couches (`SHAPE_DIMS`),
 > une grille par axe, ce qui donne le 1x2x3 (`{-1,0,1} x {-1,1} x {0}`, 6
-> pièces). Un `Move` désigne une
-> face + éventuellement `depth: 2` (tranche interne) et `wide` (couches 1+2) ;
-> `moveLayerCoords` en déduit les coordonnées de couche à partir des
-> dimensions, source unique partagée par `applyMove` et l'animation. Une rotation est une rotation
-> entière exacte à 90 degres, donc l'état logique ne dérive jamais. Le rendu 3D
-> est une **fonction pure de cet état** (le 2x2 et le 4x4 ne sont que des mises
-> à l'échelle, voir `three/layout.ts` ; la variante miroir n'est qu'une table
-> d'épaisseurs, voir `lib/shape.ts`) ; le solveur lit le même modèle.
+> pièces), la tour et le Domino. Un `Move` désigne une face + éventuellement
+> `depth: 2` (tranche interne) et `wide` (couches 1+2) ; `moveSlab` en déduit
+> la tranche tournée (l'intervalle entre deux plans de coupe), source unique
+> partagée par `applyMove`, l'animation et l'aperçu (`turnedBy`). Les coups
+> agissent sur le **mécanisme** (`turnDims`) : le puzzle lui-même, sauf la tour,
+> qui tourne comme un 4x4x4 dont il manque des pièces. Une rotation est une
+> rotation entière exacte à 90 degrés, donc l'état logique ne dérive jamais. Le
+> rendu 3D est une **fonction pure de cet état** (chaque forme n'est qu'une
+> mise à l'échelle, voir `three/layout.ts` ; la variante miroir n'est qu'une
+> table d'épaisseurs, voir `lib/shape.ts`) ; les solveurs lisent le même modèle.
 
 ```
 src/
 ├── lib/                  # Logique pure, zéro React / zéro three.js (entièrement testée)
 │   ├── types.ts          # Types du domaine (CubeShape + SHAPE_DIMS, Dims, CubeVariant, Face, Color, Axis, Vec3, Sticker, Cubie, Cube, Move avec depth/wide)
 │   │                     #   + CUBE_KINDS : les choix exposés (forme x variante), leur id, libellé et catégorie
-│   ├── cube.ts           # Modèle cubies : solvedCube(shape), applyMove(s), layerCoords/moveLayerCoords, isSolved (faces uniformes),
-│   │                     #   quarterTurnFits, moveGeometry, cubeOrientations, stateKey, comptages de stickers, couleurs opposées
-│   ├── moves.ts          # Notation US/FR (parse/format, 2R/Rw, M/E/S sur 3x3), inversion, simplification (par couches),
-│   │                     #   scramble (RNG injectable ; le 4x4 mélange faces, tranches et coups larges), movesFor(shape) déduit de la forme
-│   ├── solverKit.ts      # Briques partagées des solveurs : search (BFS bornée, clé de dédup injectable),
-│   │                     #   solveWithAlgs ("aligner U puis algorithme"), relMoves/atEverySide,
+│   ├── geometry.ts       # Géométrie entière : normales des faces, normalIndex, grilles par axe (layerCoords), rotations exactes
+│   ├── cube.ts           # Le puzzle : solvedCube, cubeShape/cubeDims/turnDims, isSolved/isBoxed, stateKey, cubeOrientations,
+│   │                     #   requêtes de pièces (colorAt, colorsOf, cubieAt, atHome/homeAt), comptages de stickers et de couleurs
+│   ├── turn.ts           # Les coups : moveSlab/inSlab, applyMove(s), turnAllowed (tour), turnedBy, turnRotation (animation)
+│   ├── moves.ts          # Notation US/FR (parse/format, 2R/Rw, M/E/S sur 3x3), sameLayer, inversion, simplification,
+│   │                     #   movesFor(shape) déduit de la forme, scramble (RNG injectable, joué depuis l'état courant pour la tour)
+│   ├── solverKit.ts      # Briques partagées des solveurs : search (BFS bornée sur le cube entier, clé de dédup injectable),
+│   │                     #   solveWithAlgs ("aligner U puis algorithme"), relMoves/atEverySide, OUTER_GENERATORS,
 │   │                     #   StepSpec/MethodPlan + buildSteps (vérifie objectif et coups autorisés de chaque étape)
 │   ├── moveSet.ts        # Jeux de coups d'une étape (`moveSet('M U')`, `'M U2'` = demi-tours seuls), allows
 │   ├── pieceSearch.ts    # solvePieces : recherche sur les seules pièces suivies, avec les coups de l'étape
-│   │                     #   (bidirectionnelle vers "pièces à leur place", ou BFS vers un objectif + clé projetée)
+│   │                     #   (bidirectionnelle vers "pièces à leur place", ou BFS vers un objectif + clé projetée ;
+│   │                     #   macros = formules utilisées comme un seul générateur)
 │   ├── solver.ts         # Registre des méthodes par forme (une ligne par méthode) : methodsFor(shape), solve() (validation)
 │   ├── methods/          # Un fichier par famille de méthodes, chacune déclarée comme un MethodPlan :
 │   │   ├── algs.ts       #   catalogue des algorithmes nommés (Sune, Aa, Ua, T, Y, Niklas, CMLL...), effets testés
-│   │   ├── pieces3.ts    #   pièces du 3x3 nommées par leurs faces ('DFL', 'UR', 'L'), piecesHome, buildBlock,
-│   │   │                 #   orientation des arêtes (axe F/B) + clé de recherche projetée sur l'orientation
+│   │   ├── pieces3.ts    #   pièces du 3x3 nommées par leurs faces ('DFL', 'UR', 'L' : homeOf), piecesHome, buildBlock,
+│   │   │                 #   orientation des arêtes (axe F/B, partagée avec la parité du 4x4), orientAllEdges, F2L en <R, U>
 │   │   ├── layers3.ts    #   3x3 par couches et CFOP (prédicats et phases réutilisés par Petrus et ZZ)
 │   │   ├── roux.ts       #   Roux : blocs 1x2x3, CMLL, LSE en <M, U>
 │   │   ├── petrus.ts     #   Petrus : 2x2x2, 2x2x3 en <U, R, F>, arêtes, F2L en <R, U>, dernière couche en 3 temps
 │   │   ├── zz.ts         #   ZZ : EOLine, blocs en <L, U, R> puis <R, U>, OCLL, PLL
 │   │   ├── cube2.ts      #   2x2 : par couches (repère DBL) et optimal (BFS bidirectionnelle)
-│   │   ├── flat123.ts    #   1x2x3 : optimal (BFS exhaustive)
+│   │   ├── flat123.ts    #   1x2x3 : optimal (BFS exhaustive via solvePieces)
 │   │   ├── tower.ts      #   tour 2x2x4 : Deux Pockets (forme, Pocket intérieur, Pocket extérieur)
-│   │   └── domino.ts     #   Domino 3x3x2 : coins puis arêtes (formules de fan2cube.fr)
+│   │   └── domino.ts     #   Domino 3x3x2 : coins puis arêtes (formules de fan2cube.fr, reprises élargies par la tour)
 │   ├── solver4/          # Solveur 4x4 par réduction :
 │   │   ├── centers.ts    #   centres par comptage (D, U, puis ceinture), recherches bornées sans régression
 │   │   ├── edges.ts      #   appariement des ailes (échanges nets FR-bas <-> BR/FL-haut, goal-checkés), flip L2E
 │   │   ├── project.ts    #   projection homomorphe du 4x4 réduit vers un 3x3 virtuel (via3x3)
 │   │   ├── parity.ts     #   détecteurs (flip, signes de permutation, vrille) + algos de parité OLL/PLL
 │   │   └── steps.ts      #   reductionPlan(plan 3x3) : préfixe centres/arêtes/parité + étapes 3x3 projetées
-│   ├── editorTables.ts   # Tables de saisie par forme : slots, placements valides étiquetés par pièce physique, budgets
+│   ├── editorTables.ts   # Tables de saisie par forme : slots, placements valides étiquetés par pièce physique, budgets,
+│   │                     #   centres fixes (sur l'axe de leur face) pré-remplis
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
-│   ├── validate.ts       # validateCube : comptage par face + solubilité (résolution 2x2/3x3/1x2x3 ; invariants de pièces + vrille sur 4x4)
-│   ├── shape.ts          # Cube miroir : épaisseur de couche par couleur, boîte d'un cubie déduite de ses stickers
+│   ├── validate.ts       # validateCube : comptage par face + solubilité (résolution bornée ; invariants de pièces + vrille sur 4x4)
+│   ├── shape.ts          # Cube miroir : épaisseur de couche par couleur, boîte d'un cubie (cubieBox) déduite de ses stickers
 │   ├── snapshot.ts       # encodeCube/decodeCube : forme texte d'un état (mémorisation), décodage qui rejette un texte corrompu
 │   ├── easing.ts         # easeInOut (partagé par les animations)
 │   ├── speed.ts          # Curseur 0..100 <-> secondes par rotation
@@ -112,25 +122,28 @@ src/
 │   └── useIsDesktop.ts   # Breakpoint `sm` via matchMedia (bascule panneau unique / deux panneaux)
 ├── store/
 │   ├── cubeStore.ts      # Zustand : cube + variante de rendu + file de rotations + pilotage animation ;
-│   │                     #   méthode, étapes, jouer tout / pas à pas, loadCube
+│   │                     #   méthode, étapes, jouer tout / pas à pas, loadCube ; sélecteurs selectBusy / selectSolved
 │   ├── editorStore.ts    # Zustand : mode play/edit, couleur sélectionnée, saisie, apply (build + validate + charge)
 │   ├── savedStore.ts     # Zustand : un état mémorisé par forme, persisté en localStorage (try/catch : sans stockage, juste la session)
 │   └── viewStore.ts      # Zustand : pont DOM -> 3D (recentrage caméra : resetToken ; coup survolé : preview)
 ├── i18n/                 # i18n custom (FR source de vérité, EN typé complet) ; locale + notation US/FR
 │   ├── translations.ts   # `fr` (source) + `en: Translations`
-│   └── i18nStore.ts      # store `useI18n` (locale, t, setLocale, notation, setNotation)
+│   └── i18nStore.ts      # store `useI18n` (locale, t, setLocale, notation, setNotation) + selectMoveLabels
 ├── three/                # Rendu 3D (React Three Fiber) ; un composant/hook par fichier
 │   ├── Scene.tsx         # <Canvas> : caméra, lumières, OrbitControls ; bascule CubeView / EditView
-│   ├── CubeView.tsx      # Rend les cubies (via useTurnAnimation), à l'échelle de la taille, recentré selon la variante
-│   ├── EditView.tsx      # Mode saisie : stickers cliquables ; vides en gris (toujours en cubies classiques colorés)
+│   ├── CubeView.tsx      # Rend les cubies (via useTurnAnimation), à l'échelle de la forme, recentré selon la variante,
+│   │                     #   pièces du coup survolé en surbrillance
+│   ├── EditView.tsx      # Mode saisie : stickers peignables cliquables, vides en gris ; en épaisseurs (dorés) sur un miroir
 │   ├── Cubie.tsx         # Un cubie : corps + stickers, à la boîte de sa variante, en surbrillance si un coup survolé le tourne
-│   ├── layout.ts         # Échelle et position visuelles déduites des dimensions (une cellule par cubie, plus grand côté = 3 unités)
+│   ├── layout.ts         # Échelle et position visuelles (coordonnée / pas de la grille : linéaire, juste hors de la boîte)
 │   ├── Sticker.tsx       # Sticker orienté à sa normale et dimensionné à sa face, mutualisé play/édition (onSelect = cliquable)
 │   ├── useTurnAnimation.ts # Hook : pilote la file de rotations (rotation de la couche active)
+│   ├── camera.ts         # Cadrage caméra de référence (position de départ et de recentrage)
 │   ├── CameraReset.tsx   # Recentrage caméra animé (lit viewStore, dans le <Canvas>)
 │   └── colors.ts         # Couleurs des stickers (hex), plastique, doré du cube miroir
 ├── components/
 │   ├── ui/               # Primitives réutilisables (Button, IconButton, SegmentedToggle, Select, ConfirmDialog)
+│   │                     #   + styles.ts : classes partagées (SECTION_BOX, SECTION_LABEL)
 │   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge,
 │   │                     #   LanguageToggle, NotationToggle, RecenterButton, CollapseButton, SpeedSlider, MovePad
 │   ├── solve/            # Résolution : SolvePanel, MethodSelect, StepList
@@ -138,11 +151,13 @@ src/
 ├── App.tsx               # Coquille : scène 3D plein écran + panneau en overlay (empilé sur mobile en saisie)
 └── main.tsx
 tests/
-├── helpers.ts            # RNG déterministe (seedRng) pour des scrambles reproductibles
-├── unit/                 # Vitest : cube, moves, solver + solver4 (propriété), methods (Roux/Petrus/ZZ : objectifs et jeux de coups),
-│                         #   algs (effet de chaque algorithme), pieceSearch, flat123 (espace d'états entier), editor, validate, shape, easing, speed, progress
+├── helpers.ts            # RNG déterministe (seededRng), coin vrillé (twistedCorner)
+├── unit/                 # Vitest : cube (coups, tour), moves, solver (registre : chaque méthode de chaque forme) + solver4,
+│                         #   methods (Roux/Petrus/ZZ : objectifs et jeux de coups), algs, tower, domino (effet de chaque
+│                         #   formule), pieceSearch, flat123 (espace d'états entier), editor, validate, shape, snapshot,
+│                         #   layout, stores, easing, speed, progress
 ├── component/            # Vitest + Testing Library (Controls, SegmentedToggle)
-└── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution, saisie)
+└── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution sur chaque forme, saisie, miroir)
 ```
 
 ### Les solveurs par méthode (`src/lib/solver.ts`)
@@ -192,8 +207,8 @@ et le store ne voient que ça) :
   qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
   droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL
   - 5 étapes.
-- **Optimale** (`optimal`, 2x2) : recherche exhaustive, solution la plus
-  courte possible (11 coups max), une seule étape.
+- **Optimale** (`optimal`, 2x2 et 1x2x3) : recherche exhaustive, solution la
+  plus courte possible (11 coups max sur 2x2, 6 sur 1x2x3), une seule étape.
 - **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
   Pocket extérieur - voir « La tour 2x2x4 ».
 - **Coins puis arêtes** (`cornersFirst`, Domino 3x3x2) : coins du bas, coins
@@ -207,7 +222,9 @@ coin-ancre restent corrects par construction. Le solveur optimal est une **BFS
 bidirectionnelle** en rotations U/R/F (qui ne bougent jamais DBL), du cube vers
 l'orientation du cube résolu qui partage son coin DBL ; la borne de profondeur
 (12 > nombre de Dieu du 2x2 = 11) rend l'échec sur cube impossible borné et
-rapide, ce qu'exploite la validation.
+rapide, ce qu'exploite la validation. Elle garde sa propre boucle (et non
+`solvePieces`) parce qu'elle continue après la première rencontre pour
+garantir l'optimalité.
 
 **Le 4x4 par réduction** (`src/lib/solver4/`) : repère absolu = `FACE_COLOR`
 (les centres d'une couleur étant indiscernables, le schéma standard est
@@ -237,10 +254,12 @@ Les briques de résolution sont partagées et **correctes par construction** :
   algorithme » (gâchettes `R U R'`, Sune, A-perm/U-perm...) dont l'objectif
   inclut « ne pas régresser » ; les algorithmes viennent tous du catalogue
   `methods/algs.ts`, et chacun a son effet vérifié par un test ;
-- **construction de blocs** (`pieceSearch.ts`) : une recherche qui ne fait
-  tourner **que les pièces suivies** (avec `applyMove(..., dims)` sur un
-  sous-ensemble de cubies), donc minuscule même avec un jeu de coups
-  restreint. Vers « ces pièces à leur place », l'objectif est un état unique :
+- **construction de blocs et formules** (`pieceSearch.ts`) : une recherche
+  qui ne fait tourner **que les pièces suivies** (avec
+  `applyMove(..., mechanism)` sur un sous-ensemble de cubies), donc minuscule
+  même avec un jeu de coups restreint ; des formules (`macros`) peuvent y
+  servir de générateurs, ce que font la tour, le Domino et l'orientation des
+  arêtes de Petrus. Vers « ces pièces à leur place », l'objectif est un état unique :
   la recherche part des deux bouts et se rejoint au milieu (profondeur divisée
   par deux). Vers un objectif plus large (« toutes les arêtes orientées »),
   BFS avec une clé projetée sur ce que l'objectif lit (`orientationKey` :
@@ -274,8 +293,8 @@ L'utilisateur peut initialiser le cube depuis une position réelle en peignant
 les stickers directement sur le rendu 3D (mode édition), en couleurs ou en
 épaisseurs sur un cube miroir (même code, voir plus haut). Deux garde-fous :
 
-- **Saisie guidée** : on précalcule, à partir des 24 orientations d'un cube
-  résolu, tous les placements de pièce valides par emplacement, chacun
+- **Saisie guidée** : on précalcule, à partir de toutes les orientations du
+  puzzle résolu, tous les placements de pièce valides par emplacement, chacun
   étiqueté par l'**identité de la pièce physique** qu'il représente (coins et
   arêtes uniques ; les deux ailes d'une paire de couleurs du 4x4 distinguées
   par leur chiralité ; les 4 centres d'une couleur partagent une identité à
@@ -285,7 +304,8 @@ les stickers directement sur le rendu 3D (mode édition), en couleurs ou en
   Impossible donc de créer une pièce, un doublon ou un compte de couleurs
   incohérent pendant la saisie.
 - **Validation finale** : `validateCube` vérifie le comptage des couleurs puis
-  la solubilité. Sur 2x2/3x3, en demandant une résolution : sur un cube
+  la solubilité. Sur toutes les formes sauf le 4x4, en demandant une
+  résolution bornée (`solve`) : sur un cube
   impossible, le solveur épuise sa recherche bornée et lève une exception,
   qu'on intercepte. Sur 4x4, par **invariants exacts** (les centres
   indiscernables absorbent toute contrainte de parité de permutation, c'est
@@ -295,9 +315,11 @@ les stickers directement sur le rendu 3D (mode édition), en couleurs ou en
   coins renormalisés comme un 2x2 (`solveOptimal2`), rapide et borné.
 
 Les tables de saisie (emplacements + placements étiquetés + budgets) sont
-**dérivées par taille** du cube résolu correspondant et mémoïsées
+**dérivées par forme** du puzzle résolu correspondant et mémoïsées
 (`tablesFor`, dans `src/lib/editorTables.ts`) ; toutes les fonctions de saisie
-prennent la taille avec l'état. Sans centres fixes, la saisie 2x2 part
+prennent la forme avec l'état. Une saisie est complète quand chaque emplacement
+est peint (`isComplete`) : une tour déformée, dont des pièces sont hors des
+emplacements, ne l'est jamais (« Depuis l'état actuel » y est grisé). Sans centres fixes, la saisie 2x2 part
 entièrement vide (24 stickers), et le 4x4 aussi (96 stickers, centres
 peignables car mobiles). Un centre posé sur l'axe de sa face ne bouge jamais :
 il reste pré-rempli (`centersArePaintable`), les 6 du 3x3 comme les 2 du Domino.
@@ -318,8 +340,9 @@ de ces trois nombres**, sans cas particulier :
   tourner sa couche unique revient à tourner le puzzle entier. Le 1x2x3 se
   retrouve ainsi avec exactement **U2, D2, L2, R2**, et les cubes gardent leurs
   18 (2x2/3x3) et 54 (4x4) coups ;
-- **orientations** (`cubeOrientations`) : même critère, donc 24 pour un cube et
-  4 pour le 1x2x3, ce qui suffit à dériver ses tables de saisie ;
+- **orientations** (`cubeOrientations`) : même critère, donc 24 pour un cube,
+  4 pour le 1x2x3 et 8 pour la tour et le Domino, ce qui suffit à dériver
+  leurs tables de saisie ;
 - **comptage des stickers** : une face porte le produit des deux dimensions
   qu'elle couvre, donc les six faces d'un cuboïde n'ont pas le même nombre de
   facettes (2, 3 et 6 sur le 1x2x3, soit 22 en tout) ;
@@ -485,8 +508,9 @@ mobile et en saisie, une seule carte) :
   la tour reste grisé) avec **recentrage caméra animé** et
   **bascule de notation FR/US**.
 - **Résolution** : choix de la **méthode** (liste déroulante, filtrée par
-  taille via `methodsFor`), **Résoudre**
-  (joue tout) ou **Pas à pas** (une étape à la fois), et la **liste des étapes**
+  forme via `methodsFor`), **Résoudre**
+  (joue tout) ou **Pas à pas** (une étape à la fois ; « Arrêter » abandonne la
+  solution en cours), et la **liste des étapes**
   nommées avec le total de rotations, le surlignage de l'étape en cours et,
   quand l'étape est restreinte, ses **coups autorisés** (`<M, U>`...).
 
@@ -514,9 +538,9 @@ tout texte passe par `t`. Le recentrage caméra transite par `viewStore`
 - **`src/lib/` est pur** : aucun import React ni three.js. Le rendu et le store
   dépendent de `lib`, jamais l'inverse.
 - **État entier, sans flottants** : les normales restent unitaires et les
-  positions sur la grille entière de leur taille (`{-3,-1,1,3}` au plus). Ne
+  positions sur la grille entière du mécanisme (`{-3,-1,1,3}` au plus). Ne
   pas introduire de trigonométrie dans la logique du cube ; l'angle visuel est
-  calculé par `moveGeometry` uniquement pour l'animation.
+  calculé par `turnRotation` uniquement pour l'animation.
 - **Tailwind v4** : `@import 'tailwindcss'`, pas de `tailwind.config.js`.
 - **TypeScript strict** : `noUnusedLocals`, `noUnusedParameters`,
   `noUncheckedIndexedAccess`. Ne pas les désactiver.
@@ -544,22 +568,24 @@ tout texte passe par `t`. Le recentrage caméra transite par `viewStore`
 - **Typographie** : ne jamais introduire de tiret long (`—` / `–`).
 
 Avant de considérer une tâche terminée : `make check` doit passer (build +
-lint + typecheck + knip + tests unitaires).
+lint + formatage + typecheck, tests compris + knip + tests unitaires).
 
 ---
 
 ## Commandes (Makefile)
 
-| Commande                                     | Effet                                             |
-| -------------------------------------------- | ------------------------------------------------- |
-| `make install`                               | Installe les dépendances                          |
-| `make start`                                 | Serveur de dev (http://localhost:6661)            |
-| `make build`                                 | Build de production                               |
-| `make lint` / `make typecheck` / `make knip` | Vérifications                                     |
-| `make format`                                | Prettier                                          |
-| `make test`                                  | Tests unitaires + composants                      |
-| `make test-e2e`                              | Tests Playwright (installe Chromium au 1er run)   |
-| `make fix`                                   | Format + lint                                     |
-| `make check`                                 | build + lint + typecheck + knip + tests unitaires |
+| Commande                                     | Effet                                                       |
+| -------------------------------------------- | ----------------------------------------------------------- |
+| `make install`                               | Installe les dépendances                                    |
+| `make start`                                 | Serveur de dev (http://localhost:6661)                      |
+| `make build` / `make preview`                | Build de production / le servir en local                    |
+| `make lint` / `make typecheck` / `make knip` | Vérifications (le typecheck couvre `src` et `tests`)        |
+| `make format` / `make format-check`          | Prettier sur tout le dépôt (écrire / vérifier)              |
+| `make test` (= `make test-unit`)             | Tests unitaires + composants                                |
+| `make test-watch` / `make test-coverage`     | Tests en continu / avec couverture                          |
+| `make test-e2e` / `make test-e2e-ui`         | Tests Playwright (installe Chromium au 1er run) / avec l'UI |
+| `make fix`                                   | Format + lint                                               |
+| `make check`                                 | build + lint + format-check + typecheck + knip + tests      |
+| `make clean`                                 | Supprime `dist` et `node_modules`                           |
 
 - **Port de dev** : 6661.

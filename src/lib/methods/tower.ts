@@ -1,9 +1,11 @@
-import { FACE_COLOR, FACE_NORMAL, isBoxed, isSolved, normalIndex, solvedCube } from '../cube'
+import { atHome, FACE_COLOR, homesOf, isBoxed, isSolved } from '../cube'
+import { normalIndex } from '../geometry'
 import { invertMoves, parseMoves } from '../moves'
 import { moveSet } from '../moveSet'
 import { solvePieces } from '../pieceSearch'
 import type { MethodPlan } from '../solverKit'
-import type { Color, Cube, Cubie, Face, Move } from '../types'
+import type { Color, Cube, Cubie, Move } from '../types'
+import { DESCEND_CORNER, SWAP_CORNERS } from './domino'
 
 /**
  * 2x2x4 tower, "Two Pockets" method, as taught on fan2cube.fr (tower2242 +
@@ -25,7 +27,8 @@ import type { Color, Cube, Cubie, Face, Move } from '../types'
  *
  * Notation (fan2cube -> app): H B A P G D = U D F B L R; H* B* = Uw Dw; a side
  * face of the tower is half of it, so A D = Fw Rw; "D = D2" in parts II and
- * III. Each formula's effect is asserted in tests/unit/tower.test.ts.
+ * III. The descend and swap formulas are the Domino's (domino.ts), widened.
+ * Each formula's effect is asserted in tests/unit/tower.test.ts.
  */
 
 /** Pivot two top bars, (HDA) and (HAG): T . H*' . T' . H* with T = D'B*DAB*A'. */
@@ -36,10 +39,13 @@ export const PIVOT = [
   ...invertMoves(PIVOT_T),
   ...parseMoves('Uw'),
 ]
-/** Descend one top corner: AH'AH.A, with A = A2. */
-export const DESCEND = parseMoves("Fw2 U' Fw2 U Fw2")
-/** Swap two top-right corners: DH(DH')2.B.DH'DH.DB', with D = D2. */
-export const SWAP = parseMoves("Rw2 U Rw2 U' Rw2 U' D Rw2 U' Rw2 U Rw2 D'")
+/** A side of the tower is half of it: the Domino's side turns become wide. */
+const toTower = (moves: readonly Move[]): Move[] =>
+  moves.map((m) => (m.face === 'U' || m.face === 'D' ? m : { ...m, depth: 2, wide: true }))
+/** Descend one top corner (Domino A, AH'AH.A). */
+export const DESCEND = toTower(DESCEND_CORNER)
+/** Swap two top-right corners (Domino B). */
+export const SWAP = toTower(SWAP_CORNERS)
 
 /** The same formulas on the inner Pocket: h and b turned as Uw and Dw. */
 const toInner = (moves: readonly Move[]): Move[] =>
@@ -49,31 +55,14 @@ const toInner = (moves: readonly Move[]): Move[] =>
 const DESCEND_INNER = toInner(DESCEND)
 const SWAP_INNER = toInner(SWAP)
 
-const SOLVED = solvedCube('224')
 const isCorner = (c: Cubie): boolean => c.stickers.length === 3
 const isMiddle = (c: Cubie): boolean => c.stickers.length === 2
-const CORNERS = SOLVED.filter(isCorner).map((c) => c.position)
-const MIDDLES = SOLVED.filter(isMiddle).map((c) => c.position)
+const CORNERS = homesOf('224', isCorner)
+const MIDDLES = homesOf('224', isMiddle)
 const ALL = [...CORNERS, ...MIDDLES]
 
-const FACE_OF_NORMAL = Object.fromEntries(
-  (Object.keys(FACE_NORMAL) as Face[]).map((f) => [normalIndex(FACE_NORMAL[f]), f]),
-) as Record<number, Face>
-
-/** Home slots, by position: which faces a piece there shows when solved. */
-const HOME = new Map(SOLVED.map((c) => [c.position.join(','), c.stickers.length]))
-
-/**
- * A piece is home when it sits in a slot of the boxed tower with every
- * sticker showing its own face's color. Colors, not identities: either of
- * two twin middles (same colors) is right in either spot.
- */
-function atHome(c: Cubie): boolean {
-  return (
-    HOME.get(c.position.join(',')) === c.stickers.length &&
-    c.stickers.every((s) => FACE_COLOR[FACE_OF_NORMAL[normalIndex(s.normal)]!] === s.color)
-  )
-}
+/** Home in the tower (twins either way round, see `atHome`). */
+const isHome = (c: Cubie): boolean => atHome(c, '224')
 
 const UP_DOWN: readonly Color[] = [FACE_COLOR.U, FACE_COLOR.D]
 
@@ -94,8 +83,8 @@ function barKey(pieces: readonly Cubie[]): string {
     .join(' ')
 }
 
-/** Positions and colors of some pieces, twins merged. */
-function colorKey(pieces: readonly Cubie[]): string {
+/** Where some pieces stand and how they are turned, twins merged. */
+function layoutKey(pieces: readonly Cubie[]): string {
   return pieces
     .map(
       (c) =>
@@ -114,17 +103,17 @@ const isBottomCorner = (c: Cubie): boolean =>
 // Step goals, on the whole tower.
 const shapeDone = (c: Cube) =>
   isBoxed(c) && c.filter(isCorner).every((corner) => barAxis(corner) === 1)
-const innerDone = (c: Cube) => shapeDone(c) && c.filter(isMiddle).every(atHome)
+const innerDone = (c: Cube) => shapeDone(c) && c.filter(isMiddle).every(isHome)
 
 const SHAPE_TURNS = moveSet('Uw Dw Rw Fw')
 const INNER_TURNS = moveSet('Uw Dw Rw2 Fw2')
-const OUTER_TURNS = moveSet('U D Rw2 Fw2')
+const OUTER_POCKET_TURNS = moveSet('U D Rw2 Fw2')
 
 /** I. Stand every bar up: pivots, brought to the bars by wide setup turns. */
 function standBars(cube: Cube): Move[] {
   return solvePieces(cube, {
     track: CORNERS,
-    moves: moveSet('Uw Dw Rw2 Fw2'),
+    moves: INNER_TURNS, // the same wide turns set the bars up under the pivot
     macros: [PIVOT, invertMoves(PIVOT)],
     goal: (p) => p.every((c) => barAxis(c) === 1),
     key: barKey,
@@ -138,8 +127,8 @@ function innerBottom(cube: Cube): Move[] {
     track: MIDDLES,
     moves: moveSet('Uw Dw'),
     macros: [DESCEND_INNER],
-    goal: (p) => p.filter((c) => c.position[1] < 0).every(atHome),
-    key: colorKey,
+    goal: (p) => p.filter((c) => c.position[1] < 0).every(isHome),
+    key: layoutKey,
     maxDepth: 16,
   })
 }
@@ -149,8 +138,8 @@ function innerTop(cube: Cube): Move[] {
     track: MIDDLES,
     moves: moveSet('Uw'),
     macros: [SWAP_INNER],
-    goal: (p) => p.every(atHome),
-    key: colorKey,
+    goal: (p) => p.every(isHome),
+    key: layoutKey,
     maxDepth: 16,
   })
 }
@@ -162,8 +151,8 @@ function outerBottom(cube: Cube): Move[] {
     track: ALL,
     moves: moveSet('U D'),
     macros: [DESCEND],
-    goal: (p) => p.filter((c) => isMiddle(c) || c.position[1] < 0).every(atHome),
-    key: (p) => colorKey(p.filter((c) => isMiddle(c) || isBottomCorner(c))),
+    goal: (p) => p.filter((c) => isMiddle(c) || c.position[1] < 0).every(isHome),
+    key: (p) => layoutKey(p.filter((c) => isMiddle(c) || isBottomCorner(c))),
     maxDepth: 20,
   })
 }
@@ -174,8 +163,8 @@ function outerTop(cube: Cube): Move[] {
     track: CORNERS,
     moves: moveSet('U'),
     macros: [SWAP],
-    goal: (p) => p.every(atHome),
-    key: colorKey,
+    goal: (p) => p.every(isHome),
+    key: layoutKey,
     maxDepth: 16,
   })
 }
@@ -188,5 +177,10 @@ export const TOWER_PLAN: MethodPlan = [
     moves: INNER_TURNS,
     phases: [innerBottom, innerTop],
   },
-  { key: 'stepOuterPocket', goal: isSolved, moves: OUTER_TURNS, phases: [outerBottom, outerTop] },
+  {
+    key: 'stepOuterPocket',
+    goal: isSolved,
+    moves: OUTER_POCKET_TURNS,
+    phases: [outerBottom, outerTop],
+  },
 ]

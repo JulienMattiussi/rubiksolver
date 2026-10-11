@@ -1,15 +1,16 @@
 import { ArchiveRestore, Bookmark, Pencil, RotateCcw, Shuffle, Square } from 'lucide-react'
 import { useState } from 'react'
-import { cubeShape, isSolved } from '@/lib/cube'
+import { cubeShape, isBoxed } from '@/lib/cube'
 import { encodeCube } from '@/lib/snapshot'
 import { CUBE_CATEGORIES, CUBE_KINDS, cubeCategory, cubeKindId, SHAPE_LABEL } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
-import { useCube } from '@/store/cubeStore'
+import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { useSaved } from '@/store/savedStore'
 import { Button } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Select } from '@/components/ui/Select'
+import { SECTION_BOX } from '@/components/ui/styles'
 import { MovePad } from './MovePad'
 import { SpeedSlider } from './SpeedSlider'
 import { StatusBadge } from './StatusBadge'
@@ -19,8 +20,6 @@ import { StatusBadge } from './StatusBadge'
 export function SetupSection() {
   const t = useI18n((s) => s.t)
   const cube = useCube((s) => s.cube)
-  const active = useCube((s) => s.active)
-  const queue = useCube((s) => s.queue)
   const scramble = useCube((s) => s.scramble)
   const shape = useCube((s) => cubeShape(s.cube))
   const setShape = useCube((s) => s.setShape)
@@ -36,21 +35,18 @@ export function SetupSection() {
   const restore = useSaved((s) => s.restore)
 
   const [confirmReplace, setConfirmReplace] = useState(false)
-  const busy = active !== null || queue.length > 0
-  const solved = isSolved(cube)
+  const busy = useCube(selectBusy)
+  const solved = useCube(selectSolved)
   const alreadySaved = saved?.cube === encodeCube(cube)
   const savedTime = saved
     ? new Date(saved.savedAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
     : ''
 
   return (
-    <section
-      aria-label={t.sectionSetup}
-      className="flex flex-col gap-3 rounded-xl border border-slate-700/60 bg-slate-950/30 p-4"
-    >
+    <section aria-label={t.sectionSetup} className={SECTION_BOX}>
       <Select
-        id="cube-size"
-        label={t.sizeLabel}
+        id="cube-kind"
+        label={t.cubeLabel}
         value={cubeKindId({ shape, variant })}
         disabled={busy}
         onChange={(value) => {
@@ -92,7 +88,13 @@ export function SetupSection() {
           <Pencil className="size-4" aria-hidden />
           {t.editCube}
         </Button>
-        <Button onClick={enterFromCurrent} disabled={busy} variant="ghost">
+        <Button
+          onClick={enterFromCurrent}
+          // Off its box a tower has pieces no editor slot can hold.
+          disabled={busy || !isBoxed(cube)}
+          title={isBoxed(cube) ? undefined : t.fromCurrentUnboxed}
+          variant="ghost"
+        >
           {t.fromCurrent}
         </Button>
         <Button

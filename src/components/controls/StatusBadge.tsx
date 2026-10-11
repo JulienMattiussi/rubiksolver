@@ -1,19 +1,14 @@
-import { isSolved } from '@/lib/cube'
 import { useI18n } from '@/i18n/i18nStore'
-import { useCube } from '@/store/cubeStore'
+import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
 
 /** Colored dot + label reflecting the cube's current status. */
 export function StatusBadge() {
   const t = useI18n((s) => s.t)
-  const cube = useCube((s) => s.cube)
-  const active = useCube((s) => s.active)
-  const queue = useCube((s) => s.queue)
-  const mode = useCube((s) => s.mode)
-
-  const busy = active !== null || queue.length > 0
-  const solved = isSolved(cube)
+  const busy = useCube(selectBusy)
+  const solved = useCube(selectSolved)
+  const solving = useCube((s) => s.solving)
   const status = busy
-    ? mode === 'solving'
+    ? solving
       ? t.statusSolving
       : t.statusPlaying
     : solved

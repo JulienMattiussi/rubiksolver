@@ -1,13 +1,12 @@
 import { cubeShape, stickersOfColor } from '@/lib/cube'
 import { colorCounts } from '@/lib/editor'
 import { byThickness, LAYER_THICKNESS } from '@/lib/shape'
-import type { Color } from '@/lib/types'
+import { COLORS } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { COLOR_HEX, MIRROR_STICKER } from '@/three/colors'
-
-const PALETTE: readonly Color[] = ['W', 'Y', 'G', 'B', 'O', 'R']
+import { SECTION_LABEL } from '@/components/ui/styles'
 
 const MIRROR_THICKNESS = LAYER_THICKNESS.mirror
 const THINNEST = Math.min(...Object.values(MIRROR_THICKNESS))
@@ -32,12 +31,12 @@ export function ColorPalette() {
   const setColor = useEditor((s) => s.setColor)
   const counts = colorCounts(edit)
   // Thinnest first, so the swatches read as a scale.
-  const palette = mirror ? byThickness(MIRROR_THICKNESS) : PALETTE
+  const palette = mirror ? byThickness(MIRROR_THICKNESS) : COLORS
   const title = mirror ? t.paletteMirror : t.palette
 
   return (
     <div>
-      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{title}</h2>
+      <h2 className={`mb-2 ${SECTION_LABEL}`}>{title}</h2>
       <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={title}>
         {palette.map((c, rank) => {
           const remaining = stickersOfColor(shape, c) - counts[c]

@@ -1,11 +1,9 @@
 import { create } from 'zustand'
-import { applyMove, cubeShape, solvedCube } from '@/lib/cube'
+import { cubeShape, isSolved, solvedCube } from '@/lib/cube'
+import { applyMove } from '@/lib/turn'
 import { scramble as makeScramble } from '@/lib/moves'
 import { methodsFor, type MethodId, type SolveStep } from '@/lib/solver'
 import { supportsMirror, type Cube, type CubeShape, type CubeVariant, type Move } from '@/lib/types'
-
-/** What the currently playing queue represents (drives status + UI labels). */
-type Mode = 'idle' | 'scrambling' | 'solving'
 
 /** Scramble length per shape: enough to reach any state, without dragging on. */
 const SCRAMBLE_LENGTH: Record<CubeShape, number> = {
@@ -26,7 +24,9 @@ interface CubeStore {
   queue: Move[]
   /** Move currently being animated, or null when idle. */
   active: Move | null
-  mode: Mode
+  /** The queue plays a solution (the status says so), not a scramble or a
+   *  hand turn. */
+  solving: boolean
   /** Seconds a single quarter turn takes to animate. */
   turnDuration: number
 
@@ -36,9 +36,6 @@ interface CubeStore {
   steps: SolveStep[] | null
   /** How many steps have already been sent to the animation queue. */
   stepIndex: number
-
-  /** True while any move is queued or animating. */
-  isBusy: () => boolean
 
   pushMove: (move: Move) => void
   scramble: () => void
@@ -54,6 +51,8 @@ interface CubeStore {
   /** Queue only the next not-yet-played step (step-by-step learning). */
   playNextStep: () => void
   reset: () => void
+  /** Halt the queue. The solution goes with it: the cube now sits between
+   *  two of its steps, so neither "all played" nor "next step" holds. */
   stop: () => void
   /** Replace the cube with a specific state (used by the editor). */
   loadCube: (cube: Cube) => void
@@ -68,31 +67,35 @@ function clearSolution() {
   return { steps: null, stepIndex: 0 }
 }
 
-/** Idle state around a freshly loaded cube (reset, size switch, editor load). */
+/** Idle state around a freshly loaded cube (reset, shape switch, editor load). */
 function loadedCube(cube: Cube) {
   return {
     cube,
     queue: [] as Move[],
     active: null as Move | null,
-    mode: 'idle' as Mode,
+    solving: false,
     ...clearSolution(),
   }
 }
+
+/** A move is queued or animating: the controls wait. */
+export const selectBusy = (s: CubeStore): boolean => s.active !== null || s.queue.length > 0
+
+export const selectSolved = (s: CubeStore): boolean => isSolved(s.cube)
 
 export const useCube = create<CubeStore>((set, get) => ({
   cube: solvedCube(),
   variant: 'classic',
   queue: [],
   active: null,
-  mode: 'idle',
+  solving: false,
   turnDuration: 0.2,
   method: 'beginner',
   steps: null,
   stepIndex: 0,
 
-  isBusy: () => get().active !== null || get().queue.length > 0,
-
-  pushMove: (move) => set((s) => ({ queue: [...s.queue, move], mode: 'idle', ...clearSolution() })),
+  pushMove: (move) =>
+    set((s) => ({ queue: [...s.queue, move], solving: false, ...clearSolution() })),
 
   scramble: () =>
     set((s) => ({
@@ -103,7 +106,7 @@ export const useCube = create<CubeStore>((set, get) => ({
         Math.random,
         s.cube,
       ),
-      mode: 'scrambling',
+      solving: false,
       active: null,
       ...clearSolution(),
     })),
@@ -129,7 +132,7 @@ export const useCube = create<CubeStore>((set, get) => ({
     const method = methods.find((m) => m.id === get().method) ?? methods[0]
     if (!method) throw new Error('prepareSolution: no solving method for this shape')
     const steps = method.solve(get().cube)
-    set({ steps, stepIndex: 0, mode: 'solving', queue: [], active: null })
+    set({ steps, stepIndex: 0, solving: true, queue: [], active: null })
     return steps
   },
 
@@ -150,7 +153,7 @@ export const useCube = create<CubeStore>((set, get) => ({
 
   loadCube: (cube) => set(loadedCube(cube)),
 
-  stop: () => set({ queue: [], active: null, mode: 'idle' }),
+  stop: () => set({ queue: [], active: null, solving: false, ...clearSolution() }),
 
   setTurnDuration: (seconds) => set({ turnDuration: seconds }),
 
@@ -165,6 +168,6 @@ export const useCube = create<CubeStore>((set, get) => ({
       if (!s.active) return s
       const cube = applyMove(s.cube, s.active)
       const done = s.queue.length === 0
-      return { cube, active: null, mode: done ? 'idle' : s.mode }
+      return { cube, active: null, solving: done ? false : s.solving }
     }),
 }))

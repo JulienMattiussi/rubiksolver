@@ -1,11 +1,12 @@
-import { applyMoves, cubeShape, solvedCube, stateKey, turnDims } from './cube'
-import { invertMoves } from './moves'
+import { colorsOf, cubeShape, solvedCube, stateKey, turnDims } from './cube'
+import { applyMoves } from './turn'
+import { invertMoves, sameLayer } from './moves'
 import type { MoveSet } from './moveSet'
-import type { Color, Cube, Cubie, Dims, Move, Vec3 } from './types'
+import type { Cube, Cubie, Dims, Move, Vec3 } from './types'
 
 /**
- * Search over a handful of tracked pieces, the brick of blockbuilding methods
- * (Roux, Petrus, ZZ). A step like "build the second block with <R, U, r, M>"
+ * Search over a handful of tracked pieces, the brick of blockbuilding and
+ * formula-driven steps (Roux, Petrus, ZZ, the tower, the Domino). A step like "build the second block with <R, U, r, M>"
  * only cares about five pieces, so the search turns those five and nothing
  * else: states differing elsewhere collapse, which keeps the space tiny and
  * lets the step use its method's real move set instead of algorithms.
@@ -18,11 +19,12 @@ import type { Color, Cube, Cubie, Dims, Move, Vec3 } from './types'
  * - custom goal (say "every edge oriented"): plain breadth-first search, with
  *   an optional `key` projecting the state on what the goal reads.
  *
- * Pieces are named by their home position. With the default goal they must be
- * unique (true on a 3x3, whose centers are fixed); identical pieces (the
- * tower's twin middles) need a custom goal and key reading colors, not
- * identities, since either twin may end up in either spot. Solutions are shortest for a custom goal and at
- * most one move longer than shortest for the default one (first meet wins).
+ * Pieces are named by their home position and found by their colors. With
+ * the default goal they must be unique (true on a 3x3, whose centers are
+ * fixed): identical pieces (the tower's twin middles) are told apart
+ * arbitrarily, so they need a custom goal and key reading colors (`atHome`).
+ * Solutions are shortest for a custom goal and at most one move longer than
+ * shortest for the default one (first meet wins).
  */
 export interface PieceSearch {
   /** Home positions of the pieces to track. */
@@ -52,13 +54,6 @@ function normalized(cubie: Cubie): Cubie {
   return { position: cubie.position, stickers }
 }
 
-function colorKey(cubie: Cubie): string {
-  return cubie.stickers
-    .map((s): Color => s.color)
-    .sort()
-    .join('')
-}
-
 const SOLVED = new Map<string, Cube>()
 
 /** The tracked pieces of `cube`, in `track` order, plus their solved state. */
@@ -77,29 +72,21 @@ function trackedPieces(cube: Cube, track: readonly Vec3[]): { start: Cube; home:
   // Twins (identical pieces) each take a distinct cubie of their colors.
   const unused = [...cube]
   const start = home.map((h) => {
-    const i = unused.findIndex((c) => colorKey(c) === colorKey(h))
-    if (i < 0) throw new Error(`pieceSearch: piece ${colorKey(h)} missing`)
+    const i = unused.findIndex((c) => colorsOf(c) === colorsOf(h))
+    if (i < 0) throw new Error(`pieceSearch: piece ${colorsOf(h)} missing`)
     return normalized(unused.splice(i, 1)[0]!)
   })
   return { start, home }
 }
 
-/** Generators as sequences; single turns remember their layer so a search
- *  never turns the same layer twice in a row (that would just merge). */
+/** Every generator as a sequence: single turns, then the macros. */
 function generatorsOf(spec: PieceSearch): ReadonlyArray<readonly Move[]> {
   return [...spec.moves.turns.map((t) => [t]), ...(spec.macros ?? [])]
 }
 
+/** A single turn of the layer just turned would merge with it: skipped. */
 function sameLayerTwice(last: Move | undefined, gen: readonly Move[]): boolean {
-  const first = gen[0]
-  return (
-    gen.length === 1 &&
-    last !== undefined &&
-    first !== undefined &&
-    last.face === first.face &&
-    last.depth === first.depth &&
-    last.wide === first.wide
-  )
+  return gen.length === 1 && last !== undefined && sameLayer(last, gen[0]!)
 }
 
 /** Children of `node`; `visit` returns a solution to stop the search. */

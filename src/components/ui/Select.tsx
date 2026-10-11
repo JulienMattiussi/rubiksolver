@@ -1,3 +1,6 @@
+import type { ReactNode } from 'react'
+import { SECTION_LABEL } from './styles'
+
 interface SelectProps {
   id: string
   label: string
@@ -5,9 +8,9 @@ interface SelectProps {
   disabled?: boolean
   onChange: (value: string) => void
   /** Optional extra content shown at the right end of the label line. */
-  trailing?: React.ReactNode
+  trailing?: ReactNode
   /** The `<option>` elements. */
-  children: React.ReactNode
+  children: ReactNode
 }
 
 /** A labeled dropdown, styled like the rest of the panel. */
@@ -23,10 +26,7 @@ export function Select({
   return (
     <div>
       <div className="mb-2 flex items-center justify-between gap-2">
-        <label
-          htmlFor={id}
-          className="block text-xs font-semibold uppercase tracking-wide text-slate-400"
-        >
+        <label htmlFor={id} className={`block ${SECTION_LABEL}`}>
           {label}
         </label>
         {trailing}

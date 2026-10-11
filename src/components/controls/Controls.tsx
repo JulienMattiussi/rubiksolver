@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Shuffle, Sparkles } from 'lucide-react'
-import { isSolved } from '@/lib/cube'
 import { useIsDesktop } from '@/hooks/useIsDesktop'
 import { useI18n } from '@/i18n/i18nStore'
-import { useCube } from '@/store/cubeStore'
+import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { Button } from '@/components/ui/Button'
 import { EditPanel } from '@/components/edit/EditPanel'
@@ -24,24 +23,13 @@ export function Controls() {
   const t = useI18n((s) => s.t)
   const editing = useEditor((s) => s.mode === 'edit')
   const desktop = useIsDesktop()
-  const cube = useCube((s) => s.cube)
-  const active = useCube((s) => s.active)
-  const queue = useCube((s) => s.queue)
   const scramble = useCube((s) => s.scramble)
   const solveAll = useCube((s) => s.solveAll)
   const [collapsed, setCollapsed] = useState(false)
 
-  const busy = active !== null || queue.length > 0
-  const solved = isSolved(cube)
+  const busy = useCube(selectBusy)
+  const solved = useCube(selectSolved)
   const title = <h1 className="text-lg font-bold text-white">{editing ? t.editTitle : t.title}</h1>
-  const solveSection = (
-    <section
-      aria-label={t.sectionSolve}
-      className="flex flex-col gap-3 rounded-xl border border-slate-700/60 bg-slate-950/30 p-4"
-    >
-      <SolvePanel />
-    </section>
-  )
 
   if (desktop && !editing) {
     return (
@@ -54,7 +42,7 @@ export function Controls() {
           <header className="flex justify-end">
             <LanguageToggle />
           </header>
-          {solveSection}
+          <SolvePanel />
         </div>
       </div>
     )
@@ -96,7 +84,7 @@ export function Controls() {
             )}
             <div className={collapsed ? 'hidden flex-col gap-5 sm:flex' : 'flex flex-col gap-5'}>
               <SetupSection />
-              {solveSection}
+              <SolvePanel />
             </div>
           </>
         )}

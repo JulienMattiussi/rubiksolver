@@ -7,7 +7,7 @@ import { useEditor } from '@/store/editorStore'
 import { Button } from '@/components/ui/Button'
 import { ColorPalette } from './ColorPalette'
 
-/** "Saisie" panel: hint, color palette, progress, validation error, actions. */
+/** Cube-entry panel: hint, color palette, progress, validation error, actions. */
 export function EditPanel() {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))

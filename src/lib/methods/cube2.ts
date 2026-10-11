@@ -1,14 +1,16 @@
 import {
-  applyMove,
+  colorAt,
   cubeOrientations,
+  cubieAt,
   isSolved,
   OPPOSITE_COLOR,
   solvedCube,
   stateKey,
 } from '../cube'
+import { applyMove } from '../turn'
 import { invertMoves } from '../moves'
 import { OUTER_TURNS } from '../moveSet'
-import { atEverySide, colorAt, solveWithAlgs, type MethodPlan } from '../solverKit'
+import { atEverySide, solveWithAlgs, type MethodPlan } from '../solverKit'
 import type { Color, Cube, Face, Move } from '../types'
 import { PLL_T, PLL_Y, SUNE } from './algs'
 import { CORNER_TRIGGERS, cornerPlacedIn, placePieces } from './layers3'
@@ -26,7 +28,7 @@ import { CORNER_TRIGGERS, cornerPlacedIn, placePieces } from './layers3'
 
 /** Reference color of each face, anchored on the corner currently at DBL. */
 function frame2(cube: Cube): Record<Face, Color> {
-  const dbl = cube.find((c) => c.position[0] === -1 && c.position[1] === -1 && c.position[2] === -1)
+  const dbl = cubieAt(cube, [-1, -1, -1])
   if (!dbl) throw new Error('frame2: no corner at DBL')
   const d = colorAt(dbl, 'D')
   const l = colorAt(dbl, 'L')

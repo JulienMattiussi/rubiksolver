@@ -1,20 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import {
-  applyMove,
-  applyMoves,
-  cubeOrientations,
-  cubeShape,
-  isSolved,
-  faceLayers,
-  inLayer,
-  layerCoords,
-  moveLayerRange,
-  solvedCube,
-  stateKey,
-  turnAllowed,
-  turnedBy,
-} from '@/lib/cube'
-import { ALL_MOVES, formatMove, invertMoves, movesFor, parseMoves, scramble } from '@/lib/moves'
+import { cubeOrientations, cubeShape, isSolved, solvedCube, stateKey } from '@/lib/cube'
+import { faceLayers, layerCoords } from '@/lib/geometry'
+import { applyMove, applyMoves, inSlab, moveSlab, turnAllowed, turnedBy } from '@/lib/turn'
+import { formatMove, invertMoves, movesFor, parseMoves, scramble } from '@/lib/moves'
 import { SHAPE_DIMS } from '@/lib/types'
 import type { CubeShape, Move } from '@/lib/types'
 import { seededRng } from '../helpers'
@@ -36,7 +24,7 @@ describe('cube engine', () => {
   })
 
   it('a single face turn leaves the cube unsolved', () => {
-    for (const move of ALL_MOVES) {
+    for (const move of movesFor('3')) {
       expect(isSolved(applyMove(solvedCube(), move))).toBe(false)
     }
   })
@@ -50,7 +38,7 @@ describe('cube engine', () => {
   })
 
   it('a move followed by its inverse is a no-op', () => {
-    for (const move of ALL_MOVES) {
+    for (const move of movesFor('3')) {
       const cube = applyMoves(solvedCube(), [move, ...invertMoves([move])])
       expect(isSolved(cube)).toBe(true)
     }
@@ -88,13 +76,13 @@ describe('2x2 cube engine', () => {
 
   it('starts solved and a single turn unsolves it', () => {
     expect(isSolved(solvedCube('2'))).toBe(true)
-    for (const move of ALL_MOVES) {
+    for (const move of movesFor('3')) {
       expect(isSolved(applyMove(solvedCube('2'), move))).toBe(false)
     }
   })
 
   it('a move followed by its inverse is a no-op', () => {
-    for (const move of ALL_MOVES) {
+    for (const move of movesFor('3')) {
       const cube = applyMoves(solvedCube('2'), [move, ...invertMoves([move])])
       expect(isSolved(cube)).toBe(true)
     }
@@ -124,11 +112,11 @@ describe('4x4 cube engine', () => {
 
   it('selects the right layers for outer, slice and wide moves', () => {
     // A slab is named by its cut planes; which layers it holds is what the
-    // engine reads back through `inLayer`.
+    // engine reads back through `inSlab`.
     const holds = (move: Move, shape: CubeShape) => {
       const dims = SHAPE_DIMS[shape]
-      const range = moveLayerRange(move, dims)
-      return layerCoords(faceLayers(dims, move.face)).filter((c) => inLayer(c, range))
+      const range = moveSlab(move, dims)
+      return layerCoords(faceLayers(dims, move.face)).filter((c) => inSlab(c, range))
     }
     expect(holds({ face: 'R', amount: 1 }, '4')).toEqual([3])
     expect(holds({ face: 'R', amount: 1, depth: 2 }, '4')).toEqual([1])
@@ -138,7 +126,7 @@ describe('4x4 cube engine', () => {
     expect(holds({ face: 'U', amount: 1 }, '2')).toEqual([1])
     // Three layers do have an inner one (the M slice); two do not.
     expect(holds({ face: 'R', amount: 1, depth: 2 }, '3')).toEqual([0])
-    expect(() => moveLayerRange({ face: 'R', amount: 1, depth: 2 }, SHAPE_DIMS['2'])).toThrow()
+    expect(() => moveSlab({ face: 'R', amount: 1, depth: 2 }, SHAPE_DIMS['2'])).toThrow()
   })
 
   it('any single turn unsolves, four quarter turns and move+inverse are no-ops', () => {
@@ -215,7 +203,7 @@ describe('tower turns (a 4x4x4 mechanism with pieces missing)', () => {
   })
 
   it('every other puzzle allows every one of its turns', () => {
-    for (const shape of ['2', '3', '4', '123'] as CubeShape[]) {
+    for (const shape of ['2', '3', '4', '123', '332'] as CubeShape[]) {
       const cube = applyMoves(solvedCube(shape), scramble(shape, 20, seededRng(4)))
       expect(movesFor(shape).every((m) => turnAllowed(cube, m))).toBe(true)
     }
@@ -252,5 +240,15 @@ describe('turnedBy', () => {
     // The tower turns like a 4x4x4: Rw is its whole right half, U its top end.
     expect(count('224', 'Rw')).toBe(8)
     expect(count('224', 'U')).toBe(4)
+  })
+})
+
+describe('cubeOrientations', () => {
+  it('counts the whole-puzzle rotations each shape allows', () => {
+    const count = (shape: CubeShape) => cubeOrientations(solvedCube(shape)).length
+    expect(count('3')).toBe(24)
+    expect(count('123')).toBe(4)
+    expect(count('224')).toBe(8)
+    expect(count('332')).toBe(8)
   })
 })

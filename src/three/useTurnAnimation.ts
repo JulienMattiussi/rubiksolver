@@ -1,13 +1,13 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type RefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { cubeShape, moveGeometry, turnDims, turnedBy } from '@/lib/cube'
+import { turnRotation, turnedBy } from '@/lib/turn'
 import { easeInOut } from '@/lib/easing'
 import { useCube } from '@/store/cubeStore'
 
-export interface TurnAnimation {
+interface TurnAnimation {
   /** Ref for the group that holds the currently turning layer. */
-  groupRef: React.RefObject<THREE.Group | null>
+  groupRef: RefObject<THREE.Group | null>
   /** Whether the cubie at `index` belongs to the layer being turned. */
   isTurning: (index: number) => boolean
 }
@@ -39,7 +39,7 @@ export function useTurnAnimation(): TurnAnimation {
       if (queueLength > 0) startNext()
       return
     }
-    const geo = moveGeometry(active, turnDims(cubeShape(cube)))
+    const geo = turnRotation(active)
     // Half turns travel twice as far; give them a little more time.
     const isHalf = Math.abs(geo.angle) > Math.PI / 2 + 0.01
     const duration = turnDuration * (isHalf ? 1.7 : 1)

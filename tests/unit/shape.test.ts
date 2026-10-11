@@ -1,36 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import {
-  applyMove,
-  FACE_COLOR,
-  inLayer,
-  layerCoords,
-  moveGeometry,
-  OPPOSITE_COLOR,
-  solvedCube,
-} from '@/lib/cube'
+import { FACE_COLOR, OPPOSITE_COLOR, solvedCube } from '@/lib/cube'
+import { layerCoords, rotateN } from '@/lib/geometry'
+import { applyMove, turnedBy, turnRotation } from '@/lib/turn'
 import { scramble } from '@/lib/moves'
-import { byThickness, centeringOffset, cubieShape, LAYER_THICKNESS, UNIT_SHAPE } from '@/lib/shape'
+import { byThickness, centeringOffset, cubieBox, LAYER_THICKNESS, UNIT_BOX } from '@/lib/shape'
 import { SHAPE_DIMS } from '@/lib/types'
-import type { Axis, Color, CubeShape, CubeVariant } from '@/lib/types'
+import type { Color, CubeShape, CubeVariant } from '@/lib/types'
 import { seededRng } from '../helpers'
 
 /** The mirror variant only applies where every axis has layers to thicken. */
 const SHAPES: readonly CubeShape[] = ['2', '3', '4']
 const VARIANTS: readonly CubeVariant[] = ['classic', 'mirror']
-
-/** Same convention as the engine's own rotate90: +90 degrees, right-hand rule. */
-function rotate90(v: readonly [number, number, number], axis: Axis) {
-  const [x, y, z] = v
-  if (axis === 'x') return [x, -z, y] as const
-  if (axis === 'y') return [z, y, -x] as const
-  return [-y, x, z] as const
-}
-
-function rotateN(v: readonly [number, number, number], axis: Axis, times: number) {
-  let out = v
-  for (let i = 0; i < ((times % 4) + 4) % 4; i++) out = rotate90(out, axis)
-  return out
-}
 
 /** Visual cell center of a logical coordinate (see three/layout.ts). */
 function cellCenter(coord: number, n: number): number {
@@ -47,7 +27,7 @@ describe('layer thickness tables', () => {
 
   it('gives the plain cubie back on the classic variant', () => {
     for (const cubie of solvedCube('3')) {
-      expect(cubieShape(cubie.stickers, LAYER_THICKNESS.classic)).toEqual(UNIT_SHAPE)
+      expect(cubieBox(cubie.stickers, LAYER_THICKNESS.classic)).toEqual(UNIT_BOX)
     }
   })
 
@@ -62,7 +42,7 @@ describe('layer thickness tables', () => {
     // The URF corner of a solved cube wears the R, U and F layers; whatever
     // their thickness, each box starts at the cell's inner face (-0.5).
     const corner = solvedCube('3').find((c) => c.position.every((p) => p === 1))!
-    const { size, center } = cubieShape(corner.stickers, LAYER_THICKNESS.mirror)
+    const { size, center } = cubieBox(corner.stickers, LAYER_THICKNESS.mirror)
     const expected = (['R', 'U', 'F'] as const).map((f) => LAYER_THICKNESS.mirror[FACE_COLOR[f]])
     for (const a of [0, 1, 2] as const) {
       expect(size[a]).toBe(expected[a])
@@ -79,7 +59,7 @@ describe('mirror geometry', () => {
     // slabs must tile [-n/2, n/2] end to end once recentered.
     const layers = new Map<number, [number, number]>()
     for (const cubie of solvedCube(shape)) {
-      const { size: box, center } = cubieShape(cubie.stickers, LAYER_THICKNESS.mirror)
+      const { size: box, center } = cubieBox(cubie.stickers, LAYER_THICKNESS.mirror)
       const mid = cellCenter(cubie.position[0], n) + center[0] + ox
       const span: [number, number] = [mid - box[0] / 2, mid + box[0] / 2]
       const seen = layers.get(cubie.position[0])
@@ -102,19 +82,19 @@ describe('mirror geometry', () => {
     // would jump at the end of each turn.
     let cube = solvedCube(shape)
     for (const move of scramble(shape, 30, seededRng(7))) {
-      const before = cube.map((c) => cubieShape(c.stickers, LAYER_THICKNESS.mirror))
-      const geo = moveGeometry(move, SHAPE_DIMS[shape])
+      const before = cube.map((c) => cubieBox(c.stickers, LAYER_THICKNESS.mirror))
+      const geo = turnRotation(move)
       const quarters = Math.round(geo.angle / (Math.PI / 2))
+      const turned = turnedBy(cube, move)
       cube = applyMove(cube, move)
 
       cube.forEach((cubie, i) => {
-        const now = cubieShape(cubie.stickers, LAYER_THICKNESS.mirror)
+        const now = cubieBox(cubie.stickers, LAYER_THICKNESS.mirror)
         const was = before[i]!
         // Only the turning layer moved; the rest must be untouched.
-        const turned = inLayer(cubie.position[geo.coordIndex], geo.layers)
         const spun = rotateN(was.size, geo.axis, quarters)
-        const size = turned ? ([...spun].map(Math.abs) as [number, number, number]) : was.size
-        const center = turned ? rotateN(was.center, geo.axis, quarters) : was.center
+        const size = turned(i) ? ([...spun].map(Math.abs) as [number, number, number]) : was.size
+        const center = turned(i) ? rotateN(was.center, geo.axis, quarters) : was.center
         for (const a of [0, 1, 2] as const) {
           expect(now.size[a]).toBeCloseTo(size[a])
           expect(now.center[a]).toBeCloseTo(center[a])

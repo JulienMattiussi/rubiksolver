@@ -1,4 +1,6 @@
-import { applyMoves, FACE_COLOR, FACE_NORMAL, normalIndex } from '../cube'
+import { colorAt, FACE_COLOR } from '../cube'
+import { faceOfNormal } from '../geometry'
+import { applyMoves } from '../turn'
 import { FACES } from '../moves'
 import { search } from '../solverKit'
 import type { Color, Cube, Cubie, Face, Move } from '../types'
@@ -26,13 +28,10 @@ function isCenter(c: Cubie): boolean {
 
 /** Correctly colored center facelets currently on `face`. */
 function centerCount(cube: Cube, face: Face): number {
-  const n = FACE_NORMAL[face]
   let count = 0
   for (const c of cube) {
     if (!isCenter(c)) continue
-    const s = c.stickers[0]!
-    if (s.color !== FACE_COLOR[face]) continue
-    if (s.normal[0] === n[0] && s.normal[1] === n[1] && s.normal[2] === n[2]) count++
+    if (colorAt(c, face) === FACE_COLOR[face]) count++
   }
   return count
 }
@@ -42,7 +41,6 @@ export function centersDone(cube: Cube): boolean {
 }
 
 const COLOR_CODE: Record<Color, number> = { W: 0, Y: 1, G: 2, B: 3, O: 4, R: 5 }
-const FACE_OF_NORMAL_INDEX: readonly Face[] = ['R', 'L', 'U', 'D', 'F', 'B']
 
 function centerIndices(cube: Cube): number[] {
   const idx: number[] = []
@@ -81,7 +79,7 @@ function countGoalFor(
     const counts: Partial<Record<Face, number>> = {}
     for (const i of indices) {
       const s = cube[i]!.stickers[0]!
-      const f = FACE_OF_NORMAL_INDEX[normalIndex(s.normal)]!
+      const f = faceOfNormal(s.normal)
       if (s.color === FACE_COLOR[f]) counts[f] = (counts[f] ?? 0) + 1
     }
     return (counts[face] ?? 0) >= wanted && full.every((g) => counts[g] === 4)

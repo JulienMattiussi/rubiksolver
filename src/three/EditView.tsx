@@ -1,6 +1,6 @@
 import { cubeDims, cubeShape } from '@/lib/cube'
 import { canPaint, slotsFor } from '@/lib/editor'
-import { centeringOffset, cubieShape, LAYER_THICKNESS } from '@/lib/shape'
+import { centeringOffset, cubieBox, LAYER_THICKNESS } from '@/lib/shape'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { COLOR_HEX, MIRROR_STICKER, PLASTIC } from './colors'
@@ -11,8 +11,9 @@ import { Sticker } from './Sticker'
 const EMPTY_COLOR = '#64748b'
 
 /**
- * The cube in edit mode: every sticker is shown (gray when empty) and the
- * corner/edge stickers are clickable to paint the selected value.
+ * The cube in edit mode: every sticker is shown (gray when empty) and every
+ * paintable one (corners, edges, movable centers: `canPaint`) is clickable to
+ * paint the selected value.
  *
  * On a mirror cube the value painted is a thickness, so a piece takes its
  * shape as it is painted: each axis grows to the thickness of the sticker
@@ -36,7 +37,7 @@ export function EditView() {
             const color = edit[s.id]
             return color ? [{ normal: s.normal, color }] : []
           })
-          const { size: box, center } = cubieShape(painted, thickness)
+          const { size: box, center } = cubieBox(painted, thickness)
           return (
             <group key={slot.key} position={visualPosition(slot.position, dims)}>
               <mesh position={[center[0], center[1], center[2]]}>
@@ -50,7 +51,7 @@ export function EditView() {
                     key={s.id}
                     normal={s.normal}
                     color={color ? (mirror ? MIRROR_STICKER : COLOR_HEX[color]) : EMPTY_COLOR}
-                    shape={{ size: box, center }}
+                    box={{ size: box, center }}
                     metal={mirror && color !== undefined}
                     onSelect={paintable ? () => paintAt(slot.key, s.ni) : undefined}
                   />

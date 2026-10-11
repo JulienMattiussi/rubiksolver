@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { applyMoves, solvedCube } from '@/lib/cube'
+import { solvedCube } from '@/lib/cube'
+import { applyMoves } from '@/lib/turn'
 import { parseMoves } from '@/lib/moves'
 import { allows, moveSet } from '@/lib/moveSet'
 import { solvePieces } from '@/lib/pieceSearch'
-import { edgesOriented, home, orientationKey, pieces, piecesHome } from '@/lib/methods/pieces3'
+import { edgesOriented, homeOf, orientationKey, pieces, piecesHome } from '@/lib/methods/pieces3'
 import { seededRng } from '../helpers'
 
 const SOLVED = solvedCube('3')
@@ -22,7 +23,11 @@ describe('solvePieces', () => {
   it('meets in the middle: undoes a short sequence on the tracked pieces', () => {
     const cube = applyMoves(SOLVED, parseMoves("R U R' U'"))
     const block = pieces('DR FR BR DFR DBR')
-    const moves = solvePieces(cube, { track: block.map(home), moves: moveSet('R U'), maxDepth: 10 })
+    const moves = solvePieces(cube, {
+      track: block.map(homeOf),
+      moves: moveSet('R U'),
+      maxDepth: 10,
+    })
     expect(moves.length).toBeLessThanOrEqual(5)
     expect(piecesHome(applyMoves(cube, moves), block)).toBe(true)
   })
@@ -37,7 +42,7 @@ describe('solvePieces', () => {
         () => set.turns[Math.floor(rng() * set.turns.length)]!,
       )
       const cube = applyMoves(SOLVED, turns)
-      const moves = solvePieces(cube, { track: [home('DFR')], moves: set, maxDepth: 10 })
+      const moves = solvePieces(cube, { track: [homeOf('DFR')], moves: set, maxDepth: 10 })
       expect(moves.every((m) => allows(set, m))).toBe(true)
       expect(piecesHome(applyMoves(cube, moves), ['DFR'])).toBe(true)
     }
@@ -47,7 +52,7 @@ describe('solvePieces', () => {
     const cube = applyMoves(SOLVED, parseMoves('F'))
     const edges = pieces('UF UB UL UR DF DB DL DR FL FR BL BR')
     const moves = solvePieces(cube, {
-      track: edges.map(home),
+      track: edges.map(homeOf),
       moves: moveSet('U D L R F B'),
       goal: edgesOriented,
       key: orientationKey,
@@ -62,7 +67,7 @@ describe('solvePieces', () => {
   it('throws when the goal is out of reach', () => {
     const cube = applyMoves(SOLVED, parseMoves('F'))
     expect(() =>
-      solvePieces(cube, { track: [home('UF')], moves: moveSet('U R'), maxDepth: 6 }),
+      solvePieces(cube, { track: [homeOf('UF')], moves: moveSet('U R'), maxDepth: 6 }),
     ).toThrow()
   })
 })

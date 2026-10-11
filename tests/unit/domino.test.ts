@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { applyMoves, isSolved, solvedCube } from '@/lib/cube'
+import { isSolved, solvedCube } from '@/lib/cube'
+import { applyMoves } from '@/lib/turn'
 import { emptyEdit } from '@/lib/editor'
 import { formatMove, movesFor, scramble } from '@/lib/moves'
 import {

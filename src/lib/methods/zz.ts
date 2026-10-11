@@ -1,17 +1,18 @@
 import { isSolved } from '../cube'
 import { moveSet, OUTER_TURNS } from '../moveSet'
-import { solvePieces } from '../pieceSearch'
 import type { MethodPlan } from '../solverKit'
-import type { Cube, Move } from '../types'
+import type { Cube } from '../types'
+import { solvePermuteCorners, solvePermuteEdges, solveTopFace, topFaceDone } from './layers3'
 import {
-  secondLayerDone,
-  solvePermuteCorners,
-  solvePermuteEdges,
-  solveTopFace,
-  topFaceDone,
-} from './layers3'
-import { RU_F2L_PHASES } from './petrus'
-import { buildBlock, edgesOriented, home, orientationKey, pieces, piecesHome } from './pieces3'
+  buildBlock,
+  edgesOriented,
+  orientAllEdges,
+  orientedF2LDone,
+  pieces,
+  piecesHome,
+  RU,
+  RU_F2L_PHASES,
+} from './pieces3'
 
 /**
  * ZZ (Zbigniew Zborowski): orient every edge first, so that the rest needs
@@ -27,27 +28,16 @@ import { buildBlock, edgesOriented, home, orientationKey, pieces, piecesHome } f
 
 const LINE = pieces('DF DB')
 const LEFT_BLOCK = pieces('DL FL BL DFL DBL')
-const ALL_EDGES = pieces('UF UB UL UR DF DB DL DR FL FR BL BR')
 
 /** Turns that never flip an edge (no quarter turn of F or B). */
 const ORIENTED_TURNS = moveSet('U D L R F2 B2')
 const LUR = moveSet('L U R')
-const RU = moveSet('R U')
 
 const eoLineDone = (c: Cube) => edgesOriented(c) && piecesHome(c, LINE)
 const leftBlockDone = (c: Cube) => eoLineDone(c) && piecesHome(c, LEFT_BLOCK)
-const f2lDone = (c: Cube) => secondLayerDone(c) && edgesOriented(c)
 
-/** EO: only the orientation pattern matters, so the search is keyed on it. */
-function orientEdges(cube: Cube): Move[] {
-  return solvePieces(cube, {
-    track: ALL_EDGES.map(home),
-    moves: OUTER_TURNS,
-    goal: edgesOriented,
-    key: orientationKey,
-    maxDepth: 10,
-  })
-}
+/** EO first: nothing is built yet, so any turn goes. */
+const orientEdges = orientAllEdges(OUTER_TURNS)
 
 export const ZZ_PLAN: MethodPlan = [
   {
@@ -62,7 +52,7 @@ export const ZZ_PLAN: MethodPlan = [
     moves: LUR,
     phases: [buildBlock(pieces('DL FL DFL'), LUR), buildBlock(LEFT_BLOCK, LUR)],
   },
-  { key: 'stepRightBlock', goal: f2lDone, moves: RU, phases: RU_F2L_PHASES },
+  { key: 'stepRightBlock', goal: orientedF2LDone, moves: RU, phases: RU_F2L_PHASES },
   { key: 'stepOCLL', goal: topFaceDone, moves: OUTER_TURNS, phases: [solveTopFace] },
   {
     key: 'stepPLL',

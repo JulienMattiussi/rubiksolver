@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { useEditor } from '@/store/editorStore'
+import { HOME_POSITION } from './camera'
 import { CameraReset } from './CameraReset'
 import { CubeView } from './CubeView'
 import { EditView } from './EditView'
@@ -9,7 +10,7 @@ import { EditView } from './EditView'
 export function Scene() {
   const editing = useEditor((s) => s.mode === 'edit')
   return (
-    <Canvas camera={{ position: [4.5, 4.5, 6], fov: 42 }} dpr={[1, 2]}>
+    <Canvas camera={{ position: HOME_POSITION.toArray(), fov: 42 }} dpr={[1, 2]}>
       <color attach="background" args={['#0f172a']} />
       {/* Even base light so every face reads its true color at any angle,
           plus soft directionals from opposite sides for a little relief. */}

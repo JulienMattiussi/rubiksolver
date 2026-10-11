@@ -1,7 +1,7 @@
 import { cubeShape } from './cube'
 import { BEGINNER_2_PLAN, OPTIMAL_2_PLAN, solveOptimal2 } from './methods/cube2'
 import { DOMINO_PLAN } from './methods/domino'
-import { OPTIMAL_123_PLAN, solveFlat123 } from './methods/flat123'
+import { OPTIMAL_123_PLAN } from './methods/flat123'
 import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { PETRUS_PLAN } from './methods/petrus'
 import { ROUX_PLAN } from './methods/roux'
@@ -61,8 +61,8 @@ export function methodsFor(shape: CubeShape) {
  */
 export function solve(cube: Cube): Move[] {
   const shape = cubeShape(cube)
+  // On a 2x2 the optimal search is the quickest to prove a cube impossible.
   if (shape === '2') return solveOptimal2(cube)
-  if (shape === '123') return solveFlat123(cube)
   // Otherwise the shape's first method (beginner, reduction, ...).
   const method = methodsFor(shape)[0]
   if (!method) throw new Error(`solve: no method for shape ${shape}`)

@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import {
-  ALL_MOVES,
   FACES,
   formatMove,
   formatMoves,
@@ -24,7 +23,7 @@ describe('moves notation', () => {
   })
 
   it('round-trips through parse/format', () => {
-    for (const move of ALL_MOVES) {
+    for (const move of movesFor('3')) {
       expect(parseMove(formatMove(move))).toEqual(move)
     }
   })

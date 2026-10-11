@@ -12,7 +12,7 @@ import { validateCube, type ValidationError } from '@/lib/validate'
 import type { Color, CubeShape } from '@/lib/types'
 import { useCube } from './cubeStore'
 
-/** Size of the cube currently being edited (the game's cube). */
+/** Shape of the cube being edited (the game's cube). */
 const currentShape = (): CubeShape => cubeShape(useCube.getState().cube)
 
 interface EditorStore {
@@ -48,7 +48,10 @@ export const useEditor = create<EditorStore>((set, get) => ({
   setColor: (selectedColor) => set({ selectedColor }),
 
   paintAt: (slotKey, ni) =>
-    set((s) => ({ edit: paint(s.edit, currentShape(), slotKey, ni, s.selectedColor), error: null })),
+    set((s) => ({
+      edit: paint(s.edit, currentShape(), slotKey, ni, s.selectedColor),
+      error: null,
+    })),
 
   clearAll: () => set({ edit: emptyEdit(currentShape()), error: null }),
 

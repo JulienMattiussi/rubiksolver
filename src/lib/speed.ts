@@ -13,5 +13,6 @@ export function durationFromSlider(position: number): number {
 
 /** Slider position (0..100) for a given seconds-per-turn duration. */
 export function sliderFromDuration(duration: number): number {
-  return ((MAX_TURN_DURATION - duration) / (MAX_TURN_DURATION - MIN_TURN_DURATION)) * 100
+  const position = ((MAX_TURN_DURATION - duration) / (MAX_TURN_DURATION - MIN_TURN_DURATION)) * 100
+  return Math.max(0, Math.min(100, position))
 }

@@ -1,4 +1,4 @@
-import { isSolved, solvedCube } from '../cube'
+import { homeAt, homesOf, isSolved } from '../cube'
 import { parseMoves } from '../moves'
 import { moveSet } from '../moveSet'
 import { solvePieces } from '../pieceSearch'
@@ -34,64 +34,50 @@ export const SWAP_EDGES_RIGHT = parseMoves("R2 D B2 U2 R2 U2 R2 U2 R2 B2 D' R2")
 /** D: (HA) <-> (HP), (H2D)3 */
 export const SWAP_EDGES_BACK = parseMoves('U2 R2 U2 R2 U2 R2')
 
-const SOLVED = solvedCube('332')
-const homes = (keep: (c: Cubie) => boolean): Vec3[] => SOLVED.filter(keep).map((c) => c.position)
 const isCorner = (c: Cubie) => c.stickers.length === 3
 const isEdge = (c: Cubie) => c.stickers.length === 2
 const isBottom = (c: Cubie) => c.position[1] < 0
 
-const BOTTOM_CORNERS = homes((c) => isCorner(c) && isBottom(c))
-const CORNERS = homes(isCorner)
-const BOTTOM_EDGES = homes((c) => isEdge(c) && isBottom(c))
-const PIECES = homes((c) => isCorner(c) || isEdge(c))
+const BOTTOM_CORNERS = homesOf('332', (c) => isCorner(c) && isBottom(c))
+const CORNERS = homesOf('332', isCorner)
+const BOTTOM_EDGES = homesOf('332', (c) => isEdge(c) && isBottom(c))
+const PIECES = homesOf('332', (c) => isCorner(c) || isEdge(c))
 
-/** Search with the step's formulas, U and D placing the pieces under them.
- *  Every piece is unique, so the goal is "these pieces home", searched from
- *  both ends. */
-function place(track: readonly Vec3[], turns: string, macros: readonly Move[][]) {
-  return (cube: Cube) => solvePieces(cube, { track, moves: moveSet(turns), macros, maxDepth: 20 })
-}
-
-/** Every piece belonging at `positions` back home, on the whole puzzle. */
-function home(positions: readonly Vec3[]) {
-  const keys = new Set(positions.map((p) => p.join(',')))
-  const solved = SOLVED.filter((c) => keys.has(c.position.join(',')))
+/** A phase applying the step's formulas, U and D placing the pieces under
+ *  them. Every piece is unique, so the goal is "these pieces home", searched
+ *  from both ends. */
+function solveWithFormulas(track: readonly Vec3[], turns: string, formulas: readonly Move[][]) {
   return (cube: Cube) =>
-    solved.every((want) => {
-      const at = cube.find((c) => c.position.join(',') === want.position.join(','))
-      return want.stickers.every((s) =>
-        at?.stickers.some((t) => t.color === s.color && t.normal.join() === s.normal.join()),
-      )
-    })
+    solvePieces(cube, { track, moves: moveSet(turns), macros: formulas, maxDepth: 20 })
 }
 
-const bottomCornersDone = home(BOTTOM_CORNERS)
-const cornersDone = home(CORNERS)
-const bottomEdgesDone = (c: Cube) => cornersDone(c) && home(BOTTOM_EDGES)(c)
+const piecesHome = (positions: readonly Vec3[]) => (cube: Cube) => homeAt(cube, positions, '332')
+const cornersDone = piecesHome(CORNERS)
+const bottomEdgesDone = piecesHome([...CORNERS, ...BOTTOM_EDGES])
 
 export const DOMINO_PLAN: MethodPlan = [
   {
     key: 'stepBottomCorners',
-    goal: bottomCornersDone,
+    goal: piecesHome(BOTTOM_CORNERS),
     moves: moveSet('U D F2'),
-    phases: [place(BOTTOM_CORNERS, 'U D', [DESCEND_CORNER])],
+    phases: [solveWithFormulas(BOTTOM_CORNERS, 'U D', [DESCEND_CORNER])],
   },
   {
     key: 'stepTopCorners',
     goal: cornersDone,
     moves: moveSet('U D R2'),
-    phases: [place(CORNERS, 'U', [SWAP_CORNERS])],
+    phases: [solveWithFormulas(CORNERS, 'U', [SWAP_CORNERS])],
   },
   {
     key: 'stepBottomEdges',
     goal: bottomEdgesDone,
     moves: moveSet('U D R2 F2'),
-    phases: [place([...CORNERS, ...BOTTOM_EDGES], 'U D', [DESCEND_EDGE])],
+    phases: [solveWithFormulas([...CORNERS, ...BOTTOM_EDGES], 'U D', [DESCEND_EDGE])],
   },
   {
     key: 'stepTopEdges',
     goal: isSolved,
     moves: moveSet('U D R2 B2'),
-    phases: [place(PIECES, 'U', [CYCLE_EDGES, SWAP_EDGES_RIGHT, SWAP_EDGES_BACK])],
+    phases: [solveWithFormulas(PIECES, 'U', [CYCLE_EDGES, SWAP_EDGES_RIGHT, SWAP_EDGES_BACK])],
   },
 ]

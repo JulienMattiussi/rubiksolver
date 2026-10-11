@@ -13,8 +13,8 @@ export type CubeShape = '2' | '3' | '4' | '123' | '224' | '332'
  * tall: U and D turn freely, its sides only take half turns).
  *
  * A one-layer axis has no move of its own: turning its only layer just turns
- * the whole puzzle. Which turns exist beyond that comes from the grids these
- * counts define, see `cube.ts`.
+ * the whole puzzle. Which turns exist beyond that follows from these counts,
+ * see `movesFor` in moves.ts.
  */
 export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   '2': [2, 2, 2],
@@ -117,11 +117,15 @@ export type Face = 'U' | 'D' | 'L' | 'R' | 'F' | 'B'
  *  the same concept as the face it currently sits on). */
 export type Color = 'W' | 'Y' | 'G' | 'B' | 'O' | 'R'
 
+/** Every color, in palette order. */
+export const COLORS: readonly Color[] = ['W', 'Y', 'G', 'B', 'O', 'R']
+
 /** Integer coordinate axis. */
 export type Axis = 'x' | 'y' | 'z'
 
 /** Integer 3D vector. Sticker normals are unit axis vectors; cubie positions
- *  live on the integer grid of their dimensions (`layerCoords` in cube.ts). */
+ *  live on the integer grid of the puzzle's mechanism (`layerCoords` in
+ *  geometry.ts, `turnDims` in cube.ts: a shifted tower reaches +-3). */
 export type Vec3 = readonly [number, number, number]
 
 /** One colored sticker on a cubie face, identified by its outward normal. */
@@ -138,10 +142,9 @@ export interface Cubie {
 }
 
 /**
- * The whole puzzle: 27 cubies for a 3x3 (26 visible + 1 hidden core), the 8
- * corner cubies (positions in {-1,1}^3) for a 2x2, 64 cubies (8 hidden inner
- * ones) for a 4x4, or the 6 pieces of a 1x2x3. The cubie count identifies the
- * shape (see `cubeShape`).
+ * The whole puzzle, one cubie per grid cell: 8 for a 2x2, 27 for a 3x3 (with
+ * its hidden core), 64 for a 4x4, 6 for a 1x2x3, 16 for the tower, 18 for
+ * the Domino. The cubie count identifies the shape (see `cubeShape`).
  */
 export type Cube = readonly Cubie[]
 
@@ -150,9 +153,10 @@ export type Cube = readonly Cubie[]
  * `amount` is the number of clockwise quarter turns (1, 2, or 3 = counter-clockwise).
  *
  * Moves have a single canonical shape so structural comparison works:
- * - `{ face, amount }`: outer face turn (the only shape 2x2/3x3 code emits);
+ * - `{ face, amount }`: outer face turn;
  * - `{ face, amount, depth: 2 }`: inner slice, second layer in from the face
- *   (SiGN notation `2R`); only meaningful on cubes with inner layers (4x4);
+ *   (SiGN notation `2R`): the middle slice M/E/S of a 3x3, an inner slice of
+ *   a 4x4;
  * - `{ face, amount, depth: 2, wide: true }`: wide turn, outer + inner layers
  *   together (`Rw`). `wide` never appears without `depth`, and `depth: 1` /
  *   `wide: false` are never used.

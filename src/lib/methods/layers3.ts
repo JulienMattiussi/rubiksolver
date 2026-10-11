@@ -1,11 +1,10 @@
-import { applyMoves, FACE_COLOR, isSolved } from '../cube'
+import { colorAt, FACE_COLOR, hasColors, isSolved } from '../cube'
+import { applyMoves } from '../turn'
 import { OUTER_TURNS } from '../moveSet'
 import {
   atEverySide,
-  colorAt,
-  faceGenerators,
+  OUTER_GENERATORS,
   relMoves,
-  sameColorSet,
   search,
   SIDES,
   solveWithAlgs,
@@ -20,8 +19,8 @@ import { OLL_EDGE, PLL_AA, PLL_UA, SUNE } from './algs'
  * Frame: yellow (D) is the first layer, white (U) is the last layer.
  * Beginner phases:
  *   1. Bottom (yellow) cross          - shortest-path search
- *   2. Bottom corners                 - stage the piece on top, then a local search inserts it
- *   3. Middle-layer edges             - same stage-then-insert idea
+ *   2. Bottom corners                 - one by one, searched over insertion triggers
+ *   3. Middle-layer edges             - same, with the middle-layer triggers
  *   4. Top (white) cross              - orient last-layer edges  (alg + AUF search)
  *   5. Orient last-layer corners      - alg + AUF search
  *   6. Permute last-layer corners     - alg + AUF search
@@ -35,22 +34,20 @@ import { OLL_EDGE, PLL_AA, PLL_UA, SUNE } from './algs'
  * tests) generate every case. Solutions are long but always correct.
  */
 
-const OUTER_GENERATORS = faceGenerators(['U', 'D', 'F', 'B', 'L', 'R'])
-
 // ---------------------------------------------------------------------------
 // Piece queries
 // ---------------------------------------------------------------------------
 
 /** Find the edge cubie carrying exactly the two given colors. */
 function findEdge(cube: Cube, a: Color, b: Color): Cubie {
-  const piece = cube.find((c) => sameColorSet(c, [a, b]))
+  const piece = cube.find((c) => hasColors(c, [a, b]))
   if (!piece) throw new Error(`Edge ${a}${b} not found`)
   return piece
 }
 
 /** Find the corner cubie carrying exactly the three given colors. */
 function findCorner(cube: Cube, a: Color, b: Color, c: Color): Cubie {
-  const piece = cube.find((cc) => sameColorSet(cc, [a, b, c]))
+  const piece = cube.find((cc) => hasColors(cc, [a, b, c]))
   if (!piece) throw new Error(`Corner ${a}${b}${c} not found`)
   return piece
 }

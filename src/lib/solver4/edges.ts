@@ -1,6 +1,7 @@
-import { applyMoves } from '../cube'
+import { applyMoves } from '../turn'
 import { invertMoves, parseMoves } from '../moves'
-import { colorAt, faceGenerators, sameColorSet, search, solveWithAlgs } from '../solverKit'
+import { colorAt, hasColors } from '../cube'
+import { faceGenerators, OUTER_GENERATORS, search, solveWithAlgs } from '../solverKit'
 import { centersDone } from './centers'
 import type { Cube, Cubie, Face, Move, Vec3 } from '../types'
 
@@ -112,9 +113,8 @@ function wingsKey(cube: Cube): string {
 
 // JOIN_U net-swaps FR-bottom with BR-top; the wing arriving at FR-bottom
 // keeps its R-face sticker on R and its B-face sticker lands on F. So the FR
-// slot pairs when FR-top and BR-top agree as below. JOIN_P is the mirror
-// through FL-top (L lands on R... its L sticker faces R, its F sticker stays
-// on F), accepting the other chirality of the partner.
+// slot pairs when FR-top and BR-top agree as below. JOIN_P is its mirror
+// image through FL-top, which accepts a partner of the other chirality.
 function joinReadyU(cube: Cube): boolean {
   const wa = at(cube, FR_SLOT.top)
   const wb = at(cube, [3, 1, -3])
@@ -140,20 +140,15 @@ const L2E = parseMoves("2D R F' U R' F 2D'")
 const L2E_WIDE = parseMoves("Dw R F' U R' F Dw'")
 const L2E_ALGS = [L2E, L2E_WIDE, invertMoves(L2E), invertMoves(L2E_WIDE)]
 
-const OUTER_GENERATORS = faceGenerators(['U', 'D', 'L', 'R', 'F', 'B'])
 /** Setup turns that leave the staged wing at FR-bottom untouched. */
 const SETUP_GENERATORS = faceGenerators(['U', 'D', 'B', 'L'])
 
 /** Position of the other wing carrying the same two colors as `wing`. */
 function partnerPosition(cube: Cube, wing: Cubie): Vec3 {
   const colors = wing.stickers.map((s) => s.color)
-  const partner = cube.find((c) => c !== wing && c.stickers.length === 2 && sameColorSet(c, colors))
+  const partner = cube.find((c) => c !== wing && c.stickers.length === 2 && hasColors(c, colors))
   if (!partner) throw new Error('edges: wing has no partner')
   return partner.position
-}
-
-function samePos(a: Vec3, b: Vec3): boolean {
-  return a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
 }
 
 /** Pair all 12 edges. Precondition: centers solved (asserted per join). */
@@ -170,7 +165,7 @@ export function pairEdges(cube: Cube): Move[] {
     // Bring some unpaired slot to FR (outer turns: nothing can unpair).
     push(search(state, (c) => !edgePaired(c, FR_SLOT), OUTER_GENERATORS, 4, wingsKey))
     const partnerAt = partnerPosition(state, at(state, FR_SLOT.top))
-    if (samePos(partnerAt, FR_SLOT.bottom)) {
+    if (partnerAt.join() === FR_SLOT.bottom.join()) {
       // Crossed in place (flip case): swap the slot's two wings.
       push(solveWithAlgs(state, L2E_ALGS, (c) => pairedCount(c) > before && centersDone(c), 2))
     } else {

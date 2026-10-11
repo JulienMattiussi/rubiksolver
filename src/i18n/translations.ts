@@ -1,6 +1,8 @@
 // French is the source of truth; English must provide every key (enforced by
 // the `Translations` type below). Values are content, not code.
 
+import type { LayerKind } from '@/lib/moves'
+
 const fr = {
   title: 'Rubik Solver',
   moves: 'Rotations',
@@ -29,7 +31,7 @@ const fr = {
     F: 'face avant',
     B: 'face arrière',
   },
-  moveTitle: (faceName: string, clockwise: boolean, kind: 'outer' | 'slice' | 'wide' = 'outer') => {
+  moveTitle: (faceName: string, clockwise: boolean, kind: LayerKind = 'outer') => {
     const target =
       kind === 'slice'
         ? `la tranche interne de la ${faceName}`
@@ -55,6 +57,7 @@ const fr = {
   filledOf: (n: number, total: number) => `${n} / ${total} stickers`,
   clearAll: 'Tout effacer',
   fromCurrent: 'Depuis l’état actuel',
+  fromCurrentUnboxed: 'Remettez d’abord la tour en forme',
   saveState: 'Mémoriser',
   saveStateTitle: 'Mémoriser cet état pour y revenir (remplace le précédent)',
   savedAlready: 'Cet état est déjà mémorisé',
@@ -71,7 +74,7 @@ const fr = {
   errorCountsMirror: 'Répartition des épaisseurs incohérente.',
   errorImpossible: 'Cube impossible : vérifiez l’orientation des pièces.',
   colors: { W: 'Blanc', Y: 'Jaune', G: 'Vert', B: 'Bleu', O: 'Orange', R: 'Rouge' },
-  sizeLabel: 'Choix du cube',
+  cubeLabel: 'Choix du cube',
   cubeKind: (label: string, mirror: boolean) => `${label}${mirror ? ' miroir' : ''}`,
   cubeCategories: { standard: 'Standard', mirror: 'Miroir', tower: 'Tower' },
   sectionSetup: 'Initialisation',
@@ -194,7 +197,7 @@ const en: Translations = {
     F: 'front face',
     B: 'back face',
   },
-  moveTitle: (faceName: string, clockwise: boolean, kind: 'outer' | 'slice' | 'wide' = 'outer') => {
+  moveTitle: (faceName: string, clockwise: boolean, kind: LayerKind = 'outer') => {
     const target =
       kind === 'slice'
         ? `the inner slice of the ${faceName}`
@@ -220,6 +223,7 @@ const en: Translations = {
   filledOf: (n: number, total: number) => `${n} / ${total} stickers`,
   clearAll: 'Clear all',
   fromCurrent: 'From current state',
+  fromCurrentUnboxed: 'Put the tower back in shape first',
   saveState: 'Save',
   saveStateTitle: 'Save this state to come back to it (replaces the previous one)',
   savedAlready: 'This state is already saved',
@@ -236,7 +240,7 @@ const en: Translations = {
   errorCountsMirror: 'Inconsistent thickness counts.',
   errorImpossible: 'Impossible cube: check the piece orientations.',
   colors: { W: 'White', Y: 'Yellow', G: 'Green', B: 'Blue', O: 'Orange', R: 'Red' },
-  sizeLabel: 'Cube choice',
+  cubeLabel: 'Cube choice',
   cubeKind: (label: string, mirror: boolean) => `${label}${mirror ? ' mirror' : ''}`,
   cubeCategories: { standard: 'Standard', mirror: 'Mirror', tower: 'Tower' },
   sectionSetup: 'Setup',

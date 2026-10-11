@@ -1,33 +1,28 @@
-import { SHAPE_DIMS, SHAPE_SHIFTS } from './types'
-import type { Axis, Color, Cube, CubeShape, Cubie, Dims, Face, Move, Sticker, Vec3 } from './types'
+import {
+  FACE_NORMAL,
+  FACE_SPEC,
+  FACES_BY_NORMAL,
+  faceOfNormal,
+  layerCoords,
+  normalIndex,
+  outerCoord,
+  quarterTurnFits,
+  rotateN,
+} from './geometry'
+import { COLORS, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
+import type { Axis, Color, Cube, CubeShape, Cubie, Dims, Face, Sticker, Vec3 } from './types'
 
 /**
- * Cube model as cubies at integer positions: {-1,0,1}^3 for a 3x3, {-1,1}^3
+ * The puzzle as cubies at integer positions: {-1,0,1}^3 for a 3x3, {-1,1}^3
  * for a 2x2 (it simply skips coordinate 0), {-3,-1,1,3}^3 for a 4x4 (layers
- * two units apart, so they stay integers). Axes: x = right, y = up,
- * z = towards the viewer (front).
+ * two units apart, so they stay integers). Nothing here assumes a cube: a
+ * shape is just three layer counts (SHAPE_DIMS), one grid per axis.
  *
- * Nothing here assumes a cube: a shape is just three layer counts, so the
- * 1x2x3 cuboid uses one grid per axis ({-1,0,1} x {-1,1} x {0}). What its
- * shape forbids follows from the geometry, not from special cases: a quarter
- * turn about an axis maps its two other axes onto each other, so it is only
- * legal when those two dimensions are equal.
- *
- * A move rotates one or two layers of cubies by an exact 90 or 180 degree
- * integer rotation, so positions and normals never drift: no floating point
- * ever enters the logical state. All queries (isSolved, the solver) read this
- * model; the 3D view derives its geometry from it.
+ * This module builds and inspects puzzles (solved state, shape, solved-ness,
+ * orientations); geometry.ts holds the integer geometry, turn.ts the turns.
+ * All queries (isSolved, the solvers) read this model; the 3D view derives
+ * its geometry from it.
  */
-
-/** Outward normal of each face (unit axis vector). */
-export const FACE_NORMAL: Record<Face, Vec3> = {
-  R: [1, 0, 0],
-  L: [-1, 0, 0],
-  U: [0, 1, 0],
-  D: [0, -1, 0],
-  F: [0, 0, 1],
-  B: [0, 0, -1],
-}
 
 /** Solved color of each face (standard Western scheme: white up, green front). */
 export const FACE_COLOR: Record<Face, Color> = {
@@ -39,72 +34,87 @@ export const FACE_COLOR: Record<Face, Color> = {
   L: 'O',
 }
 
-const FACES = Object.keys(FACE_NORMAL) as Face[]
-
-function vecEqual(a: Vec3, b: Vec3): boolean {
-  return a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
-}
-
-/** Opposite color of each color, derived from the face scheme above (the
- *  opposite face is the one with the negated normal). Single source of truth. */
+/** Opposite color of each color: the color of the face with the negated normal. */
 export const OPPOSITE_COLOR: Record<Color, Color> = Object.fromEntries(
-  FACES.map((face) => {
-    const n = FACE_NORMAL[face]
-    const opposite = FACES.find((g) => vecEqual(FACE_NORMAL[g], [-n[0], -n[1], -n[2]]))!
-    return [FACE_COLOR[face], FACE_COLOR[opposite]]
+  FACES_BY_NORMAL.map((face) => {
+    const [x, y, z] = FACE_NORMAL[face]
+    return [FACE_COLOR[face], FACE_COLOR[faceOfNormal([-x, -y, -z])]]
   }),
 ) as Record<Color, Color>
 
-/** The face whose outward normal equals `n`, or undefined if `n` is not a face normal. */
-function faceOfNormal(n: Vec3): Face | undefined {
-  return FACES.find((f) => vecEqual(FACE_NORMAL[f], n))
+// ---------------------------------------------------------------------------
+// Piece queries
+// ---------------------------------------------------------------------------
+
+/** Color of the sticker on `cubie` facing `face`, if any. */
+export function colorAt(cubie: Cubie, face: Face): Color | undefined {
+  return cubie.stickers.find((s) => faceOfNormal(s.normal) === face)?.color
 }
 
-const COORDS = new Map<number, readonly number[]>()
+/** A piece's colors, sorted: the same wherever it sits, and for twin pieces. */
+export function colorsOf(cubie: Cubie): string {
+  return cubie.stickers
+    .map((s) => s.color)
+    .sort()
+    .join('')
+}
+
+/** How many stickers of each color. */
+export function countColors(colors: Iterable<Color>): Record<Color, number> {
+  const counts = Object.fromEntries(COLORS.map((c) => [c, 0])) as Record<Color, number>
+  for (const color of colors) counts[color]++
+  return counts
+}
+
+/** Whether a piece carries exactly these colors. */
+export function hasColors(cubie: Cubie, colors: readonly Color[]): boolean {
+  return colorsOf(cubie) === [...colors].sort().join('')
+}
+
+/** The cubie at `position` among `cubies`, if any. */
+export function cubieAt(cubies: readonly Cubie[], [x, y, z]: Vec3): Cubie | undefined {
+  return cubies.find((c) => c.position[0] === x && c.position[1] === y && c.position[2] === z)
+}
+
+const SLOTS = new Map<CubeShape, ReadonlyMap<string, number>>()
 
 /**
- * Cubie grid coordinates of an axis with `n` layers, centered on 0. Odd counts
- * land on integers, even ones step by two to stay integral: 1 -> [0],
- * 2 -> [-1,1], 3 -> [-1,0,1], 4 -> [-3,-1,1,3]. Memoized: this is on the path
- * of every move.
+ * Whether a piece is home: in a slot of its boxed puzzle (the right number of
+ * stickers there), every sticker showing the color of the face it points to.
+ * Colors, not identities: either of two twin pieces is right in either spot,
+ * and a piece showing all its faces' colors can only be the one belonging there.
  */
-export function layerCoords(n: number): readonly number[] {
-  let coords = COORDS.get(n)
-  if (!coords) {
-    coords = Array.from({ length: n }, (_, i) => (n % 2 === 1 ? i - (n - 1) / 2 : 2 * i - (n - 1)))
-    COORDS.set(n, coords)
+export function atHome(cubie: Cubie, shape: CubeShape): boolean {
+  let slots = SLOTS.get(shape)
+  if (!slots) {
+    slots = new Map(solvedCube(shape).map((c) => [c.position.join(','), c.stickers.length]))
+    SLOTS.set(shape, slots)
   }
-  return coords
+  return (
+    slots.get(cubie.position.join(',')) === cubie.stickers.length &&
+    cubie.stickers.every((s) => s.color === FACE_COLOR[faceOfNormal(s.normal)])
+  )
 }
 
-/** Coordinate of the outermost layer of an axis, on the `dir` side. */
-function outerCoord(n: number, dir: 1 | -1): number {
-  const coords = layerCoords(n)
-  return (dir > 0 ? coords[coords.length - 1] : coords[0])!
+/** Whether every piece belonging at `positions` is home, among `cubies` (the
+ *  whole puzzle, or the few pieces a search tracks). */
+export function homeAt(cubies: readonly Cubie[], positions: readonly Vec3[], shape: CubeShape) {
+  return positions.every((p) => {
+    const cubie = cubieAt(cubies, p)
+    return cubie !== undefined && atHome(cubie, shape)
+  })
 }
 
-/** Index of an axis in a Vec3. */
-const AXIS_INDEX: Record<Axis, 0 | 1 | 2> = { x: 0, y: 1, z: 2 }
-
-/** Axis a face turns about. */
-export function faceAxis(face: Face): Axis {
-  return FACE_SPEC[face].axis
+/** Home positions of the pieces of a solved `shape` that `keep` selects. */
+export function homesOf(shape: CubeShape, keep: (c: Cubie) => boolean): Vec3[] {
+  return solvedCube(shape)
+    .filter(keep)
+    .map((c) => c.position)
 }
 
-/** Layers stacked along a face's axis (1 means the face has no turn). */
-export function faceLayers(dims: Dims, face: Face): number {
-  return dims[FACE_SPEC[face].coordIndex]
-}
-
-/**
- * Whether a quarter turn about `axis` keeps the shape: it maps the two other
- * axes onto each other, so their layer counts must match. True on every cube,
- * false on every axis of a 1x2x3 (which is why it only does half turns).
- */
-export function quarterTurnFits(dims: Dims, axis: Axis): boolean {
-  const a = AXIS_INDEX[axis]
-  return dims[(a + 1) % 3] === dims[(a + 2) % 3]
-}
+// ---------------------------------------------------------------------------
+// Puzzles
+// ---------------------------------------------------------------------------
 
 /** Build a solved puzzle: every exterior cubie face carries its solved color. */
 export function solvedCube(shape: CubeShape = '3'): Cube {
@@ -115,13 +125,12 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
       for (const z of layerCoords(dims[2])) {
         const position: Vec3 = [x, y, z]
         const stickers: Sticker[] = []
-        for (const face of FACES) {
+        for (const face of FACES_BY_NORMAL) {
           const spec = FACE_SPEC[face]
           // The cubie has an exterior face along that normal when it sits on
           // the outermost layer of the axis, on the face's side. A one-layer
           // axis is outermost on both sides, so its cubies are stickered twice.
-          const outer = outerCoord(dims[spec.coordIndex], spec.dir)
-          if (position[spec.coordIndex] === outer) {
+          if (position[spec.coordIndex] === outerCoord(dims[spec.coordIndex], spec.dir)) {
             stickers.push({ normal: FACE_NORMAL[face], color: FACE_COLOR[face] })
           }
         }
@@ -172,7 +181,10 @@ function faceletCount(dims: Dims, face: Face): number {
 }
 
 /** Face wearing each solved color, the inverse of FACE_COLOR. */
-const COLOR_FACE = Object.fromEntries(FACES.map((f) => [FACE_COLOR[f], f])) as Record<Color, Face>
+const COLOR_FACE = Object.fromEntries(FACES_BY_NORMAL.map((f) => [FACE_COLOR[f], f])) as Record<
+  Color,
+  Face
+>
 
 /** Stickers of one color on a solved puzzle: the facelets of its own face. */
 export function stickersOfColor(shape: CubeShape, color: Color): number {
@@ -182,207 +194,15 @@ export function stickersOfColor(shape: CubeShape, color: Color): number {
 /** Total sticker count of a shape (its six faces). */
 export function stickersTotal(shape: CubeShape): number {
   const dims = SHAPE_DIMS[shape]
-  return FACES.reduce((total, face) => total + faceletCount(dims, face), 0)
+  return FACES_BY_NORMAL.reduce((total, face) => total + faceletCount(dims, face), 0)
 }
 
-/** Rotate an integer vector by +90 degrees (right-hand rule) about `axis`. */
-function rotate90(v: Vec3, axis: Axis): Vec3 {
-  const [x, y, z] = v
-  switch (axis) {
-    case 'x':
-      return [x, -z, y]
-    case 'y':
-      return [z, y, -x]
-    case 'z':
-      return [-y, x, z]
-  }
-}
-
-/** Apply `axis`-rotation `times` quarter turns (positive = right-hand rule). */
-function rotateN(v: Vec3, axis: Axis, times: number): Vec3 {
-  let out = v
-  const t = ((times % 4) + 4) % 4
-  for (let i = 0; i < t; i++) out = rotate90(out, axis)
-  return out
-}
-
-/**
- * Each face turn selects one or two layers (cubies with a fixed coordinate)
- * and rotates them. `sign` is the number of right-hand-rule quarter turns for
- * ONE clockwise (as seen from outside the face) turn of that face.
- */
-interface FaceSpec {
-  axis: Axis
-  /** Index into a Vec3 for the selecting coordinate (0=x, 1=y, 2=z). */
-  coordIndex: 0 | 1 | 2
-  /** Sign of the face along its axis (+1 or -1). */
-  dir: 1 | -1
-  /** Right-hand quarter turns for one clockwise face turn. */
-  sign: 1 | -1
-}
-
-const FACE_SPEC: Record<Face, FaceSpec> = {
-  // Clockwise-from-outside maps to a -90 turn for the +axis faces (U,R,F) and
-  // +90 for the -axis faces (D,L,B), because viewing from the opposite side
-  // flips the apparent handedness.
-  U: { axis: 'y', coordIndex: 1, dir: 1, sign: -1 },
-  D: { axis: 'y', coordIndex: 1, dir: -1, sign: 1 },
-  R: { axis: 'x', coordIndex: 0, dir: 1, sign: -1 },
-  L: { axis: 'x', coordIndex: 0, dir: -1, sign: 1 },
-  F: { axis: 'z', coordIndex: 2, dir: 1, sign: -1 },
-  B: { axis: 'z', coordIndex: 2, dir: -1, sign: 1 },
-}
-
-/**
- * The slab `move` turns, as the open interval between the cut planes bounding
- * it along the move's axis. A cut sits halfway between two layers, so a piece
- * is inside when `lo < coord < hi`, and no piece ever sits on a cut.
- *
- * Naming a slab by its cuts rather than by layer coordinates is what keeps
- * this right on a shape that shifts: a piece pushed out of the box stays on
- * the same side of the same cut, so its face still carries it along.
- *
- * Single source of the layer predicate, shared by applyMove and the renderer.
- */
-export function moveLayerRange(move: Move, dims: Dims): { lo: number; hi: number } {
-  const spec = FACE_SPEC[move.face]
-  const coords = layerCoords(dims[spec.coordIndex])
-  const outermost = spec.dir > 0 ? coords.length - 1 : 0
-  /** Cut between layer `i` and layer `i + 1`, counted from the face inwards. */
-  const cut = (i: number): number => {
-    const a = coords[outermost - spec.dir * i]
-    const b = coords[outermost - spec.dir * (i + 1)]
-    if (a === undefined || b === undefined) {
-      throw new Error(`moveLayerRange: no layer ${i + 2} in from face ${move.face}`)
-    }
-    return (a + b) / 2
-  }
-  const deep = move.depth ?? 1
-  const inward = cut(deep - 1)
-  const outward = spec.dir > 0 ? { lo: inward, hi: Infinity } : { lo: -Infinity, hi: inward }
-  if (deep === 1 || move.wide) return outward
-  // A lone inner slice is bounded on its outer side too.
-  return spec.dir > 0 ? { lo: inward, hi: cut(deep - 2) } : { lo: cut(deep - 2), hi: inward }
-}
-
-/** Whether a coordinate falls inside a slab. */
-export function inLayer(coord: number, range: { lo: number; hi: number }): boolean {
-  return coord > range.lo && coord < range.hi
-}
-
-/**
- * Whether the mechanism lets `move` turn in this state. Always, on a puzzle
- * that keeps its box. On one that shifts (the tower, turning like a 4x4x4):
- * - a wide turn (Rw) turns half the mechanism, which always goes;
- * - an outer turn (R) turns the end layer of the mechanism, which only goes
- *   when that layer is complete: a 2x2 on the tower, whatever stands behind
- *   it. In its box the tower has U and D only; after Rw, its top holds two
- *   cubes and U jams;
- * - inner slices are not part of it (a wide then an outer turn makes one).
- */
-export function turnAllowed(cube: Cube, move: Move): boolean {
-  const shape = cubeShape(cube)
-  if (!SHAPE_SHIFTS[shape]) return true
-  if (move.wide) return true
-  if (move.depth) return false
-  const a = FACE_SPEC[move.face].coordIndex
-  const slab = moveLayerRange(move, turnDims(shape))
-  const inEnd = cube.filter((c) => inLayer(c.position[a], slab)).length
-  // Complete: as many cubes as the boxed puzzle's end layer (its two shortest
-  // sides), 4 on the tower. Only corners reach an end layer, at +-1 on the
-  // other axes, so four of them always form the full square.
-  const [s1, s2] = [...SHAPE_DIMS[shape]].sort((p, q) => p - q)
-  return inEnd === s1! * s2!
-}
-
-/** Which cubies `move` turns, by index: the animation turns them, the move
- *  preview highlights them. */
-export function turnedBy(cube: Cube, move: Move): (index: number) => boolean {
-  const spec = FACE_SPEC[move.face]
-  const slab = moveLayerRange(move, turnDims(cubeShape(cube)))
-  return (index) => inLayer(cube[index]!.position[spec.coordIndex], slab)
-}
-
-/** Geometry a renderer needs to animate a move: which layers turn, and how. */
-export interface MoveGeometry {
-  readonly axis: Axis
-  /** Vec3 index selecting the layers (0=x, 1=y, 2=z). */
-  readonly coordIndex: 0 | 1 | 2
-  /** The turning slab, as the open interval between its cut planes. */
-  readonly layers: { lo: number; hi: number }
-  /** Visual rotation in radians (right-hand rule), taking the shortest path. */
-  readonly angle: number
-}
-
-/** Axis, layers and shortest-path angle for animating `move` in 3D. */
-export function moveGeometry(move: Move, dims: Dims): MoveGeometry {
-  const spec = FACE_SPEC[move.face]
-  const t = (((spec.sign * move.amount) % 4) + 4) % 4 // 1, 2 or 3 quarter turns
-  const angle = (t === 3 ? -1 : t) * (Math.PI / 2)
-  return {
-    axis: spec.axis,
-    coordIndex: spec.coordIndex,
-    layers: moveLayerRange(move, dims),
-    angle,
-  }
-}
-
-/**
- * Apply one move, returning a new cube (the input is left untouched). `dims`
- * defaults to the puzzle's own; passing it lets a search turn a handful of
- * tracked pieces without the rest of the puzzle (see pieceSearch.ts).
- */
-export function applyMove(cube: Cube, move: Move, dims: Dims = turnDims(cubeShape(cube))): Cube {
-  const spec = FACE_SPEC[move.face]
-  const layers = moveLayerRange(move, dims)
-  const times = spec.sign * move.amount
-  return cube.map((cubie) => {
-    if (!inLayer(cubie.position[spec.coordIndex], layers)) return cubie
-    return {
-      position: rotateN(cubie.position, spec.axis, times),
-      stickers: cubie.stickers.map((s) => ({
-        normal: rotateN(s.normal, spec.axis, times),
-        color: s.color,
-      })),
-    }
-  })
-}
-
-/** Apply a sequence of moves left to right. */
-export function applyMoves(
-  cube: Cube,
-  moves: readonly Move[],
-  dims: Dims = turnDims(cubeShape(cube)),
-): Cube {
-  return moves.reduce((state, move) => applyMove(state, move, dims), cube)
-}
-
-/**
- * Reorient the whole cube (every cubie, including centers) by `quarterTurns`
- * about `axis`. Unlike a face turn this is a change of viewpoint, not a move;
- * used to enumerate the 24 orientations (see cubeOrientations).
- */
-function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
-  return cube.map((cubie) => ({
-    position: rotateN(cubie.position, axis, quarterTurns),
-    stickers: cubie.stickers.map((s) => ({
-      normal: rotateN(s.normal, axis, quarterTurns),
-      color: s.color,
-    })),
-  }))
-}
-
-/**
- * Whether these cubies show a single color per face. On the whole puzzle this
- * is half of `isSolved`; on a subset it says that subset is solved, which is
- * what a solver phase checks.
- */
+/** Whether the cubies show a single color per face. */
 function facesUniform(cubies: readonly Cubie[]): boolean {
   const faceColor = new Map<Face, Color>()
   for (const cubie of cubies) {
     for (const s of cubie.stickers) {
       const face = faceOfNormal(s.normal)
-      if (!face) return false
       const seen = faceColor.get(face)
       if (seen === undefined) faceColor.set(face, s.color)
       else if (seen !== s.color) return false
@@ -412,16 +232,9 @@ export function isSolved(cube: Cube): boolean {
   return facesUniform(cube) && isBoxed(cube)
 }
 
-/** Index 0..5 of a face normal, for compact hashing and sticker ids. */
-export function normalIndex(n: Vec3): number {
-  if (n[0] !== 0) return n[0] > 0 ? 0 : 1
-  if (n[1] !== 0) return n[1] > 0 ? 2 : 3
-  return n[2] > 0 ? 4 : 5
-}
-
 /**
  * Compact, allocation-light state signature. Cubies keep a stable array index
- * (applyMove and rotateCube map in place), so encoding each by position + its
+ * (turns and rotations map in place), so encoding each by position + its
  * stickers in order is deterministic. Used to dedupe search states and
  * orientations, so it must be fast.
  */
@@ -439,12 +252,24 @@ export function stateKey(cube: Cube): string {
   return out
 }
 
+/** Reorient the whole puzzle: a change of viewpoint, not a move. */
+function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
+  return cube.map((cubie) => ({
+    position: rotateN(cubie.position, axis, quarterTurns),
+    stickers: cubie.stickers.map((s) => ({
+      normal: rotateN(s.normal, axis, quarterTurns),
+      color: s.color,
+    })),
+  }))
+}
+
 /**
  * Every whole-puzzle rotation of `cube`, found by closure over the rotations
  * its shape allows: a quarter turn per axis on a cube (24 orientations), only
- * half turns where the shape forbids quarter ones (4 on a 1x2x3). Used by the
- * editor (valid piece placements) and the 2x2 solver (a 2x2 has no centers, so
- * "solved" is any of the 24 orientations of the solved cube).
+ * half turns where the shape forbids quarter ones (4 on a 1x2x3, 8 on the
+ * tower and the Domino). Used by the editor (valid piece placements) and the
+ * 2x2 solver (a 2x2 has no centers, so "solved" is any orientation of the
+ * solved cube).
  */
 export function cubeOrientations(cube: Cube): Cube[] {
   const dims = cubeDims(cube)

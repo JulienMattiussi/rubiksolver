@@ -1,4 +1,4 @@
-import { movesFor, parseMoves } from './moves'
+import { movesFor, parseMoves, sameLayer } from './moves'
 import type { CubeShape, Move } from './types'
 
 /**
@@ -40,11 +40,5 @@ export function allTurnsOf(shape: CubeShape): MoveSet {
 
 /** Whether `move` is one of the turns `set` allows. */
 export function allows(set: MoveSet, move: Move): boolean {
-  return set.turns.some(
-    (t) =>
-      t.face === move.face &&
-      t.depth === move.depth &&
-      t.wide === move.wide &&
-      t.amount === move.amount,
-  )
+  return set.turns.some((t) => sameLayer(t, move) && t.amount === move.amount)
 }

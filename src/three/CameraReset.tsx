@@ -3,10 +3,8 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { easeInOut } from '@/lib/easing'
 import { useView } from '@/store/viewStore'
+import { HOME_POSITION, HOME_TARGET } from './camera'
 
-// Home camera framing (matches the <Canvas camera> position and origin target).
-const HOME_POSITION = new THREE.Vector3(4.5, 4.5, 6)
-const HOME_TARGET = new THREE.Vector3(0, 0, 0)
 const RECENTER_SECONDS = 0.5
 
 interface OrbitLike {

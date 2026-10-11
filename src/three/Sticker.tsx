@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
-import { UNIT_SHAPE, type CubieShape } from '@/lib/shape'
+import { UNIT_BOX, type CubieBox } from '@/lib/shape'
 import type { Vec3 } from '@/lib/types'
 
 const PLANE_Z = new THREE.Vector3(0, 0, 1)
@@ -9,14 +9,14 @@ const PLANE_Z = new THREE.Vector3(0, 0, 1)
 /** Margin left around a sticker, so the dark body shows as a border. */
 const INSET = 0.14
 
-export interface StickerProps {
+interface StickerProps {
   /** Outward normal of the cubie face this sticker sits on. */
   normal: Vec3
   /** Fill color as a hex string. */
   color: string
   /** Box of the cubie: a mirror cubie is not a cube, so the sticker's size and
    *  distance to the center follow it. Defaults to the plain unit cubie. */
-  shape?: CubieShape
+  box?: CubieBox
   /** Brushed metal finish (mirror cube). */
   metal?: boolean
   /** Lit up a little: its piece is part of a previewed turn. */
@@ -30,13 +30,13 @@ export interface StickerProps {
 export function Sticker({
   normal,
   color,
-  shape = UNIT_SHAPE,
+  box = UNIT_BOX,
   metal = false,
   glow = false,
   onSelect,
 }: StickerProps) {
-  const [sx, sy, sz] = shape.size
-  const [cx, cy, cz] = shape.center
+  const [sx, sy, sz] = box.size
+  const [cx, cy, cz] = box.center
   const { quaternion, position, width, height } = useMemo(() => {
     const n = new THREE.Vector3(normal[0], normal[1], normal[2])
     const q = new THREE.Quaternion().setFromUnitVectors(PLANE_Z, n)

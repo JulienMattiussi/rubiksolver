@@ -1,5 +1,7 @@
-import { applyMoves, solvedCube } from '../cube'
+import { colorsOf, solvedCube } from '../cube'
+import { applyMoves } from '../turn'
 import { parseMoves } from '../moves'
+import { edgeOriented } from '../methods/pieces3'
 import { to3x3 } from './project'
 import type { Color, Cube, Cubie, Move } from '../types'
 
@@ -25,31 +27,13 @@ function isWY(color: Color): boolean {
 }
 
 /**
- * Edge flip bit: the edge's primary sticker (its W/Y one, else its G/B one;
- * every 3x3 edge has one) sits on the slot's primary axis (y for U/D-layer
- * slots, z for belt slots) when the bit is 0. U/D/R/L turns preserve every
- * bit and F/B quarter turns flip exactly four, so the sum stays even on any
- * legal 3x3; an odd sum is the 4x4 OLL parity.
+ * Count of misoriented edges, mod 2 (orientation on the F/B axis, see
+ * `edgeOriented`). U/D/R/L turns keep every edge oriented and F/B quarter
+ * turns flip exactly four, so the count stays even on any legal 3x3; an odd
+ * count is the 4x4 OLL parity.
  */
 export function edgeFlipParity(cube3: Cube): number {
-  let sum = 0
-  for (const c of cube3) {
-    if (c.stickers.length !== 2) continue
-    const primary =
-      c.stickers.find((s) => isWY(s.color)) ??
-      c.stickers.find((s) => s.color === 'G' || s.color === 'B')
-    if (!primary) throw new Error('edgeFlipParity: edge without W/Y or G/B sticker')
-    const axis = c.position[1] !== 0 ? 1 : 2
-    if (primary.normal[axis] === 0) sum++
-  }
-  return sum % 2
-}
-
-function colorKey(c: Cubie): string {
-  return c.stickers
-    .map((s) => s.color)
-    .sort()
-    .join('')
+  return cube3.filter((c) => c.stickers.length === 2 && !edgeOriented(c)).length % 2
 }
 
 function posKey(c: Cubie): string {
@@ -60,14 +44,14 @@ function posKey(c: Cubie): string {
 function permutationSign(cube3: Cube, stickers: number): 1 | -1 {
   const home = new Map<string, number>()
   const solvedPieces = SOLVED_3.filter((c) => c.stickers.length === stickers)
-  solvedPieces.forEach((c, i) => home.set(colorKey(c), i))
+  solvedPieces.forEach((c, i) => home.set(colorsOf(c), i))
   const slotOf = new Map<string, number>()
   solvedPieces.forEach((c, i) => slotOf.set(posKey(c), i))
   const perm: number[] = []
   for (const c of cube3) {
     if (c.stickers.length !== stickers) continue
     const slot = slotOf.get(posKey(c))
-    const piece = home.get(colorKey(c))
+    const piece = home.get(colorsOf(c))
     if (slot === undefined || piece === undefined) {
       throw new Error('permutationSign: unknown piece or slot')
     }

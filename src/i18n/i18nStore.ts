@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { NOTATION_FR, NOTATION_US, type FaceLabels } from '@/lib/moves'
 import { LOCALES, type Locale, type Translations } from './translations'
 
 /** Move notation: 'us' (U R F...) or 'fr' (H D F...). Independent of locale. */
@@ -24,9 +25,10 @@ export const useI18n = create<I18nState>((set) => ({
   t: LOCALES[initial],
   // International notation by default, whatever the locale (toggleable).
   notation: 'us',
-  setLocale: (locale) => {
-    if (typeof document !== 'undefined') document.documentElement.lang = locale
-    set({ locale, t: LOCALES[locale] })
-  },
+  setLocale: (locale) => set({ locale, t: LOCALES[locale] }),
   setNotation: (notation) => set({ notation }),
 }))
+
+/** Face letters of the chosen notation, for every displayed move. */
+export const selectMoveLabels = (s: I18nState): FaceLabels =>
+  s.notation === 'fr' ? NOTATION_FR : NOTATION_US

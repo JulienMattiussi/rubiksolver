@@ -1,4 +1,5 @@
-import { cubeShape, normalIndex, stickersTotal } from './cube'
+import { countColors, cubeShape } from './cube'
+import { normalIndex } from './geometry'
 import {
   centersArePaintable,
   paintableKind,
@@ -15,8 +16,8 @@ import type { Color, Cube, CubeShape } from './types'
  * Constraint-guided cube editor logic (pure, no React / three.js).
  *
  * The user paints sticker colors onto the fixed slots. To make it impossible
- * to enter an inconsistent piece, we precompute - from the 24 orientations of
- * a solved cube - every valid (normal -> color) placement a real piece can
+ * to enter an inconsistent piece, we precompute - from every orientation of
+ * the solved puzzle - every valid (normal -> color) placement a real piece can
  * take at each paintable slot (see editorTables.ts). A paint is only accepted
  * if the slot's painted stickers still match some available placement, and
  * when a placement becomes the only option its remaining stickers
@@ -27,8 +28,8 @@ import type { Color, Cube, CubeShape } from './types'
  * apart by their chirality, which the placements encode; same-color centers
  * share one identity with a budget of four). A placement stays available only
  * while its piece has budget left, so no duplicate piece can ever be entered.
- * On a 3x3 the centers are fixed and pre-filled; on even sizes they move, so
- * their slots are paintable like any piece.
+ * Fixed centers (on their face's axis: the 3x3's, the Domino's) are
+ * pre-filled; moving ones (4x4) are paintable like any piece.
  *
  * This guarantees valid pieces during entry. Global solvability (parity) is
  * checked separately, see validate.ts.
@@ -70,9 +71,7 @@ export function cubeToEdit(cube: Cube): EditStickers {
 
 /** Count of each color currently painted (centers included). */
 export function colorCounts(edit: EditStickers): Record<Color, number> {
-  const counts: Record<Color, number> = { W: 0, Y: 0, G: 0, B: 0, O: 0, R: 0 }
-  for (const color of Object.values(edit)) counts[color]++
-  return counts
+  return countColors(Object.values(edit))
 }
 
 /** Number of painted stickers (out of `stickersTotal`). */
@@ -80,8 +79,10 @@ export function filledCount(edit: EditStickers): number {
   return Object.keys(edit).length
 }
 
+/** Every sticker slot of the shape is painted. Read off the slots, not a
+ *  count: a cube taken from a shifted tower has stickers off the box. */
 export function isComplete(edit: EditStickers, shape: CubeShape): boolean {
-  return filledCount(edit) === stickersTotal(shape)
+  return slotsFor(shape).every((slot) => slot.stickers.every((s) => edit[s.id] !== undefined))
 }
 
 /** Painted colors of a slot, as a normal-index -> color map. */
@@ -170,15 +171,6 @@ export function paint(
   const cleared = { ...edit }
   for (const s of slot.stickers) delete cleared[s.id]
   return tryPlace(cleared) ?? edit
-}
-
-/** Clear a paintable slot's stickers (fixed centers are untouched). */
-export function clearSlot(edit: EditStickers, shape: CubeShape, slotKey: string): EditStickers {
-  const slot = tablesFor(shape).byKey.get(slotKey)
-  if (!slot || !paintableKind(shape, slot.kind)) return edit
-  const next = { ...edit }
-  for (const s of slot.stickers) delete next[s.id]
-  return next
 }
 
 /**

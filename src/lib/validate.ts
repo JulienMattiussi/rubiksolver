@@ -1,5 +1,5 @@
 import type { Color, Cube, Vec3 } from './types'
-import { cubeShape, stickersOfColor } from './cube'
+import { countColors, cubeShape, stickersOfColor } from './cube'
 import { usesRealPieces } from './editor'
 import { solveOptimal2 } from './methods/cube2'
 import { solve } from './solver'
@@ -24,7 +24,7 @@ function cornersAsTwoByTwo(cube: Cube): Cube {
  *    (nine on a 3x3, four on a 2x2, sixteen on a 4x4; a cuboid's faces differ,
  *    so its six counts do too).
  * 2. `impossible`: the arrangement must be reachable by real turns.
- *    - 2x2/3x3/1x2x3: we ask the solver for a solution; on an unsolvable cube (bad
+ *    - every other shape: we ask the solver for a solution; on an unsolvable cube (bad
  *      permutation or orientation parity, duplicated/missing piece) it
  *      exhausts its bounded search and throws, which we catch.
  *    - 4x4: solvability has an exact piece-level characterization (its
@@ -37,8 +37,7 @@ function cornersAsTwoByTwo(cube: Cube): Cube {
  */
 export function validateCube(cube: Cube): ValidationResult {
   const shape = cubeShape(cube)
-  const counts: Record<Color, number> = { W: 0, Y: 0, G: 0, B: 0, O: 0, R: 0 }
-  for (const cubie of cube) for (const s of cubie.stickers) counts[s.color]++
+  const counts = countColors(cube.flatMap((c) => c.stickers.map((s) => s.color)))
   const wrongCount = (Object.keys(counts) as Color[]).some(
     (color) => counts[color] !== stickersOfColor(shape, color),
   )

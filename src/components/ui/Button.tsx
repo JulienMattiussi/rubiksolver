@@ -18,9 +18,16 @@ interface ButtonProps extends ComponentPropsWithRef<'button'> {
   children: ReactNode
 }
 
-export function Button({ variant = 'default', className = '', children, ...rest }: ButtonProps) {
+/** A panel button. `type` defaults to "button": none of them submits a form. */
+export function Button({
+  variant = 'default',
+  className = '',
+  type = 'button',
+  children,
+  ...rest
+}: ButtonProps) {
   return (
-    <button className={`${BASE} ${VARIANTS[variant]} ${className}`} {...rest}>
+    <button type={type} className={`${BASE} ${VARIANTS[variant]} ${className}`} {...rest}>
       {children}
     </button>
   )

@@ -1,35 +1,18 @@
-import { applyMove, applyMoves, FACE_NORMAL, isSolved, stateKey } from './cube'
+import { isSolved, stateKey } from './cube'
+import { applyMove, applyMoves } from './turn'
 import { formatMove, parseMoves, simplifyMoves } from './moves'
 import { allows, type MoveSet } from './moveSet'
-import type { Color, Cube, Cubie, Face, Move } from './types'
+import type { Cube, Face, Move } from './types'
 
 /**
  * Shared solving machinery: bounded searches whose goals encode "do not
  * regress earlier work", frame remapping for algorithms written relative to a
- * front face, and the named-step builder. Method-specific solvers (per size)
- * compose these bricks; see solver.ts and solver4/.
+ * front face, and the step contract (StepSpec, buildSteps). The methods
+ * (methods/, solver4/) compose these bricks with the piece search of
+ * pieceSearch.ts; the registry is solver.ts.
  */
 
 export const SIDES: readonly Face[] = ['F', 'R', 'B', 'L']
-
-// ---------------------------------------------------------------------------
-// Piece queries
-// ---------------------------------------------------------------------------
-
-/** Color of the sticker on `cubie` pointing along face `f`, if any. */
-export function colorAt(cubie: Cubie, f: Face): Color | undefined {
-  const n = FACE_NORMAL[f]
-  return cubie.stickers.find(
-    (s) => s.normal[0] === n[0] && s.normal[1] === n[1] && s.normal[2] === n[2],
-  )?.color
-}
-
-export function sameColorSet(cubie: Cubie, colors: readonly Color[]): boolean {
-  if (cubie.stickers.length !== colors.length) return false
-  const have = cubie.stickers.map((s) => s.color).sort()
-  const want = [...colors].sort()
-  return have.every((c, i) => c === want[i])
-}
 
 // ---------------------------------------------------------------------------
 // Shortest-path search over generator turns
@@ -39,6 +22,9 @@ export function sameColorSet(cubie: Cubie, colors: readonly Color[]): boolean {
 export function faceGenerators(faces: readonly Face[]): readonly Move[] {
   return faces.map((face) => ({ face, amount: 1 }))
 }
+
+/** Every plain face turn, as search generators. */
+export const OUTER_GENERATORS = faceGenerators(['U', 'D', 'L', 'R', 'F', 'B'])
 
 /**
  * Breadth-first search for the shortest sequence from `start` to a state

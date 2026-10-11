@@ -1,22 +1,22 @@
 import { Check } from 'lucide-react'
 import { cubeDims } from '@/lib/cube'
-import { formatMoves, NOTATION_FR, NOTATION_US } from '@/lib/moves'
+import { formatMove, formatMoves } from '@/lib/moves'
 import { solveProgress } from '@/lib/progress'
 import type { SolveStep } from '@/lib/solver'
-import { useI18n } from '@/i18n/i18nStore'
+import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
+import { SECTION_LABEL } from '@/components/ui/styles'
 
 /** The chosen method's named steps, with the cumulative total and live
  *  done / current highlighting as the solution animates. */
 export function StepList({ steps }: { steps: readonly SolveStep[] }) {
   const t = useI18n((s) => s.t)
-  const notation = useI18n((s) => s.notation)
+  const labels = useI18n(selectMoveLabels)
   const stepIndex = useCube((s) => s.stepIndex)
   const active = useCube((s) => s.active)
   const queue = useCube((s) => s.queue)
   const dims = useCube((s) => cubeDims(s.cube))
 
-  const labels = notation === 'fr' ? NOTATION_FR : NOTATION_US
   const stepName = (key: string) => (t.steps as Record<string, string>)[key] ?? key
   const dispatched = steps.slice(0, stepIndex).reduce((n, s) => n + s.moves.length, 0)
   const progress = solveProgress(
@@ -28,9 +28,7 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
   return (
     <div>
       <div className="mb-2 flex items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          {t.stepsLabel}
-        </h2>
+        <h2 className={SECTION_LABEL}>{t.stepsLabel}</h2>
         <span className="text-xs font-medium text-slate-300">
           {t.solutionCount(progress.total)}
         </span>
@@ -62,12 +60,12 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
                 <p className="mt-0.5 text-[11px] text-slate-500">
                   {t.allowedTurns}{' '}
                   <span className="font-mono text-slate-300">
-                    {step.allowed.map((m) => formatMoves([m], labels, dims)).join(', ')}
+                    {step.allowed.map((m) => formatMove(m, labels, dims)).join(', ')}
                   </span>
                 </p>
               )}
               <p className="mt-0.5 font-mono text-[11px] leading-relaxed text-slate-400">
-                {formatMoves([...step.moves], labels, dims)}
+                {formatMoves(step.moves, labels, dims)}
               </p>
             </li>
           )

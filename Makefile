@@ -50,7 +50,7 @@ test-e2e-ui: ## Run e2e tests with Playwright UI
 
 fix: format lint ## Format and lint all code
 
-check: build lint typecheck knip test-unit ## Run all checks (build, lint, typecheck, knip, unit tests)
+check: build lint format-check typecheck knip test-unit ## Run all checks (build, lint, format, typecheck, knip, unit tests)
 	@echo "All checks passed!"
 
 clean: ## Remove build artifacts and dependencies
