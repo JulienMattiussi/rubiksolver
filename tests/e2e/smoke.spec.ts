@@ -213,6 +213,7 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
     ['Pyramides', 'Professor Pyraminx (5x5)'],
     ['Pyramides', 'Pyraminx Jing'],
     ['Pyramides', 'Pyramorphinx'],
+    ['Octaèdres', "4-Trajber's Octahedron"],
     ['Étoiles', '2-Star Prism (UFO)'],
     ['Étoiles', '4-Star Prism'],
   ]
@@ -237,6 +238,7 @@ const ENTERED: [string, string, string][] = [
   ['Pyramides', 'Professor Pyraminx (5x5)', '100 / 100 stickers'],
   ['Pyramides', 'Pyraminx Jing', '28 / 28 stickers'],
   ['Pyramides', 'Pyramorphinx', '16 / 16 stickers'],
+  ['Octaèdres', "4-Trajber's Octahedron", '56 / 56 stickers'],
   // Entered piece by piece: its ten pieces counted.
   ['Plats', 'Floppy Ghost', '10 / 10 pièces'],
   // Only the stickers one sees count: the inner points' flat faces fill in.

@@ -2,7 +2,7 @@ import { FACE_COLOR, solvedCube } from '../cube'
 import { faceOfNormal } from '../geometry'
 import { applyMoves } from '../turn'
 import type { Cube, Cubie, Face, Move } from '../types'
-import { buildLibrary, MIDDLES, OUTER, SLICES, type Library } from './cycles'
+import { buildLibrary, MIDDLES, OUTER, SLICES, type Library } from '../cycleLibrary'
 import { isCrossCenter, isDiagonalCenter, isFixedCenter, isMovingCenter } from './kinds'
 
 /**
@@ -91,7 +91,7 @@ function cyclePlacement(centers: Cube, face: Face, finished: readonly Face[]): M
       for (const amount of [0, 1, 2, 3] as const) {
         const setup: Move[] = amount ? [{ face: faceOf(source), amount }] : []
         const from = slot(amount ? applyMoves([source], setup, MECHANISM)[0]! : source)
-        for (const cycle of library.get(`${from}>${slot(target)}`) ?? []) {
+        for (const cycle of library.cycles.get(`${from}>${slot(target)}`) ?? []) {
           if (!done.has(cycle.third)) return [...setup, ...cycle.moves]
         }
       }

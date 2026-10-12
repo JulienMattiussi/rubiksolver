@@ -61,6 +61,7 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'pyra5', pieces: 54, stickers: 100, orientations: 12, painted: 100, scramble: 40 },
   { shape: 'jing', pieces: 15, stickers: 28, orientations: 12, painted: 28, scramble: 15 },
   { shape: 'morph', pieces: 8, stickers: 16, orientations: 24, painted: 16, scramble: 11 },
+  { shape: 'oct4', pieces: 56, stickers: 56, orientations: 24, painted: 56, scramble: 40 },
   { shape: 'ghost', pieces: 11, stickers: 36, orientations: 1, painted: 36, scramble: 15 },
   { shape: 'star', pieces: 14, stickers: 40, orientations: 12, painted: 40, scramble: 30 },
   // The 4-star's inner points hide a face each: 12 stickers never seen.

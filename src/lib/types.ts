@@ -19,6 +19,7 @@ export type CubeShape =
   | 'pyra5'
   | 'jing'
   | 'morph'
+  | 'oct4'
   | 'ghost'
   | 'star'
   | 'star4'
@@ -53,6 +54,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   jing: [3, 3, 3],
   // The Pyramorphinx is a 2x2 cut down to a tetrahedron (morph.ts).
   morph: [2, 2, 2],
+  // The 4-Trajber's Octahedron is a 4x4x4 cut to an octahedron (oct4.ts).
+  oct4: [4, 4, 4],
   // The Floppy Ghost (ghost.ts) is no grid: its slots sit within +-3 in its
   // plane, all at z = 0.
   ghost: [7, 7, 1],
@@ -86,8 +89,10 @@ export const isGridless = (shape: CubeShape): boolean =>
   isStar(shape) || isPyraminx(shape) || shape === 'ghost'
 
 /** Whether a shape is drawn from polygons rather than cubie boxes: every
- *  gridless one, and the Pyramorphinx (a 2x2 whose pieces are not cubes). */
-export const isPolyDrawn = (shape: CubeShape): boolean => isGridless(shape) || shape === 'morph'
+ *  gridless one, the Pyramorphinx (a 2x2 whose pieces are not cubes) and
+ *  the 4-Trajber's Octahedron (a 4x4x4 cut to an octahedron). */
+export const isPolyDrawn = (shape: CubeShape): boolean =>
+  isGridless(shape) || shape === 'morph' || shape === 'oct4'
 
 /**
  * Shapes that leave their box: their mechanism is a bigger cube with pieces
@@ -115,6 +120,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   pyra5: false,
   jing: false,
   morph: true,
+  oct4: false,
   ghost: false,
   star: false,
   star4: false,
@@ -125,7 +131,9 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
  * axis of 3 layers or more: the 4x4 its inner slices (2R) and wide turns
  * (Rw); the tower only its wide turns (a slice is a wide then an outer turn
  * there, rarely useful); the slim tower its wide turns (Uw: the top block,
- * fan2cube's H*). Like SHAPE_SHIFTS, a property of the real puzzle.
+ * fan2cube's H*); the 4-Trajber's Octahedron its slices only (a wide turn
+ * there turns four whole faces: the puzzle stays solved). Like
+ * SHAPE_SHIFTS, a property of the real puzzle.
  */
 export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]> = {
   '2': [],
@@ -142,6 +150,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   pyra5: [],
   jing: [],
   morph: [],
+  oct4: ['slice'],
   ghost: [],
   star: [],
   star4: [],
@@ -167,6 +176,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   pyra5: [],
   jing: [],
   morph: [],
+  oct4: [],
   ghost: [],
   star: [],
   star4: [],
@@ -188,6 +198,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   pyra5: 'Professor Pyraminx (5x5)',
   jing: 'Pyraminx Jing',
   morph: 'Pyramorphinx',
+  oct4: "4-Trajber's Octahedron",
   ghost: 'Floppy Ghost',
   star: '2-Star Prism (UFO)',
   star4: '4-Star Prism',
@@ -210,6 +221,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   pyra5: 'professor-pyraminx',
   jing: 'pyraminx-jing',
   morph: 'pyramorphinx',
+  oct4: '4-trajber',
   ghost: 'floppy-ghost',
   star: '2-star',
   star4: '4-star',
@@ -246,6 +258,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   pyra5: false,
   jing: false,
   morph: false,
+  oct4: false,
   ghost: false,
   star: false,
   star4: false,
@@ -264,7 +277,15 @@ export interface CubeKind {
 /** Groups of the cube picker, in display order: the classic NxNxN cubes, their
  *  mirror versions, the other cuboids (tower, Domino), the flat puzzles (one
  *  layer thick: 1x2x3, Floppy), the pyramids, then the star prisms. */
-export const CUBE_CATEGORIES = ['standard', 'mirror', 'tower', 'flat', 'pyramid', 'star'] as const
+export const CUBE_CATEGORIES = [
+  'standard',
+  'mirror',
+  'tower',
+  'flat',
+  'pyramid',
+  'octahedron',
+  'star',
+] as const
 export type CubeCategory = (typeof CUBE_CATEGORIES)[number]
 
 /** Picker group of a cube choice, derived from its variant and dimensions. */
@@ -272,6 +293,7 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (variant === 'mirror') return 'mirror'
   if (isStar(shape)) return 'star'
   if (isPyraminx(shape) || shape === 'morph') return 'pyramid'
+  if (shape === 'oct4') return 'octahedron'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
   // One layer thick: the 1x2x3 and the Floppy.

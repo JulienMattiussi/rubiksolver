@@ -4,7 +4,8 @@ import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { Select } from '@/components/ui/Select'
 
-/** Method dropdown plus the selected method's description. */
+/** Method dropdown plus the selected method's description (three lines,
+ *  all of it on hover). */
 export function MethodSelect({ disabled }: { disabled: boolean }) {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
@@ -25,7 +26,13 @@ export function MethodSelect({ disabled }: { disabled: boolean }) {
           </option>
         ))}
       </Select>
-      <p className="mt-2 text-xs leading-relaxed text-slate-400">{t.methods[method].desc}</p>
+      {/* Three lines at most; the whole text on hover (or focus). */}
+      <p
+        tabIndex={0}
+        className="mt-2 line-clamp-3 rounded text-xs leading-relaxed text-slate-400 hover:line-clamp-none focus:line-clamp-none focus-visible:outline-2 focus-visible:outline-sky-400"
+      >
+        {t.methods[method].desc}
+      </p>
     </div>
   )
 }

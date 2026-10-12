@@ -11,6 +11,7 @@ import { PYRAMINX4_PLAN } from './methods/pyraminx4'
 import { PYRAMINX5_PLAN } from './methods/pyraminx5'
 import { JING_PLAN } from './methods/jing'
 import { MORPH_PLAN } from './methods/morph'
+import { OCT4_PLAN } from './methods/oct4'
 import { withCentersHome } from './methods/recenter'
 import { ROUX_PLAN } from './methods/roux'
 import { SLIM_TOWER_PLAN } from './methods/slimTower'
@@ -60,6 +61,7 @@ const SOLVE_METHODS = [
   { id: 'wingsFirst', plans: { pyra4: PYRAMINX4_PLAN, pyra5: PYRAMINX5_PLAN } },
   { id: 'jingCornersFirst', plans: { jing: JING_PLAN } },
   { id: 'asPocket', plans: { morph: MORPH_PLAN } },
+  { id: 'octCornersFirst', plans: { oct4: OCT4_PLAN } },
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },
   { id: 'twoStars', plans: { star4: STAR4_PLAN } },
   { id: 'cornersFirst', plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN, ghost: GHOST_PLAN } },

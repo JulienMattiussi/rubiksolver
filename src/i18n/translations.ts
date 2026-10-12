@@ -67,6 +67,7 @@ const fr = {
     }[layer]
     return `Tourner ${target} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`
   },
+  sliceShort: (n: number) => `Tr. ${n}`,
   pyraKinds: {
     corners: 'Couches',
     tips: 'Pointes',
@@ -187,6 +188,7 @@ const fr = {
     tower: 'Tower',
     flat: 'Plats',
     pyramid: 'Pyramides',
+    octahedron: 'Octaèdres',
     star: 'Étoiles',
   },
   sectionSetup: 'Initialisation',
@@ -230,6 +232,10 @@ const fr = {
     asPocket: {
       name: 'Comme un Pocket',
       desc: 'Le Pyramorphinx n’est qu’un Pocket (2x2) déguisé : ses 8 pièces sont les 8 coins d’un 2x2 et ses mouvements ceux d’un 2x2. On le lit comme tel et on le résout comme un Pocket, en un minimum de mouvements, sans se laisser troubler par les formes qu’il prend.',
+    },
+    octCornersFirst: {
+      name: 'Sommets d’abord',
+      desc: 'Un 4x4x4 taillé en octaèdre : les sommets (trois par face) d’abord, avec les commutateurs de centres du Super Revenge, puis les arêtes (trois par face) avec des commutateurs de tranches, et enfin les centres (le triangle du milieu de chaque face) avec un commutateur de coins du Rubik’s Cube. Une parité éventuelle se règle d’un quart de tour au départ.',
     },
     jingCornersFirst: {
       name: 'Sommets d’abord',
@@ -331,6 +337,9 @@ const fr = {
     stepCoWings: 'Co-ailes',
     stepPyraEdges: 'Arêtes',
     stepCoCenters: 'Co-centres',
+    stepOctCorners: 'Sommets',
+    stepOctEdges: 'Arêtes',
+    stepOctMiddles: 'Centres',
     stepFinishCenters: 'Finir les centres',
     stepJingCorners: 'Sommets',
     stepGhostCorners: 'Placer les sommets',
@@ -393,6 +402,7 @@ const en: Translations = {
     }[layer]
     return `Turn ${target} ${clockwise ? 'clockwise' : 'counterclockwise'}`
   },
+  sliceShort: (n: number) => `Sl. ${n}`,
   pyraKinds: {
     corners: 'Layers',
     tips: 'Tips',
@@ -509,6 +519,7 @@ const en: Translations = {
     tower: 'Tower',
     flat: 'Flat',
     pyramid: 'Pyramids',
+    octahedron: 'Octahedra',
     star: 'Stars',
   },
   sectionSetup: 'Setup',
@@ -552,6 +563,10 @@ const en: Translations = {
     asPocket: {
       name: 'As a Pocket',
       desc: 'The Pyramorphinx is a Pocket (2x2) in disguise: its 8 pieces are a 2x2’s 8 corners and its turns a 2x2’s. Read as such, it is solved like a Pocket, in as few turns as can be, whatever strange shapes it takes.',
+    },
+    octCornersFirst: {
+      name: 'Corners first',
+      desc: 'A 4x4x4 cut to an octahedron: the corners (three a face) first, with the Super Revenge’s center commutators, then the edges (three a face) with slice commutators, and last the centers (the middle triangle of each face) with a Rubik’s Cube corner commutator. A parity, if any, takes a quarter turn at the start.',
     },
     jingCornersFirst: {
       name: 'Corners first',
@@ -653,6 +668,9 @@ const en: Translations = {
     stepCoWings: 'Co-wings',
     stepPyraEdges: 'Edges',
     stepCoCenters: 'Co-centers',
+    stepOctCorners: 'Corners',
+    stepOctEdges: 'Edges',
+    stepOctMiddles: 'Centers',
     stepFinishCenters: 'Finish the centers',
     stepJingCorners: 'Corners',
     stepGhostCorners: 'Place the corners',

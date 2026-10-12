@@ -54,7 +54,16 @@ export function PyraPad({ disabled }: { disabled: boolean }) {
             ariaLabel={t.layerLabel}
             value={layer}
             onChange={setPicked}
-            options={layers.map((k) => ({ value: k, label: t.pyraKinds[nameOf(k)] }))}
+            options={layers.map((k) => ({
+              value: k,
+              // Five tabs (the Professor) only fit on one line with the
+              // slices numbered short; the full name stays in the tooltip.
+              label:
+                layers.length > 4 && nameOf(k).startsWith('slice')
+                  ? t.sliceShort(Number(k.slice(5)))
+                  : t.pyraKinds[nameOf(k)],
+              title: t.pyraKinds[nameOf(k)],
+            }))}
           />
         </div>
       )}

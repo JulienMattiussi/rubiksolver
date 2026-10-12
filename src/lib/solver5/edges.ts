@@ -4,7 +4,7 @@ import { parseMoves } from '../moves'
 import { applyMove, applyMoves } from '../turn'
 import type { Color, Cube, Cubie, Face, Move, Vec3 } from '../types'
 import { centersDone } from './centers'
-import { buildLibrary, findCycle, OUTER, SLICES, type Library } from './cycles'
+import { borrow, buildLibrary, findCycle, OUTER, SLICES, type Library } from '../cycleLibrary'
 import { isMidge, isWing } from './kinds'
 
 /**
@@ -24,7 +24,6 @@ import { isMidge, isWing } from './kinds'
 
 const MECHANISM = [5, 5, 5] as const
 const SOLVED = solvedCube('5')
-const WINGS = SOLVED.filter(isWing)
 const key = (p: Vec3) => p.join(',')
 
 /** Each edge: its middle piece's slot and its two wing slots. */
@@ -185,7 +184,7 @@ export function pairEdges(cube: Cube): Move[] {
     all.push(...moves)
   }
   const cycleTo = (from: string, to: string, free: (slot: string) => boolean) =>
-    findCycle(wingLibrary(), WINGS, from, to, (third) => third !== to && free(third))
+    findCycle(wingLibrary(), from, to, (third) => third !== to && free(third))?.moves
   for (let guard = 0; ; guard++) {
     if (guard > 60) throw new Error('pairEdges: no progress')
     const wrong = misplaced(state, wanted)
@@ -205,68 +204,14 @@ export function pairEdges(cube: Cube): Move[] {
     }
     // The last wrong ones hold an edge's two wings, which no 3-cycle takes
     // together: a few 3-cycles, borrowing a right slot.
-    const pair = borrowing(state, wanted, wrong)
+    const holds = new Map([...wingSlots(state)].map(([wing, at]) => [at, wing]))
+    const pair = borrow(wingLibrary(), holds, wanted, wrong)
     if (!pair)
       throw new Error(`pairEdges: no 3-cycle from ${from} to ${slot} (wrong: ${wrong.join(' ')})`)
     play(pair)
   }
   if (!pairedOrParity(state)) throw new Error('pairEdges: edges left unpaired')
   return all
-}
-
-/**
- * The last few wrong wings when no 3-cycle among them helps (they hold an
- * edge's two wings, which no 3-cycle takes together): one right slot is
- * borrowed, and the fewest 3-cycles within those slots that put every wing
- * where `wanted` says are found by a breadth-first search on the slots
- * alone (a 3-cycle's effect is a permutation of them), then played.
- */
-function borrowing(
-  cube: Cube,
-  wanted: Map<string, number>,
-  wrong: readonly string[],
-): Move[] | null {
-  if (wrong.length > 5) return null
-  const at = new Map([...wingSlots(cube)].map(([wing, slot]) => [slot, wing]))
-  for (const borrowed of wanted.keys()) {
-    if (wrong.includes(borrowed)) continue
-    const slots = [...wrong, borrowed]
-    // Every 3-cycle within these slots: x -> y -> z.
-    const cycles: { x: string; y: string; z: string; moves: Move[] }[] = []
-    for (const x of slots) {
-      for (const y of slots) {
-        for (const z of slots) {
-          if (x === y || y === z || x === z) continue
-          const moves = findCycle(wingLibrary(), WINGS, x, y, (third) => third === z)
-          if (moves) cycles.push({ x, y, z, moves })
-        }
-      }
-    }
-    const start = slots.map((slot) => at.get(slot)!)
-    const goal = slots.map((slot) => wanted.get(slot)!).join()
-    const seen = new Map<string, Move[]>([[start.join(), []]])
-    let frontier = [start]
-    for (let depth = 0; depth < 4 && frontier.length; depth++) {
-      const next: number[][] = []
-      for (const state of frontier) {
-        for (const { x, y, z, moves } of cycles) {
-          const [i, j, k] = [x, y, z].map((slot) => slots.indexOf(slot))
-          const after = [...state]
-          after[j!] = state[i!]!
-          after[k!] = state[j!]!
-          after[i!] = state[k!]!
-          const id = after.join()
-          if (seen.has(id)) continue
-          const path = [...seen.get(state.join())!, ...moves]
-          if (id === goal) return path
-          seen.set(id, path)
-          next.push(after)
-        }
-      }
-      frontier = next
-    }
-  }
-  return null
 }
 
 /** Swaps the UF edge's two wings; with the centers solved, nothing else. */

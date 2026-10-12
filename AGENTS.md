@@ -6,9 +6,10 @@ POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3,
 4x4 ou 5x5**, **classique ou miroir** (sauf le 5x5), plus cinq cuboïdes : le **1x2x3**, la
 **tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**
 et le **Floppy 3x3x1**, le **Floppy Ghost** (un Floppy Megaminx découpé en
-pentagramme dans un carré, qui se déforme), et cinq puzzles non cubiques : le **Pyraminx**, le
+pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le **Pyraminx**, le
 **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le **Pyraminx Jing** (pièces courbes), le
-**Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme) et les
+**Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme), le
+**4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
@@ -96,6 +97,8 @@ src/
 │   │                     #   cubeDims/turnDims, isSolved/isBoxed, stateKey, cubeOrientations, comptages de stickers et de couleurs
 │   ├── pieces.ts         # Requêtes de pièces : colorAt, colorsOf, cubieAt, atHome/homeAt/homesOf, listedAs (pièces listées dans le même ordre)
 │   ├── morph.ts          # Pyramorphinx : un 2x2 taillé en tétraèdre (coins à 3 stickers, milieux de face à 1)
+│   ├── oct4.ts           # 4-Trajber's Octahedron : un 4x4x4 sans cubies internes, un sticker par pièce (face de son octant)
+│   ├── cycleLibrary.ts   # 3-cycles purs des grands cubes (commutateurs [A, X Y X'] conjugués), findCycle, placeAll, borrow
 │   ├── ghost.ts          # Floppy Ghost : 10 emplacements autour du centre, demi-tours = réflexions entières, notation fan2cube
 │   ├── pyraminx.ts       # Pyraminx, Master et Jing : modèle tétraédrique entier (couches, pointes, tranches, moitiés), mélange
 │   ├── pyraNotation.ts   # Leur notation hybride (FR fan2cube / US WCA), lecture des formules de fan2cube
@@ -127,6 +130,7 @@ src/
 │   │   ├── pyraminx.ts   #   Pyraminx : centres d'abord (formules de fan2cube.fr)
 │   │   ├── pyraminx4.ts  #   Master Pyraminx : ailes puis co-ailes (3-cycles d'ailes, formules de fan2cube.fr)
 │   │   ├── pyraminx5.ts  #   Professor Pyraminx : ailes, co-ailes, arêtes, co-centres, centres (fan2cube.fr)
+│   │   ├── oct4.ts       #   4-Trajber's Octahedron : parité, sommets, arêtes, centres (3-cycles, fan2cube.fr)
 │   │   ├── pyraCycles.ts #   3-cycles d'une sorte de pièce par conjugaison (cycleTable), chiralité (handedHome), placement
 │   │   ├── jing.ts       #   Pyraminx Jing : sommets d'abord (crochet [DH] de fan2cube.fr)
 │   │   ├── morph.ts      #   Pyramorphinx : comme un Pocket (lu comme un 2x2, solveur optimal du 2x2)
@@ -144,7 +148,6 @@ src/
 │   │   └── steps.ts      #   reductionPlan(plan 3x3) : préfixe centres/arêtes/parité + étapes 3x3 projetées (projectPlan, partagé)
 │   ├── solver5/          # Solveur 5x5 par réduction :
 │   │   ├── kinds.ts      #   sortes de pièces par position (coins, milieux et ailes d'arêtes, centres fixes, en croix, diagonaux)
-│   │   ├── cycles.ts     #   bibliothèques de 3-cycles purs (commutateurs [tranche, X Y X'] et conjugués), findCycle
 │   │   ├── centers.ts    #   centres face par face : deux coups si possible, sinon un 3-cycle de centres
 │   │   ├── edges.ts      #   ailes amenées sur leur milieu par 3-cycles d'ailes, parité d'arête (algo OLL du 4x4)
 │   │   ├── project.ts    #   projection du 5x5 réduit vers un 3x3 (coins, milieux d'arêtes, centres fixes)
@@ -186,6 +189,7 @@ src/
 │   ├── starGeometry.ts   # Géométrie des pièces de l'étoile (cerfs-volants extrudés), partagée vue 3D / vignette
 │   ├── pyraGeometry.ts   # Géométrie des pièces du Pyraminx (petits tétraèdres et octaèdres des cellules du modèle)
 │   ├── morphGeometry.ts  # Pièces du Pyramorphinx : case du 2x2 coupée par le tétraèdre (polyèdre convexe)
+│   ├── octGeometry.ts    # Pièces du 4-Trajber : case du 4x4x4 coupée par l'octaèdre (polyhedron.ts, partagé avec le Pyramorphinx)
 │   ├── ghostGeometry.ts  # Pièces du Floppy Ghost : régions du carré coupé par le pentagramme, extrudées, posées par réflexions
 │   ├── jingGeometry.ts   # Géométrie courbe du Jing : surface arrondie maillée fin, découpée le long des coupes
 │   ├── polyDrawing.ts    # Dessin d'un puzzle sans grille : ses polygones, son lacet à l'écran, sa teinte unique (argent du Ghost)
@@ -319,6 +323,8 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   placées, retournées, centres - voir « Le Pyraminx Jing ».
 - **Comme un Pocket** (`asPocket`, Pyramorphinx) : une étape, la solution
   optimale du 2x2 qu'il est - voir « Le Pyramorphinx ».
+- **Sommets d'abord** (`octCornersFirst`, 4-Trajber's Octahedron) : parité,
+  sommets, arêtes, centres - voir « Le 4-Trajber's Octahedron ».
 - **Ailes puis co-ailes** (`wingsFirst`, Master et Professor Pyraminx) :
   co-sommets, pointes, centres, ailes, co-ailes (puis arêtes et co-centres
   sur le Professor), fin des centres - voir « Le Master Pyraminx » et « Le
@@ -745,6 +751,43 @@ retournées par `[G₂ D'₂][H'₂ D₂]` ; (6) centres finis par `[G₂ D'₂]
 (A,B)(G,D). Ailes et co-ailes portant les mêmes couleurs, `solvePieces`
 prend un filtre `among` pour ne suivre qu'une sorte de pièce.
 
+### Le 4-Trajber's Octahedron (`oct4`)
+
+Un **4x4x4 taillé en octaèdre** (fan2cube.fr/4-trajber-oct1 et 2, Hidetoshi
+Takeji, 2010) : les six sommets de l'octaèdre sont les six faces du cube
+(H, B, G, D, A, P), et il tourne exactement comme un 4x4x4. Le moteur des
+cubes le fait donc tourner tel quel (`SHAPE_DIMS` `[4, 4, 4]`, pad, guide,
+mélange) ; seules ses pièces diffèrent (`lib/oct4.ts`) : un seul sticker
+chacune, sur la face de l'octaèdre de leur octant (les diagonales,
+`TET_NORMALS` et leurs opposées). Les 8 coins du cube sont les triangles
+au milieu des faces (les « centres » de la page), ses 24 ailes les pièces le
+long des arêtes (« arêtes »), ses 24 centres celles des sommets
+(« sommets ») ; ses 8 cubies intérieurs, cachés, sont omis. 8 couleurs, les
+faces opposées par paires. Pas de coup large : il tourne quatre faces
+entières (le puzzle reste résolu, couleurs permutées), la page n'en use que
+comme raccourci (`A* = A a`) ; `SHAPE_INNER_TURNS` n'a que la tranche.
+Catégorie à part, « Octaèdres ».
+
+**Rendu** (`three/octGeometry.ts`) : chaque pièce est sa case du 4x4x4
+(ouverte vers l'extérieur sur les couches externes) coupée par l'octaèdre
+`|x| + |y| + |z| <= 8`, un polyèdre convexe calculé depuis ses plans
+(`polyhedron.ts`, partagé avec le Pyramorphinx) ; une forme ne dépend que de
+l'emplacement, donc la pièce est dessinée où elle est.
+
+**Résolution** (`methods/oct4.ts`, méthode **Sommets d'abord**) : rien n'est
+fixe, la couleur de chaque face se lit sur les centres (la tenue du puzzle
+résolu qui en place le plus, figée au début de chaque étape ; aucun 3-cycle
+de sommets ou d'arêtes ne les bouge). (0) **Parité** : un quart de tour si
+les centres sont dans une permutation impaire (les 3-cycles sont pairs ; la
+page la rencontre à la fin). (1) **Sommets**, (2) **arêtes**, (3)
+**centres**, par 3-cycles purs (`cycleLibrary.ts`, partagée avec le 5x5 :
+`placeAll`, en empruntant un ou deux emplacements justes quand il ne reste
+que deux pièces d'une même arête de l'octaèdre). Les sommets se font avec
+les commutateurs de la page (T, K) ; les arêtes, une à une par commutateurs
+de tranches (comme les ailes du 5x5), et non par paires avec les formules
+du VTO de la page, dont l'effet est tout de même vérifié en test. Environ
+250 coups.
+
 ### Le Professor Pyraminx (`pyra5`)
 
 Le Pyraminx 5x5x5 (fan2cube.fr/profpyraminx1 et 2, Timur Evbatyrov, 2011) :
@@ -850,7 +893,7 @@ méthode utilise (pas le pad ni le mélange) : le guide la montre via
 Une recherche bornée par comptage, comme sur le 4x4, ne suffit pas : une
 tranche y déplace trois centres d'un coup, et la dernière pièce d'une face
 demande un commutateur. La méthode est donc celle des cubeurs, par
-**3-cycles purs** (`cycles.ts`) : des commutateurs `[A, X Y X']` trouvés au
+**3-cycles purs** (`lib/cycleLibrary.ts`) : des commutateurs `[A, X Y X']` trouvés au
 chargement (ceux qui ne bougent que trois pièces d'une sorte), conjugués par
 un tour, indexés par le déplacement qu'ils font (`a>b`) avec le troisième
 emplacement qu'ils touchent.
@@ -1009,7 +1052,8 @@ mobile et en saisie, une seule carte) :
   l'ordre : Standard 2x2 (Pocket)/3x3/4x4/5x5, Miroir 2x2/3x3/4x4, Tower 2x2x3
   (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Master Pyraminx
-  (4x4)/Pyraminx Jing/Pyramorphinx, Étoiles 2-Star Prism (UFO)/4-Star Prism.
+  (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
+  4-Trajber's Octahedron, Étoiles 2-Star Prism (UFO)/4-Star Prism.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

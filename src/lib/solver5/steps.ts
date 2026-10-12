@@ -2,7 +2,7 @@ import { allTurnsOf, type MoveSet } from '../moveSet'
 import { projectPlan } from '../solver4/steps'
 import type { MethodPlan } from '../solverKit'
 import { centersDone, solveCenters } from './centers'
-import { MIDDLES } from './cycles'
+import { MIDDLES } from '../cycleLibrary'
 import { fixEdgeParity, pairEdges, pairedOrParity } from './edges'
 import { isReduced, to3x3 } from './project'
 
