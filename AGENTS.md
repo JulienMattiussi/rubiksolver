@@ -236,8 +236,7 @@ atteindre** (`goal`), **les coups qu'elle a le droit d'utiliser** (`moves`, un
 résolution : une étape qui s'arrête avant son objectif ou glisse un coup
 interdit lève une exception. C'est ce qui empêche une méthode de dégénérer en
 « par couches déguisé » : les jeux de coups (`<M, U>` pour la fin de Roux,
-`<R, U>` pour le F2L de Petrus...) sont imposés, et affichés à l'apprenant
-dans la liste des étapes quand ils restreignent vraiment.
+`<R, U>` pour le F2L de Petrus...) sont imposés.
 
 Le registre (`solver.ts`) déclare, pour chaque méthode, **un plan par forme
 supportée** (source unique : pas de dispatch séparé) ; `methodsFor(shape)`
@@ -845,10 +844,20 @@ mobile et en saisie, une seule carte) :
   **bascule de notation FR/US**.
 - **Résolution** : choix de la **méthode** (liste déroulante, filtrée par
   forme via `methodsFor`), **Résoudre**
-  (joue tout) ou **Pas à pas** (une étape à la fois ; « Arrêter » abandonne la
-  solution en cours), et la **liste des étapes**
-  nommées avec le total de rotations, le surlignage de l'étape en cours et,
-  quand l'étape est restreinte, ses **coups autorisés** (`<M, U>`...).
+  (joue le reste de la solution), puis la solution parcourue dans les deux
+  sens : **étape précédente / suivante** et **coup précédent / suivant** (le
+  plus didactique : le coup en cours ou le prochain est surligné dans sa
+  séquence, ceux déjà joués s'estompent). Au milieu d'une étape, ses boutons
+  deviennent **Défaire l'étape** et **Finir l'étape**. Reculer rejoue les
+  coups à l'envers, sans quitter la solution ; « Arrêter » l'abandonne, et la **liste des étapes**
+  nommées avec le total de rotations et le surlignage de l'étape en cours.
+  Les étapes s'affichent sans attendre : le **plan** de la méthode dès son
+  choix (`PlanOutline`, « si nécessaire » sur les étapes qu'on saute
+  souvent : `StepSpec.optional`), puis la **vraie solution** dès que le cube
+  est au repos, calculée d'avance dans un worker (`useAutoPlan`,
+  `workers/solveWorker.ts`) pour ne jamais figer la page ; Résoudre et Pas à
+  pas la réutilisent tant qu'elle vaut pour l'état et la méthode
+  (`planKey`).
 
 **Mobile** : le panneau se **replie** en une barre compacte (Mélanger +
 Résoudre) ; en mode saisie, le cube est empilé **au-dessus** du panneau pour

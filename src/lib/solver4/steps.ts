@@ -27,7 +27,13 @@ function parityFree(cube: Cube): boolean {
 const REDUCTION_PREFIX: MethodPlan = [
   { key: 'stepCenters', goal: centersDone, moves: ALL_4, phases: [solveCenters] },
   { key: 'stepPairEdges', goal: isReduced, moves: ALL_4, phases: [pairEdges] },
-  { key: 'stepParity', goal: parityFree, moves: ALL_4, phases: [fixParities] },
+  {
+    key: 'stepParity',
+    goal: parityFree,
+    moves: ALL_4,
+    phases: [fixParities],
+    optional: true,
+  },
 ]
 
 /**

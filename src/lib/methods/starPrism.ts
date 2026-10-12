@@ -38,8 +38,8 @@ export const ringTurns = (ring: RingMove['ring']): StarMove[] =>
   AMOUNTS.map((amount) => ({ ring, amount }))
 
 /** A move set of star turns, shown as the turns it allows. */
-export function starSet(turns: StarMove[], restricted = false): MoveSet {
-  return { generators: turns, turns, restricted }
+export function starSet(turns: StarMove[]): MoveSet {
+  return { generators: turns, turns }
 }
 
 const EVERY_TURN = starSet([...ringTurns('U'), ...ringTurns('D'), { slash: true }])

@@ -16,7 +16,7 @@ import { STAR4_PLAN } from './methods/starPrism4'
 import { TOWER_PLAN } from './methods/tower'
 import { ZZ_PLAN } from './methods/zz'
 import { reductionPlan } from './solver4/steps'
-import { buildSteps, type MethodPlan, type SolveStep } from './solverKit'
+import { buildSteps, planOutline, type MethodPlan, type SolveStep } from './solverKit'
 import type { Cube, CubeShape, Turn } from './types'
 
 export type { SolveStep } from './solverKit'
@@ -68,7 +68,15 @@ export type MethodId = (typeof SOLVE_METHODS)[number]['id']
 export function methodsFor(shape: CubeShape) {
   return SOLVE_METHODS.flatMap((m) => {
     const plan: MethodPlan | undefined = (m.plans as Partial<Record<CubeShape, MethodPlan>>)[shape]
-    return plan ? [{ id: m.id as MethodId, solve: (cube: Cube) => buildSteps(cube, plan) }] : []
+    return plan
+      ? [
+          {
+            id: m.id as MethodId,
+            solve: (cube: Cube) => buildSteps(cube, plan),
+            outline: planOutline(plan),
+          },
+        ]
+      : []
   })
 }
 

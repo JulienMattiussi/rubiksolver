@@ -1,7 +1,8 @@
 import { create } from 'zustand'
-import { cubeShape, isSolved, solvedCube } from '@/lib/cube'
+import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/cube'
 import { applyMove } from '@/lib/turn'
-import { scrambleTurns } from '@/lib/moves'
+import { invertMoves, scrambleTurns } from '@/lib/moves'
+import { stepEnd, stepStart } from '@/lib/progress'
 import { methodsFor, type MethodId, type SolveStep } from '@/lib/solver'
 import { supportsMirror, type Cube, type CubeShape, type CubeVariant, type Turn } from '@/lib/types'
 
@@ -41,8 +42,16 @@ interface CubeStore {
   method: MethodId
   /** Named steps of the current solution, or null. */
   steps: SolveStep[] | null
-  /** How many steps have already been sent to the animation queue. */
-  stepIndex: number
+  /** Where the solution stands once the queue is played: how many of its
+   *  moves are done (going back undoes the last ones). */
+  dispatched: number
+  /** The queue undoes moves of the solution (going back), rather than
+   *  playing them: the steps list reads its progress the other way. */
+  rewinding: boolean
+  /** What `steps` were computed for (`planKey`): a solution computed ahead
+   *  (useAutoPlan) is reused by Solve and the step and move buttons while
+   *  it still holds. */
+  plannedFor: string | null
 
   pushMove: (move: Turn) => void
   scramble: () => void
@@ -51,12 +60,22 @@ interface CubeStore {
   /** Switch rendering variant. Keeps the current state: it is only a skin. */
   setVariant: (variant: CubeVariant) => void
   setMethod: (method: MethodId) => void
-  /** Compute the solution steps for the current cube (does not animate). */
+  /** Compute the solution steps for the current cube (does not animate),
+   *  or take the one computed ahead for it. */
   prepareSolution: () => SolveStep[]
-  /** Queue the whole solution and animate it. */
+  /** Show a solution computed ahead for the state `key` names, if the cube
+   *  still stands there, idle and unsolved by anything else. */
+  setPlan: (steps: SolveStep[], key: string) => void
+  /** Queue the rest of the solution (all of it, if none is under way). */
   solveAll: () => void
-  /** Queue only the next not-yet-played step (step-by-step learning). */
+  /** Queue the rest of the step under way, or the next step (step by step). */
   playNextStep: () => void
+  /** Queue the solution's next move alone (move by move). */
+  playNextMove: () => void
+  /** Undo the step under way, or the previous step at a step boundary. */
+  undoStep: () => void
+  /** Undo the solution's last move played. */
+  undoMove: () => void
   reset: () => void
   /** Halt the queue. The solution goes with it: the cube now sits between
    *  two of its steps, so neither "all played" nor "next step" holds. */
@@ -71,8 +90,12 @@ interface CubeStore {
 }
 
 function clearSolution() {
-  return { steps: null, stepIndex: 0 }
+  return { steps: null, dispatched: 0, rewinding: false, plannedFor: null }
 }
+
+/** Names a state and a method: what a solution is computed for. */
+export const planKey = (s: { cube: Cube; method: MethodId }): string =>
+  `${s.method}|${stateKey(s.cube)}`
 
 /** Idle state around a freshly loaded cube (reset, shape switch, editor load). */
 function loadedCube(cube: Cube) {
@@ -90,6 +113,29 @@ export const selectBusy = (s: CubeStore): boolean => s.active !== null || s.queu
 
 export const selectSolved = (s: CubeStore): boolean => isSolved(s.cube)
 
+const lengthsOf = (steps: readonly SolveStep[]) => steps.map((s) => s.moves.length)
+
+/**
+ * Move along the solution to the position `to` picks (in moves from its
+ * start): forward plays the moves in between, backward undoes them (each
+ * inverted, last first). The solution is computed first if none is under
+ * way; going back never leaves it, it only walks it the other way.
+ */
+function goTo(to: (steps: readonly SolveStep[], dispatched: number) => number) {
+  const state = useCube.getState()
+  const steps = state.dispatched > 0 && state.steps ? state.steps : state.prepareSolution()
+  useCube.setState((s) => {
+    const moves = steps.flatMap((step) => [...step.moves])
+    const target = Math.max(0, Math.min(to(steps, s.dispatched), moves.length))
+    if (target === s.dispatched) return s
+    const rewinding = target < s.dispatched
+    const turns = rewinding
+      ? invertMoves(moves.slice(target, s.dispatched))
+      : moves.slice(s.dispatched, target)
+    return { queue: [...s.queue, ...turns], dispatched: target, rewinding, solving: true }
+  })
+}
+
 export const useCube = create<CubeStore>((set, get) => ({
   cube: solvedCube(),
   variant: 'classic',
@@ -99,7 +145,9 @@ export const useCube = create<CubeStore>((set, get) => ({
   turnDuration: 0.2,
   method: 'beginner',
   steps: null,
-  stepIndex: 0,
+  dispatched: 0,
+  rewinding: false,
+  plannedFor: null,
 
   pushMove: (move) =>
     set((s) => ({ queue: [...s.queue, move], solving: false, ...clearSolution() })),
@@ -135,26 +183,28 @@ export const useCube = create<CubeStore>((set, get) => ({
   setMethod: (method) => set({ method, ...clearSolution() }),
 
   prepareSolution: () => {
-    const methods = methodsFor(cubeShape(get().cube))
-    const method = methods.find((m) => m.id === get().method) ?? methods[0]
+    const s = get()
+    const ahead = s.steps && s.dispatched === 0 && s.plannedFor === planKey(s) ? s.steps : null
+    const methods = methodsFor(cubeShape(s.cube))
+    const method = methods.find((m) => m.id === s.method) ?? methods[0]
     if (!method) throw new Error('prepareSolution: no solving method for this shape')
-    const steps = method.solve(get().cube)
-    set({ steps, stepIndex: 0, solving: true, queue: [], active: null })
+    const steps = ahead ?? method.solve(s.cube)
+    set({ steps, dispatched: 0, solving: true, queue: [], active: null, plannedFor: planKey(s) })
     return steps
   },
 
-  solveAll: () => {
-    const steps = get().prepareSolution()
-    set({ queue: steps.flatMap((s) => [...s.moves]), stepIndex: steps.length })
-  },
+  setPlan: (steps, key) =>
+    set((s) => (s.steps || selectBusy(s) || planKey(s) !== key ? s : { steps, plannedFor: key })),
 
-  playNextStep: () => {
-    const steps = get().steps ?? get().prepareSolution()
-    set((s) => {
-      if (s.stepIndex >= steps.length) return s
-      return { queue: [...s.queue, ...steps[s.stepIndex]!.moves], stepIndex: s.stepIndex + 1 }
-    })
-  },
+  solveAll: () => goTo((steps) => lengthsOf(steps).reduce((n, len) => n + len, 0)),
+
+  playNextStep: () => goTo((steps, dispatched) => stepEnd(lengthsOf(steps), dispatched)),
+
+  playNextMove: () => goTo((_, dispatched) => dispatched + 1),
+
+  undoStep: () => goTo((steps, dispatched) => stepStart(lengthsOf(steps), dispatched)),
+
+  undoMove: () => goTo((_, dispatched) => dispatched - 1),
 
   reset: () => set((s) => loadedCube(solvedCube(cubeShape(s.cube)))),
 

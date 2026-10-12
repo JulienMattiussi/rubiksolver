@@ -36,7 +36,7 @@ const SIZE = 2
 const formula = pyraFormula(SIZE)
 
 const deep = (vertex: PyraMove['vertex']) => ({ vertex, deep: true as const })
-const TURNS = pyraSet(deep, false)
+const TURNS = pyraSet(deep)
 
 const isEdge = (c: Cubie) => c.stickers.length === 2
 const isCenter = (c: Cubie) => c.stickers.length === 1

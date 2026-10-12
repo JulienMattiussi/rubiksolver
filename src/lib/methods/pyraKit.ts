@@ -60,19 +60,16 @@ export function fromEverySide(moves: readonly PyraMove[]): PyraMove[][] {
   return [...sides, ...sides.map(undoAll)]
 }
 
-/** A move set of Pyraminx turns, shown as the turns it allows. */
-export function pyraSet(
-  turn: (vertex: PyraVertex) => Omit<PyraMove, 'amount'>,
-  restricted: boolean,
-): MoveSet {
+/** A move set of Pyraminx turns: one per corner, both ways. */
+export function pyraSet(turn: (vertex: PyraVertex) => Omit<PyraMove, 'amount'>): MoveSet {
   const turns = PYRA_VERTICES.flatMap((vertex) =>
     ([1, 2] as const).map((amount): PyraMove => ({ ...turn(vertex), amount })),
   )
-  return { generators: turns.filter((t) => t.amount === 1), turns, restricted }
+  return { generators: turns.filter((t) => t.amount === 1), turns }
 }
 
 /** The searches play formulas only. */
-export const FORMULAS_ONLY: MoveSet = { generators: [], turns: [], restricted: false }
+export const FORMULAS_ONLY: MoveSet = { generators: [], turns: [] }
 
 /** Where a corner's center piece (the Master's co-tip) sits, or its tip; on
  *  the Jing (size 2), its one corner piece, at v. */

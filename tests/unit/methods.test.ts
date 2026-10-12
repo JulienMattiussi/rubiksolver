@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/cube'
 import { applyMoves } from '@/lib/turn'
-import { formatMove, formatMoves, scramble } from '@/lib/moves'
+import { formatMove, scramble } from '@/lib/moves'
 import { moveSet, OUTER_TURNS } from '@/lib/moveSet'
 import { PETRUS_PLAN } from '@/lib/methods/petrus'
 import { ROUX_PLAN } from '@/lib/methods/roux'
@@ -39,6 +39,20 @@ function solveScrambles(plan: MethodPlan, count: number, seed: number): SolveSte
 const isQuarterFB = (m: Move) => !m.depth && (m.face === 'F' || m.face === 'B') && m.amount !== 2
 
 describe('method registry', () => {
+  it('outlines each method before solving: its steps, the skippable ones marked', () => {
+    const outline = (shape: CubeShape, id: string) =>
+      methodsFor(shape)
+        .find((m) => m.id === id)!
+        .outline.map((s) => `${s.key}${s.optional ? '?' : ''}`)
+    expect(outline('3', 'roux')[0]).toBe('stepRecenter?')
+    expect(outline('3', 'roux')).toContain('stepLSEMiddle')
+    expect(outline('4', 'reduction').slice(0, 3)).toEqual([
+      'stepCenters',
+      'stepPairEdges',
+      'stepParity?',
+    ])
+  })
+
   it('offers Roux, Petrus and ZZ on the 3x3 only', () => {
     const ids = (shape: CubeShape) => methodsFor(shape).map((m) => m.id)
     expect(ids('3')).toEqual(['beginner', 'cfop', 'roux', 'petrus', 'zz'])
@@ -61,20 +75,6 @@ describe('buildSteps enforces the step contract', () => {
   it('rejects a step stopping short of its goal', () => {
     const plan: MethodPlan = [{ key: 'x', goal: isSolved, moves: OUTER_TURNS, phases: [() => []] }]
     expect(() => buildSteps(cube, plan)).toThrow(/goal not reached/)
-  })
-
-  it('exposes the restricted move set on the step, and only then', () => {
-    const plan: MethodPlan = [
-      {
-        key: 'a',
-        goal: () => true,
-        moves: OUTER_TURNS,
-        phases: [() => [{ face: 'R', amount: 3 }]],
-      },
-    ]
-    expect(buildSteps(cube, plan)[0]!.allowed).toBeUndefined()
-    const [step] = buildSteps(cube, [{ ...plan[0]!, moves: moveSet('R U') }])
-    expect(formatMoves(step!.allowed!)).toBe('R U')
   })
 })
 

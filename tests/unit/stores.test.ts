@@ -3,7 +3,7 @@ import { isSolved, solvedCube } from '@/lib/cube'
 import { applyMoves } from '@/lib/turn'
 import { cubeToEdit, emptyEdit } from '@/lib/editor'
 import { parseMoves } from '@/lib/moves'
-import { selectBusy, useCube } from '@/store/cubeStore'
+import { planKey, selectBusy, useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { useSaved } from '@/store/savedStore'
 
@@ -32,7 +32,7 @@ describe('cube store', () => {
 
     useCube.getState().solveAll()
     const { steps } = useCube.getState()
-    expect(useCube.getState().stepIndex).toBe(steps!.length)
+    expect(useCube.getState().dispatched).toBe(steps!.reduce((n, s) => n + s.moves.length, 0))
     expect(useCube.getState().solving).toBe(true)
     drain()
     expect(useCube.getState().solving).toBe(false)
@@ -49,7 +49,63 @@ describe('cube store', () => {
       useCube.getState().playNextStep()
       drain()
     }
-    expect(useCube.getState().stepIndex).toBe(steps.length)
+    expect(useCube.getState().dispatched).toBe(steps.reduce((n, s) => n + s.moves.length, 0))
+    expect(isSolved(useCube.getState().cube)).toBe(true)
+  })
+
+  it('plays a solution one move at a time, a step finishing the step under way', () => {
+    useCube.getState().loadCube(applyMoves(solvedCube(), parseMoves("R U F' L2 D B'")))
+    useCube.getState().playNextMove()
+    const steps = useCube.getState().steps!
+    const moves = steps.flatMap((s) => [...s.moves])
+    expect(useCube.getState().queue).toEqual([moves[0]])
+    drain()
+    // The step under way: the rest of the first step (one move already played).
+    useCube.getState().playNextStep()
+    expect(useCube.getState().queue).toEqual(steps[0]!.moves.slice(1))
+    drain()
+    while (useCube.getState().dispatched < moves.length) {
+      useCube.getState().playNextMove()
+      expect(useCube.getState().queue).toHaveLength(1)
+      drain()
+    }
+    expect(isSolved(useCube.getState().cube)).toBe(true)
+  })
+
+  it('walks the solution back: a move, the step under way, the step before', () => {
+    const start = applyMoves(solvedCube(), parseMoves("R U F' L2 D B'"))
+    useCube.getState().loadCube(start)
+    useCube.getState().playNextStep()
+    drain()
+    const steps = useCube.getState().steps!
+    const first = steps[0]!.moves.length
+    useCube.getState().playNextMove()
+    useCube.getState().playNextMove()
+    drain()
+    useCube.getState().undoMove()
+    drain()
+    expect(useCube.getState().dispatched).toBe(first + 1)
+    // Within the second step: back to its start.
+    useCube.getState().undoStep()
+    drain()
+    expect(useCube.getState().dispatched).toBe(first)
+    // At a step boundary: the whole step before, back to the start.
+    useCube.getState().undoStep()
+    drain()
+    expect(useCube.getState().dispatched).toBe(0)
+    expect(useCube.getState().cube).toEqual(start)
+    expect(useCube.getState().steps).toBe(steps) // the same solution, still shown
+  })
+
+  it('solves the rest of the solution under way, not a new one', () => {
+    useCube.getState().loadCube(applyMoves(solvedCube(), parseMoves("R U F' L2 D B'")))
+    useCube.getState().playNextMove()
+    drain()
+    const steps = useCube.getState().steps!
+    const rest = steps.flatMap((s) => [...s.moves]).slice(1)
+    useCube.getState().solveAll()
+    expect(useCube.getState().queue).toEqual(rest)
+    drain()
     expect(isSolved(useCube.getState().cube)).toBe(true)
   })
 
@@ -68,7 +124,23 @@ describe('cube store', () => {
     expect(selectBusy(useCube.getState())).toBe(false)
     // Between two steps, the old solution is neither "all played" nor resumable.
     expect(useCube.getState().steps).toBeNull()
-    expect(useCube.getState().stepIndex).toBe(0)
+    expect(useCube.getState().dispatched).toBe(0)
+  })
+
+  it('takes a solution computed ahead for the current state only, and plays it', () => {
+    useCube.getState().loadCube(applyMoves(solvedCube(), parseMoves("R U R' F2")))
+    const ahead = useCube.getState().prepareSolution()
+    useCube.getState().loadCube(applyMoves(solvedCube(), parseMoves("R U R' F2")))
+    // An answer for another state (stale) is ignored.
+    useCube.getState().setPlan(ahead, 'beginner|elsewhere')
+    expect(useCube.getState().steps).toBeNull()
+    useCube.getState().setPlan(ahead, planKey(useCube.getState()))
+    expect(useCube.getState().steps).toBe(ahead)
+    expect(useCube.getState().dispatched).toBe(0)
+    useCube.getState().solveAll()
+    expect(useCube.getState().steps).toBe(ahead) // reused, not recomputed
+    drain()
+    expect(isSolved(useCube.getState().cube)).toBe(true)
   })
 
   it('ignores a switch to the shape it already has', () => {

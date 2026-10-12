@@ -43,14 +43,13 @@ const SIZE = 4
 const formula = pyraFormula(SIZE)
 
 const coTip = (vertex: PyraVertex) => ({ vertex, slice: 1 as const })
-const CO_TIPS = pyraSet(coTip, true)
-const TIPS = pyraSet((vertex) => ({ vertex, tip: true }), true)
-const SECOND = pyraSet((vertex) => ({ vertex, slice: 2 as const }), true)
+const CO_TIPS = pyraSet(coTip)
+const TIPS = pyraSet((vertex) => ({ vertex, tip: true }))
+const SECOND = pyraSet((vertex) => ({ vertex, slice: 2 as const }))
 /** Everything but the faces: tips and the two inner slices. */
 const SLICES: typeof TIPS = {
   generators: [...TIPS.generators, ...CO_TIPS.generators, ...SECOND.generators],
   turns: [...TIPS.turns, ...CO_TIPS.turns, ...SECOND.turns],
-  restricted: false,
 }
 
 const isWing = (c: Cubie) => c.stickers.length === 2 && c.position.some((x) => Math.abs(x) === 3)

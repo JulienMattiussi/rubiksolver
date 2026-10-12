@@ -16,26 +16,24 @@ export interface MoveSet {
   readonly generators: readonly Turn[]
   /** Every concrete turn the set allows. */
   readonly turns: readonly Turn[]
-  /** Whether the set is a real restriction worth showing to the learner. */
-  readonly restricted: boolean
 }
 
 /** Build a move set from notation (`'M U'`, `'U D L R F2 B2'`...). */
-export function moveSet(notation: string, restricted = true): MoveSet {
+export function moveSet(notation: string): MoveSet {
   const generators = parseMoves(notation)
   const turns = generators.flatMap((g): Move[] =>
     g.amount === 2 ? [g] : ([1, 2, 3] as const).map((amount) => ({ ...g, amount })),
   )
-  return { generators, turns, restricted }
+  return { generators, turns }
 }
 
 /** Every plain face turn of a 2x2/3x3: the set of steps that use algorithms. */
-export const OUTER_TURNS = moveSet('U D L R F B', false)
+export const OUTER_TURNS = moveSet('U D L R F B')
 
 /** Every turn a shape has (inner slices and wide turns included on a 4x4). */
 export function allTurnsOf(shape: CubeShape): MoveSet {
   const turns = movesFor(shape)
-  return { generators: turns, turns, restricted: false }
+  return { generators: turns, turns }
 }
 
 /** Whether `move` is one of the turns `set` allows. */

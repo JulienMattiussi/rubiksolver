@@ -45,7 +45,6 @@ function liftSet(set: MoveSet, star: Star): MoveSet {
   return {
     generators: set.generators.map((t) => lift(t, star)),
     turns: set.turns.map((t) => lift(t, star)),
-    restricted: set.restricted,
   }
 }
 

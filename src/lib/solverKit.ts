@@ -154,13 +154,10 @@ export function solveWithAlgs(
  * One named stage of a method's solution. `key` is an i18n key describing the
  * step (e.g. the CFOP "F2L"); `moves` are the turns that complete it. Steps let
  * the UI teach a method by playing it one meaningful stage at a time.
- * `allowed` lists the layers the step was restricted to (`<M, U>`), when it
- * was, so the learner sees what the method lets them turn.
  */
 export interface SolveStep {
   readonly key: string
   readonly moves: readonly Turn[]
-  readonly allowed?: readonly Turn[]
 }
 
 /**
@@ -175,6 +172,15 @@ interface StepSpec {
   readonly goal: (c: Cube) => boolean
   readonly moves: MoveSet
   readonly phases: ReadonlyArray<(c: Cube) => Turn[]>
+  /** A step most solutions skip (the 3x3's centers put back, the 4x4's
+   *  parity): the plan shown before solving says so. */
+  readonly optional?: true
+}
+
+/** A method's steps as shown before solving: their names, and the ones that
+ *  may be skipped. */
+export function planOutline(plan: MethodPlan): { key: string; optional?: true }[] {
+  return plan.map((spec) => ({ key: spec.key, ...(spec.optional && { optional: spec.optional }) }))
 }
 
 /** A solving method for one shape: its steps, in order. */
@@ -199,7 +205,6 @@ export function buildSteps(cube: Cube, plan: MethodPlan): SolveStep[] {
     steps.push({
       key: spec.key,
       moves,
-      ...(spec.moves.restricted && { allowed: spec.moves.generators }),
     })
   }
   return steps.filter((s) => s.moves.length > 0)

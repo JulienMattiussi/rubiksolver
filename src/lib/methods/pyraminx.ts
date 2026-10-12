@@ -53,8 +53,8 @@ const DOWN_SET_UP = [
 const TOP_CYCLE = aroundTop(formula("dhd'hdhd'"))
 const FLIP_TWO = aroundTop(formula("[gd'][h'd]"))
 
-const LAYERS = pyraSet((vertex) => ({ vertex }), false)
-const TIPS = pyraSet((vertex) => ({ vertex, tip: true }), true)
+const LAYERS = pyraSet((vertex) => ({ vertex }))
+const TIPS = pyraSet((vertex) => ({ vertex, tip: true }))
 const faceColors = (cube: Cube) => pyraFaceColors(cube, 3)
 const cornersDone = (cube: Cube, tips: boolean) => pyraCornersDone(cube, 3, tips)
 

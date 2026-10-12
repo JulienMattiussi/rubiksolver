@@ -23,7 +23,13 @@ function recenter(cube: Cube): Move[] {
 /** A 3x3 plan, preceded by the centers put back in place. */
 export function withCentersHome(plan: MethodPlan): MethodPlan {
   return [
-    { key: 'stepRecenter', goal: centersHome, moves: SLICE_TURNS, phases: [recenter] },
+    {
+      key: 'stepRecenter',
+      goal: centersHome,
+      moves: SLICE_TURNS,
+      phases: [recenter],
+      optional: true,
+    },
     ...plan,
   ]
 }
