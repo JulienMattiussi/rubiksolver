@@ -153,21 +153,25 @@ function drawPoly(shape: CubeShape): IsoDrawing {
   ]
   const faces: IsoFace[] = []
   for (const cubie of solvedCube(shape)) {
-    const polygons = drawing.polygons(cubie)
+    const polygons = (drawing.thumbnail ?? drawing.polygons)(cubie)
     for (let i = 0; i < polygons.length; i++) {
-      const body = polygons[i]!
-      if (body.paint !== 'body') continue
-      const normal = yaw(body.normal)
+      const first = polygons[i]!
+      // A face: its body then its sticker (a star point), or a polygon alone
+      // (the Jing's surface, cut fine: plastic seams and stickers apart).
+      const sticker =
+        first.paint === 'body' && polygons[i + 1]?.paint !== 'body' ? polygons[i + 1] : undefined
+      if (sticker) i++
+      const normal = yaw(first.normal)
       if (normal[0] + normal[1] + normal[2] <= 0) continue // facing away
-      const sticker = polygons[i + 1]?.paint !== 'body' ? polygons[i + 1] : undefined
-      const shade = normal[1] > 0.5 ? 0 : 0.12 + 0.16 * Math.max(0, normal[0])
-      const points = body.points.map(yaw)
+      // Continuous in the normal: a curved face (the Jing's) shades smoothly.
+      const shade = Math.max(0, 0.12 * (1 - normal[1]) + 0.16 * Math.max(0, normal[0]))
+      const points = first.points.map(yaw)
       // The screw's disc sits on top of the points around it: drawn last.
       const onTop = isStar(shape) && cubie.position[1] === 0 ? SCREW_FIRST : 0
       faces.push({
         depth: onTop + points.reduce((d, p) => d + p[0] + p[1] + p[2], 0) / points.length,
         polygons: [
-          { points: toSvg(points), paint: 'body', shade },
+          { points: toSvg(points), paint: first.paint, shade },
           ...(sticker
             ? [{ points: toSvg(sticker.points.map(yaw)), paint: sticker.paint, shade }]
             : []),

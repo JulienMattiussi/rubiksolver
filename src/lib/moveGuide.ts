@@ -55,8 +55,9 @@ export type MoveDescription =
     }
   | { readonly kind: 'slash' }
   | {
-      /** A Pyraminx corner's layer, its tip alone, or a Master's slice. */
-      readonly kind: 'corner' | 'tip' | 'slice'
+      /** A Pyraminx corner's layer, its tip alone, a Master's slice, or the
+       *  Jing's half. */
+      readonly kind: 'corner' | 'tip' | 'slice' | 'half'
       readonly vertex: PyraVertex
       readonly clockwise: boolean
       readonly slice?: 1 | 2 | 3
@@ -141,7 +142,14 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
 export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
   if (isPyraMove(turn)) {
     const layer = pyraLayerOf(turn)
-    const kind = layer === 'tips' ? 'tip' : layer === 'corners' ? 'corner' : 'slice'
+    const kind =
+      layer === 'tips'
+        ? 'tip'
+        : layer === 'corners'
+          ? 'corner'
+          : layer === 'deep'
+            ? 'half'
+            : 'slice'
     const clockwise = turn.amount === 1
     return { kind, vertex: turn.vertex, clockwise, ...(turn.slice && { slice: turn.slice }) }
   }

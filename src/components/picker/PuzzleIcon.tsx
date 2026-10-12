@@ -2,7 +2,15 @@ import type { CubeShape, CubeVariant } from '@/lib/types'
 import { COLOR_HEX, MIRROR_STICKER, PLASTIC } from '@/three/colors'
 import { isometricDrawing } from '@/three/isometric'
 
-/** Thumbnail of a solved puzzle, drawn in isometric view (decorative). */
+/** A color darkened by `shade` (0 = as is, 1 = black). */
+function darkened(hex: string, shade: number): string {
+  const channels = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) * (1 - shade))
+  return `rgb(${channels.map(Math.round).join(',')})`
+}
+
+/** Thumbnail of a solved puzzle, drawn in isometric view (decorative). Each
+ *  polygon is outlined in its own color: adjacent ones (a curved face cut
+ *  fine) leave no hairline between them. */
 export function PuzzleIcon({
   shape,
   variant,
@@ -17,12 +25,19 @@ export function PuzzleIcon({
     paint === 'body' ? PLASTIC : variant === 'mirror' ? MIRROR_STICKER : COLOR_HEX[paint]
   return (
     <svg viewBox={viewBox} className={className} aria-hidden>
-      {polygons.map((p, i) => (
-        <g key={i}>
-          <polygon points={p.points} fill={fill(p.paint)} />
-          {p.shade > 0 && <polygon points={p.points} fill="#000" opacity={p.shade} />}
-        </g>
-      ))}
+      {polygons.map((p, i) => {
+        const color = darkened(fill(p.paint), p.shade)
+        return (
+          <polygon
+            key={i}
+            points={p.points}
+            fill={color}
+            stroke={color}
+            strokeWidth={0.012}
+            strokeLinejoin="round"
+          />
+        )
+      })}
     </svg>
   )
 }

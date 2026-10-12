@@ -9,7 +9,7 @@ import {
   quarterTurnFits,
   rotateN,
 } from './geometry'
-import { PYRA_SIZE, PYRA_SYMMETRIES, solvedPyraminx } from './pyraminx'
+import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
 import { ALL_COLORS, isPyraminx, isStar, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
 import type {
@@ -133,7 +133,7 @@ export function homesOf(shape: CubeShape, keep: (c: Cubie) => boolean): Vec3[] {
  *  (the star prism and the Pyraminx, no grid, come from their own modules). */
 export function solvedCube(shape: CubeShape = '3'): Cube {
   if (isStar(shape)) return solvedStar(shape)
-  if (isPyraminx(shape)) return solvedPyraminx(PYRA_SIZE[shape])
+  if (isPyraminx(shape)) return solvedPyra(shape)
   const dims = SHAPE_DIMS[shape]
   const cubies: Cubie[] = []
   for (const x of layerCoords(dims[0])) {
@@ -157,19 +157,30 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   return cubies
 }
 
-/** Cubie count of each shape, the signature `cubeShape` recognizes: every
- *  shape needs its own, which this checks as the module loads. */
-const SHAPE_OF_COUNT = new Map<number, CubeShape>()
+/** Stickers a puzzle wears in all: kept by every turn. */
+const stickerCount = (cube: Cube): number => cube.reduce((n, c) => n + c.stickers.length, 0)
+
+/**
+ * The shapes by cubie count, the signature `cubeShape` recognizes: a count
+ * alone, or with the sticker count when two shapes share it (the Pyraminx
+ * and the Jing, 15 pieces each). Every shape needs its own, which this
+ * checks as the module loads.
+ */
+const SHAPES_OF_COUNT = new Map<number, Map<number, CubeShape>>()
 for (const shape of Object.keys(SHAPE_DIMS) as CubeShape[]) {
-  const count = solvedCube(shape).length
-  const other = SHAPE_OF_COUNT.get(count)
-  if (other) throw new Error(`cubeShape: ${shape} and ${other} both have ${count} pieces`)
-  SHAPE_OF_COUNT.set(count, shape)
+  const solved = solvedCube(shape)
+  const byStickers = SHAPES_OF_COUNT.get(solved.length) ?? new Map<number, CubeShape>()
+  const other = byStickers.get(stickerCount(solved))
+  if (other) throw new Error(`cubeShape: ${shape} and ${other} have the same pieces and stickers`)
+  byStickers.set(stickerCount(solved), shape)
+  SHAPES_OF_COUNT.set(solved.length, byStickers)
 }
 
-/** Shape of a puzzle from its cubie count (6 -> 1x2x3, 8 -> 2x2, 14 -> star...). */
+/** Shape of a puzzle from its cubie count (6 -> 1x2x3, 8 -> 2x2, 14 -> star...),
+ *  and its sticker count when that is not enough. */
 export function cubeShape(cube: Cube): CubeShape {
-  const shape = SHAPE_OF_COUNT.get(cube.length)
+  const shapes = SHAPES_OF_COUNT.get(cube.length)
+  const shape = shapes?.size === 1 ? [...shapes.values()][0] : shapes?.get(stickerCount(cube))
   if (!shape) throw new Error(`cubeShape: malformed cube with ${cube.length} cubies`)
   return shape
 }

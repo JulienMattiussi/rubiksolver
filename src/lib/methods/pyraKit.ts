@@ -74,15 +74,17 @@ export function pyraSet(
 /** The searches play formulas only. */
 export const FORMULAS_ONLY: MoveSet = { generators: [], turns: [], restricted: false }
 
-/** Where a corner's center piece (the Master's co-tip) sits, or its tip. */
+/** Where a corner's center piece (the Master's co-tip) sits, or its tip; on
+ *  the Jing (size 2), its one corner piece, at v. */
 const cornerAt = (v: PyraVertex, size: number, tip: boolean): Vec3 =>
-  PYRA_CORNERS[v].map((x) => x * (tip ? size - 1 : size - 2)) as unknown as Vec3
+  PYRA_CORNERS[v].map((x) => x * (size === 2 ? 1 : tip ? size - 1 : size - 2)) as unknown as Vec3
 
 /**
  * The color each face (by normal index) takes. The center pieces never leave
  * their corner (on the Master, as long as no face turns, and a face turn is
- * just the whole puzzle turned with the other slices), so they say it: the
- * face opposite a corner wears the one color its center piece lacks.
+ * just the whole puzzle turned with the other slices; on the Jing, its
+ * corners), so they say it: the face opposite a corner wears the one color
+ * its center piece lacks.
  */
 export function faceColors(cube: Cube, size: number): Map<number, Color> {
   const colors = new Set(cube.flatMap((c) => c.stickers.map((s) => s.color)))

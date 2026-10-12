@@ -58,6 +58,7 @@ const fr = {
       slice1: `la 1re tranche du ${corner}`,
       slice2: `la 2e tranche du ${corner}`,
       slice3: `la face opposée au ${corner}`,
+      deep: `la moitié du ${corner}`,
     }[layer]
     return `Tourner ${target} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`
   },
@@ -67,6 +68,7 @@ const fr = {
     slice1: 'Tranche 1',
     slice2: 'Tranche 2',
     slice3: 'Faces',
+    deep: 'Sommets',
   },
   noSuchLayer: (faceName: string, kind: LayerKind) =>
     `Pas de ${kind === 'wide' ? 'coup large' : 'tranche interne'} pour la ${faceName} sur ce puzzle`,
@@ -131,6 +133,7 @@ const fr = {
     slice1: 'Premières tranches (co-sommet + ailes)',
     slice2: 'Deuxièmes tranches (ailes, co-ailes, centres)',
     slice3: 'Faces',
+    deep: 'Sommets (chacun sa moitié du puzzle)',
   },
   describeMove: describeFr,
   guideBlocked: 'Ce mouvement n’est pas possible dans cette configuration',
@@ -181,6 +184,10 @@ const fr = {
     twoPockets: {
       name: 'Deux Pockets',
       desc: 'La tour vue comme deux Pockets empilés : la remettre en forme en pivotant ses sommets, puis finir le Pocket intérieur, puis le Pocket extérieur, avec deux formules du Domino (descendre un sommet, permuter deux sommets).',
+    },
+    jingCornersFirst: {
+      name: 'Sommets d’abord',
+      desc: 'Les sommets d’abord, chacun d’un tour, puis les arêtes placées avec un crochet (trois arêtes à la fois), retournées deux par deux, et enfin les centres échangés deux à deux.',
     },
     wingsFirst: {
       name: 'Ailes puis co-ailes',
@@ -271,6 +278,8 @@ const fr = {
     stepWings: 'Ailes',
     stepMidges: 'Co-ailes',
     stepFinishCenters: 'Finir les centres',
+    stepJingCorners: 'Sommets',
+    stepPlaceEdges: 'Placer les arêtes',
     stepInnerPocket: 'Pocket intérieur',
     stepOuterPocket: 'Pocket extérieur',
   },
@@ -320,6 +329,7 @@ const en: Translations = {
       slice1: `the 1st slice of the ${corner}`,
       slice2: `the 2nd slice of the ${corner}`,
       slice3: `the face opposite the ${corner}`,
+      deep: `the half of the ${corner}`,
     }[layer]
     return `Turn ${target} ${clockwise ? 'clockwise' : 'counterclockwise'}`
   },
@@ -329,6 +339,7 @@ const en: Translations = {
     slice1: 'Slice 1',
     slice2: 'Slice 2',
     slice3: 'Faces',
+    deep: 'Corners',
   },
   noSuchLayer: (faceName: string, kind: LayerKind) =>
     `No ${kind === 'wide' ? 'wide turn' : 'inner slice'} for the ${faceName} on this puzzle`,
@@ -393,6 +404,7 @@ const en: Translations = {
     slice1: 'First slices (co-tip + wings)',
     slice2: 'Second slices (wings, midges, centers)',
     slice3: 'Faces',
+    deep: 'Corners (each its half of the puzzle)',
   },
   describeMove: describeEn,
   guideBlocked: 'This move is not possible in this configuration',
@@ -443,6 +455,10 @@ const en: Translations = {
     twoPockets: {
       name: 'Two Pockets',
       desc: 'The tower seen as two stacked Pockets: put it back in shape by pivoting its corners, then finish the inner Pocket, then the outer Pocket, with two Domino formulas (descend a corner, swap two corners).',
+    },
+    jingCornersFirst: {
+      name: 'Corners first',
+      desc: 'The corners first, a turn each, then the edges placed with a hook (three at a time), flipped two at a time, and last the centers swapped two by two.',
     },
     wingsFirst: {
       name: 'Wings then midges',
@@ -533,6 +549,8 @@ const en: Translations = {
     stepWings: 'Wings',
     stepMidges: 'Midges',
     stepFinishCenters: 'Finish the centers',
+    stepJingCorners: 'Corners',
+    stepPlaceEdges: 'Place the edges',
     stepInnerPocket: 'Inner Pocket',
     stepOuterPocket: 'Outer Pocket',
   },

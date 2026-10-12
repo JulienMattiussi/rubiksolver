@@ -61,11 +61,11 @@ describe('Master Pyraminx model', () => {
   })
 
   it('turns one slice at a time: the tip, 1 + 3, 3 + 3 + 3, then the face (10 pieces)', () => {
-    const counts = pyraTurnsOf(4)
+    const counts = pyraTurnsOf('pyra4')
       .filter((m) => m.amount === 1 && m.vertex === 'U')
       .map((m) => SOLVED.filter((_, i) => turnedBy(SOLVED, m)(i)).length)
     expect(counts).toEqual([1, 4, 9, 16])
-    for (const move of pyraTurnsOf(4)) {
+    for (const move of pyraTurnsOf('pyra4')) {
       expect(stateKey(applyMoves(SOLVED, [move, move, move]))).toBe(stateKey(SOLVED))
     }
   })

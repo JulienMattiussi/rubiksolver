@@ -60,7 +60,7 @@ describe('Pyraminx model', () => {
   })
 
   it('turns a layer (tip, center, three edges) or a tip alone, by thirds', () => {
-    for (const move of pyraTurnsOf(3)) {
+    for (const move of pyraTurnsOf('pyra')) {
       const turned = SOLVED.filter((_, i) => turnedBy(SOLVED, move)(i)).length
       expect(turned).toBe(move.tip ? 1 : 5)
       const there = applyMoves(SOLVED, [move])

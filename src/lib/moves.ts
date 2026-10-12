@@ -4,7 +4,6 @@ import { applyMove, turnAllowed } from './turn'
 import {
   formatPyraMove,
   invertPyraMove,
-  PYRA_SIZE,
   pyraTurnsOf,
   samePyraLayer,
   scramblePyraminx,
@@ -305,7 +304,7 @@ export function scrambleTurns(
   start: Cube,
 ): Turn[] {
   if (isStar(shape)) return scrambleStar(shape, length, rng)
-  if (isPyraminx(shape)) return scramblePyraminx(PYRA_SIZE[shape], length, rng)
+  if (isPyraminx(shape)) return scramblePyraminx(shape, length, rng)
   return scramble(shape, length, rng, start)
 }
 
@@ -315,7 +314,7 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
   if (isStar(shape)) {
     return [...STAR_RINGS[shape].map((ring) => ({ ring, amount: 1 as const })), { slash: true }]
   }
-  if (isPyraminx(shape)) return pyraTurnsOf(PYRA_SIZE[shape])
+  if (isPyraminx(shape)) return pyraTurnsOf(shape)
   return movesFor(shape)
 }
 

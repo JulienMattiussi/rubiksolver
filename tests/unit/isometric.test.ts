@@ -37,7 +37,7 @@ describe('isometric thumbnail cache', () => {
 })
 
 describe('gridless thumbnails', () => {
-  it.each(['star', 'star4', 'pyra', 'pyra4'] as const)(
+  it.each(['star', 'star4', 'pyra', 'pyra4', 'jing'] as const)(
     '%s: draws the faces turned toward the viewer, with their stickers',
     (shape) => {
       const { polygons, viewBox } = isometricDrawing(shape, 'classic')

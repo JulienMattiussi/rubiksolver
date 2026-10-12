@@ -6,21 +6,39 @@ import { COLOR_HEX, HIGHLIGHT, PLASTIC } from './colors'
 import type { PolyDrawing } from './polyDrawing'
 import type { PiecePolygon } from './polygons'
 
-/** A convex polygon as a triangle fan. */
-function polygonGeometry(polygon: PiecePolygon): THREE.BufferGeometry {
+/** Convex polygons as one geometry, each a triangle fan with its own normal
+ *  (or one per point, on a curved surface). */
+function polygonsGeometry(polygons: readonly PiecePolygon[]): THREE.BufferGeometry {
   const positions: number[] = []
-  const [first, ...rest] = polygon.points
-  for (let i = 0; i < rest.length - 1; i++) positions.push(...first!, ...rest[i]!, ...rest[i + 1]!)
+  const normals: number[] = []
+  for (const { points, normal, normals: smooth } of polygons) {
+    const normalAt = (i: number) => smooth?.[i] ?? normal
+    for (let i = 1; i < points.length - 1; i++) {
+      positions.push(...points[0]!, ...points[i]!, ...points[i + 1]!)
+      normals.push(...normalAt(0), ...normalAt(i), ...normalAt(i + 1))
+    }
+  }
   const geometry = new THREE.BufferGeometry()
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
-  geometry.setAttribute(
-    'normal',
-    new THREE.Float32BufferAttribute(
-      positions.map((_, i) => polygon.normal[i % 3]!),
-      3,
-    ),
-  )
+  geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3))
   return geometry
+}
+
+/** A piece's polygons merged by what they show (the body, or one sticker):
+ *  one mesh each, however finely the piece is cut (the Jing's curves). */
+function merged(polygons: readonly PiecePolygon[]) {
+  const groups = new Map<string, PiecePolygon[]>()
+  for (const p of polygons) {
+    const key = `${p.paint}:${p.ni ?? ''}`
+    const group = groups.get(key)
+    if (group) group.push(p)
+    else groups.set(key, [p])
+  }
+  return [...groups.values()].map((group) => ({
+    paint: group[0]!.paint,
+    ni: group[0]!.ni,
+    geometry: polygonsGeometry(group),
+  }))
 }
 
 interface PolyPieceProps {
@@ -49,15 +67,7 @@ export function PolyPiece({
   stickerHex,
   onSelect,
 }: PolyPieceProps) {
-  const polygons = useMemo(
-    () =>
-      drawing.polygons(cubie).map((p) => ({
-        paint: p.paint,
-        ni: p.ni,
-        geometry: polygonGeometry(p),
-      })),
-    [cubie, drawing],
-  )
+  const polygons = useMemo(() => merged(drawing.polygons(cubie)), [cubie, drawing])
   return (
     <group>
       {polygons.map(({ paint, ni, geometry }, i) => {

@@ -86,6 +86,7 @@ export function describeFr(d: MoveDescription): string {
     const target = {
       tip: `la seule pointe du ${corner}`,
       corner: `toute la couche du ${corner} (sa pointe, son centre et ses trois arêtes)`,
+      half: `toute la moitié du ${corner} (son coin, ses trois arêtes et les trois centres autour)`,
       slice: {
         1: `la première tranche du ${corner}, sous sa pointe (son co-sommet et trois ailes),`,
         2: `la deuxième tranche du ${corner} (trois ailes, trois co-ailes et trois centres)`,
@@ -130,6 +131,7 @@ export function describeEn(d: MoveDescription): string {
     const target = {
       tip: `the tip of the ${corner} alone`,
       corner: `the whole layer of the ${corner} (its tip, its center and its three edges)`,
+      half: `the whole half of the ${corner} (its corner, its three edges and the three centers around it)`,
       slice: {
         1: `the first slice of the ${corner}, under its tip (its co-tip and three wings),`,
         2: `the second slice of the ${corner} (three wings, three midges and three centers)`,

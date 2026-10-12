@@ -13,8 +13,8 @@ import { PadHeader } from './PadHeader'
 /**
  * Rotation pad of a Pyraminx: each corner, a third of a turn either way, of
  * the layer its tab picks: the whole layer or the tip alone on the Pyraminx;
- * the tip, the first or second slice, or the opposite face on the Master
- * (see PadButton).
+ * the tip, the first or second slice, or the opposite face on the Master;
+ * the Jing has its halves only (see PadButton).
  */
 export function PyraPad({ disabled }: { disabled: boolean }) {
   const t = useI18n((s) => s.t)
@@ -22,8 +22,8 @@ export function PyraPad({ disabled }: { disabled: boolean }) {
   const shape = useCube((s) => cubeShape(s.cube))
   const layers = isPyraminx(shape) ? PYRA_LAYERS[shape] : []
   const [picked, setPicked] = useState<PyraLayer>('corners')
-  // The Master opens on its first slice (the Pyraminx's layer has no twin there).
-  const layer = layers.includes(picked) ? picked : (layers.find((l) => l === 'slice1') ?? 'tips')
+  // The Master opens on its first slice, the others on their first layer.
+  const layer = layers.includes(picked) ? picked : layers.includes('slice1') ? 'slice1' : layers[0]!
 
   const button = (move: PyraMove, ghost: boolean) => (
     <PadButton
@@ -39,15 +39,17 @@ export function PyraPad({ disabled }: { disabled: boolean }) {
   return (
     <div>
       <PadHeader />
-      <div className="mb-2">
-        <SegmentedToggle
-          size="sm"
-          ariaLabel={t.layerLabel}
-          value={layer}
-          onChange={setPicked}
-          options={layers.map((k) => ({ value: k, label: t.pyraKinds[k] }))}
-        />
-      </div>
+      {layers.length > 1 && (
+        <div className="mb-2">
+          <SegmentedToggle
+            size="sm"
+            ariaLabel={t.layerLabel}
+            value={layer}
+            onChange={setPicked}
+            options={layers.map((k) => ({ value: k, label: t.pyraKinds[k] }))}
+          />
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-2">
         {PYRA_VERTICES.map((vertex) => (
           <div key={vertex} className={TURN_PAIR}>

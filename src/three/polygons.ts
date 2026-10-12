@@ -16,6 +16,8 @@ export interface PiecePolygon {
   readonly paint: 'body' | Color
   /** Outward normal (unit), for lighting and back-face culling. */
   readonly normal: P3
+  /** A normal per point, when the surface is curved (smooth lighting). */
+  readonly normals?: readonly P3[]
   /** On a sticker: the normal index of the piece's sticker it shows. */
   readonly ni?: number
 }

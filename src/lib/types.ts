@@ -5,7 +5,19 @@ export type Dims = readonly [number, number, number]
 
 /** The puzzles the app can build, by id (also the picker's option values). */
 export type CubeShape =
-  '2' | '3' | '4' | '123' | '224' | '223' | '332' | '331' | 'pyra' | 'pyra4' | 'star' | 'star4'
+  | '2'
+  | '3'
+  | '4'
+  | '123'
+  | '224'
+  | '223'
+  | '332'
+  | '331'
+  | 'pyra'
+  | 'pyra4'
+  | 'jing'
+  | 'star'
+  | 'star4'
 
 /**
  * Layer counts per shape: the NxNxN cubes, the 1x2x3 flat cuboid (3 wide, 2
@@ -31,6 +43,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   // their pieces sit within +-2 and +-3 on every axis (see `pyraSize`).
   pyra: [5, 5, 5],
   pyra4: [7, 7, 7],
+  // The Pyraminx Jing's pieces sit within +-1 (see pyraminx.ts).
+  jing: [3, 3, 3],
   // The star prisms (star.ts) are no grid: their own module builds and turns
   // them. These only bound their hexagonal model (q and r within +-1, the
   // layers at y = +-1 and +-2).
@@ -46,12 +60,13 @@ export type StarShape = 'star' | 'star4'
 export const isStar = (shape: CubeShape): shape is StarShape =>
   shape === 'star' || shape === 'star4'
 
-/** The Pyraminx and the Master Pyraminx (its 4x4 version). */
-export type PyraShape = 'pyra' | 'pyra4'
+/** The Pyraminx, the Master Pyraminx (its 4x4 version) and the Pyraminx
+ *  Jing (its deep-cut cousin). */
+export type PyraShape = 'pyra' | 'pyra4' | 'jing'
 
 /** Whether a shape is a Pyraminx, which turns about its corners (pyraminx.ts). */
 export const isPyraminx = (shape: CubeShape): shape is PyraShape =>
-  shape === 'pyra' || shape === 'pyra4'
+  shape === 'pyra' || shape === 'pyra4' || shape === 'jing'
 
 /** Whether a shape builds and turns in its own module rather than on a grid
  *  of layers (the star prisms, the Pyraminx): drawn from polygons, turned
@@ -77,6 +92,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '331': false,
   pyra: false,
   pyra4: false,
+  jing: false,
   star: false,
   star4: false,
 }
@@ -99,6 +115,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   '331': [],
   pyra: [],
   pyra4: [],
+  jing: [],
   star: [],
   star4: [],
 }
@@ -119,6 +136,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   '331': [],
   pyra: [],
   pyra4: [],
+  jing: [],
   star: [],
   star4: [],
 }
@@ -135,6 +153,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '331': '3x3x1 (Floppy)',
   pyra: 'Pyraminx',
   pyra4: 'Master Pyraminx (4x4)',
+  jing: 'Pyraminx Jing',
   star: '2-Star Prism (UFO)',
   star4: '4-Star Prism',
 }
@@ -166,6 +185,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   '331': false,
   pyra: false,
   pyra4: false,
+  jing: false,
   star: false,
   star4: false,
 }
@@ -298,14 +318,16 @@ export type PyraVertex = 'U' | 'L' | 'R' | 'B'
  * A Pyraminx turn: a third of a turn about one of its corners, clockwise seen
  * from that corner (`amount` 1) or back (2). With `tip`, its tip alone; on
  * the Master Pyraminx, with `slice`, one slice counted from the corner (1:
- * under the tip, 3: the opposite face); otherwise the Pyraminx's whole layer
- * under the corner (its tip, center piece and three edges).
+ * under the tip, 3: the opposite face); on the Jing, with `deep`, the corner's
+ * half of the puzzle, cut beyond its center; otherwise the Pyraminx's whole
+ * layer under the corner (its tip, center piece and three edges).
  */
 export interface PyraMove {
   readonly vertex: PyraVertex
   readonly amount: 1 | 2
   readonly tip?: true
   readonly slice?: 1 | 2 | 3
+  readonly deep?: true
 }
 
 /** Any turn of any puzzle: a face-layer move, a star prism's or the

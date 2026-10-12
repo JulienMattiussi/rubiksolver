@@ -17,6 +17,7 @@ const SCRAMBLE_LENGTH: Record<CubeShape, number> = {
   '331': 12,
   pyra: 11,
   pyra4: 30,
+  jing: 15,
   star: 20,
   star4: 40,
 }

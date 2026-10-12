@@ -41,6 +41,15 @@ import type {
  * origin); the Master's tips at 3v, co-tips at 2v, wings at 2v + w, midges
  * at v + w, centers at u + v + w. Along a corner's axis the slices are 4
  * apart (the dot product with v), from 3n at the corner down to -n.
+ *
+ * The Pyraminx Jing (fan2cube.fr/pyraminxjing1) cuts deeper: each corner
+ * turns its half of the puzzle, the cut passing beyond the center (a Skewb's
+ * core). Its 14 pieces: 4 corners that only twist, 6 edges and 4 face
+ * centers, each turn taking a corner, its three edges and the three centers
+ * around it. A piece is the set of halves it belongs to, placed at the sum
+ * of their corners: a corner at v, an edge at (v + w) / 2 (a unit axis), a
+ * center at u + v + w (that is, minus the corner it lacks), so a turn takes
+ * every piece on the corner's side of the origin, like the Pyraminx's layer.
  */
 
 /** The corners, in `TET_NORMALS` order (each face opposite one of them). */
@@ -98,7 +107,7 @@ function cell(times: number[]): Cubie {
 /** The solved Pyraminx of `size` layers: tips, then center pieces (co-tips),
  *  then the other pieces (edges; wings, centers and midges), and the core
  *  of the Pyraminx. */
-export function solvedPyraminx(size: number): Cube {
+function solvedPyraminx(size: number): Cube {
   const corner = (times: number) => (n: number[]) =>
     n.filter((x) => x > 0).length === 1 && n.includes(times)
   const upright = surfaceSums(size - 1)
@@ -115,6 +124,33 @@ export function solvedPyraminx(size: number): Cube {
     .concat(size === 3 ? [{ position: [0, 0, 0], stickers: [] }] : [])
 }
 
+/** The solved Pyraminx Jing: corners, edges, centers, and its (Skewb) core. */
+function solvedJing(): Cube {
+  const edges: Cubie[] = []
+  PYRA_VERTICES.forEach((a, i) =>
+    PYRA_VERTICES.slice(i + 1).forEach((b) => {
+      const [x, y, z] = add(PYRA_CORNERS[a], PYRA_CORNERS[b])
+      edges.push(piece([x / 2, y / 2, z / 2], [a, b]))
+    }),
+  )
+  return [
+    ...PYRA_VERTICES.map((v) => piece(PYRA_CORNERS[v], [v])),
+    ...edges,
+    ...PYRA_VERTICES.map((v) =>
+      piece(
+        PYRA_CORNERS[v].map((x) => -x) as unknown as Vec3,
+        PYRA_VERTICES.filter((w) => w !== v),
+      ),
+    ),
+    { position: [0, 0, 0], stickers: [] },
+  ]
+}
+
+/** A solved Pyraminx of any kind. */
+export function solvedPyra(shape: PyraShape): Cube {
+  return shape === 'jing' ? solvedJing() : solvedPyraminx(PYRA_SIZE[shape])
+}
+
 /** The slices a turn takes, counted from its corner: the tip alone (0), one
  *  slice of the Master (1 to 3), or the Pyraminx's layer (0 and 1). */
 function slicesOf(move: PyraMove): [number, number] {
@@ -125,8 +161,10 @@ function slicesOf(move: PyraMove): [number, number] {
 /** Whether `move` turns the piece at `position` on a Pyraminx of `size`
  *  layers: whether it lies between the planes bounding its slices. */
 export function pyraTurns(move: PyraMove, position: Vec3, size: number): boolean {
-  const [first, last] = slicesOf(move)
   const d = dot(position, PYRA_CORNERS[move.vertex])
+  // The Jing's half: the corner's side of the origin.
+  if (move.deep) return d > 0
+  const [first, last] = slicesOf(move)
   return d < 3 * size - 4 * first && d > 3 * size - 4 * (last + 1)
 }
 
@@ -163,44 +201,43 @@ export const PYRA_SYMMETRIES: readonly ((cube: Cube) => Cube)[] = (['U', 'L'] as
   (vertex) => (cube: Cube) => cube.map((c) => turnPiece(clockwise(vertex), c)),
 )
 
-/** Layers per corner of each Pyraminx. */
-export const PYRA_SIZE: Record<PyraShape, number> = { pyra: 3, pyra4: 4 }
+/** Layers per corner of each Pyraminx (the Jing counts 2: its pieces sit
+ *  within +-1, and its deep turns need no slice planes). */
+const PYRA_SIZE: Record<PyraShape, number> = { pyra: 3, pyra4: 4, jing: 2 }
 
 /** What a turn takes under its corner: the Pyraminx's layer (`corners`), a
- *  tip, or one of the Master's slices. */
-export type PyraLayer = 'corners' | 'tips' | 'slice1' | 'slice2' | 'slice3'
+ *  tip, one of the Master's slices, or the Jing's half (`deep`). */
+export type PyraLayer = 'corners' | 'tips' | 'slice1' | 'slice2' | 'slice3' | 'deep'
 
 /** The layers each Pyraminx turns, in the pad's and the guide's order. */
 export const PYRA_LAYERS: Record<PyraShape, readonly PyraLayer[]> = {
   pyra: ['corners', 'tips'],
   pyra4: ['tips', 'slice1', 'slice2', 'slice3'],
+  jing: ['deep'],
 }
 
 /** The turn of a corner's layer. */
 export function pyraTurn(vertex: PyraVertex, layer: PyraLayer, amount: 1 | 2): PyraMove {
   if (layer === 'corners') return { vertex, amount }
   if (layer === 'tips') return { vertex, amount, tip: true }
+  if (layer === 'deep') return { vertex, amount, deep: true }
   return { vertex, amount, slice: Number(layer.slice(5)) as 1 | 2 | 3 }
 }
 
 /** The layer a turn takes. */
 export function pyraLayerOf(move: PyraMove): PyraLayer {
   if (move.tip) return 'tips'
+  if (move.deep) return 'deep'
   return move.slice ? (`slice${move.slice}` as PyraLayer) : 'corners'
 }
 
-const bothWays = (turn: Omit<PyraMove, 'amount'>): PyraMove[] =>
-  ([1, 2] as const).map((amount) => ({ ...turn, amount }))
-
-/** Every turn of a Pyraminx of `size` layers, both ways: each layer, then
- *  each tip; on the Master, each tip, then each slice, slice by slice. */
-export function pyraTurnsOf(size: number): PyraMove[] {
-  const tips = PYRA_VERTICES.flatMap((vertex) => bothWays({ vertex, tip: true }))
-  if (size === 3) return [...PYRA_VERTICES.flatMap((vertex) => bothWays({ vertex })), ...tips]
-  const slices = ([1, 2, 3] as const).flatMap((slice) =>
-    PYRA_VERTICES.flatMap((vertex) => bothWays({ vertex, slice })),
+/** Every turn of a Pyraminx, both ways, layer by layer (`PYRA_LAYERS`). */
+export function pyraTurnsOf(shape: PyraShape): PyraMove[] {
+  return PYRA_LAYERS[shape].flatMap((layer) =>
+    PYRA_VERTICES.flatMap((vertex) =>
+      ([1, 2] as const).map((amount) => pyraTurn(vertex, layer, amount)),
+    ),
   )
-  return [...tips, ...slices]
 }
 
 /**
@@ -226,19 +263,21 @@ export function pyraRotation(move: PyraMove): {
   }
 }
 
-/** A scramble: layer turns (inner slices on the Master), never the same
- *  corner twice in a row, then each tip twisted at random, as the official
- *  scrambles end. */
-export function scramblePyraminx(size: number, length: number, rng: () => number): PyraMove[] {
+/** A scramble: turns of the shape's layers but its tips (the Master's
+ *  slices, the Jing's halves), never the same corner twice in a row, then
+ *  each tip twisted at random, as the official scrambles end. */
+export function scramblePyraminx(shape: PyraShape, length: number, rng: () => number): PyraMove[] {
+  const layers = PYRA_LAYERS[shape].filter((l) => l !== 'tips')
   const moves: PyraMove[] = []
   let last: PyraVertex | undefined
   while (moves.length < length) {
     const vertex = PYRA_VERTICES[Math.floor(rng() * 4)]!
     if (vertex === last) continue
     last = vertex
-    const slice = size === 3 ? undefined : ((1 + Math.floor(rng() * 3)) as 1 | 2 | 3)
-    moves.push({ vertex, amount: rng() < 0.5 ? 1 : 2, ...(slice && { slice }) })
+    const layer = layers[Math.floor(rng() * layers.length)]!
+    moves.push(pyraTurn(vertex, layer, rng() < 0.5 ? 1 : 2))
   }
+  if (!PYRA_LAYERS[shape].includes('tips')) return moves
   for (const vertex of PYRA_VERTICES) {
     const amount = Math.floor(rng() * 3)
     if (amount > 0) moves.push({ vertex, amount: amount as 1 | 2, tip: true })
@@ -252,7 +291,7 @@ export function invertPyraMove(move: PyraMove): PyraMove {
 
 /** Whether two turns move the same pieces (whatever their amounts). */
 export const samePyraLayer = (a: PyraMove, b: PyraMove): boolean =>
-  a.vertex === b.vertex && !a.tip === !b.tip && a.slice === b.slice
+  a.vertex === b.vertex && pyraLayerOf(a) === pyraLayerOf(b)
 
 /** Merge consecutive turns of the same layer (three thirds cancel out). */
 export function simplifyPyraMoves(moves: readonly PyraMove[]): PyraMove[] {
@@ -282,6 +321,9 @@ const LETTERS: Record<'us' | 'fr', Record<PyraVertex, string>> = {
  * uppercase letter (`D`), the layer (`tranche`) the lowercase one (`d`).
  * Either way `'` turns back (fan2cube's `²`, two thirds, is the same turn).
  *
+ * A Jing turn, the corner's half, is its uppercase letter in both (`D`, `R`),
+ * as fan2cube writes it.
+ *
  * A Master Pyraminx slice: in French fan2cube's numbered slices, `H'₁` (its
  * prime before the number, as the page writes it); in English the slice
  * number as a prefix, counting the tip as the first layer (`2U'`, SiGN
@@ -299,6 +341,7 @@ export function formatPyraMove(move: PyraMove, labels: FaceLabels): string {
   const { letters, tipUpper } = notationOf(labels)
   const letter = letters[move.vertex]
   const prime = move.amount === 2 ? "'" : ''
+  if (move.deep) return letter + prime
   if (move.slice) {
     return tipUpper
       ? `${letter}${prime}${SUBSCRIPTS[move.slice]}`
@@ -315,12 +358,12 @@ const SUBSCRIPTS = '₀₁₂₃'
  * per turn, `'` or `²` (or `2`) to turn back, `[a b]` the commutator
  * a b a' b'. Spaces, dots and parentheses only help reading. On the Master
  * (`size` 4), the slices: `H'1` or `H'₁` (`H1'` too, and `h` for `H1`), or
- * `2U'` in English.
+ * `2U'` in English. On the Jing (`size` 2), uppercase letters, its halves.
  */
 export function parsePyraMoves(text: string, labels: FaceLabels, size = 3): PyraMove[] {
   const { letters, tipUpper } = notationOf(labels)
   const token =
-    size === 3
+    size !== 4
       ? /([A-Za-z])(['²2]?)/y
       : tipUpper
         ? /([A-Za-z])(['²]?)([0-3₀-₃]?)(['²]?)/y
@@ -371,6 +414,7 @@ function readMove(
   if (!vertex) return null
   const upper = letter === letter.toUpperCase()
   const amount = (english ? match[3] : match[2] || match[4]) ? 2 : 1
+  if (size === 2) return upper ? { vertex, amount, deep: true } : null
   if (size === 3) {
     const tip = upper === tipUpper
     return { vertex, amount, ...(tip && { tip: true }) }

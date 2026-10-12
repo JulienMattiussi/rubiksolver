@@ -208,6 +208,7 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
     ['Plats', '3x3x1 (Floppy)'],
     ['Pyramides', 'Pyraminx'],
     ['Pyramides', 'Master Pyraminx (4x4)'],
+    ['Pyramides', 'Pyraminx Jing'],
     ['Étoiles', '2-Star Prism (UFO)'],
     ['Étoiles', '4-Star Prism'],
   ]
@@ -285,5 +286,27 @@ test('Master Pyraminx: scramble, enter from the current state, apply, then solve
   await expect(solve).toBeEnabled()
   await solve.click()
   await expect(page.getByText('Cube résolu')).toBeVisible({ timeout: 90000 })
+  expect(errors).toEqual([])
+})
+
+test('Pyraminx Jing: scramble, enter from the current state, apply, then solve', async ({
+  page,
+}) => {
+  test.setTimeout(120000)
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/')
+  await page.getByLabel('Vitesse').fill('100')
+  await pickCube(page, 'Pyramides', 'Pyraminx Jing')
+  await page.getByRole('button', { name: 'Mélanger' }).click()
+  const fromCurrent = page.getByRole('button', { name: /Depuis l.?.tat actuel/ })
+  await expect(fromCurrent).toBeEnabled({ timeout: 30000 })
+  await fromCurrent.click()
+  await expect(page.getByText('28 / 28 stickers')).toBeVisible()
+  await page.getByRole('button', { name: 'Utiliser ce cube' }).click()
+  const solve = page.getByRole('button', { name: 'Résoudre' })
+  await expect(solve).toBeEnabled()
+  await solve.click()
+  await expect(page.getByText('Cube résolu')).toBeVisible({ timeout: 60000 })
   expect(errors).toEqual([])
 })
