@@ -9,6 +9,7 @@ import {
   paint,
   type EditStickers,
 } from '@/lib/editor'
+import { nextPiece } from '@/lib/pieceEditor'
 import { validateCube, type ValidationError } from '@/lib/validate'
 import type { Color, Cube, CubeShape } from '@/lib/types'
 import { useCube } from './cubeStore'
@@ -38,6 +39,9 @@ interface EditorStore {
   cancel: () => void
   setColor: (color: Color) => void
   paintAt: (slotKey: string, ni: number) => void
+  /** Put the next piece that fits in a slot (a puzzle entered piece by
+   *  piece, see pieceEditor.ts). */
+  cycleAt: (slotKey: string) => void
   clearAll: () => void
   /** Build + validate; on success load the cube into play mode. Returns ok. */
   apply: () => boolean
@@ -94,6 +98,9 @@ export const useEditor = create<EditorStore>((set, get) => ({
       edit: paint(s.edit, currentShape(), slotKey, ni, s.selectedColor, s.form),
       error: null,
     })),
+
+  cycleAt: (slotKey) =>
+    set((s) => ({ edit: nextPiece(s.edit, currentShape(), slotKey), error: null })),
 
   clearAll: () => set((s) => ({ edit: emptyEdit(currentShape(), s.form), error: null })),
 

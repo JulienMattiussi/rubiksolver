@@ -4,7 +4,7 @@
 
 import type { MoveDescription } from '@/lib/moveGuide'
 import { fromAbove } from '@/lib/star'
-import type { Face, PyraVertex, RingMove } from '@/lib/types'
+import type { Face, GhostSide, PyraVertex, RingMove } from '@/lib/types'
 
 export type StarLayer = RingMove['ring']
 
@@ -35,6 +35,23 @@ export const CORNER_NAMES_EN: Record<PyraVertex, string> = {
   L: 'left corner',
   R: 'right corner',
   B: 'back corner',
+}
+
+/** The Floppy Ghost's sides. */
+export const SIDE_NAMES_FR: Record<GhostSide, string> = {
+  U: 'le côté du haut',
+  R: 'le côté droit',
+  D: 'le côté du bas à droite',
+  B: 'le côté du bas à gauche',
+  L: 'le côté gauche',
+}
+
+export const SIDE_NAMES_EN: Record<GhostSide, string> = {
+  U: 'the top side',
+  R: 'the right side',
+  D: 'the bottom right side',
+  B: 'the bottom left side',
+  L: 'the left side',
 }
 
 export const FACE_NAMES_FR: Record<Face, string> = {
@@ -78,6 +95,9 @@ export const FACE_NAMES_EN: Record<Face, string> = {
 export function describeFr(d: MoveDescription): string {
   if (d.kind === 'slash') {
     return 'Le slash : toute la moitié droite fait un demi-tour, ses pièces du haut passent en bas et celles du bas en haut.'
+  }
+  if (d.kind === 'side') {
+    return `On retourne ${SIDE_NAMES_FR[d.side]} d’un demi-tour, autour de l’axe perpendiculaire à sa coupe : son arête se retourne, ses deux sommets s’échangent.`
   }
   if ('vertex' in d) {
     const corner = CORNER_NAMES_FR[d.vertex]
@@ -124,6 +144,9 @@ export function describeFr(d: MoveDescription): string {
 export function describeEn(d: MoveDescription): string {
   if (d.kind === 'slash') {
     return 'The slash: the whole right half makes a half turn, its top pieces going down and its bottom ones up.'
+  }
+  if (d.kind === 'side') {
+    return `Flip ${SIDE_NAMES_EN[d.side]} over with a half turn, about the axis across its cut: its edge turns over, its two corners swap.`
   }
   if ('vertex' in d) {
     const corner = CORNER_NAMES_EN[d.vertex]

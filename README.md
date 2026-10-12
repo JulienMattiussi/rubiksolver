@@ -2,7 +2,8 @@
 
 Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2
 (Pocket), 3x3 ou 4x4**, plus cinq cuboïdes (le **1x2x3**, la **tour 2x2x4**,
-la **Slim Tower 2x2x3**, le **Domino 3x3x2** et le **Floppy 3x3x1**) et des
+la **Slim Tower 2x2x3**, le **Domino 3x3x2** et le **Floppy 3x3x1**), le
+**Floppy Ghost** (un Floppy Megaminx découpé en pentagramme, argenté) et des
 puzzles non cubiques : le **Pyraminx**, le **Master Pyraminx** (4x4), le
 **Pyraminx Jing**, le **Pyramorphinx** et les **Star Prism** à 2 et 4 étages.
 On manipule le puzzle, on le mélange **ou on saisit sa propre
@@ -28,6 +29,8 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   - 4x4 : **réduction** (centres, arêtes, parités) puis par couches ou CFOP ;
   - 1x2x3 : optimale ;
   - Floppy : **coins puis arêtes**, et optimale ;
+  - Floppy Ghost : **coins puis arêtes** (sommets placés, orientés, puis
+    arêtes), et optimale ;
   - tour 2x2x4 : **Deux Pockets** (remise en forme, Pocket intérieur, Pocket
     extérieur) ;
   - Slim Tower : **équateur puis coins** ;
@@ -45,7 +48,9 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
 - **Formes non cubiques** : le 1x2x3 (demi-tours seulement), la tour 2x2x4,
   qui se déforme comme la vraie (un coup est bloqué quand sa face n'est pas
   complète), la Slim Tower et le Domino (côtés en demi-tours), le Floppy (une
-  seule couche, demi-tours seulement), les Pyraminx (sommets, tranches,
+  seule couche, demi-tours seulement), le Floppy Ghost (chaque côté se
+  retourne et se couche de travers ; tout argenté, on le lit par la forme),
+  les Pyraminx (sommets, tranches,
   pointes ; le Jing aux pièces courbes), le Pyramorphinx (un 2x2 taillé en
   tétraèdre, qui se déforme) et les Star Prism (tours d'étages et slash).
 - **Version miroir** du 2x2, du 3x3 et du 4x4 (Mirror Blocks) : couches
@@ -53,7 +58,8 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
 - Mélange aléatoire, ou **saisie guidée** de son propre puzzle (tous) en
   peignant les stickers (aucune configuration incohérente possible,
   validation de solubilité) ; un puzzle déformable se saisit dans la forme où
-  il se trouve, choisie parmi des vignettes.
+  il se trouve, choisie parmi des vignettes ; le Floppy Ghost pièce par pièce
+  (un clic pose la pièce suivante qui s'y loge).
 - **Mémoriser / Restaurer** un état, conservé entre deux visites : pratique pour
   comparer deux méthodes sur le même mélange.
 - Choix du puzzle par **vignettes** : les catégories, puis les puzzles, chacun

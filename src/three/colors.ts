@@ -22,3 +22,6 @@ export const HIGHLIGHT = '#38bdf8'
 /** Mirror cube: every facelet wears the same gold, pieces are told apart by
  *  their size. */
 export const MIRROR_STICKER = '#d8a63f'
+
+/** Floppy Ghost: every facelet silver, like the real one. */
+export const GHOST_STICKER = '#c8cfd8'

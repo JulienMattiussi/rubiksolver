@@ -3,6 +3,7 @@ import { BEGINNER_2_PLAN, OPTIMAL_2_PLAN, solveOptimal2 } from './methods/cube2'
 import { DOMINO_PLAN } from './methods/domino'
 import { optimalPlan } from './methods/exhaustive'
 import { FLOPPY_PLAN } from './methods/floppy'
+import { GHOST_PLAN } from './methods/ghost'
 import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { PETRUS_PLAN } from './methods/petrus'
 import { PYRAMINX_PLAN } from './methods/pyraminx'
@@ -53,10 +54,15 @@ const SOLVE_METHODS = [
   { id: 'asPocket', plans: { morph: MORPH_PLAN } },
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },
   { id: 'twoStars', plans: { star4: STAR4_PLAN } },
-  { id: 'cornersFirst', plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN } },
+  { id: 'cornersFirst', plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN, ghost: GHOST_PLAN } },
   {
     id: 'optimal',
-    plans: { '2': OPTIMAL_2_PLAN, '123': optimalPlan('123'), '331': optimalPlan('331') },
+    plans: {
+      '2': OPTIMAL_2_PLAN,
+      '123': optimalPlan('123'),
+      '331': optimalPlan('331'),
+      ghost: optimalPlan('ghost'),
+    },
   },
 ] as const satisfies ReadonlyArray<{
   id: string

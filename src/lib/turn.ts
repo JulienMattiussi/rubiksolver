@@ -1,8 +1,9 @@
 import { cubeShape, turnDims } from './cube'
 import { FACE_SPEC, layerCoords, rotateN } from './geometry'
+import { applyGhostMove, ghostAxis, ghostTurns } from './ghost'
 import { applyPyraMove, pyraRotation, pyraSize, pyraTurns } from './pyraminx'
 import { applyStarMove, starRotation, starTurns } from './star'
-import { isPyraMove, isStarMove, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
+import { isGhostMove, isPyraMove, isStarMove, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
 import type { Cube, Dims, Move, Turn } from './types'
 
 /**
@@ -66,6 +67,7 @@ function turnsPosition(move: Move, mechanism: Dims): (position: readonly number[
  *  preview highlights them. */
 export function turnedBy(cube: Cube, move: Turn): (index: number) => boolean {
   if (isStarMove(move)) return (index) => starTurns(move, cube[index]!.position)
+  if (isGhostMove(move)) return (index) => ghostTurns(move, cube[index]!.position)
   if (isPyraMove(move)) {
     const size = pyraSize(turnDims(cubeShape(cube)))
     return (index) => pyraTurns(move, cube[index]!.position, size)
@@ -86,7 +88,7 @@ export function turnedBy(cube: Cube, move: Turn): (index: number) => boolean {
  */
 export function turnAllowed(cube: Cube, move: Turn): boolean {
   if (isStarMove(move)) return true // pieces are whole 60 degree sectors
-  if (isPyraMove(move)) return true
+  if (isPyraMove(move) || isGhostMove(move)) return true
   const shape = cubeShape(cube)
   if (!SHAPE_SHIFTS[shape]) return true
   if (move.wide) return true
@@ -113,6 +115,7 @@ const AXIS_VECTOR = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1] } as const
 export function turnRotation(move: Turn): TurnRotation {
   if (isStarMove(move)) return starRotation(move)
   if (isPyraMove(move)) return pyraRotation(move)
+  if (isGhostMove(move)) return { axis: ghostAxis(move.side), angle: Math.PI }
   const spec = FACE_SPEC[move.face]
   const t = (((spec.sign * move.amount) % 4) + 4) % 4 // 1, 2 or 3 quarter turns
   return { axis: AXIS_VECTOR[spec.axis], angle: (t === 3 ? -1 : t) * (Math.PI / 2) }
@@ -130,6 +133,7 @@ export function applyMove(
 ): Cube {
   if (isStarMove(move)) return applyStarMove(cube, move)
   if (isPyraMove(move)) return applyPyraMove(cube, move, pyraSize(mechanism))
+  if (isGhostMove(move)) return applyGhostMove(cube, move)
   const spec = FACE_SPEC[move.face]
   const turns = turnsPosition(move, mechanism)
   const times = spec.sign * move.amount

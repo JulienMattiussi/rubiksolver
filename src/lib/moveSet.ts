@@ -1,3 +1,4 @@
+import { GHOST_TURNS } from './ghost'
 import { movesFor, parseMoves, sameLayer } from './moves'
 import type { CubeShape, Move, Turn } from './types'
 
@@ -30,9 +31,10 @@ export function moveSet(notation: string): MoveSet {
 /** Every plain face turn of a 2x2/3x3: the set of steps that use algorithms. */
 export const OUTER_TURNS = moveSet('U D L R F B')
 
-/** Every turn a shape has (inner slices and wide turns included on a 4x4). */
+/** Every turn a shape has (inner slices and wide turns included on a 4x4;
+ *  each side's half turn on the Floppy Ghost). */
 export function allTurnsOf(shape: CubeShape): MoveSet {
-  const turns = movesFor(shape)
+  const turns = shape === 'ghost' ? GHOST_TURNS : movesFor(shape)
   return { generators: turns, turns }
 }
 

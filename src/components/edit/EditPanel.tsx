@@ -2,6 +2,7 @@ import { Check, Eraser, Shapes, X } from 'lucide-react'
 import { cubeShape } from '@/lib/cube'
 import { isComplete, progress } from '@/lib/editor'
 import { formsOf } from '@/lib/forms'
+import { entersByPieces, placedCount } from '@/lib/pieceEditor'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -10,7 +11,9 @@ import { ColorPalette } from './ColorPalette'
 import { FormPicker } from './FormPicker'
 
 /** Cube-entry panel: the form first on a shape-shifting puzzle (FormPicker),
- *  then hint, color palette, progress, validation error, actions. */
+ *  then hint, color palette, progress, validation error, actions. A puzzle
+ *  entered piece by piece (the Floppy Ghost) has no palette: it counts its
+ *  pieces placed. */
 export function EditPanel() {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
@@ -36,20 +39,24 @@ export function EditPanel() {
     )
   }
 
+  const byPieces = entersByPieces(shape)
   const { filled, total } = progress(edit, shape, form)
+  const { placed, total: slots } = byPieces ? placedCount(edit, shape) : { placed: 0, total: 0 }
   const complete = isComplete(edit, shape, form)
   const shifts = formsOf(shape).length > 1
 
   return (
     <div className="flex flex-col gap-5">
       <p className="text-xs leading-relaxed text-slate-400">
-        {mirror ? t.editHintMirror : t.editHint}
+        {byPieces ? t.editHintPieces : mirror ? t.editHintMirror : t.editHint}
       </p>
 
-      <ColorPalette />
+      {!byPieces && <ColorPalette />}
 
       <div className="flex items-center gap-2 text-sm">
-        <span className="font-medium text-slate-200">{t.filledOf(filled, total)}</span>
+        <span className="font-medium text-slate-200">
+          {byPieces ? t.piecesOf(placed, slots) : t.filledOf(filled, total)}
+        </span>
         {complete && <Check className="size-4 text-emerald-400" aria-hidden />}
       </div>
 

@@ -9,8 +9,10 @@ import {
   simplifyPyraMoves,
 } from './pyraminx'
 import { formatPyraMove } from './pyraNotation'
+import { formatGhostMove, GHOST_TURNS, scrambleGhost, simplifyGhostMoves } from './ghost'
 import { formatStarMove, invertStarMove, scrambleStar, simplifyStarMoves, STAR_RINGS } from './star'
 import {
+  isGhostMove,
   isGridless,
   isPyraMove,
   isPyraminx,
@@ -20,7 +22,17 @@ import {
   SHAPE_INNER_TURNS,
   SHAPE_SHIFTS,
 } from './types'
-import type { Cube, CubeShape, Dims, Face, Move, PyraMove, StarMove, Turn } from './types'
+import type {
+  Cube,
+  CubeShape,
+  Dims,
+  Face,
+  GhostMove,
+  Move,
+  PyraMove,
+  StarMove,
+  Turn,
+} from './types'
 
 export const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
 
@@ -118,6 +130,7 @@ const AMOUNT_SUFFIX = { 1: '', 2: '2', 3: "'" } as const
 export function formatMove(move: Turn, labels: FaceLabels = NOTATION_US, dims?: Dims): string {
   if (isStarMove(move)) return formatStarMove(move, labels)
   if (isPyraMove(move)) return formatPyraMove(move, labels)
+  if (isGhostMove(move)) return formatGhostMove(move, labels)
   if (dims && move.depth && !move.wide && faceLayers(dims, move.face) === 3) {
     const slice = SLICES.find((s) => s.face === move.face || s.opposite === move.face)!
     const amount = slice.face === move.face ? move.amount : invertMove(move).amount
@@ -202,6 +215,7 @@ export function sameLayer(a: Turn, b: Turn): boolean {
     return 'ring' in a && 'ring' in b ? a.ring === b.ring : 'slash' in a && 'slash' in b
   }
   if (isPyraMove(a) || isPyraMove(b)) return isPyraMove(a) && isPyraMove(b) && samePyraLayer(a, b)
+  if (isGhostMove(a) || isGhostMove(b)) return isGhostMove(a) && isGhostMove(b) && a.side === b.side
   return a.face === b.face && a.depth === b.depth && a.wide === b.wide
 }
 
@@ -213,16 +227,16 @@ export function invertMove(move: Move): Move {
 
 /** The sequence that undoes `moves` (reversed and each inverted). */
 export function invertMoves<T extends Turn>(moves: readonly T[]): T[] {
-  return [...moves]
-    .reverse()
-    .map(
-      (m) =>
-        (isStarMove(m)
-          ? invertStarMove(m)
-          : isPyraMove(m)
-            ? invertPyraMove(m)
+  return [...moves].reverse().map(
+    (m) =>
+      (isStarMove(m)
+        ? invertStarMove(m)
+        : isPyraMove(m)
+          ? invertPyraMove(m)
+          : isGhostMove(m)
+            ? m // a half turn
             : invertMove(m)) as T,
-    )
+  )
 }
 
 /**
@@ -234,6 +248,7 @@ export function invertMoves<T extends Turn>(moves: readonly T[]): T[] {
 export function simplifyMoves<T extends Turn>(moves: readonly T[]): T[] {
   if (moves.some(isStarMove)) return simplifyStarMoves(moves as readonly StarMove[]) as T[]
   if (moves.some(isPyraMove)) return simplifyPyraMoves(moves as readonly PyraMove[]) as T[]
+  if (moves.some(isGhostMove)) return simplifyGhostMoves(moves as readonly GhostMove[]) as T[]
   const out: Move[] = []
   for (const move of moves as readonly Move[]) {
     const last = out[out.length - 1]
@@ -295,8 +310,8 @@ export function scramble(
   return moves
 }
 
-/** A scramble of any puzzle, face moves or a star prism's or the Pyraminx's
- *  turns (the store's). */
+/** A scramble of any puzzle, face moves or a star prism's, the Pyraminx's
+ *  or the Floppy Ghost's turns (the store's). */
 export function scrambleTurns(
   shape: CubeShape,
   length: number,
@@ -305,6 +320,7 @@ export function scrambleTurns(
 ): Turn[] {
   if (isStar(shape)) return scrambleStar(shape, length, rng)
   if (isPyraminx(shape)) return scramblePyraminx(shape, length, rng)
+  if (shape === 'ghost') return scrambleGhost(length, rng)
   return scramble(shape, length, rng, start)
 }
 
@@ -315,6 +331,7 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
     return [...STAR_RINGS[shape].map((ring) => ({ ring, amount: 1 as const })), { slash: true }]
   }
   if (isPyraminx(shape)) return pyraTurnsOf(shape)
+  if (shape === 'ghost') return GHOST_TURNS
   return movesFor(shape)
 }
 
@@ -326,7 +343,7 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
  * puzzle some of these jam depending on the state (`turnAllowed`).
  */
 export function movesFor(shape: CubeShape): readonly Move[] {
-  if (isGridless(shape)) return [] // it turns in its own way (star.ts, pyraminx.ts)
+  if (isGridless(shape)) return [] // it turns in its own way (star.ts, pyraminx.ts, ghost.ts)
   return FACES.flatMap((face) =>
     amountsFor(shape, face).flatMap((amount) =>
       layerVariants(shape, face).map((variant): Move => ({ face, amount, ...variant })),

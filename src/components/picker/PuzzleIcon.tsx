@@ -1,6 +1,7 @@
-import type { Cube, CubeShape, CubeVariant } from '@/lib/types'
+import { isPolyDrawn, type Cube, type CubeShape, type CubeVariant } from '@/lib/types'
 import { COLOR_HEX, MIRROR_STICKER, PLASTIC } from '@/three/colors'
 import { formDrawing, isometricDrawing } from '@/three/isometric'
+import { polyDrawing } from '@/three/polyDrawing'
 
 /** A color darkened by `shade` (0 = as is, 1 = black). */
 function darkened(hex: string, shade: number): string {
@@ -24,8 +25,11 @@ export function PuzzleIcon({
   className?: string
 }) {
   const { polygons, viewBox } = form ? formDrawing(shape, form) : isometricDrawing(shape, variant)
+  // One color for every sticker on a mirror cube and on a puzzle drawn in one.
+  const skin =
+    variant === 'mirror' ? MIRROR_STICKER : isPolyDrawn(shape) ? polyDrawing(shape).skin : undefined
   const fill = (paint: (typeof polygons)[number]['paint']) =>
-    paint === 'body' ? PLASTIC : variant === 'mirror' ? MIRROR_STICKER : COLOR_HEX[paint]
+    paint === 'body' ? PLASTIC : (skin ?? COLOR_HEX[paint])
   return (
     <svg viewBox={viewBox} className={className} aria-hidden>
       {polygons.map((p, i) => {

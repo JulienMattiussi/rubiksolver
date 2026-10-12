@@ -76,7 +76,7 @@ export function PolyPiece({
             ? PLASTIC
             : stickerHex && ni !== undefined
               ? stickerHex(ni)
-              : COLOR_HEX[paint]
+              : (drawing.skin ?? COLOR_HEX[paint])
         const clickable = onSelect && ni !== undefined
         return (
           <mesh

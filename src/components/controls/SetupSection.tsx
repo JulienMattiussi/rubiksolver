@@ -12,6 +12,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { CubePicker } from '@/components/picker/CubePicker'
 import { SECTION_BOX } from '@/components/ui/styles'
 import { MovePad } from './MovePad'
+import { GhostPad } from './GhostPad'
 import { PyraPad } from './PyraPad'
 import { StarPad } from './StarPad'
 import { SpeedSlider } from './SpeedSlider'
@@ -110,6 +111,8 @@ export function SetupSection() {
         <StarPad disabled={busy} />
       ) : isPyraminx(shape) ? (
         <PyraPad disabled={busy} />
+      ) : shape === 'ghost' ? (
+        <GhostPad disabled={busy} />
       ) : (
         <MovePad disabled={busy} />
       )}

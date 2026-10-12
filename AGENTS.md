@@ -5,7 +5,8 @@
 POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3
 ou 4x4**, **classique ou miroir**, plus cinq cuboïdes : le **1x2x3**, la
 **tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**
-et le **Floppy 3x3x1**, et cinq puzzles non cubiques : le **Pyraminx**, le
+et le **Floppy 3x3x1**, le **Floppy Ghost** (un Floppy Megaminx découpé en
+pentagramme dans un carré, qui se déforme), et cinq puzzles non cubiques : le **Pyraminx**, le
 **Master Pyraminx** (4x4), le **Pyraminx Jing** (pièces courbes), le
 **Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
@@ -17,7 +18,7 @@ tourner au survol d'un bouton ; sur 3x3, un onglet « Avancé » pour `M`, `E`,
 animé sur l'état actuel, avec sa notation et une phrase), on le mélange **ou
 on saisit sa propre configuration** en peignant les stickers directement en
 3D (sur tous les puzzles, Pyraminx et étoiles compris ; un puzzle déformable
-dans la forme où il se trouve), on peut **mémoriser un état**
+dans la forme où il se trouve, le Floppy Ghost pièce par pièce), on peut **mémoriser un état**
 pour y revenir, puis on le résout selon **plusieurs vraies méthodes** (par
 couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4, méthodes de la tour, du
 Domino, du Pyraminx et des étoiles...). La solution, affichée dès que le cube
@@ -25,7 +26,7 @@ est au repos, est découpée en **étapes nommées** qu'on joue d'un coup,
 **étape par étape** ou **coup par coup**, dans les deux sens, pour apprendre
 la méthode. Le but est
 pédagogique, pas l'optimalité du nombre de coups (à l'exception de la méthode
-**Optimale** du 2x2, du 1x2x3 et du Floppy, qui exploite leurs espaces
+**Optimale** du 2x2, du 1x2x3, du Floppy et du Floppy Ghost, qui exploite leurs espaces
 d'états réduits).
 
 Application **100% front-end**, sans backend. Interface **français par défaut**
@@ -34,8 +35,9 @@ mouvements internationale (U D L R F B) par défaut, ou française
 (H B G D F Ar)**, avec la même convention dans les deux pour les autres
 coups : préfixe `2` pour la tranche interne du 4x4 (`2R` / `2D`), suffixe `w`
 pour le coup large (`Rw` / `Dw`), et `M`, `E`, `S` pour les tranches du
-milieu du 3x3. Seule exception, le Pyraminx, où chaque notation garde son
-propre usage (voir « Le Pyraminx »).
+milieu du 3x3. Exceptions : le Pyraminx, où chaque notation garde son
+propre usage (voir « Le Pyraminx »), et le Floppy Ghost (lettres de
+fan2cube, voir « Le Floppy Ghost »).
 
 ---
 
@@ -94,6 +96,7 @@ src/
 │   │                     #   cubeDims/turnDims, isSolved/isBoxed, stateKey, cubeOrientations, comptages de stickers et de couleurs
 │   ├── pieces.ts         # Requêtes de pièces : colorAt, colorsOf, cubieAt, atHome/homeAt/homesOf, listedAs (pièces listées dans le même ordre)
 │   ├── morph.ts          # Pyramorphinx : un 2x2 taillé en tétraèdre (coins à 3 stickers, milieux de face à 1)
+│   ├── ghost.ts          # Floppy Ghost : 10 emplacements autour du centre, demi-tours = réflexions entières, notation fan2cube
 │   ├── pyraminx.ts       # Pyraminx, Master et Jing : modèle tétraédrique entier (couches, pointes, tranches, moitiés), mélange
 │   ├── pyraNotation.ts   # Leur notation hybride (FR fan2cube / US WCA), lecture des formules de fan2cube
 │   ├── star.ts           # Star Prism 2 et 4 étages : modèle hexagonal entier (anneaux + slash), notation fan2cube, mélange
@@ -118,7 +121,7 @@ src/
 │   │   ├── petrus.ts     #   Petrus : 2x2x2, 2x2x3 en <U, R, F>, arêtes, F2L en <R, U>, dernière couche en 3 temps
 │   │   ├── zz.ts         #   ZZ : EOLine, blocs en <L, U, R> puis <R, U>, OCLL, PLL
 │   │   ├── cube2.ts      #   2x2 : par couches (repère DBL) et optimal (BFS bidirectionnelle)
-│   │   ├── exhaustive.ts #   optimal des petits puzzles (1x2x3, Floppy) : BFS exhaustive via solvePieces
+│   │   ├── exhaustive.ts #   optimal des petits puzzles (1x2x3, Floppy, Floppy Ghost) : BFS exhaustive via solvePieces
 │   │   ├── tower.ts      #   tour 2x2x4 : Deux Pockets (forme, Pocket intérieur, Pocket extérieur)
 │   │   ├── pyraKit.ts    #   briques des Pyraminx : couleurs des faces, coins tournés en place, formules vues de chaque côté
 │   │   ├── pyraminx.ts   #   Pyraminx : centres d'abord (formules de fan2cube.fr)
@@ -129,7 +132,8 @@ src/
 │   │   ├── starPrism4.ts #   4-Star : deux étoiles (le plan du 2-Star projeté sur l'interne puis l'externe)
 │   │   ├── slimTower.ts  #   Slim Tower 2x2x3 : équateur puis coins (formules du Domino, fan2cube.fr)
 │   │   ├── domino.ts     #   Domino 3x3x2 : coins puis arêtes (formules de fan2cube.fr, reprises élargies par la tour)
-│   │   └── floppy.ts     #   Floppy 3x3x1 : coins puis arêtes retournées deux par deux (fan2cube.fr)
+│   │   ├── floppy.ts     #   Floppy 3x3x1 : coins puis arêtes retournées deux par deux (fan2cube.fr)
+│   │   └── ghost.ts      #   Floppy Ghost : sommets placés, orientés, puis arêtes (formules de fan2cube, des 5 côtés)
 │   ├── solver4/          # Solveur 4x4 par réduction :
 │   │   ├── centers.ts    #   centres par comptage (D, U, puis ceinture), recherches bornées sans régression
 │   │   ├── edges.ts      #   appariement des ailes (échanges nets FR-bas <-> BR/FL-haut, goal-checkés), flip L2E
@@ -140,6 +144,7 @@ src/
 │   │                     #   pièces fixes pré-remplies (centres du 3x3, demi-vis gauche des étoiles), stickers cachés (4-Star)
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
 │   ├── forms.ts          # Formes d'un puzzle déformable (tour) pour la saisie : formsOf, lookOf
+│   ├── pieceEditor.ts    # Saisie pièce par pièce (Floppy Ghost) : poses par emplacement, nextPiece, piecesIn
 │   ├── validate.ts       # validateCube : comptage par couleur (déduit du puzzle résolu) + solubilité (résolution bornée ; invariants de pièces + vrille sur 4x4)
 │   ├── shape.ts          # Cube miroir : épaisseur de couche par couleur, boîte d'un cubie (cubieBox) déduite de ses stickers
 │   ├── moveGuide.ts      # Guide des mouvements : lignes par forme (coup + opposé, puis quantifié), describeMove
@@ -170,14 +175,15 @@ src/
 │   ├── starGeometry.ts   # Géométrie des pièces de l'étoile (cerfs-volants extrudés), partagée vue 3D / vignette
 │   ├── pyraGeometry.ts   # Géométrie des pièces du Pyraminx (petits tétraèdres et octaèdres des cellules du modèle)
 │   ├── morphGeometry.ts  # Pièces du Pyramorphinx : case du 2x2 coupée par le tétraèdre (polyèdre convexe)
+│   ├── ghostGeometry.ts  # Pièces du Floppy Ghost : régions du carré coupé par le pentagramme, extrudées, posées par réflexions
 │   ├── jingGeometry.ts   # Géométrie courbe du Jing : surface arrondie maillée fin, découpée le long des coupes
-│   ├── polyDrawing.ts    # Dessin d'un puzzle sans grille : ses polygones et son lacet à l'écran
+│   ├── polyDrawing.ts    # Dessin d'un puzzle sans grille : ses polygones, son lacet à l'écran, sa teinte unique (argent du Ghost)
 │   ├── CubeModel.tsx     # Rendu d'un puzzle à grille depuis un état (couche qui tourne dans son groupe), partagé scène / guide
 │   ├── PolyModel.tsx     # Idem pour les puzzles sans grille (étoiles, Pyraminx)
 │   ├── PolyPiece.tsx     # Une de leurs pièces (corps + stickers), partagée vue / saisie / guide
 │   ├── noPieces.ts       # NO_PIECES : l'ensemble vide de pièces (rien ne tourne, rien en surbrillance)
 │   ├── PolyView.tsx      # Vue 3D d'un puzzle sans grille (PolyModel), animée comme les cubes
-│   ├── PolyEditView.tsx  # Saisie d'un puzzle sans grille : stickers cliquables, gris tant que vides
+│   ├── PolyEditView.tsx  # Saisie d'un puzzle sans grille : stickers cliquables, gris tant que vides (pièces au clic sur le Ghost)
 │   ├── GuideCanvas.tsx   # Guide des mouvements : un seul canvas WebGL sous la liste, chaque vignette y dessine sa scène
 │   ├── GuideTile.tsx     #   une vignette : scène + caméra propres, scissor sur sa boîte DOM, coup joué en boucle
 │   ├── guideCamera.ts    #   point de vue d'une vignette (la couche qui tourne face à la caméra)
@@ -187,11 +193,11 @@ src/
 │   ├── useTurnAnimation.ts # Hook : pilote la file de rotations (rotation de la couche active)
 │   ├── camera.ts         # Cadrage caméra de référence (position de départ et de recentrage)
 │   ├── CameraReset.tsx   # Recentrage caméra animé (lit viewStore, dans le <Canvas>)
-│   └── colors.ts         # Couleurs des stickers (hex), plastique, doré du cube miroir
+│   └── colors.ts         # Couleurs des stickers (hex), plastique, doré du cube miroir, argent du Floppy Ghost
 ├── components/
 │   ├── ui/               # Primitives réutilisables (Button, IconButton, SegmentedToggle, Select, Modal, ConfirmDialog)
 │   │                     #   + styles.ts : classes partagées (SECTION_BOX, SECTION_LABEL, TURN_PAIR)
-│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad (+ PadHeader,
+│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad / GhostPad (+ PadHeader,
 │   │                     #   PadButton : un coup, sa surbrillance au survol), LanguageToggle, NotationToggle,
 │   │                     #   RecenterButton, CollapseButton, SpeedSlider
 │   ├── picker/           # Choix du cube : CubePicker (bouton + modale), PickerTile, PuzzleIcon (vignette SVG),
@@ -279,9 +285,9 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
   droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL
   - 5 étapes.
-- **Optimale** (`optimal`, 2x2, 1x2x3 et Floppy) : recherche exhaustive,
+- **Optimale** (`optimal`, 2x2, 1x2x3, Floppy et Floppy Ghost) : recherche exhaustive,
   solution la plus courte possible (11 coups max sur 2x2, 6 sur 1x2x3, 8 sur
-  Floppy), une seule étape.
+  Floppy, 15 sur Floppy Ghost), une seule étape.
 - **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
   Pocket extérieur - voir « La tour 2x2x4 ».
 - **Équateur puis coins** (`equatorFirst`, Slim Tower 2x2x3) : les arêtes de
@@ -300,10 +306,11 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 - **Ailes puis co-ailes** (`wingsFirst`, Master Pyraminx) : co-sommets,
   pointes, centres, ailes, co-ailes, fin des centres - voir « Le Master
   Pyraminx ».
-- **Coins puis arêtes** (`cornersFirst`, Domino 3x3x2 et Floppy 3x3x1) : sur
-  le Domino, coins du bas, coins du haut, arêtes du bas, arêtes du haut ; sur
-  le Floppy, coins placés puis arêtes retournées - voir « Le Domino et le
-  Floppy ».
+- **Coins puis arêtes** (`cornersFirst`, Domino 3x3x2, Floppy 3x3x1 et
+  Floppy Ghost) : sur le Domino, coins du bas, coins du haut, arêtes du bas,
+  arêtes du haut ; sur le Floppy, coins placés puis arêtes retournées - voir
+  « Le Domino et le Floppy » ; sur le Floppy Ghost, sommets placés, sommets
+  orientés, arêtes retournées - voir « Le Floppy Ghost ».
 
 **Repère du 2x2** : sans centres, pas de repère fixe. Le coin en **DBL**
 (position `[-1,-1,-1]`) joue ce rôle : ses stickers définissent les couleurs
@@ -788,6 +795,67 @@ solveur optimal du 2x2, et les mêmes coups le résolvent. Un milieu de face
 les 81 lectures jusqu'à un 2x2 réel (vrilles des coins de somme nulle).
 D'où la « singularité » de fan2cube : un coin vrillé seul est légal.
 
+### Le Floppy Ghost (`ghost`)
+
+Le Floppy Ghost (fan2cube.fr/floppyghost1, le Floppy Megaminx Ghost) est
+une plaque carrée découpée le long des cinq droites d'un **pentagramme**.
+Sa mécanique est un Floppy Megaminx : un centre fixe (le pentagone), cinq
+arêtes (les branches de l'étoile) et cinq sommets (entre deux branches). Un
+coup **retourne un côté** d'un demi-tour, autour de l'axe qui passe par le
+centre perpendiculairement à sa coupe : son arête se retourne sur place,
+ses deux sommets s'échangent en se retournant. Le pentagramme est incliné
+(9° comme sur le schéma de la page) et un peu décentré : chaque pièce a sa
+forme, qu'un coup couche de travers, donc le puzzle se déforme.
+
+**Modèle entier** (`lib/ghost.ts`, puzzle sans grille, `isGridless`) : 10
+emplacements tous les 36° autour du centre (pairs : arêtes, impairs :
+sommets), des positions entières qui ne servent qu'à les distinguer
+(`GHOST_SLOTS`, `SHAPE_DIMS` `[7, 7, 1]`). Les normales des côtés sont des
+directions du plan tous les 18° (`PLANE_NORMALS` de geometry.ts, indices 20
+à 35 hors des 4 faces du cube), devant et derrière restent `F` et `B`. Le
+demi-tour du côté k est une **réflexion** : emplacement m -> 4k - m (mod 10),
+direction j -> 9 - 8k - j (mod 20), z -> -z. Un seul sens de tenue
+(`cubeOrientations` : le carré n'a aucune symétrie qui garde la mécanique).
+Les couleurs (celles du cube, dessinées en argent) ne servent qu'à identifier
+les pièces ; deux paires arête/sommet partagent les mêmes, d'où les arêtes
+listées avant les sommets (elles ne quittent jamais leur emplacement et
+prennent les leurs en premier dans `pieceSearch`).
+
+**30 720 états**, diamètre 15, tout l'espace parcouru par les tests. La page
+annonce 5!·2⁵/2 = 1 920 en oubliant le sens des sommets (×16), que sa propre
+méthode fait pourtant tourner.
+
+**Notation** : lettres de fan2cube en français (H, D, B, P, G : haut,
+droite, bas à droite, bas à gauche, gauche), U R D B L en anglais, toujours
+avec `2` (un demi-tour, le `H²` de la page). `parseGhostMoves` lit les
+formules de la page.
+
+**Rendu** (`three/ghostGeometry.ts`) : chaque pièce est sa région du carré
+(découpée par demi-plans), extrudée, dessinée chez elle puis posée par
+l'élément du groupe diédral qui l'a amenée (rotation d'un cinquième ou
+retournement autour d'un axe), retrouvé depuis son emplacement et le sens de
+son sticker avant. Tout est argenté (`PolyDrawing.skin`). Un test vérifie
+que la géométrie donne à chaque pièce les côtés du carré que disent ses
+stickers, et que **chaque pose d'un emplacement a sa propre forme** :
+l'argent suffit à tout distinguer.
+
+**Résolution** (`methods/ghost.ts`, méthode **Coins puis arêtes**, d'après
+la page) : (1) sommets placés avec le 3-cycle `(H²D²)²` ; (2) sommets
+orientés avec `D²B²P²G².P²B²D²H²` (retourne les deux sommets du haut, et
+deux arêtes) ; (3) arêtes retournées deux par deux avec `(H²D²)³`. Chaque
+formule sert de générateur depuis les cinq côtés (la mécanique est la même
+vue de chacun), conjuguée par des coups simples. Aussi la méthode
+**Optimale** (BFS exhaustive).
+
+**Saisie pièce par pièce** (`lib/pieceEditor.ts`) : des milliers de formes,
+impossibles à proposer en vignettes. Un clic sur un emplacement y pose la
+pose suivante qui s'y loge (autre pièce, ou la même retournée), en sautant
+les pièces déjà posées ailleurs ; un emplacement vide montre sa pièce
+d'origine en gris. Les poses se trouvent en tournant chaque pièce seule
+depuis chez elle. La saisie reste la table de stickers habituelle
+(`isComplete`, `buildCube`, `progress` y passent la main), donc « Depuis
+l'état actuel » et la validation marchent tels quels.
+
 ### Le cube miroir (`src/lib/shape.ts`)
 
 Le **cube miroir** (Mirror Blocks) est un _shape mod_ : mécaniquement un NxN
@@ -858,9 +926,9 @@ mobile et en saisie, une seule carte) :
   **puzzles** de la catégorie choisie (toujours ouvert sur les catégories ; le
   puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`), dans
   l'ordre : Standard 2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 2x2x3
-  (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy) (un puzzle d'une
+  (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Master Pyraminx
-  (4x4)/Pyraminx Jing, Étoiles 2-Star Prism (UFO)/4-Star Prism.
+  (4x4)/Pyraminx Jing/Pyramorphinx, Étoiles 2-Star Prism (UFO)/4-Star Prism.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

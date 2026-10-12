@@ -17,6 +17,7 @@ export type CubeShape =
   | 'pyra4'
   | 'jing'
   | 'morph'
+  | 'ghost'
   | 'star'
   | 'star4'
 
@@ -48,6 +49,9 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   jing: [3, 3, 3],
   // The Pyramorphinx is a 2x2 cut down to a tetrahedron (morph.ts).
   morph: [2, 2, 2],
+  // The Floppy Ghost (ghost.ts) is no grid: its slots sit within +-3 in its
+  // plane, all at z = 0.
+  ghost: [7, 7, 1],
   // The star prisms (star.ts) are no grid: their own module builds and turns
   // them. These only bound their hexagonal model (q and r within +-1, the
   // layers at y = +-1 and +-2).
@@ -72,9 +76,10 @@ export const isPyraminx = (shape: CubeShape): shape is PyraShape =>
   shape === 'pyra' || shape === 'pyra4' || shape === 'jing'
 
 /** Whether a shape builds and turns in its own module rather than on a grid
- *  of layers (the star prisms, the Pyraminx): drawn from polygons, turned
- *  by its own pad. */
-export const isGridless = (shape: CubeShape): boolean => isStar(shape) || isPyraminx(shape)
+ *  of layers (the star prisms, the Pyraminx, the Floppy Ghost): drawn from
+ *  polygons, turned by its own pad. */
+export const isGridless = (shape: CubeShape): boolean =>
+  isStar(shape) || isPyraminx(shape) || shape === 'ghost'
 
 /** Whether a shape is drawn from polygons rather than cubie boxes: every
  *  gridless one, and the Pyramorphinx (a 2x2 whose pieces are not cubes). */
@@ -104,6 +109,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   pyra4: false,
   jing: false,
   morph: true,
+  ghost: false,
   star: false,
   star4: false,
 }
@@ -128,6 +134,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   pyra4: [],
   jing: [],
   morph: [],
+  ghost: [],
   star: [],
   star4: [],
 }
@@ -150,6 +157,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   pyra4: [],
   jing: [],
   morph: [],
+  ghost: [],
   star: [],
   star4: [],
 }
@@ -168,6 +176,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   pyra4: 'Master Pyraminx (4x4)',
   jing: 'Pyraminx Jing',
   morph: 'Pyramorphinx',
+  ghost: 'Floppy Ghost',
   star: '2-Star Prism (UFO)',
   star4: '4-Star Prism',
 }
@@ -201,6 +210,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   pyra4: false,
   jing: false,
   morph: false,
+  ghost: false,
   star: false,
   star4: false,
 }
@@ -345,16 +355,29 @@ export interface PyraMove {
   readonly deep?: true
 }
 
-/** Any turn of any puzzle: a face-layer move, a star prism's or the
- *  Pyraminx's. Generic code (the animation queue, the display) handles
- *  turns; solvers of the cubes, which only ever make face moves, keep `Move`. */
-export type Turn = Move | StarMove | PyraMove
+/** A side of the Floppy Ghost, clockwise from the top: the top (U), the
+ *  right (R), the bottom right (D), the bottom left (B), the left (L). */
+export type GhostSide = 'U' | 'R' | 'D' | 'B' | 'L'
+
+/** A Floppy Ghost turn: the half turn of one side (ghost.ts). */
+export interface GhostMove {
+  readonly side: GhostSide
+}
+
+/** Any turn of any puzzle: a face-layer move, a star prism's, the
+ *  Pyraminx's or the Floppy Ghost's. Generic code (the animation queue, the
+ *  display) handles turns; solvers of the cubes, which only ever make face
+ *  moves, keep `Move`. */
+export type Turn = Move | StarMove | PyraMove | GhostMove
 
 /** Whether a turn is a star prism's. */
 export const isStarMove = (turn: Turn): turn is StarMove => 'ring' in turn || 'slash' in turn
 
 /** Whether a turn is the Pyraminx's. */
 export const isPyraMove = (turn: Turn): turn is PyraMove => 'vertex' in turn
+
+/** Whether a turn is the Floppy Ghost's. */
+export const isGhostMove = (turn: Turn): turn is GhostMove => 'side' in turn
 
 /** Whether a turn is a face-layer move (the cubes and cuboids). */
 export const isFaceMove = (turn: Turn): turn is Move => 'face' in turn

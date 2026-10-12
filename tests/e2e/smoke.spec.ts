@@ -225,19 +225,21 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
 
 /** Puzzles entered from a scrambled state, then solved: their category, name,
  *  and the stickers the editor counts. */
-const ENTERED: [string, string, number][] = [
-  ['Standard', '2x2 (Pocket)', 24],
+const ENTERED: [string, string, string][] = [
+  ['Standard', '2x2 (Pocket)', '24 / 24 stickers'],
   // Most often out of its box once scrambled: entered in the form it stands in.
-  ['Tower', '2x2x4', 40],
-  ['Pyramides', 'Pyraminx', 36],
-  ['Pyramides', 'Master Pyraminx (4x4)', 64],
-  ['Pyramides', 'Pyraminx Jing', 28],
-  ['Pyramides', 'Pyramorphinx', 16],
+  ['Tower', '2x2x4', '40 / 40 stickers'],
+  ['Pyramides', 'Pyraminx', '36 / 36 stickers'],
+  ['Pyramides', 'Master Pyraminx (4x4)', '64 / 64 stickers'],
+  ['Pyramides', 'Pyraminx Jing', '28 / 28 stickers'],
+  ['Pyramides', 'Pyramorphinx', '16 / 16 stickers'],
+  // Entered piece by piece: its ten pieces counted.
+  ['Plats', 'Floppy Ghost', '10 / 10 pièces'],
   // Only the stickers one sees count: the inner points' flat faces fill in.
-  ['Étoiles', '4-Star Prism', 64],
+  ['Étoiles', '4-Star Prism', '64 / 64 stickers'],
 ]
 
-for (const [category, name, stickers] of ENTERED) {
+for (const [category, name, complete] of ENTERED) {
   test(`${name}: scramble, enter from the current state, apply, then solve`, async ({ page }) => {
     test.setTimeout(120000)
     const errors: string[] = []
@@ -249,7 +251,7 @@ for (const [category, name, stickers] of ENTERED) {
     const fromCurrent = page.getByRole('button', { name: /Depuis l.?.tat actuel/ })
     await expect(fromCurrent).toBeEnabled({ timeout: 30000 })
     await fromCurrent.click()
-    await expect(page.getByText(`${stickers} / ${stickers} stickers`)).toBeVisible()
+    await expect(page.getByText(complete)).toBeVisible()
     await page.getByRole('button', { name: 'Utiliser ce cube' }).click()
     const solve = page.getByRole('button', { name: 'Résoudre' })
     await expect(solve).toBeEnabled()

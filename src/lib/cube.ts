@@ -9,6 +9,7 @@ import {
   quarterTurnFits,
   rotateN,
 } from './geometry'
+import { solvedGhost } from './ghost'
 import { solvedMorph } from './morph'
 import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
@@ -86,6 +87,7 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (isStar(shape)) return solvedStar(shape)
   if (isPyraminx(shape)) return solvedPyra(shape)
   if (shape === 'morph') return solvedMorph()
+  if (shape === 'ghost') return solvedGhost()
   const dims = SHAPE_DIMS[shape]
   const colors = faceColorsOf(shape)
   const cubies: Cubie[] = []
@@ -274,7 +276,7 @@ function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
  * a cube), or a half turn where the shape forbids quarter ones (4 on a
  * 1x2x3, 8 on the tower and the Domino). On a star prism, its own
  * symmetries (12, see `STAR_SYMMETRIES`), and so on the Pyraminx (12,
- * `PYRA_SYMMETRIES`). Used by the editor (valid piece
+ * `PYRA_SYMMETRIES`); the Floppy Ghost has none but itself. Used by the editor (valid piece
  * placements) and the 2x2 solver (a 2x2 has no centers, so "solved" is any
  * orientation of the solved cube).
  */
@@ -285,9 +287,11 @@ export function cubeOrientations(cube: Cube): Cube[] {
     ? STAR_SYMMETRIES
     : isPyraminx(shape)
       ? PYRA_SYMMETRIES
-      : (['x', 'y', 'z'] as Axis[]).map(
-          (axis) => (c: Cube) => rotateCube(c, axis, quarterTurnFits(dims, axis) ? 1 : 2),
-        )
+      : shape === 'ghost'
+        ? [] // held one way only: no turn of it keeps its square
+        : (['x', 'y', 'z'] as Axis[]).map(
+            (axis) => (c: Cube) => rotateCube(c, axis, quarterTurnFits(dims, axis) ? 1 : 2),
+          )
   const found = new Map<string, Cube>([[stateKey(cube), cube]])
   let frontier = [cube]
   while (frontier.length) {

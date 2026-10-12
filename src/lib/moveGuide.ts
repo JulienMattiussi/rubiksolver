@@ -3,12 +3,14 @@ import { faceLayers } from './geometry'
 import { advancedMovesFor, amountsFor, FACES, movesFor, sameLayer } from './moves'
 import { methodTurns } from './solver'
 import { PYRA_LAYERS, PYRA_VERTICES, pyraLayerOf, pyraTurn, type PyraLayer } from './pyraminx'
+import { GHOST_TURNS } from './ghost'
 import { signedPieces, STAR_RINGS } from './star'
-import { isFaceMove, isPyraminx, isPyraMove, isStar, SHAPE_DIMS } from './types'
+import { isFaceMove, isGhostMove, isPyraminx, isPyraMove, isStar, SHAPE_DIMS } from './types'
 import type {
   CubeShape,
   Dims,
   Face,
+  GhostSide,
   Move,
   PyraMove,
   PyraShape,
@@ -24,12 +26,13 @@ import type {
  * layer shows its two directions side by side (`R` and `R'`, `1` and `-1`),
  * then its bigger amount (`R2`; `2` and `-2`, then `3` on a star prism, where
  * three pieces is a half turn either way; nothing more on the Pyraminx, whose
- * turns are thirds). The layers are the pad's (its
+ * turns are thirds, nor on the Floppy Ghost, whose turns are half turns).
+ * The layers are the pad's (its
  * advanced tab included), plus any a solving method turns, so the guide also
  * reads the solutions' notation.
  */
 
-type GuideSection = 'faces' | 'middle' | 'slices' | 'wide' | 'rings' | 'slash' | PyraLayer
+type GuideSection = 'faces' | 'middle' | 'slices' | 'wide' | 'rings' | 'slash' | 'sides' | PyraLayer
 
 export interface GuideGroup {
   readonly section: GuideSection
@@ -61,6 +64,11 @@ export type MoveDescription =
       readonly vertex: PyraVertex
       readonly clockwise: boolean
       readonly slice?: 1 | 2 | 3
+    }
+  | {
+      /** A Floppy Ghost side flipped over. */
+      readonly kind: 'side'
+      readonly side: GhostSide
     }
 
 /** The face each middle slice of a 3-layer axis follows (M: L, E: D, S: F). */
@@ -135,11 +143,13 @@ function pyraGuide(shape: PyraShape): GuideGroup[] {
 /** The guide of a shape, section by section. */
 export function moveGuide(shape: CubeShape): GuideGroup[] {
   if (isStar(shape)) return starGuide(shape)
+  if (shape === 'ghost') return [{ section: 'sides', rows: GHOST_TURNS.map((turn) => [turn]) }]
   return isPyraminx(shape) ? pyraGuide(shape) : cubeGuide(shape)
 }
 
 /** What a turn does on a shape. */
 export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
+  if (isGhostMove(turn)) return { kind: 'side', side: turn.side }
   if (isPyraMove(turn)) {
     const layer = pyraLayerOf(turn)
     const kind =

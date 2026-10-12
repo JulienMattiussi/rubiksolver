@@ -1,4 +1,6 @@
 import { isStar, type CubeShape, type Cubie } from '@/lib/types'
+import { GHOST_STICKER } from './colors'
+import { GHOST_YAW, ghostPolygons } from './ghostGeometry'
 import { jingCut, jingPolygons, jingThumbnail } from './jingGeometry'
 import { MORPH_ORIENT, morphPolygons } from './morphGeometry'
 import type { PiecePolygon } from './polygons'
@@ -18,6 +20,9 @@ export interface PolyDrawing {
   /** How the model's frame stands in the scene (a quaternion), when its
    *  polygons and turns are in it (the Pyramorphinx turns like a 2x2). */
   readonly orient?: readonly [number, number, number, number]
+  /** The one color of every sticker, when the puzzle wears a single one
+   *  (the Floppy Ghost's silver): its pieces are told apart by shape. */
+  readonly skin?: string
 }
 
 const STAR: PolyDrawing = { polygons: (c) => starPolygons(c, false), yaw: STAR_YAW }
@@ -33,11 +38,14 @@ const JING: PolyDrawing = {
 
 const MORPH: PolyDrawing = { polygons: morphPolygons, yaw: PYRA_YAW, orient: MORPH_ORIENT }
 
+const GHOST: PolyDrawing = { polygons: ghostPolygons, yaw: GHOST_YAW, skin: GHOST_STICKER }
+
 /** The drawing of a shape drawn from polygons (the star prisms, the
- *  Pyraminxes, the Jing, the Pyramorphinx). */
+ *  Pyraminxes, the Jing, the Pyramorphinx, the Floppy Ghost). */
 export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (isStar(shape)) return shape === 'star4' ? STAR4 : STAR
   if (shape === 'morph') return MORPH
+  if (shape === 'ghost') return GHOST
   return shape === 'pyra4' ? MASTER : shape === 'jing' ? JING : PYRAMINX
 }
 

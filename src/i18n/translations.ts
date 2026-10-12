@@ -3,7 +3,7 @@
 
 import type { LayerKind } from '@/lib/moves'
 import type { PyraLayer } from '@/lib/pyraminx'
-import type { PyraVertex } from '@/lib/types'
+import type { GhostSide, PyraVertex } from '@/lib/types'
 import {
   CORNER_NAMES_EN,
   CORNER_NAMES_FR,
@@ -11,6 +11,8 @@ import {
   describeFr,
   FACE_NAMES_EN,
   FACE_NAMES_FR,
+  SIDE_NAMES_EN,
+  SIDE_NAMES_FR,
   STAR_LAYER_EN,
   STAR_LAYER_FR,
   type StarLayer,
@@ -50,6 +52,7 @@ const fr = {
   starTurnTitle: (layer: StarLayer, clockwise: boolean) =>
     `Tourner ${STAR_LAYER_FR[layer]} d’une pièce dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
   slashTitle: 'Slash : retourner la moitié droite',
+  ghostTurnTitle: (side: GhostSide) => `Retourner ${SIDE_NAMES_FR[side]} (demi-tour)`,
   pyraTurnTitle: (vertex: PyraVertex, layer: PyraLayer, clockwise: boolean) => {
     const corner = CORNER_NAMES_FR[vertex]
     const target = {
@@ -86,6 +89,9 @@ const fr = {
   paletteMirror: 'Épaisseurs',
   thickness: (rank: number) => `Épaisseur ${rank}`,
   filledOf: (n: number, total: number) => `${n} / ${total} stickers`,
+  editHintPieces:
+    'Cliquez un emplacement pour y poser une pièce qui peut s’y loger : chaque clic passe à la suivante (autre pièce, ou la même retournée). Tournez la vue pour voir l’arrière. Une pièce déjà posée ailleurs n’est pas proposée.',
+  piecesOf: (n: number, total: number) => `${n} / ${total} pièces`,
   clearAll: 'Tout effacer',
   fromCurrent: 'Depuis l’état actuel',
   chooseForm: 'Dans quelle forme est votre puzzle ?',
@@ -144,6 +150,7 @@ const fr = {
     slice2: 'Deuxièmes tranches (ailes, co-ailes, centres)',
     slice3: 'Faces',
     deep: 'Sommets (chacun sa moitié du puzzle)',
+    sides: 'Côtés (demi-tours)',
   },
   describeMove: describeFr,
   guideBlocked: 'Ce mouvement n’est pas possible dans cette configuration',
@@ -225,11 +232,11 @@ const fr = {
     },
     cornersFirst: {
       name: 'Coins puis arêtes',
-      desc: 'Les coins d’abord, puis les arêtes, chaque fois avec une formule qui ne touche que ce qui reste à faire (Domino : bas puis haut ; Floppy : les coins placés, puis les arêtes retournées deux par deux).',
+      desc: 'Les coins d’abord, puis les arêtes, chaque fois avec une formule qui ne touche que ce qui reste à faire (Domino : bas puis haut ; Floppy : les coins placés, puis les arêtes retournées deux par deux ; Floppy Ghost : les sommets placés puis orientés, puis les arêtes retournées deux par deux).',
     },
     optimal: {
       name: 'Optimale',
-      desc: 'Recherche exhaustive de la solution la plus courte possible (2x2, 1x2x3 et Floppy, dont les espaces d’états sont assez petits).',
+      desc: 'Recherche exhaustive de la solution la plus courte possible (2x2, 1x2x3, Floppy et Floppy Ghost, dont les espaces d’états sont assez petits).',
     },
   },
   stepsLabel: 'Étapes',
@@ -298,6 +305,8 @@ const fr = {
     stepMidges: 'Co-ailes',
     stepFinishCenters: 'Finir les centres',
     stepJingCorners: 'Sommets',
+    stepGhostCorners: 'Placer les sommets',
+    stepGhostTwist: 'Orienter les sommets',
     stepAsPocket: 'Résoudre comme un Pocket',
     stepPlaceEdges: 'Placer les arêtes',
     stepInnerPocket: 'Pocket intérieur',
@@ -341,6 +350,7 @@ const en: Translations = {
   starTurnTitle: (layer: StarLayer, clockwise: boolean) =>
     `Turn the ${STAR_LAYER_EN[layer]} layer one piece ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   slashTitle: 'Slash: flip the right half',
+  ghostTurnTitle: (side: GhostSide) => `Flip ${SIDE_NAMES_EN[side]} over (half turn)`,
   pyraTurnTitle: (vertex: PyraVertex, layer: PyraLayer, clockwise: boolean) => {
     const corner = CORNER_NAMES_EN[vertex]
     const target = {
@@ -377,6 +387,9 @@ const en: Translations = {
   paletteMirror: 'Thicknesses',
   thickness: (rank: number) => `Thickness ${rank}`,
   filledOf: (n: number, total: number) => `${n} / ${total} stickers`,
+  editHintPieces:
+    'Click a slot to put a piece that fits there: each click moves on to the next one (another piece, or the same one flipped). Orbit the view to see the back. A piece already placed elsewhere is not offered.',
+  piecesOf: (n: number, total: number) => `${n} / ${total} pieces`,
   clearAll: 'Clear all',
   fromCurrent: 'From current state',
   chooseForm: 'What shape is your puzzle in?',
@@ -433,6 +446,7 @@ const en: Translations = {
     slice2: 'Second slices (wings, midges, centers)',
     slice3: 'Faces',
     deep: 'Corners (each its half of the puzzle)',
+    sides: 'Sides (half turns)',
   },
   describeMove: describeEn,
   guideBlocked: 'This move is not possible in this configuration',
@@ -514,11 +528,11 @@ const en: Translations = {
     },
     cornersFirst: {
       name: 'Corners then edges',
-      desc: 'Corners first, then edges, each time with a formula that only touches what is left to do (Domino: bottom then top; Floppy: corners placed, then edges flipped two at a time).',
+      desc: 'Corners first, then edges, each time with a formula that only touches what is left to do (Domino: bottom then top; Floppy: corners placed, then edges flipped two at a time; Floppy Ghost: corners placed then turned over, then edges flipped two at a time).',
     },
     optimal: {
       name: 'Optimal',
-      desc: 'Exhaustive search for the shortest possible solution (2x2, 1x2x3 and Floppy, whose state spaces are small enough).',
+      desc: 'Exhaustive search for the shortest possible solution (2x2, 1x2x3, Floppy and Floppy Ghost, whose state spaces are small enough).',
     },
   },
   stepsLabel: 'Steps',
@@ -587,6 +601,8 @@ const en: Translations = {
     stepMidges: 'Midges',
     stepFinishCenters: 'Finish the centers',
     stepJingCorners: 'Corners',
+    stepGhostCorners: 'Place the corners',
+    stepGhostTwist: 'Turn the corners over',
     stepAsPocket: 'Solve it as a Pocket',
     stepPlaceEdges: 'Place the edges',
     stepInnerPocket: 'Inner Pocket',

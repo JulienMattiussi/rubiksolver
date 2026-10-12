@@ -1,4 +1,4 @@
-import { countColors, cubeOrientations, cubeShape } from './cube'
+import { countColors, cubeOrientations, cubeShape, solvedCube, stickersTotal } from './cube'
 import { normalIndex } from './geometry'
 import {
   stickerId,
@@ -8,6 +8,7 @@ import {
   type Slot,
   type SlotTables,
 } from './editorTables'
+import { entersByPieces, piecesCube } from './pieceEditor'
 import type { Color, Cube, CubeShape } from './types'
 
 /**
@@ -34,6 +35,8 @@ import type { Color, Cube, CubeShape } from './types'
  *
  * A shape-shifting puzzle is entered in the form it stands in: every function
  * here takes that `form` (a state of it, see forms.ts), the box by default.
+ * The Floppy Ghost is entered piece by piece instead (pieceEditor.ts), into
+ * the same map of stickers.
  */
 
 /** The slots a cube of `shape` exposes to the editor. */
@@ -101,6 +104,12 @@ export function progress(
   shape: CubeShape,
   form?: Cube,
 ): { filled: number; total: number; remaining: Record<Color, number> } {
+  if (entersByPieces(shape)) {
+    // Each piece placed brings its own stickers.
+    const remaining = countColors(solvedCube(shape).flatMap((c) => c.stickers.map((s) => s.color)))
+    for (const color of Object.values(edit)) remaining[color]--
+    return { filled: Object.keys(edit).length, total: stickersTotal(shape), remaining }
+  }
   const shown = slotsFor(shape, form).flatMap((slot) => slot.stickers.filter((s) => !s.hidden))
   const remaining = countColors(shown.map((s) => s.solvedColor))
   let filled = 0
@@ -115,6 +124,7 @@ export function progress(
 
 /** Every sticker slot of the shape (in that form) is painted. */
 export function isComplete(edit: EditStickers, shape: CubeShape, form?: Cube): boolean {
+  if (entersByPieces(shape)) return piecesCube(edit, shape) !== undefined
   return slotsFor(shape, form).every((slot) => slot.stickers.every((s) => edit[s.id] !== undefined))
 }
 
@@ -230,6 +240,11 @@ export function usesRealPieces(cube: Cube): boolean {
 
 /** Build a full Cube from a complete edit state (throws if incomplete). */
 export function buildCube(edit: EditStickers, shape: CubeShape, form?: Cube): Cube {
+  if (entersByPieces(shape)) {
+    const cube = piecesCube(edit, shape)
+    if (!cube) throw new Error('buildCube: a slot holds no piece')
+    return cube
+  }
   return slotsFor(shape, form).map((slot) => ({
     position: slot.position,
     stickers: slot.stickers.map((s) => {

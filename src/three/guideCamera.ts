@@ -13,7 +13,8 @@ const ZOOM = 0.78
  * mirrored so the turning layer faces the camera (from below for D, from
  * behind for B). A star prism's lower layers are seen from below, a
  * Pyraminx corner from its own side, at the home view's height; on a
- * puzzle drawn in its own frame, from where its turning face looks.
+ * puzzle drawn in its own frame, from where its turning face looks; the
+ * Floppy Ghost from the front, where its sides flip over.
  */
 export function guideCameraPosition(turn: Turn, drawing?: PolyDrawing): [number, number, number] {
   const [x, y, z] = HOME_POSITION.clone().multiplyScalar(ZOOM).toArray()
@@ -26,6 +27,8 @@ export function guideCameraPosition(turn: Turn, drawing?: PolyDrawing): [number,
     const length = Math.hypot(...mix)
     return mix.map((v) => (v / length) * distance) as [number, number, number]
   }
+  // A Floppy Ghost side flips over in front of the home framing.
+  if ('side' in turn) return [x, y, z]
   if ('slash' in turn) return [x, y, z]
   if ('ring' in turn) return turn.ring === 'D' || turn.ring === 'd' ? [x, -y, z] : [x, y, z]
   if ('vertex' in turn) {
