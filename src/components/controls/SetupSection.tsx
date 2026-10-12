@@ -35,6 +35,8 @@ export function SetupSection() {
 
   const [confirmReplace, setConfirmReplace] = useState(false)
   const busy = useCube(selectBusy)
+  // A solution playing is paused from its own panel (SolvePanel).
+  const solving = useCube((s) => s.solving)
   const solved = useCube(selectSolved)
   const alreadySaved = saved?.cube === encodeCube(cube)
   const savedTime = saved
@@ -50,13 +52,13 @@ export function SetupSection() {
           <Shuffle className="size-4" aria-hidden />
           {t.scramble}
         </Button>
-        {busy ? (
+        {busy && !solving ? (
           <Button onClick={stop}>
             <Square className="size-4" aria-hidden />
             {t.stop}
           </Button>
         ) : (
-          <Button onClick={reset} disabled={solved}>
+          <Button onClick={reset} disabled={solved || busy}>
             <RotateCcw className="size-4" aria-hidden />
             {t.reset}
           </Button>

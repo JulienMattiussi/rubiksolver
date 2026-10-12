@@ -1,4 +1,11 @@
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Sparkles } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Sparkles,
+  Square,
+} from 'lucide-react'
 import { stepEnd } from '@/lib/progress'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
@@ -20,6 +27,8 @@ export function SolvePanel() {
   const t = useI18n((s) => s.t)
   useAutoPlan()
   const solveAll = useCube((s) => s.solveAll)
+  const pause = useCube((s) => s.pause)
+  const solving = useCube((s) => s.solving)
   const playNextStep = useCube((s) => s.playNextStep)
   const playNextMove = useCube((s) => s.playNextMove)
   const undoStep = useCube((s) => s.undoStep)
@@ -41,15 +50,23 @@ export function SolvePanel() {
       <MethodSelect disabled={busy} />
 
       <div className="grid grid-cols-2 gap-2">
-        <Button
-          variant="primary"
-          onClick={solveAll}
-          disabled={busy || solved}
-          className="col-span-2"
-        >
-          <Sparkles className="size-4" aria-hidden />
-          {t.solve}
-        </Button>
+        {busy && solving ? (
+          // Pauses where it stands: the move under way ends, the rest waits.
+          <Button onClick={pause} className="col-span-2" title={t.pauseTitle}>
+            <Square className="size-4" aria-hidden />
+            {t.stop}
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            onClick={solveAll}
+            disabled={busy || solved}
+            className="col-span-2"
+          >
+            <Sparkles className="size-4" aria-hidden />
+            {t.solve}
+          </Button>
+        )}
         <Button onClick={undoStep} disabled={back}>
           <ChevronsLeft className="size-4" aria-hidden />
           {midStep ? t.undoStep : t.prevStep}

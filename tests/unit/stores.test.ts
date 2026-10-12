@@ -109,6 +109,25 @@ describe('cube store', () => {
     expect(isSolved(useCube.getState().cube)).toBe(true)
   })
 
+  it('pauses a solution after the move under way, then carries on from there', () => {
+    useCube.getState().loadCube(applyMoves(solvedCube(), parseMoves("R U F' L2 D B'")))
+    useCube.getState().solveAll()
+    const moves = useCube.getState().steps!.flatMap((s) => [...s.moves])
+    useCube.getState().startNext() // the first move animates
+    useCube.getState().pause()
+    expect(useCube.getState().queue).toEqual([])
+    expect(useCube.getState().active).toEqual(moves[0])
+    expect(useCube.getState().dispatched).toBe(1)
+    drain()
+    expect(useCube.getState().solving).toBe(false)
+    // The rest is still there, played from where it stopped.
+    useCube.getState().playNextMove()
+    expect(useCube.getState().queue).toEqual([moves[1]])
+    useCube.getState().solveAll()
+    drain()
+    expect(isSolved(useCube.getState().cube)).toBe(true)
+  })
+
   it('drops the solution when the cube is turned by hand', () => {
     useCube.getState().loadCube(applyMoves(solvedCube(), parseMoves('R')))
     useCube.getState().prepareSolution()

@@ -849,7 +849,10 @@ mobile et en saisie, une seule carte) :
   plus didactique : le coup en cours ou le prochain est surligné dans sa
   séquence, ceux déjà joués s'estompent). Au milieu d'une étape, ses boutons
   deviennent **Défaire l'étape** et **Finir l'étape**. Reculer rejoue les
-  coups à l'envers, sans quitter la solution ; « Arrêter » l'abandonne, et la **liste des étapes**
+  coups à l'envers, sans quitter la solution. Pendant qu'elle joue,
+  Résoudre devient **Arrêter** (dans ce même panneau) : le mouvement en
+  cours se termine, la suite attend, et les boutons reprennent de là ;
+  l'Arrêter de gauche ne sert plus qu'au mélange, et la **liste des étapes**
   nommées avec le total de rotations et le surlignage de l'étape en cours.
   Les étapes s'affichent sans attendre : le **plan** de la méthode dès son
   choix (`PlanOutline`, « si nécessaire » sur les étapes qu'on saute

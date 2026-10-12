@@ -80,6 +80,10 @@ interface CubeStore {
   /** Halt the queue. The solution goes with it: the cube now sits between
    *  two of its steps, so neither "all played" nor "next step" holds. */
   stop: () => void
+  /** Pause a solution playing: the move under way ends, the rest waits.
+   *  The solution stays, its position where that move leaves it, so the
+   *  step and move buttons (or Solve) carry on from there. */
+  pause: () => void
   /** Replace the cube with a specific state (used by the editor). */
   loadCube: (cube: Cube) => void
   setTurnDuration: (seconds: number) => void
@@ -211,6 +215,15 @@ export const useCube = create<CubeStore>((set, get) => ({
   loadCube: (cube) => set(loadedCube(cube)),
 
   stop: () => set({ queue: [], active: null, solving: false, ...clearSolution() }),
+
+  pause: () =>
+    set((s) => {
+      if (!s.solving || s.queue.length === 0) return s
+      // The queued moves are dropped: the solution stands that many short of
+      // where it was heading (that many past it, going back).
+      const dispatched = s.rewinding ? s.dispatched + s.queue.length : s.dispatched - s.queue.length
+      return { queue: [], dispatched, solving: s.active !== null }
+    }),
 
   setTurnDuration: (seconds) => set({ turnDuration: seconds }),
 
