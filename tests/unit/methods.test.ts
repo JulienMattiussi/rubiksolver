@@ -158,6 +158,7 @@ describe('cube picker', () => {
       pyramid: ['pyra', 'pyra4', 'pyra5', 'jing', 'morph'],
       octahedron: ['oct4', 'rainbow'],
       star: ['star', 'star4'],
+      odd: ['violet'],
     })
   })
 })

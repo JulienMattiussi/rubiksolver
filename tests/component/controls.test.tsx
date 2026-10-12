@@ -160,7 +160,7 @@ describe('<Controls />', () => {
     expect(screen.queryByRole('button', { name: 'Tranche' })).not.toBeInTheDocument()
     const jammed = (face: string) =>
       screen.getAllByRole('button', {
-        name: `Bloqué : la tour n’a pas de couche complète sur la ${face} dans cette position`,
+        name: `Bloqué : la ${face} ne peut pas tourner dans cette position`,
       })[0]
     // In its box, only its ends turn as outer layers; R has nothing to turn.
     expect(jammed('face de droite')).toBeDisabled()

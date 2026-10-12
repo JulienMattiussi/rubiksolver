@@ -8,6 +8,7 @@ import { polyDrawing, type PolyDrawing } from './polyDrawing'
 
 /** No turn of the frame (a puzzle whose polygons are already in the scene's). */
 const IDENTITY = [0, 0, 0, 1] as const
+const ORIGIN = [0, 0, 0] as const
 
 /** Where the still inside of a turn is drawn from: no piece, no stickers. */
 const INSIDE: Cubie = { position: [0, 0, 0], stickers: [] }
@@ -29,7 +30,7 @@ export function PolyModel({ cube, groupRef, isTurning, highlighted = NO_PIECES }
   )
   return (
     <group rotation={[0, drawing.yaw, 0]}>
-      <group quaternion={drawing.orient ?? IDENTITY}>
+      <group quaternion={drawing.orient ?? IDENTITY} position={drawing.offset ?? ORIGIN}>
         {cube.map((c, i) =>
           isTurning(i) ? null : (
             <PolyPiece key={i} cubie={c} drawing={drawing} highlighted={highlighted(i)} />

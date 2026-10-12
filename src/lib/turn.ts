@@ -2,6 +2,7 @@ import { cubeShape, turnDims } from './cube'
 import { FACE_SPEC, layerCoords, rotateN } from './geometry'
 import { applyGhostMove, ghostAxis, ghostTurns } from './ghost'
 import { applyRainbowMove, rainbowRotation, rainbowTurns } from './rainbow'
+import { violetTurns } from './violet'
 import { applyPyraMove, pyraRotation, pyraSize, pyraTurns } from './pyraminx'
 import { applyStarMove, starRotation, starTurns } from './star'
 import {
@@ -100,6 +101,7 @@ export function turnAllowed(cube: Cube, move: Turn): boolean {
   if (isPyraMove(move) || isGhostMove(move) || isRainbowMove(move)) return true
   const shape = cubeShape(cube)
   if (!SHAPE_SHIFTS[shape]) return true
+  if (shape === 'violet') return violetTurns(cube, move.face)
   if (move.wide) return true
   if (move.depth) return false
   const turned = turnedBy(cube, move)

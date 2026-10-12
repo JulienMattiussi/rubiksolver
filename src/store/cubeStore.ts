@@ -24,6 +24,7 @@ const SCRAMBLE_LENGTH: Record<CubeShape, number> = {
   morph: 11,
   oct4: 40,
   rainbow: 20,
+  violet: 25,
   ghost: 15,
   star: 20,
   star4: 40,

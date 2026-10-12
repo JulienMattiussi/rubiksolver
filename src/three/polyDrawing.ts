@@ -5,6 +5,7 @@ import { jingCut, jingPolygons, jingThumbnail } from './jingGeometry'
 import { MORPH_ORIENT, morphPolygons } from './morphGeometry'
 import { OCT_YAW, octPolygons } from './octGeometry'
 import { RAINBOW_ORIENT, RAINBOW_YAW, rainbowPolygons } from './rainbowGeometry'
+import { VIOLET_OFFSET, violetPolygons } from './violetGeometry'
 import type { PiecePolygon } from './polygons'
 import { PYRA_YAW, pyraPolygons } from './pyraGeometry'
 import { STAR_YAW, starPolygons } from './starGeometry'
@@ -22,6 +23,9 @@ export interface PolyDrawing {
   /** How the model's frame stands in the scene (a quaternion), when its
    *  polygons and turns are in it (the Pyramorphinx turns like a 2x2). */
   readonly orient?: readonly [number, number, number, number]
+  /** Where the model's origin stands in its frame, when its turns are about
+   *  a point off its middle (the Violet's core). */
+  readonly offset?: readonly [number, number, number]
   /** The one color of every sticker, when the puzzle wears a single one
    *  (the Floppy Ghost's silver): its pieces are told apart by shape. */
   readonly skin?: string
@@ -48,6 +52,8 @@ const RAINBOW: PolyDrawing = {
   orient: RAINBOW_ORIENT,
 }
 
+const VIOLET: PolyDrawing = { polygons: violetPolygons, yaw: 0, offset: VIOLET_OFFSET }
+
 const GHOST: PolyDrawing = { polygons: ghostPolygons, yaw: GHOST_YAW, skin: GHOST_STICKER }
 
 /** The drawing of a shape drawn from polygons (the star prisms, the
@@ -58,6 +64,7 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'ghost') return GHOST
   if (shape === 'oct4') return OCT4
   if (shape === 'rainbow') return RAINBOW
+  if (shape === 'violet') return VIOLET
   if (shape === 'pyra5') return PROFESSOR
   return shape === 'pyra4' ? MASTER : shape === 'jing' ? JING : PYRAMINX
 }

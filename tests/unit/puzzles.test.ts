@@ -46,6 +46,8 @@ const PUZZLES: ReadonlyArray<{
   /** Stickers the editor counts: the visible ones. */
   painted: number
   scramble: number
+  /** Not yet solved by any method, nor entered (the Violet). */
+  unsolved?: true
 }> = [
   { shape: '2', pieces: 8, stickers: 24, orientations: 24, painted: 24, scramble: 11 },
   { shape: '3', pieces: 27, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
@@ -63,6 +65,16 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'morph', pieces: 8, stickers: 16, orientations: 24, painted: 16, scramble: 11 },
   { shape: 'oct4', pieces: 56, stickers: 56, orientations: 24, painted: 56, scramble: 40 },
   { shape: 'rainbow', pieces: 20, stickers: 56, orientations: 24, painted: 56, scramble: 20 },
+  // Held three ways: about its diagonal through A, its one symmetry.
+  {
+    shape: 'violet',
+    pieces: 15,
+    stickers: 33,
+    orientations: 3,
+    painted: 33,
+    scramble: 25,
+    unsolved: true,
+  },
   { shape: 'ghost', pieces: 11, stickers: 36, orientations: 1, painted: 36, scramble: 15 },
   { shape: 'star', pieces: 14, stickers: 40, orientations: 12, painted: 40, scramble: 30 },
   // The 4-star's inner points hide a face each: 12 stickers never seen.
@@ -96,95 +108,103 @@ const scrambled = (shape: CubeShape, length: number, seed: number) => {
   return applyMoves(solved, scrambleTurns(shape, length, seededRng(seed), solved))
 }
 
-describe.each(PUZZLES)('$shape', ({ shape, pieces, stickers, orientations, painted, scramble }) => {
-  const SOLVED = solvedCube(shape)
+describe.each(PUZZLES)(
+  '$shape',
+  ({ shape, pieces, stickers, orientations, painted, scramble, unsolved }) => {
+    const SOLVED = solvedCube(shape)
 
-  it('is built solved and recognized by its pieces', () => {
-    expect(SOLVED).toHaveLength(pieces)
-    expect(stickersTotal(shape)).toBe(stickers)
-    expect(cubeShape(SOLVED)).toBe(shape)
-    expect(isSolved(SOLVED)).toBe(true)
-  })
+    it('is built solved and recognized by its pieces', () => {
+      expect(SOLVED).toHaveLength(pieces)
+      expect(stickersTotal(shape)).toBe(stickers)
+      expect(cubeShape(SOLVED)).toBe(shape)
+      expect(isSolved(SOLVED)).toBe(true)
+    })
 
-  it('unsolves with any turn, which its inverse undoes', () => {
-    const turns = layerTurnsOf(shape).filter((t) => turnAllowed(SOLVED, t))
-    expect(turns.length).toBeGreaterThan(0)
-    for (const turn of turns) {
-      const there = applyMoves(SOLVED, [turn])
-      expect(isSolved(there)).toBe(false)
-      expect(stateKey(applyMoves(there, invertMoves([turn])))).toBe(stateKey(SOLVED))
-    }
-  })
-
-  it('has its whole-puzzle orientations, all solved', () => {
-    const all = cubeOrientations(SOLVED)
-    expect(all).toHaveLength(orientations)
-    expect(new Set(all.map(stateKey)).size).toBe(orientations)
-    expect(all.every(isSolved)).toBe(true)
-  })
-
-  it('comes back from a scramble undone, and through a snapshot', () => {
-    const solved = solvedCube(shape)
-    const moves = scrambleTurns(shape, scramble, seededRng(5), solved)
-    const cube = applyMoves(solved, moves)
-    expect(stateKey(applyMoves(cube, invertMoves(moves)))).toBe(stateKey(solved))
-    expect(stateKey(decodeCube(encodeCube(cube))!)).toBe(stateKey(cube))
-  })
-
-  it('is solved by each of its methods, held any way up, in named steps', () => {
-    const methods = methodsFor(shape)
-    expect(methods.length).toBeGreaterThan(0)
-    for (const [k, method] of methods.entries()) {
-      for (const locale of Object.values(LOCALES)) {
-        expect(locale.methods[method.id].name).toBeTruthy()
-        expect(locale.methods[method.id].desc).toBeTruthy()
+    it('unsolves with any turn, which its inverse undoes', () => {
+      const turns = layerTurnsOf(shape).filter((t) => turnAllowed(SOLVED, t))
+      expect(turns.length).toBeGreaterThan(0)
+      for (const turn of turns) {
+        const there = applyMoves(SOLVED, [turn])
+        expect(isSolved(there)).toBe(false)
+        expect(stateKey(applyMoves(there, invertMoves([turn])))).toBe(stateKey(SOLVED))
       }
-      const cube = scrambled(shape, scramble, 100 + k)
-      const held = heldWays(cube, shape)
-      for (const start of [cube, held[held.length - 1]!]) {
-        const steps = method.solve(start)
-        for (const step of steps) {
-          expect(step.moves.length).toBeGreaterThan(0)
+    })
+
+    it('has its whole-puzzle orientations, all solved', () => {
+      const all = cubeOrientations(SOLVED)
+      expect(all).toHaveLength(orientations)
+      expect(new Set(all.map(stateKey)).size).toBe(orientations)
+      expect(all.every(isSolved)).toBe(true)
+    })
+
+    it('comes back from a scramble undone, and through a snapshot', () => {
+      const solved = solvedCube(shape)
+      const moves = scrambleTurns(shape, scramble, seededRng(5), solved)
+      const cube = applyMoves(solved, moves)
+      expect(stateKey(applyMoves(cube, invertMoves(moves)))).toBe(stateKey(solved))
+      expect(stateKey(decodeCube(encodeCube(cube))!)).toBe(stateKey(cube))
+    })
+
+    it.skipIf(unsolved)(
+      'is solved by each of its methods, held any way up, in named steps',
+      () => {
+        const methods = methodsFor(shape)
+        expect(methods.length).toBeGreaterThan(0)
+        for (const [k, method] of methods.entries()) {
           for (const locale of Object.values(LOCALES)) {
-            expect((locale.steps as Record<string, string>)[step.key]).toBeTruthy()
+            expect(locale.methods[method.id].name).toBeTruthy()
+            expect(locale.methods[method.id].desc).toBeTruthy()
+          }
+          const cube = scrambled(shape, scramble, 100 + k)
+          const held = heldWays(cube, shape)
+          for (const start of [cube, held[held.length - 1]!]) {
+            const steps = method.solve(start)
+            for (const step of steps) {
+              expect(step.moves.length).toBeGreaterThan(0)
+              for (const locale of Object.values(LOCALES)) {
+                expect((locale.steps as Record<string, string>)[step.key]).toBeTruthy()
+              }
+            }
+            expect(
+              isSolved(
+                applyMoves(
+                  start,
+                  steps.flatMap((s) => [...s.moves]),
+                ),
+              ),
+            ).toBe(true)
           }
         }
-        expect(
-          isSolved(
-            applyMoves(
-              start,
-              steps.flatMap((s) => [...s.moves]),
-            ),
-          ),
-        ).toBe(true)
-      }
-    }
-  }, 60000)
+      },
+      60000,
+    )
 
-  it('goes through the editor and back, every sticker counted', () => {
-    expect(progress(emptyEdit(shape), shape).total).toBe(painted)
-    expect(progress(cubeToEdit(SOLVED), shape)).toMatchObject({ filled: painted, total: painted })
-    for (let seed = 0; seed < 3; seed++) {
-      const cube = scrambled(shape, scramble, seed)
-      // A shape-shifting puzzle is entered in the form it stands in.
-      const form = formOf(cube)
-      const edit = cubeToEdit(cube)
-      expect(isComplete(edit, shape, form)).toBe(true)
-      expect(cubeToEdit(buildCube(edit, shape, form))).toEqual(edit)
-      expect(validateCube(buildCube(edit, shape, form))).toEqual({ ok: true })
-    }
-  })
-
-  it('guides every turn it has, named and described in both languages and notations', () => {
-    const turns = moveGuide(shape).flatMap((g) => g.rows.flat())
-    for (const turn of layerTurnsOf(shape)) {
-      expect(turns.some((t) => sameLayer(t, turn) && amountOf(t) === amountOf(turn))).toBe(true)
-    }
-    for (const turn of turns) {
-      for (const labels of [NOTATION_US, NOTATION_FR]) expect(formatMove(turn, labels)).toBeTruthy()
-      for (const locale of Object.values(LOCALES)) {
-        expect(locale.describeMove(describeMove(turn, shape))).not.toMatch(/undefined|NaN/)
+    it.skipIf(unsolved)('goes through the editor and back, every sticker counted', () => {
+      expect(progress(emptyEdit(shape), shape).total).toBe(painted)
+      expect(progress(cubeToEdit(SOLVED), shape)).toMatchObject({ filled: painted, total: painted })
+      for (let seed = 0; seed < 3; seed++) {
+        const cube = scrambled(shape, scramble, seed)
+        // A shape-shifting puzzle is entered in the form it stands in.
+        const form = formOf(cube)
+        const edit = cubeToEdit(cube)
+        expect(isComplete(edit, shape, form)).toBe(true)
+        expect(cubeToEdit(buildCube(edit, shape, form))).toEqual(edit)
+        expect(validateCube(buildCube(edit, shape, form))).toEqual({ ok: true })
       }
-    }
-  })
-})
+    })
+
+    it('guides every turn it has, named and described in both languages and notations', () => {
+      const turns = moveGuide(shape).flatMap((g) => g.rows.flat())
+      for (const turn of layerTurnsOf(shape)) {
+        expect(turns.some((t) => sameLayer(t, turn) && amountOf(t) === amountOf(turn))).toBe(true)
+      }
+      for (const turn of turns) {
+        for (const labels of [NOTATION_US, NOTATION_FR])
+          expect(formatMove(turn, labels)).toBeTruthy()
+        for (const locale of Object.values(LOCALES)) {
+          expect(locale.describeMove(describeMove(turn, shape))).not.toMatch(/undefined|NaN/)
+        }
+      }
+    })
+  },
+)

@@ -13,6 +13,7 @@ import { solvedGhost } from './ghost'
 import { solvedMorph } from './morph'
 import { solvedOct4 } from './oct4'
 import { solvedRainbow } from './rainbow'
+import { solvedViolet, turnAboutA, violetBoxed } from './violet'
 import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
 import { ALL_COLORS, isPyraminx, isStar, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
@@ -91,6 +92,7 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (shape === 'morph') return solvedMorph()
   if (shape === 'oct4') return solvedOct4()
   if (shape === 'rainbow') return solvedRainbow()
+  if (shape === 'violet') return solvedViolet()
   if (shape === 'ghost') return solvedGhost()
   const dims = SHAPE_DIMS[shape]
   const colors = faceColorsOf(shape)
@@ -225,6 +227,8 @@ function faceCount(shape: CubeShape): number {
  * so "all inside" already means "the box again".
  */
 export function isBoxed(cube: Cube): boolean {
+  // The Violet's box is off its core, which its coordinates are about.
+  if (cubeShape(cube) === 'violet') return violetBoxed(cube)
   const dims = cubeDims(cube)
   const max = [0, 1, 2].map((a) => outerCoord(dims[a]!, 1))
   return cube.every((c) => c.position.every((v, a) => Math.abs(v) <= max[a]!))
@@ -294,9 +298,11 @@ export function cubeOrientations(cube: Cube): Cube[] {
       ? PYRA_SYMMETRIES
       : shape === 'ghost'
         ? [] // held one way only: no turn of it keeps its square
-        : (['x', 'y', 'z'] as Axis[]).map(
-            (axis) => (c: Cube) => rotateCube(c, axis, quarterTurnFits(dims, axis) ? 1 : 2),
-          )
+        : shape === 'violet'
+          ? [turnAboutA] // only about its diagonal through A
+          : (['x', 'y', 'z'] as Axis[]).map(
+              (axis) => (c: Cube) => rotateCube(c, axis, quarterTurnFits(dims, axis) ? 1 : 2),
+            )
   const found = new Map<string, Cube>([[stateKey(cube), cube]])
   let frontier = [cube]
   while (frontier.length) {

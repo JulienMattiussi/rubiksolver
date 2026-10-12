@@ -21,6 +21,7 @@ export type CubeShape =
   | 'morph'
   | 'oct4'
   | 'rainbow'
+  | 'violet'
   | 'ghost'
   | 'star'
   | 'star4'
@@ -59,6 +60,9 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   oct4: [4, 4, 4],
   // The Rainbow (rainbow.ts) is no grid: its pieces sit within +-1.
   rainbow: [3, 3, 3],
+  // The Violet (violet.ts) turns on a 5x5's outer slabs: its pieces sit
+  // within +-3, in half mini cubes about its off-center core.
+  violet: [5, 5, 5],
   // The Floppy Ghost (ghost.ts) is no grid: its slots sit within +-3 in its
   // plane, all at z = 0.
   ghost: [7, 7, 1],
@@ -93,9 +97,10 @@ export const isGridless = (shape: CubeShape): boolean =>
 
 /** Whether a shape is drawn from polygons rather than cubie boxes: every
  *  gridless one, the Pyramorphinx (a 2x2 whose pieces are not cubes) and
- *  the 4-Trajber's Octahedron (a 4x4x4 cut to an octahedron). */
+ *  the 4-Trajber's Octahedron (a 4x4x4 cut to an octahedron), the Violet
+ *  (pieces of two sizes). */
 export const isPolyDrawn = (shape: CubeShape): boolean =>
-  isGridless(shape) || shape === 'morph' || shape === 'oct4'
+  isGridless(shape) || shape === 'morph' || shape === 'oct4' || shape === 'violet'
 
 /**
  * Shapes that leave their box: their mechanism is a bigger cube with pieces
@@ -125,6 +130,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   morph: true,
   oct4: false,
   rainbow: false,
+  violet: true,
   ghost: false,
   star: false,
   star4: false,
@@ -156,6 +162,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   morph: [],
   oct4: ['slice'],
   rainbow: [],
+  violet: [],
   ghost: [],
   star: [],
   star4: [],
@@ -183,6 +190,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   morph: [],
   oct4: [],
   rainbow: [],
+  violet: [],
   ghost: [],
   star: [],
   star4: [],
@@ -206,6 +214,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   morph: 'Pyramorphinx',
   oct4: "4-Trajber's Octahedron",
   rainbow: 'Rainbow',
+  violet: 'Violet',
   ghost: 'Floppy Ghost',
   star: '2-Star Prism (UFO)',
   star4: '4-Star Prism',
@@ -230,6 +239,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   morph: 'pyramorphinx',
   oct4: '4-trajber',
   rainbow: 'rainbow',
+  violet: 'violet',
   ghost: 'floppy-ghost',
   star: '2-star',
   star4: '4-star',
@@ -268,6 +278,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   morph: false,
   oct4: false,
   rainbow: false,
+  violet: false,
   ghost: false,
   star: false,
   star4: false,
@@ -294,6 +305,7 @@ export const CUBE_CATEGORIES = [
   'pyramid',
   'octahedron',
   'star',
+  'odd',
 ] as const
 export type CubeCategory = (typeof CUBE_CATEGORIES)[number]
 
@@ -303,6 +315,7 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (isStar(shape)) return 'star'
   if (isPyraminx(shape) || shape === 'morph') return 'pyramid'
   if (shape === 'oct4' || shape === 'rainbow') return 'octahedron'
+  if (shape === 'violet') return 'odd'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
   // One layer thick: the 1x2x3 and the Floppy.

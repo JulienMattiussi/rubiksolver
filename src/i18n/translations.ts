@@ -88,7 +88,7 @@ const fr = {
   noSuchLayer: (faceName: string, kind: LayerKind) =>
     `Pas de ${kind === 'wide' ? 'coup large' : 'tranche interne'} pour la ${faceName} sur ce puzzle`,
   jammedTurn: (faceName: string) =>
-    `Bloqué : la tour n’a pas de couche complète sur la ${faceName} dans cette position`,
+    `Bloqué : la ${faceName} ne peut pas tourner dans cette position`,
   layerLabel: 'Couche tournée',
   layerKinds: { outer: 'Externe', slice: 'Tranche', wide: 'Large', advanced: 'Avancé' },
   editCube: 'Saisir un cube',
@@ -153,6 +153,7 @@ const fr = {
   chooseModel: 'Choisissez un modèle',
   homeLink: 'Revenir à l’accueil',
   solveHint: 'Choisissez un modèle pour voir les choix de solution.',
+  noMethodYet: 'Pas encore de méthode de résolution pour ce puzzle.',
   // Around the number of models, shown apart (emphasized).
   homeTitle: { before: 'Choisissez votre modèle dans la galerie, parmi les', after: 'disponibles' },
   homeFeatures: {
@@ -203,6 +204,7 @@ const fr = {
     pyramid: 'Pyramides',
     octahedron: 'Octaèdres',
     star: 'Étoiles',
+    odd: 'Bizarre',
   },
   sectionSetup: 'Initialisation',
   sectionSolve: 'Résolution',
@@ -439,7 +441,7 @@ const en: Translations = {
   noSuchLayer: (faceName: string, kind: LayerKind) =>
     `No ${kind === 'wide' ? 'wide turn' : 'inner slice'} for the ${faceName} on this puzzle`,
   jammedTurn: (faceName: string) =>
-    `Jammed: the tower has no complete layer on the ${faceName} in this position`,
+    `Jammed: the ${faceName} cannot turn in this position`,
   layerLabel: 'Turned layer',
   layerKinds: { outer: 'Outer', slice: 'Slice', wide: 'Wide', advanced: 'Advanced' },
   editCube: 'Enter a cube',
@@ -501,6 +503,7 @@ const en: Translations = {
   chooseModel: 'Choose a model',
   homeLink: 'Back to the home page',
   solveHint: 'Choose a model to see its solving methods.',
+  noMethodYet: 'No solving method for this puzzle yet.',
   homeTitle: { before: 'Choose your model in the gallery, among the', after: 'available' },
   homeFeatures: {
     edit: {
@@ -551,6 +554,7 @@ const en: Translations = {
     pyramid: 'Pyramids',
     octahedron: 'Octahedra',
     star: 'Stars',
+    odd: 'Odd',
   },
   sectionSetup: 'Setup',
   sectionSolve: 'Solve',
