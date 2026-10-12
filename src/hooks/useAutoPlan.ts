@@ -29,15 +29,16 @@ function solver(): Worker | null {
  * in a worker, so the steps show their real moves before Solve or Step by
  * step is clicked (which then reuse them). A newer state simply makes an
  * older answer stale: `setPlan` only takes the one for the current state.
+ * Off (`enabled` false) on the home page, where no puzzle is shown.
  */
-export function useAutoPlan(): void {
+export function useAutoPlan(enabled = true): void {
   const cube = useCube((s) => s.cube)
   const method = useCube((s) => s.method)
   const busy = useCube(selectBusy)
   const planned = useCube((s) => s.steps !== null)
 
   useEffect(() => {
-    if (busy || planned || isSolved(cube)) return
+    if (!enabled || busy || planned || isSolved(cube)) return
     const timer = setTimeout(() => {
       const target = solver()
       if (!target) return
@@ -46,5 +47,5 @@ export function useAutoPlan(): void {
       target.postMessage({ id, cube, method } satisfies SolveRequest)
     }, SETTLE_MS)
     return () => clearTimeout(timer)
-  }, [cube, method, busy, planned])
+  }, [enabled, cube, method, busy, planned])
 }

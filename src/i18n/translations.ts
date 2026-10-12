@@ -132,6 +132,25 @@ const fr = {
   },
   cubeLabel: 'Choix du cube',
   chooseCube: 'Choisir un cube',
+  chooseModel: 'Choisissez un modèle',
+  homeLink: 'Revenir à l’accueil',
+  solveHint: 'Choisissez un modèle pour voir les choix de solution.',
+  // Around the number of models, shown apart (emphasized).
+  homeTitle: { before: 'Choisissez votre modèle dans la galerie, parmi les', after: 'disponibles' },
+  homeFeatures: {
+    edit: {
+      title: 'Saisie',
+      text: 'Utilisez la saisie des faces pour reproduire l’état de votre cube physique.',
+    },
+    guide: {
+      title: 'Guide',
+      text: 'Utilisez le guide pour apprendre à le manipuler et vous familiariser avec ses mouvements.',
+    },
+    solve: {
+      title: 'Résolution',
+      text: 'Utilisez les méthodes de résolution disponibles pour apprendre à le résoudre par vous-même, ou voir l’algorithme le résoudre pour vous.',
+    },
+  },
   allCategories: 'Toutes les catégories',
   close: 'Fermer',
   moveGuide: 'Guide des mouvements',
@@ -427,6 +446,24 @@ const en: Translations = {
     V: 'Violet',
   },
   cubeLabel: 'Cube choice',
+  chooseModel: 'Choose a model',
+  homeLink: 'Back to the home page',
+  solveHint: 'Choose a model to see its solving methods.',
+  homeTitle: { before: 'Choose your model in the gallery, among the', after: 'available' },
+  homeFeatures: {
+    edit: {
+      title: 'Input',
+      text: 'Use the face input to copy the state of your physical cube.',
+    },
+    guide: {
+      title: 'Guide',
+      text: 'Use the guide to learn how to handle it and get familiar with its moves.',
+    },
+    solve: {
+      title: 'Solving',
+      text: 'Use the available solving methods to learn to solve it yourself, or watch the algorithm solve it for you.',
+    },
+  },
   chooseCube: 'Choose a cube',
   allCategories: 'All categories',
   close: 'Close',

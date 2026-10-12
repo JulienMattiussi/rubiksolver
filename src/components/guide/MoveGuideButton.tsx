@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { BookOpen } from 'lucide-react'
 import { useI18n } from '@/i18n/i18nStore'
 import { Button } from '@/components/ui/Button'
+import { FEATURE_ICON } from '@/components/ui/features'
 import { MoveGuideDialog } from './MoveGuideDialog'
 
 /** Opens the move guide of the current puzzle. */
@@ -11,12 +11,12 @@ export function MoveGuideButton() {
   return (
     <>
       <Button
-        variant="ghost"
-        className="mb-2 w-full border border-slate-700"
+        variant="guide"
+        className="mb-2 w-full"
         aria-haspopup="dialog"
         onClick={() => setOpen(true)}
       >
-        <BookOpen className="size-4" aria-hidden />
+        <FEATURE_ICON.guide className="size-4" aria-hidden />
         {t.moveGuide}
       </Button>
       {open && <MoveGuideDialog onClose={() => setOpen(false)} />}

@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { Box, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { useId, useState, type ReactNode } from 'react'
 import { cubeShape } from '@/lib/cube'
 import {
@@ -8,9 +8,11 @@ import {
   cubeKindId,
   SHAPE_LABEL,
   type CubeCategory,
+  type CubeKind,
 } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
+import { goTo } from '@/store/router'
 import { IconButton } from '@/components/ui/IconButton'
 import { Modal } from '@/components/ui/Modal'
 import { SECTION_LABEL } from '@/components/ui/styles'
@@ -18,7 +20,7 @@ import { CategoryIcon } from './CategoryIcon'
 import { PickerTile } from './PickerTile'
 import { PuzzleIcon } from './PuzzleIcon'
 
-type Kind = (typeof CUBE_KINDS)[number]
+type Kind = CubeKind
 
 const kindsOf = (category: CubeCategory): Kind[] =>
   CUBE_KINDS.filter((kind) => cubeCategory(kind) === category)
@@ -36,27 +38,35 @@ function showcase(category: CubeCategory): { cover: Kind; others: Kind[] } {
  * of thumbnails, the categories first, then the puzzles of the chosen one.
  * The current puzzle and its category are highlighted.
  */
-export function CubePicker({ disabled, trailing }: { disabled: boolean; trailing?: ReactNode }) {
+export function CubePicker({
+  disabled,
+  trailing,
+  home = false,
+}: {
+  disabled: boolean
+  trailing?: ReactNode
+  /** The home page: no puzzle chosen yet, the button invites to choose one. */
+  home?: boolean
+}) {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
   const variant = useCube((s) => s.variant)
-  const setShape = useCube((s) => s.setShape)
-  const setVariant = useCube((s) => s.setVariant)
   const [open, setOpen] = useState(false)
   const [category, setCategory] = useState<CubeCategory | null>(null)
   const titleId = useId()
 
   const nameOf = (kind: Kind) => t.cubeKind(SHAPE_LABEL[kind.shape], kind.variant === 'mirror')
   const current: Kind = { shape, variant }
-  const isCurrent = (kind: Kind) => cubeKindId(kind) === cubeKindId(current)
+  const isCurrent = (kind: Kind) => !home && cubeKindId(kind) === cubeKindId(current)
+  const shown = home ? t.chooseModel : nameOf(current)
 
   const openPicker = () => {
     setCategory(null)
     setOpen(true)
   }
+  // Through the address: a link to that puzzle, back returns to this one.
   const choose = (kind: Kind) => {
-    setShape(kind.shape)
-    setVariant(kind.variant)
+    goTo({ kind })
     setOpen(false)
   }
 
@@ -71,11 +81,17 @@ export function CubePicker({ disabled, trailing }: { disabled: boolean; trailing
         onClick={openPicker}
         disabled={disabled}
         aria-haspopup="dialog"
-        aria-label={`${t.cubeLabel} : ${nameOf(current)}`}
+        aria-label={`${t.cubeLabel} : ${shown}`}
         className="flex w-full items-center gap-3 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-left text-sm font-semibold text-white transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
       >
-        <PuzzleIcon shape={shape} variant={variant} className="size-9 shrink-0" />
-        <span className="flex-1">{nameOf(current)}</span>
+        {home ? (
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-500 text-slate-400">
+            <Box className="size-4" aria-hidden />
+          </span>
+        ) : (
+          <PuzzleIcon shape={shape} variant={variant} className="size-9 shrink-0" />
+        )}
+        <span className={`flex-1 ${home ? 'text-slate-300' : ''}`}>{shown}</span>
         <ChevronRight className="size-4 text-slate-400" aria-hidden />
       </button>
 
@@ -111,7 +127,7 @@ export function CubePicker({ disabled, trailing }: { disabled: boolean; trailing
                     key={c}
                     label={t.cubeCategories[c]}
                     detail={t.puzzleCount(kindsOf(c).length)}
-                    current={c === cubeCategory(current)}
+                    current={!home && c === cubeCategory(current)}
                     onClick={() => setCategory(c)}
                   >
                     <CategoryIcon {...showcase(c)} />

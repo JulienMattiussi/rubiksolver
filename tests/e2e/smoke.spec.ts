@@ -11,7 +11,7 @@ test('loads, renders the cube canvas and the controls', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
 
-  await page.goto('/')
+  await page.goto('/#/fr/3x3')
 
   await expect(page.getByRole('heading', { name: 'Rubik Solver' })).toBeVisible()
   await expect(page.locator('canvas')).toBeVisible()
@@ -24,7 +24,7 @@ test('loads, renders the cube canvas and the controls', async ({ page }) => {
 test('scrambles then solves back to a solved cube', async ({ page }) => {
   // Beginner-method solutions are long; the animation can take a while.
   test.setTimeout(120000)
-  await page.goto('/')
+  await page.goto('/#/fr/3x3')
 
   // Fastest animation so the whole flow runs quickly.
   await page.getByLabel('Vitesse').fill('100')
@@ -50,7 +50,7 @@ test('mirror cube: the variant is a skin, it keeps the state and renders', async
   test.setTimeout(120000)
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
-  await page.goto('/')
+  await page.goto('/#/fr/3x3')
   await page.getByLabel('Vitesse').fill('100')
 
   const scramble = page.getByRole('button', { name: 'Mélanger' })
@@ -79,7 +79,7 @@ test('mirror cube: the variant is a skin, it keeps the state and renders', async
 
 test('1x2x3: half turns only, scramble then solve optimally', async ({ page }) => {
   test.setTimeout(120000)
-  await page.goto('/')
+  await page.goto('/#/fr/3x3')
 
   await page.getByLabel('Vitesse').fill('100')
   await pickCube(page, 'Plats', '1x2x3')
@@ -102,7 +102,7 @@ test('1x2x3: half turns only, scramble then solve optimally', async ({ page }) =
 
 test('2x2: switch size, scramble, then solve with the optimal method', async ({ page }) => {
   test.setTimeout(120000)
-  await page.goto('/')
+  await page.goto('/#/fr/3x3')
 
   await page.getByLabel('Vitesse').fill('100')
   await pickCube(page, 'Standard', '2x2 (Pocket)')
@@ -124,7 +124,7 @@ test('2x2: switch size, scramble, then solve with the optimal method', async ({ 
 test('4x4: switch size, scramble, then solve by reduction', async ({ page }) => {
   // Reduction solutions run to ~300 turns; even at max speed this takes a while.
   test.setTimeout(300000)
-  await page.goto('/')
+  await page.goto('/#/fr/3x3')
 
   await page.getByLabel('Vitesse').fill('100')
   await pickCube(page, 'Standard', '4x4')
@@ -142,7 +142,7 @@ test('4x4: switch size, scramble, then solve by reduction', async ({ page }) => 
 })
 
 test('4x4 cube editor: movable centers count toward the 96 stickers', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/fr/3x3')
 
   await pickCube(page, 'Standard', '4x4')
   await page.getByRole('button', { name: /Depuis l.?.tat actuel/ }).click()
@@ -155,7 +155,7 @@ test('4x4 cube editor: movable centers count toward the 96 stickers', async ({ p
 })
 
 test('cube editor: enter, fill from current state, apply', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/fr/3x3')
 
   // Blank entry shows the palette, then cancel back to play.
   await page.getByRole('button', { name: 'Saisir un cube' }).click()
@@ -176,7 +176,7 @@ test('cube editor: enter, fill from current state, apply', async ({ page }) => {
 })
 
 test('move guide: every turn of the current puzzle, a jammed one marked', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/fr/3x3')
   await pickCube(page, 'Tower', '2x2x4')
   await page.getByRole('button', { name: 'Guide des mouvements' }).click()
   const guide = page.getByRole('dialog', { name: 'Guide des mouvements' })
@@ -196,7 +196,7 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
   test.setTimeout(120000)
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
-  await page.goto('/')
+  await page.goto('/#/fr/3x3')
   const puzzles: [string, string][] = [
     ['Standard', '2x2 (Pocket)'],
     ['Standard', '3x3'],
@@ -244,7 +244,7 @@ for (const [category, name, complete] of ENTERED) {
     test.setTimeout(120000)
     const errors: string[] = []
     page.on('pageerror', (e) => errors.push(e.message))
-    await page.goto('/')
+    await page.goto('/#/fr/3x3')
     await page.getByLabel('Vitesse').fill('100')
     await pickCube(page, category, name)
     await page.getByRole('button', { name: 'Mélanger' }).click()
@@ -262,7 +262,7 @@ for (const [category, name, complete] of ENTERED) {
 }
 
 test('tower entry: pick the form it stands in, then paint on it', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/fr/3x3')
   await pickCube(page, 'Tower', '2x2x4')
   await page.getByRole('button', { name: 'Saisir un cube' }).click()
   await expect(page.getByText('Dans quelle forme est votre puzzle ?')).toBeVisible()
@@ -270,4 +270,54 @@ test('tower entry: pick the form it stands in, then paint on it', async ({ page 
   await expect(page.getByText('0 / 40 stickers')).toBeVisible()
   await page.getByRole('button', { name: 'Changer de forme' }).click()
   await expect(page.getByRole('button', { name: /^Forme 1 / })).toBeVisible()
+})
+
+test('address: a link opens its puzzle and language, back returns to the previous one', async ({
+  page,
+}) => {
+  await page.goto('/#/en/floppy-ghost')
+  await expect(page.getByRole('button', { name: 'Cube choice : Floppy Ghost' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Scramble' })).toBeVisible()
+  await page.getByRole('button', { name: /^Cube choice/ }).click()
+  await page.getByRole('button', { name: /^Pyramids,/ }).click()
+  await page.getByRole('button', { name: 'Pyraminx', exact: true }).click()
+  await expect(page).toHaveURL(/#\/en\/pyraminx$/)
+  await page.getByRole('group', { name: 'Language' }).getByRole('button', { name: 'fr' }).click()
+  await expect(page).toHaveURL(/#\/fr\/pyraminx$/)
+  await page.goBack()
+  await page.goBack()
+  await expect(page).toHaveURL(/#\/en\/floppy-ghost$/)
+  await expect(page.getByRole('button', { name: 'Cube choice : Floppy Ghost' })).toBeVisible()
+})
+
+test('home page: a gallery to choose from, the solve block grayed, the title leads back', async ({
+  page,
+}) => {
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/')
+  await expect(page).toHaveURL(/#\/fr$/)
+  await expect(
+    page.getByRole('heading', {
+      name: /^Choisissez votre modèle dans la galerie, parmi les \d+ disponibles$/,
+    }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Choix du cube : Choisissez un modèle' }),
+  ).toBeVisible()
+  await expect(
+    page.getByText('Choisissez un modèle pour voir les choix de solution.'),
+  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Résoudre' })).toBeDisabled()
+  await page.getByRole('button', { name: 'Floppy Ghost' }).click()
+  await expect(page).toHaveURL(/#\/fr\/floppy-ghost$/)
+  await expect(page.locator('canvas')).toBeVisible()
+  await page.getByRole('button', { name: 'Rubik Solver' }).click()
+  await expect(page).toHaveURL(/#\/fr$/)
+  await expect(
+    page.getByRole('heading', {
+      name: /^Choisissez votre modèle dans la galerie, parmi les \d+ disponibles$/,
+    }),
+  ).toBeVisible()
+  expect(errors).toEqual([])
 })

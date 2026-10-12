@@ -181,6 +181,26 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   star4: '4-Star Prism',
 }
 
+/** Name of each shape in the address (`#/fr/floppy-ghost`, see route.ts):
+ *  the same in every language, so a link works whatever the reader's. */
+export const SHAPE_SLUG: Record<CubeShape, string> = {
+  '2': '2x2',
+  '3': '3x3',
+  '4': '4x4',
+  '123': '1x2x3',
+  '224': '2x2x4',
+  '223': 'slim-tower',
+  '332': 'domino',
+  '331': 'floppy',
+  pyra: 'pyraminx',
+  pyra4: 'master-pyraminx',
+  jing: 'pyraminx-jing',
+  morph: 'pyramorphinx',
+  ghost: 'floppy-ghost',
+  star: '2-star',
+  star4: '4-star',
+}
+
 /** Shapes exposed in the UI, in display order. */
 const SHAPES = Object.keys(SHAPE_DIMS) as readonly CubeShape[]
 
@@ -220,7 +240,7 @@ export function supportsMirror(shape: CubeShape): boolean {
 }
 
 /** One entry of the cube picker: a shape plus a rendering variant. */
-interface CubeKind {
+export interface CubeKind {
   readonly shape: CubeShape
   readonly variant: CubeVariant
 }

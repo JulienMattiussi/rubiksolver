@@ -1,16 +1,10 @@
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  Sparkles,
-  Square,
-} from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Square } from 'lucide-react'
 import { stepEnd } from '@/lib/progress'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
 import { Button } from '@/components/ui/Button'
-import { SECTION_BOX } from '@/components/ui/styles'
+import { SECTION_BOX, SECTION_LABEL } from '@/components/ui/styles'
+import { FEATURE_ICON } from '@/components/ui/features'
 import { useAutoPlan } from '@/hooks/useAutoPlan'
 import { MethodSelect } from './MethodSelect'
 import { PlanOutline } from './PlanOutline'
@@ -19,13 +13,14 @@ import { StepList } from './StepList'
 /** Solve block: method picker, solve (the rest at once), walk the solution
  *  both ways a step or a move at a time (the most didactic; within a step,
  *  undo or finish it), and the steps: the method's plan, then its real
- *  moves as soon as they are computed (ahead, see useAutoPlan). */
+ *  moves as soon as they are computed (ahead, see useAutoPlan). On the home
+ *  page, no puzzle yet: a hint, and its buttons grayed. */
 /** A move is a smaller stride than a step: its buttons are a size down. */
 const MOVE_BUTTON = 'py-1.5 text-xs'
 
-export function SolvePanel() {
+export function SolvePanel({ home = false }: { home?: boolean }) {
   const t = useI18n((s) => s.t)
-  useAutoPlan()
+  useAutoPlan(!home)
   const solveAll = useCube((s) => s.solveAll)
   const pause = useCube((s) => s.pause)
   const solving = useCube((s) => s.solving)
@@ -42,12 +37,20 @@ export function SolvePanel() {
   // Within a step (some of its moves played): its buttons undo or finish it.
   const midStep =
     dispatched > 0 && dispatched < total && stepEnd(lengths, dispatched - 1) !== dispatched
-  const back = busy || dispatched === 0
-  const ahead = busy || solved || (dispatched > 0 && dispatched >= total)
+  // On the home page every button shows, grayed: no puzzle to solve yet.
+  const back = home || busy || dispatched === 0
+  const ahead = home || busy || solved || (dispatched > 0 && dispatched >= total)
 
   return (
     <section aria-label={t.sectionSolve} className={SECTION_BOX}>
-      <MethodSelect disabled={busy} />
+      {home ? (
+        <div>
+          <h2 className={SECTION_LABEL}>{t.methodLabel}</h2>
+          <p className="mt-2 text-xs leading-relaxed text-slate-400">{t.solveHint}</p>
+        </div>
+      ) : (
+        <MethodSelect disabled={busy} />
+      )}
 
       <div className="grid grid-cols-2 gap-2">
         {busy && solving ? (
@@ -58,12 +61,12 @@ export function SolvePanel() {
           </Button>
         ) : (
           <Button
-            variant="primary"
+            variant="solve"
             onClick={solveAll}
-            disabled={busy || solved}
+            disabled={home || busy || solved}
             className="col-span-2"
           >
-            <Sparkles className="size-4" aria-hidden />
+            <FEATURE_ICON.solve className="size-4" aria-hidden />
             {t.solve}
           </Button>
         )}
@@ -85,7 +88,11 @@ export function SolvePanel() {
         </Button>
       </div>
 
-      {steps && steps.length > 0 ? <StepList steps={steps} /> : !steps && <PlanOutline />}
+      {home ? null : steps && steps.length > 0 ? (
+        <StepList steps={steps} />
+      ) : (
+        !steps && <PlanOutline />
+      )}
     </section>
   )
 }

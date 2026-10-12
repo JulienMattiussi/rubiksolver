@@ -148,6 +148,7 @@ src/
 │   ├── validate.ts       # validateCube : comptage par couleur (déduit du puzzle résolu) + solubilité (résolution bornée ; invariants de pièces + vrille sur 4x4)
 │   ├── shape.ts          # Cube miroir : épaisseur de couche par couleur, boîte d'un cubie (cubieBox) déduite de ses stickers
 │   ├── moveGuide.ts      # Guide des mouvements : lignes par forme (coup + opposé, puis quantifié), describeMove
+│   ├── route.ts          # Adresse `#/<langue>/<puzzle>` (`#/<langue>` : l'accueil) : nom de chaque puzzle (SHAPE_SLUG + -mirror), routeHash, parseRoute
 │   ├── snapshot.ts       # encodeCube/decodeCube : forme texte d'un état (mémorisation), décodage qui rejette un texte corrompu
 │   ├── easing.ts         # easeInOut (partagé par les animations)
 │   ├── speed.ts          # Curseur 0..100 <-> secondes par rotation
@@ -158,6 +159,7 @@ src/
 │   ├── cubeStore.ts      # Zustand : cube + variante de rendu + file de rotations + pilotage animation ;
 │   │                     #   méthode, étapes, jouer tout / pas à pas, loadCube ; sélecteurs selectBusy / selectSolved
 │   ├── editorStore.ts    # Zustand : mode play/edit, couleur sélectionnée, saisie, apply (build + validate + charge)
+│   ├── router.ts         # Routeur par hash : useRoute (accueil ou puzzle), followRoute (stores <- adresse), goTo (nouvelle entrée), startRouter
 │   ├── savedStore.ts     # Zustand : un état mémorisé par forme, persisté en localStorage (try/catch : sans stockage, juste la session)
 │   └── viewStore.ts      # Zustand : pont DOM -> 3D (recentrage caméra : resetToken ; coup survolé : preview)
 ├── i18n/                 # i18n custom (FR source de vérité, EN typé complet) ; locale + notation US/FR
@@ -197,12 +199,15 @@ src/
 ├── components/
 │   ├── ui/               # Primitives réutilisables (Button, IconButton, SegmentedToggle, Select, Modal, ConfirmDialog)
 │   │                     #   + styles.ts : classes partagées (SECTION_BOX, SECTION_LABEL, TURN_PAIR)
+│   │                     #   + features.ts : icône et couleur des 3 fonctionnalités (saisie bleu ciel, guide violet,
+│   │                     #     résolution ambre), partagées par les cartes de l'accueil et les boutons (variantes de Button)
 │   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad / GhostPad (+ PadHeader,
 │   │                     #   PadButton : un coup, sa surbrillance au survol), LanguageToggle, NotationToggle,
 │   │                     #   RecenterButton, CollapseButton, SpeedSlider
 │   ├── picker/           # Choix du cube : CubePicker (bouton + modale), PickerTile, PuzzleIcon (vignette SVG),
 │   │                     #   CategoryIcon (plusieurs puzzles groupés : une catégorie se distingue d'un puzzle)
 │   ├── guide/            # Guide des mouvements : MoveGuideButton (dans PadHeader), MoveGuideDialog
+│   ├── home/             # Accueil : HomeGallery (galerie de 7 modèles + ce que fait l'app, à la place de la scène)
 │   ├── solve/            # Résolution : SolvePanel, MethodSelect, StepList
 │   └── edit/             # Saisie : EditPanel, FormPicker (forme d'un puzzle déformable), ColorPalette
 ├── App.tsx               # Coquille : scène 3D plein écran + panneau en overlay (empilé sur mobile en saisie)
@@ -998,6 +1003,28 @@ en surbrillance les pièces que ce coup tournerait (corps bleu ciel, stickers
 éclaircis) : `MovePad` écrit le coup dans `viewStore.preview`, `CubeView` lit
 les pièces concernées avec `turnedBy` (la même fonction que l'animation), sauf
 pendant une animation ou si le coup est bloqué.
+
+**Adresse** (`lib/route.ts`, `store/router.ts`, sans bibliothèque) : l'URL
+dit la langue et le puzzle, `#/fr/floppy-ghost`, `#/en/3x3-mirror`, ou
+l'**accueil** quand elle ne nomme pas de puzzle (`#/fr`, et la racine du
+site, complétée en `#/<langue détectée>`). L'accueil (`useRoute.home`)
+remplace la scène 3D par une galerie (`HomeGallery` : 7 modèles variés, un
+clic ouvre le puzzle, puis la saisie, le guide et la résolution présentés en
+trois cartes) ; le panneau de gauche n'y garde que le choix du cube, sur
+« Choisissez un modèle », et celui de droite le bloc de résolution grisé
+avec une invitation (`SolvePanel home`, sans calcul de solution). Le titre
+« Rubik Solver » ramène à l'accueil. Le nom
+d'un puzzle (`SHAPE_SLUG`, plus `-mirror`) est le même dans les deux langues,
+pour qu'un lien marche chez tout le monde. Le sélecteur de cube et la bascule
+de langue ne touchent pas les stores : ils vont à une adresse (`goTo`, une
+entrée d'historique), et les stores la suivent (`followRoute`, lancé avant
+le premier rendu puis à chaque `popstate` / `hashchange`), donc les boutons
+précédent / suivant du navigateur changent de puzzle. Une langue absente ou
+inconnue est complétée par celle de l'app, un puzzle inconnu mène à
+l'accueil (`replaceState`, sans entrée d'historique) ; on ne change ni de
+puzzle ni de page pendant une animation ou une saisie (l'adresse est
+remise). La notation et la vitesse restent hors de
+l'adresse.
 
 Tout mouvement affiché passe par `formatMove` (notation US ou FR) ;
 tout texte passe par `t`. Le recentrage caméra transite par `viewStore`

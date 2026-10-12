@@ -60,6 +60,11 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   validation de solubilité) ; un puzzle déformable se saisit dans la forme où
   il se trouve, choisie parmi des vignettes ; le Floppy Ghost pièce par pièce
   (un clic pose la pièce suivante qui s'y loge).
+- **Page d'accueil** : une galerie de modèles à choisir, et ce qu'on peut
+  faire avec (saisie, guide, résolution).
+- **Une adresse par puzzle et par langue** : `#/fr/floppy-ghost`,
+  `#/en/3x3-mirror`... à partager ; les boutons précédent / suivant du
+  navigateur passent d'un puzzle à l'autre.
 - **Mémoriser / Restaurer** un état, conservé entre deux visites : pratique pour
   comparer deux méthodes sur le même mélange.
 - Choix du puzzle par **vignettes** : les catégories, puis les puzzles, chacun

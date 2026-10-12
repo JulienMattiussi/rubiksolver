@@ -1,4 +1,4 @@
-import { ArchiveRestore, Bookmark, Pencil, RotateCcw, Shuffle, Square } from 'lucide-react'
+import { ArchiveRestore, Bookmark, RotateCcw, Shuffle, Square } from 'lucide-react'
 import { useState } from 'react'
 import { cubeShape } from '@/lib/cube'
 import { isPyraminx, isStar } from '@/lib/types'
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { CubePicker } from '@/components/picker/CubePicker'
 import { SECTION_BOX } from '@/components/ui/styles'
+import { FEATURE_ICON } from '@/components/ui/features'
 import { MovePad } from './MovePad'
 import { GhostPad } from './GhostPad'
 import { PyraPad } from './PyraPad'
@@ -64,8 +65,8 @@ export function SetupSection() {
             {t.reset}
           </Button>
         )}
-        <Button onClick={enterEdit} disabled={busy} variant="ghost">
-          <Pencil className="size-4" aria-hidden />
+        <Button onClick={enterEdit} disabled={busy} variant="edit">
+          <FEATURE_ICON.edit className="size-4" aria-hidden />
           {t.editCube}
         </Button>
         <Button onClick={enterFromCurrent} disabled={busy} variant="ghost">
