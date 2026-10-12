@@ -440,8 +440,7 @@ const en: Translations = {
   },
   noSuchLayer: (faceName: string, kind: LayerKind) =>
     `No ${kind === 'wide' ? 'wide turn' : 'inner slice'} for the ${faceName} on this puzzle`,
-  jammedTurn: (faceName: string) =>
-    `Jammed: the ${faceName} cannot turn in this position`,
+  jammedTurn: (faceName: string) => `Jammed: the ${faceName} cannot turn in this position`,
   layerLabel: 'Turned layer',
   layerKinds: { outer: 'Outer', slice: 'Slice', wide: 'Wide', advanced: 'Advanced' },
   editCube: 'Enter a cube',

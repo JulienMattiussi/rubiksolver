@@ -5,9 +5,9 @@ import { face, type P3, type PiecePolygon } from './polygons'
 /**
  * Geometry of the Violet's pieces (see lib/violet.ts): each is a box about
  * its position, 4 model units wide for a big cube (odd coordinates), 2 for
- * a mini (even ones). The real puzzle is violet all over, so every face of a
- * piece is, the ones a turn brings out included; the model's stickers only
- * say which face looks out.
+ * a mini (even ones). The real puzzle is violet all over but A's three
+ * outer faces, so every face of a piece is violet, the ones a turn brings
+ * out included, unless the model gives it a sticker of A's colors.
  */
 
 /** Model units to scene units: the solved cube (8 units) about as big as a

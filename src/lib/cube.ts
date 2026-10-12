@@ -13,7 +13,7 @@ import { solvedGhost } from './ghost'
 import { solvedMorph } from './morph'
 import { solvedOct4 } from './oct4'
 import { solvedRainbow } from './rainbow'
-import { solvedViolet, turnAboutA, violetBoxed } from './violet'
+import { solvedViolet, turnAboutA, violetBoxed, violetSolved } from './violet'
 import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
 import { ALL_COLORS, isPyraminx, isStar, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
@@ -241,9 +241,11 @@ export function isBoxed(cube: Cube): boolean {
  * cuboids) there is no fixed reference, so a solved-but-reoriented puzzle
  * must count as solved. The face count tells a Pyramorphinx half turned a
  * quarter (each half uniform, but on two tetrahedra: eight faces) from one
- * in its form.
+ * in its form. The Violet has its own test (violet.ts): violet all over
+ * but A, so its faces are not one color each.
  */
 export function isSolved(cube: Cube): boolean {
+  if (cubeShape(cube) === 'violet') return violetSolved(cube)
   return isBoxed(cube) && uniformFaces(cube) === faceCount(cubeShape(cube))
 }
 

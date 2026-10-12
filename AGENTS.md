@@ -10,7 +10,8 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le **Pyraminx Jing** (pièces courbes), le
 **Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme), le
 **4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), le **Rainbow**
-(un cuboctaèdre dont les triangles tournent) et les
+(un cuboctaèdre dont les triangles tournent), le **Violet** (un 2x2x2 à
+pivot excentré, qui se déforme, encore sans méthode) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
@@ -99,6 +100,8 @@ src/
 │   ├── pieces.ts         # Requêtes de pièces : colorAt, colorsOf, cubieAt, atHome/homeAt/homesOf, listedAs (pièces listées dans le même ordre)
 │   ├── morph.ts          # Pyramorphinx : un 2x2 taillé en tétraèdre (coins à 3 stickers, milieux de face à 1)
 │   ├── oct4.ts           # 4-Trajber's Octahedron : un 4x4x4 sans cubies internes, un sticker par pièce (face de son octant)
+│   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
+│   ├── violetScramble.ts # Son mélange : marche sans retour sur un état déjà vu, jusqu'à disloquer A
 │   ├── rainbow.ts        # Rainbow : cuboctaèdre, 12 pièces aux milieux des arêtes du cube, triangles en tiers de tour, notation
 │   ├── cycleLibrary.ts   # 3-cycles purs des grands cubes (commutateurs [A, X Y X'] conjugués), findCycle, placeAll, borrow
 │   ├── ghost.ts          # Floppy Ghost : 10 emplacements autour du centre, demi-tours = réflexions entières, notation fan2cube
@@ -193,6 +196,7 @@ src/
 │   ├── pyraGeometry.ts   # Géométrie des pièces du Pyraminx (petits tétraèdres et octaèdres des cellules du modèle)
 │   ├── morphGeometry.ts  # Pièces du Pyramorphinx : case du 2x2 coupée par le tétraèdre (polyèdre convexe)
 │   ├── octGeometry.ts    # Pièces du 4-Trajber : case du 4x4x4 coupée par l'octaèdre (polyhedron.ts, partagé avec le Pyramorphinx)
+│   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
 │   ├── rainbowGeometry.ts # Pièces du Rainbow : cellule de chaque pièce dans le cuboctaèdre (polyhedron.ts)
 │   ├── ghostGeometry.ts  # Pièces du Floppy Ghost : régions du carré coupé par le pentagramme, extrudées, posées par réflexions
 │   ├── jingGeometry.ts   # Géométrie courbe du Jing : surface arrondie maillée fin, découpée le long des coupes
@@ -835,6 +839,50 @@ avec les deux commutateurs de la page, « placer à gauche » `[H' G']` et
 « placer à droite » `[H D]`, vus de chaque côté et conjugués par un tour.
 Environ 25 coups.
 
+### Le Violet (`violet`)
+
+Un puzzle dont le nom s'est perdu, décrit de mémoire et validé à l'écran :
+un **2x2x2** dont le coin A (haut, avant, droite) est lui-même coupé en
+2x2x2 mini-cubes, et dont le **cœur** est le mini-cube de A tourné vers le
+centre, invisible. Ses faces tournent autour de ce cœur, décalé d'un quart
+de la largeur : chaque quart de tour sort sa couche de la boîte, il se
+**déforme**. Tout violet sauf les trois faces extérieures de A (jaune
+dessus, bleu devant, vert citron à droite : un choix, l'ordre n'étant pas
+connu) : résolu quand il redevient un cube, chaque couleur de A sur une
+face (`violetSolved` ; ses faces n'étant pas unies, `isSolved` lui laisse
+la main).
+
+**Modèle entier** (`lib/violet.ts`) : coordonnées en demi-mini-cubes autour
+du cœur. Un mini-cube fait 2 de large, centré sur des coordonnées paires
+(0 ou 2 une fois résolu, le cœur à l'origine) ; un gros cube 4, sur des
+impaires (-3 ou 1). Chaque axe est coupé de part et d'autre du cœur, en -1
+et 1, et une face tourne ce qui est au-delà de sa coupe (2 ou plus) :
+exactement la tranche externe d'un 5x5 (`SHAPE_DIMS` `[5, 5, 5]`), donc le
+moteur des cubes le fait tourner tel quel (`Move`, pad, guide, mélange,
+`SHAPE_SHIFTS`). Seul `turnAllowed` lui est propre : un gros cube centré sur
+une coupe la chevauche et bloque la face (`violetTurns`). Résolu, seules L,
+D et B tournent. `isBoxed` lit sa propre boîte (de -5 à 3, `violetBoxed`) ;
+une seule symétrie, le tiers de tour autour de sa diagonale par A (3
+orientations).
+
+**1 160 formes** atteignables (les gros cubes étant pareils), à 13 coups
+au plus, aucune bloquée ; avec les couleurs de A, **41 760 états**, à 30
+coups au plus, dont 35 en forme de cube mais pas résolus : testé en
+parcourant tout l'espace.
+
+**Mélange** (`violetScramble.ts`) : des coups au hasard se défont l'un
+l'autre (la plupart sont bloqués) et le replient en cube, A entier. Le
+sien ne repasse jamais par un état déjà vu (départ compris) et continue
+au-delà de sa longueur tant que A n'est pas disloqué.
+
+**Rendu** (`three/violetGeometry.ts`) : chaque pièce est une boîte, violette
+sur toutes ses faces (comme le vrai puzzle, aussi celles qu'un coup fait
+apparaître) sauf les stickers de A ; `PolyDrawing.offset` recentre la boîte, décalée du cœur autour
+duquel tout tourne. **Pas encore de méthode ni de saisie** : le panneau de
+résolution est grisé avec un message (`noMethodYet`), les boutons de saisie
+sont masqués, et la suite de conformance saute ces deux tests
+(`unsolved`).
+
 ### Le Professor Pyraminx (`pyra5`)
 
 Le Pyraminx 5x5x5 (fan2cube.fr/profpyraminx1 et 2, Timur Evbatyrov, 2011) :
@@ -1100,7 +1148,7 @@ mobile et en saisie, une seule carte) :
   (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
-  4-Trajber's Octahedron/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism.
+  4-Trajber's Octahedron/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Bizarre Violet.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

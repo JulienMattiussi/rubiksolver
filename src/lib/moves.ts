@@ -1,3 +1,4 @@
+import { scrambleViolet } from './violetScramble'
 import { solvedCube, turnDims } from './cube'
 import { faceAxis, faceLayers, quarterTurnFits } from './geometry'
 import { applyMove, turnAllowed } from './turn'
@@ -305,10 +306,19 @@ export function scramble(
   const moves: Move[] = []
   let prevFace: Face | undefined
   while (moves.length < length) {
-    let face: Face
-    do {
-      face = faces[Math.floor(rng() * faces.length)]!
-    } while (face === prevFace && faces.length > 1)
+    // Another face than the last one, among those that can turn (all of
+    // them, on a puzzle that keeps its box); the same again only when it is
+    // the one left (the Violet often jams all others).
+    const turnable = shifts
+      ? faces.filter((f) =>
+          layerVariants(shape, f).some((variant) =>
+            turnAllowed(state, { face: f, amount: amountsFor(shape, f)[0]!, ...variant }),
+          ),
+        )
+      : faces
+    const others = turnable.filter((f) => f !== prevFace)
+    const choices = others.length > 0 ? others : turnable
+    const face = choices[Math.floor(rng() * choices.length)]!
     const amounts = amountsFor(shape, face)
     const amount = amounts[Math.floor(rng() * amounts.length)]!
     // Half outer turns, the rest shared by the other layer variants.
@@ -341,6 +351,7 @@ export function scrambleTurns(
   if (isPyraminx(shape)) return scramblePyraminx(shape, length, rng)
   if (shape === 'ghost') return scrambleGhost(length, rng)
   if (shape === 'rainbow') return scrambleRainbow(length, rng)
+  if (shape === 'violet') return scrambleViolet(length, rng, start)
   return scramble(shape, length, rng, start)
 }
 
