@@ -1,12 +1,12 @@
 import { normalIndex } from '../geometry'
 import { applyMoves } from '../turn'
-import type { Color, Cube, Cubie, PyraMove, Vec3 } from '../types'
-import { undoAll } from './pyraKit'
+import { invertMoves } from '../moves'
+import type { Color, Cube, Cubie, Turn, Vec3 } from '../types'
 
 /**
  * 3-cycles of one kind of piece on the big Pyraminxes (the Master's wings,
- * the Professor's wings, co-wings and co-centers), the brick of their
- * fan2cube methods: the page's formulas, from every side, each then set up
+ * the Professor's wings, co-wings and co-centers) and the Rainbow, the
+ * brick of their fan2cube methods: the page's formulas, from every side, each then set up
  * by a turn (undone after) until every 3-cycle of the kind is found, and a
  * step that places the pieces one at a time through slots still wrong.
  */
@@ -18,7 +18,7 @@ const key = (p: Vec3) => p.join()
  *  `mayMove` does not allow (the kinds a later step sees to). */
 function effect(
   solved: Cube,
-  sequence: readonly PyraMove[],
+  sequence: readonly Turn[],
   isKind: (c: Cubie) => boolean,
   pure: boolean,
   mayMove: (c: Cubie) => boolean,
@@ -56,14 +56,14 @@ function cycleOf(map: ReadonlyMap<string, string>): string | null {
  * each kept. A turn s set before a cycle a>b>c makes it
  * s⁻¹(a)>s⁻¹(b)>s⁻¹(c): the cycles grow by conjugation until none is new.
  */
-export function cycleTable(
+export function cycleTable<T extends Turn>(
   solved: Cube,
   isKind: (c: Cubie) => boolean,
-  formulas: readonly (readonly PyraMove[])[],
-  setups: readonly PyraMove[],
+  formulas: readonly (readonly T[])[],
+  setups: readonly T[],
   mayMove: (c: Cubie) => boolean = () => false,
-): Map<string, PyraMove[]> {
-  const found = new Map<string, PyraMove[]>()
+): Map<string, T[]> {
+  const found = new Map<string, T[]>()
   for (const sequence of formulas) {
     const map = effect(solved, sequence, isKind, true, mayMove)
     const id = map && cycleOf(map)
@@ -83,7 +83,7 @@ export function cycleTable(
         const moved = slots.map((slot) => back.get(slot)!)
         const conjugate = cycleId(moved[0]!, moved[1]!, moved[2]!)
         if (found.has(conjugate)) continue
-        found.set(conjugate, [turn, ...found.get(id)!, ...undoAll([turn])])
+        found.set(conjugate, [turn, ...found.get(id)!, ...invertMoves([turn])])
         next.push(conjugate)
       }
     }
@@ -123,12 +123,12 @@ export function handedHome(piece: Cubie, slots: Cube, faces: Map<number, Color>)
  * there (two at once). Two left, swapped, which only pieces of one color
  * alike allow (the co-centers): through a right slot that ends right.
  */
-export function placeByCycles(
+export function placeByCycles<T extends Turn>(
   cube: Cube,
-  table: ReadonlyMap<string, PyraMove[]>,
+  table: ReadonlyMap<string, T[]>,
   homeOf: (state: Cube) => ReadonlyMap<string, string>,
-): PyraMove[] {
-  const moves: PyraMove[] = []
+): T[] {
+  const moves: T[] = []
   let state = cube
   const wrongIn = (home: ReadonlyMap<string, string>) =>
     [...home].filter(([at, to]) => at !== to).map(([at]) => at)

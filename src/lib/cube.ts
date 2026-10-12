@@ -12,6 +12,7 @@ import {
 import { solvedGhost } from './ghost'
 import { solvedMorph } from './morph'
 import { solvedOct4 } from './oct4'
+import { solvedRainbow } from './rainbow'
 import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
 import { ALL_COLORS, isPyraminx, isStar, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
@@ -89,6 +90,7 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (isPyraminx(shape)) return solvedPyra(shape)
   if (shape === 'morph') return solvedMorph()
   if (shape === 'oct4') return solvedOct4()
+  if (shape === 'rainbow') return solvedRainbow()
   if (shape === 'ghost') return solvedGhost()
   const dims = SHAPE_DIMS[shape]
   const colors = faceColorsOf(shape)

@@ -4,6 +4,7 @@ import { GHOST_YAW, ghostPolygons } from './ghostGeometry'
 import { jingCut, jingPolygons, jingThumbnail } from './jingGeometry'
 import { MORPH_ORIENT, morphPolygons } from './morphGeometry'
 import { OCT_YAW, octPolygons } from './octGeometry'
+import { RAINBOW_ORIENT, RAINBOW_YAW, rainbowPolygons } from './rainbowGeometry'
 import type { PiecePolygon } from './polygons'
 import { PYRA_YAW, pyraPolygons } from './pyraGeometry'
 import { STAR_YAW, starPolygons } from './starGeometry'
@@ -41,6 +42,11 @@ const JING: PolyDrawing = {
 const MORPH: PolyDrawing = { polygons: morphPolygons, yaw: PYRA_YAW, orient: MORPH_ORIENT }
 
 const OCT4: PolyDrawing = { polygons: octPolygons, yaw: OCT_YAW }
+const RAINBOW: PolyDrawing = {
+  polygons: rainbowPolygons,
+  yaw: RAINBOW_YAW,
+  orient: RAINBOW_ORIENT,
+}
 
 const GHOST: PolyDrawing = { polygons: ghostPolygons, yaw: GHOST_YAW, skin: GHOST_STICKER }
 
@@ -51,6 +57,7 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'morph') return MORPH
   if (shape === 'ghost') return GHOST
   if (shape === 'oct4') return OCT4
+  if (shape === 'rainbow') return RAINBOW
   if (shape === 'pyra5') return PROFESSOR
   return shape === 'pyra4' ? MASTER : shape === 'jing' ? JING : PYRAMINX
 }

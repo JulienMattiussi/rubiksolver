@@ -156,7 +156,7 @@ describe('cube picker', () => {
       tower: ['223', '224', '332'],
       flat: ['123', '331', 'ghost'],
       pyramid: ['pyra', 'pyra4', 'pyra5', 'jing', 'morph'],
-      octahedron: ['oct4'],
+      octahedron: ['oct4', 'rainbow'],
       star: ['star', 'star4'],
     })
   })

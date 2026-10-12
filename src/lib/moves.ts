@@ -10,10 +10,18 @@ import {
 } from './pyraminx'
 import { formatPyraMove } from './pyraNotation'
 import { formatGhostMove, GHOST_TURNS, scrambleGhost, simplifyGhostMoves } from './ghost'
+import {
+  formatRainbowMove,
+  invertRainbowMove,
+  RAINBOW_TURNS,
+  scrambleRainbow,
+  simplifyRainbowMoves,
+} from './rainbow'
 import { formatStarMove, invertStarMove, scrambleStar, simplifyStarMoves, STAR_RINGS } from './star'
 import {
   isGhostMove,
   isGridless,
+  isRainbowMove,
   isPyraMove,
   isPyraminx,
   isStar,
@@ -30,6 +38,7 @@ import type {
   GhostMove,
   Move,
   PyraMove,
+  RainbowMove,
   StarMove,
   Turn,
 } from './types'
@@ -131,6 +140,7 @@ export function formatMove(move: Turn, labels: FaceLabels = NOTATION_US, dims?: 
   if (isStarMove(move)) return formatStarMove(move, labels)
   if (isPyraMove(move)) return formatPyraMove(move, labels)
   if (isGhostMove(move)) return formatGhostMove(move, labels)
+  if (isRainbowMove(move)) return formatRainbowMove(move, labels)
   if (dims && move.depth && !move.wide && faceLayers(dims, move.face) === 3) {
     const slice = SLICES.find((s) => s.face === move.face || s.opposite === move.face)!
     const amount = slice.face === move.face ? move.amount : invertMove(move).amount
@@ -217,6 +227,9 @@ export function sameLayer(a: Turn, b: Turn): boolean {
   }
   if (isPyraMove(a) || isPyraMove(b)) return isPyraMove(a) && isPyraMove(b) && samePyraLayer(a, b)
   if (isGhostMove(a) || isGhostMove(b)) return isGhostMove(a) && isGhostMove(b) && a.side === b.side
+  if (isRainbowMove(a) || isRainbowMove(b)) {
+    return isRainbowMove(a) && isRainbowMove(b) && a.triangle === b.triangle
+  }
   return a.face === b.face && a.depth === b.depth && a.wide === b.wide
 }
 
@@ -236,7 +249,9 @@ export function invertMoves<T extends Turn>(moves: readonly T[]): T[] {
           ? invertPyraMove(m)
           : isGhostMove(m)
             ? m // a half turn
-            : invertMove(m)) as T,
+            : isRainbowMove(m)
+              ? invertRainbowMove(m)
+              : invertMove(m)) as T,
   )
 }
 
@@ -250,6 +265,9 @@ export function simplifyMoves<T extends Turn>(moves: readonly T[]): T[] {
   if (moves.some(isStarMove)) return simplifyStarMoves(moves as readonly StarMove[]) as T[]
   if (moves.some(isPyraMove)) return simplifyPyraMoves(moves as readonly PyraMove[]) as T[]
   if (moves.some(isGhostMove)) return simplifyGhostMoves(moves as readonly GhostMove[]) as T[]
+  if (moves.some(isRainbowMove)) {
+    return simplifyRainbowMoves(moves as readonly RainbowMove[]) as T[]
+  }
   const out: Move[] = []
   for (const move of moves as readonly Move[]) {
     const last = out[out.length - 1]
@@ -322,6 +340,7 @@ export function scrambleTurns(
   if (isStar(shape)) return scrambleStar(shape, length, rng)
   if (isPyraminx(shape)) return scramblePyraminx(shape, length, rng)
   if (shape === 'ghost') return scrambleGhost(length, rng)
+  if (shape === 'rainbow') return scrambleRainbow(length, rng)
   return scramble(shape, length, rng, start)
 }
 
@@ -333,6 +352,7 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
   }
   if (isPyraminx(shape)) return pyraTurnsOf(shape)
   if (shape === 'ghost') return GHOST_TURNS
+  if (shape === 'rainbow') return RAINBOW_TURNS
   return movesFor(shape)
 }
 

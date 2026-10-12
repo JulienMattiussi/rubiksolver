@@ -4,7 +4,7 @@
 
 import type { MoveDescription } from '@/lib/moveGuide'
 import { fromAbove } from '@/lib/star'
-import type { Face, GhostSide, PyraVertex, RingMove } from '@/lib/types'
+import type { Face, GhostSide, PyraVertex, RainbowCorner, RingMove } from '@/lib/types'
 
 export type StarLayer = RingMove['ring']
 
@@ -54,6 +54,29 @@ export const SIDE_NAMES_EN: Record<GhostSide, string> = {
   L: 'the left side',
 }
 
+/** The Rainbow's triangles, as the puzzle is held (a square in front). */
+export const TRIANGLE_NAMES_FR: Record<RainbowCorner, string> = {
+  U: 'le triangle du haut',
+  D: 'le triangle du bas',
+  L: 'le triangle de gauche',
+  R: 'le triangle de droite',
+  u: 'le triangle du haut, derrière',
+  d: 'le triangle du bas, derrière',
+  l: 'le triangle de gauche, derrière',
+  r: 'le triangle de droite, derrière',
+}
+
+export const TRIANGLE_NAMES_EN: Record<RainbowCorner, string> = {
+  U: 'the top triangle',
+  D: 'the bottom triangle',
+  L: 'the left triangle',
+  R: 'the right triangle',
+  u: 'the top triangle, behind',
+  d: 'the bottom triangle, behind',
+  l: 'the left triangle, behind',
+  r: 'the right triangle, behind',
+}
+
 export const FACE_NAMES_FR: Record<Face, string> = {
   U: 'face du haut',
   D: 'face du bas',
@@ -95,6 +118,10 @@ export const FACE_NAMES_EN: Record<Face, string> = {
 export function describeFr(d: MoveDescription): string {
   if (d.kind === 'slash') {
     return 'Le slash : toute la moitié droite fait un demi-tour, ses pièces du haut passent en bas et celles du bas en haut.'
+  }
+  if (d.kind === 'triangle') {
+    const sense = d.clockwise ? 'des aiguilles' : 'inverse des aiguilles'
+    return `On tourne ${TRIANGLE_NAMES_FR[d.triangle]} d’un tiers de tour (120°) dans le sens ${sense} d’une montre, vu de face : ses trois pièces tournent autour de son centre, qui ne bouge pas.`
   }
   if (d.kind === 'side') {
     return `On retourne ${SIDE_NAMES_FR[d.side]} d’un demi-tour, autour de l’axe perpendiculaire à sa coupe : son arête se retourne, ses deux sommets s’échangent.`
@@ -146,6 +173,10 @@ export function describeFr(d: MoveDescription): string {
 export function describeEn(d: MoveDescription): string {
   if (d.kind === 'slash') {
     return 'The slash: the whole right half makes a half turn, its top pieces going down and its bottom ones up.'
+  }
+  if (d.kind === 'triangle') {
+    const sense = d.clockwise ? 'clockwise' : 'counterclockwise'
+    return `Turn ${TRIANGLE_NAMES_EN[d.triangle]} a third of a turn (120°) ${sense}, as seen from it: its three pieces go round its center, which stays put.`
   }
   if (d.kind === 'side') {
     return `Flip ${SIDE_NAMES_EN[d.side]} over with a half turn, about the axis across its cut: its edge turns over, its two corners swap.`

@@ -21,7 +21,7 @@ export const formula =
     parsePyraMoves(text, NOTATION_FR, size)
 
 export const undo = (m: PyraMove): PyraMove => ({ ...m, amount: m.amount === 1 ? 2 : 1 })
-export const undoAll = (moves: readonly PyraMove[]): PyraMove[] => [...moves].reverse().map(undo)
+const undoAll = (moves: readonly PyraMove[]): PyraMove[] => [...moves].reverse().map(undo)
 
 /** The same formula played from another side: the puzzle turned so that its
  *  corners trade places as `to` says. */

@@ -11,13 +11,24 @@ import {
   type PyraLayer,
 } from './pyraminx'
 import { GHOST_TURNS } from './ghost'
+import { RAINBOW_TRIANGLES } from './rainbow'
 import { signedPieces, STAR_RINGS } from './star'
-import { isFaceMove, isGhostMove, isPyraminx, isPyraMove, isStar, SHAPE_DIMS } from './types'
+import {
+  isFaceMove,
+  isGhostMove,
+  isPyraminx,
+  isPyraMove,
+  isRainbowMove,
+  isStar,
+  SHAPE_DIMS,
+} from './types'
 import type {
   CubeShape,
   Dims,
   Face,
   GhostSide,
+  RainbowCorner,
+  RainbowMove,
   Move,
   PyraMove,
   PyraShape,
@@ -39,7 +50,8 @@ import type {
  * reads the solutions' notation.
  */
 
-type GuideSection = 'faces' | 'middle' | 'slices' | 'wide' | 'rings' | 'slash' | 'sides' | PyraLayer
+type GuideSection =
+  'faces' | 'middle' | 'slices' | 'wide' | 'rings' | 'slash' | 'sides' | 'triangles' | PyraLayer
 
 export interface GuideGroup {
   readonly section: GuideSection
@@ -76,6 +88,12 @@ export type MoveDescription =
       /** A Floppy Ghost side flipped over. */
       readonly kind: 'side'
       readonly side: GhostSide
+    }
+  | {
+      /** A Rainbow triangle turned a third. */
+      readonly kind: 'triangle'
+      readonly triangle: RainbowCorner
+      readonly clockwise: boolean
     }
 
 /** The face each middle slice of a 3-layer axis follows (M: L, E: D, S: F). */
@@ -157,12 +175,20 @@ function pyraGuide(shape: PyraShape): GuideGroup[] {
 export function moveGuide(shape: CubeShape): GuideGroup[] {
   if (isStar(shape)) return starGuide(shape)
   if (shape === 'ghost') return [{ section: 'sides', rows: GHOST_TURNS.map((turn) => [turn]) }]
+  if (shape === 'rainbow') {
+    const row = (triangle: RainbowCorner) =>
+      ([1, 2] as const).map((amount): RainbowMove => ({ triangle, amount }))
+    return [{ section: 'triangles', rows: RAINBOW_TRIANGLES.map(row) }]
+  }
   return isPyraminx(shape) ? pyraGuide(shape) : cubeGuide(shape)
 }
 
 /** What a turn does on a shape. */
 export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
   if (isGhostMove(turn)) return { kind: 'side', side: turn.side }
+  if (isRainbowMove(turn)) {
+    return { kind: 'triangle', triangle: turn.triangle, clockwise: turn.amount === 1 }
+  }
   if (isPyraMove(turn)) {
     const layer = pyraLayerOf(turn)
     const kind =

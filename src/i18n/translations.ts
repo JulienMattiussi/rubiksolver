@@ -3,7 +3,7 @@
 
 import type { LayerKind } from '@/lib/moves'
 import type { PyraLayer } from '@/lib/pyraminx'
-import type { GhostSide, PyraVertex } from '@/lib/types'
+import type { GhostSide, PyraVertex, RainbowCorner } from '@/lib/types'
 import {
   CORNER_NAMES_EN,
   CORNER_NAMES_FR,
@@ -13,6 +13,8 @@ import {
   FACE_NAMES_FR,
   SIDE_NAMES_EN,
   SIDE_NAMES_FR,
+  TRIANGLE_NAMES_EN,
+  TRIANGLE_NAMES_FR,
   STAR_LAYER_EN,
   STAR_LAYER_FR,
   type StarLayer,
@@ -53,6 +55,10 @@ const fr = {
     `Tourner ${STAR_LAYER_FR[layer]} d’une pièce dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
   slashTitle: 'Slash : retourner la moitié droite',
   ghostTurnTitle: (side: GhostSide) => `Retourner ${SIDE_NAMES_FR[side]} (demi-tour)`,
+  rainbowTurnTitle: (triangle: RainbowCorner, clockwise: boolean) =>
+    `Tourner ${TRIANGLE_NAMES_FR[triangle]} d’un tiers dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
+  rainbowFront: 'Devant',
+  rainbowBack: 'Derrière',
   pyraTurnTitle: (vertex: PyraVertex, layer: PyraLayer | 'faces', clockwise: boolean) => {
     const corner = CORNER_NAMES_FR[vertex]
     const target = {
@@ -135,6 +141,12 @@ const fr = {
     R: 'Rouge',
     P: 'Rose',
     V: 'Violet',
+    E: 'Vert foncé',
+    N: 'Bleu foncé',
+    T: 'Turquoise',
+    K: 'Rose pâle',
+    M: 'Marron',
+    L: 'Vert citron',
   },
   cubeLabel: 'Choix du cube',
   chooseCube: 'Choisir un cube',
@@ -177,6 +189,7 @@ const fr = {
     slice4: 'Quatrièmes tranches',
     deep: 'Sommets (chacun sa moitié du puzzle)',
     sides: 'Côtés (demi-tours)',
+    triangles: 'Triangles (le centre ne bouge pas)',
   },
   describeMove: describeFr,
   guideBlocked: 'Ce mouvement n’est pas possible dans cette configuration',
@@ -232,6 +245,10 @@ const fr = {
     asPocket: {
       name: 'Comme un Pocket',
       desc: 'Le Pyramorphinx n’est qu’un Pocket (2x2) déguisé : ses 8 pièces sont les 8 coins d’un 2x2 et ses mouvements ceux d’un 2x2. On le lit comme tel et on le résout comme un Pocket, en un minimum de mouvements, sans se laisser troubler par les formes qu’il prend.',
+    },
+    extendedTriangle: {
+      name: 'Triangle prolongé',
+      desc: 'Les trois pièces du triangle du haut d’abord, chacune prolongeant les carrés autour, puis toutes les autres avec deux commutateurs, « placer à gauche » [H’ G’] et « placer à droite » [H D] : quand sept triangles sont faits, le huitième l’est aussi.',
     },
     octCornersFirst: {
       name: 'Sommets d’abord',
@@ -338,6 +355,8 @@ const fr = {
     stepPyraEdges: 'Arêtes',
     stepCoCenters: 'Co-centres',
     stepOctCorners: 'Sommets',
+    stepRainbowTop: 'Triangle du haut (prolongé)',
+    stepRainbowRest: 'Les autres triangles',
     stepOctEdges: 'Arêtes',
     stepOctMiddles: 'Centres',
     stepFinishCenters: 'Finir les centres',
@@ -388,6 +407,10 @@ const en: Translations = {
     `Turn the ${STAR_LAYER_EN[layer]} layer one piece ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   slashTitle: 'Slash: flip the right half',
   ghostTurnTitle: (side: GhostSide) => `Flip ${SIDE_NAMES_EN[side]} over (half turn)`,
+  rainbowTurnTitle: (triangle: RainbowCorner, clockwise: boolean) =>
+    `Turn ${TRIANGLE_NAMES_EN[triangle]} a third ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
+  rainbowFront: 'Front',
+  rainbowBack: 'Back',
   pyraTurnTitle: (vertex: PyraVertex, layer: PyraLayer | 'faces', clockwise: boolean) => {
     const corner = CORNER_NAMES_EN[vertex]
     const target = {
@@ -467,6 +490,12 @@ const en: Translations = {
     R: 'Red',
     P: 'Pink',
     V: 'Violet',
+    E: 'Dark green',
+    N: 'Dark blue',
+    T: 'Turquoise',
+    K: 'Pale pink',
+    M: 'Brown',
+    L: 'Lime',
   },
   cubeLabel: 'Cube choice',
   chooseModel: 'Choose a model',
@@ -508,6 +537,7 @@ const en: Translations = {
     slice4: 'Fourth slices',
     deep: 'Corners (each its half of the puzzle)',
     sides: 'Sides (half turns)',
+    triangles: 'Triangles (the center stays put)',
   },
   describeMove: describeEn,
   guideBlocked: 'This move is not possible in this configuration',
@@ -563,6 +593,10 @@ const en: Translations = {
     asPocket: {
       name: 'As a Pocket',
       desc: 'The Pyramorphinx is a Pocket (2x2) in disguise: its 8 pieces are a 2x2’s 8 corners and its turns a 2x2’s. Read as such, it is solved like a Pocket, in as few turns as can be, whatever strange shapes it takes.',
+    },
+    extendedTriangle: {
+      name: 'Extended triangle',
+      desc: 'The top triangle’s three pieces first, each extending the squares around it, then all the others with two commutators, “place left” [U’ L’] and “place right” [U R]: once seven triangles are done, the eighth is too.',
     },
     octCornersFirst: {
       name: 'Corners first',
@@ -669,6 +703,8 @@ const en: Translations = {
     stepPyraEdges: 'Edges',
     stepCoCenters: 'Co-centers',
     stepOctCorners: 'Corners',
+    stepRainbowTop: 'The top triangle (extended)',
+    stepRainbowRest: 'The other triangles',
     stepOctEdges: 'Edges',
     stepOctMiddles: 'Centers',
     stepFinishCenters: 'Finish the centers',

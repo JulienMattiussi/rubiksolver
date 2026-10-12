@@ -14,6 +14,7 @@ import { SECTION_BOX } from '@/components/ui/styles'
 import { FEATURE_ICON } from '@/components/ui/features'
 import { MovePad } from './MovePad'
 import { GhostPad } from './GhostPad'
+import { RainbowPad } from './RainbowPad'
 import { PyraPad } from './PyraPad'
 import { StarPad } from './StarPad'
 import { SpeedSlider } from './SpeedSlider'
@@ -114,6 +115,8 @@ export function SetupSection() {
         <PyraPad disabled={busy} />
       ) : shape === 'ghost' ? (
         <GhostPad disabled={busy} />
+      ) : shape === 'rainbow' ? (
+        <RainbowPad disabled={busy} />
       ) : (
         <MovePad disabled={busy} />
       )}

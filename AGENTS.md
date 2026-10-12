@@ -9,7 +9,8 @@ et le **Floppy 3x3x1**, le **Floppy Ghost** (un Floppy Megaminx découpé en
 pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le **Pyraminx**, le
 **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le **Pyraminx Jing** (pièces courbes), le
 **Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme), le
-**4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre) et les
+**4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), le **Rainbow**
+(un cuboctaèdre dont les triangles tournent) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
@@ -98,6 +99,7 @@ src/
 │   ├── pieces.ts         # Requêtes de pièces : colorAt, colorsOf, cubieAt, atHome/homeAt/homesOf, listedAs (pièces listées dans le même ordre)
 │   ├── morph.ts          # Pyramorphinx : un 2x2 taillé en tétraèdre (coins à 3 stickers, milieux de face à 1)
 │   ├── oct4.ts           # 4-Trajber's Octahedron : un 4x4x4 sans cubies internes, un sticker par pièce (face de son octant)
+│   ├── rainbow.ts        # Rainbow : cuboctaèdre, 12 pièces aux milieux des arêtes du cube, triangles en tiers de tour, notation
 │   ├── cycleLibrary.ts   # 3-cycles purs des grands cubes (commutateurs [A, X Y X'] conjugués), findCycle, placeAll, borrow
 │   ├── ghost.ts          # Floppy Ghost : 10 emplacements autour du centre, demi-tours = réflexions entières, notation fan2cube
 │   ├── pyraminx.ts       # Pyraminx, Master et Jing : modèle tétraédrique entier (couches, pointes, tranches, moitiés), mélange
@@ -131,6 +133,7 @@ src/
 │   │   ├── pyraminx4.ts  #   Master Pyraminx : ailes puis co-ailes (3-cycles d'ailes, formules de fan2cube.fr)
 │   │   ├── pyraminx5.ts  #   Professor Pyraminx : ailes, co-ailes, arêtes, co-centres, centres (fan2cube.fr)
 │   │   ├── oct4.ts       #   4-Trajber's Octahedron : parité, sommets, arêtes, centres (3-cycles, fan2cube.fr)
+│   │   ├── rainbow.ts    #   Rainbow : triangle du haut, puis les autres par 3-cycles ([H' G'], [H D], fan2cube.fr)
 │   │   ├── pyraCycles.ts #   3-cycles d'une sorte de pièce par conjugaison (cycleTable), chiralité (handedHome), placement
 │   │   ├── jing.ts       #   Pyraminx Jing : sommets d'abord (crochet [DH] de fan2cube.fr)
 │   │   ├── morph.ts      #   Pyramorphinx : comme un Pocket (lu comme un 2x2, solveur optimal du 2x2)
@@ -190,6 +193,7 @@ src/
 │   ├── pyraGeometry.ts   # Géométrie des pièces du Pyraminx (petits tétraèdres et octaèdres des cellules du modèle)
 │   ├── morphGeometry.ts  # Pièces du Pyramorphinx : case du 2x2 coupée par le tétraèdre (polyèdre convexe)
 │   ├── octGeometry.ts    # Pièces du 4-Trajber : case du 4x4x4 coupée par l'octaèdre (polyhedron.ts, partagé avec le Pyramorphinx)
+│   ├── rainbowGeometry.ts # Pièces du Rainbow : cellule de chaque pièce dans le cuboctaèdre (polyhedron.ts)
 │   ├── ghostGeometry.ts  # Pièces du Floppy Ghost : régions du carré coupé par le pentagramme, extrudées, posées par réflexions
 │   ├── jingGeometry.ts   # Géométrie courbe du Jing : surface arrondie maillée fin, découpée le long des coupes
 │   ├── polyDrawing.ts    # Dessin d'un puzzle sans grille : ses polygones, son lacet à l'écran, sa teinte unique (argent du Ghost)
@@ -214,7 +218,7 @@ src/
 │   │                     #   + styles.ts : classes partagées (SECTION_BOX, SECTION_LABEL, TURN_PAIR)
 │   │                     #   + features.ts : icône et couleur des 3 fonctionnalités (saisie bleu ciel, guide violet,
 │   │                     #     résolution ambre), partagées par les cartes de l'accueil et les boutons (variantes de Button)
-│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad / GhostPad (+ PadHeader,
+│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad / GhostPad / RainbowPad (+ PadHeader,
 │   │                     #   PadButton : un coup, sa surbrillance au survol), LanguageToggle, NotationToggle,
 │   │                     #   RecenterButton, CollapseButton, SpeedSlider
 │   ├── picker/           # Choix du cube : CubePicker (bouton + modale), PickerTile, PuzzleIcon (vignette SVG),
@@ -325,6 +329,8 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   optimale du 2x2 qu'il est - voir « Le Pyramorphinx ».
 - **Sommets d'abord** (`octCornersFirst`, 4-Trajber's Octahedron) : parité,
   sommets, arêtes, centres - voir « Le 4-Trajber's Octahedron ».
+- **Triangle prolongé** (`extendedTriangle`, Rainbow) : le triangle du haut,
+  puis les autres par 3-cycles - voir « Le Rainbow ».
 - **Ailes puis co-ailes** (`wingsFirst`, Master et Professor Pyraminx) :
   co-sommets, pointes, centres, ailes, co-ailes (puis arêtes et co-centres
   sur le Professor), fin des centres - voir « Le Master Pyraminx » et « Le
@@ -616,7 +622,8 @@ de l'étoile a sa normale (`HEX_NORMALS`, indices 6 à 11 après les 6 faces du
 cube), partagée par les deux faces qui le forment : « résolu » reste « chaque
 direction d'une seule couleur » (`isSolved` inchangé). Couleurs : vert dessus,
 bleu dessous, et sur les côtés orange, blanc, jaune, rouge, violet, rose (les
-deux dernières sont propres à l'étoile : `Color` = `CubeColor` + `P`, `V`).
+deux dernières sont propres à l'étoile : `Color` = `CubeColor` + `P`, `V`,
+plus les six du Rainbow).
 
 Intégration : un coup est un `Turn` = `Move` (cubes) | `StarMove` (`RingMove` |
 slash) dans le code générique (file d'animation, rendu, notation) ; les
@@ -787,6 +794,46 @@ les commutateurs de la page (T, K) ; les arêtes, une à une par commutateurs
 de tranches (comme les ailes du 5x5), et non par paires avec les formules
 du VTO de la page, dont l'effet est tout de même vérifié en test. Environ
 250 coups.
+
+### Le Rainbow (`rainbow`)
+
+Le Rainbow (fan2cube.fr/rainbow1 et 2) est un **cuboctaèdre** : 6 carrés et
+8 triangles. Chaque triangle tourne par tiers de tour, son centre fixe, et
+emporte les trois pièces de ses coins : un 3-cycle. Les 12 pièces sont aux
+sommets du cuboctaèdre et montrent quatre couleurs (un quart de deux carrés,
+un coin de deux triangles) ; une pièce n'a qu'une pose par emplacement, d'où
+12!/2 états (chaque tour est un 3-cycle, donc pair).
+
+**Modèle entier** (`lib/rainbow.ts`, puzzle sans grille) : les carrés
+regardent les axes du cube, les triangles ses diagonales (`TET_NORMALS` et
+leurs opposées) ; les pièces sont aux milieux des arêtes du cube
+(`(1, 1, 0)`...), les 8 centres fixes à ses coins. Un tiers de tour autour
+d'une diagonale est une permutation signée des coordonnées ; il prend ce dont
+le produit scalaire avec la diagonale vaut au moins 2. Couleurs : les carrés aux couleurs du cube, chaque
+triangle la sienne (violet en haut, comme sur la page ; puis rose, bleu
+foncé, turquoise, rose pâle, vert citron, vert foncé, marron, les six
+dernières propres au Rainbow) ; les centres fixes tiennent le repère. Les
+triangles de devant touchent tous le carré vert, ceux de derrière le bleu :
+le bleu foncé est devant, le vert foncé derrière. Le puzzle est tenu un carré devant, tourné d'un
+huitième pour avoir des triangles en haut, en bas et sur les côtés.
+
+**Notation** : celle de fan2cube en français, H B G D pour les triangles de
+devant, h b g d pour ceux de derrière ; U D L R / u d l r en anglais ; `'`
+pour le sens inverse. `parseRainbowMoves` lit les formules de la page
+(`[H' G']`). Pad dédié (`RainbowPad` : Devant / Derrière), guide en section
+« Triangles ».
+
+**Rendu** (`three/rainbowGeometry.ts`) : le solide est le cuboctaèdre
+(`polyhedron.ts`), chaque pièce sa cellule de Voronoï autour de son sommet,
+coupée par les plans qui la séparent des centres ; un centre fixe est le
+reste sous ses trois coupes.
+
+**Résolution** (`methods/rainbow.ts`, méthode **Triangle prolongé**,
+d'après la page) : (1) le triangle du haut, ses trois pièces placées par
+recherche (`solvePieces`) ; (2) les autres par 3-cycles (`pyraCycles.ts`),
+avec les deux commutateurs de la page, « placer à gauche » `[H' G']` et
+« placer à droite » `[H D]`, vus de chaque côté et conjugués par un tour.
+Environ 25 coups.
 
 ### Le Professor Pyraminx (`pyra5`)
 
@@ -1053,7 +1100,7 @@ mobile et en saisie, une seule carte) :
   (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
-  4-Trajber's Octahedron, Étoiles 2-Star Prism (UFO)/4-Star Prism.
+  4-Trajber's Octahedron/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

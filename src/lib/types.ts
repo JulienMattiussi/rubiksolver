@@ -20,6 +20,7 @@ export type CubeShape =
   | 'jing'
   | 'morph'
   | 'oct4'
+  | 'rainbow'
   | 'ghost'
   | 'star'
   | 'star4'
@@ -56,6 +57,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   morph: [2, 2, 2],
   // The 4-Trajber's Octahedron is a 4x4x4 cut to an octahedron (oct4.ts).
   oct4: [4, 4, 4],
+  // The Rainbow (rainbow.ts) is no grid: its pieces sit within +-1.
+  rainbow: [3, 3, 3],
   // The Floppy Ghost (ghost.ts) is no grid: its slots sit within +-3 in its
   // plane, all at z = 0.
   ghost: [7, 7, 1],
@@ -86,7 +89,7 @@ export const isPyraminx = (shape: CubeShape): shape is PyraShape =>
  *  of layers (the star prisms, the Pyraminx, the Floppy Ghost): drawn from
  *  polygons, turned by its own pad. */
 export const isGridless = (shape: CubeShape): boolean =>
-  isStar(shape) || isPyraminx(shape) || shape === 'ghost'
+  isStar(shape) || isPyraminx(shape) || shape === 'ghost' || shape === 'rainbow'
 
 /** Whether a shape is drawn from polygons rather than cubie boxes: every
  *  gridless one, the Pyramorphinx (a 2x2 whose pieces are not cubes) and
@@ -121,6 +124,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   jing: false,
   morph: true,
   oct4: false,
+  rainbow: false,
   ghost: false,
   star: false,
   star4: false,
@@ -151,6 +155,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   jing: [],
   morph: [],
   oct4: ['slice'],
+  rainbow: [],
   ghost: [],
   star: [],
   star4: [],
@@ -177,6 +182,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   jing: [],
   morph: [],
   oct4: [],
+  rainbow: [],
   ghost: [],
   star: [],
   star4: [],
@@ -199,6 +205,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   jing: 'Pyraminx Jing',
   morph: 'Pyramorphinx',
   oct4: "4-Trajber's Octahedron",
+  rainbow: 'Rainbow',
   ghost: 'Floppy Ghost',
   star: '2-Star Prism (UFO)',
   star4: '4-Star Prism',
@@ -222,6 +229,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   jing: 'pyraminx-jing',
   morph: 'pyramorphinx',
   oct4: '4-trajber',
+  rainbow: 'rainbow',
   ghost: 'floppy-ghost',
   star: '2-star',
   star4: '4-star',
@@ -259,6 +267,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   jing: false,
   morph: false,
   oct4: false,
+  rainbow: false,
   ghost: false,
   star: false,
   star4: false,
@@ -293,7 +302,7 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (variant === 'mirror') return 'mirror'
   if (isStar(shape)) return 'star'
   if (isPyraminx(shape) || shape === 'morph') return 'pyramid'
-  if (shape === 'oct4') return 'octahedron'
+  if (shape === 'oct4' || shape === 'rainbow') return 'octahedron'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
   // One layer thick: the 1x2x3 and the Floppy.
@@ -316,7 +325,11 @@ export type Face = 'U' | 'D' | 'L' | 'R' | 'F' | 'B'
 
 /** Sticker colors. Kept distinct from Face letters (a sticker's color is not
  *  the same concept as the face it currently sits on). */
-export type Color = CubeColor | 'P' | 'V'
+export type Color = CubeColor | 'P' | 'V' | RainbowColor
+
+/** The Rainbow's six more triangle colors: dark green, dark blue,
+ *  turquoise, pale pink, brown, lime. */
+type RainbowColor = 'E' | 'N' | 'T' | 'K' | 'M' | 'L'
 
 /** The six colors of the cubes (the standard scheme); the star prism adds
  *  pink and violet for its six valleys. */
@@ -326,7 +339,7 @@ export type CubeColor = 'W' | 'Y' | 'G' | 'B' | 'O' | 'R'
 const COLORS: readonly CubeColor[] = ['W', 'Y', 'G', 'B', 'O', 'R']
 
 /** Every sticker color of every puzzle. */
-export const ALL_COLORS: readonly Color[] = [...COLORS, 'P', 'V']
+export const ALL_COLORS: readonly Color[] = [...COLORS, 'P', 'V', 'E', 'N', 'T', 'K', 'M', 'L']
 
 /** Integer coordinate axis. */
 export type Axis = 'x' | 'y' | 'z'
@@ -423,11 +436,23 @@ export interface GhostMove {
   readonly side: GhostSide
 }
 
+/** A triangle of the Rainbow, as the puzzle is held (a square in front):
+ *  the four around the front square (U above, D below, L left, R right),
+ *  then the four behind them, in lowercase. */
+export type RainbowCorner = 'U' | 'D' | 'L' | 'R' | 'u' | 'd' | 'l' | 'r'
+
+/** A Rainbow turn: a third of a turn of one triangle (its three pieces),
+ *  clockwise seen from it (`amount` 1) or back (2). */
+export interface RainbowMove {
+  readonly triangle: RainbowCorner
+  readonly amount: 1 | 2
+}
+
 /** Any turn of any puzzle: a face-layer move, a star prism's, the
- *  Pyraminx's or the Floppy Ghost's. Generic code (the animation queue, the
+ *  Pyraminx's, the Floppy Ghost's or the Rainbow's. Generic code (the animation queue, the
  *  display) handles turns; solvers of the cubes, which only ever make face
  *  moves, keep `Move`. */
-export type Turn = Move | StarMove | PyraMove | GhostMove
+export type Turn = Move | StarMove | PyraMove | GhostMove | RainbowMove
 
 /** Whether a turn is a star prism's. */
 export const isStarMove = (turn: Turn): turn is StarMove => 'ring' in turn || 'slash' in turn
@@ -437,6 +462,9 @@ export const isPyraMove = (turn: Turn): turn is PyraMove => 'vertex' in turn
 
 /** Whether a turn is the Floppy Ghost's. */
 export const isGhostMove = (turn: Turn): turn is GhostMove => 'side' in turn
+
+/** Whether a turn is the Rainbow's. */
+export const isRainbowMove = (turn: Turn): turn is RainbowMove => 'triangle' in turn
 
 /** Whether a turn is a face-layer move (the cubes and cuboids). */
 export const isFaceMove = (turn: Turn): turn is Move => 'face' in turn
