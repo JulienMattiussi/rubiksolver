@@ -1,0 +1,89 @@
+import { faceColorsOf, solvedCube } from './cube'
+import { faceOfNormal } from './geometry'
+import type { Color, Cube, CubeShape, Cubie, Face, Vec3 } from './types'
+
+/**
+ * Queries on a puzzle's pieces (pure): their colors, where one stands,
+ * whether it is home, how a state lists them. The puzzle itself (its solved
+ * state, shape, solved-ness, orientations) is in cube.ts.
+ */
+
+/** Color of the sticker on `cubie` facing `face`, if any. */
+export function colorAt(cubie: Cubie, face: Face): Color | undefined {
+  return cubie.stickers.find((s) => faceOfNormal(s.normal) === face)?.color
+}
+
+/** A piece's colors, sorted: the same wherever it sits, and for twin pieces. */
+export function colorsOf(cubie: Cubie): string {
+  return cubie.stickers
+    .map((s) => s.color)
+    .sort()
+    .join('')
+}
+
+/** Whether a piece carries exactly these colors. */
+export function hasColors(cubie: Cubie, colors: readonly Color[]): boolean {
+  return colorsOf(cubie) === [...colors].sort().join('')
+}
+
+/** The cubie at `position` among `cubies`, if any. */
+export function cubieAt(cubies: readonly Cubie[], [x, y, z]: Vec3): Cubie | undefined {
+  return cubies.find((c) => c.position[0] === x && c.position[1] === y && c.position[2] === z)
+}
+
+const SLOTS = new Map<CubeShape, ReadonlyMap<string, number>>()
+
+/**
+ * Whether a piece is home: in a slot of its boxed puzzle (the right number of
+ * stickers there), every sticker showing the color of the face it points to.
+ * Colors, not identities: either of two twin pieces is right in either spot,
+ * and a piece showing all its faces' colors can only be the one belonging there.
+ */
+export function atHome(cubie: Cubie, shape: CubeShape): boolean {
+  let slots = SLOTS.get(shape)
+  if (!slots) {
+    slots = new Map(solvedCube(shape).map((c) => [c.position.join(','), c.stickers.length]))
+    SLOTS.set(shape, slots)
+  }
+  return (
+    slots.get(cubie.position.join(',')) === cubie.stickers.length &&
+    cubie.stickers.every((s) => s.color === faceColorsOf(shape)[faceOfNormal(s.normal)])
+  )
+}
+
+/** Whether every piece belonging at `positions` is home, among `cubies` (the
+ *  whole puzzle, or the few pieces a search tracks). */
+export function homeAt(cubies: readonly Cubie[], positions: readonly Vec3[], shape: CubeShape) {
+  return positions.every((p) => {
+    const cubie = cubieAt(cubies, p)
+    return cubie !== undefined && atHome(cubie, shape)
+  })
+}
+
+/** Home positions of the pieces of a solved `shape` that `keep` selects. */
+export function homesOf(shape: CubeShape, keep: (c: Cubie) => boolean): Vec3[] {
+  return solvedCube(shape)
+    .filter(keep)
+    .map((c) => c.position)
+}
+
+/**
+ * The same puzzle with its pieces listed as in `reference` (each found by
+ * its colors, twins in order) and each piece's stickers in the reference
+ * piece's color order. `stateKey` reads pieces by index, so two states only
+ * compare once listed alike: an entered cube lists its pieces slot by slot,
+ * a turned one keeps them where they started.
+ */
+export function listedAs(cube: Cube, reference: Cube): Cube {
+  const unused = [...cube]
+  return reference.map((home) => {
+    const i = unused.findIndex((c) => colorsOf(c) === colorsOf(home))
+    if (i < 0) throw new Error(`listedAs: piece ${colorsOf(home)} missing`)
+    const piece = unused.splice(i, 1)[0]!
+    const order = home.stickers.map((s) => s.color)
+    const stickers = [...piece.stickers].sort(
+      (a, b) => order.indexOf(a.color) - order.indexOf(b.color),
+    )
+    return { position: piece.position, stickers }
+  })
+}

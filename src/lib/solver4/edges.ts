@@ -1,6 +1,6 @@
 import { applyMoves } from '../turn'
 import { invertMoves, parseMoves } from '../moves'
-import { colorAt, hasColors } from '../cube'
+import { colorAt, hasColors } from '../pieces'
 import { faceGenerators, OUTER_GENERATORS, search, solveWithAlgs } from '../solverKit'
 import { centersDone } from './centers'
 import type { Cube, Cubie, Face, Move, Vec3 } from '../types'

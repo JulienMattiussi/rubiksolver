@@ -1,4 +1,5 @@
-import { colorsOf, homesOf, isSolved } from '../cube'
+import { isSolved } from '../cube'
+import { colorsOf, homesOf } from '../pieces'
 import { normalIndex } from '../geometry'
 import { solvePieces } from '../pieceSearch'
 import type { MethodPlan } from '../solverKit'

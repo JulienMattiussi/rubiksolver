@@ -1,4 +1,5 @@
-import { colorsOf, cubeShape, solvedCube } from './cube'
+import { cubeShape, solvedCube } from './cube'
+import { colorsOf } from './pieces'
 import { normalIndex, normalOfIndex } from './geometry'
 import { ALL_COLORS, type Color, type Cube, type Cubie } from './types'
 

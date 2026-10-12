@@ -1,4 +1,5 @@
-import { colorAt, FACE_COLOR, hasColors, isSolved } from '../cube'
+import { FACE_COLOR, isSolved } from '../cube'
+import { colorAt, hasColors } from '../pieces'
 import { applyMoves } from '../turn'
 import { OUTER_TURNS } from '../moveSet'
 import {

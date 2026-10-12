@@ -1,13 +1,5 @@
-import {
-  colorAt,
-  cubeOrientations,
-  cubieAt,
-  isSolved,
-  listedAs,
-  OPPOSITE_COLOR,
-  solvedCube,
-  stateKey,
-} from '../cube'
+import { cubeOrientations, isSolved, OPPOSITE_COLOR, solvedCube, stateKey } from '../cube'
+import { colorAt, cubieAt, listedAs } from '../pieces'
 import { applyMove } from '../turn'
 import { invertMoves } from '../moves'
 import { OUTER_TURNS } from '../moveSet'

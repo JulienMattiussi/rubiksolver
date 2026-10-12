@@ -1,4 +1,5 @@
-import { cubieAt, FACE_COLOR, hasColors, homeAt } from '../cube'
+import { FACE_COLOR } from '../cube'
+import { cubieAt, hasColors, homeAt } from '../pieces'
 import { FACE_NORMAL } from '../geometry'
 import { moveSet, type MoveSet } from '../moveSet'
 import { solvePieces } from '../pieceSearch'

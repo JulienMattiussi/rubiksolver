@@ -1,4 +1,5 @@
-import { colorAt, cubieAt, FACE_COLOR, isSolved } from '../cube'
+import { FACE_COLOR, isSolved } from '../cube'
+import { colorAt, cubieAt } from '../pieces'
 import { moveSet, OUTER_TURNS } from '../moveSet'
 import { solvePieces } from '../pieceSearch'
 import { relMoves, solveWithAlgs, type MethodPlan } from '../solverKit'

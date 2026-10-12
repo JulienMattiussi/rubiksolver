@@ -1,8 +1,9 @@
-import { cubieAt } from '../cube'
+import { cubieAt } from '../pieces'
 import { normalIndex, TET_NORMALS } from '../geometry'
 import { NOTATION_FR } from '../moves'
 import type { MoveSet } from '../moveSet'
-import { parsePyraMoves, PYRA_CORNERS, PYRA_VERTICES } from '../pyraminx'
+import { PYRA_CORNERS, PYRA_VERTICES } from '../pyraminx'
+import { parsePyraMoves } from '../pyraNotation'
 import { applyMoves } from '../turn'
 import type { Color, Cube, Cubie, PyraMove, PyraVertex, Vec3 } from '../types'
 

@@ -1,4 +1,5 @@
-import { homesOf, isSolved } from '../cube'
+import { isSolved } from '../cube'
+import { homesOf } from '../pieces'
 import { normalIndex } from '../geometry'
 import { NOTATION_FR } from '../moves'
 import type { MoveSet } from '../moveSet'

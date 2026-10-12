@@ -1,4 +1,5 @@
-import { homeAt, homesOf, isSolved } from '../cube'
+import { isSolved } from '../cube'
+import { homeAt, homesOf } from '../pieces'
 import { parseMoves } from '../moves'
 import { moveSet } from '../moveSet'
 import { solvePieces } from '../pieceSearch'

@@ -1,4 +1,5 @@
-import { colorsOf, solvedCube } from '../cube'
+import { solvedCube } from '../cube'
+import { colorsOf } from '../pieces'
 import { applyMoves } from '../turn'
 import { parseMoves } from '../moves'
 import { edgeOriented } from '../methods/pieces3'

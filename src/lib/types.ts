@@ -86,7 +86,10 @@ export const isPolyDrawn = (shape: CubeShape): boolean => isGridless(shape) || s
  * turns like a 4x4x4 (`turnDims`): its wide turns (Rw: half the puzzle) always
  * go, an outer turn (R) only when its end is a complete layer (`turnAllowed`).
  * A property of the real puzzle's core, not of its dimensions: a 1x3x3 Floppy
- * forbids such turns where its Super Floppy cousin allows them.
+ * forbids such turns where its Super Floppy cousin allows them. The
+ * Pyramorphinx shifts too, inside its box: its pieces differ in shape, so a
+ * big one where a small one belongs changes its form. Such a puzzle is
+ * entered in the form it stands in (forms.ts).
  */
 export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '2': false,

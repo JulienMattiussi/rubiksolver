@@ -16,11 +16,14 @@ tourner au survol d'un bouton ; sur 3x3, un onglet « Avancé » pour `M`, `E`,
 `S` et les coups larges), on consulte un **guide des mouvements** (chaque coup
 animé sur l'état actuel, avec sa notation et une phrase), on le mélange **ou
 on saisit sa propre configuration** en peignant les stickers directement en
-3D (sur tous les puzzles, Pyraminx et étoiles compris), on peut **mémoriser un état**
+3D (sur tous les puzzles, Pyraminx et étoiles compris ; un puzzle déformable
+dans la forme où il se trouve), on peut **mémoriser un état**
 pour y revenir, puis on le résout selon **plusieurs vraies méthodes** (par
 couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4, méthodes de la tour, du
-Domino, du Pyraminx et des étoiles...). La solution est découpée en **étapes nommées**
-qu'on joue d'un coup ou **pas à pas**, pour apprendre la méthode. Le but est
+Domino, du Pyraminx et des étoiles...). La solution, affichée dès que le cube
+est au repos, est découpée en **étapes nommées** qu'on joue d'un coup,
+**étape par étape** ou **coup par coup**, dans les deux sens, pour apprendre
+la méthode. Le but est
 pédagogique, pas l'optimalité du nombre de coups (à l'exception de la méthode
 **Optimale** du 2x2, du 1x2x3 et du Floppy, qui exploite leurs espaces
 d'états réduits).
@@ -87,11 +90,12 @@ src/
 │   ├── types.ts          # Types du domaine (CubeShape + SHAPE_DIMS/SHAPE_SHIFTS/SHAPE_INNER_TURNS, Dims, CubeVariant, Face, Color, Axis, Vec3, Sticker, Cubie, Cube, Move avec depth/wide)
 │   │                     #   + CUBE_KINDS : les choix exposés (forme x variante), leur id, libellé et catégorie
 │   ├── geometry.ts       # Géométrie entière : normales des faces, normalIndex, grilles par axe (layerCoords), rotations exactes
-│   ├── cube.ts           # Le puzzle : solvedCube, cubeShape/cubeDims/turnDims, isSolved/isBoxed, stateKey, cubeOrientations,
-│   │                     #   requêtes de pièces (colorAt, colorsOf, cubieAt, atHome/homeAt), comptages de stickers et de couleurs
+│   ├── cube.ts           # Le puzzle : solvedCube, schéma de couleurs par forme (faceColorsOf), cubeShape (pièces + stickers),
+│   │                     #   cubeDims/turnDims, isSolved/isBoxed, stateKey, cubeOrientations, comptages de stickers et de couleurs
+│   ├── pieces.ts         # Requêtes de pièces : colorAt, colorsOf, cubieAt, atHome/homeAt/homesOf, listedAs (pièces listées dans le même ordre)
 │   ├── morph.ts          # Pyramorphinx : un 2x2 taillé en tétraèdre (coins à 3 stickers, milieux de face à 1)
-│   ├── pyraminx.ts       # Pyraminx, Master et Jing : modèle tétraédrique entier (couches, pointes, tranches, moitiés),
-│   │                     #   notation hybride, mélange
+│   ├── pyraminx.ts       # Pyraminx, Master et Jing : modèle tétraédrique entier (couches, pointes, tranches, moitiés), mélange
+│   ├── pyraNotation.ts   # Leur notation hybride (FR fan2cube / US WCA), lecture des formules de fan2cube
 │   ├── star.ts           # Star Prism 2 et 4 étages : modèle hexagonal entier (anneaux + slash), notation fan2cube, mélange
 │   ├── turn.ts           # Les coups : moveSlab/inSlab, applyMove(s), turnAllowed (tour), turnedBy, turnRotation (animation)
 │   ├── moves.ts          # Notation US/FR (parse/format, 2R/Rw, M/E/S sur 3x3), sameLayer, inversion, simplification,
@@ -156,7 +160,7 @@ src/
 │   ├── moveSentences.ts  # Noms des faces et des étages, phrases du guide des mouvements (describeFr / describeEn)
 │   └── i18nStore.ts      # store `useI18n` (locale, t, setLocale, notation, setNotation) + selectMoveLabels
 ├── three/                # Rendu 3D (React Three Fiber) ; un composant/hook par fichier
-│   ├── Scene.tsx         # <Canvas> : caméra, lumières, OrbitControls ; bascule CubeView / StarView, ou EditView / StarEditView
+│   ├── Scene.tsx         # <Canvas> : caméra, lumières, OrbitControls ; bascule CubeView / PolyView, ou EditView / PolyEditView
 │   ├── CubeView.tsx      # Rend les cubies (via useTurnAnimation), à l'échelle de la forme, recentré selon la variante,
 │   │                     #   pièces du coup survolé en surbrillance
 │   ├── EditView.tsx      # Mode saisie : stickers peignables cliquables, vides en gris ; en épaisseurs (dorés) sur un miroir
@@ -433,8 +437,7 @@ Les tables de saisie (emplacements + placements étiquetés + budgets) sont
 **dérivées par forme** du puzzle résolu correspondant et mémoïsées
 (`tablesFor`, dans `src/lib/editorTables.ts`) ; toutes les fonctions de saisie
 prennent la forme avec l'état. Une saisie est complète quand chaque emplacement
-est peint (`isComplete`) : une tour déformée, dont des pièces sont hors des
-emplacements, ne l'est jamais (« Depuis l'état actuel » y est grisé). Sans centres fixes, la saisie 2x2 part
+est peint (`isComplete`), ceux de sa forme pour un puzzle déformable. Sans centres fixes, la saisie 2x2 part
 entièrement vide (24 stickers), et le 4x4 aussi (96 stickers, centres
 peignables car mobiles). Un centre posé sur l'axe de sa face ne bouge jamais :
 il reste pré-rempli (`Slot.paintable` : aucun coup ne le déplace ni ne le retourne), les 6 du 3x3 comme ceux du Domino et du Floppy, et la demi-vis gauche des étoiles.
@@ -589,7 +592,7 @@ Intégration : un coup est un `Turn` = `Move` (cubes) | `StarMove` (`RingMove` |
 slash) dans le code générique (file d'animation, rendu, notation) ; les
 solveurs des cubes gardent `Move`. `turn.ts` et `moves.ts` aiguillent vers
 `star.ts` ; l'animation tourne autour d'un axe quelconque (`turnRotation`
-renvoie un vecteur). Vue 3D (`StarView`), vignette et pad (`StarPad` : chaque
+renvoie un vecteur). Vue 3D (`PolyView`, partagée avec les Pyraminx), vignette et pad (`StarPad` : chaque
 étage, deux ou quatre, par paire +1 / -1, puis le slash) dédiés ; notation de fan2cube (`3`, `-2B`/`-2D`, `/`). Les
 formules de fan2cube.fr/2-star1 sont vérifiées sur le modèle (`K =
 /-1/1+B/-B/` échange deux sommets en haut et les deux du dessous ; `/3/3/`
@@ -610,7 +613,7 @@ dans `editor.ts` : les orientations du puzzle entier sont ses symétries
 orientations), donc chaque emplacement de branche accepte les 12 branches
 dans le seul sens où elles y tiennent ; la demi-vis gauche, qu'aucun coup ne
 bouge, reste pré-remplie ; la droite se peint dans un sens ou l'autre. Vue
-dédiée (`StarEditView`, `StarPiece` en mode saisie). Sur le 4-Star, une
+dédiée (`PolyEditView`, `PolyPiece` en mode saisie). Sur le 4-Star, une
 branche interne ne montre que ses deux côtés : une fois peints, leur ordre
 dit dans quel sens elle est posée, et l'éditeur complète sa face cachée
 (`SlotSticker.hidden`, jamais affichée ni comptée : `progress` ne compte que

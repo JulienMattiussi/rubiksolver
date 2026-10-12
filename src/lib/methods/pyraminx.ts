@@ -1,4 +1,5 @@
-import { homesOf, isSolved } from '../cube'
+import { isSolved } from '../cube'
+import { homesOf } from '../pieces'
 import { normalIndex, TET_NORMALS } from '../geometry'
 import { solvePieces } from '../pieceSearch'
 import type { MethodPlan } from '../solverKit'

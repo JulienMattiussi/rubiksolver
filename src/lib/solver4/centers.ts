@@ -1,4 +1,5 @@
-import { colorAt, FACE_COLOR } from '../cube'
+import { FACE_COLOR } from '../cube'
+import { colorAt } from '../pieces'
 import { faceOfNormal } from '../geometry'
 import { applyMoves } from '../turn'
 import { FACES } from '../moves'

@@ -1,4 +1,5 @@
-import { cubeShape, homesOf, isSolved } from '../cube'
+import { cubeShape, isSolved } from '../cube'
+import { homesOf } from '../pieces'
 import { allTurnsOf } from '../moveSet'
 import { solvePieces } from '../pieceSearch'
 import type { MethodPlan } from '../solverKit'

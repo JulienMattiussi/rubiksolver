@@ -1,4 +1,5 @@
-import { atHome, faceColorsOf, homesOf, isBoxed, isSolved } from '../cube'
+import { faceColorsOf, isBoxed, isSolved } from '../cube'
+import { atHome, homesOf } from '../pieces'
 import { normalIndex } from '../geometry'
 import { invertMoves, parseMoves } from '../moves'
 import { moveSet } from '../moveSet'

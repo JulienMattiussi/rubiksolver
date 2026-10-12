@@ -1,4 +1,5 @@
-import { colorsOf, cubeShape, solvedCube, stateKey, turnDims } from './cube'
+import { cubeShape, solvedCube, stateKey, turnDims } from './cube'
+import { colorsOf } from './pieces'
 import { applyMoves } from './turn'
 import { invertMoves, sameLayer } from './moves'
 import type { MoveSet } from './moveSet'

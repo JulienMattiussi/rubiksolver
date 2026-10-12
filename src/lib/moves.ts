@@ -2,13 +2,13 @@ import { solvedCube, turnDims } from './cube'
 import { faceAxis, faceLayers, quarterTurnFits } from './geometry'
 import { applyMove, turnAllowed } from './turn'
 import {
-  formatPyraMove,
   invertPyraMove,
   pyraTurnsOf,
   samePyraLayer,
   scramblePyraminx,
   simplifyPyraMoves,
 } from './pyraminx'
+import { formatPyraMove } from './pyraNotation'
 import { formatStarMove, invertStarMove, scrambleStar, simplifyStarMoves, STAR_RINGS } from './star'
 import {
   isGridless,
