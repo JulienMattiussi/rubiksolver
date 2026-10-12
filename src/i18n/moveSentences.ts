@@ -4,7 +4,7 @@
 
 import type { MoveDescription } from '@/lib/moveGuide'
 import { fromAbove } from '@/lib/star'
-import type { Face, RingMove } from '@/lib/types'
+import type { Face, PyraVertex, RingMove } from '@/lib/types'
 
 export type StarLayer = RingMove['ring']
 
@@ -20,6 +20,21 @@ export const STAR_LAYER_EN: Record<StarLayer, string> = {
   u: 'inner top',
   d: 'inner bottom',
   D: 'bottom',
+}
+
+/** The Pyraminx's corners. */
+export const CORNER_NAMES_FR: Record<PyraVertex, string> = {
+  U: 'sommet du haut',
+  L: 'sommet de gauche',
+  R: 'sommet de droite',
+  B: 'sommet arrière',
+}
+
+export const CORNER_NAMES_EN: Record<PyraVertex, string> = {
+  U: 'top corner',
+  L: 'left corner',
+  R: 'right corner',
+  B: 'back corner',
 }
 
 export const FACE_NAMES_FR: Record<Face, string> = {
@@ -64,6 +79,21 @@ export function describeFr(d: MoveDescription): string {
   if (d.kind === 'slash') {
     return 'Le slash : toute la moitié droite fait un demi-tour, ses pièces du haut passent en bas et celles du bas en haut.'
   }
+  if ('vertex' in d) {
+    const corner = CORNER_NAMES_FR[d.vertex]
+    const sense = d.clockwise ? 'des aiguilles' : 'inverse des aiguilles'
+    const turn = `d’un tiers de tour (120°) dans le sens ${sense} d’une montre, vu depuis ce sommet`
+    const target = {
+      tip: `la seule pointe du ${corner}`,
+      corner: `toute la couche du ${corner} (sa pointe, son centre et ses trois arêtes)`,
+      slice: {
+        1: `la première tranche du ${corner}, sous sa pointe (son co-sommet et trois ailes),`,
+        2: `la deuxième tranche du ${corner} (trois ailes, trois co-ailes et trois centres)`,
+        3: `la face opposée au ${corner}`,
+      }[d.slice ?? 1],
+    }[d.kind]
+    return `On tourne ${target} ${turn}.`
+  }
   if (d.kind === 'ring') {
     const layer = STAR_LAYER_FR[d.ring]
     if (d.pieces === 3) {
@@ -93,6 +123,20 @@ export function describeFr(d: MoveDescription): string {
 export function describeEn(d: MoveDescription): string {
   if (d.kind === 'slash') {
     return 'The slash: the whole right half makes a half turn, its top pieces going down and its bottom ones up.'
+  }
+  if ('vertex' in d) {
+    const corner = CORNER_NAMES_EN[d.vertex]
+    const turn = `a third of a turn (120°) ${d.clockwise ? 'clockwise' : 'counterclockwise'}, as seen from that corner`
+    const target = {
+      tip: `the tip of the ${corner} alone`,
+      corner: `the whole layer of the ${corner} (its tip, its center and its three edges)`,
+      slice: {
+        1: `the first slice of the ${corner}, under its tip (its co-tip and three wings),`,
+        2: `the second slice of the ${corner} (three wings, three midges and three centers)`,
+        3: `the face opposite the ${corner}`,
+      }[d.slice ?? 1],
+    }[d.kind]
+    return `Turn ${target} ${turn}.`
   }
   if (d.kind === 'ring') {
     const layer = `the ${STAR_LAYER_EN[d.ring]} layer`

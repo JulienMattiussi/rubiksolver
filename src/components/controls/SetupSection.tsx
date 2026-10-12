@@ -1,7 +1,7 @@
 import { ArchiveRestore, Bookmark, Pencil, RotateCcw, Shuffle, Square } from 'lucide-react'
 import { useState } from 'react'
 import { cubeShape, isBoxed } from '@/lib/cube'
-import { isStar } from '@/lib/types'
+import { isPyraminx, isStar } from '@/lib/types'
 import { encodeCube } from '@/lib/snapshot'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
@@ -12,6 +12,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { CubePicker } from '@/components/picker/CubePicker'
 import { SECTION_BOX } from '@/components/ui/styles'
 import { MovePad } from './MovePad'
+import { PyraPad } from './PyraPad'
 import { StarPad } from './StarPad'
 import { SpeedSlider } from './SpeedSlider'
 import { StatusBadge } from './StatusBadge'
@@ -109,7 +110,13 @@ export function SetupSection() {
       )}
 
       <SpeedSlider />
-      {isStar(shape) ? <StarPad disabled={busy} /> : <MovePad disabled={busy} />}
+      {isStar(shape) ? (
+        <StarPad disabled={busy} />
+      ) : isPyraminx(shape) ? (
+        <PyraPad disabled={busy} />
+      ) : (
+        <MovePad disabled={busy} />
+      )}
     </section>
   )
 }

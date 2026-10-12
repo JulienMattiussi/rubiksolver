@@ -5,19 +5,20 @@
 POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3
 ou 4x4**, **classique ou miroir**, plus cinq cuboïdes : le **1x2x3**, la
 **tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**
-et le **Floppy 3x3x1**, et deux puzzles non cubiques, les **Star Prism** à 2
-et 4 étages (une étoile à six branches de la famille du Square-1) (choix par
-vignettes).
+et le **Floppy 3x3x1**, et quatre puzzles non cubiques : le **Pyraminx**, le
+**Master Pyraminx** (4x4) et les
+**Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
+Square-1) (choix par vignettes).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
 coups larges là où la forme en a, orbite caméra, aperçu des pièces qui vont
 tourner au survol d'un bouton ; sur 3x3, un onglet « Avancé » pour `M`, `E`,
 `S` et les coups larges), on consulte un **guide des mouvements** (chaque coup
 animé sur l'état actuel, avec sa notation et une phrase), on le mélange **ou
 on saisit sa propre configuration** en peignant les stickers directement en
-3D (sur tous les puzzles, étoiles comprises), on peut **mémoriser un état**
+3D (sur tous les puzzles, Pyraminx et étoiles compris), on peut **mémoriser un état**
 pour y revenir, puis on le résout selon **plusieurs vraies méthodes** (par
 couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4, méthodes de la tour, du
-Domino et des étoiles...). La solution est découpée en **étapes nommées**
+Domino, du Pyraminx et des étoiles...). La solution est découpée en **étapes nommées**
 qu'on joue d'un coup ou **pas à pas**, pour apprendre la méthode. Le but est
 pédagogique, pas l'optimalité du nombre de coups (à l'exception de la méthode
 **Optimale** du 2x2, du 1x2x3 et du Floppy, qui exploite leurs espaces
@@ -29,7 +30,8 @@ mouvements internationale (U D L R F B) par défaut, ou française
 (H B G D F Ar)**, avec la même convention dans les deux pour les autres
 coups : préfixe `2` pour la tranche interne du 4x4 (`2R` / `2D`), suffixe `w`
 pour le coup large (`Rw` / `Dw`), et `M`, `E`, `S` pour les tranches du
-milieu du 3x3.
+milieu du 3x3. Seule exception, le Pyraminx, où chaque notation garde son
+propre usage (voir « Le Pyraminx »).
 
 ---
 
@@ -86,6 +88,8 @@ src/
 │   ├── geometry.ts       # Géométrie entière : normales des faces, normalIndex, grilles par axe (layerCoords), rotations exactes
 │   ├── cube.ts           # Le puzzle : solvedCube, cubeShape/cubeDims/turnDims, isSolved/isBoxed, stateKey, cubeOrientations,
 │   │                     #   requêtes de pièces (colorAt, colorsOf, cubieAt, atHome/homeAt), comptages de stickers et de couleurs
+│   ├── pyraminx.ts       # Pyraminx et Master Pyraminx : modèle tétraédrique entier (couches, pointes, tranches),
+│   │                     #   notation hybride, mélange
 │   ├── star.ts           # Star Prism 2 et 4 étages : modèle hexagonal entier (anneaux + slash), notation fan2cube, mélange
 │   ├── turn.ts           # Les coups : moveSlab/inSlab, applyMove(s), turnAllowed (tour), turnedBy, turnRotation (animation)
 │   ├── moves.ts          # Notation US/FR (parse/format, 2R/Rw, M/E/S sur 3x3), sameLayer, inversion, simplification,
@@ -110,6 +114,9 @@ src/
 │   │   ├── cube2.ts      #   2x2 : par couches (repère DBL) et optimal (BFS bidirectionnelle)
 │   │   ├── exhaustive.ts #   optimal des petits puzzles (1x2x3, Floppy) : BFS exhaustive via solvePieces
 │   │   ├── tower.ts      #   tour 2x2x4 : Deux Pockets (forme, Pocket intérieur, Pocket extérieur)
+│   │   ├── pyraKit.ts    #   briques des Pyraminx : couleurs des faces, coins tournés en place, formules vues de chaque côté
+│   │   ├── pyraminx.ts   #   Pyraminx : centres d'abord (formules de fan2cube.fr)
+│   │   ├── pyraminx4.ts  #   Master Pyraminx : ailes puis co-ailes (3-cycles d'ailes, formules de fan2cube.fr)
 │   │   ├── starPrism.ts  #   Star Prism : isoler puis permuter (formule K de fan2cube.fr)
 │   │   ├── starPrism4.ts #   4-Star : deux étoiles (le plan du 2-Star projeté sur l'interne puis l'externe)
 │   │   ├── slimTower.ts  #   Slim Tower 2x2x3 : équateur puis coins (formules du Domino, fan2cube.fr)
@@ -150,13 +157,16 @@ src/
 │   ├── EditView.tsx      # Mode saisie : stickers peignables cliquables, vides en gris ; en épaisseurs (dorés) sur un miroir
 │   ├── Cubie.tsx         # Un cubie : corps + stickers, à la boîte de sa variante, en surbrillance si un coup survolé le tourne
 │   ├── layout.ts         # Échelle et position visuelles (coordonnée / pas de la grille : linéaire, juste hors de la boîte)
+│   ├── polygons.ts       # Pièces des puzzles sans grille en polygones (corps + stickers), PiecePolygon
 │   ├── starGeometry.ts   # Géométrie des pièces de l'étoile (cerfs-volants extrudés), partagée vue 3D / vignette
+│   ├── pyraGeometry.ts   # Géométrie des pièces du Pyraminx (petits tétraèdres et octaèdres des cellules du modèle)
+│   ├── polyDrawing.ts    # Dessin d'un puzzle sans grille : ses polygones et son lacet à l'écran
 │   ├── CubeModel.tsx     # Rendu d'un puzzle à grille depuis un état (couche qui tourne dans son groupe), partagé scène / guide
-│   ├── StarModel.tsx     # Idem pour l'étoile
-│   ├── StarPiece.tsx     # Une pièce de l'étoile (corps + stickers), partagée vue / saisie / guide
+│   ├── PolyModel.tsx     # Idem pour les puzzles sans grille (étoiles, Pyraminx)
+│   ├── PolyPiece.tsx     # Une de leurs pièces (corps + stickers), partagée vue / saisie / guide
 │   ├── noPieces.ts       # NO_PIECES : l'ensemble vide de pièces (rien ne tourne, rien en surbrillance)
-│   ├── StarView.tsx      # Vue 3D de l'étoile (StarModel), animée comme les cubes
-│   ├── StarEditView.tsx  # Saisie d'une étoile : stickers cliquables, gris tant que vides
+│   ├── PolyView.tsx      # Vue 3D d'un puzzle sans grille (PolyModel), animée comme les cubes
+│   ├── PolyEditView.tsx  # Saisie d'un puzzle sans grille : stickers cliquables, gris tant que vides
 │   ├── GuideCanvas.tsx   # Guide des mouvements : un seul canvas WebGL sous la liste, chaque vignette y dessine sa scène
 │   ├── GuideTile.tsx     #   une vignette : scène + caméra propres, scissor sur sa boîte DOM, coup joué en boucle
 │   ├── guideCamera.ts    #   point de vue d'une vignette (la couche qui tourne face à la caméra)
@@ -170,7 +180,7 @@ src/
 ├── components/
 │   ├── ui/               # Primitives réutilisables (Button, IconButton, SegmentedToggle, Select, Modal, ConfirmDialog)
 │   │                     #   + styles.ts : classes partagées (SECTION_BOX, SECTION_LABEL, TURN_PAIR)
-│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad (+ PadHeader,
+│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad (+ PadHeader,
 │   │                     #   PadButton : un coup, sa surbrillance au survol), LanguageToggle, NotationToggle,
 │   │                     #   RecenterButton, CollapseButton, SpeedSlider
 │   ├── picker/           # Choix du cube : CubePicker (bouton + modale), PickerTile, PuzzleIcon (vignette SVG),
@@ -186,10 +196,11 @@ tests/
 │                         #   methods (Roux/Petrus/ZZ : objectifs et jeux de coups), algs, tower, domino (effet de chaque
 │                         #   formule), floppy, slimTower, pieceSearch, flat123 (espaces d'états entiers), editor, validate, shape, snapshot,
 │                         #   star (modèle, formules fan2cube, méthodes des deux étoiles), starEditor (saisie des étoiles),
+│                         #   pyraminx, pyraminx4 (modèle, notation, formules fan2cube, méthode, saisie, guide),
 │                         #   moveGuide, isometric, layout, stores, easing, speed, progress
 ├── component/            # Vitest + Testing Library (Controls, SegmentedToggle)
 └── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution (3x3, 2x2, 1x2x3, 4x4), saisie (cube,
-                          #   4x4, 4-Star), miroir, guide des mouvements sur chaque puzzle)
+                          #   4x4, 4-Star, Pyraminx, Master), miroir, guide des mouvements sur chaque puzzle)
 ```
 
 ### Les solveurs par méthode (`src/lib/solver.ts`)
@@ -255,6 +266,11 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   puis le bas et le haut avec la formule `K` - voir « Le Star Prism ».
 - **Deux étoiles** (`twoStars`, 4-Star Prism) : l'étoile interne puis
   l'externe, chacune par « isoler puis permuter », puis alignement.
+- **Centres d'abord** (`centersFirst`, Pyraminx) : centres, pointes, arêtes
+  du bas, arêtes du haut placées, puis retournées - voir « Le Pyraminx ».
+- **Ailes puis co-ailes** (`wingsFirst`, Master Pyraminx) : co-sommets,
+  pointes, centres, ailes, co-ailes, fin des centres - voir « Le Master
+  Pyraminx ».
 - **Coins puis arêtes** (`cornersFirst`, Domino 3x3x2 et Floppy 3x3x1) : sur
   le Domino, coins du bas, coins du haut, arêtes du bas, arêtes du haut ; sur
   le Floppy, coins placés puis arêtes retournées - voir « Le Domino et le
@@ -579,6 +595,86 @@ vis en place, donc slashe un nombre pair de fois sans tourner l'interne
 entre deux slashs : l'étoile interne ne voit rien. Reste à aligner les deux
 étoiles (`u` et `d` ensemble), chacune pouvant finir tournée d'un bloc.
 
+### Le Pyraminx (`src/lib/pyraminx.ts`)
+
+Un tétraèdre dont chaque sommet tourne par tiers de tour : toute la
+**couche** sous le sommet (sa pointe, son centre et ses trois arêtes) ou sa
+**pointe** seule. 14 pièces : 4 pointes et 4 centres (trois triangles d'une
+seule pièce, un octaèdre) qui ne font que pivoter sur place, 6 arêtes qui
+voyagent, plus le noyau caché (15 cubies : `cubeShape` reconnaît les formes
+à leur nombre de pièces, et le 2-Star en a déjà 14).
+
+Le modèle reste **entier et exact** : les sommets sont aux coins alternés
+d'un cube (`PYRA_CORNERS` : U (1,1,1), L, R, B), donc un tiers de tour
+autour de l'un d'eux est une permutation signée des coordonnées
+(`(x, y, z) -> (y, z, x)` autour de (1,1,1), conjuguée par les signes du
+sommet pour les autres). Découpé en cellules unitaires : pointes en 2v,
+centres en v, arêtes en v + w, noyau à l'origine ; une couche prend ce qui
+est du côté du sommet (produit scalaire positif), une pointe ce qui est au
+bout (produit scalaire 6). Les normales des faces sont `TET_NORMALS`
+(indices 12 à 15). Couleurs : jaune dessous, vert devant, rouge à droite,
+bleu à gauche. Un coup est un `PyraMove` (`vertex`, `amount` 1 ou 2,
+`tip`) dans le `Turn` générique.
+
+**Notation hybride**, chacune selon son usage : en international (WCA), la
+couche est la majuscule (`R`) et la pointe la minuscule (`r`) ; en français,
+comme l'écrit fan2cube, la pointe (« sommet ») est la majuscule et la couche
+(« tranche ») la minuscule, sommets H G D P (Haut, Gauche, Droite,
+Postérieur). `parsePyraMoves` lit les formules du site telles quelles
+(`[gd'][h'd]`, `dhd'hdhd'`, `²`).
+
+**Résolution** (`methods/pyraminx.ts`, méthode **Centres d'abord**, d'après
+fan2cube.fr/pyraminx2) : pointes et centres ne quittent jamais leur sommet,
+donc disent quelle couleur prend chaque face (celle qui manque au centre du
+sommet opposé), ce qui accepte un puzzle tenu dans n'importe quel sens.
+(1) **centres** : un tour de chaque couche ; (2) **pointes** : un tour de
+chaque pointe ; (3) **arêtes du bas** avec le crochet `[gd']`
+((AG)->(BA)->(AD)), aussi précédé d'un `h` défait ensuite ; (4) **arêtes du
+haut** placées par `d h d' h d h d'` ((AG)->(AD)->(GD)) ; (5) **retournées**
+deux par deux par `[gd'][h'd]`. Chaque formule est jouée depuis les trois
+côtés autour du haut, et ne touche ni centres ni pointes (chaque couche
+revient). Les recherches ne portent que sur les 6 arêtes (11 520 états) et
+s'épuisent sur un puzzle impossible, ce dont la validation se sert. L'effet
+de chaque formule de la page est testé, superflip `(hd'g)3` compris.
+
+**Rendu** : comme l'étoile, en polygones (`PolyModel`, `PolyPiece`,
+`polyDrawing`) ; chaque pièce est la cellule du modèle (petit tétraèdre ou
+octaèdre) ramenée à l'écran par `pyraToCartesian`. Pad dédié (`PyraPad` :
+couches ou pointes), saisie des 36 stickers (aucune pièce fixe), guide
+(couches puis pointes).
+
+### Le Master Pyraminx (`pyra4`)
+
+Le Pyraminx 4x4 (fan2cube.fr/pyraminx41) : quatre tranches par sommet, qui
+tournent **une à une** (`PyraMove.slice` 1 à 3, `tip` pour la pointe), la
+troisième étant la face opposée. Même modèle que le Pyraminx, tétraèdre de 4
+couches : les cellules de surface sont les sommes de 3 vecteurs de sommets
+(petits tétraèdres : pointes en 3v, ailes en 2v + w, centres en u + v + w)
+et de 2 (octaèdres : co-sommets en 2v, co-ailes en v + w), 30 pièces ; une
+tranche est l'intervalle entre deux plans espacés de 4 en produit scalaire
+(`pyraTurns`, commun aux deux tailles, la taille lue sur `SHAPE_DIMS` par
+`pyraSize`). Les 12 ailes sont des jumelles deux à deux, distinguées par
+leur chiralité (le signe du déterminant position / normales, qu'un tour
+conserve) ; les 4 centres voyagent de face en face.
+
+**Notation** : en français, celle de fan2cube, tranches numérotées
+(`H'₁`, `D₂`, `P₃` pour la face soulignée du site ; `h` = `H₁` et `H'1` se
+lisent aussi) ; en international, préfixe SiGN comptant la pointe comme
+première couche (`u`, `2U`, `3U`, `4U`).
+
+**Résolution** (`methods/pyraminx4.ts`, méthode **Ailes puis co-ailes**,
+d'après fan2cube.fr/pyraminx42), sans jamais tourner une face (une face,
+c'est tout le puzzle tourné avec les trois autres tranches, ce que
+`faceColors` absorbe) : (1) co-sommets et (2) pointes tournés en place ;
+(3) centres placés en 2e tranche, car les formules des co-ailes ne les
+échangent que deux à deux ; (4) **ailes** une à une par 3-cycles :
+`[H'₁ D₂]`, `[H₁ G'₂]`, `[H₂ G'₁]`, `[H'₂ D₁]` vus de chaque côté puis
+conjugués par des tours, jusqu'à couvrir les 440 3-cycles (`wingCycles`) ;
+(5) **co-ailes** placées par `[H'₂ D₂]` et `D₂ H₂ D'₂ H₂ D₂ H₂ D'₂`, puis
+retournées par `[G₂ D'₂][H'₂ D₂]` ; (6) centres finis par `[G₂ D'₂]³`
+(A,B)(G,D). Ailes et co-ailes portant les mêmes couleurs, `solvePieces`
+prend un filtre `among` pour ne suivre qu'une sorte de pièce.
+
 ### Le cube miroir (`src/lib/shape.ts`)
 
 Le **cube miroir** (Mirror Blocks) est un _shape mod_ : mécaniquement un NxN
@@ -650,7 +746,8 @@ mobile et en saisie, une seule carte) :
   puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`), dans
   l'ordre : Standard 2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 2x2x3
   (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy) (un puzzle d'une
-  seule couche d'épaisseur étant plat), Étoiles 2-Star Prism (UFO)/4-Star Prism.
+  seule couche d'épaisseur étant plat), Pyramides Pyraminx/Master Pyraminx
+  (4x4), Étoiles 2-Star Prism (UFO)/4-Star Prism.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

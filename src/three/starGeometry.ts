@@ -1,6 +1,7 @@
-import { HEX_NORMALS, normalIndex } from '@/lib/geometry'
+import { HEX_NORMALS } from '@/lib/geometry'
 import { starToCartesian } from '@/lib/star'
-import type { Color, Cubie, Vec3 } from '@/lib/types'
+import type { Cubie, Vec3 } from '@/lib/types'
+import { colorFacing, face, type P3, type PiecePolygon } from './polygons'
 
 /**
  * Geometry of the star prism's pieces, in the star's cartesian frame (see
@@ -12,8 +13,6 @@ import type { Color, Cubie, Vec3 } from '@/lib/types'
  * except the inner points' flat faces, always hidden (plastic only).
  */
 
-type P3 = [number, number, number]
-
 /** Distance from the center to a tip, and to a valley's inner vertex: a
  *  point opens at about 72 degrees, blunter than a regular hexagram's 60. */
 const TIP = 1.45
@@ -24,19 +23,6 @@ const GAP = 0.04
 /** Radius of the screw's half discs: the plastic rim, then the sticker. */
 const SCREW = 0.44
 const SCREW_STICKER = 0.35
-/** Share of a face its sticker covers. */
-const STICKER_SCALE = 0.84
-
-export interface StarPolygon {
-  readonly points: readonly P3[]
-  /** The plastic body, or a sticker of this color. */
-  readonly paint: 'body' | Color
-  /** Outward normal (unit), for lighting and back-face culling. */
-  readonly normal: P3
-  /** On a sticker: the normal index of the piece's sticker it shows. */
-  readonly ni?: number
-}
-
 const unit = ([x, , z]: P3): P3 => {
   const length = Math.hypot(x, z)
   return [x / length, 0, z / length]
@@ -67,26 +53,6 @@ function slotOf([q, , r]: Vec3): number {
   return axial.findIndex(([a, b]) => a === q && b === r)
 }
 
-/** The same polygon shrunk towards its center, then lifted off its face. */
-function sticker(points: readonly P3[], normal: P3): P3[] {
-  const c = [0, 1, 2].map((a) => points.reduce((s, p) => s + p[a]!, 0) / points.length)
-  return points.map(
-    (p) => p.map((v, a) => c[a]! + (v - c[a]!) * STICKER_SCALE + normal[a]! * 0.004) as P3,
-  )
-}
-
-function colorFacing(cubie: Cubie, index: number): Color | undefined {
-  return cubie.stickers.find((s) => normalIndex(s.normal) === index)?.color
-}
-
-/** A face of the body, plus its sticker when the piece shows a color there
- *  (the piece's sticker facing normal index `ni`). */
-function face(points: P3[], normal: P3, cubie?: Cubie, ni?: number): StarPolygon[] {
-  const body: StarPolygon = { points, paint: 'body', normal }
-  const color = cubie && ni !== undefined ? colorFacing(cubie, ni) : undefined
-  return color ? [body, { points: sticker(points, normal), paint: color, normal, ni }] : [body]
-}
-
 /** Vertical extent of a layer (seen from its side of the screw): its inner
  *  face then its outer one. On a 2-star the outer points (y = +-2) take the
  *  first layer; on a 4-star the second, past the inner points (y = +-1). */
@@ -96,7 +62,7 @@ function layerSpan(y: number, tall: boolean): [number, number] {
   return [inner, inner + LAYER]
 }
 
-function pointPolygons(cubie: Cubie, tall: boolean): StarPolygon[] {
+function pointPolygons(cubie: Cubie, tall: boolean): PiecePolygon[] {
   const k = slotOf(cubie.position)
   const up = cubie.position[1] > 0
   const [near, far] = layerSpan(cubie.position[1], tall)
@@ -126,7 +92,7 @@ function pointPolygons(cubie: Cubie, tall: boolean): StarPolygon[] {
   ]
 }
 
-function screwPolygons(cubie: Cubie, tall: boolean): StarPolygon[] {
+function screwPolygons(cubie: Cubie, tall: boolean): PiecePolygon[] {
   const top = layerSpan(2, tall)[1]
   const direction = unit(starToCartesian(cubie.position))
   const middle = Math.atan2(direction[2], direction[0])
@@ -144,7 +110,7 @@ function screwPolygons(cubie: Cubie, tall: boolean): StarPolygon[] {
   }
   // Raised above the points, with a plastic rim around the colored half.
   const rise = 0.02
-  const side = (up: boolean): StarPolygon[] => {
+  const side = (up: boolean): PiecePolygon[] => {
     const y = up ? top + rise : -top - rise
     const normal: P3 = [0, up ? 1 : -1, 0]
     const ni = up ? 2 : 3
@@ -160,7 +126,7 @@ function screwPolygons(cubie: Cubie, tall: boolean): StarPolygon[] {
 
 /** Every visible polygon of a star prism piece (a point or a screw half);
  *  `tall` for the 4-star. */
-export function starPolygons(cubie: Cubie, tall: boolean): StarPolygon[] {
+export function starPolygons(cubie: Cubie, tall: boolean): PiecePolygon[] {
   return cubie.position[1] === 0 ? screwPolygons(cubie, tall) : pointPolygons(cubie, tall)
 }
 

@@ -1,14 +1,15 @@
 import { useCube } from '@/store/cubeStore'
-import { StarModel } from './StarModel'
+import { PolyModel } from './PolyModel'
 import { usePreviewed } from './usePreviewed'
 import { useTurnAnimation } from './useTurnAnimation'
 
-/** The scene's star prism, animated like the cubes. */
-export function StarView() {
+/** The scene's gridless puzzle (a star prism, the Pyraminx), animated like
+ *  the cubes. */
+export function PolyView() {
   const cube = useCube((s) => s.cube)
   const { groupRef, isTurning } = useTurnAnimation()
   const highlighted = usePreviewed()
   return (
-    <StarModel cube={cube} groupRef={groupRef} isTurning={isTurning} highlighted={highlighted} />
+    <PolyModel cube={cube} groupRef={groupRef} isTurning={isTurning} highlighted={highlighted} />
   )
 }

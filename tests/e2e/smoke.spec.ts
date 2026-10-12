@@ -206,6 +206,8 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
     ['Tower', '3x3x2 (Domino)'],
     ['Plats', '1x2x3'],
     ['Plats', '3x3x1 (Floppy)'],
+    ['Pyramides', 'Pyraminx'],
+    ['Pyramides', 'Master Pyraminx (4x4)'],
     ['Étoiles', '2-Star Prism (UFO)'],
     ['Étoiles', '4-Star Prism'],
   ]
@@ -235,5 +237,53 @@ test('star prism editor: enter from a scrambled state, apply, then solve', async
   await expect(page.getByRole('button', { name: 'Résoudre' })).toBeEnabled()
   await page.getByRole('button', { name: 'Résoudre' }).click()
   await expect(page.getByText('Étoile interne', { exact: false }).first()).toBeVisible()
+  expect(errors).toEqual([])
+})
+
+test('Pyraminx: scramble, enter from the current state, apply, then solve', async ({ page }) => {
+  test.setTimeout(120000)
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/')
+  await page.getByLabel('Vitesse').fill('100')
+  await pickCube(page, 'Pyramides', 'Pyraminx')
+  // Its own pad: the layers, then the tips alone.
+  await expect(
+    page.getByRole('button', { name: /^Tourner la couche du sommet du haut/ }),
+  ).toHaveCount(2)
+  await page.getByRole('button', { name: 'Mélanger' }).click()
+  const fromCurrent = page.getByRole('button', { name: /Depuis l.?.tat actuel/ })
+  await expect(fromCurrent).toBeEnabled({ timeout: 30000 })
+  await fromCurrent.click()
+  await expect(page.getByText('36 / 36 stickers')).toBeVisible()
+  await page.getByRole('button', { name: 'Utiliser ce cube' }).click()
+  const solve = page.getByRole('button', { name: 'Résoudre' })
+  await expect(solve).toBeEnabled()
+  await solve.click()
+  await expect(page.getByText('Cube résolu')).toBeVisible({ timeout: 60000 })
+  expect(errors).toEqual([])
+})
+
+test('Master Pyraminx: scramble, enter from the current state, apply, then solve', async ({
+  page,
+}) => {
+  test.setTimeout(120000)
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/')
+  await page.getByLabel('Vitesse').fill('100')
+  await pickCube(page, 'Pyramides', 'Master Pyraminx (4x4)')
+  // Its pad picks a slice: the tips, the two inner slices, the faces.
+  await expect(page.getByRole('button', { name: 'Tranche 2' })).toBeVisible()
+  await page.getByRole('button', { name: 'Mélanger' }).click()
+  const fromCurrent = page.getByRole('button', { name: /Depuis l.?.tat actuel/ })
+  await expect(fromCurrent).toBeEnabled({ timeout: 30000 })
+  await fromCurrent.click()
+  await expect(page.getByText('64 / 64 stickers')).toBeVisible()
+  await page.getByRole('button', { name: 'Utiliser ce cube' }).click()
+  const solve = page.getByRole('button', { name: 'Résoudre' })
+  await expect(solve).toBeEnabled()
+  await solve.click()
+  await expect(page.getByText('Cube résolu')).toBeVisible({ timeout: 90000 })
   expect(errors).toEqual([])
 })

@@ -4,11 +4,11 @@ import * as THREE from 'three'
 import { easeInOut } from '@/lib/easing'
 import { turnAllowed, turnedBy, turnRotation } from '@/lib/turn'
 import { cubeShape } from '@/lib/cube'
-import { isStar, type Cube, type CubeVariant, type Turn } from '@/lib/types'
+import { isGridless, type Cube, type CubeVariant, type Turn } from '@/lib/types'
 import { CubeModel } from './CubeModel'
 import { guideCameraPosition } from './guideCamera'
 import { NO_PIECES } from './noPieces'
-import { StarModel } from './StarModel'
+import { PolyModel } from './PolyModel'
 
 export interface GuideTileProps {
   /** The DOM box the tile is drawn into. */
@@ -98,8 +98,8 @@ export function GuideTile({ track, cube, variant, turn, playing }: GuideTileProp
       <ambientLight intensity={1.05} />
       <directionalLight position={[6, 9, 7]} intensity={0.5} />
       <directionalLight position={[-6, -7, -6]} intensity={0.45} />
-      {isStar(cubeShape(cube)) ? (
-        <StarModel {...model} />
+      {isGridless(cubeShape(cube)) ? (
+        <PolyModel {...model} />
       ) : (
         <CubeModel {...model} variant={variant} />
       )}

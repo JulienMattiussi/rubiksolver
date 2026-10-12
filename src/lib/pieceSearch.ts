@@ -39,6 +39,9 @@ export interface PieceSearch<T extends Turn = Move> {
   /** Dedup key; it must determine the goal and how the key evolves, e.g. the
    *  orientation pattern alone when the goal only asks for orientation. */
   readonly key?: (pieces: readonly Cubie[]) => string
+  /** The kind of piece tracked, when pieces of another kind wear the same
+   *  colors (a Master Pyraminx's wings and midges). */
+  readonly among?: (cubie: Cubie) => boolean
   readonly maxDepth: number
 }
 
@@ -57,7 +60,11 @@ function normalized(cubie: Cubie): Cubie {
 const SOLVED = new Map<string, Cube>()
 
 /** The tracked pieces of `cube`, in `track` order, plus their solved state. */
-function trackedPieces(cube: Cube, track: readonly Vec3[]): { start: Cube; home: Cube } {
+function trackedPieces(
+  cube: Cube,
+  track: readonly Vec3[],
+  among: (cubie: Cubie) => boolean = () => true,
+): { start: Cube; home: Cube } {
   const shape = cubeShape(cube)
   let solved = SOLVED.get(shape)
   if (!solved) {
@@ -70,7 +77,7 @@ function trackedPieces(cube: Cube, track: readonly Vec3[]): { start: Cube; home:
     return normalized(piece)
   })
   // Twins (identical pieces) each take a distinct cubie of their colors.
-  const unused = [...cube]
+  const unused = cube.filter(among)
   const start = home.map((h) => {
     const i = unused.findIndex((c) => colorsOf(c) === colorsOf(h))
     if (i < 0) throw new Error(`pieceSearch: piece ${colorsOf(h)} missing`)
@@ -110,7 +117,7 @@ function expand(
  *  the star prism's turns on it). Throws past `maxDepth`. */
 export function solvePieces<T extends Turn = Move>(cube: Cube, spec: PieceSearch<T>): T[] {
   const dims = turnDims(cubeShape(cube))
-  const { start, home } = trackedPieces(cube, spec.track)
+  const { start, home } = trackedPieces(cube, spec.track, spec.among)
   // The generators are the set's turns and `T` macros: the result holds T.
   const generic = spec as PieceSearch<Turn>
   return (

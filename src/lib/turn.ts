@@ -1,7 +1,8 @@
 import { cubeShape, turnDims } from './cube'
 import { FACE_SPEC, layerCoords, rotateN } from './geometry'
+import { applyPyraMove, pyraRotation, pyraSize, pyraTurns } from './pyraminx'
 import { applyStarMove, starRotation, starTurns } from './star'
-import { isStarMove, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
+import { isPyraMove, isStarMove, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
 import type { Cube, Dims, Move, Turn } from './types'
 
 /**
@@ -65,6 +66,10 @@ function turnsPosition(move: Move, mechanism: Dims): (position: readonly number[
  *  preview highlights them. */
 export function turnedBy(cube: Cube, move: Turn): (index: number) => boolean {
   if (isStarMove(move)) return (index) => starTurns(move, cube[index]!.position)
+  if (isPyraMove(move)) {
+    const size = pyraSize(turnDims(cubeShape(cube)))
+    return (index) => pyraTurns(move, cube[index]!.position, size)
+  }
   const turns = turnsPosition(move, turnDims(cubeShape(cube)))
   return (index) => turns(cube[index]!.position)
 }
@@ -81,6 +86,7 @@ export function turnedBy(cube: Cube, move: Turn): (index: number) => boolean {
  */
 export function turnAllowed(cube: Cube, move: Turn): boolean {
   if (isStarMove(move)) return true // pieces are whole 60 degree sectors
+  if (isPyraMove(move)) return true
   const shape = cubeShape(cube)
   if (!SHAPE_SHIFTS[shape]) return true
   if (move.wide) return true
@@ -106,6 +112,7 @@ const AXIS_VECTOR = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1] } as const
 
 export function turnRotation(move: Turn): TurnRotation {
   if (isStarMove(move)) return starRotation(move)
+  if (isPyraMove(move)) return pyraRotation(move)
   const spec = FACE_SPEC[move.face]
   const t = (((spec.sign * move.amount) % 4) + 4) % 4 // 1, 2 or 3 quarter turns
   return { axis: AXIS_VECTOR[spec.axis], angle: (t === 3 ? -1 : t) * (Math.PI / 2) }
@@ -122,6 +129,7 @@ export function applyMove(
   mechanism: Dims = turnDims(cubeShape(cube)),
 ): Cube {
   if (isStarMove(move)) return applyStarMove(cube, move)
+  if (isPyraMove(move)) return applyPyraMove(cube, move, pyraSize(mechanism))
   const spec = FACE_SPEC[move.face]
   const turns = turnsPosition(move, mechanism)
   const times = spec.sign * move.amount

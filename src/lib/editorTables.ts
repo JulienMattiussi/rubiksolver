@@ -1,9 +1,8 @@
 import { cubeOrientations, solvedCube } from './cube'
 import { normalIndex } from './geometry'
-import { movesFor } from './moves'
-import { STAR_RINGS } from './star'
+import { layerTurnsOf } from './moves'
 import { applyMove } from './turn'
-import { isStar, type Color, type CubeShape, type Cubie, type Turn, type Vec3 } from './types'
+import { isStar, type Color, type CubeShape, type Cubie, type Vec3 } from './types'
 
 /**
  * Slot and placement tables backing the guided editor (see editor.ts).
@@ -94,10 +93,7 @@ function fixedPieces(shape: CubeShape): Set<number> {
   // Turns keep the sticker order, so each sticker's normal can be compared.
   const pose = (c: Cubie) => [c.position, ...c.stickers.map((s) => s.normal)].join('|')
   const fixed = new Set(solved.keys())
-  const turns: readonly Turn[] = isStar(shape)
-    ? [...STAR_RINGS[shape].map((ring) => ({ ring, amount: 1 as const })), { slash: true }]
-    : movesFor(shape)
-  for (const move of turns) {
+  for (const move of layerTurnsOf(shape)) {
     applyMove(solved, move).forEach((c, i) => {
       if (pose(c) !== pose(solved[i]!)) fixed.delete(i)
     })

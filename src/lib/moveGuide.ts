@@ -2,20 +2,34 @@ import { turnDims } from './cube'
 import { faceLayers } from './geometry'
 import { advancedMovesFor, amountsFor, FACES, movesFor, sameLayer } from './moves'
 import { methodTurns } from './solver'
+import { PYRA_LAYERS, PYRA_VERTICES, pyraLayerOf, pyraTurn, type PyraLayer } from './pyraminx'
 import { signedPieces, STAR_RINGS } from './star'
-import { isStar, isStarMove, SHAPE_DIMS } from './types'
-import type { CubeShape, Dims, Face, Move, RingMove, StarMove, StarShape, Turn } from './types'
+import { isFaceMove, isPyraminx, isPyraMove, isStar, SHAPE_DIMS } from './types'
+import type {
+  CubeShape,
+  Dims,
+  Face,
+  Move,
+  PyraMove,
+  PyraShape,
+  PyraVertex,
+  RingMove,
+  StarMove,
+  StarShape,
+  Turn,
+} from './types'
 
 /**
  * The move guide: every turn a puzzle has, laid out to be learned. Each
  * layer shows its two directions side by side (`R` and `R'`, `1` and `-1`),
  * then its bigger amount (`R2`; `2` and `-2`, then `3` on a star prism, where
- * three pieces is a half turn either way). The layers are the pad's (its
+ * three pieces is a half turn either way; nothing more on the Pyraminx, whose
+ * turns are thirds). The layers are the pad's (its
  * advanced tab included), plus any a solving method turns, so the guide also
  * reads the solutions' notation.
  */
 
-type GuideSection = 'faces' | 'middle' | 'slices' | 'wide' | 'rings' | 'slash'
+type GuideSection = 'faces' | 'middle' | 'slices' | 'wide' | 'rings' | 'slash' | PyraLayer
 
 export interface GuideGroup {
   readonly section: GuideSection
@@ -40,6 +54,13 @@ export type MoveDescription =
       readonly clockwise: boolean
     }
   | { readonly kind: 'slash' }
+  | {
+      /** A Pyraminx corner's layer, its tip alone, or a Master's slice. */
+      readonly kind: 'corner' | 'tip' | 'slice'
+      readonly vertex: PyraVertex
+      readonly clockwise: boolean
+      readonly slice?: 1 | 2 | 3
+    }
 
 /** The face each middle slice of a 3-layer axis follows (M: L, E: D, S: F). */
 const SLICE_FACE: Partial<Record<Face, Face>> = { R: 'L', U: 'D', B: 'F' }
@@ -67,7 +88,7 @@ function cubeGuide(shape: CubeShape): GuideGroup[] {
   const dims = SHAPE_DIMS[shape]
   const layers: Move[] = []
   for (const turn of [...movesFor(shape), ...advancedMovesFor(shape), ...methodTurns(shape)]) {
-    if (isStarMove(turn)) continue
+    if (!isFaceMove(turn)) continue
     // A middle slice is named after one face only (2R is M').
     const face = isMiddle(turn, dims) ? (SLICE_FACE[turn.face] ?? turn.face) : turn.face
     const layer: Move = { ...turn, face, amount: 1 }
@@ -99,14 +120,32 @@ function starGuide(shape: StarShape): GuideGroup[] {
   ]
 }
 
+/** Each kind of layer (the Pyraminx's layers then tips; the Master's tips
+ *  then slices), every corner, both ways. */
+function pyraGuide(shape: PyraShape): GuideGroup[] {
+  return PYRA_LAYERS[shape].map((layer) => ({
+    section: layer,
+    rows: PYRA_VERTICES.map((vertex) =>
+      ([1, 2] as const).map((amount): PyraMove => pyraTurn(vertex, layer, amount)),
+    ),
+  }))
+}
+
 /** The guide of a shape, section by section. */
 export function moveGuide(shape: CubeShape): GuideGroup[] {
-  return isStar(shape) ? starGuide(shape) : cubeGuide(shape)
+  if (isStar(shape)) return starGuide(shape)
+  return isPyraminx(shape) ? pyraGuide(shape) : cubeGuide(shape)
 }
 
 /** What a turn does on a shape. */
 export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
-  if (isStarMove(turn)) {
+  if (isPyraMove(turn)) {
+    const layer = pyraLayerOf(turn)
+    const kind = layer === 'tips' ? 'tip' : layer === 'corners' ? 'corner' : 'slice'
+    const clockwise = turn.amount === 1
+    return { kind, vertex: turn.vertex, clockwise, ...(turn.slice && { slice: turn.slice }) }
+  }
+  if (!isFaceMove(turn)) {
     if ('slash' in turn) return { kind: 'slash' }
     const pieces = Math.abs(signedPieces(turn)) as 1 | 2 | 3
     return { kind: 'ring', ring: turn.ring, pieces, clockwise: turn.amount <= 3 }

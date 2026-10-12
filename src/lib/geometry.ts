@@ -33,10 +33,27 @@ export const HEX_NORMALS: readonly Vec3[] = [
   [1, 0, 1],
 ]
 
-const HEX_INDEX = new Map(HEX_NORMALS.map((n, i) => [n.join(), 6 + i]))
+/**
+ * Face normals of the Pyraminx (pyraminx.ts): its corners sit at alternate
+ * corners of a cube, (1,1,1), (-1,-1,1), (1,-1,-1), (-1,1,-1), and each face
+ * looks away from the corner it does not touch. In the order of those
+ * corners: the faces opposite U (the bottom), L, R and B (the front).
+ */
+export const TET_NORMALS: readonly Vec3[] = [
+  [-1, -1, -1],
+  [1, 1, -1],
+  [-1, 1, 1],
+  [1, -1, 1],
+]
+
+const HEX_INDEX = new Map([
+  ...HEX_NORMALS.map((n, i): [string, number] => [n.join(), 6 + i]),
+  ...TET_NORMALS.map((n, i): [string, number] => [n.join(), 12 + i]),
+])
 
 /** Index of a sticker normal, for compact hashing and sticker ids: 0..5 for
- *  the cube faces (R L U D F B), 6..11 for the hexagonal side faces. */
+ *  the cube faces (R L U D F B), 6..11 for the hexagonal side faces, 12..15
+ *  for the Pyraminx's. */
 export function normalIndex(n: Vec3): number {
   const zeros = (n[0] === 0 ? 1 : 0) + (n[1] === 0 ? 1 : 0) + (n[2] === 0 ? 1 : 0)
   if (zeros === 2) {
@@ -52,7 +69,11 @@ export function normalIndex(n: Vec3): number {
 /** The normal of a normal index, the inverse of `normalIndex`. */
 export function normalOfIndex(index: number): Vec3 {
   const face = FACES_BY_NORMAL[index]
-  const normal = face ? FACE_NORMAL[face] : HEX_NORMALS[index - 6]
+  const normal = face
+    ? FACE_NORMAL[face]
+    : index < 12
+      ? HEX_NORMALS[index - 6]
+      : TET_NORMALS[index - 12]
   if (!normal) throw new Error(`normalOfIndex: no normal ${index}`)
   return normal
 }

@@ -1,9 +1,9 @@
 import { cubeDims, solvedCube } from '@/lib/cube'
 import { normalIndex } from '@/lib/geometry'
 import { cubieBox, LAYER_THICKNESS } from '@/lib/shape'
-import { isStar, type Color, type CubeShape, type CubeVariant, type StarShape } from '@/lib/types'
+import { isGridless, isStar, type Color, type CubeShape, type CubeVariant } from '@/lib/types'
 import { visualPosition } from './layout'
-import { STAR_YAW, starPolygons } from './starGeometry'
+import { polyDrawing } from './polyDrawing'
 
 /**
  * Flat isometric drawing of a solved puzzle, for its picker thumbnail: the
@@ -87,7 +87,7 @@ export function isometricDrawing(shape: CubeShape, variant: CubeVariant): IsoDra
 }
 
 function drawPuzzle(shape: CubeShape, variant: CubeVariant): IsoDrawing {
-  if (isStar(shape)) return drawStar(shape)
+  if (isGridless(shape)) return drawPoly(shape)
   const cube = solvedCube(shape)
   const dims = cubeDims(cube)
   const faces: IsoFace[] = []
@@ -137,13 +137,15 @@ function finish(faces: IsoFace[]): IsoDrawing {
   return { polygons, viewBox: `${x0.toFixed(3)} ${y0.toFixed(3)} ${w.toFixed(3)} ${h.toFixed(3)}` }
 }
 
-/** The star prism, from the same polygons as its 3D view, turned by its yaw;
- *  faces turned away from the viewer are left out. */
-/** Painter's depth bonus of the screw's half discs, over every point. */
+/** Painter's depth bonus of the star's screw half discs, over every point. */
 const SCREW_FIRST = 100
 
-function drawStar(shape: StarShape): IsoDrawing {
-  const [cos, sin] = [Math.cos(STAR_YAW), Math.sin(STAR_YAW)]
+/** A gridless puzzle (a star prism, the Pyraminx), from the same polygons
+ *  as its 3D view, turned by its yaw; faces turned away from the viewer are
+ *  left out. */
+function drawPoly(shape: CubeShape): IsoDrawing {
+  const drawing = polyDrawing(shape)
+  const [cos, sin] = [Math.cos(drawing.yaw), Math.sin(drawing.yaw)]
   const yaw = ([x, y, z]: readonly number[]): Point => [
     x! * cos + z! * sin,
     y!,
@@ -151,7 +153,7 @@ function drawStar(shape: StarShape): IsoDrawing {
   ]
   const faces: IsoFace[] = []
   for (const cubie of solvedCube(shape)) {
-    const polygons = starPolygons(cubie, shape === 'star4')
+    const polygons = drawing.polygons(cubie)
     for (let i = 0; i < polygons.length; i++) {
       const body = polygons[i]!
       if (body.paint !== 'body') continue
@@ -161,7 +163,7 @@ function drawStar(shape: StarShape): IsoDrawing {
       const shade = normal[1] > 0.5 ? 0 : 0.12 + 0.16 * Math.max(0, normal[0])
       const points = body.points.map(yaw)
       // The screw's disc sits on top of the points around it: drawn last.
-      const onTop = cubie.position[1] === 0 ? SCREW_FIRST : 0
+      const onTop = isStar(shape) && cubie.position[1] === 0 ? SCREW_FIRST : 0
       faces.push({
         depth: onTop + points.reduce((d, p) => d + p[0] + p[1] + p[2], 0) / points.length,
         polygons: [

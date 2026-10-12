@@ -9,8 +9,9 @@ import {
   quarterTurnFits,
   rotateN,
 } from './geometry'
+import { PYRA_SIZE, PYRA_SYMMETRIES, solvedPyraminx } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
-import { ALL_COLORS, isStar, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
+import { ALL_COLORS, isPyraminx, isStar, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
 import type {
   Axis,
   Color,
@@ -129,9 +130,10 @@ export function homesOf(shape: CubeShape, keep: (c: Cubie) => boolean): Vec3[] {
 // ---------------------------------------------------------------------------
 
 /** Build a solved puzzle: every exterior cubie face carries its solved color
- *  (the star prism, no grid, comes from star.ts). */
+ *  (the star prism and the Pyraminx, no grid, come from their own modules). */
 export function solvedCube(shape: CubeShape = '3'): Cube {
   if (isStar(shape)) return solvedStar(shape)
+  if (isPyraminx(shape)) return solvedPyraminx(PYRA_SIZE[shape])
   const dims = SHAPE_DIMS[shape]
   const cubies: Cubie[] = []
   for (const x of layerCoords(dims[0])) {
@@ -289,17 +291,21 @@ function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
  * its shape allows. On a cuboid, a quarter turn per axis (24 orientations of
  * a cube), or a half turn where the shape forbids quarter ones (4 on a
  * 1x2x3, 8 on the tower and the Domino). On a star prism, its own
- * symmetries (12, see `STAR_SYMMETRIES`). Used by the editor (valid piece
+ * symmetries (12, see `STAR_SYMMETRIES`), and so on the Pyraminx (12,
+ * `PYRA_SYMMETRIES`). Used by the editor (valid piece
  * placements) and the 2x2 solver (a 2x2 has no centers, so "solved" is any
  * orientation of the solved cube).
  */
 export function cubeOrientations(cube: Cube): Cube[] {
   const dims = cubeDims(cube)
-  const generators = isStar(cubeShape(cube))
+  const shape = cubeShape(cube)
+  const generators = isStar(shape)
     ? STAR_SYMMETRIES
-    : (['x', 'y', 'z'] as Axis[]).map(
-        (axis) => (c: Cube) => rotateCube(c, axis, quarterTurnFits(dims, axis) ? 1 : 2),
-      )
+    : isPyraminx(shape)
+      ? PYRA_SYMMETRIES
+      : (['x', 'y', 'z'] as Axis[]).map(
+          (axis) => (c: Cube) => rotateCube(c, axis, quarterTurnFits(dims, axis) ? 1 : 2),
+        )
   const found = new Map<string, Cube>([[stateKey(cube), cube]])
   let frontier = [cube]
   while (frontier.length) {

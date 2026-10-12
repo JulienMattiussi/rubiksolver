@@ -174,6 +174,7 @@ describe('cube picker', () => {
       mirror: ['2m', '3m', '4m'],
       tower: ['223', '224', '332'],
       flat: ['123', '331'],
+      pyramid: ['pyra', 'pyra4'],
       star: ['star', 'star4'],
     })
   })

@@ -2,7 +2,11 @@
 // the `Translations` type below). Values are content, not code.
 
 import type { LayerKind } from '@/lib/moves'
+import type { PyraLayer } from '@/lib/pyraminx'
+import type { PyraVertex } from '@/lib/types'
 import {
+  CORNER_NAMES_EN,
+  CORNER_NAMES_FR,
   describeEn,
   describeFr,
   FACE_NAMES_EN,
@@ -46,6 +50,24 @@ const fr = {
   starTurnTitle: (layer: StarLayer, clockwise: boolean) =>
     `Tourner ${STAR_LAYER_FR[layer]} d’une pièce dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
   slashTitle: 'Slash : retourner la moitié droite',
+  pyraTurnTitle: (vertex: PyraVertex, layer: PyraLayer, clockwise: boolean) => {
+    const corner = CORNER_NAMES_FR[vertex]
+    const target = {
+      corners: `la couche du ${corner}`,
+      tips: `la pointe du ${corner}`,
+      slice1: `la 1re tranche du ${corner}`,
+      slice2: `la 2e tranche du ${corner}`,
+      slice3: `la face opposée au ${corner}`,
+    }[layer]
+    return `Tourner ${target} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`
+  },
+  pyraKinds: {
+    corners: 'Couches',
+    tips: 'Pointes',
+    slice1: 'Tranche 1',
+    slice2: 'Tranche 2',
+    slice3: 'Faces',
+  },
   noSuchLayer: (faceName: string, kind: LayerKind) =>
     `Pas de ${kind === 'wide' ? 'coup large' : 'tranche interne'} pour la ${faceName} sur ce puzzle`,
   jammedTurn: (faceName: string) =>
@@ -104,6 +126,11 @@ const fr = {
     wide: 'Coups larges',
     rings: 'Étages',
     slash: 'Slash',
+    corners: 'Couches (sommet + centre + arêtes)',
+    tips: 'Pointes seules',
+    slice1: 'Premières tranches (co-sommet + ailes)',
+    slice2: 'Deuxièmes tranches (ailes, co-ailes, centres)',
+    slice3: 'Faces',
   },
   describeMove: describeFr,
   guideBlocked: 'Ce mouvement n’est pas possible dans cette configuration',
@@ -114,6 +141,7 @@ const fr = {
     mirror: 'Miroir',
     tower: 'Tower',
     flat: 'Plats',
+    pyramid: 'Pyramides',
     star: 'Étoiles',
   },
   sectionSetup: 'Initialisation',
@@ -153,6 +181,14 @@ const fr = {
     twoPockets: {
       name: 'Deux Pockets',
       desc: 'La tour vue comme deux Pockets empilés : la remettre en forme en pivotant ses sommets, puis finir le Pocket intérieur, puis le Pocket extérieur, avec deux formules du Domino (descendre un sommet, permuter deux sommets).',
+    },
+    wingsFirst: {
+      name: 'Ailes puis co-ailes',
+      desc: 'Co-sommets, pointes et centres d’abord, puis les ailes trois par trois avec un commutateur (réserver, monter, prendre, descendre), puis les co-ailes, placées puis retournées deux par deux, et enfin les centres échangés deux à deux.',
+    },
+    centersFirst: {
+      name: 'Centres d’abord',
+      desc: 'Les centres et les pointes d’abord, chacun d’un simple tour de son sommet, puis les arêtes avec trois formules : un crochet qui descend une arête du haut pour finir le bas, une permutation circulaire des trois arêtes du haut, puis une formule qui retourne deux arêtes à la fois.',
     },
     isolateFirst: {
       name: 'Isoler puis permuter',
@@ -227,6 +263,14 @@ const fr = {
     stepOuterTop: 'Étoile externe : finir le haut',
     stepAlignStars: 'Aligner les deux étoiles',
     stepFlipEdges: 'Retourner les arêtes',
+    stepPyraCenters: 'Centres',
+    stepPyraTips: 'Pointes',
+    stepPyraTopEdges: 'Placer les arêtes du haut',
+    stepCoTips: 'Co-sommets',
+    stepPlaceCenters: 'Placer les centres',
+    stepWings: 'Ailes',
+    stepMidges: 'Co-ailes',
+    stepFinishCenters: 'Finir les centres',
     stepInnerPocket: 'Pocket intérieur',
     stepOuterPocket: 'Pocket extérieur',
   },
@@ -268,6 +312,24 @@ const en: Translations = {
   starTurnTitle: (layer: StarLayer, clockwise: boolean) =>
     `Turn the ${STAR_LAYER_EN[layer]} layer one piece ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   slashTitle: 'Slash: flip the right half',
+  pyraTurnTitle: (vertex: PyraVertex, layer: PyraLayer, clockwise: boolean) => {
+    const corner = CORNER_NAMES_EN[vertex]
+    const target = {
+      corners: `the layer of the ${corner}`,
+      tips: `the tip of the ${corner}`,
+      slice1: `the 1st slice of the ${corner}`,
+      slice2: `the 2nd slice of the ${corner}`,
+      slice3: `the face opposite the ${corner}`,
+    }[layer]
+    return `Turn ${target} ${clockwise ? 'clockwise' : 'counterclockwise'}`
+  },
+  pyraKinds: {
+    corners: 'Layers',
+    tips: 'Tips',
+    slice1: 'Slice 1',
+    slice2: 'Slice 2',
+    slice3: 'Faces',
+  },
   noSuchLayer: (faceName: string, kind: LayerKind) =>
     `No ${kind === 'wide' ? 'wide turn' : 'inner slice'} for the ${faceName} on this puzzle`,
   jammedTurn: (faceName: string) =>
@@ -326,6 +388,11 @@ const en: Translations = {
     wide: 'Wide turns',
     rings: 'Layers',
     slash: 'Slash',
+    corners: 'Layers (tip + center + edges)',
+    tips: 'Tips alone',
+    slice1: 'First slices (co-tip + wings)',
+    slice2: 'Second slices (wings, midges, centers)',
+    slice3: 'Faces',
   },
   describeMove: describeEn,
   guideBlocked: 'This move is not possible in this configuration',
@@ -336,6 +403,7 @@ const en: Translations = {
     mirror: 'Mirror',
     tower: 'Tower',
     flat: 'Flat',
+    pyramid: 'Pyramids',
     star: 'Stars',
   },
   sectionSetup: 'Setup',
@@ -375,6 +443,14 @@ const en: Translations = {
     twoPockets: {
       name: 'Two Pockets',
       desc: 'The tower seen as two stacked Pockets: put it back in shape by pivoting its corners, then finish the inner Pocket, then the outer Pocket, with two Domino formulas (descend a corner, swap two corners).',
+    },
+    wingsFirst: {
+      name: 'Wings then midges',
+      desc: 'Co-tips, tips and centers first, then the wings three at a time with a commutator (reserve, raise, take, lower), then the midges, placed then flipped two at a time, and last the centers swapped two by two.',
+    },
+    centersFirst: {
+      name: 'Centers first',
+      desc: 'Centers and tips first, each with a single turn of its corner, then the edges with three formulas: a hook bringing a top edge down to finish the bottom, a cycle of the three top edges, then a formula flipping two edges at a time.',
     },
     isolateFirst: {
       name: 'Isolate then permute',
@@ -449,6 +525,14 @@ const en: Translations = {
     stepOuterTop: 'Outer star: finish the top',
     stepAlignStars: 'Align the two stars',
     stepFlipEdges: 'Flip the edges',
+    stepPyraCenters: 'Centers',
+    stepPyraTips: 'Tips',
+    stepPyraTopEdges: 'Place the top edges',
+    stepCoTips: 'Co-tips',
+    stepPlaceCenters: 'Place the centers',
+    stepWings: 'Wings',
+    stepMidges: 'Midges',
+    stepFinishCenters: 'Finish the centers',
     stepInnerPocket: 'Inner Pocket',
     stepOuterPocket: 'Outer Pocket',
   },

@@ -3,10 +3,11 @@ import type { ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 import type { Cubie } from '@/lib/types'
 import { COLOR_HEX, HIGHLIGHT, PLASTIC } from './colors'
-import { starPolygons, type StarPolygon } from './starGeometry'
+import type { PolyDrawing } from './polyDrawing'
+import type { PiecePolygon } from './polygons'
 
 /** A convex polygon as a triangle fan. */
-function polygonGeometry(polygon: StarPolygon): THREE.BufferGeometry {
+function polygonGeometry(polygon: PiecePolygon): THREE.BufferGeometry {
   const positions: number[] = []
   const [first, ...rest] = polygon.points
   for (let i = 0; i < rest.length - 1; i++) positions.push(...first!, ...rest[i]!, ...rest[i + 1]!)
@@ -22,10 +23,10 @@ function polygonGeometry(polygon: StarPolygon): THREE.BufferGeometry {
   return geometry
 }
 
-interface StarPieceProps {
+interface PolyPieceProps {
   cubie: Cubie
-  /** The 4-star (four layers). */
-  tall: boolean
+  /** How the puzzle draws its pieces. */
+  drawing: PolyDrawing
   highlighted?: boolean
   /** Edit mode: the hex shown by the sticker of normal index `ni` (gray
    *  while unpainted), and what a click on it does. */
@@ -38,24 +39,24 @@ const setCursor = (value: string) => (e: ThreeEvent<PointerEvent>) => {
   document.body.style.cursor = value
 }
 
-/** One piece of a star prism (a point or a screw half): its body faces in
- *  plastic, its stickers in their colors. In edit mode its stickers show
- *  what is painted and take clicks. */
-export function StarPiece({
+/** One piece of a gridless puzzle (a star point, a screw half, a Pyraminx
+ *  tip...): its body faces in plastic, its stickers in their colors. In edit
+ *  mode its stickers show what is painted and take clicks. */
+export function PolyPiece({
   cubie,
-  tall,
+  drawing,
   highlighted = false,
   stickerHex,
   onSelect,
-}: StarPieceProps) {
+}: PolyPieceProps) {
   const polygons = useMemo(
     () =>
-      starPolygons(cubie, tall).map((p) => ({
+      drawing.polygons(cubie).map((p) => ({
         paint: p.paint,
         ni: p.ni,
         geometry: polygonGeometry(p),
       })),
-    [cubie, tall],
+    [cubie, drawing],
   )
   return (
     <group>
