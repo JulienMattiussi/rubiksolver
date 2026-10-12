@@ -9,6 +9,7 @@ import {
   quarterTurnFits,
   rotateN,
 } from './geometry'
+import { solvedMorph } from './morph'
 import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
 import { ALL_COLORS, isPyraminx, isStar, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
@@ -147,6 +148,7 @@ export function homesOf(shape: CubeShape, keep: (c: Cubie) => boolean): Vec3[] {
 export function solvedCube(shape: CubeShape = '3'): Cube {
   if (isStar(shape)) return solvedStar(shape)
   if (isPyraminx(shape)) return solvedPyra(shape)
+  if (shape === 'morph') return solvedMorph()
   const dims = SHAPE_DIMS[shape]
   const colors = faceColorsOf(shape)
   const cubies: Cubie[] = []
@@ -246,17 +248,32 @@ export function shapeColors(shape: CubeShape): Color[] {
 
 /** Whether the cubies show a single color per face (stickers grouped by the
  *  direction they face: a cube face, or a star prism's valley). */
-function facesUniform(cubies: readonly Cubie[]): boolean {
+/** How many faces the cubies show, if each shows a single color (stickers
+ *  grouped by the direction they face: a cube face, a star prism's valley),
+ *  else -1. */
+function uniformFaces(cubies: readonly Cubie[]): number {
   const faceColor = new Map<number, Color>()
   for (const cubie of cubies) {
     for (const s of cubie.stickers) {
       const face = normalIndex(s.normal)
       const seen = faceColor.get(face)
       if (seen === undefined) faceColor.set(face, s.color)
-      else if (seen !== s.color) return false
+      else if (seen !== s.color) return -1
     }
   }
-  return true
+  return faceColor.size
+}
+
+const FACE_COUNTS = new Map<CubeShape, number>()
+
+/** How many faces a shape shows when solved. */
+function faceCount(shape: CubeShape): number {
+  let count = FACE_COUNTS.get(shape)
+  if (count === undefined) {
+    count = uniformFaces(solvedCube(shape))
+    FACE_COUNTS.set(shape, count)
+  }
+  return count
 }
 
 /**
@@ -272,12 +289,15 @@ export function isBoxed(cube: Cube): boolean {
 
 /**
  * A puzzle is solved when it is back in its box and each face shows a single
- * uniform color. On a 3x3 the fixed centers make this equivalent to matching
- * FACE_COLOR; without fixed centers (2x2, cuboids) there is no fixed
- * reference, so a solved-but-reoriented puzzle must count as solved.
+ * uniform color, on as many faces as it has. On a 3x3 the fixed centers make
+ * this equivalent to matching FACE_COLOR; without fixed centers (2x2,
+ * cuboids) there is no fixed reference, so a solved-but-reoriented puzzle
+ * must count as solved. The face count tells a Pyramorphinx half turned a
+ * quarter (each half uniform, but on two tetrahedra: eight faces) from one
+ * in its form.
  */
 export function isSolved(cube: Cube): boolean {
-  return facesUniform(cube) && isBoxed(cube)
+  return isBoxed(cube) && uniformFaces(cube) === faceCount(cubeShape(cube))
 }
 
 /**

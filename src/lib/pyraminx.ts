@@ -65,7 +65,7 @@ export const PYRA_CORNERS: Record<PyraVertex, Vec3> = {
 
 /** Color of the face opposite each corner: yellow below, green in front,
  *  red on the right (opposite L), blue on the left (opposite R). */
-const OPPOSITE_COLOR: Record<PyraVertex, Color> = { U: 'Y', L: 'R', R: 'B', B: 'G' }
+export const PYRA_FACE_COLOR: Record<PyraVertex, Color> = { U: 'Y', L: 'R', R: 'B', B: 'G' }
 
 const dot = (a: Vec3, b: Vec3): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 const add = (a: Vec3, b: Vec3): Vec3 => [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
@@ -74,7 +74,7 @@ const add = (a: Vec3, b: Vec3): Vec3 => [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
  *  does not belong to. */
 function piece(position: Vec3, own: readonly PyraVertex[]): Cubie {
   const stickers: Sticker[] = PYRA_VERTICES.flatMap((v, i) =>
-    own.includes(v) ? [] : [{ normal: TET_NORMALS[i]!, color: OPPOSITE_COLOR[v] }],
+    own.includes(v) ? [] : [{ normal: TET_NORMALS[i]!, color: PYRA_FACE_COLOR[v] }],
   )
   return { position, stickers }
 }

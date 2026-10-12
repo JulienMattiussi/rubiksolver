@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import { cubeShape, isBoxed } from '@/lib/cube'
-import { formsOf } from '@/lib/forms'
+import { cubeShape } from '@/lib/cube'
+import { formOf, formsOf } from '@/lib/forms'
 import {
   buildCube,
   cubeToEdit,
@@ -67,8 +67,8 @@ export const useEditor = create<EditorStore>((set, get) => ({
 
   enterFromCurrent: () => {
     const cube = useCube.getState().cube
-    // Out of its box, the puzzle is entered in the form it stands in.
-    const form = isBoxed(cube) ? undefined : cube
+    // Out of its original form, the puzzle is entered in the one it stands in.
+    const form = formOf(cube)
     set({ mode: 'edit', phase: 'paint', form, edit: cubeToEdit(cube), error: null })
   },
 

@@ -6,13 +6,18 @@ import { NO_PIECES } from './noPieces'
 import { PolyPiece } from './PolyPiece'
 import { polyDrawing, type PolyDrawing } from './polyDrawing'
 
+/** No turn of the frame (a puzzle whose polygons are already in the scene's). */
+const IDENTITY = [0, 0, 0, 1] as const
+
 /** Where the still inside of a turn is drawn from: no piece, no stickers. */
 const INSIDE: Cubie = { position: [0, 0, 0], stickers: [] }
 
-/** A gridless puzzle (a star prism, a Pyraminx) drawn from its logical
- *  state; the turning pieces are parented to the animated group, inside the
- *  yaw that sets the puzzle on screen, and what the turn opens stays still
- *  outside it (the Jing's cut sphere). Shared by the scene and the move guide. */
+/** A puzzle drawn from polygons (a star prism, a Pyraminx, the
+ *  Pyramorphinx) from its logical state; the turning pieces are parented to
+ *  the animated group, inside the yaw that sets the puzzle on screen (and
+ *  the frame its turns are in, `orient`), and what the turn opens stays
+ *  still outside it (the Jing's cut sphere). Shared by the scene and the
+ *  move guide. */
 export function PolyModel({ cube, groupRef, isTurning, highlighted = NO_PIECES }: ModelProps) {
   const drawing = polyDrawing(cubeShape(cube))
   const moving = cube.filter((_, i) => isTurning(i))
@@ -24,16 +29,18 @@ export function PolyModel({ cube, groupRef, isTurning, highlighted = NO_PIECES }
   )
   return (
     <group rotation={[0, drawing.yaw, 0]}>
-      {cube.map((c, i) =>
-        isTurning(i) ? null : (
-          <PolyPiece key={i} cubie={c} drawing={drawing} highlighted={highlighted(i)} />
-        ),
-      )}
-      {inside && <PolyPiece cubie={INSIDE} drawing={inside} />}
-      <group ref={groupRef}>
+      <group quaternion={drawing.orient ?? IDENTITY}>
         {cube.map((c, i) =>
-          isTurning(i) ? <PolyPiece key={i} cubie={c} drawing={drawing} /> : null,
+          isTurning(i) ? null : (
+            <PolyPiece key={i} cubie={c} drawing={drawing} highlighted={highlighted(i)} />
+          ),
         )}
+        {inside && <PolyPiece cubie={INSIDE} drawing={inside} />}
+        <group ref={groupRef}>
+          {cube.map((c, i) =>
+            isTurning(i) ? <PolyPiece key={i} cubie={c} drawing={drawing} /> : null,
+          )}
+        </group>
       </group>
     </group>
   )

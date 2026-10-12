@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import {
   cubeOrientations,
   cubeShape,
-  isBoxed,
   isSolved,
   solvedCube,
   stateKey,
@@ -10,6 +9,7 @@ import {
 } from '@/lib/cube'
 import { buildCube, cubeToEdit, emptyEdit, isComplete, progress } from '@/lib/editor'
 import { stickerId, tablesFor } from '@/lib/editorTables'
+import { formOf } from '@/lib/forms'
 import { normalIndex } from '@/lib/geometry'
 import { describeMove, moveGuide } from '@/lib/moveGuide'
 import {
@@ -58,6 +58,7 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'pyra', pieces: 15, stickers: 36, orientations: 12, painted: 36, scramble: 11 },
   { shape: 'pyra4', pieces: 30, stickers: 64, orientations: 12, painted: 64, scramble: 30 },
   { shape: 'jing', pieces: 15, stickers: 28, orientations: 12, painted: 28, scramble: 15 },
+  { shape: 'morph', pieces: 8, stickers: 16, orientations: 24, painted: 16, scramble: 11 },
   { shape: 'star', pieces: 14, stickers: 40, orientations: 12, painted: 40, scramble: 30 },
   // The 4-star's inner points hide a face each: 12 stickers never seen.
   { shape: 'star4', pieces: 26, stickers: 76, orientations: 12, painted: 64, scramble: 40 },
@@ -160,8 +161,8 @@ describe.each(PUZZLES)('$shape', ({ shape, pieces, stickers, orientations, paint
     expect(progress(cubeToEdit(SOLVED), shape)).toMatchObject({ filled: painted, total: painted })
     for (let seed = 0; seed < 3; seed++) {
       const cube = scrambled(shape, scramble, seed)
-      // A shifted tower is entered in the form it stands in.
-      const form = isBoxed(cube) ? undefined : cube
+      // A shape-shifting puzzle is entered in the form it stands in.
+      const form = formOf(cube)
       const edit = cubeToEdit(cube)
       expect(isComplete(edit, shape, form)).toBe(true)
       expect(cubeToEdit(buildCube(edit, shape, form))).toEqual(edit)

@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { cubeShape } from '@/lib/cube'
-import { isGridless } from '@/lib/types'
+import { isPolyDrawn } from '@/lib/types'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { HOME_POSITION } from './camera'
@@ -14,7 +14,7 @@ import { PolyView } from './PolyView'
 /** The 3D canvas: camera, lighting, the cube (play or edit), orbit controls. */
 export function Scene() {
   const editing = useEditor((s) => s.mode === 'edit')
-  const gridless = useCube((s) => isGridless(cubeShape(s.cube)))
+  const gridless = useCube((s) => isPolyDrawn(cubeShape(s.cube)))
   return (
     <Canvas camera={{ position: HOME_POSITION.toArray(), fov: 42 }} dpr={[1, 2]}>
       <color attach="background" args={['#0f172a']} />

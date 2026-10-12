@@ -8,6 +8,7 @@ import { PETRUS_PLAN } from './methods/petrus'
 import { PYRAMINX_PLAN } from './methods/pyraminx'
 import { PYRAMINX4_PLAN } from './methods/pyraminx4'
 import { JING_PLAN } from './methods/jing'
+import { MORPH_PLAN } from './methods/morph'
 import { withCentersHome } from './methods/recenter'
 import { ROUX_PLAN } from './methods/roux'
 import { SLIM_TOWER_PLAN } from './methods/slimTower'
@@ -49,6 +50,7 @@ const SOLVE_METHODS = [
   { id: 'centersFirst', plans: { pyra: PYRAMINX_PLAN } },
   { id: 'wingsFirst', plans: { pyra4: PYRAMINX4_PLAN } },
   { id: 'jingCornersFirst', plans: { jing: JING_PLAN } },
+  { id: 'asPocket', plans: { morph: MORPH_PLAN } },
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },
   { id: 'twoStars', plans: { star4: STAR4_PLAN } },
   { id: 'cornersFirst', plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN } },

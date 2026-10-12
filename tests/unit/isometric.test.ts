@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { FACE_COLOR, stickersOfColor } from '@/lib/cube'
-import { isGridless, SHAPE_DIMS, type CubeShape, type CubeVariant } from '@/lib/types'
+import { isPolyDrawn, SHAPE_DIMS, type CubeShape, type CubeVariant } from '@/lib/types'
 import { isometricDrawing } from '@/three/isometric'
 
 // Grid puzzles; the gridless ones have their own drawing (tested below).
-const SHAPES = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter((shape) => !isGridless(shape))
+const SHAPES = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter((shape) => !isPolyDrawn(shape))
 
 describe('isometric thumbnails', () => {
   it.each(SHAPES)('%s: draws every facelet of its U, F and R faces, body then sticker', (shape) => {
@@ -37,7 +37,7 @@ describe('isometric thumbnail cache', () => {
 })
 
 describe('gridless thumbnails', () => {
-  it.each(['star', 'star4', 'pyra', 'pyra4', 'jing'] as const)(
+  it.each(['star', 'star4', 'pyra', 'pyra4', 'jing', 'morph'] as const)(
     '%s: draws the faces turned toward the viewer, with their stickers',
     (shape) => {
       const { polygons, viewBox } = isometricDrawing(shape, 'classic')

@@ -6,7 +6,8 @@ POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3
 ou 4x4**, **classique ou miroir**, plus cinq cuboïdes : le **1x2x3**, la
 **tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**
 et le **Floppy 3x3x1**, et cinq puzzles non cubiques : le **Pyraminx**, le
-**Master Pyraminx** (4x4), le **Pyraminx Jing** (pièces courbes) et les
+**Master Pyraminx** (4x4), le **Pyraminx Jing** (pièces courbes), le
+**Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
@@ -88,6 +89,7 @@ src/
 │   ├── geometry.ts       # Géométrie entière : normales des faces, normalIndex, grilles par axe (layerCoords), rotations exactes
 │   ├── cube.ts           # Le puzzle : solvedCube, cubeShape/cubeDims/turnDims, isSolved/isBoxed, stateKey, cubeOrientations,
 │   │                     #   requêtes de pièces (colorAt, colorsOf, cubieAt, atHome/homeAt), comptages de stickers et de couleurs
+│   ├── morph.ts          # Pyramorphinx : un 2x2 taillé en tétraèdre (coins à 3 stickers, milieux de face à 1)
 │   ├── pyraminx.ts       # Pyraminx, Master et Jing : modèle tétraédrique entier (couches, pointes, tranches, moitiés),
 │   │                     #   notation hybride, mélange
 │   ├── star.ts           # Star Prism 2 et 4 étages : modèle hexagonal entier (anneaux + slash), notation fan2cube, mélange
@@ -118,6 +120,7 @@ src/
 │   │   ├── pyraminx.ts   #   Pyraminx : centres d'abord (formules de fan2cube.fr)
 │   │   ├── pyraminx4.ts  #   Master Pyraminx : ailes puis co-ailes (3-cycles d'ailes, formules de fan2cube.fr)
 │   │   ├── jing.ts       #   Pyraminx Jing : sommets d'abord (crochet [DH] de fan2cube.fr)
+│   │   ├── morph.ts      #   Pyramorphinx : comme un Pocket (lu comme un 2x2, solveur optimal du 2x2)
 │   │   ├── starPrism.ts  #   Star Prism : isoler puis permuter (formule K de fan2cube.fr)
 │   │   ├── starPrism4.ts #   4-Star : deux étoiles (le plan du 2-Star projeté sur l'interne puis l'externe)
 │   │   ├── slimTower.ts  #   Slim Tower 2x2x3 : équateur puis coins (formules du Domino, fan2cube.fr)
@@ -162,6 +165,7 @@ src/
 │   ├── polygons.ts       # Pièces des puzzles sans grille en polygones (corps + stickers), PiecePolygon
 │   ├── starGeometry.ts   # Géométrie des pièces de l'étoile (cerfs-volants extrudés), partagée vue 3D / vignette
 │   ├── pyraGeometry.ts   # Géométrie des pièces du Pyraminx (petits tétraèdres et octaèdres des cellules du modèle)
+│   ├── morphGeometry.ts  # Pièces du Pyramorphinx : case du 2x2 coupée par le tétraèdre (polyèdre convexe)
 │   ├── jingGeometry.ts   # Géométrie courbe du Jing : surface arrondie maillée fin, découpée le long des coupes
 │   ├── polyDrawing.ts    # Dessin d'un puzzle sans grille : ses polygones et son lacet à l'écran
 │   ├── CubeModel.tsx     # Rendu d'un puzzle à grille depuis un état (couche qui tourne dans son groupe), partagé scène / guide
@@ -287,6 +291,8 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   du bas, arêtes du haut placées, puis retournées - voir « Le Pyraminx ».
 - **Sommets d'abord** (`jingCornersFirst`, Pyraminx Jing) : sommets, arêtes
   placées, retournées, centres - voir « Le Pyraminx Jing ».
+- **Comme un Pocket** (`asPocket`, Pyramorphinx) : une étape, la solution
+  optimale du 2x2 qu'il est - voir « Le Pyramorphinx ».
 - **Ailes puis co-ailes** (`wingsFirst`, Master Pyraminx) : co-sommets,
   pointes, centres, ailes, co-ailes, fin des centres - voir « Le Master
   Pyraminx ».
@@ -751,6 +757,33 @@ retournées par `[DH'][G'H]` ; (4) centres par `[DH]³` (B,A)(G,D). Les
 crochets échangent aussi les centres deux à deux, ce que (4) règle : coins
 en place, les centres ne peuvent être que deux à deux mal placés (loi des
 twists de la page, testée).
+
+### Le Pyramorphinx (`morph`)
+
+Le Pyramorphinx (fan2cube.fr/pyramorphinx1, le « Mini Pyraminx ») est un
+**2x2 taillé dans le tétraèdre inscrit** : mêmes positions, mêmes coups
+(`SHAPE_DIMS` `[2, 2, 2]`, pad du 2x2), mais 4 cubies gardent un coin du
+tétraèdre (3 stickers) et 4 le milieu d'une face (1 sticker). Les stickers
+regardent selon les diagonales (`TET_NORMALS`, et après un quart de tour
+leurs opposées, indices 16 à 19). Une grosse pièce posée à la place d'une
+petite le **déforme** : c'est un puzzle déformable (`SHAPE_SHIFTS`), saisi
+par sa forme comme la tour, avec **7 formes** seulement. Même nombre de
+pièces que le 2x2 : `cubeShape` les départage par les stickers. `isSolved`
+compte aussi les faces : un quart de tour laisse chaque moitié unie, mais
+sur deux tétraèdres (8 faces au lieu de 4).
+
+**Rendu** (`three/morphGeometry.ts`, `isPolyDrawn`) : chaque pièce est sa
+case du 2x2 coupée par le tétraèdre, un polyèdre convexe calculé depuis ses
+plans ; dessinée tournée comme la pièce, dans le repère du modèle que
+`PolyDrawing.orient` pose sur une face (ses coups restent ceux d'un 2x2).
+
+**Résolution** (`methods/morph.ts`, méthode **Comme un Pocket**, d'après
+fan2cube.fr/pyramorphinx3) : lu comme le 2x2 qu'il est (chaque pièce reçoit
+les couleurs de son cubie, tournée comme elle se tient), résolu par le
+solveur optimal du 2x2, et les mêmes coups le résolvent. Un milieu de face
+étant symétrique autour de son sticker, sa vrille ne se voit pas : on essaie
+les 81 lectures jusqu'à un 2x2 réel (vrilles des coins de somme nulle).
+D'où la « singularité » de fan2cube : un coin vrillé seul est légal.
 
 ### Le cube miroir (`src/lib/shape.ts`)
 

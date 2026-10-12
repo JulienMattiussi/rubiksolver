@@ -18,30 +18,34 @@ export function PolyEditView() {
   const shape = useCube((s) => cubeShape(s.cube))
   const edit = useEditor((s) => s.edit)
   const paintAt = useEditor((s) => s.paintAt)
+  // While a form is being chosen, the one hovered (the original otherwise).
+  const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
   const drawing = polyDrawing(shape)
   return (
     <group rotation={[0, drawing.yaw, 0]}>
-      {slotsFor(shape).map((slot) => {
-        const byNi = new Map(slot.stickers.map((s) => [s.ni, s.id]))
-        // The slot's piece as solved: its geometry lists every sticker.
-        const cubie = {
-          position: slot.position,
-          stickers: slot.stickers.map((s) => ({ normal: s.normal, color: s.solvedColor })),
-        }
-        const hex = (ni: number) => {
-          const color = edit[byNi.get(ni) ?? '']
-          return color ? COLOR_HEX[color] : EMPTY_COLOR
-        }
-        return (
-          <PolyPiece
-            key={slot.key}
-            cubie={cubie}
-            drawing={drawing}
-            stickerHex={hex}
-            onSelect={canPaint(shape, slot.key) ? (ni) => paintAt(slot.key, ni) : undefined}
-          />
-        )
-      })}
+      <group quaternion={drawing.orient ?? [0, 0, 0, 1]}>
+        {slotsFor(shape, form).map((slot) => {
+          const byNi = new Map(slot.stickers.map((s) => [s.ni, s.id]))
+          // The slot's piece as solved: its geometry lists every sticker.
+          const cubie = {
+            position: slot.position,
+            stickers: slot.stickers.map((s) => ({ normal: s.normal, color: s.solvedColor })),
+          }
+          const hex = (ni: number) => {
+            const color = edit[byNi.get(ni) ?? '']
+            return color ? COLOR_HEX[color] : EMPTY_COLOR
+          }
+          return (
+            <PolyPiece
+              key={slot.key}
+              cubie={cubie}
+              drawing={drawing}
+              stickerHex={hex}
+              onSelect={canPaint(shape, slot.key, form) ? (ni) => paintAt(slot.key, ni) : undefined}
+            />
+          )
+        })}
+      </group>
     </group>
   )
 }

@@ -16,6 +16,7 @@ export type CubeShape =
   | 'pyra'
   | 'pyra4'
   | 'jing'
+  | 'morph'
   | 'star'
   | 'star4'
 
@@ -45,6 +46,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   pyra4: [7, 7, 7],
   // The Pyraminx Jing's pieces sit within +-1 (see pyraminx.ts).
   jing: [3, 3, 3],
+  // The Pyramorphinx is a 2x2 cut down to a tetrahedron (morph.ts).
+  morph: [2, 2, 2],
   // The star prisms (star.ts) are no grid: their own module builds and turns
   // them. These only bound their hexagonal model (q and r within +-1, the
   // layers at y = +-1 and +-2).
@@ -73,6 +76,10 @@ export const isPyraminx = (shape: CubeShape): shape is PyraShape =>
  *  by its own pad. */
 export const isGridless = (shape: CubeShape): boolean => isStar(shape) || isPyraminx(shape)
 
+/** Whether a shape is drawn from polygons rather than cubie boxes: every
+ *  gridless one, and the Pyramorphinx (a 2x2 whose pieces are not cubes). */
+export const isPolyDrawn = (shape: CubeShape): boolean => isGridless(shape) || shape === 'morph'
+
 /**
  * Shapes that leave their box: their mechanism is a bigger cube with pieces
  * missing, so they turn like that cube and come out bumpy. The 2x2x4 tower
@@ -93,6 +100,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   pyra: false,
   pyra4: false,
   jing: false,
+  morph: true,
   star: false,
   star4: false,
 }
@@ -116,6 +124,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   pyra: [],
   pyra4: [],
   jing: [],
+  morph: [],
   star: [],
   star4: [],
 }
@@ -137,6 +146,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   pyra: [],
   pyra4: [],
   jing: [],
+  morph: [],
   star: [],
   star4: [],
 }
@@ -154,6 +164,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   pyra: 'Pyraminx',
   pyra4: 'Master Pyraminx (4x4)',
   jing: 'Pyraminx Jing',
+  morph: 'Pyramorphinx',
   star: '2-Star Prism (UFO)',
   star4: '4-Star Prism',
 }
@@ -186,6 +197,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   pyra: false,
   pyra4: false,
   jing: false,
+  morph: false,
   star: false,
   star4: false,
 }
@@ -210,7 +222,7 @@ export type CubeCategory = (typeof CUBE_CATEGORIES)[number]
 export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (variant === 'mirror') return 'mirror'
   if (isStar(shape)) return 'star'
-  if (isPyraminx(shape)) return 'pyramid'
+  if (isPyraminx(shape) || shape === 'morph') return 'pyramid'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
   // One layer thick: the 1x2x3 and the Floppy.

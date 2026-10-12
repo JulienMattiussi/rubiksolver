@@ -90,7 +90,8 @@ const fr = {
   fromCurrent: 'Depuis l’état actuel',
   chooseForm: 'Dans quelle forme est votre puzzle ?',
   chooseFormHint:
-    'Choisissez la forme dans laquelle il se trouve, tenu comme sur la vignette (survolez-en une pour la voir en grand), avant d’en placer les couleurs. Elles sont rangées par nombre de petits cubes isolés aux pointes.',
+    'Choisissez la forme dans laquelle il se trouve, tenu comme sur la vignette (survolez-en une pour la voir en grand), avant d’en placer les couleurs.',
+  formSortHint: 'Elles sont rangées par nombre de petits cubes isolés aux pointes.',
   formGroup: (tips: number) =>
     tips === 0
       ? 'Sans cube isolé'
@@ -194,6 +195,10 @@ const fr = {
       name: 'Deux Pockets',
       desc: 'La tour vue comme deux Pockets empilés : la remettre en forme en pivotant ses sommets, puis finir le Pocket intérieur, puis le Pocket extérieur, avec deux formules du Domino (descendre un sommet, permuter deux sommets).',
     },
+    asPocket: {
+      name: 'Comme un Pocket',
+      desc: 'Le Pyramorphinx n’est qu’un Pocket (2x2) déguisé : ses 8 pièces sont les 8 coins d’un 2x2 et ses mouvements ceux d’un 2x2. On le lit comme tel et on le résout comme un Pocket, en un minimum de mouvements, sans se laisser troubler par les formes qu’il prend.',
+    },
     jingCornersFirst: {
       name: 'Sommets d’abord',
       desc: 'Les sommets d’abord, chacun d’un tour, puis les arêtes placées avec un crochet (trois arêtes à la fois), retournées deux par deux, et enfin les centres échangés deux à deux.',
@@ -293,6 +298,7 @@ const fr = {
     stepMidges: 'Co-ailes',
     stepFinishCenters: 'Finir les centres',
     stepJingCorners: 'Sommets',
+    stepAsPocket: 'Résoudre comme un Pocket',
     stepPlaceEdges: 'Placer les arêtes',
     stepInnerPocket: 'Pocket intérieur',
     stepOuterPocket: 'Pocket extérieur',
@@ -375,7 +381,8 @@ const en: Translations = {
   fromCurrent: 'From current state',
   chooseForm: 'What shape is your puzzle in?',
   chooseFormHint:
-    'Pick the shape it stands in, held as in the thumbnail (hover one to see it large), before placing its colors. They are grouped by how many small cubes stick out alone.',
+    'Pick the shape it stands in, held as in the thumbnail (hover one to see it large), before placing its colors.',
+  formSortHint: 'They are grouped by how many small cubes stick out alone.',
   formGroup: (tips: number) =>
     tips === 0 ? 'No cube sticking out' : `${tips} cube${tips > 1 ? 's' : ''} sticking out`,
   formTile: (n: number, tips: number) =>
@@ -477,6 +484,10 @@ const en: Translations = {
       name: 'Two Pockets',
       desc: 'The tower seen as two stacked Pockets: put it back in shape by pivoting its corners, then finish the inner Pocket, then the outer Pocket, with two Domino formulas (descend a corner, swap two corners).',
     },
+    asPocket: {
+      name: 'As a Pocket',
+      desc: 'The Pyramorphinx is a Pocket (2x2) in disguise: its 8 pieces are a 2x2’s 8 corners and its turns a 2x2’s. Read as such, it is solved like a Pocket, in as few turns as can be, whatever strange shapes it takes.',
+    },
     jingCornersFirst: {
       name: 'Corners first',
       desc: 'The corners first, a turn each, then the edges placed with a hook (three at a time), flipped two at a time, and last the centers swapped two by two.',
@@ -576,6 +587,7 @@ const en: Translations = {
     stepMidges: 'Midges',
     stepFinishCenters: 'Finish the centers',
     stepJingCorners: 'Corners',
+    stepAsPocket: 'Solve it as a Pocket',
     stepPlaceEdges: 'Place the edges',
     stepInnerPocket: 'Inner Pocket',
     stepOuterPocket: 'Outer Pocket',

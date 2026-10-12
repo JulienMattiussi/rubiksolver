@@ -4,11 +4,12 @@ import * as THREE from 'three'
 import { easeInOut } from '@/lib/easing'
 import { turnAllowed, turnedBy, turnRotation } from '@/lib/turn'
 import { cubeShape } from '@/lib/cube'
-import { isGridless, type Cube, type CubeVariant, type Turn } from '@/lib/types'
+import { isPolyDrawn, type Cube, type CubeVariant, type Turn } from '@/lib/types'
 import { CubeModel } from './CubeModel'
 import { guideCameraPosition } from './guideCamera'
 import { NO_PIECES } from './noPieces'
 import { PolyModel } from './PolyModel'
+import { polyDrawing } from './polyDrawing'
 
 export interface GuideTileProps {
   /** The DOM box the tile is drawn into. */
@@ -53,7 +54,11 @@ function frame(camera: THREE.PerspectiveCamera, viewpoint: readonly number[], as
 export function GuideTile({ track, cube, variant, turn, playing }: GuideTileProps) {
   const [scene] = useState(() => new THREE.Scene())
   const [camera] = useState(() => new THREE.PerspectiveCamera(38, 1, 0.1, 100))
-  const viewpoint = useMemo(() => guideCameraPosition(turn), [turn])
+  const shape = cubeShape(cube)
+  const viewpoint = useMemo(
+    () => guideCameraPosition(turn, isPolyDrawn(shape) ? polyDrawing(shape) : undefined),
+    [turn, shape],
+  )
   const groupRef = useRef<THREE.Group>(null)
   const clock = useRef(0)
   const blocked = !turnAllowed(cube, turn)
@@ -98,7 +103,7 @@ export function GuideTile({ track, cube, variant, turn, playing }: GuideTileProp
       <ambientLight intensity={1.05} />
       <directionalLight position={[6, 9, 7]} intensity={0.5} />
       <directionalLight position={[-6, -7, -6]} intensity={0.45} />
-      {isGridless(cubeShape(cube)) ? (
+      {isPolyDrawn(cubeShape(cube)) ? (
         <PolyModel {...model} />
       ) : (
         <CubeModel {...model} variant={variant} />

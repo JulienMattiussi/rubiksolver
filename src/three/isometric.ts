@@ -3,7 +3,7 @@ import { normalIndex } from '@/lib/geometry'
 import { cubieBox, LAYER_THICKNESS } from '@/lib/shape'
 import { lookOf } from '@/lib/forms'
 import {
-  isGridless,
+  isPolyDrawn,
   isStar,
   type Color,
   type Cube,
@@ -11,7 +11,7 @@ import {
   type CubeVariant,
 } from '@/lib/types'
 import { visualPosition } from './layout'
-import { polyDrawing } from './polyDrawing'
+import { inScene, polyDrawing } from './polyDrawing'
 
 /**
  * Flat isometric drawing of a solved puzzle, for its picker thumbnail: the
@@ -95,7 +95,7 @@ export function isometricDrawing(shape: CubeShape, variant: CubeVariant): IsoDra
 }
 
 function drawPuzzle(shape: CubeShape, variant: CubeVariant): IsoDrawing {
-  if (isGridless(shape)) return drawPoly(shape)
+  if (isPolyDrawn(shape)) return drawPoly(shape)
   return drawCubies(solvedCube(shape), variant)
 }
 
@@ -107,7 +107,7 @@ export function formDrawing(shape: CubeShape, form: Cube): IsoDrawing {
   const key = `${shape}|${lookOf(form)}`
   let drawing = FORM_DRAWINGS.get(key)
   if (!drawing) {
-    drawing = drawCubies(form, 'classic', 'W')
+    drawing = isPolyDrawn(shape) ? drawPoly(shape, form, 'W') : drawCubies(form, 'classic', 'W')
     FORM_DRAWINGS.set(key, drawing)
   }
   return drawing
@@ -181,16 +181,11 @@ const SCREW_FIRST = 100
 /** A gridless puzzle (a star prism, the Pyraminx), from the same polygons
  *  as its 3D view, turned by its yaw; faces turned away from the viewer are
  *  left out. */
-function drawPoly(shape: CubeShape): IsoDrawing {
+function drawPoly(shape: CubeShape, cube = solvedCube(shape), neutral?: Color): IsoDrawing {
   const drawing = polyDrawing(shape)
-  const [cos, sin] = [Math.cos(drawing.yaw), Math.sin(drawing.yaw)]
-  const yaw = ([x, y, z]: readonly number[]): Point => [
-    x! * cos + z! * sin,
-    y!,
-    -x! * sin + z! * cos,
-  ]
+  const yaw = (v: readonly number[]): Point => inScene(drawing, v)
   const faces: IsoFace[] = []
-  for (const cubie of solvedCube(shape)) {
+  for (const cubie of cube) {
     const polygons = (drawing.thumbnail ?? drawing.polygons)(cubie)
     for (let i = 0; i < polygons.length; i++) {
       const first = polygons[i]!
@@ -209,9 +204,13 @@ function drawPoly(shape: CubeShape): IsoDrawing {
       faces.push({
         depth: onTop + points.reduce((d, p) => d + p[0] + p[1] + p[2], 0) / points.length,
         polygons: [
-          { points: toSvg(points), paint: first.paint, shade },
+          {
+            points: toSvg(points),
+            paint: first.paint === 'body' ? first.paint : (neutral ?? first.paint),
+            shade,
+          },
           ...(sticker
-            ? [{ points: toSvg(sticker.points.map(yaw)), paint: sticker.paint, shade }]
+            ? [{ points: toSvg(sticker.points.map(yaw)), paint: neutral ?? sticker.paint, shade }]
             : []),
         ],
       })

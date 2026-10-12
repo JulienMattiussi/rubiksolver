@@ -46,14 +46,20 @@ export const TET_NORMALS: readonly Vec3[] = [
   [1, -1, 1],
 ]
 
+/** The other four diagonals: where the Pyramorphinx's stickers face once a
+ *  quarter turn has laid a face of its tetrahedron the other way round (a
+ *  2x2 turn maps each diagonal to an opposite one). */
+const DUAL_NORMALS: readonly Vec3[] = TET_NORMALS.map((n) => n.map((x) => -x) as unknown as Vec3)
+
 const HEX_INDEX = new Map([
   ...HEX_NORMALS.map((n, i): [string, number] => [n.join(), 6 + i]),
   ...TET_NORMALS.map((n, i): [string, number] => [n.join(), 12 + i]),
+  ...DUAL_NORMALS.map((n, i): [string, number] => [n.join(), 16 + i]),
 ])
 
 /** Index of a sticker normal, for compact hashing and sticker ids: 0..5 for
  *  the cube faces (R L U D F B), 6..11 for the hexagonal side faces, 12..15
- *  for the Pyraminx's. */
+ *  for the Pyraminx's, 16..19 for the diagonals opposite them. */
 export function normalIndex(n: Vec3): number {
   const zeros = (n[0] === 0 ? 1 : 0) + (n[1] === 0 ? 1 : 0) + (n[2] === 0 ? 1 : 0)
   if (zeros === 2) {
@@ -73,7 +79,9 @@ export function normalOfIndex(index: number): Vec3 {
     ? FACE_NORMAL[face]
     : index < 12
       ? HEX_NORMALS[index - 6]
-      : TET_NORMALS[index - 12]
+      : index < 16
+        ? TET_NORMALS[index - 12]
+        : DUAL_NORMALS[index - 16]
   if (!normal) throw new Error(`normalOfIndex: no normal ${index}`)
   return normal
 }

@@ -209,6 +209,7 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
     ['Pyramides', 'Pyraminx'],
     ['Pyramides', 'Master Pyraminx (4x4)'],
     ['Pyramides', 'Pyraminx Jing'],
+    ['Pyramides', 'Pyramorphinx'],
     ['Étoiles', '2-Star Prism (UFO)'],
     ['Étoiles', '4-Star Prism'],
   ]
@@ -231,6 +232,7 @@ const ENTERED: [string, string, number][] = [
   ['Pyramides', 'Pyraminx', 36],
   ['Pyramides', 'Master Pyraminx (4x4)', 64],
   ['Pyramides', 'Pyraminx Jing', 28],
+  ['Pyramides', 'Pyramorphinx', 16],
   // Only the stickers one sees count: the inner points' flat faces fill in.
   ['Étoiles', '4-Star Prism', 64],
 ]

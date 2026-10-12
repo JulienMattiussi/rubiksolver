@@ -1,7 +1,8 @@
-import { FACE_SPEC } from '@/lib/geometry'
+import { FACE_NORMAL, FACE_SPEC } from '@/lib/geometry'
 import { pyraRotation } from '@/lib/pyraminx'
 import type { Turn } from '@/lib/types'
 import { HOME_POSITION } from './camera'
+import { inScene, type PolyDrawing } from './polyDrawing'
 import { PYRA_YAW } from './pyraGeometry'
 
 /** Closer than the scene: a tile is small, the puzzle should fill it. */
@@ -11,10 +12,20 @@ const ZOOM = 0.78
  * Where the move guide looks from to show a turn: the scene's home framing,
  * mirrored so the turning layer faces the camera (from below for D, from
  * behind for B). A star prism's lower layers are seen from below, a
- * Pyraminx corner from its own side, at the home view's height.
+ * Pyraminx corner from its own side, at the home view's height; on a
+ * puzzle drawn in its own frame, from where its turning face looks.
  */
-export function guideCameraPosition(turn: Turn): [number, number, number] {
+export function guideCameraPosition(turn: Turn, drawing?: PolyDrawing): [number, number, number] {
   const [x, y, z] = HOME_POSITION.clone().multiplyScalar(ZOOM).toArray()
+  if (drawing?.orient && 'face' in turn) {
+    // A face of a puzzle drawn in its own frame (the Pyramorphinx): the home
+    // framing pulled toward where that face looks in the scene.
+    const toward = inScene(drawing, FACE_NORMAL[turn.face])
+    const distance = Math.hypot(x, y, z)
+    const mix = [x, y, z].map((v, d) => v / distance + 1.2 * toward[d]!)
+    const length = Math.hypot(...mix)
+    return mix.map((v) => (v / length) * distance) as [number, number, number]
+  }
   if ('slash' in turn) return [x, y, z]
   if ('ring' in turn) return turn.ring === 'D' || turn.ring === 'd' ? [x, -y, z] : [x, y, z]
   if ('vertex' in turn) {

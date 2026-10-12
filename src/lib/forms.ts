@@ -1,4 +1,4 @@
-import { solvedCube, turnDims } from './cube'
+import { cubeShape, solvedCube, turnDims } from './cube'
 import { AXIS_ROTATIONS, normalIndex } from './geometry'
 import { layerTurnsOf } from './moves'
 import { applyMove, turnAllowed } from './turn'
@@ -113,4 +113,10 @@ export function formsOf(shape: CubeShape): readonly Form[] {
   }
   FORMS.set(shape, forms)
   return forms
+}
+
+/** The form a state stands in, for the editor: none when it is its puzzle's
+ *  original one (the box). */
+export function formOf(cube: Cube): Cube | undefined {
+  return lookOf(cube) === lookOf(solvedCube(cubeShape(cube))) ? undefined : cube
 }

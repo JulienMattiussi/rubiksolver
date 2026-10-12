@@ -1,5 +1,6 @@
 import { isStar, type CubeShape, type Cubie } from '@/lib/types'
 import { jingCut, jingPolygons, jingThumbnail } from './jingGeometry'
+import { MORPH_ORIENT, morphPolygons } from './morphGeometry'
 import type { PiecePolygon } from './polygons'
 import { PYRA_YAW, pyraPolygons } from './pyraGeometry'
 import { STAR_YAW, starPolygons } from './starGeometry'
@@ -14,6 +15,9 @@ export interface PolyDrawing {
   /** What to draw, still, while these pieces turn: the inside the turn
    *  opens (the Jing's cut sphere), when the pieces do not close it. */
   readonly cut?: (moving: readonly Cubie[]) => PiecePolygon[]
+  /** How the model's frame stands in the scene (a quaternion), when its
+   *  polygons and turns are in it (the Pyramorphinx turns like a 2x2). */
+  readonly orient?: readonly [number, number, number, number]
 }
 
 const STAR: PolyDrawing = { polygons: (c) => starPolygons(c, false), yaw: STAR_YAW }
@@ -27,8 +31,35 @@ const JING: PolyDrawing = {
   cut: jingCut,
 }
 
-/** The drawing of a gridless shape (the star prisms, the Pyraminxes, the Jing). */
+const MORPH: PolyDrawing = { polygons: morphPolygons, yaw: PYRA_YAW, orient: MORPH_ORIENT }
+
+/** The drawing of a shape drawn from polygons (the star prisms, the
+ *  Pyraminxes, the Jing, the Pyramorphinx). */
 export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (isStar(shape)) return shape === 'star4' ? STAR4 : STAR
+  if (shape === 'morph') return MORPH
   return shape === 'pyra4' ? MASTER : shape === 'jing' ? JING : PYRAMINX
+}
+
+/** A vector of a drawing's polygons as it stands in the scene: turned by
+ *  its frame (`orient`), then its yaw. */
+export function inScene(
+  drawing: PolyDrawing,
+  [x, y, z]: readonly number[],
+): [number, number, number] {
+  let v: [number, number, number] = [x!, y!, z!]
+  if (drawing.orient) {
+    const [qx, qy, qz, qw] = drawing.orient
+    // v + 2w (q x v) + 2 q x (q x v), q the quaternion's vector part.
+    const t = [qy * v[2] - qz * v[1], qz * v[0] - qx * v[2], qx * v[1] - qy * v[0]].map(
+      (c) => 2 * c,
+    )
+    v = [
+      v[0] + qw * t[0]! + (qy * t[2]! - qz * t[1]!),
+      v[1] + qw * t[1]! + (qz * t[0]! - qx * t[2]!),
+      v[2] + qw * t[2]! + (qx * t[1]! - qy * t[0]!),
+    ]
+  }
+  const [cos, sin] = [Math.cos(drawing.yaw), Math.sin(drawing.yaw)]
+  return [v[0] * cos + v[2] * sin, v[1], -v[0] * sin + v[2] * cos]
 }
