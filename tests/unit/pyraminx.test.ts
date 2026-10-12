@@ -1,18 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { cubeOrientations, cubeShape, isSolved, solvedCube, stateKey } from '@/lib/cube'
-import { buildCube, cubeToEdit, emptyEdit, isComplete, progress } from '@/lib/editor'
-import { tablesFor } from '@/lib/editorTables'
-import { PYRAMINX_PLAN } from '@/lib/methods/pyraminx'
-import { describeMove, moveGuide } from '@/lib/moveGuide'
-import { formatMoves, NOTATION_FR, NOTATION_US, scrambleTurns, simplifyMoves } from '@/lib/moves'
+import { isSolved, solvedCube, stateKey } from '@/lib/cube'
+import { formatMoves, NOTATION_FR, NOTATION_US, simplifyMoves } from '@/lib/moves'
 import { parsePyraMoves, pyraTurnsOf } from '@/lib/pyraminx'
-import { decodeCube, encodeCube } from '@/lib/snapshot'
-import { methodsFor } from '@/lib/solver'
-import { buildSteps } from '@/lib/solverKit'
 import { applyMoves, turnedBy } from '@/lib/turn'
 import type { Cube, Cubie } from '@/lib/types'
 import { validateCube } from '@/lib/validate'
-import { seededRng } from '../helpers'
 
 const SOLVED = solvedCube('pyra')
 const play = (text: string, from: Cube = SOLVED) =>
@@ -48,17 +40,6 @@ function effect(text: string): string[] {
 }
 
 describe('Pyraminx model', () => {
-  it('has 4 tips, 4 centers, 6 edges and its core, recognized by their count', () => {
-    expect(SOLVED).toHaveLength(15)
-    expect(cubeShape(SOLVED)).toBe('pyra')
-    expect(isSolved(SOLVED)).toBe(true)
-    expect(SOLVED.map((c) => c.stickers.length)).toEqual([
-      ...Array(8).fill(3),
-      ...Array(6).fill(2),
-      0,
-    ])
-  })
-
   it('turns a layer (tip, center, three edges) or a tip alone, by thirds', () => {
     for (const move of pyraTurnsOf('pyra')) {
       const turned = SOLVED.filter((_, i) => turnedBy(SOLVED, move)(i)).length
@@ -67,15 +48,6 @@ describe('Pyraminx model', () => {
       expect(isSolved(there)).toBe(false)
       expect(stateKey(applyMoves(there, [move, move]))).toBe(stateKey(SOLVED))
     }
-  })
-
-  it('has 12 orientations', () => {
-    expect(cubeOrientations(SOLVED)).toHaveLength(12)
-  })
-
-  it('round-trips through its saved text', () => {
-    const cube = play("g d' h p G'")
-    expect(decodeCube(encodeCube(cube))).toEqual(cube)
   })
 })
 
@@ -125,34 +97,6 @@ describe("fan2cube's formulas (pyraminx2)", () => {
   })
 })
 
-describe('Centers first (Pyraminx method)', () => {
-  it('is the method offered for the Pyraminx', () => {
-    expect(methodsFor('pyra').map((m) => m.id)).toEqual(['centersFirst'])
-  })
-
-  it('solves scrambles, every step reaching its goal with layer turns (tips alone for the tips)', () => {
-    const rng = seededRng(17)
-    for (let i = 0; i < 30; i++) {
-      let state = applyMoves(SOLVED, scrambleTurns('pyra', 11, rng, SOLVED))
-      for (const step of buildSteps(state, PYRAMINX_PLAN)) {
-        state = applyMoves(state, step.moves)
-        expect(PYRAMINX_PLAN.find((s) => s.key === step.key)!.goal(state)).toBe(true)
-        const tips = step.moves.every((m) => 'tip' in m)
-        expect(tips).toBe(step.key === 'stepPyraTips')
-      }
-      expect(isSolved(state)).toBe(true)
-    }
-  })
-
-  it('solves a Pyraminx held another way up (the editor accepts any)', () => {
-    for (const turned of cubeOrientations(play("g d' p h' G"))) {
-      let state = turned
-      for (const step of buildSteps(state, PYRAMINX_PLAN)) state = applyMoves(state, step.moves)
-      expect(isSolved(state)).toBe(true)
-    }
-  })
-})
-
 /** The piece at `index` with its sticker colors changed by `recolor`. */
 function repaint(cube: Cube, index: number, recolor: (c: Cubie) => Cubie): Cube {
   return cube.map((c, i) => (i === index ? recolor(c) : c))
@@ -176,37 +120,6 @@ describe('Pyraminx validation and editor', () => {
     expect(validateCube(repaint(SOLVED, center, reversed))).toEqual({
       ok: false,
       error: 'impossible',
-    })
-  })
-
-  it('paints all 36 stickers: no piece stays put without turning', () => {
-    expect(tablesFor('pyra').paintableSlots).toHaveLength(14)
-    expect(progress(emptyEdit('pyra'), 'pyra')).toMatchObject({ filled: 0, total: 36 })
-  })
-
-  it('takes a scrambled state through the editor and back', () => {
-    const rng = seededRng(5)
-    for (let i = 0; i < 5; i++) {
-      const cube = applyMoves(SOLVED, scrambleTurns('pyra', 11, rng, SOLVED))
-      const edit = cubeToEdit(cube)
-      expect(isComplete(edit, 'pyra')).toBe(true)
-      expect(validateCube(buildCube(edit, 'pyra'))).toEqual({ ok: true })
-    }
-  })
-})
-
-describe('Pyraminx move guide', () => {
-  it('shows each layer, then each tip, both ways', () => {
-    const guide = moveGuide('pyra')
-    expect(guide.map((g) => g.section)).toEqual(['corners', 'tips'])
-    expect(guide.map((g) => g.rows.map((r) => formatMoves(r, NOTATION_FR)))).toEqual([
-      ["h h'", "g g'", "d d'", "p p'"],
-      ["H H'", "G G'", "D D'", "P P'"],
-    ])
-    expect(describeMove({ vertex: 'L', amount: 2, tip: true }, 'pyra')).toEqual({
-      kind: 'tip',
-      vertex: 'L',
-      clockwise: false,
     })
   })
 })

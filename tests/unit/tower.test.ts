@@ -1,12 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { isBoxed, isSolved, solvedCube } from '@/lib/cube'
-import { applyMove, applyMoves, turnAllowed } from '@/lib/turn'
-import { formatMove, invertMoves, scramble } from '@/lib/moves'
+import { applyMove, turnAllowed } from '@/lib/turn'
+import { formatMove, invertMoves } from '@/lib/moves'
 import { DESCEND, PIVOT, SWAP, TOWER_PLAN } from '@/lib/methods/tower'
-import { methodsFor } from '@/lib/solver'
-import { buildSteps } from '@/lib/solverKit'
 import type { Cube, Turn } from '@/lib/types'
-import { seededRng } from '../helpers'
 
 const SOLVED = solvedCube('224')
 
@@ -56,10 +53,6 @@ describe('tower formulas (from fan2cube.fr)', () => {
 })
 
 describe('Two Pockets tower method', () => {
-  it('is the method offered for the tower', () => {
-    expect(methodsFor('224').map((m) => m.id)).toEqual(['twoPockets'])
-  })
-
   it('declares its move sets: wide turns, then inner, then outer layers', () => {
     expect(TOWER_PLAN.map((s) => s.moves.generators.map((m) => formatMove(m)).join(' '))).toEqual([
       'Uw Dw Rw Fw',
@@ -67,16 +60,4 @@ describe('Two Pockets tower method', () => {
       'U D Rw2 Fw2',
     ])
   })
-
-  it('solves scrambled towers, every step reaching its goal with legal turns', () => {
-    const rng = seededRng(77)
-    for (let i = 0; i < 20; i++) {
-      let state = applyMoves(SOLVED, scramble('224', 40, rng))
-      for (const step of buildSteps(state, TOWER_PLAN)) {
-        state = play(step.moves, state)
-        expect(TOWER_PLAN.find((s) => s.key === step.key)!.goal(state)).toBe(true)
-      }
-      expect(isSolved(state)).toBe(true)
-    }
-  }, 120000)
 })

@@ -3,6 +3,7 @@ import {
   cubeOrientations,
   cubieAt,
   isSolved,
+  listedAs,
   OPPOSITE_COLOR,
   solvedCube,
   stateKey,
@@ -112,10 +113,18 @@ function bfsSide(origin: Cube): BfsSide {
  * to the best total found; any shorter solution would already have met.
  * Throws when depth `MAX_DEPTH_2` is exhausted, i.e. the cube is unsolvable.
  */
-export function solveOptimal2(cube: Cube): Move[] {
-  const g = frame2(cube)
+export function solveOptimal2(entered: Cube): Move[] {
+  const g = frame2(entered)
   const target = SOLVED_2.find(({ frame: f }) => f.D === g.D && f.L === g.L && f.B === g.B)?.cube
   if (!target) throw new Error('solveOptimal2: DBL piece is not a real corner')
+  // The two searches meet on state keys: list the pieces as the target does
+  // (an entered cube lists them slot by slot).
+  let cube: Cube
+  try {
+    cube = listedAs(entered, target)
+  } catch {
+    throw new Error('solveOptimal2: not the pieces of a 2x2')
+  }
   if (stateKey(cube) === stateKey(target)) return []
 
   const fwd = bfsSide(cube)

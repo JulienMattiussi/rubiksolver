@@ -1,43 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/cube'
-import { NOTATION_FR, NOTATION_US, scrambleTurns } from '@/lib/moves'
-import { STAR_PLAN } from '@/lib/methods/starPrism'
-import { STAR4_PLAN } from '@/lib/methods/starPrism4'
-import { methodsFor } from '@/lib/solver'
-import { buildSteps } from '@/lib/solverKit'
-import { seededRng } from '../helpers'
-import {
-  applyStarMove,
-  formatStarMove,
-  invertStarMove,
-  parseStarMoves,
-  simplifyStarMoves,
-} from '@/lib/star'
-import { decodeCube, encodeCube } from '@/lib/snapshot'
+import { isSolved, solvedCube, stateKey } from '@/lib/cube'
+import { NOTATION_FR, NOTATION_US } from '@/lib/moves'
+import { formatStarMove, parseStarMoves, simplifyStarMoves } from '@/lib/star'
 import { applyMoves, turnedBy } from '@/lib/turn'
-import type { Cube, StarMove } from '@/lib/types'
+import type { Cube } from '@/lib/types'
 
 const SOLVED = solvedCube('star')
 const play = (text: string, from: Cube = SOLVED) =>
   applyMoves(from, parseStarMoves(text, NOTATION_FR))
 
 describe('star prism model', () => {
-  it('has 12 points and 2 screw halves, recognized by their count', () => {
-    expect(SOLVED).toHaveLength(14)
-    expect(cubeShape(SOLVED)).toBe('star')
-    expect(isSolved(SOLVED)).toBe(true)
-  })
-
-  it('undoes each turn with its inverse, and comes back after a full round', () => {
-    const turns: StarMove[] = [{ ring: 'U', amount: 1 }, { ring: 'D', amount: 2 }, { slash: true }]
-    for (const move of turns) {
-      const there = applyStarMove(SOLVED, move)
-      expect(isSolved(there)).toBe(false)
-      expect(stateKey(applyStarMove(there, invertStarMove(move)))).toBe(stateKey(SOLVED))
-    }
-    expect(stateKey(play('1 1 1 1 1 1'))).toBe(stateKey(SOLVED))
-  })
-
   it('counts a whole-puzzle rotation as solved (both layers turned together)', () => {
     // Top one piece clockwise seen from above, bottom the same way: from
     // below, that is counterclockwise.
@@ -64,11 +36,6 @@ describe('star prism model', () => {
       { ring: 'U', amount: 3 },
       { ring: 'D', amount: 1 },
     ])
-  })
-
-  it('survives a snapshot (its valley normals included)', () => {
-    const scrambled = play('/3/-1B/2/')
-    expect(stateKey(decodeCube(encodeCube(scrambled))!)).toBe(stateKey(scrambled))
   })
 })
 
@@ -110,36 +77,11 @@ describe('star prism formulas (from fan2cube.fr)', () => {
   })
 })
 
-describe('Isolate then permute (Star Prism method)', () => {
-  it('is the method offered for the star prism', () => {
-    expect(methodsFor('star').map((m) => m.id)).toEqual(['isolateFirst'])
-  })
-
-  it('solves scrambles, every step reaching its goal', () => {
-    const rng = seededRng(41)
-    for (let i = 0; i < 15; i++) {
-      let state = applyMoves(SOLVED, scrambleTurns('star', 30, rng, SOLVED))
-      for (const step of buildSteps(state, STAR_PLAN)) {
-        state = applyMoves(state, step.moves)
-        expect(STAR_PLAN.find((s) => s.key === step.key)!.goal(state)).toBe(true)
-      }
-      expect(isSolved(state)).toBe(true)
-    }
-  }, 120000)
-})
-
 describe('4-Star Prism', () => {
   const SOLVED4 = solvedCube('star4')
   const play4 = (text: string, from: Cube = SOLVED4) =>
     applyMoves(from, parseStarMoves(text, NOTATION_FR))
   const layer = (cube: Cube, y: number) => cube.filter((c) => c.position[1] === y)
-
-  it('has 4 layers of 6 points and the screw, recognized by their count', () => {
-    expect(SOLVED4).toHaveLength(26)
-    expect(cubeShape(SOLVED4)).toBe('star4')
-    expect(isSolved(SOLVED4)).toBe(true)
-    for (const y of [2, 1, -1, -2]) expect(layer(SOLVED4, y)).toHaveLength(6)
-  })
 
   it('turns each layer on its own, named in lowercase for the inner ones', () => {
     const moves = parseStarMoves('2h -b B /', NOTATION_FR)
@@ -176,17 +118,4 @@ describe('4-Star Prism', () => {
     expect(layer(after, -2)).toEqual(layer(SOLVED4, -2))
     expect(isSolved(after)).toBe(false)
   })
-
-  it('is solved by "Two stars", every step reaching its goal', () => {
-    expect(methodsFor('star4').map((m) => m.id)).toEqual(['twoStars'])
-    const rng = seededRng(43)
-    for (let i = 0; i < 12; i++) {
-      let state = applyMoves(SOLVED4, scrambleTurns('star4', 40, rng, SOLVED4))
-      for (const step of buildSteps(state, STAR4_PLAN)) {
-        state = applyMoves(state, step.moves)
-        expect(STAR4_PLAN.find((s) => s.key === step.key)!.goal(state)).toBe(true)
-      }
-      expect(isSolved(state)).toBe(true)
-    }
-  }, 120000)
 })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cubeOrientations, cubeShape, isSolved, solvedCube, stateKey } from '@/lib/cube'
+import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/cube'
 import { faceLayers, layerCoords } from '@/lib/geometry'
 import { applyMove, applyMoves, inSlab, moveSlab, turnAllowed, turnedBy } from '@/lib/turn'
 import { formatMove, invertMoves, movesFor, parseMoves, scramble } from '@/lib/moves'
@@ -8,10 +8,6 @@ import type { CubeShape, Move } from '@/lib/types'
 import { seededRng } from '../helpers'
 
 describe('cube engine', () => {
-  it('starts solved', () => {
-    expect(isSolved(solvedCube())).toBe(true)
-  })
-
   it('has 27 cubies with the right sticker counts', () => {
     const cube = solvedCube()
     expect(cube).toHaveLength(27)
@@ -23,23 +19,10 @@ describe('cube engine', () => {
     expect(counts.filter((n) => n === 0)).toHaveLength(1)
   })
 
-  it('a single face turn leaves the cube unsolved', () => {
-    for (const move of movesFor('3')) {
-      expect(isSolved(applyMove(solvedCube(), move))).toBe(false)
-    }
-  })
-
   it('four quarter turns of any face return to solved', () => {
     for (const face of ['U', 'D', 'L', 'R', 'F', 'B'] as const) {
       const move = { face, amount: 1 } as const
       const cube = applyMoves(solvedCube(), [move, move, move, move])
-      expect(isSolved(cube)).toBe(true)
-    }
-  })
-
-  it('a move followed by its inverse is a no-op', () => {
-    for (const move of movesFor('3')) {
-      const cube = applyMoves(solvedCube(), [move, ...invertMoves([move])])
       expect(isSolved(cube)).toBe(true)
     }
   })
@@ -49,18 +32,6 @@ describe('cube engine', () => {
     let cube = solvedCube()
     for (let i = 0; i < 6; i++) cube = applyMoves(cube, sexy)
     expect(isSolved(cube)).toBe(true)
-  })
-
-  it('undoing a scramble restores the solved cube', () => {
-    const moves = scramble('3', 30, seededRng(1))
-    const scrambled = applyMoves(solvedCube(), moves)
-    expect(isSolved(scrambled)).toBe(false)
-    expect(isSolved(applyMoves(scrambled, invertMoves(moves)))).toBe(true)
-  })
-
-  it('has exactly 24 orientations', () => {
-    expect(cubeOrientations(solvedCube())).toHaveLength(24)
-    expect(cubeOrientations(solvedCube('2'))).toHaveLength(24)
   })
 })
 
@@ -72,20 +43,6 @@ describe('2x2 cube engine', () => {
     expect(cubeShape(solvedCube())).toBe('3')
     expect(cube.every((c) => c.stickers.length === 3)).toBe(true)
     expect(cube.every((c) => c.position.every((v) => v === 1 || v === -1))).toBe(true)
-  })
-
-  it('starts solved and a single turn unsolves it', () => {
-    expect(isSolved(solvedCube('2'))).toBe(true)
-    for (const move of movesFor('3')) {
-      expect(isSolved(applyMove(solvedCube('2'), move))).toBe(false)
-    }
-  })
-
-  it('a move followed by its inverse is a no-op', () => {
-    for (const move of movesFor('3')) {
-      const cube = applyMoves(solvedCube('2'), [move, ...invertMoves([move])])
-      expect(isSolved(cube)).toBe(true)
-    }
   })
 
   it("treats a reoriented solved cube as solved (R L' spins the whole 2x2)", () => {
@@ -148,22 +105,6 @@ describe('4x4 cube engine', () => {
       ])
       expect(stateKey(viaWide)).toBe(stateKey(viaTwo))
     }
-  })
-
-  it('has 24 orientations with distinct state keys', () => {
-    const orientations = cubeOrientations(solvedCube('4'))
-    expect(orientations).toHaveLength(24)
-    expect(new Set(orientations.map(stateKey)).size).toBe(24)
-    // stateKey must tell an inner slice turn apart from the solved state.
-    const sliced = applyMove(solvedCube('4'), { face: 'R', amount: 1, depth: 2 })
-    expect(stateKey(sliced)).not.toBe(stateKey(solvedCube('4')))
-  })
-
-  it('undoing a sliced scramble restores the solved cube', () => {
-    const moves = scramble('4', 40, seededRng(11))
-    const scrambled = applyMoves(solvedCube('4'), moves)
-    expect(isSolved(scrambled)).toBe(false)
-    expect(isSolved(applyMoves(scrambled, invertMoves(moves)))).toBe(true)
   })
 })
 
@@ -240,17 +181,5 @@ describe('turnedBy', () => {
     // The tower turns like a 4x4x4: Rw is its whole right half, U its top end.
     expect(count('224', 'Rw')).toBe(8)
     expect(count('224', 'U')).toBe(4)
-  })
-})
-
-describe('cubeOrientations', () => {
-  it('counts the whole-puzzle rotations each shape allows', () => {
-    const count = (shape: CubeShape) => cubeOrientations(solvedCube(shape)).length
-    expect(count('3')).toBe(24)
-    expect(count('123')).toBe(4)
-    expect(count('224')).toBe(8)
-    expect(count('332')).toBe(8)
-    expect(count('star')).toBe(12)
-    expect(count('star4')).toBe(12)
   })
 })

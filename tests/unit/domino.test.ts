@@ -1,21 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { isSolved, solvedCube } from '@/lib/cube'
+import { solvedCube } from '@/lib/cube'
 import { applyMoves } from '@/lib/turn'
 import { emptyEdit } from '@/lib/editor'
-import { formatMove, movesFor, scramble } from '@/lib/moves'
+import { formatMove, movesFor } from '@/lib/moves'
 import {
   CYCLE_EDGES,
   DESCEND_CORNER,
   DESCEND_EDGE,
-  DOMINO_PLAN,
   SWAP_CORNERS,
   SWAP_EDGES_BACK,
   SWAP_EDGES_RIGHT,
 } from '@/lib/methods/domino'
-import { methodsFor } from '@/lib/solver'
-import { buildSteps } from '@/lib/solverKit'
 import type { Move, Vec3 } from '@/lib/types'
-import { seededRng } from '../helpers'
 
 const SOLVED = solvedCube('332')
 
@@ -77,22 +73,4 @@ describe('Domino formulas (from fan2cube.fr)', () => {
     expect(effect(SWAP_EDGES_RIGHT)).toEqual(['UF->UR', 'UR->UF'])
     expect(effect(SWAP_EDGES_BACK)).toEqual(['UB->UF', 'UF->UB'])
   })
-})
-
-describe('Corners then edges (Domino method)', () => {
-  it('is the method offered for the Domino', () => {
-    expect(methodsFor('332').map((m) => m.id)).toEqual(['cornersFirst'])
-  })
-
-  it('solves scrambles, every step reaching its goal within its moves', () => {
-    const rng = seededRng(33)
-    for (let i = 0; i < 25; i++) {
-      let state = applyMoves(SOLVED, scramble('332', 20, rng))
-      for (const step of buildSteps(state, DOMINO_PLAN)) {
-        state = applyMoves(state, step.moves)
-        expect(DOMINO_PLAN.find((s) => s.key === step.key)!.goal(state)).toBe(true)
-      }
-      expect(isSolved(state)).toBe(true)
-    }
-  }, 120000)
 })

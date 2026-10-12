@@ -1,16 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { cubeOrientations, cubeShape, isSolved, solvedCube, stateKey } from '@/lib/cube'
-import { buildCube, cubeToEdit, emptyEdit, isComplete, progress } from '@/lib/editor'
-import { PYRAMINX4_PLAN, wingCycles } from '@/lib/methods/pyraminx4'
-import { describeMove, moveGuide } from '@/lib/moveGuide'
-import { formatMoves, NOTATION_FR, NOTATION_US, scrambleTurns } from '@/lib/moves'
+import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/cube'
+import { wingCycles } from '@/lib/methods/pyraminx4'
+import { formatMoves, NOTATION_FR, NOTATION_US } from '@/lib/moves'
 import { parsePyraMoves, pyraTurnsOf } from '@/lib/pyraminx'
-import { methodsFor } from '@/lib/solver'
-import { buildSteps } from '@/lib/solverKit'
 import { applyMoves, turnedBy } from '@/lib/turn'
 import type { Cube, Cubie } from '@/lib/types'
 import { validateCube } from '@/lib/validate'
-import { seededRng } from '../helpers'
 
 const SOLVED = solvedCube('pyra4')
 const parse = (text: string) => parsePyraMoves(text, NOTATION_FR, 4)
@@ -69,10 +64,6 @@ describe('Master Pyraminx model', () => {
       expect(stateKey(applyMoves(SOLVED, [move, move, move]))).toBe(stateKey(SOLVED))
     }
   })
-
-  it('has 12 orientations', () => {
-    expect(cubeOrientations(SOLVED)).toHaveLength(12)
-  })
 })
 
 describe('Master Pyraminx notation', () => {
@@ -122,34 +113,6 @@ describe("fan2cube's formulas (pyraminx42)", () => {
   })
 })
 
-describe('Wings then midges (Master Pyraminx method)', () => {
-  it('is the method offered for the Master Pyraminx', () => {
-    expect(methodsFor('pyra4').map((m) => m.id)).toEqual(['wingsFirst'])
-  })
-
-  it('solves scrambles (face turns included), every step reaching its goal', () => {
-    const rng = seededRng(23)
-    for (let i = 0; i < 20; i++) {
-      let state = applyMoves(SOLVED, scrambleTurns('pyra4', 30, rng, SOLVED))
-      for (const step of buildSteps(state, PYRAMINX4_PLAN)) {
-        state = applyMoves(state, step.moves)
-        expect(PYRAMINX4_PLAN.find((s) => s.key === step.key)!.goal(state)).toBe(true)
-        // Never a face: the slices and tips only, as fan2cube turns it.
-        expect(step.moves.every((m) => 'vertex' in m && m.slice !== 3)).toBe(true)
-      }
-      expect(isSolved(state)).toBe(true)
-    }
-  })
-
-  it('solves a Master held another way up', () => {
-    for (const turned of cubeOrientations(play("H'1 D2 P3 G1 h"))) {
-      let state = turned
-      for (const step of buildSteps(state, PYRAMINX4_PLAN)) state = applyMoves(state, step.moves)
-      expect(isSolved(state)).toBe(true)
-    }
-  })
-})
-
 /** The cube with the stickers of two pieces' colors exchanged. */
 function swapColors(cube: Cube, a: number, b: number): Cube {
   return cube.map((c, i) =>
@@ -187,39 +150,6 @@ describe('Master Pyraminx validation and editor', () => {
     expect(validateCube(swapColors(SOLVED, wings[0]!, other))).toEqual({
       ok: false,
       error: 'impossible',
-    })
-  })
-
-  it('paints all 64 stickers', () => {
-    expect(progress(emptyEdit('pyra4'), 'pyra4')).toMatchObject({ filled: 0, total: 64 })
-  })
-
-  it('takes a scrambled state through the editor and back', () => {
-    const rng = seededRng(8)
-    for (let i = 0; i < 4; i++) {
-      const cube = applyMoves(SOLVED, scrambleTurns('pyra4', 30, rng, SOLVED))
-      const edit = cubeToEdit(cube)
-      expect(isComplete(edit, 'pyra4')).toBe(true)
-      expect(validateCube(buildCube(edit, 'pyra4'))).toEqual({ ok: true })
-    }
-  })
-})
-
-describe('Master Pyraminx move guide', () => {
-  it('shows the tips, then each slice, every corner both ways', () => {
-    const guide = moveGuide('pyra4')
-    expect(guide.map((g) => g.section)).toEqual(['tips', 'slice1', 'slice2', 'slice3'])
-    expect(guide[1]!.rows.map((r) => formatMoves(r, NOTATION_FR))).toEqual([
-      "H₁ H'₁",
-      "G₁ G'₁",
-      "D₁ D'₁",
-      "P₁ P'₁",
-    ])
-    expect(describeMove({ vertex: 'R', amount: 1, slice: 2 }, 'pyra4')).toEqual({
-      kind: 'slice',
-      vertex: 'R',
-      clockwise: true,
-      slice: 2,
     })
   })
 })

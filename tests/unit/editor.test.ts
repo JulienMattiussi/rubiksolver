@@ -27,13 +27,6 @@ describe('cube editor', () => {
     expect(Object.values(remaining).filter((n) => n > 0)).toEqual(Array(6).fill(8))
   })
 
-  it('round-trips a cube through edit and back', () => {
-    const cube = applyMoves(solvedCube(), scramble('3', 20, seededRng(3)))
-    const edit = cubeToEdit(cube)
-    expect(isComplete(edit, '3')).toBe(true)
-    expect(cubeToEdit(buildCube(edit, '3'))).toEqual(edit)
-  })
-
   it('auto-completes a corner once two stickers determine it', () => {
     let edit = emptyEdit('3')
     // Corner (1,1,1): +y (ni 2) is white, +x (ni 0) is red in the solved cube.
@@ -73,14 +66,6 @@ describe('2x2 cube editor', () => {
     expect(isComplete(edit, '2')).toBe(false)
   })
 
-  it('round-trips a 2x2 through edit and back', () => {
-    const cube = applyMoves(solvedCube('2'), scramble('2', 11, seededRng(5)))
-    const edit = cubeToEdit(cube)
-    expect(isComplete(edit, '2')).toBe(true)
-    expect(filledCount(edit)).toBe(24)
-    expect(cubeToEdit(buildCube(edit, '2'))).toEqual(edit)
-  })
-
   it('auto-completes a corner once two stickers determine it', () => {
     let edit = emptyEdit('2')
     edit = paint(edit, '2', '1,1,1', 2, 'W')
@@ -116,14 +101,6 @@ describe('4x4 cube editor', () => {
     expect(canPaint('4', '1,3,1')).toBe(true)
     expect(canPaint('3', '0,1,0')).toBe(false)
     expect(filledCount(emptyEdit('4'))).toBe(0)
-  })
-
-  it('round-trips a sliced scramble through edit and back', () => {
-    const cube = applyMoves(solvedCube('4'), scramble('4', 30, seededRng(13)))
-    const edit = cubeToEdit(cube)
-    expect(isComplete(edit, '4')).toBe(true)
-    expect(filledCount(edit)).toBe(96)
-    expect(cubeToEdit(buildCube(edit, '4'))).toEqual(edit)
   })
 
   it('lets the user paint any legal position sticker by sticker', () => {
@@ -184,19 +161,6 @@ describe('4x4 cube editor', () => {
 })
 
 describe('editor on the cuboids', () => {
-  it('round-trips a scrambled tower and Domino through the editor', () => {
-    const states = {
-      // A tower scramble may leave it out of its box; these turns keep it in.
-      '224': applyMoves(solvedCube('224'), parseMoves('Rw2 U Dw Fw2 D2 Uw')),
-      '332': applyMoves(solvedCube('332'), scramble('332', 20, seededRng(8))),
-    }
-    for (const [shape, cube] of Object.entries(states) as ['224' | '332', Cube][]) {
-      const edit = cubeToEdit(cube)
-      expect(isComplete(edit, shape)).toBe(true)
-      expect(cubeToEdit(buildCube(edit, shape))).toEqual(edit)
-    }
-  })
-
   it('does not take a shifted tower as a complete entry', () => {
     // Out of its box, some stickers sit where no editor slot is.
     const shifted = applyMoves(solvedCube('224'), parseMoves('Rw'))

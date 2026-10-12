@@ -1,15 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube, stateKey } from '@/lib/cube'
 import { emptyEdit, slotsFor } from '@/lib/editor'
-import { FLIP_EDGES, FLOPPY_PLAN } from '@/lib/methods/floppy'
+import { FLIP_EDGES } from '@/lib/methods/floppy'
 import { solveExhaustively } from '@/lib/methods/exhaustive'
-import { formatMoves, movesFor, scramble } from '@/lib/moves'
+import { formatMoves, movesFor } from '@/lib/moves'
 import { methodsFor } from '@/lib/solver'
-import { buildSteps } from '@/lib/solverKit'
 import { applyMove, applyMoves } from '@/lib/turn'
 import type { Cube } from '@/lib/types'
 import { validateCube } from '@/lib/validate'
-import { seededRng, twistedCorner } from '../helpers'
+import { twistedCorner } from '../helpers'
 
 const SOLVED = solvedCube('331')
 
@@ -76,17 +75,5 @@ describe('Corners then edges (Floppy method)', () => {
 
   it('is offered first, before the optimal search', () => {
     expect(methodsFor('331').map((m) => m.id)).toEqual(['cornersFirst', 'optimal'])
-  })
-
-  it('solves scrambles, every step reaching its goal', () => {
-    const rng = seededRng(17)
-    for (let i = 0; i < 20; i++) {
-      let state = applyMoves(SOLVED, scramble('331', 12, rng))
-      for (const step of buildSteps(state, FLOPPY_PLAN)) {
-        state = applyMoves(state, step.moves)
-        expect(FLOPPY_PLAN.find((s) => s.key === step.key)!.goal(state)).toBe(true)
-      }
-      expect(isSolved(state)).toBe(true)
-    }
   })
 })

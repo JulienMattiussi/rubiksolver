@@ -18,18 +18,6 @@ const withStickers2 = (overrides: Record<string, Color>) => withStickersOn('2', 
 const withStickers4 = (overrides: Record<string, Color>) => withStickersOn('4', overrides)
 
 describe('validateCube', () => {
-  it('accepts the solved cube', () => {
-    expect(validateCube(solvedCube())).toEqual({ ok: true })
-  })
-
-  it('accepts random scrambles', () => {
-    const rng = seededRng(77)
-    for (let i = 0; i < 5; i++) {
-      const cube = applyMoves(solvedCube(), scramble('3', 20, rng))
-      expect(validateCube(cube)).toEqual({ ok: true })
-    }
-  }, 60000)
-
   it('rejects wrong color counts', () => {
     // Recolor one green sticker to red: red = 10, green = 8.
     expect(validateCube(withStickers({ '1,0,1:4': 'R' }))).toEqual({ ok: false, error: 'counts' })
@@ -61,15 +49,6 @@ describe('validateCube', () => {
 })
 
 describe('validateCube (2x2)', () => {
-  it('accepts the solved cube and random scrambles', () => {
-    expect(validateCube(solvedCube('2'))).toEqual({ ok: true })
-    const rng = seededRng(31)
-    for (let i = 0; i < 5; i++) {
-      const cube = applyMoves(solvedCube('2'), scramble('2', 11, rng))
-      expect(validateCube(cube)).toEqual({ ok: true })
-    }
-  }, 60000)
-
   it('rejects wrong color counts', () => {
     // Recolor one green sticker to red: red = 5, green = 3.
     expect(validateCube(withStickers2({ '1,1,1:4': 'R' }))).toEqual({ ok: false, error: 'counts' })
@@ -81,15 +60,6 @@ describe('validateCube (2x2)', () => {
 })
 
 describe('validateCube (4x4)', () => {
-  it('accepts the solved cube and sliced scrambles', () => {
-    expect(validateCube(solvedCube('4'))).toEqual({ ok: true })
-    const rng = seededRng(41)
-    for (let i = 0; i < 5; i++) {
-      const cube = applyMoves(solvedCube('4'), scramble('4', 40, rng))
-      expect(validateCube(cube)).toEqual({ ok: true })
-    }
-  }, 60000)
-
   it('accepts a lone inner slice turn (a legal parity-looking state)', () => {
     // One inner quarter turn is legal on a real 4x4 even though its projection
     // would be an impossible 3x3: validation must not reject it.

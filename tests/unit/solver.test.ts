@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/cube'
 import { applyMoves } from '@/lib/turn'
-import { formatMoves, parseMoves, scramble, scrambleTurns } from '@/lib/moves'
+import { formatMoves, parseMoves, scramble } from '@/lib/moves'
 import {
   crossDone,
   firstLayerDone,
@@ -26,8 +26,6 @@ import {
   topFaceDone2,
 } from '@/lib/methods/cube2'
 import { methodsFor, solve } from '@/lib/solver'
-import { LOCALES } from '@/i18n/translations'
-import { SHAPE_DIMS, type CubeShape } from '@/lib/types'
 import { seededRng, twistedCorner2 } from '../helpers'
 
 describe('solver', () => {
@@ -50,34 +48,6 @@ describe('solver', () => {
     }
     expect(failures).toEqual([])
   }, 120000)
-
-  it('every method of every shape solves scrambles as translated, named steps', () => {
-    const rng = seededRng(808)
-    const shapes = Object.keys(SHAPE_DIMS) as CubeShape[]
-    for (const shape of shapes) {
-      for (const method of methodsFor(shape)) {
-        for (let i = 0; i < 3; i++) {
-          const solved = solvedCube(shape)
-          const cube = applyMoves(solved, scrambleTurns(shape, 25, rng, solved))
-          const steps = method.solve(cube)
-          for (const step of steps) {
-            expect(step.moves.length).toBeGreaterThan(0)
-            for (const locale of Object.values(LOCALES)) {
-              expect((locale.steps as Record<string, string>)[step.key]).toBeTruthy()
-            }
-          }
-          expect(
-            isSolved(
-              applyMoves(
-                cube,
-                steps.flatMap((s) => [...s.moves]),
-              ),
-            ),
-          ).toBe(true)
-        }
-      }
-    }
-  }, 240000)
 
   it('reaches each phase goal in order', () => {
     const rng = seededRng(2026)

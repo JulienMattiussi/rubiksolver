@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { describeMove, moveGuide } from '@/lib/moveGuide'
-import { formatMove, movesFor, NOTATION_US, sameLayer } from '@/lib/moves'
+import { formatMove, NOTATION_US } from '@/lib/moves'
 import { LOCALES } from '@/i18n/translations'
 import { SHAPE_DIMS, type CubeShape } from '@/lib/types'
 
@@ -86,25 +86,4 @@ describe('move descriptions', () => {
     })
     expect(describeMove({ slash: true }, 'star')).toEqual({ kind: 'slash' })
   })
-})
-
-describe('the guide of every puzzle', () => {
-  it.each(Object.keys(SHAPE_DIMS) as CubeShape[])(
-    '%s: every pad turn is in it, each with a sentence in both languages',
-    (shape) => {
-      const turns = moveGuide(shape).flatMap((g) => g.rows.flat())
-      expect(turns.length).toBeGreaterThan(0)
-      for (const turn of movesFor(shape)) {
-        expect(
-          turns.some((t) => sameLayer(t, turn) && 'amount' in t && t.amount === turn.amount),
-        ).toBe(true)
-      }
-      for (const turn of turns) {
-        for (const t of [LOCALES.fr, LOCALES.en]) {
-          const sentence = t.describeMove(describeMove(turn, shape))
-          expect(sentence).not.toMatch(/undefined|NaN/)
-        }
-      }
-    },
-  )
 })

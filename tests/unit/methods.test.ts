@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/cube'
 import { applyMoves } from '@/lib/turn'
-import { LOCALES } from '@/i18n/translations'
 import { formatMove, formatMoves, scramble } from '@/lib/moves'
 import { moveSet, OUTER_TURNS } from '@/lib/moveSet'
 import { PETRUS_PLAN } from '@/lib/methods/petrus'
@@ -45,24 +44,6 @@ describe('method registry', () => {
     expect(ids('3')).toEqual(['beginner', 'cfop', 'roux', 'petrus', 'zz'])
     for (const shape of ['2', '4', '123'] as const) {
       expect(ids(shape)).not.toContain('roux')
-    }
-  })
-
-  it('names every method and step in both languages', () => {
-    const shapes: CubeShape[] = ['2', '3', '4', '123', '224', '223', '332']
-    for (const locale of Object.values(LOCALES)) {
-      for (const shape of shapes) {
-        for (const method of methodsFor(shape)) {
-          expect(locale.methods[method.id].name).toBeTruthy()
-        }
-      }
-    }
-    for (const plan of [ROUX_PLAN, PETRUS_PLAN, ZZ_PLAN]) {
-      for (const { key } of plan) {
-        for (const locale of Object.values(LOCALES)) {
-          expect((locale.steps as Record<string, string>)[key]).toBeTruthy()
-        }
-      }
     }
   })
 })

@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { solvedCube } from '@/lib/cube'
-import { buildCube, cubeToEdit, emptyEdit, isComplete, paint, progress } from '@/lib/editor'
+import { emptyEdit, paint, progress } from '@/lib/editor'
 import { tablesFor } from '@/lib/editorTables'
-import { scrambleTurns } from '@/lib/moves'
-import { applyMoves } from '@/lib/turn'
-import { validateCube } from '@/lib/validate'
-import { seededRng } from '../helpers'
 
 describe('star prism editor', () => {
   it('lets any of the 12 points sit in a point slot, the right screw half either way up', () => {
@@ -35,17 +30,4 @@ describe('star prism editor', () => {
     const hidden = slot.stickers.find((s) => s.hidden)!
     expect(edit[hidden.id]).toBe('G') // an upright top piece
   })
-
-  it.each(['star', 'star4'] as const)(
-    '%s: a scrambled state goes through the editor and back',
-    (shape) => {
-      const rng = seededRng(9)
-      for (let i = 0; i < 5; i++) {
-        const cube = applyMoves(solvedCube(shape), scrambleTurns(shape, 40, rng, solvedCube(shape)))
-        const edit = cubeToEdit(cube)
-        expect(isComplete(edit, shape)).toBe(true)
-        expect(validateCube(buildCube(edit, shape))).toEqual({ ok: true })
-      }
-    },
-  )
 })

@@ -286,6 +286,27 @@ export function stateKey(cube: Cube): string {
   return out
 }
 
+/**
+ * The same puzzle with its pieces listed as in `reference` (each found by
+ * its colors, twins in order) and each piece's stickers in the reference
+ * piece's color order. `stateKey` reads pieces by index, so two states only
+ * compare once listed alike: an entered cube lists its pieces slot by slot,
+ * a turned one keeps them where they started.
+ */
+export function listedAs(cube: Cube, reference: Cube): Cube {
+  const unused = [...cube]
+  return reference.map((home) => {
+    const i = unused.findIndex((c) => colorsOf(c) === colorsOf(home))
+    if (i < 0) throw new Error(`listedAs: piece ${colorsOf(home)} missing`)
+    const piece = unused.splice(i, 1)[0]!
+    const order = home.stickers.map((s) => s.color)
+    const stickers = [...piece.stickers].sort(
+      (a, b) => order.indexOf(a.color) - order.indexOf(b.color),
+    )
+    return { position: piece.position, stickers }
+  })
+}
+
 /** Reorient the whole puzzle: a change of viewpoint, not a move. */
 function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
   return cube.map((cubie) => ({

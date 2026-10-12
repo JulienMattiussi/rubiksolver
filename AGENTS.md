@@ -194,16 +194,31 @@ src/
 └── main.tsx
 tests/
 ├── helpers.ts            # RNG déterministe (seededRng), coin vrillé (twistedCorner)
-├── unit/                 # Vitest : cube (coups, tour), moves, solver (registre : chaque méthode de chaque forme) + solver4,
+├── unit/                 # Vitest : puzzles (conformance : une ligne par forme, voir plus bas), cube (coups, tour),
+│                         #   moves, solver + solver4,
 │                         #   methods (Roux/Petrus/ZZ : objectifs et jeux de coups), algs, tower, domino (effet de chaque
 │                         #   formule), floppy, slimTower, pieceSearch, flat123 (espaces d'états entiers), editor, validate, shape, snapshot,
 │                         #   star (modèle, formules fan2cube, méthodes des deux étoiles), starEditor (saisie des étoiles),
-│                         #   pyraminx, pyraminx4, jing (modèle, notation, formules fan2cube, méthode, saisie, guide),
+│                         #   pyraminx, pyraminx4, jing (notation, formules fan2cube, états impossibles),
 │                         #   moveGuide, isometric, layout, stores, easing, speed, progress
 ├── component/            # Vitest + Testing Library (Controls, SegmentedToggle)
-└── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution (3x3, 2x2, 1x2x3, 4x4), saisie (cube,
-                          #   4x4, 4-Star, Pyraminx, Master, Jing), miroir, guide des mouvements sur chaque puzzle)
+└── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution (3x3, 2x2, 1x2x3, 4x4), saisie
+                          #   depuis un mélange puis résolution (liste ENTERED), miroir, guide sur chaque puzzle)
 ```
+
+**Tests d'un puzzle** : ce que tout puzzle doit vérifier est écrit une fois,
+dans la suite de conformance `tests/unit/puzzles.test.ts`, qui parcourt un
+tableau d'une ligne par forme (pièces, stickers, orientations, stickers
+saisis, longueur de mélange) : construit résolu et reconnu, chaque tour
+défait par son inverse, orientations, mélange défait et snapshot, chaque
+méthode résout un mélange (tenu aussi autrement, quand l'éditeur le permet),
+étapes et méthodes nommées dans les deux langues, saisie aller-retour validée,
+guide complet et décrit. Un nouveau puzzle y ajoute une ligne (et une ligne
+dans la liste `ENTERED` de l'e2e) ; son propre fichier ne garde que ce qui
+lui est propre : notation, effet de chaque formule de fan2cube, jeux de coups
+de sa méthode, états impossibles, particularités de saisie. Inutile d'y
+re-tester « chaque étape atteint son but » : `buildSteps` le vérifie déjà à
+chaque résolution.
 
 ### Les solveurs par méthode (`src/lib/solver.ts`)
 
@@ -353,8 +368,8 @@ Les tranches du 3x3 ne demandent rien au moteur : sur 3 couches, la couche
 réutiliser `buildBlock`, `solvePieces`, `solveWithAlgs`, les prédicats
 existants, et ajouter les algorithmes au catalogue) ; (2) l'ajouter au registre
 de `solver.ts` sous les formes qu'elle couvre ; (3) nommer la méthode et ses
-étapes dans les deux langues. Le test de registre résout alors des mélanges
-avec elle, sans rien toucher d'autre ; y ajouter un test qui fige ses jeux de
+étapes dans les deux langues. La suite de conformance résout alors des
+mélanges avec elle, sans rien toucher d'autre ; y ajouter un test qui fige ses jeux de
 coups (voir `tests/unit/methods.test.ts`). Une méthode 3x3 n'utilisant que des
 coups externes peut aussi servir de phase 3x3 au 4x4 (`reductionPlan`, qui
 refuse les tranches : `M` sur un 3x3 n'est pas un coup du 4x4 réduit).
