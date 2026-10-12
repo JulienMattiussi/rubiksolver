@@ -1,4 +1,4 @@
-import { scrambleViolet } from './violetScramble'
+import { scrambleViolet } from './violetStates'
 import { solvedCube, turnDims } from './cube'
 import { faceAxis, faceLayers, quarterTurnFits } from './geometry'
 import { applyMove, turnAllowed } from './turn'

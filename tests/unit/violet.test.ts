@@ -3,10 +3,27 @@ import { isBoxed, isSolved, solvedCube } from '@/lib/cube'
 import { formatMove, movesFor, scrambleTurns } from '@/lib/moves'
 import { applyMove, applyMoves, turnAllowed } from '@/lib/turn'
 import type { Cube } from '@/lib/types'
-import { aBroken } from '@/lib/violetScramble'
+import { cubeToEdit, emptyEdit, paint, progress } from '@/lib/editor'
+import { formOf } from '@/lib/forms'
+import { normalIndex } from '@/lib/geometry'
+import { validateCube } from '@/lib/validate'
+import { aBroken } from '@/lib/violetStates'
 import { seededRng } from '../helpers'
 
 const SOLVED = solvedCube('violet')
+
+/** A state entered as one would: its form, then each sticker painted (the
+ *  editor completing what it can). */
+function paintedIn(cube: Cube) {
+  const form = formOf(cube)
+  let edit = emptyEdit('violet', form)
+  for (const c of cube) {
+    for (const s of c.stickers) {
+      edit = paint(edit, 'violet', c.position.join(), normalIndex(s.normal), s.color, form)
+    }
+  }
+  return edit
+}
 
 /** What one sees of a state: where the big and the mini cubes stand
  *  (pieces of a kind are alike). */
@@ -98,7 +115,11 @@ describe('Violet', () => {
           seen.add(key(after))
           next.push(after)
           expect(isSolved(after)).toBe(false)
-          if (isBoxed(after)) cubes++
+          if (isBoxed(after)) {
+            cubes++
+            // Each one can be painted in, sticker by sticker.
+            expect(paintedIn(after)).toEqual(cubeToEdit(after))
+          }
         }
       }
       frontier = next
@@ -107,7 +128,7 @@ describe('Violet', () => {
     expect(seen.size).toBe(41760)
     expect(depth).toBe(30)
     expect(cubes).toBe(35)
-  })
+  }, 30000)
 
   it('scrambles away from the cube, A broken up, wherever it starts', () => {
     for (let seed = 0; seed < 20; seed++) {
@@ -119,6 +140,35 @@ describe('Violet', () => {
         expect(isBoxed(after)).toBe(false)
       }
     }
+  })
+
+  it('refuses, entered, two minis of A with their colors swapped', () => {
+    // The minis of one color, on the right (lime) and on top (yellow).
+    const swap = { L: 'Y', Y: 'L' } as const
+    const swapped = SOLVED.map((c) =>
+      c.stickers.length === 1 && c.stickers[0]!.color !== 'V'
+        ? {
+            ...c,
+            stickers: c.stickers.map((s) =>
+              s.color === 'L' || s.color === 'Y' ? { ...s, color: swap[s.color] } : s,
+            ),
+          }
+        : c,
+    )
+    expect(validateCube(SOLVED)).toEqual({ ok: true })
+    expect(validateCube(swapped)).toEqual({ ok: false, error: 'impossible' })
+  })
+
+  it('is painted in as it stands, scrambled, sticker by sticker', () => {
+    for (let seed = 0; seed < 10; seed++) {
+      const cube = applyMoves(SOLVED, scrambleTurns('violet', 25, seededRng(seed), SOLVED))
+      expect(paintedIn(cube)).toEqual(cubeToEdit(cube))
+    }
+  })
+
+  it('is entered with its big cubes already violet: only A to paint', () => {
+    // In its box, A's three minis of one sticker can only stand home: set too.
+    expect(progress(emptyEdit('violet'), 'violet')).toMatchObject({ filled: 24, total: 33 })
   })
 
   it('is written like a cube', () => {

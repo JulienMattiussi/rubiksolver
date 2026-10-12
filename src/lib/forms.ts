@@ -2,7 +2,7 @@ import { cubeShape, solvedCube, turnDims } from './cube'
 import { AXIS_ROTATIONS, normalIndex } from './geometry'
 import { layerTurnsOf } from './moves'
 import { applyMove, turnAllowed } from './turn'
-import { SHAPE_SHIFTS, type Cube, type CubeShape } from './types'
+import { SHAPE_SHIFTS, type Cube, type CubeShape, type Turn } from './types'
 
 /**
  * The forms a shape-shifting puzzle takes (the 2x2x4 tower), for the editor:
@@ -25,6 +25,8 @@ export interface Form {
   readonly cube: Cube
   /** Turns from the box. */
   readonly distance: number
+  /** The fewest turns from the box to it (to try on the real puzzle). */
+  readonly moves: readonly Turn[]
   /** Pieces sticking out alone: touching at most one other piece. */
   readonly tips: number
 }
@@ -84,26 +86,27 @@ export function formsOf(shape: CubeShape): readonly Form[] {
   if (forms) return forms
   const solved = solvedCube(shape)
   if (!SHAPE_SHIFTS[shape]) {
-    forms = [{ cube: solved, distance: 0, tips: 0 }]
+    forms = [{ cube: solved, distance: 0, moves: [], tips: 0 }]
   } else {
     const turns = layerTurnsOf(shape)
     const seen = new Set([lookOf(solved)])
     const held = new Map<string, Form>([
-      [heldLook(solved), { cube: solved, distance: 0, tips: tipsOf(solved, shape) }],
+      [heldLook(solved), { cube: solved, distance: 0, moves: [], tips: tipsOf(solved, shape) }],
     ])
-    let frontier = [solved]
+    let frontier: { state: Cube; moves: Turn[] }[] = [{ state: solved, moves: [] }]
     for (let distance = 1; frontier.length; distance++) {
-      const next: Cube[] = []
-      for (const state of frontier) {
+      const next: typeof frontier = []
+      for (const { state, moves: path } of frontier) {
         for (const turn of turns) {
           if (!turnAllowed(state, turn)) continue
           const cube = applyMove(state, turn)
           const look = lookOf(cube)
           if (seen.has(look)) continue
           seen.add(look)
-          next.push(cube)
+          const moves = [...path, turn]
+          next.push({ state: cube, moves })
           const key = heldLook(cube)
-          if (!held.has(key)) held.set(key, { cube, distance, tips: tipsOf(cube, shape) })
+          if (!held.has(key)) held.set(key, { cube, distance, moves, tips: tipsOf(cube, shape) })
         }
       }
       frontier = next

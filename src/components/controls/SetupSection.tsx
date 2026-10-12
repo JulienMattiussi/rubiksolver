@@ -66,18 +66,13 @@ export function SetupSection() {
             {t.reset}
           </Button>
         )}
-        {/* The Violet has no entry yet: its pieces are all alike. */}
-        {shape !== 'violet' && (
-          <>
-            <Button onClick={enterEdit} disabled={busy} variant="edit">
-              <FEATURE_ICON.edit className="size-4" aria-hidden />
-              {t.editCube}
-            </Button>
-            <Button onClick={enterFromCurrent} disabled={busy} variant="ghost">
-              {t.fromCurrent}
-            </Button>
-          </>
-        )}
+        <Button onClick={enterEdit} disabled={busy} variant="edit">
+          <FEATURE_ICON.edit className="size-4" aria-hidden />
+          {t.editCube}
+        </Button>
+        <Button onClick={enterFromCurrent} disabled={busy} variant="ghost">
+          {t.fromCurrent}
+        </Button>
         <Button
           // Overwriting another memorized state asks first; a first save does not.
           onClick={() => (saved ? setConfirmReplace(true) : save(cube))}

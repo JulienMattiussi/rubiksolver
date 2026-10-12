@@ -3,7 +3,15 @@ import { lookOf } from './forms'
 import { AXIS_ROTATIONS, normalIndex } from './geometry'
 import { layerTurnsOf } from './moves'
 import { applyMove } from './turn'
-import { isStar, type Color, type Cube, type CubeShape, type Cubie, type Vec3 } from './types'
+import {
+  isStar,
+  SHAPE_SHIFTS,
+  type Color,
+  type Cube,
+  type CubeShape,
+  type Cubie,
+  type Vec3,
+} from './types'
 
 /**
  * Slot and placement tables backing the guided editor (see editor.ts).
@@ -138,9 +146,12 @@ export function tablesFor(shape: CubeShape, form?: Cube): SlotTables {
       slots,
       paintableSlots,
       byKey: new Map(slots.map((s) => [s.key, s])),
-      placements: boxed
-        ? computePlacements(shape, paintableSlots)
-        : turnedPlacements(shape, paintableSlots, fixed),
+      // A puzzle that shifts can come back to its box with pieces turned in
+      // place (the Violet's minis): any turn of a piece, the check after.
+      placements:
+        boxed && !SHAPE_SHIFTS[shape]
+          ? computePlacements(shape, paintableSlots)
+          : turnedPlacements(shape, paintableSlots, fixed),
       budgets: computeBudgets(shape, fixed),
     }
     TABLES.set(key, tables)
@@ -171,6 +182,7 @@ function turnedPlacements(
       const options = new Map<string, PlacementOption>()
       solved.forEach((cubie, i) => {
         if (fixed.has(i) || cubie.stickers.length !== slot.stickers.length) return
+        if (parities(cubie.position) !== parities(slot.position)) return
         for (const turn of AXIS_ROTATIONS) {
           const colors: Placement = {}
           for (const s of cubie.stickers) colors[normalIndex(turn(s.normal))] = s.color
@@ -189,6 +201,15 @@ function turnedPlacements(
     }),
   )
 }
+
+/** The parities of a position's coordinates, in any order: no turn changes
+ *  them, so a piece only ever reaches slots that share them (the Violet's
+ *  big cubes, on odd coordinates, never stand where a mini does). */
+const parities = (p: readonly number[]) =>
+  p
+    .map((v) => Math.abs(v) % 2)
+    .sort()
+    .join()
 
 function placementKey(p: Placement): string {
   return Object.keys(p)

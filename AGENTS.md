@@ -101,7 +101,7 @@ src/
 │   ├── morph.ts          # Pyramorphinx : un 2x2 taillé en tétraèdre (coins à 3 stickers, milieux de face à 1)
 │   ├── oct4.ts           # 4-Trajber's Octahedron : un 4x4x4 sans cubies internes, un sticker par pièce (face de son octant)
 │   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
-│   ├── violetScramble.ts # Son mélange : marche sans retour sur un état déjà vu, jusqu'à disloquer A
+│   ├── violetStates.ts   # Ses états vus (gros cubes pareils) : atteignables (validation), mélange sans retour
 │   ├── rainbow.ts        # Rainbow : cuboctaèdre, 12 pièces aux milieux des arêtes du cube, triangles en tiers de tour, notation
 │   ├── cycleLibrary.ts   # 3-cycles purs des grands cubes (commutateurs [A, X Y X'] conjugués), findCycle, placeAll, borrow
 │   ├── ghost.ts          # Floppy Ghost : 10 emplacements autour du centre, demi-tours = réflexions entières, notation fan2cube
@@ -464,12 +464,19 @@ diffèrent que par la façon de tenir le puzzle (rotation entière, miroirs à
 part) sont fusionnées : 102, en vignettes (`formDrawing`) groupées par
 nombre de petits cubes isolés aux pointes (pièces qui n'en touchent qu'une
 autre : ce qu'on remarque d'abord sur une tour déformée), puis par
-éloignement de la boîte ; survoler une vignette montre la forme en 3D. La forme suffit à dire où sont les stickers. Les
+éloignement de la boîte ; survoler une vignette montre la forme en 3D, et
+la suite de coups la plus courte qui l'atteint depuis la boîte
+(`Form.moves`, pour la vérifier sur le vrai puzzle). La forme suffit à dire où sont les stickers. Les
 fonctions de saisie prennent cette forme (`form`, un état de cette forme) ;
 ses emplacements sont les siens, et un emplacement accepte toute pièce de
 son type tournée pour présenter ses stickers sur ses faces (aucune
-orientation du puzzle entier ne l'y met, la boîte étant rompue) : la
-validation dit ensuite si l'état est atteignable. « Depuis l'état actuel »
+orientation du puzzle entier ne l'y met, la boîte étant rompue), pourvu
+que la parité de ses coordonnées soit celle de l'emplacement (aucun coup ne
+la change : un gros cube du Violet ne va jamais où va un mini-cube) : la
+validation dit ensuite si l'état est atteignable. Il en va de même dans sa
+boîte : un puzzle déformable peut y revenir avec des pièces tournées sur
+elles-mêmes (le coin de A du Violet), que les seules rotations du puzzle
+entier n'y mettraient pas. « Depuis l'état actuel »
 saisit un puzzle déformé dans sa forme, sans passer par le choix. Un futur
 puzzle déformable n'a rien à ajouter : `formsOf` se déduit de ses coups.
 
@@ -846,9 +853,8 @@ un **2x2x2** dont le coin A (haut, avant, droite) est lui-même coupé en
 2x2x2 mini-cubes, et dont le **cœur** est le mini-cube de A tourné vers le
 centre, invisible. Ses faces tournent autour de ce cœur, décalé d'un quart
 de la largeur : chaque quart de tour sort sa couche de la boîte, il se
-**déforme**. Tout violet sauf les trois faces extérieures de A (jaune
-dessus, bleu devant, vert citron à droite : un choix, l'ordre n'étant pas
-connu) : résolu quand il redevient un cube, chaque couleur de A sur une
+**déforme**. Tout violet sauf les trois faces extérieures de A (vert
+citron dessus, bleu devant, jaune à droite) : résolu quand il redevient un cube, chaque couleur de A sur une
 face (`violetSolved` ; ses faces n'étant pas unies, `isSolved` lui laisse
 la main).
 
@@ -870,7 +876,7 @@ au plus, aucune bloquée ; avec les couleurs de A, **41 760 états**, à 30
 coups au plus, dont 35 en forme de cube mais pas résolus : testé en
 parcourant tout l'espace.
 
-**Mélange** (`violetScramble.ts`) : des coups au hasard se défont l'un
+**Mélange** (`violetStates.ts`) : des coups au hasard se défont l'un
 l'autre (la plupart sont bloqués) et le replient en cube, A entier. Le
 sien ne repasse jamais par un état déjà vu (départ compris) et continue
 au-delà de sa longueur tant que A n'est pas disloqué.
@@ -878,10 +884,18 @@ au-delà de sa longueur tant que A n'est pas disloqué.
 **Rendu** (`three/violetGeometry.ts`) : chaque pièce est une boîte, violette
 sur toutes ses faces (comme le vrai puzzle, aussi celles qu'un coup fait
 apparaître) sauf les stickers de A ; `PolyDrawing.offset` recentre la boîte, décalée du cœur autour
-duquel tout tourne. **Pas encore de méthode ni de saisie** : le panneau de
-résolution est grisé avec un message (`noMethodYet`), les boutons de saisie
-sont masqués, et la suite de conformance saute ces deux tests
-(`unsolved`).
+duquel tout tourne. **Pas encore de méthode** : le panneau de résolution
+est grisé avec un message (`noMethodYet`), et la suite de conformance saute
+ce test (`methodless`).
+
+**Saisie** : comme la tour, par sa forme (388, les rotations du puzzle
+entier fusionnées), puis ses couleurs. Les gros cubes arrivent déjà
+violets : `emptyEdit` remplit tout sticker que toutes les pièces qui
+tiennent dans son emplacement montrent d'une seule couleur (dans la boîte,
+les trois mini-cubes de A à un sticker aussi : ils n'y sont jamais
+ailleurs). Une face sans sticker à saisir garde sa couleur dans la vue.
+Sans méthode, la validation vérifie que l'état est parmi les 41 760
+atteignables (`violetReachable`, calculés une fois, environ une seconde).
 
 ### Le Professor Pyraminx (`pyra5`)
 

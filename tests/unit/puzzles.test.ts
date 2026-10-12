@@ -46,8 +46,8 @@ const PUZZLES: ReadonlyArray<{
   /** Stickers the editor counts: the visible ones. */
   painted: number
   scramble: number
-  /** Not yet solved by any method, nor entered (the Violet). */
-  unsolved?: true
+  /** Not yet solved by any method (the Violet). */
+  methodless?: true
 }> = [
   { shape: '2', pieces: 8, stickers: 24, orientations: 24, painted: 24, scramble: 11 },
   { shape: '3', pieces: 27, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
@@ -73,7 +73,7 @@ const PUZZLES: ReadonlyArray<{
     orientations: 3,
     painted: 33,
     scramble: 25,
-    unsolved: true,
+    methodless: true,
   },
   { shape: 'ghost', pieces: 11, stickers: 36, orientations: 1, painted: 36, scramble: 15 },
   { shape: 'star', pieces: 14, stickers: 40, orientations: 12, painted: 40, scramble: 30 },
@@ -110,7 +110,7 @@ const scrambled = (shape: CubeShape, length: number, seed: number) => {
 
 describe.each(PUZZLES)(
   '$shape',
-  ({ shape, pieces, stickers, orientations, painted, scramble, unsolved }) => {
+  ({ shape, pieces, stickers, orientations, painted, scramble, methodless }) => {
     const SOLVED = solvedCube(shape)
 
     it('is built solved and recognized by its pieces', () => {
@@ -145,7 +145,7 @@ describe.each(PUZZLES)(
       expect(stateKey(decodeCube(encodeCube(cube))!)).toBe(stateKey(cube))
     })
 
-    it.skipIf(unsolved)(
+    it.skipIf(methodless)(
       'is solved by each of its methods, held any way up, in named steps',
       () => {
         const methods = methodsFor(shape)
@@ -179,7 +179,7 @@ describe.each(PUZZLES)(
       60000,
     )
 
-    it.skipIf(unsolved)('goes through the editor and back, every sticker counted', () => {
+    it('goes through the editor and back, every sticker counted', () => {
       expect(progress(emptyEdit(shape), shape).total).toBe(painted)
       expect(progress(cubeToEdit(SOLVED), shape)).toMatchObject({ filled: painted, total: painted })
       for (let seed = 0; seed < 3; seed++) {

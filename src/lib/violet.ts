@@ -26,9 +26,9 @@ const half = (c: Cubie) => (Math.abs(c.position[0]) % 2 === 1 ? 2 : 1)
 const axis = (a: number, sign: number): Vec3 =>
   [0, 1, 2].map((d) => (d === a ? sign : 0)) as unknown as Vec3
 
-/** A's colors, by the axis its face looks along (the top yellow, the front
- *  blue, the right lime). */
-const A_COLORS: readonly Color[] = ['L', 'Y', 'B']
+/** A's colors, by the axis its face looks along (the right yellow, the top
+ *  lime, the front blue). */
+const A_COLORS: readonly Color[] = ['Y', 'L', 'B']
 
 /** The solved Violet: the 7 big cubes, all violet, then A's 8 minis (the
  *  core first, hidden), in A's colors. */

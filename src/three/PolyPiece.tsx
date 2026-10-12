@@ -47,8 +47,8 @@ interface PolyPieceProps {
   drawing: PolyDrawing
   highlighted?: boolean
   /** Edit mode: the hex shown by the sticker of normal index `ni` (gray
-   *  while unpainted), and what a click on it does. */
-  stickerHex?: (ni: number) => string
+   *  while unpainted; none: its own color), and what a click on it does. */
+  stickerHex?: (ni: number) => string | undefined
   onSelect?: (ni: number) => void
 }
 
@@ -74,9 +74,9 @@ export function PolyPiece({
         const hex =
           paint === 'body'
             ? PLASTIC
-            : stickerHex && ni !== undefined
-              ? stickerHex(ni)
-              : (drawing.skin ?? COLOR_HEX[paint])
+            : ((ni !== undefined ? stickerHex?.(ni) : undefined) ??
+              drawing.skin ??
+              COLOR_HEX[paint])
         const clickable = onSelect && ni !== undefined
         return (
           <mesh

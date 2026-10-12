@@ -28,7 +28,7 @@ export function PolyEditView() {
   const pieces = entersByPieces(shape) ? piecesIn(edit, shape) : undefined
   return (
     <group rotation={[0, drawing.yaw, 0]}>
-      <group quaternion={drawing.orient ?? [0, 0, 0, 1]}>
+      <group quaternion={drawing.orient ?? [0, 0, 0, 1]} position={drawing.offset ?? [0, 0, 0]}>
         {slotsFor(shape, form).map((slot) => {
           const byNi = new Map(slot.stickers.map((s) => [s.ni, s.id]))
           // The slot's piece as solved: its geometry lists every sticker.
@@ -51,7 +51,9 @@ export function PolyEditView() {
             )
           }
           const hex = (ni: number) => {
-            const color = edit[byNi.get(ni) ?? '']
+            // A face with no sticker to enter keeps its own (the Violet's).
+            if (!byNi.has(ni)) return undefined
+            const color = edit[byNi.get(ni)!]
             return color ? (drawing.skin ?? COLOR_HEX[color]) : EMPTY_COLOR
           }
           return (

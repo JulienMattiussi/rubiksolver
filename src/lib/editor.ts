@@ -53,12 +53,25 @@ export function canPaint(shape: CubeShape, slotKey: string, form?: Cube): boolea
 /** Painted stickers, keyed by sticker id. Absent id = not yet painted. */
 export type EditStickers = Record<string, Color>
 
-/** A blank slate: only the fixed pieces are set (see `Slot.paintable`). */
+/** A blank slate: only the fixed pieces are set (see `Slot.paintable`),
+ *  and any sticker every piece that fits its slot shows in one color (the
+ *  Violet's big cubes, violet all over). */
 export function emptyEdit(shape: CubeShape, form?: Cube): EditStickers {
+  const tables = tablesFor(shape, form)
   const edit: EditStickers = {}
-  for (const slot of slotsFor(shape, form)) {
-    if (slot.paintable) continue
-    for (const s of slot.stickers) edit[s.id] = s.solvedColor
+  for (const slot of tables.slots) {
+    if (!slot.paintable) {
+      for (const s of slot.stickers) edit[s.id] = s.solvedColor
+      continue
+    }
+    // Entered piece by piece (the Floppy Ghost): each piece is put whole.
+    if (entersByPieces(shape)) continue
+    const options = tables.placements.get(slot.key) ?? []
+    for (const s of slot.stickers) {
+      const colors = new Set(options.map((option) => option.colors[s.ni]))
+      const [only] = colors
+      if (colors.size === 1 && only) edit[s.id] = only
+    }
   }
   return edit
 }
