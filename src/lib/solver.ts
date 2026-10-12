@@ -8,6 +8,7 @@ import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { PETRUS_PLAN } from './methods/petrus'
 import { PYRAMINX_PLAN } from './methods/pyraminx'
 import { PYRAMINX4_PLAN } from './methods/pyraminx4'
+import { PYRAMINX5_PLAN } from './methods/pyraminx5'
 import { JING_PLAN } from './methods/jing'
 import { MORPH_PLAN } from './methods/morph'
 import { withCentersHome } from './methods/recenter'
@@ -18,6 +19,7 @@ import { STAR4_PLAN } from './methods/starPrism4'
 import { TOWER_PLAN } from './methods/tower'
 import { ZZ_PLAN } from './methods/zz'
 import { reductionPlan } from './solver4/steps'
+import { reduction5Plan } from './solver5/steps'
 import { buildSteps, planOutline, type MethodPlan, type SolveStep } from './solverKit'
 import type { Cube, CubeShape, Turn } from './types'
 
@@ -44,12 +46,18 @@ const SOLVE_METHODS = [
   { id: 'roux', plans: { '3': withCentersHome(ROUX_PLAN) } },
   { id: 'petrus', plans: { '3': withCentersHome(PETRUS_PLAN) } },
   { id: 'zz', plans: { '3': withCentersHome(ZZ_PLAN) } },
-  { id: 'reduction', plans: { '4': reductionPlan(BEGINNER_PLAN) } },
-  { id: 'reductionCfop', plans: { '4': reductionPlan(CFOP_PLAN) } },
+  {
+    id: 'reduction',
+    plans: { '4': reductionPlan(BEGINNER_PLAN), '5': reduction5Plan(BEGINNER_PLAN) },
+  },
+  {
+    id: 'reductionCfop',
+    plans: { '4': reductionPlan(CFOP_PLAN), '5': reduction5Plan(CFOP_PLAN) },
+  },
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
   { id: 'equatorFirst', plans: { '223': SLIM_TOWER_PLAN } },
   { id: 'centersFirst', plans: { pyra: PYRAMINX_PLAN } },
-  { id: 'wingsFirst', plans: { pyra4: PYRAMINX4_PLAN } },
+  { id: 'wingsFirst', plans: { pyra4: PYRAMINX4_PLAN, pyra5: PYRAMINX5_PLAN } },
   { id: 'jingCornersFirst', plans: { jing: JING_PLAN } },
   { id: 'asPocket', plans: { morph: MORPH_PLAN } },
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },

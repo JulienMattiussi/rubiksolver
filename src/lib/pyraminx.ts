@@ -202,25 +202,32 @@ export const PYRA_SYMMETRIES: readonly ((cube: Cube) => Cube)[] = (['U', 'L'] as
 
 /** Layers per corner of each Pyraminx (the Jing counts 2: its pieces sit
  *  within +-1, and its deep turns need no slice planes). */
-const PYRA_SIZE: Record<PyraShape, number> = { pyra: 3, pyra4: 4, jing: 2 }
+const PYRA_SIZE: Record<PyraShape, number> = { pyra: 3, pyra4: 4, pyra5: 5, jing: 2 }
 
 /** What a turn takes under its corner: the Pyraminx's layer (`corners`), a
- *  tip, one of the Master's slices, or the Jing's half (`deep`). */
-export type PyraLayer = 'corners' | 'tips' | 'slice1' | 'slice2' | 'slice3' | 'deep'
+ *  tip, one of the Master's or the Professor's slices (the last one is the
+ *  face opposite the corner), or the Jing's half (`deep`). */
+export type PyraLayer = 'corners' | 'tips' | 'slice1' | 'slice2' | 'slice3' | 'slice4' | 'deep'
 
 /** The layers each Pyraminx turns, in the pad's and the guide's order. */
 export const PYRA_LAYERS: Record<PyraShape, readonly PyraLayer[]> = {
   pyra: ['corners', 'tips'],
   pyra4: ['tips', 'slice1', 'slice2', 'slice3'],
+  pyra5: ['tips', 'slice1', 'slice2', 'slice3', 'slice4'],
   jing: ['deep'],
 }
+
+/** Whether a layer is the face opposite the corner: the last slice of the
+ *  Master's (its third) or the Professor's (its fourth). */
+export const isOppositeFace = (shape: PyraShape, layer: PyraLayer): boolean =>
+  layer.startsWith('slice') && PYRA_LAYERS[shape].at(-1) === layer
 
 /** The turn of a corner's layer. */
 export function pyraTurn(vertex: PyraVertex, layer: PyraLayer, amount: 1 | 2): PyraMove {
   if (layer === 'corners') return { vertex, amount }
   if (layer === 'tips') return { vertex, amount, tip: true }
   if (layer === 'deep') return { vertex, amount, deep: true }
-  return { vertex, amount, slice: Number(layer.slice(5)) as 1 | 2 | 3 }
+  return { vertex, amount, slice: Number(layer.slice(5)) as 1 | 2 | 3 | 4 }
 }
 
 /** The layer a turn takes. */

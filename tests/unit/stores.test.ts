@@ -3,7 +3,7 @@ import { isSolved, solvedCube } from '@/lib/cube'
 import { applyMoves } from '@/lib/turn'
 import { cubeToEdit, emptyEdit } from '@/lib/editor'
 import { parseMoves } from '@/lib/moves'
-import { planKey, selectBusy, useCube } from '@/store/cubeStore'
+import { planKey, selectBusy, solvedByTurn, useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { useSaved } from '@/store/savedStore'
 
@@ -223,5 +223,25 @@ describe('saved store', () => {
     useSaved.getState().restore('3')
     expect(useSaved.getState().saved['3']).toBeUndefined()
     expect(isSolved(useCube.getState().cube)).toBe(true)
+  })
+})
+
+describe('solvedByTurn', () => {
+  it('fires when a turn solves the cube, never on a reset', () => {
+    let shows = 0
+    const unsubscribe = useCube.subscribe((next, prev) => {
+      if (solvedByTurn(prev, next)) shows++
+    })
+    const play = (moves: string) => {
+      for (const move of parseMoves(moves)) useCube.getState().pushMove(move)
+      drain()
+    }
+    play('R U')
+    play("U' R'")
+    expect(shows).toBe(1)
+    play('F')
+    useCube.getState().reset()
+    expect(shows).toBe(1)
+    unsubscribe()
   })
 })

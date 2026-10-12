@@ -14,7 +14,7 @@ test('loads, renders the cube canvas and the controls', async ({ page }) => {
   await page.goto('/#/fr/3x3')
 
   await expect(page.getByRole('heading', { name: 'Rubik Solver' })).toBeVisible()
-  await expect(page.locator('canvas')).toBeVisible()
+  await expect(page.locator('canvas:not([aria-hidden])')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Mélanger' })).toBeVisible()
 
   // No runtime error (e.g. WebGL/R3F failing to mount).
@@ -65,7 +65,7 @@ test('mirror cube: the variant is a skin, it keeps the state and renders', async
   // A mirror size switch mounts fine too (the 4x4 has middle layers).
   await pickCube(page, 'Miroir', '4x4 miroir')
   await expect(page.getByText('Cube résolu')).toBeVisible()
-  await expect(page.locator('canvas')).toBeVisible()
+  await expect(page.locator('canvas:not([aria-hidden])')).toBeVisible()
 
   // The editor paints thicknesses instead of colors, and still applies.
   await page.getByRole('button', { name: /Depuis l.?.tat actuel/ }).click()
@@ -201,13 +201,16 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
     ['Standard', '2x2 (Pocket)'],
     ['Standard', '3x3'],
     ['Standard', '4x4'],
+    ['Standard', '5x5'],
     ['Miroir', '3x3 miroir'],
     ['Tower', '2x2x3 (Slim Tower)'],
     ['Tower', '3x3x2 (Domino)'],
     ['Plats', '1x2x3'],
     ['Plats', '3x3x1 (Floppy)'],
+    ['Plats', 'Floppy Ghost'],
     ['Pyramides', 'Pyraminx'],
     ['Pyramides', 'Master Pyraminx (4x4)'],
+    ['Pyramides', 'Professor Pyraminx (5x5)'],
     ['Pyramides', 'Pyraminx Jing'],
     ['Pyramides', 'Pyramorphinx'],
     ['Étoiles', '2-Star Prism (UFO)'],
@@ -231,6 +234,7 @@ const ENTERED: [string, string, string][] = [
   ['Tower', '2x2x4', '40 / 40 stickers'],
   ['Pyramides', 'Pyraminx', '36 / 36 stickers'],
   ['Pyramides', 'Master Pyraminx (4x4)', '64 / 64 stickers'],
+  ['Pyramides', 'Professor Pyraminx (5x5)', '100 / 100 stickers'],
   ['Pyramides', 'Pyraminx Jing', '28 / 28 stickers'],
   ['Pyramides', 'Pyramorphinx', '16 / 16 stickers'],
   // Entered piece by piece: its ten pieces counted.
@@ -311,7 +315,7 @@ test('home page: a gallery to choose from, the solve block grayed, the title lea
   await expect(page.getByRole('button', { name: 'Résoudre' })).toBeDisabled()
   await page.getByRole('button', { name: 'Floppy Ghost' }).click()
   await expect(page).toHaveURL(/#\/fr\/floppy-ghost$/)
-  await expect(page.locator('canvas')).toBeVisible()
+  await expect(page.locator('canvas:not([aria-hidden])')).toBeVisible()
   await page.getByRole('button', { name: 'Rubik Solver' }).click()
   await expect(page).toHaveURL(/#\/fr$/)
   await expect(

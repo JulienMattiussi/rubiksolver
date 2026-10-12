@@ -248,10 +248,11 @@ export function isSolved(cube: Cube): boolean {
 export function stateKey(cube: Cube): string {
   let out = ''
   for (const c of cube) {
-    // One char per position: coordinates live in [-3,3], base-7 digits are
-    // injective (offset 256 keeps the char clear of the sticker characters).
+    // One char per position: coordinates live in [-4,4] (the Professor
+    // Pyraminx's reach), base-9 digits are injective (offset 256 keeps the
+    // char clear of the sticker characters).
     out += String.fromCharCode(
-      256 + (c.position[0] + 3) * 49 + (c.position[1] + 3) * 7 + (c.position[2] + 3),
+      256 + (c.position[0] + 4) * 81 + (c.position[1] + 4) * 9 + (c.position[2] + 4),
     )
     for (const s of c.stickers) out += normalIndex(s.normal).toString(36) + s.color
     out += '|'

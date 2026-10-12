@@ -2,12 +2,12 @@
 
 ## Description du projet
 
-POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3
-ou 4x4**, **classique ou miroir**, plus cinq cuboïdes : le **1x2x3**, la
+POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3,
+4x4 ou 5x5**, **classique ou miroir** (sauf le 5x5), plus cinq cuboïdes : le **1x2x3**, la
 **tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**
 et le **Floppy 3x3x1**, le **Floppy Ghost** (un Floppy Megaminx découpé en
 pentagramme dans un carré, qui se déforme), et cinq puzzles non cubiques : le **Pyraminx**, le
-**Master Pyraminx** (4x4), le **Pyraminx Jing** (pièces courbes), le
+**Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le **Pyraminx Jing** (pièces courbes), le
 **Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
@@ -76,7 +76,7 @@ voisins (ex : `big-bang-clicker`).
 > cube** : une forme n'est qu'un triplet de nombres de couches (`SHAPE_DIMS`),
 > une grille par axe, ce qui donne le 1x2x3 (`{-1,0,1} x {-1,1} x {0}`, 6
 > pièces), la tour et le Domino. Un `Move` désigne une face + éventuellement
-> `depth: 2` (tranche interne) et `wide` (couches 1+2) ; `moveSlab` en déduit
+> `depth: 2` (tranche interne ; `3` : la tranche du milieu d'un 5x5) et `wide` (couches 1+2) ; `moveSlab` en déduit
 > la tranche tournée (l'intervalle entre deux plans de coupe), source unique
 > partagée par `applyMove`, l'animation et l'aperçu (`turnedBy`). Les coups
 > agissent sur le **mécanisme** (`turnDims`) : le puzzle lui-même, sauf la tour,
@@ -126,6 +126,8 @@ src/
 │   │   ├── pyraKit.ts    #   briques des Pyraminx : couleurs des faces, coins tournés en place, formules vues de chaque côté
 │   │   ├── pyraminx.ts   #   Pyraminx : centres d'abord (formules de fan2cube.fr)
 │   │   ├── pyraminx4.ts  #   Master Pyraminx : ailes puis co-ailes (3-cycles d'ailes, formules de fan2cube.fr)
+│   │   ├── pyraminx5.ts  #   Professor Pyraminx : ailes, co-ailes, arêtes, co-centres, centres (fan2cube.fr)
+│   │   ├── pyraCycles.ts #   3-cycles d'une sorte de pièce par conjugaison (cycleTable), chiralité (handedHome), placement
 │   │   ├── jing.ts       #   Pyraminx Jing : sommets d'abord (crochet [DH] de fan2cube.fr)
 │   │   ├── morph.ts      #   Pyramorphinx : comme un Pocket (lu comme un 2x2, solveur optimal du 2x2)
 │   │   ├── starPrism.ts  #   Star Prism : isoler puis permuter (formule K de fan2cube.fr)
@@ -139,7 +141,14 @@ src/
 │   │   ├── edges.ts      #   appariement des ailes (échanges nets FR-bas <-> BR/FL-haut, goal-checkés), flip L2E
 │   │   ├── project.ts    #   projection homomorphe du 4x4 réduit vers un 3x3 virtuel (via3x3)
 │   │   ├── parity.ts     #   détecteurs (flip, signes de permutation, vrille) + algos de parité OLL/PLL
-│   │   └── steps.ts      #   reductionPlan(plan 3x3) : préfixe centres/arêtes/parité + étapes 3x3 projetées
+│   │   └── steps.ts      #   reductionPlan(plan 3x3) : préfixe centres/arêtes/parité + étapes 3x3 projetées (projectPlan, partagé)
+│   ├── solver5/          # Solveur 5x5 par réduction :
+│   │   ├── kinds.ts      #   sortes de pièces par position (coins, milieux et ailes d'arêtes, centres fixes, en croix, diagonaux)
+│   │   ├── cycles.ts     #   bibliothèques de 3-cycles purs (commutateurs [tranche, X Y X'] et conjugués), findCycle
+│   │   ├── centers.ts    #   centres face par face : deux coups si possible, sinon un 3-cycle de centres
+│   │   ├── edges.ts      #   ailes amenées sur leur milieu par 3-cycles d'ailes, parité d'arête (algo OLL du 4x4)
+│   │   ├── project.ts    #   projection du 5x5 réduit vers un 3x3 (coins, milieux d'arêtes, centres fixes)
+│   │   └── steps.ts      #   reduction5Plan(plan 3x3)
 │   ├── editorTables.ts   # Tables de saisie par forme : slots, placements valides étiquetés par pièce physique, budgets,
 │   │                     #   pièces fixes pré-remplies (centres du 3x3, demi-vis gauche des étoiles), stickers cachés (4-Star)
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
@@ -207,6 +216,7 @@ src/
 │   ├── picker/           # Choix du cube : CubePicker (bouton + modale), PickerTile, PuzzleIcon (vignette SVG),
 │   │                     #   CategoryIcon (plusieurs puzzles groupés : une catégorie se distingue d'un puzzle)
 │   ├── guide/            # Guide des mouvements : MoveGuideButton (dans PadHeader), MoveGuideDialog
+│   ├── celebration/      # Fireworks : petit feu d'artifice (canvas 2D monté le temps du spectacle) quand un coup résout
 │   ├── home/             # Accueil : HomeGallery (galerie de 7 modèles + ce que fait l'app, à la place de la scène)
 │   ├── solve/            # Résolution : SolvePanel, MethodSelect, StepList
 │   └── edit/             # Saisie : EditPanel, FormPicker (forme d'un puzzle déformable), ColorPalette
@@ -219,7 +229,7 @@ tests/
 │                         #   methods (Roux/Petrus/ZZ : objectifs et jeux de coups), algs, tower, domino (effet de chaque
 │                         #   formule), floppy, slimTower, pieceSearch, flat123 (espaces d'états entiers), editor, validate, shape, snapshot,
 │                         #   star (modèle, formules fan2cube, méthodes des deux étoiles), starEditor (saisie des étoiles),
-│                         #   pyraminx, pyraminx4, jing (notation, formules fan2cube, états impossibles),
+│                         #   pyraminx, pyraminx4, pyraminx5, jing (notation, formules fan2cube, états impossibles),
 │                         #   moveGuide, isometric, layout, stores, easing, speed, progress
 ├── component/            # Vitest + Testing Library (Controls, SegmentedToggle)
 └── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution (3x3, 2x2, 1x2x3, 4x4), saisie
@@ -273,9 +283,10 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   permutation du haut - 3 étapes.
 - **Fridrich / CFOP** (`cfop`, 3x3) : Croix, puis **F2L** (paires coin+arête
   par colonne), puis **OLL**, puis **PLL** - 4 étapes.
-- **Réduction** (`reduction` et `reductionCfop`, 4x4) : Centres, Appariement
-  des arêtes, Correction de parité (étape émise seulement si nécessaire), puis
-  la phase 3x3 de la méthode choisie (par couches ou CFOP) - voir plus bas.
+- **Réduction** (`reduction` et `reductionCfop`, 4x4 et 5x5) : Centres,
+  Appariement des arêtes, Correction de parité (étape émise seulement si
+  nécessaire), puis la phase 3x3 de la méthode choisie (par couches ou CFOP)
+  - voir plus bas, et « Le 5x5 par réduction ».
 - **Roux** (`roux`, 3x3) : premier bloc 1x2x3 à gauche (arête DL, paire
   avant, paire arrière), second bloc à droite en `<U, R, M, r>` seulement,
   CMLL en 2 temps (orienter avec Sune/Antisune, permuter), puis les six
@@ -308,9 +319,10 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   placées, retournées, centres - voir « Le Pyraminx Jing ».
 - **Comme un Pocket** (`asPocket`, Pyramorphinx) : une étape, la solution
   optimale du 2x2 qu'il est - voir « Le Pyramorphinx ».
-- **Ailes puis co-ailes** (`wingsFirst`, Master Pyraminx) : co-sommets,
-  pointes, centres, ailes, co-ailes, fin des centres - voir « Le Master
-  Pyraminx ».
+- **Ailes puis co-ailes** (`wingsFirst`, Master et Professor Pyraminx) :
+  co-sommets, pointes, centres, ailes, co-ailes (puis arêtes et co-centres
+  sur le Professor), fin des centres - voir « Le Master Pyraminx » et « Le
+  Professor Pyraminx ».
 - **Coins puis arêtes** (`cornersFirst`, Domino 3x3x2, Floppy 3x3x1 et
   Floppy Ghost) : sur le Domino, coins du bas, coins du haut, arêtes du bas,
   arêtes du haut ; sur le Floppy, coins placés puis arêtes retournées - voir
@@ -733,6 +745,32 @@ retournées par `[G₂ D'₂][H'₂ D₂]` ; (6) centres finis par `[G₂ D'₂]
 (A,B)(G,D). Ailes et co-ailes portant les mêmes couleurs, `solvePieces`
 prend un filtre `among` pour ne suivre qu'une sorte de pièce.
 
+### Le Professor Pyraminx (`pyra5`)
+
+Le Pyraminx 5x5x5 (fan2cube.fr/profpyraminx1 et 2, Timur Evbatyrov, 2011) :
+le même modèle que le Master, à 5 couches (positions jusqu'à ±4, d'où une
+`stateKey` en base 9), cinq tranches par sommet (`PyraMove.slice` 1 à 4, la
+4e étant la face opposée, `isOppositeFace` : « Faces » dans le pad et le
+guide, comme la 3e du Master). 54 pièces de sept sortes, 25 stickers par
+face : pointes et co-sommets (qui ne font que pivoter), 12 ailes et 12
+co-ailes (jumelles deux à deux, départagées par leur chiralité), 6 arêtes,
+12 co-centres (3 par couleur, interchangeables) et 4 centres. Notation :
+`H'₁`, `D₃`, `G₄` en français, `2U'`, `4R`, `5L` en anglais.
+
+**Résolution** (`methods/pyraminx5.ts`, méthode **Ailes puis co-ailes**,
+d'après la page) : co-sommets, pointes, centres placés en 3e tranche,
+puis les **ailes** (`[H'₁ D₃]`...), les **co-ailes** (`[H'₂ D₃]`..., qui
+brassent les co-centres), les **arêtes** (`[G₂ D'₂]`, `D₂H₂D'₂H₂D₂H₂D'₂`,
+retournées par `[G₂ D'₂][H'₂ D₂]`), les **co-centres**
+(`[H₃ G'₃]² G₄ [H₃ G'₃] G'₄` : le `G` seul de la page est la face opposée
+au sommet gauche, son « G(auche-opposé) » ; c'est la seule étape qui tourne
+une face, aussitôt remise) et enfin les centres (`[G₃ D'₃]³`). Ailes,
+co-ailes et co-centres se placent un à un par 3-cycles (`pyraCycles.ts`,
+partagé avec le Master) : les formules de la page de chaque côté, puis
+conjuguées par un tour jusqu'à couvrir tous les 3-cycles ; des co-centres
+d'une couleur étant interchangeables, deux restants échangés passent par un
+emplacement juste. Environ 200 coups.
+
 ### Le Pyraminx Jing (`jing`)
 
 Le Jing (fan2cube.fr/pyraminxjing1) coupe **au-delà du centre** : chaque
@@ -799,6 +837,44 @@ solveur optimal du 2x2, et les mêmes coups le résolvent. Un milieu de face
 étant symétrique autour de son sticker, sa vrille ne se voit pas : on essaie
 les 81 lectures jusqu'à un 2x2 réel (vrilles des coins de somme nulle).
 D'où la « singularité » de fan2cube : un coin vrillé seul est légal.
+
+### Le 5x5 par réduction (`src/lib/solver5/`)
+
+Le moteur n'a rien de nouveau pour le 5x5 (grille `{-2..2}`, coups `R`,
+`2R`, `Rw` déduits de la forme, centres du milieu fixes et pré-remplis en
+saisie), sauf la **tranche du milieu** (`3R`, `Move.depth` 3), que seule la
+méthode utilise (pas le pad ni le mélange) : le guide la montre via
+`methodTurns`. La saisie distingue les deux sortes de centres d'une couleur
+(budget 4 chacune).
+
+Une recherche bornée par comptage, comme sur le 4x4, ne suffit pas : une
+tranche y déplace trois centres d'un coup, et la dernière pièce d'une face
+demande un commutateur. La méthode est donc celle des cubeurs, par
+**3-cycles purs** (`cycles.ts`) : des commutateurs `[A, X Y X']` trouvés au
+chargement (ceux qui ne bougent que trois pièces d'une sorte), conjugués par
+un tour, indexés par le déplacement qu'ils font (`a>b`) avec le troisième
+emplacement qu'ils touchent.
+
+1. **Centres** (`centers.ts`) : face par face (D, U, F, R, B ; L forcée),
+   deux coups (une tranche, un tour) quand ça suffit, sinon un 3-cycle :
+   `[2R, X 2L X']` pour les diagonaux, `[3R, X 2L X']` pour ceux en croix,
+   dont le troisième emplacement n'est sur rien de fini.
+2. **Arêtes** (`edges.ts`) : chaque milieu d'arête reste en place et appelle
+   ses deux ailes (une aile n'a qu'un sens par emplacement, sa chiralité) ;
+   elles arrivent par des 3-cycles d'ailes purs (`[2U, L U L']`...), centres
+   intacts. Aucun 3-cycle ne prend les deux ailes d'une même arête : au
+   besoin on passe par un autre emplacement, ou on en emprunte un juste
+   (petite recherche sur les seuls emplacements en jeu).
+3. **Parité** : la permutation des ailes est impaire une fois sur deux (une
+   tranche en quart de tour fait un 4-cycle d'ailes), ce que les 3-cycles ne
+   corrigent pas ; elle est détectée d'avance, l'appariement vise alors
+   l'arête UF croisée, et l'algorithme de parité OLL du 4x4 l'échange (sur
+   un 5x5 aux centres faits, il n'échange que ces deux ailes).
+4. **Phase 3x3** par projection (`projectPlan`, partagé avec le 4x4) : coins,
+   milieux d'arêtes et centres fixes forment un vrai 3x3, toujours légal.
+
+Résolution en environ 500 coups (dont 200 de centres et 150 d'arêtes),
+calculée en un peu plus d'une seconde (bibliothèques comprises).
 
 ### Le Floppy Ghost (`ghost`)
 
@@ -930,7 +1006,7 @@ mobile et en saisie, une seule carte) :
   sélecteur en modale, d'abord les **catégories** en vignettes, puis les
   **puzzles** de la catégorie choisie (toujours ouvert sur les catégories ; le
   puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`), dans
-  l'ordre : Standard 2x2 (Pocket)/3x3/4x4, Miroir 2x2/3x3/4x4, Tower 2x2x3
+  l'ordre : Standard 2x2 (Pocket)/3x3/4x4/5x5, Miroir 2x2/3x3/4x4, Tower 2x2x3
   (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Master Pyraminx
   (4x4)/Pyraminx Jing/Pyramorphinx, Étoiles 2-Star Prism (UFO)/4-Star Prism.
@@ -962,7 +1038,9 @@ mobile et en saisie, une seule carte) :
   Résoudre devient **Arrêter** (dans ce même panneau) : le mouvement en
   cours se termine, la suite attend, et les boutons reprennent de là ;
   l'Arrêter de gauche ne sert plus qu'au mélange, et la **liste des étapes**
-  nommées avec le total de rotations et le surlignage de l'étape en cours.
+  nommées avec le total de rotations et le surlignage de l'étape en cours ;
+  sur desktop, seule cette liste défile (le reste du panneau reste en place),
+  et elle suit le coup en cours pendant que la solution joue.
   Les étapes s'affichent sans attendre : le **plan** de la méthode dès son
   choix (`PlanOutline`, « si nécessaire » sur les étapes qu'on saute
   souvent : `StepSpec.optional`), puis la **vraie solution** dès que le cube
@@ -1003,6 +1081,14 @@ en surbrillance les pièces que ce coup tournerait (corps bleu ciel, stickers
 éclaircis) : `MovePad` écrit le coup dans `viewStore.preview`, `CubeView` lit
 les pièces concernées avec `turnedBy` (la même fonction que l'animation), sauf
 pendant une animation ou si le coup est bloqué.
+
+**Feu d'artifice** (`components/celebration/Fireworks.tsx`) : quand un coup
+amène le puzzle résolu (`solvedByTurn` du store : le coup qui finit, depuis
+un état non résolu ; pas une réinitialisation, un changement de puzzle ni
+une restauration), quelques fusées montent et éclatent aux couleurs du cube
+pendant trois secondes, sur un canvas qui laisse passer les clics et
+n'existe que le temps du spectacle (rien au repos). Rien pour
+qui demande moins d'animations (`prefers-reduced-motion`).
 
 **Adresse** (`lib/route.ts`, `store/router.ts`, sans bibliothèque) : l'URL
 dit la langue et le puzzle, `#/fr/floppy-ghost`, `#/en/3x3-mirror`, ou

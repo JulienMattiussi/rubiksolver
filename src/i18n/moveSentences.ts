@@ -109,9 +109,11 @@ export function describeFr(d: MoveDescription): string {
       half: `toute la moitié du ${corner} (son coin, ses trois arêtes et les trois centres autour)`,
       slice: {
         1: `la première tranche du ${corner}, sous sa pointe (son co-sommet et trois ailes),`,
-        2: `la deuxième tranche du ${corner} (trois ailes, trois co-ailes et trois centres)`,
-        3: `la face opposée au ${corner}`,
+        2: `la deuxième tranche du ${corner}`,
+        3: `la troisième tranche du ${corner}`,
+        4: `la quatrième tranche du ${corner}`,
       }[d.slice ?? 1],
+      opposite: `la face opposée au ${corner}`,
     }[d.kind]
     return `On tourne ${target} ${turn}.`
   }
@@ -157,9 +159,11 @@ export function describeEn(d: MoveDescription): string {
       half: `the whole half of the ${corner} (its corner, its three edges and the three centers around it)`,
       slice: {
         1: `the first slice of the ${corner}, under its tip (its co-tip and three wings),`,
-        2: `the second slice of the ${corner} (three wings, three midges and three centers)`,
-        3: `the face opposite the ${corner}`,
+        2: `the second slice of the ${corner}`,
+        3: `the third slice of the ${corner}`,
+        4: `the fourth slice of the ${corner}`,
       }[d.slice ?? 1],
+      opposite: `the face opposite the ${corner}`,
     }[d.kind]
     return `Turn ${target} ${turn}.`
   }

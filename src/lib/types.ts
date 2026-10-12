@@ -8,6 +8,7 @@ export type CubeShape =
   | '2'
   | '3'
   | '4'
+  | '5'
   | '123'
   | '224'
   | '223'
@@ -15,6 +16,7 @@ export type CubeShape =
   | '331'
   | 'pyra'
   | 'pyra4'
+  | 'pyra5'
   | 'jing'
   | 'morph'
   | 'ghost'
@@ -36,6 +38,7 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   '2': [2, 2, 2],
   '3': [3, 3, 3],
   '4': [4, 4, 4],
+  '5': [5, 5, 5],
   '123': [3, 2, 1],
   '224': [2, 4, 2],
   '223': [2, 3, 2],
@@ -45,6 +48,7 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   // their pieces sit within +-2 and +-3 on every axis (see `pyraSize`).
   pyra: [5, 5, 5],
   pyra4: [7, 7, 7],
+  pyra5: [9, 9, 9],
   // The Pyraminx Jing's pieces sit within +-1 (see pyraminx.ts).
   jing: [3, 3, 3],
   // The Pyramorphinx is a 2x2 cut down to a tetrahedron (morph.ts).
@@ -69,11 +73,11 @@ export const isStar = (shape: CubeShape): shape is StarShape =>
 
 /** The Pyraminx, the Master Pyraminx (its 4x4 version) and the Pyraminx
  *  Jing (its deep-cut cousin). */
-export type PyraShape = 'pyra' | 'pyra4' | 'jing'
+export type PyraShape = 'pyra' | 'pyra4' | 'pyra5' | 'jing'
 
 /** Whether a shape is a Pyraminx, which turns about its corners (pyraminx.ts). */
 export const isPyraminx = (shape: CubeShape): shape is PyraShape =>
-  shape === 'pyra' || shape === 'pyra4' || shape === 'jing'
+  shape === 'pyra' || shape === 'pyra4' || shape === 'pyra5' || shape === 'jing'
 
 /** Whether a shape builds and turns in its own module rather than on a grid
  *  of layers (the star prisms, the Pyraminx, the Floppy Ghost): drawn from
@@ -100,6 +104,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '2': false,
   '3': false,
   '4': false,
+  '5': false,
   '123': false,
   '223': false,
   '224': true,
@@ -107,6 +112,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '331': false,
   pyra: false,
   pyra4: false,
+  pyra5: false,
   jing: false,
   morph: true,
   ghost: false,
@@ -125,6 +131,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   '2': [],
   '3': [],
   '4': ['slice', 'wide'],
+  '5': ['slice', 'wide'],
   '123': [],
   '224': ['wide'],
   '223': ['wide'],
@@ -132,6 +139,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   '331': [],
   pyra: [],
   pyra4: [],
+  pyra5: [],
   jing: [],
   morph: [],
   ghost: [],
@@ -148,6 +156,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   '2': [],
   '3': ['slice', 'wide'],
   '4': [],
+  '5': [],
   '123': [],
   '224': [],
   '223': [],
@@ -155,6 +164,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   '331': [],
   pyra: [],
   pyra4: [],
+  pyra5: [],
   jing: [],
   morph: [],
   ghost: [],
@@ -167,6 +177,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '2': '2x2 (Pocket)',
   '3': '3x3',
   '4': '4x4',
+  '5': '5x5',
   '123': '1x2x3',
   '224': '2x2x4',
   '223': '2x2x3 (Slim Tower)',
@@ -174,6 +185,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '331': '3x3x1 (Floppy)',
   pyra: 'Pyraminx',
   pyra4: 'Master Pyraminx (4x4)',
+  pyra5: 'Professor Pyraminx (5x5)',
   jing: 'Pyraminx Jing',
   morph: 'Pyramorphinx',
   ghost: 'Floppy Ghost',
@@ -187,6 +199,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   '2': '2x2',
   '3': '3x3',
   '4': '4x4',
+  '5': '5x5',
   '123': '1x2x3',
   '224': '2x2x4',
   '223': 'slim-tower',
@@ -194,6 +207,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   '331': 'floppy',
   pyra: 'pyraminx',
   pyra4: 'master-pyraminx',
+  pyra5: 'professor-pyraminx',
   jing: 'pyraminx-jing',
   morph: 'pyramorphinx',
   ghost: 'floppy-ghost',
@@ -221,6 +235,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   '2': true,
   '3': true,
   '4': true,
+  '5': false,
   '123': false,
   '223': false,
   '224': false,
@@ -228,6 +243,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   '331': false,
   pyra: false,
   pyra4: false,
+  pyra5: false,
   jing: false,
   morph: false,
   ghost: false,
@@ -334,8 +350,9 @@ export type Cube = readonly Cubie[]
 export interface Move {
   readonly face: Face
   readonly amount: 1 | 2 | 3
-  /** Inner layer selector: 2 = second layer in from `face`. Absent = outer. */
-  readonly depth?: 2
+  /** Inner layer selector: 2 = second layer in from `face`, 3 = the third
+   *  (a 5x5's middle slice). Absent = outer. */
+  readonly depth?: 2 | 3
   /** Wide turn: layers 1..depth turn together. Requires `depth`. */
   readonly wide?: true
 }
@@ -371,7 +388,7 @@ export interface PyraMove {
   readonly vertex: PyraVertex
   readonly amount: 1 | 2
   readonly tip?: true
-  readonly slice?: 1 | 2 | 3
+  readonly slice?: 1 | 2 | 3 | 4
   readonly deep?: true
 }
 

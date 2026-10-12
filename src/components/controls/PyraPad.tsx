@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { cubeShape } from '@/lib/cube'
 import { formatMove } from '@/lib/moves'
-import { PYRA_LAYERS, PYRA_VERTICES, pyraTurn, type PyraLayer } from '@/lib/pyraminx'
+import {
+  isOppositeFace,
+  PYRA_LAYERS,
+  PYRA_VERTICES,
+  pyraTurn,
+  type PyraLayer,
+} from '@/lib/pyraminx'
 import { isPyraminx, type PyraMove } from '@/lib/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
@@ -22,6 +28,8 @@ export function PyraPad({ disabled }: { disabled: boolean }) {
   const shape = useCube((s) => cubeShape(s.cube))
   const layers = isPyraminx(shape) ? PYRA_LAYERS[shape] : []
   const [picked, setPicked] = useState<PyraLayer>('corners')
+  // The last slice of a Master or a Professor is the face opposite the corner.
+  const nameOf = (k: PyraLayer) => (isPyraminx(shape) && isOppositeFace(shape, k) ? 'faces' : k)
   // The Master opens on its first slice, the others on their first layer.
   const layer = layers.includes(picked) ? picked : layers.includes('slice1') ? 'slice1' : layers[0]!
 
@@ -30,7 +38,7 @@ export function PyraPad({ disabled }: { disabled: boolean }) {
       key={formatMove(move)}
       move={move}
       label={formatMove(move, labels)}
-      title={t.pyraTurnTitle(move.vertex, layer, move.amount === 1)}
+      title={t.pyraTurnTitle(move.vertex, nameOf(layer), move.amount === 1)}
       disabled={disabled}
       ghost={ghost}
       compact={layers.length > 2}
@@ -46,7 +54,7 @@ export function PyraPad({ disabled }: { disabled: boolean }) {
             ariaLabel={t.layerLabel}
             value={layer}
             onChange={setPicked}
-            options={layers.map((k) => ({ value: k, label: t.pyraKinds[k] }))}
+            options={layers.map((k) => ({ value: k, label: t.pyraKinds[nameOf(k)] }))}
           />
         </div>
       )}

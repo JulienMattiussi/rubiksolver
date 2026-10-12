@@ -42,7 +42,8 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
   const ahead = home || busy || solved || (dispatched > 0 && dispatched >= total)
 
   return (
-    <section aria-label={t.sectionSolve} className={SECTION_BOX}>
+    // Free to shrink, so that only the step list scrolls when room is short.
+    <section aria-label={t.sectionSolve} className={`${SECTION_BOX} min-h-0`}>
       {home ? (
         <div>
           <h2 className={SECTION_LABEL}>{t.methodLabel}</h2>

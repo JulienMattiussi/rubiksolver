@@ -4,6 +4,7 @@ import { useI18n } from '@/i18n/i18nStore'
 import { useEditor } from '@/store/editorStore'
 import { useRoute } from '@/store/router'
 import { HomeGallery } from '@/components/home/HomeGallery'
+import { Fireworks } from '@/components/celebration/Fireworks'
 import { Scene } from '@/three/Scene'
 
 export default function App() {
@@ -38,6 +39,8 @@ export default function App() {
           <Controls />
         </div>
       </div>
+      {/* A turn that solves the puzzle sets off a little show. */}
+      <Fireworks />
     </main>
   )
 }

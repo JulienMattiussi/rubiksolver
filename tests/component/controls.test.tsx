@@ -204,11 +204,11 @@ describe('<Controls />', () => {
     // The picker always opens on the categories, the current one marked.
     await user.click(screen.getByRole('button', { name: 'Choix du cube : 3x3' }))
     expect(screen.getByRole('dialog', { name: 'Choisir un cube' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Standard, 3 puzzles' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Standard, 4 puzzles' })).toHaveAttribute(
       'aria-current',
       'true',
     )
-    await user.click(screen.getByRole('button', { name: 'Standard, 3 puzzles' }))
+    await user.click(screen.getByRole('button', { name: 'Standard, 4 puzzles' }))
     expect(screen.getByRole('button', { name: '3x3' })).toHaveAttribute('aria-current', 'true')
     await user.click(screen.getByRole('button', { name: 'Toutes les catégories' }))
     await user.click(screen.getByRole('button', { name: 'Plats, 3 puzzles' }))

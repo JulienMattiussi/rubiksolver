@@ -11,6 +11,7 @@ const SCRAMBLE_LENGTH: Record<CubeShape, number> = {
   '2': 11,
   '3': 20,
   '4': 40,
+  '5': 60,
   '123': 10,
   '224': 25,
   '223': 20,
@@ -18,6 +19,7 @@ const SCRAMBLE_LENGTH: Record<CubeShape, number> = {
   '331': 12,
   pyra: 11,
   pyra4: 30,
+  pyra5: 40,
   jing: 15,
   morph: 11,
   ghost: 15,
@@ -118,6 +120,12 @@ function loadedCube(cube: Cube) {
 export const selectBusy = (s: CubeStore): boolean => s.active !== null || s.queue.length > 0
 
 export const selectSolved = (s: CubeStore): boolean => isSolved(s.cube)
+
+/** Whether a turn just solved the puzzle: the one that ended (`prev` had it
+ *  under way) left it solved, unsolved before. A reset, a new puzzle or a
+ *  restored state do not count: no turn brought them. */
+export const solvedByTurn = (prev: CubeStore, next: CubeStore): boolean =>
+  prev.active !== null && next.active === null && !isSolved(prev.cube) && isSolved(next.cube)
 
 const lengthsOf = (steps: readonly SolveStep[]) => steps.map((s) => s.moves.length)
 

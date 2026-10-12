@@ -53,14 +53,16 @@ const fr = {
     `Tourner ${STAR_LAYER_FR[layer]} d’une pièce dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
   slashTitle: 'Slash : retourner la moitié droite',
   ghostTurnTitle: (side: GhostSide) => `Retourner ${SIDE_NAMES_FR[side]} (demi-tour)`,
-  pyraTurnTitle: (vertex: PyraVertex, layer: PyraLayer, clockwise: boolean) => {
+  pyraTurnTitle: (vertex: PyraVertex, layer: PyraLayer | 'faces', clockwise: boolean) => {
     const corner = CORNER_NAMES_FR[vertex]
     const target = {
       corners: `la couche du ${corner}`,
       tips: `la pointe du ${corner}`,
       slice1: `la 1re tranche du ${corner}`,
       slice2: `la 2e tranche du ${corner}`,
-      slice3: `la face opposée au ${corner}`,
+      slice3: `la 3e tranche du ${corner}`,
+      slice4: `la 4e tranche du ${corner}`,
+      faces: `la face opposée au ${corner}`,
       deep: `la moitié du ${corner}`,
     }[layer]
     return `Tourner ${target} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`
@@ -70,7 +72,10 @@ const fr = {
     tips: 'Pointes',
     slice1: 'Tranche 1',
     slice2: 'Tranche 2',
-    slice3: 'Faces',
+    slice3: 'Tranche 3',
+    slice4: 'Tranche 4',
+    // A Master's or a Professor's last slice: the face opposite the corner.
+    faces: 'Faces',
     deep: 'Sommets',
   },
   noSuchLayer: (faceName: string, kind: LayerKind) =>
@@ -166,8 +171,9 @@ const fr = {
     corners: 'Couches (sommet + centre + arêtes)',
     tips: 'Pointes seules',
     slice1: 'Premières tranches (co-sommet + ailes)',
-    slice2: 'Deuxièmes tranches (ailes, co-ailes, centres)',
-    slice3: 'Faces',
+    slice2: 'Deuxièmes tranches',
+    slice3: 'Troisièmes tranches',
+    slice4: 'Quatrièmes tranches',
     deep: 'Sommets (chacun sa moitié du puzzle)',
     sides: 'Côtés (demi-tours)',
   },
@@ -231,7 +237,7 @@ const fr = {
     },
     wingsFirst: {
       name: 'Ailes puis co-ailes',
-      desc: 'Co-sommets, pointes et centres d’abord, puis les ailes trois par trois avec un commutateur (réserver, monter, prendre, descendre), puis les co-ailes, placées puis retournées deux par deux, et enfin les centres échangés deux à deux.',
+      desc: 'Co-sommets, pointes et centres d’abord, puis les ailes trois par trois avec un commutateur (réserver, monter, prendre, descendre), puis les co-ailes, placées puis retournées deux par deux (sur le Professor : les co-ailes, les arêtes, puis les co-centres), et enfin les centres échangés deux à deux.',
     },
     centersFirst: {
       name: 'Centres d’abord',
@@ -322,6 +328,9 @@ const fr = {
     stepPlaceCenters: 'Placer les centres',
     stepWings: 'Ailes',
     stepMidges: 'Co-ailes',
+    stepCoWings: 'Co-ailes',
+    stepPyraEdges: 'Arêtes',
+    stepCoCenters: 'Co-centres',
     stepFinishCenters: 'Finir les centres',
     stepJingCorners: 'Sommets',
     stepGhostCorners: 'Placer les sommets',
@@ -370,14 +379,16 @@ const en: Translations = {
     `Turn the ${STAR_LAYER_EN[layer]} layer one piece ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   slashTitle: 'Slash: flip the right half',
   ghostTurnTitle: (side: GhostSide) => `Flip ${SIDE_NAMES_EN[side]} over (half turn)`,
-  pyraTurnTitle: (vertex: PyraVertex, layer: PyraLayer, clockwise: boolean) => {
+  pyraTurnTitle: (vertex: PyraVertex, layer: PyraLayer | 'faces', clockwise: boolean) => {
     const corner = CORNER_NAMES_EN[vertex]
     const target = {
       corners: `the layer of the ${corner}`,
       tips: `the tip of the ${corner}`,
       slice1: `the 1st slice of the ${corner}`,
       slice2: `the 2nd slice of the ${corner}`,
-      slice3: `the face opposite the ${corner}`,
+      slice3: `the 3rd slice of the ${corner}`,
+      slice4: `the 4th slice of the ${corner}`,
+      faces: `the face opposite the ${corner}`,
       deep: `the half of the ${corner}`,
     }[layer]
     return `Turn ${target} ${clockwise ? 'clockwise' : 'counterclockwise'}`
@@ -387,7 +398,9 @@ const en: Translations = {
     tips: 'Tips',
     slice1: 'Slice 1',
     slice2: 'Slice 2',
-    slice3: 'Faces',
+    slice3: 'Slice 3',
+    slice4: 'Slice 4',
+    faces: 'Faces',
     deep: 'Corners',
   },
   noSuchLayer: (faceName: string, kind: LayerKind) =>
@@ -480,8 +493,9 @@ const en: Translations = {
     corners: 'Layers (tip + center + edges)',
     tips: 'Tips alone',
     slice1: 'First slices (co-tip + wings)',
-    slice2: 'Second slices (wings, midges, centers)',
-    slice3: 'Faces',
+    slice2: 'Second slices',
+    slice3: 'Third slices',
+    slice4: 'Fourth slices',
     deep: 'Corners (each its half of the puzzle)',
     sides: 'Sides (half turns)',
   },
@@ -545,7 +559,7 @@ const en: Translations = {
     },
     wingsFirst: {
       name: 'Wings then midges',
-      desc: 'Co-tips, tips and centers first, then the wings three at a time with a commutator (reserve, raise, take, lower), then the midges, placed then flipped two at a time, and last the centers swapped two by two.',
+      desc: 'Co-tips, tips and centers first, then the wings three at a time with a commutator (reserve, raise, take, lower), then the midges, placed then flipped two at a time (on the Professor: the co-wings, the edges, then the co-centers), and last the centers swapped two by two.',
     },
     centersFirst: {
       name: 'Centers first',
@@ -636,6 +650,9 @@ const en: Translations = {
     stepPlaceCenters: 'Place the centers',
     stepWings: 'Wings',
     stepMidges: 'Midges',
+    stepCoWings: 'Co-wings',
+    stepPyraEdges: 'Edges',
+    stepCoCenters: 'Co-centers',
     stepFinishCenters: 'Finish the centers',
     stepJingCorners: 'Corners',
     stepGhostCorners: 'Place the corners',

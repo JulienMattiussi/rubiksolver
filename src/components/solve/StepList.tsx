@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useEffect, useRef } from 'react'
 import { Check } from 'lucide-react'
 import { cubeDims } from '@/lib/cube'
 import { formatMove } from '@/lib/moves'
@@ -9,7 +9,9 @@ import { useCube } from '@/store/cubeStore'
 import { SECTION_LABEL } from '@/components/ui/styles'
 
 /** The chosen method's named steps, with the cumulative total and live
- *  done / current highlighting as the solution animates. */
+ *  done / current highlighting as the solution animates. The list scrolls
+ *  on its own (the rest of the panel stays put) and follows the move in
+ *  focus while the solution plays. */
 export function StepList({ steps }: { steps: readonly SolveStep[] }) {
   const t = useI18n((s) => s.t)
   const labels = useI18n(selectMoveLabels)
@@ -29,21 +31,45 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
   )
   const firstOf = steps.map((_, i) => steps.slice(0, i).reduce((n, s) => n + s.moves.length, 0))
 
+  // Keep the step in focus in sight, all of it (down to its last moves) when
+  // it fits, and at least its move in focus; within the list only.
+  const list = useRef<HTMLOListElement>(null)
+  const focused = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    const box = list.current
+    const move = focused.current
+    if (!box || !move) return
+    const step = move.closest('li') ?? move
+    const offset = (el: Element) =>
+      el.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop
+    const span = (el: Element) => [offset(el), offset(el) + el.getBoundingClientRect().height]
+    const [stepTop, stepBottom] = span(step) as [number, number]
+    const [moveTop, moveBottom] = span(move) as [number, number]
+    let top = box.scrollTop
+    if (stepBottom > top + box.clientHeight) top = stepBottom - box.clientHeight
+    if (stepTop < top) top = stepTop
+    // A step taller than the list: from wherever its move in focus is.
+    if (moveBottom > top + box.clientHeight) top = moveBottom - box.clientHeight
+    if (moveTop < top) top = moveTop
+    if (top !== box.scrollTop) box.scrollTo?.({ top, behavior: 'smooth' })
+  }, [focus])
+
   return (
-    <div>
+    <div className="flex min-h-0 flex-col">
       <div className="mb-2 flex items-center justify-between gap-2">
         <h2 className={SECTION_LABEL}>{t.stepsLabel}</h2>
         <span className="text-xs font-medium text-slate-300">
           {t.solutionCount(progress.total)}
         </span>
       </div>
-      <ol className="flex flex-col gap-1.5">
+      <ol ref={list} className="-mr-2 flex min-h-0 flex-col gap-1.5 overflow-y-auto pr-2">
         {steps.map((step, i) => {
           const { done, current } = progress.steps[i]!
           return (
             <li
               key={i}
-              className={`rounded-lg border px-2.5 py-1.5 text-xs ${
+              // The step under way a size up: what one follows.
+              className={`shrink-0 rounded-lg border px-2.5 py-1.5 ${current ? 'text-sm' : 'text-xs'} ${
                 current
                   ? 'border-sky-400 bg-sky-500/10'
                   : done
@@ -60,7 +86,9 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
                   {t.solutionCount(step.moves.length)}
                 </span>
               </div>
-              <p className="mt-0.5 font-mono text-[11px] leading-relaxed text-slate-400">
+              <p
+                className={`mt-0.5 font-mono leading-relaxed text-slate-400 ${current ? 'text-[13px]' : 'text-[11px]'}`}
+              >
                 {step.moves.map((move, k) => {
                   const at = firstOf[i]! + k
                   const tone =
@@ -74,7 +102,11 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
                   return (
                     <Fragment key={k}>
                       {k > 0 && ' '}
-                      <span className={tone} aria-current={at === focus ? 'step' : undefined}>
+                      <span
+                        ref={at === focus ? focused : undefined}
+                        className={tone}
+                        aria-current={at === focus ? 'step' : undefined}
+                      >
                         {formatMove(move, labels, dims)}
                       </span>
                     </Fragment>

@@ -29,7 +29,8 @@ export function SegmentedToggle<T extends string>({
   size = 'md',
 }: SegmentedToggleProps<T>) {
   return (
-    <div className="flex items-center gap-1" role="group" aria-label={ariaLabel}>
+    // Many options (a Professor Pyraminx's five layers) wrap rather than spill.
+    <div className="flex flex-wrap items-center gap-1" role="group" aria-label={ariaLabel}>
       {options.map((option) => (
         <button
           key={option.value}
@@ -37,7 +38,7 @@ export function SegmentedToggle<T extends string>({
           onClick={() => onChange(option.value)}
           aria-pressed={value === option.value}
           title={option.title}
-          className={`rounded font-semibold uppercase transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 ${SIZE[size]} ${
+          className={`rounded font-semibold whitespace-nowrap uppercase transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 ${SIZE[size]} ${
             value === option.value ? 'bg-sky-500 text-white' : 'text-slate-400 hover:text-slate-200'
           }`}
         >

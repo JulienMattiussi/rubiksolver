@@ -198,10 +198,13 @@ function placementKey(p: Placement): string {
     .join('')
 }
 
-/** Identity of the physical piece a solved-cube cubie is. */
+/** Identity of the physical piece a solved-cube cubie is. Centers of one
+ *  color are interchangeable, within their kind (a 5x5's cross and
+ *  diagonal centers, told apart by how many of their coordinates are 0). */
 function pieceKeyOf(cubie: Cubie, solvedPosition: Vec3): string {
+  const zeros = solvedPosition.filter((v) => v === 0).length
   return cubie.stickers.length === 1
-    ? `C:${cubie.stickers[0]!.color}`
+    ? `C:${zeros}:${cubie.stickers[0]!.color}`
     : `P:${posKey(solvedPosition)}`
 }
 

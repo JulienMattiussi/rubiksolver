@@ -51,23 +51,23 @@ export function formatPyraMove(move: PyraMove, labels: FaceLabels): string {
   return (upper ? letter : letter.toLowerCase()) + prime
 }
 
-const SUBSCRIPTS = '₀₁₂₃'
+const SUBSCRIPTS = '₀₁₂₃₄'
 
 /**
  * Parse fan2cube's formulas, `[gd'][h'd]` or `dhd'hdhd'` style: one letter
  * per turn, `'` or `²` (or `2`) to turn back, `[a b]` the commutator
  * a b a' b'. Spaces, dots and parentheses only help reading. On the Master
- * (`size` 4), the slices: `H'1` or `H'₁` (`H1'` too, and `h` for `H1`), or
+ * and the Professor (`size` 4 or 5), the slices: `H'1` or `H'₁` (`H1'` too, and `h` for `H1`), or
  * `2U'` in English. On the Jing (`size` 2), uppercase letters, its halves.
  */
 export function parsePyraMoves(text: string, labels: FaceLabels, size = 3): PyraMove[] {
   const { letters, tipUpper } = notationOf(labels)
   const token =
-    size !== 4
+    size < 4
       ? /([A-Za-z])(['²2]?)/y
       : tipUpper
-        ? /([A-Za-z])(['²]?)([0-3₀-₃]?)(['²]?)/y
-        : /([1-4]?)([A-Za-z])(['²]?)/y
+        ? /([A-Za-z])(['²]?)([0-4₀-₄]?)(['²]?)/y
+        : /([1-5]?)([A-Za-z])(['²]?)/y
   const moves: PyraMove[] = []
   let bracket: PyraMove[] | null = null
   let at = 0
@@ -108,7 +108,7 @@ function readMove(
   letters: Record<PyraVertex, string>,
   tipUpper: boolean,
 ): PyraMove | null {
-  const english = size === 4 && !tipUpper
+  const english = size >= 4 && !tipUpper
   const letter = (english ? match[2] : match[1])!
   const vertex = PYRA_VERTICES.find((v) => letters[v] === letter.toUpperCase())
   if (!vertex) return null
@@ -119,11 +119,13 @@ function readMove(
     const tip = upper === tipUpper
     return { vertex, amount, ...(tip && { tip: true }) }
   }
-  // The Master: a number names the slice, the bare letter the tip (`H`,
-  // `u`), fan2cube's lowercase letter its first slice.
+  // The Master and the Professor: a number names the slice, the bare letter
+  // the tip (`H`, `u`), fan2cube's lowercase letter its first slice.
   const digit = english ? match[1] : match[3]
   const slice = digit ? Math.max(0, SUBSCRIPTS.indexOf(digit), Number(digit) || 0) : 0
   const depth = english ? (digit ? slice - 1 : upper ? -1 : 0) : !upper ? (digit ? -1 : 1) : slice
-  if (depth < 0 || depth > 3) return null
-  return depth === 0 ? { vertex, amount, tip: true } : { vertex, amount, slice: depth as 1 | 2 | 3 }
+  if (depth < 0 || depth > size - 1) return null
+  return depth === 0
+    ? { vertex, amount, tip: true }
+    : { vertex, amount, slice: depth as 1 | 2 | 3 | 4 }
 }

@@ -2,7 +2,14 @@ import { turnDims } from './cube'
 import { faceLayers } from './geometry'
 import { advancedMovesFor, amountsFor, FACES, movesFor, sameLayer } from './moves'
 import { methodTurns } from './solver'
-import { PYRA_LAYERS, PYRA_VERTICES, pyraLayerOf, pyraTurn, type PyraLayer } from './pyraminx'
+import {
+  isOppositeFace,
+  PYRA_LAYERS,
+  PYRA_VERTICES,
+  pyraLayerOf,
+  pyraTurn,
+  type PyraLayer,
+} from './pyraminx'
 import { GHOST_TURNS } from './ghost'
 import { signedPieces, STAR_RINGS } from './star'
 import { isFaceMove, isGhostMove, isPyraminx, isPyraMove, isStar, SHAPE_DIMS } from './types'
@@ -58,12 +65,12 @@ export type MoveDescription =
     }
   | { readonly kind: 'slash' }
   | {
-      /** A Pyraminx corner's layer, its tip alone, a Master's slice, or the
-       *  Jing's half. */
-      readonly kind: 'corner' | 'tip' | 'slice' | 'half'
+      /** A Pyraminx corner's layer, its tip alone, a Master's or a
+       *  Professor's slice or the face opposite the corner, or the Jing's half. */
+      readonly kind: 'corner' | 'tip' | 'slice' | 'opposite' | 'half'
       readonly vertex: PyraVertex
       readonly clockwise: boolean
-      readonly slice?: 1 | 2 | 3
+      readonly slice?: 1 | 2 | 3 | 4
     }
   | {
       /** A Floppy Ghost side flipped over. */
@@ -74,8 +81,13 @@ export type MoveDescription =
 /** The face each middle slice of a 3-layer axis follows (M: L, E: D, S: F). */
 const SLICE_FACE: Partial<Record<Face, Face>> = { R: 'L', U: 'D', B: 'F' }
 
+/** The middle slice of an odd axis: a 3x3's M (`2L`), a 5x5's `3R`. */
 const isMiddle = (move: Move, dims: Dims): boolean =>
-  !!move.depth && !move.wide && faceLayers(dims, move.face) === 3
+  !!move.depth && !move.wide && 2 * move.depth - 1 === faceLayers(dims, move.face)
+
+/** A 3x3's middle slice, written M, E or S after the face it follows. */
+const isMES = (move: Move, dims: Dims): boolean =>
+  isMiddle(move, dims) && faceLayers(dims, move.face) === 3
 
 function kindOf(move: Move, dims: Dims): 'face' | 'middle' | 'slice' | 'wide' {
   if (move.wide) return 'wide'
@@ -99,12 +111,12 @@ function cubeGuide(shape: CubeShape): GuideGroup[] {
   for (const turn of [...movesFor(shape), ...advancedMovesFor(shape), ...methodTurns(shape)]) {
     if (!isFaceMove(turn)) continue
     // A middle slice is named after one face only (2R is M').
-    const face = isMiddle(turn, dims) ? (SLICE_FACE[turn.face] ?? turn.face) : turn.face
+    const face = isMES(turn, dims) ? (SLICE_FACE[turn.face] ?? turn.face) : turn.face
     const layer: Move = { ...turn, face, amount: 1 }
     if (!layers.some((l) => sameLayer(l, layer))) layers.push(layer)
   }
   // Faces in the usual order; the middle slices as M, E, S.
-  const order = (m: Move) => (isMiddle(m, dims) ? 'LDF' : FACES.join('')).indexOf(m.face)
+  const order = (m: Move) => (isMES(m, dims) ? 'LDF' : FACES.join('')).indexOf(m.face)
   return (['face', 'middle', 'slice', 'wide'] as const).flatMap((kind) => {
     const rows = layers
       .filter((l) => kindOf(l, dims) === kind)
@@ -133,7 +145,8 @@ function starGuide(shape: StarShape): GuideGroup[] {
  *  then slices), every corner, both ways. */
 function pyraGuide(shape: PyraShape): GuideGroup[] {
   return PYRA_LAYERS[shape].map((layer) => ({
-    section: layer,
+    // The last slice is a face: under the faces' heading.
+    section: isOppositeFace(shape, layer) ? 'faces' : layer,
     rows: PYRA_VERTICES.map((vertex) =>
       ([1, 2] as const).map((amount): PyraMove => pyraTurn(vertex, layer, amount)),
     ),
@@ -159,7 +172,9 @@ export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
           ? 'corner'
           : layer === 'deep'
             ? 'half'
-            : 'slice'
+            : isPyraminx(shape) && isOppositeFace(shape, layer)
+              ? 'opposite'
+              : 'slice'
     const clockwise = turn.amount === 1
     return { kind, vertex: turn.vertex, clockwise, ...(turn.slice && { slice: turn.slice }) }
   }

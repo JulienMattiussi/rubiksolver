@@ -29,6 +29,7 @@ const STAR: PolyDrawing = { polygons: (c) => starPolygons(c, false), yaw: STAR_Y
 const STAR4: PolyDrawing = { polygons: (c) => starPolygons(c, true), yaw: STAR_YAW }
 const PYRAMINX: PolyDrawing = { polygons: pyraPolygons(3), yaw: PYRA_YAW }
 const MASTER: PolyDrawing = { polygons: pyraPolygons(4), yaw: PYRA_YAW }
+const PROFESSOR: PolyDrawing = { polygons: pyraPolygons(5), yaw: PYRA_YAW }
 const JING: PolyDrawing = {
   polygons: jingPolygons,
   yaw: PYRA_YAW,
@@ -46,6 +47,7 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (isStar(shape)) return shape === 'star4' ? STAR4 : STAR
   if (shape === 'morph') return MORPH
   if (shape === 'ghost') return GHOST
+  if (shape === 'pyra5') return PROFESSOR
   return shape === 'pyra4' ? MASTER : shape === 'jing' ? JING : PYRAMINX
 }
 

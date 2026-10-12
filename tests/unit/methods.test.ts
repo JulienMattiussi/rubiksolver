@@ -151,11 +151,11 @@ describe('cube picker', () => {
       ]),
     )
     expect(groups).toEqual({
-      standard: ['2', '3', '4'],
+      standard: ['2', '3', '4', '5'],
       mirror: ['2m', '3m', '4m'],
       tower: ['223', '224', '332'],
       flat: ['123', '331', 'ghost'],
-      pyramid: ['pyra', 'pyra4', 'jing', 'morph'],
+      pyramid: ['pyra', 'pyra4', 'pyra5', 'jing', 'morph'],
       star: ['star', 'star4'],
     })
   })

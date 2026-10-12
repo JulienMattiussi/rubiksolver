@@ -137,7 +137,7 @@ export function formatMove(move: Turn, labels: FaceLabels = NOTATION_US, dims?: 
     return slice.letter + AMOUNT_SUFFIX[amount]
   }
   const suffix = AMOUNT_SUFFIX[move.amount]
-  const slice = move.depth && !move.wide ? '2' : ''
+  const slice = move.depth && !move.wide ? String(move.depth) : ''
   const wide = move.wide ? 'w' : ''
   return slice + labels[move.face] + wide + suffix
 }
@@ -169,11 +169,12 @@ function faceOfLabel(labels: FaceLabels, label: string): Face | undefined {
  */
 export function parseMove(token: string, labels: FaceLabels = NOTATION_US): Move | undefined {
   let t = token.trim()
-  let slice = false
-  if (t.length > 1 && t.startsWith('2')) {
-    slice = true
+  let depth: 2 | 3 | undefined
+  if (t.length > 1 && (t.startsWith('2') || t.startsWith('3'))) {
+    depth = Number(t[0]) as 2 | 3
     t = t.slice(1)
   }
+  const slice = depth !== undefined
   let amount: 1 | 2 | 3 = 1
   if (t.endsWith("'")) {
     amount = 3
@@ -192,7 +193,7 @@ export function parseMove(token: string, labels: FaceLabels = NOTATION_US): Move
   const face = faceOfLabel(labels, t)
   if (!face || (slice && wide)) return undefined
   if (wide) return { face, amount, depth: 2, wide: true }
-  if (slice) return { face, amount, depth: 2 }
+  if (depth) return { face, amount, depth }
   return { face, amount }
 }
 

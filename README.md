@@ -1,10 +1,10 @@
 # Rubik Solver
 
 Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2
-(Pocket), 3x3 ou 4x4**, plus cinq cuboïdes (le **1x2x3**, la **tour 2x2x4**,
+(Pocket), 3x3, 4x4 ou 5x5**, plus cinq cuboïdes (le **1x2x3**, la **tour 2x2x4**,
 la **Slim Tower 2x2x3**, le **Domino 3x3x2** et le **Floppy 3x3x1**), le
 **Floppy Ghost** (un Floppy Megaminx découpé en pentagramme, argenté) et des
-puzzles non cubiques : le **Pyraminx**, le **Master Pyraminx** (4x4), le
+puzzles non cubiques : le **Pyraminx**, le **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le
 **Pyraminx Jing**, le **Pyramorphinx** et les **Star Prism** à 2 et 4 étages.
 On manipule le puzzle, on le mélange **ou on saisit sa propre
 configuration** en peignant les stickers en 3D, puis on le résout selon
@@ -27,6 +27,8 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   - 3x3 : par couches, Fridrich (CFOP), **Roux**, **Petrus**, **ZZ** ;
   - 2x2 : par couches, et **optimale** (11 coups maximum) ;
   - 4x4 : **réduction** (centres, arêtes, parités) puis par couches ou CFOP ;
+  - 5x5 : **réduction** aussi, centres et arêtes par commutateurs (3-cycles),
+    parité d'arête, puis par couches ou CFOP ;
   - 1x2x3 : optimale ;
   - Floppy : **coins puis arêtes**, et optimale ;
   - Floppy Ghost : **coins puis arêtes** (sommets placés, orientés, puis
@@ -36,7 +38,7 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   - Slim Tower : **équateur puis coins** ;
   - Domino : **coins puis arêtes** ;
   - Pyraminx : **centres d'abord** ;
-  - Master Pyraminx : **ailes puis co-ailes** ;
+  - Master et Professor Pyraminx : **ailes puis co-ailes** ;
   - Pyraminx Jing : **sommets d'abord** ;
   - Pyramorphinx : **comme un Pocket** ;
   - Star Prism : **isoler puis permuter** ;
@@ -60,6 +62,7 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   validation de solubilité) ; un puzzle déformable se saisit dans la forme où
   il se trouve, choisie parmi des vignettes ; le Floppy Ghost pièce par pièce
   (un clic pose la pièce suivante qui s'y loge).
+- Un petit **feu d'artifice** quand le puzzle arrive résolu.
 - **Page d'accueil** : une galerie de modèles à choisir, et ce qu'on peut
   faire avec (saisie, guide, résolution).
 - **Une adresse par puzzle et par langue** : `#/fr/floppy-ghost`,

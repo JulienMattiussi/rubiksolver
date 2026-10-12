@@ -1,4 +1,5 @@
-import { cubieAt } from '../pieces'
+import { colorsOf, cubieAt, homesOf } from '../pieces'
+import { solvePieces } from '../pieceSearch'
 import { normalIndex, TET_NORMALS } from '../geometry'
 import { NOTATION_FR } from '../moves'
 import type { MoveSet } from '../moveSet'
@@ -8,7 +9,7 @@ import { applyMoves } from '../turn'
 import type { Color, Cube, Cubie, PyraMove, PyraVertex, Vec3 } from '../types'
 
 /**
- * Bricks shared by the Pyraminx methods (pyraminx.ts, pyraminx4.ts): the
+ * Bricks shared by the Pyraminx methods (pyraminx.ts, pyraminx4.ts, pyraminx5.ts): the
  * colors the faces take, the corners (tip and center piece, the Master's
  * co-tip) twisted into place, the formulas seen from every side.
  */
@@ -119,5 +120,40 @@ export const alignCorners =
       )
       if (!fix) throw new Error(`pyraminx: the ${vertex} corner cannot match`)
       return fix
+    })
+  }
+
+/** Where a piece stands and which colors it wears, whichever way round. */
+const placeOf = (c: Cubie) => `${c.position.join()}:${colorsOf(c)}`
+
+/** Whether a piece is in the slot of its colors, whichever way round. */
+const inSlot = (faces: Map<number, Color>) => (c: Cubie) =>
+  c.stickers.every((s) => c.stickers.some((t) => t.color === faces.get(normalIndex(s.normal))))
+
+/**
+ * A search over the pieces `among` selects on a big Pyraminx: every one
+ * home, or (`placed`) only in its slot, whichever way round (the search
+ * then reads nothing else, which keeps it tiny).
+ */
+export const groupSolver =
+  (shape: 'pyra4' | 'pyra5') =>
+  (
+    among: (c: Cubie) => boolean,
+    moves: MoveSet,
+    macros: PyraMove[][],
+    maxDepth: number,
+    placed = false,
+  ) =>
+  (cube: Cube): PyraMove[] => {
+    const faces = faceColors(cube, shape === 'pyra4' ? 4 : 5)
+    const right = placed ? inSlot(faces) : showsFaces(faces)
+    return solvePieces<PyraMove>(cube, {
+      track: homesOf(shape, among),
+      among,
+      moves,
+      macros,
+      goal: (pieces) => pieces.every(right),
+      ...(placed && { key: (pieces: readonly Cubie[]) => pieces.map(placeOf).join(' ') }),
+      maxDepth,
     })
   }
