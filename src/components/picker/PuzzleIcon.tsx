@@ -1,6 +1,6 @@
-import type { CubeShape, CubeVariant } from '@/lib/types'
+import type { Cube, CubeShape, CubeVariant } from '@/lib/types'
 import { COLOR_HEX, MIRROR_STICKER, PLASTIC } from '@/three/colors'
-import { isometricDrawing } from '@/three/isometric'
+import { formDrawing, isometricDrawing } from '@/three/isometric'
 
 /** A color darkened by `shade` (0 = as is, 1 = black). */
 function darkened(hex: string, shade: number): string {
@@ -14,13 +14,16 @@ function darkened(hex: string, shade: number): string {
 export function PuzzleIcon({
   shape,
   variant,
+  form,
   className = '',
 }: {
   shape: CubeShape
   variant: CubeVariant
+  /** A form of a shape-shifting puzzle to draw instead of its box (forms.ts). */
+  form?: Cube
   className?: string
 }) {
-  const { polygons, viewBox } = isometricDrawing(shape, variant)
+  const { polygons, viewBox } = form ? formDrawing(shape, form) : isometricDrawing(shape, variant)
   const fill = (paint: (typeof polygons)[number]['paint']) =>
     paint === 'body' ? PLASTIC : variant === 'mirror' ? MIRROR_STICKER : COLOR_HEX[paint]
   return (

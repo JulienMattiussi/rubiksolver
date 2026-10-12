@@ -160,12 +160,12 @@ describe.each(PUZZLES)('$shape', ({ shape, pieces, stickers, orientations, paint
     expect(progress(cubeToEdit(SOLVED), shape)).toMatchObject({ filled: painted, total: painted })
     for (let seed = 0; seed < 3; seed++) {
       const cube = scrambled(shape, scramble, seed)
-      // A shifted tower has pieces no slot holds: no entry from it.
-      if (!isBoxed(cube)) continue
+      // A shifted tower is entered in the form it stands in.
+      const form = isBoxed(cube) ? undefined : cube
       const edit = cubeToEdit(cube)
-      expect(isComplete(edit, shape)).toBe(true)
-      expect(cubeToEdit(buildCube(edit, shape))).toEqual(edit)
-      expect(validateCube(buildCube(edit, shape))).toEqual({ ok: true })
+      expect(isComplete(edit, shape, form)).toBe(true)
+      expect(cubeToEdit(buildCube(edit, shape, form))).toEqual(edit)
+      expect(validateCube(buildCube(edit, shape, form))).toEqual({ ok: true })
     }
   })
 

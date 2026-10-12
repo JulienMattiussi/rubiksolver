@@ -226,6 +226,8 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
  *  and the stickers the editor counts. */
 const ENTERED: [string, string, number][] = [
   ['Standard', '2x2 (Pocket)', 24],
+  // Most often out of its box once scrambled: entered in the form it stands in.
+  ['Tower', '2x2x4', 40],
   ['Pyramides', 'Pyraminx', 36],
   ['Pyramides', 'Master Pyraminx (4x4)', 64],
   ['Pyramides', 'Pyraminx Jing', 28],
@@ -254,3 +256,14 @@ for (const [category, name, stickers] of ENTERED) {
     expect(errors).toEqual([])
   })
 }
+
+test('tower entry: pick the form it stands in, then paint on it', async ({ page }) => {
+  await page.goto('/')
+  await pickCube(page, 'Tower', '2x2x4')
+  await page.getByRole('button', { name: 'Saisir un cube' }).click()
+  await expect(page.getByText('Dans quelle forme est votre puzzle ?')).toBeVisible()
+  await page.getByRole('button', { name: /^Forme 2,/ }).click()
+  await expect(page.getByText('0 / 40 stickers')).toBeVisible()
+  await page.getByRole('button', { name: 'Changer de forme' }).click()
+  await expect(page.getByRole('button', { name: /^Forme 1 / })).toBeVisible()
+})

@@ -172,3 +172,23 @@ export function rotateN(v: Vec3, axis: Axis, times: number): Vec3 {
   for (let i = 0; i < t; i++) out = rotate90(out, axis)
   return out
 }
+
+/** The 24 rotations of the cube's axes (whole-puzzle turns: no mirror), as
+ *  maps of integer vectors, from closing quarter turns about x and y. */
+export const AXIS_ROTATIONS: readonly ((v: Vec3) => Vec3)[] = (() => {
+  const probe: Vec3 = [1, 2, 3]
+  const found = new Map<string, (v: Vec3) => Vec3>([[probe.join(), (v: Vec3) => v]])
+  let frontier = [...found.values()]
+  while (frontier.length) {
+    frontier = frontier.flatMap((map) =>
+      (['x', 'y'] as const).flatMap((axis) => {
+        const next = (v: Vec3) => rotateN(map(v), axis, 1)
+        const key = next(probe).join()
+        if (found.has(key)) return []
+        found.set(key, next)
+        return [next]
+      }),
+    )
+  }
+  return [...found.values()]
+})()

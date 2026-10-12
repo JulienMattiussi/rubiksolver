@@ -132,6 +132,7 @@ src/
 │   ├── editorTables.ts   # Tables de saisie par forme : slots, placements valides étiquetés par pièce physique, budgets,
 │   │                     #   pièces fixes pré-remplies (centres du 3x3, demi-vis gauche des étoiles), stickers cachés (4-Star)
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
+│   ├── forms.ts          # Formes d'un puzzle déformable (tour) pour la saisie : formsOf, lookOf
 │   ├── validate.ts       # validateCube : comptage par couleur (déduit du puzzle résolu) + solubilité (résolution bornée ; invariants de pièces + vrille sur 4x4)
 │   ├── shape.ts          # Cube miroir : épaisseur de couche par couleur, boîte d'un cubie (cubieBox) déduite de ses stickers
 │   ├── moveGuide.ts      # Guide des mouvements : lignes par forme (coup + opposé, puis quantifié), describeMove
@@ -189,7 +190,7 @@ src/
 │   │                     #   CategoryIcon (plusieurs puzzles groupés : une catégorie se distingue d'un puzzle)
 │   ├── guide/            # Guide des mouvements : MoveGuideButton (dans PadHeader), MoveGuideDialog
 │   ├── solve/            # Résolution : SolvePanel, MethodSelect, StepList
-│   └── edit/             # Saisie : EditPanel, ColorPalette
+│   └── edit/             # Saisie : EditPanel, FormPicker (forme d'un puzzle déformable), ColorPalette
 ├── App.tsx               # Coquille : scène 3D plein écran + panneau en overlay (empilé sur mobile en saisie)
 └── main.tsx
 tests/
@@ -404,6 +405,24 @@ les stickers directement sur le rendu 3D (mode édition), en couleurs ou en
   emplacement porte une vraie pièce aux multiplicités exactes
   (`usesRealPieces`), et la vrille des coins est vérifiée en résolvant les 8
   coins renormalisés comme un 2x2 (`solveOptimal2`), rapide et borné.
+
+**Puzzles déformables (la tour)** : on saisit le puzzle dans la forme où il
+se trouve physiquement. La saisie commence par **choisir sa forme**
+(`FormPicker`) parmi celles qu'il peut prendre (`lib/forms.ts`) : un
+parcours en largeur sur l'état sans ses couleurs (où sont les pièces, quelles
+faces portent un sticker ; 2 187 pour la tour), puis les formes qui ne
+diffèrent que par la façon de tenir le puzzle (rotation entière, miroirs à
+part) sont fusionnées : 102, en vignettes (`formDrawing`) groupées par
+nombre de petits cubes isolés aux pointes (pièces qui n'en touchent qu'une
+autre : ce qu'on remarque d'abord sur une tour déformée), puis par
+éloignement de la boîte ; survoler une vignette montre la forme en 3D. La forme suffit à dire où sont les stickers. Les
+fonctions de saisie prennent cette forme (`form`, un état de cette forme) ;
+ses emplacements sont les siens, et un emplacement accepte toute pièce de
+son type tournée pour présenter ses stickers sur ses faces (aucune
+orientation du puzzle entier ne l'y met, la boîte étant rompue) : la
+validation dit ensuite si l'état est atteignable. « Depuis l'état actuel »
+saisit un puzzle déformé dans sa forme, sans passer par le choix. Un futur
+puzzle déformable n'a rien à ajouter : `formsOf` se déduit de ses coups.
 
 Les tables de saisie (emplacements + placements étiquetés + budgets) sont
 **dérivées par forme** du puzzle résolu correspondant et mémoïsées

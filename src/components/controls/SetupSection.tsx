@@ -1,6 +1,6 @@
 import { ArchiveRestore, Bookmark, Pencil, RotateCcw, Shuffle, Square } from 'lucide-react'
 import { useState } from 'react'
-import { cubeShape, isBoxed } from '@/lib/cube'
+import { cubeShape } from '@/lib/cube'
 import { isPyraminx, isStar } from '@/lib/types'
 import { encodeCube } from '@/lib/snapshot'
 import { useI18n } from '@/i18n/i18nStore'
@@ -65,13 +65,7 @@ export function SetupSection() {
           <Pencil className="size-4" aria-hidden />
           {t.editCube}
         </Button>
-        <Button
-          onClick={enterFromCurrent}
-          // Off its box a tower has pieces no editor slot can hold.
-          disabled={busy || !isBoxed(cube)}
-          title={isBoxed(cube) ? undefined : t.fromCurrentUnboxed}
-          variant="ghost"
-        >
+        <Button onClick={enterFromCurrent} disabled={busy} variant="ghost">
           {t.fromCurrent}
         </Button>
         <Button

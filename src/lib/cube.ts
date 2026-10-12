@@ -47,6 +47,19 @@ export const FACE_COLOR: Record<Face, CubeColor> = {
   L: 'O',
 }
 
+/**
+ * A shape's own color scheme, where its real puzzle differs from the
+ * standard one: the 2x2x4 tower is sold blue below, yellow behind.
+ */
+const SHAPE_SCHEME: Partial<Record<CubeShape, Partial<Record<Face, CubeColor>>>> = {
+  '224': { D: 'B', B: 'Y' },
+}
+
+/** Solved color of each face of a shape (`FACE_COLOR` unless it has its own). */
+export function faceColorsOf(shape: CubeShape): Record<Face, CubeColor> {
+  return { ...FACE_COLOR, ...SHAPE_SCHEME[shape] }
+}
+
 /** Opposite color of each color: the color of the face with the negated normal. */
 export const OPPOSITE_COLOR: Record<CubeColor, CubeColor> = Object.fromEntries(
   FACES_BY_NORMAL.map((face) => {
@@ -105,7 +118,7 @@ export function atHome(cubie: Cubie, shape: CubeShape): boolean {
   }
   return (
     slots.get(cubie.position.join(',')) === cubie.stickers.length &&
-    cubie.stickers.every((s) => s.color === FACE_COLOR[faceOfNormal(s.normal)])
+    cubie.stickers.every((s) => s.color === faceColorsOf(shape)[faceOfNormal(s.normal)])
   )
 }
 
@@ -135,6 +148,7 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (isStar(shape)) return solvedStar(shape)
   if (isPyraminx(shape)) return solvedPyra(shape)
   const dims = SHAPE_DIMS[shape]
+  const colors = faceColorsOf(shape)
   const cubies: Cubie[] = []
   for (const x of layerCoords(dims[0])) {
     for (const y of layerCoords(dims[1])) {
@@ -147,7 +161,7 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
           // the outermost layer of the axis, on the face's side. A one-layer
           // axis is outermost on both sides, so its cubies are stickered twice.
           if (position[spec.coordIndex] === outerCoord(dims[spec.coordIndex], spec.dir)) {
-            stickers.push({ normal: FACE_NORMAL[face], color: FACE_COLOR[face] })
+            stickers.push({ normal: FACE_NORMAL[face], color: colors[face] })
           }
         }
         cubies.push({ position, stickers })

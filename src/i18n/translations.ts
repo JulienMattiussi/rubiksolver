@@ -88,7 +88,16 @@ const fr = {
   filledOf: (n: number, total: number) => `${n} / ${total} stickers`,
   clearAll: 'Tout effacer',
   fromCurrent: 'Depuis l’état actuel',
-  fromCurrentUnboxed: 'Remettez d’abord la tour en forme',
+  chooseForm: 'Dans quelle forme est votre puzzle ?',
+  chooseFormHint:
+    'Choisissez la forme dans laquelle il se trouve, tenu comme sur la vignette (survolez-en une pour la voir en grand), avant d’en placer les couleurs. Elles sont rangées par nombre de petits cubes isolés aux pointes.',
+  formGroup: (tips: number) =>
+    tips === 0
+      ? 'Sans cube isolé'
+      : `${tips} cube${tips > 1 ? 's' : ''} isolé${tips > 1 ? 's' : ''}`,
+  formTile: (n: number, tips: number) =>
+    `Forme ${n}${n === 1 ? ' (d’origine)' : `, ${tips} cube${tips > 1 ? 's' : ''} isolé${tips > 1 ? 's' : ''}`}`,
+  changeForm: 'Changer de forme',
   saveState: 'Mémoriser',
   saveStateTitle: 'Mémoriser cet état pour y revenir (remplace le précédent)',
   savedAlready: 'Cet état est déjà mémorisé',
@@ -359,7 +368,14 @@ const en: Translations = {
   filledOf: (n: number, total: number) => `${n} / ${total} stickers`,
   clearAll: 'Clear all',
   fromCurrent: 'From current state',
-  fromCurrentUnboxed: 'Put the tower back in shape first',
+  chooseForm: 'What shape is your puzzle in?',
+  chooseFormHint:
+    'Pick the shape it stands in, held as in the thumbnail (hover one to see it large), before placing its colors. They are grouped by how many small cubes stick out alone.',
+  formGroup: (tips: number) =>
+    tips === 0 ? 'No cube sticking out' : `${tips} cube${tips > 1 ? 's' : ''} sticking out`,
+  formTile: (n: number, tips: number) =>
+    `Shape ${n}${n === 1 ? ' (original)' : `, ${tips} cube${tips > 1 ? 's' : ''} sticking out`}`,
+  changeForm: 'Change shape',
   saveState: 'Save',
   saveStateTitle: 'Save this state to come back to it (replaces the previous one)',
   savedAlready: 'This state is already saved',

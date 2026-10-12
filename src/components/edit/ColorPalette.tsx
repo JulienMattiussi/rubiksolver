@@ -29,7 +29,8 @@ export function ColorPalette() {
   const edit = useEditor((s) => s.edit)
   const selected = useEditor((s) => s.selectedColor)
   const setColor = useEditor((s) => s.setColor)
-  const { remaining } = progress(edit, shape)
+  const form = useEditor((s) => s.form)
+  const { remaining } = progress(edit, shape, form)
   // Thinnest first, so the swatches read as a scale.
   const palette = mirror ? byThickness(MIRROR_THICKNESS) : shapeColors(shape)
   const title = mirror ? t.paletteMirror : t.palette

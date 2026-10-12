@@ -31,16 +31,19 @@ import type { Color, Cube, CubeShape } from './types'
  *
  * This guarantees valid pieces during entry. Global solvability (parity) is
  * checked separately, see validate.ts.
+ *
+ * A shape-shifting puzzle is entered in the form it stands in: every function
+ * here takes that `form` (a state of it, see forms.ts), the box by default.
  */
 
 /** The slots a cube of `shape` exposes to the editor. */
-export function slotsFor(shape: CubeShape): readonly Slot[] {
-  return tablesFor(shape).slots
+export function slotsFor(shape: CubeShape, form?: Cube): readonly Slot[] {
+  return tablesFor(shape, form).slots
 }
 
 /** Whether the user can paint this slot on a cube of `shape`. */
-export function canPaint(shape: CubeShape, slotKey: string): boolean {
-  const slot = tablesFor(shape).byKey.get(slotKey)
+export function canPaint(shape: CubeShape, slotKey: string, form?: Cube): boolean {
+  const slot = tablesFor(shape, form).byKey.get(slotKey)
   return slot?.paintable ?? false
 }
 
@@ -48,9 +51,9 @@ export function canPaint(shape: CubeShape, slotKey: string): boolean {
 export type EditStickers = Record<string, Color>
 
 /** A blank slate: only the fixed pieces are set (see `Slot.paintable`). */
-export function emptyEdit(shape: CubeShape): EditStickers {
+export function emptyEdit(shape: CubeShape, form?: Cube): EditStickers {
   const edit: EditStickers = {}
-  for (const slot of slotsFor(shape)) {
+  for (const slot of slotsFor(shape, form)) {
     if (slot.paintable) continue
     for (const s of slot.stickers) edit[s.id] = s.solvedColor
   }
@@ -96,8 +99,9 @@ export function filledCount(edit: EditStickers): number {
 export function progress(
   edit: EditStickers,
   shape: CubeShape,
+  form?: Cube,
 ): { filled: number; total: number; remaining: Record<Color, number> } {
-  const shown = slotsFor(shape).flatMap((slot) => slot.stickers.filter((s) => !s.hidden))
+  const shown = slotsFor(shape, form).flatMap((slot) => slot.stickers.filter((s) => !s.hidden))
   const remaining = countColors(shown.map((s) => s.solvedColor))
   let filled = 0
   for (const s of shown) {
@@ -109,10 +113,9 @@ export function progress(
   return { filled, total: shown.length, remaining }
 }
 
-/** Every sticker slot of the shape is painted. Read off the slots, not a
- *  count: a cube taken from a shifted tower has stickers off the box. */
-export function isComplete(edit: EditStickers, shape: CubeShape): boolean {
-  return slotsFor(shape).every((slot) => slot.stickers.every((s) => edit[s.id] !== undefined))
+/** Every sticker slot of the shape (in that form) is painted. */
+export function isComplete(edit: EditStickers, shape: CubeShape, form?: Cube): boolean {
+  return slotsFor(shape, form).every((slot) => slot.stickers.every((s) => edit[s.id] !== undefined))
 }
 
 /** Painted colors of a slot, as a normal-index -> color map. */
@@ -176,8 +179,9 @@ export function paint(
   slotKey: string,
   ni: number,
   color: Color,
+  form?: Cube,
 ): EditStickers {
-  const tables = tablesFor(shape)
+  const tables = tablesFor(shape, form)
   const slot = tables.byKey.get(slotKey)
   if (!slot?.paintable) return edit
   const id = stickerId(slot.position, ni)
@@ -225,8 +229,8 @@ export function usesRealPieces(cube: Cube): boolean {
 }
 
 /** Build a full Cube from a complete edit state (throws if incomplete). */
-export function buildCube(edit: EditStickers, shape: CubeShape): Cube {
-  return slotsFor(shape).map((slot) => ({
+export function buildCube(edit: EditStickers, shape: CubeShape, form?: Cube): Cube {
+  return slotsFor(shape, form).map((slot) => ({
     position: slot.position,
     stickers: slot.stickers.map((s) => {
       const color = edit[s.id]

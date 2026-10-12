@@ -1,7 +1,15 @@
 import { cubeDims, solvedCube } from '@/lib/cube'
 import { normalIndex } from '@/lib/geometry'
 import { cubieBox, LAYER_THICKNESS } from '@/lib/shape'
-import { isGridless, isStar, type Color, type CubeShape, type CubeVariant } from '@/lib/types'
+import { lookOf } from '@/lib/forms'
+import {
+  isGridless,
+  isStar,
+  type Color,
+  type Cube,
+  type CubeShape,
+  type CubeVariant,
+} from '@/lib/types'
 import { visualPosition } from './layout'
 import { polyDrawing } from './polyDrawing'
 
@@ -88,8 +96,27 @@ export function isometricDrawing(shape: CubeShape, variant: CubeVariant): IsoDra
 
 function drawPuzzle(shape: CubeShape, variant: CubeVariant): IsoDrawing {
   if (isGridless(shape)) return drawPoly(shape)
-  const cube = solvedCube(shape)
+  return drawCubies(solvedCube(shape), variant)
+}
+
+const FORM_DRAWINGS = new Map<string, IsoDrawing>()
+
+/** The drawing of a form of a shape-shifting puzzle (forms.ts): its pieces
+ *  as they stand, every sticker in one neutral color (only the form shows). */
+export function formDrawing(shape: CubeShape, form: Cube): IsoDrawing {
+  const key = `${shape}|${lookOf(form)}`
+  let drawing = FORM_DRAWINGS.get(key)
+  if (!drawing) {
+    drawing = drawCubies(form, 'classic', 'W')
+    FORM_DRAWINGS.set(key, drawing)
+  }
+  return drawing
+}
+
+/** A grid puzzle's cubies as they stand (`neutral`: every sticker that color). */
+function drawCubies(cube: Cube, variant: CubeVariant, neutral?: Color): IsoDrawing {
   const dims = cubeDims(cube)
+  const cells = new Set(cube.map((c) => visualPosition(c.position, dims).join()))
   const faces: IsoFace[] = []
   for (const cubie of cube) {
     const { size, center } = cubieBox(cubie.stickers, LAYER_THICKNESS[variant])
@@ -99,13 +126,24 @@ function drawPuzzle(shape: CubeShape, variant: CubeVariant): IsoDrawing {
     const max = mid.map((v, a) => v + size[a]! / 2) as unknown as Point
     for (const { axis, shade } of VISIBLE) {
       const sticker = cubie.stickers.find((s) => normalIndex(s.normal) === 2 * axis)
-      if (!sticker) continue // an inner face: hidden behind a neighbor
+      // A face without sticker shows its plastic, unless a neighbor hides it
+      // (out of its box, a tower bares some).
+      const beside = cell.map((v, a) => (a === axis ? v + 1 : v)).join()
+      if (!sticker && cells.has(beside)) continue
       const corners = faceCorners(min, max, axis)
       faces.push({
         depth: mid[0]! + mid[1]! + mid[2]! + max[axis]! - mid[axis]!,
         polygons: [
           { points: toSvg(corners), paint: 'body', shade },
-          { points: toSvg(shrink(corners, STICKER_SCALE)), paint: sticker.color, shade },
+          ...(sticker
+            ? [
+                {
+                  points: toSvg(shrink(corners, STICKER_SCALE)),
+                  paint: neutral ?? sticker.color,
+                  shade,
+                },
+              ]
+            : []),
         ],
       })
     }

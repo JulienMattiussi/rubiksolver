@@ -25,14 +25,16 @@ export function EditView() {
   const dims = useCube((s) => cubeDims(s.cube))
   const mirror = useCube((s) => s.variant === 'mirror')
   const edit = useEditor((s) => s.edit)
+  // While a form is being chosen, the one hovered (the box otherwise).
+  const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
   const paintAt = useEditor((s) => s.paintAt)
   const thickness = LAYER_THICKNESS[mirror ? 'mirror' : 'classic']
   const [ox, oy, oz] = centeringOffset(thickness)
   return (
     <group scale={cubeScale(dims)}>
       <group position={[ox, oy, oz]}>
-        {slotsFor(shape).map((slot) => {
-          const paintable = canPaint(shape, slot.key)
+        {slotsFor(shape, form).map((slot) => {
+          const paintable = canPaint(shape, slot.key, form)
           const painted = slot.stickers.flatMap((s) => {
             const color = edit[s.id]
             return color ? [{ normal: s.normal, color }] : []

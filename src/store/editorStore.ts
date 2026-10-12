@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { cubeShape } from '@/lib/cube'
+import { cubeShape, isBoxed } from '@/lib/cube'
+import { formsOf } from '@/lib/forms'
 import {
   buildCube,
   cubeToEdit,
@@ -9,7 +10,7 @@ import {
   type EditStickers,
 } from '@/lib/editor'
 import { validateCube, type ValidationError } from '@/lib/validate'
-import type { Color, CubeShape } from '@/lib/types'
+import type { Color, Cube, CubeShape } from '@/lib/types'
 import { useCube } from './cubeStore'
 
 /** Shape of the cube being edited (the game's cube). */
@@ -17,6 +18,13 @@ const currentShape = (): CubeShape => cubeShape(useCube.getState().cube)
 
 interface EditorStore {
   mode: 'play' | 'edit'
+  /** A shape-shifting puzzle first picks the form it stands in (`form`),
+   *  then paints its colors on it. */
+  phase: 'form' | 'paint'
+  /** The form being entered (a state of it, see forms.ts); undefined: the box. */
+  form: Cube | undefined
+  /** The form hovered while choosing one, shown in 3D meanwhile. */
+  preview: Cube | undefined
   selectedColor: Color
   edit: EditStickers
   /** Reason the last apply was rejected, or null. */
@@ -24,6 +32,9 @@ interface EditorStore {
 
   enter: () => void
   enterFromCurrent: () => void
+  /** Paint on this form (a state of it), or go back to choosing one (null). */
+  pickForm: (form: Cube | null) => void
+  setPreview: (form: Cube | undefined) => void
   cancel: () => void
   setColor: (color: Color) => void
   paintAt: (slotKey: string, ni: number) => void
@@ -34,14 +45,45 @@ interface EditorStore {
 
 export const useEditor = create<EditorStore>((set, get) => ({
   mode: 'play',
+  phase: 'paint',
+  form: undefined,
+  preview: undefined,
   selectedColor: 'W',
   edit: emptyEdit('3'),
   error: null,
 
-  enter: () => set({ mode: 'edit', edit: emptyEdit(currentShape()), error: null }),
+  enter: () => {
+    const shape = currentShape()
+    const choose = formsOf(shape).length > 1
+    set({
+      mode: 'edit',
+      phase: choose ? 'form' : 'paint',
+      form: undefined,
+      preview: undefined,
+      edit: emptyEdit(shape),
+      error: null,
+    })
+  },
 
-  enterFromCurrent: () =>
-    set({ mode: 'edit', edit: cubeToEdit(useCube.getState().cube), error: null }),
+  enterFromCurrent: () => {
+    const cube = useCube.getState().cube
+    // Out of its box, the puzzle is entered in the form it stands in.
+    const form = isBoxed(cube) ? undefined : cube
+    set({ mode: 'edit', phase: 'paint', form, edit: cubeToEdit(cube), error: null })
+  },
+
+  pickForm: (form) =>
+    form
+      ? set({
+          phase: 'paint',
+          form,
+          preview: undefined,
+          edit: emptyEdit(currentShape(), form),
+          error: null,
+        })
+      : set({ phase: 'form', preview: undefined, error: null }),
+
+  setPreview: (preview) => set({ preview }),
 
   cancel: () => set({ mode: 'play', error: null }),
 
@@ -49,17 +91,17 @@ export const useEditor = create<EditorStore>((set, get) => ({
 
   paintAt: (slotKey, ni) =>
     set((s) => ({
-      edit: paint(s.edit, currentShape(), slotKey, ni, s.selectedColor),
+      edit: paint(s.edit, currentShape(), slotKey, ni, s.selectedColor, s.form),
       error: null,
     })),
 
-  clearAll: () => set({ edit: emptyEdit(currentShape()), error: null }),
+  clearAll: () => set((s) => ({ edit: emptyEdit(currentShape(), s.form), error: null })),
 
   apply: () => {
-    const { edit } = get()
+    const { edit, form } = get()
     const shape = currentShape()
-    if (!isComplete(edit, shape)) return false
-    const cube = buildCube(edit, shape)
+    if (!isComplete(edit, shape, form)) return false
+    const cube = buildCube(edit, shape, form)
     const result = validateCube(cube)
     if (!result.ok) {
       set({ error: result.error })

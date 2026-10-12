@@ -1,4 +1,4 @@
-import { atHome, FACE_COLOR, homesOf, isBoxed, isSolved } from '../cube'
+import { atHome, faceColorsOf, homesOf, isBoxed, isSolved } from '../cube'
 import { normalIndex } from '../geometry'
 import { invertMoves, parseMoves } from '../moves'
 import { moveSet } from '../moveSet'
@@ -64,9 +64,10 @@ const ALL = [...CORNERS, ...MIDDLES]
 /** Home in the tower (twins either way round, see `atHome`). */
 const isHome = (c: Cubie): boolean => atHome(c, '224')
 
-const UP_DOWN: readonly Color[] = [FACE_COLOR.U, FACE_COLOR.D]
+const COLORS = faceColorsOf('224')
+const UP_DOWN: readonly Color[] = [COLORS.U, COLORS.D]
 
-/** Which way a bar lies: the axis its corner's white or yellow sticker faces
+/** Which way a bar lies: the axis its corner's top or bottom sticker faces
  *  (y = standing). Bars are told apart by octant, a corner per octant. */
 function barAxis(corner: Cubie): number {
   const end = corner.stickers.find((s) => UP_DOWN.includes(s.color))!
@@ -98,7 +99,7 @@ function layoutKey(pieces: readonly Cubie[]): string {
 }
 
 const isBottomCorner = (c: Cubie): boolean =>
-  isCorner(c) && c.stickers.some((s) => s.color === FACE_COLOR.D)
+  isCorner(c) && c.stickers.some((s) => s.color === COLORS.D)
 
 // Step goals, on the whole tower.
 const shapeDone = (c: Cube) =>

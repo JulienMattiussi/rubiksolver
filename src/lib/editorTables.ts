@@ -1,14 +1,20 @@
 import { cubeOrientations, solvedCube } from './cube'
-import { normalIndex } from './geometry'
+import { lookOf } from './forms'
+import { AXIS_ROTATIONS, normalIndex } from './geometry'
 import { layerTurnsOf } from './moves'
 import { applyMove } from './turn'
-import { isStar, type Color, type CubeShape, type Cubie, type Vec3 } from './types'
+import { isStar, type Color, type Cube, type CubeShape, type Cubie, type Vec3 } from './types'
 
 /**
  * Slot and placement tables backing the guided editor (see editor.ts).
  * Everything here is derived per cube shape from that shape's solved cube and
  * memoized: the fixed slots, every valid piece placement per slot (from the
  * whole-puzzle orientations), and the physical-piece budgets.
+ *
+ * A shape-shifting puzzle is entered in the form it stands in (forms.ts):
+ * its slots are then that form's, and a slot takes any piece of its kind
+ * turned so its stickers face the slot's (no whole-puzzle orientation puts a
+ * piece there, the box being broken); validation tells the reachable ones.
  */
 
 const posKey = (p: Vec3): string => p.join(',')
@@ -91,7 +97,6 @@ export interface PlacementOption {
 function fixedPieces(shape: CubeShape): Set<number> {
   const solved = solvedCube(shape)
   // Turns keep the sticker order, so each sticker's normal can be compared.
-  const pose = (c: Cubie) => [c.position, ...c.stickers.map((s) => s.normal)].join('|')
   const fixed = new Set(solved.keys())
   for (const move of layerTurnsOf(shape)) {
     applyMove(solved, move).forEach((c, i) => {
@@ -112,25 +117,77 @@ export interface SlotTables {
   readonly budgets: ReadonlyMap<string, number>
 }
 
-const TABLES = new Map<CubeShape, SlotTables>()
+const TABLES = new Map<string, SlotTables>()
 
-/** Slot + placement tables of a cube shape, derived from its solved cube. */
-export function tablesFor(shape: CubeShape): SlotTables {
-  let tables = TABLES.get(shape)
+/** Slot + placement tables of a cube shape, derived from its solved cube, or
+ *  of one of its forms (a state of it: its colors are not read). */
+export function tablesFor(shape: CubeShape, form?: Cube): SlotTables {
+  const solved = solvedCube(shape)
+  const look = form ? lookOf(form) : ''
+  const boxed = !form || look === lookOf(solved)
+  const key = boxed ? shape : `${shape}|${look}`
+  let tables = TABLES.get(key)
   if (!tables) {
     const fixed = fixedPieces(shape)
-    const slots = solvedCube(shape).map((c, i) => toSlot(shape, c, fixed.has(i)))
+    const fixedPoses = new Set([...fixed].map((i) => pose(solved[i]!)))
+    const slots = boxed
+      ? solved.map((c, i) => toSlot(shape, c, fixed.has(i)))
+      : form.map((c) => toSlot(shape, c, fixedPoses.has(pose(c))))
     const paintableSlots = slots.filter((s) => s.paintable)
     tables = {
       slots,
       paintableSlots,
       byKey: new Map(slots.map((s) => [s.key, s])),
-      placements: computePlacements(shape, paintableSlots),
-      budgets: computeBudgets(shape, paintableSlots),
+      placements: boxed
+        ? computePlacements(shape, paintableSlots)
+        : turnedPlacements(shape, paintableSlots, fixed),
+      budgets: computeBudgets(shape, fixed),
     }
-    TABLES.set(shape, tables)
+    TABLES.set(key, tables)
   }
   return tables
+}
+
+/** Where a piece stands and where its stickers face, in order. */
+const pose = (c: Cubie) => [c.position, ...c.stickers.map((s) => s.normal)].join('|')
+
+/**
+ * Placements in a form's slots: every piece (but the fixed ones) turned by
+ * any whole-cube rotation that lays its stickers on the slot's faces. Each
+ * keeps its identity, as `computePlacements` does.
+ */
+function turnedPlacements(
+  shape: CubeShape,
+  paintableSlots: readonly Slot[],
+  fixed: Set<number>,
+): Map<string, PlacementOption[]> {
+  const solved = solvedCube(shape)
+  return new Map(
+    paintableSlots.map((slot) => {
+      const faces = slot.stickers
+        .map((s) => s.ni)
+        .sort((a, b) => a - b)
+        .join()
+      const options = new Map<string, PlacementOption>()
+      solved.forEach((cubie, i) => {
+        if (fixed.has(i) || cubie.stickers.length !== slot.stickers.length) return
+        for (const turn of AXIS_ROTATIONS) {
+          const colors: Placement = {}
+          for (const s of cubie.stickers) colors[normalIndex(turn(s.normal))] = s.color
+          const turnedFaces = Object.keys(colors)
+            .map(Number)
+            .sort((a, b) => a - b)
+            .join()
+          if (turnedFaces !== faces) continue
+          options.set(`${placementKey(colors)}|${i}`, {
+            colors,
+            pieceKey: pieceKeyOf(cubie, cubie.position),
+          })
+        }
+      })
+      return [slot.key, [...options.values()]]
+    }),
+  )
 }
 
 function placementKey(p: Placement): string {
@@ -174,14 +231,14 @@ function computePlacements(
   return new Map([...perSlot].map(([k, m]) => [k, [...m.values()]]))
 }
 
-/** Available physical pieces: every unique piece once, centers 4 per color. */
-function computeBudgets(shape: CubeShape, paintableSlots: readonly Slot[]): Map<string, number> {
-  const paintable = new Set(paintableSlots.map((s) => s.key))
+/** Available physical pieces (all but the fixed ones and the core): every
+ *  unique piece once, centers 4 per color. */
+function computeBudgets(shape: CubeShape, fixed: Set<number>): Map<string, number> {
   const budgets = new Map<string, number>()
-  for (const cubie of solvedCube(shape)) {
-    if (!paintable.has(posKey(cubie.position))) continue
+  solvedCube(shape).forEach((cubie, i) => {
+    if (fixed.has(i) || cubie.stickers.length === 0) return
     const key = pieceKeyOf(cubie, cubie.position)
     budgets.set(key, (budgets.get(key) ?? 0) + 1)
-  }
+  })
   return budgets
 }
