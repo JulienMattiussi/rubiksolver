@@ -102,9 +102,9 @@ describe('Pyraminx Jing validation and editor', () => {
   it('rejects a lone flipped edge, a lone twisted corner and two centers swapped', () => {
     const impossible = { ok: false, error: 'impossible' }
     const edge = SOLVED.findIndex((c) => c.stickers.length === 2)
-    expect(validateCube(repaint(SOLVED, edge, rolled))).toEqual(impossible)
+    expect(validateCube(repaint(SOLVED, edge, rolled))).toMatchObject(impossible)
     // The twist law: with the centers in place, the corners' twists add up to 0.
-    expect(validateCube(repaint(SOLVED, 0, rolled))).toEqual(impossible)
+    expect(validateCube(repaint(SOLVED, 0, rolled))).toMatchObject(impossible)
     const [a, b] = SOLVED.flatMap((c, i) => (c.stickers.length === 1 ? [i] : []))
     const swapped = SOLVED.map((c, i) =>
       i === a || i === b
@@ -119,6 +119,6 @@ describe('Pyraminx Jing validation and editor', () => {
           }
         : c,
     )
-    expect(validateCube(swapped)).toEqual(impossible)
+    expect(validateCube(swapped)).toMatchObject(impossible)
   })
 })

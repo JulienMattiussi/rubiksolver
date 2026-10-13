@@ -1,4 +1,4 @@
-import { cubeDims, FACE_COLOR, solvedCube } from '@/lib/cube'
+import { cubeDims, faceColorsOf, solvedCube } from '@/lib/cube'
 import { normalIndex } from '@/lib/geometry'
 import { cubieBox, LAYER_THICKNESS } from '@/lib/shape'
 import { lookOf } from '@/lib/forms'
@@ -210,7 +210,11 @@ function drawGear(): IsoDrawing {
       depth: 0,
       polygons: [
         { points: toSvg(square), paint: 'body' as const, shade },
-        ...pieces.map((poly) => ({ points: toSvg(poly), paint: FACE_COLOR[face], shade })),
+        ...pieces.map((poly) => ({
+          points: toSvg(poly),
+          paint: faceColorsOf('gearU')[face],
+          shade,
+        })),
       ],
     }
   })

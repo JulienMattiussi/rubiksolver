@@ -6,16 +6,31 @@ import {
   cubeToEdit,
   emptyEdit,
   isComplete,
+  paletteColors,
   paint,
   type EditStickers,
 } from '@/lib/editor'
+import {
+  completeGears,
+  gearColorsOf,
+  gearsPainted,
+  paintGear,
+  turnedOf,
+  type GearColors,
+} from '@/lib/gearEditor'
 import { nextPiece } from '@/lib/pieceEditor'
 import { validateCube, type ValidationError } from '@/lib/validate'
-import type { Color, Cube, CubeShape } from '@/lib/types'
+import { isGear, type Color, type Cube, type CubeShape } from '@/lib/types'
 import { useCube } from './cubeStore'
 
 /** Shape of the cube being edited (the game's cube). */
 const currentShape = (): CubeShape => cubeShape(useCube.getState().cube)
+
+/** The color picked, kept if the palette has it, else its first. */
+const pickable = (selected: Color, form?: Cube): Color => {
+  const colors = paletteColors(currentShape(), form)
+  return colors.includes(selected) ? selected : (colors[0] ?? selected)
+}
 
 interface EditorStore {
   mode: 'play' | 'edit'
@@ -28,8 +43,13 @@ interface EditorStore {
   preview: Cube | undefined
   selectedColor: Color
   edit: EditStickers
-  /** Reason the last apply was rejected, or null. */
-  error: ValidationError | null
+  /** A Gear Cube's gears, painted apart from their clips (gearEditor.ts). */
+  gear: GearColors
+  /** Reason the last apply was rejected (`gears`: a gear not its clips'
+   *  colors), or null. */
+  error: ValidationError | 'gears' | null
+  /** The solving step that found the cube impossible, when one did. */
+  failedStep: string | null
 
   enter: () => void
   enterFromCurrent: () => void
@@ -39,6 +59,8 @@ interface EditorStore {
   cancel: () => void
   setColor: (color: Color) => void
   paintAt: (slotKey: string, ni: number) => void
+  /** Paint a face of a Gear Cube's gear (see gearEditor.ts). */
+  paintGearAt: (slotKey: string, ni: number) => void
   /** Put the next piece that fits in a slot (a puzzle entered piece by
    *  piece, see pieceEditor.ts). */
   cycleAt: (slotKey: string) => void
@@ -54,7 +76,9 @@ export const useEditor = create<EditorStore>((set, get) => ({
   preview: undefined,
   selectedColor: 'W',
   edit: emptyEdit('3'),
+  gear: {},
   error: null,
+  failedStep: null,
 
   enter: () => {
     const shape = currentShape()
@@ -65,6 +89,8 @@ export const useEditor = create<EditorStore>((set, get) => ({
       form: undefined,
       preview: undefined,
       edit: emptyEdit(shape),
+      gear: {},
+      selectedColor: pickable(get().selectedColor),
       error: null,
     })
   },
@@ -73,7 +99,15 @@ export const useEditor = create<EditorStore>((set, get) => ({
     const cube = useCube.getState().cube
     // Out of its original form, the puzzle is entered in the one it stands in.
     const form = formOf(cube)
-    set({ mode: 'edit', phase: 'paint', form, edit: cubeToEdit(cube), error: null })
+    set({
+      mode: 'edit',
+      phase: 'paint',
+      form,
+      edit: cubeToEdit(cube),
+      gear: gearColorsOf(cube),
+      selectedColor: pickable(get().selectedColor, form),
+      error: null,
+    })
   },
 
   pickForm: (form) =>
@@ -83,6 +117,8 @@ export const useEditor = create<EditorStore>((set, get) => ({
           form,
           preview: undefined,
           edit: emptyEdit(currentShape(), form),
+          gear: {},
+          selectedColor: pickable(get().selectedColor, form),
           error: null,
         })
       : set({ phase: 'form', preview: undefined, error: null }),
@@ -94,24 +130,41 @@ export const useEditor = create<EditorStore>((set, get) => ({
   setColor: (selectedColor) => set({ selectedColor }),
 
   paintAt: (slotKey, ni) =>
+    set((s) => {
+      const edit = paint(s.edit, currentShape(), slotKey, ni, s.selectedColor, s.form)
+      return {
+        edit,
+        gear: isGear(currentShape()) ? completeGears(s.gear, edit) : s.gear,
+        error: null,
+      }
+    }),
+
+  paintGearAt: (slotKey, ni) =>
     set((s) => ({
-      edit: paint(s.edit, currentShape(), slotKey, ni, s.selectedColor, s.form),
+      gear: paintGear(s.gear, s.edit, slotKey, ni, s.selectedColor),
       error: null,
     })),
 
   cycleAt: (slotKey) =>
     set((s) => ({ edit: nextPiece(s.edit, currentShape(), slotKey), error: null })),
 
-  clearAll: () => set((s) => ({ edit: emptyEdit(currentShape(), s.form), error: null })),
+  clearAll: () => set((s) => ({ edit: emptyEdit(currentShape(), s.form), gear: {}, error: null })),
 
   apply: () => {
-    const { edit, form } = get()
+    const { edit, form, gear } = get()
     const shape = currentShape()
     if (!isComplete(edit, shape, form)) return false
-    const cube = buildCube(edit, shape, form)
+    const gears = isGear(shape)
+    if (gears && gearsPainted(gear).painted < gearsPainted(gear).total) return false
+    const turned = gears ? turnedOf(gear, edit) : []
+    if (!turned) {
+      set({ error: 'gears' })
+      return false
+    }
+    const cube = buildCube(edit, shape, form, turned)
     const result = validateCube(cube)
     if (!result.ok) {
-      set({ error: result.error })
+      set({ error: result.error, failedStep: result.step ?? null })
       return false
     }
     useCube.getState().loadCube(cube)

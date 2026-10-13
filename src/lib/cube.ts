@@ -58,12 +58,15 @@ export const FACE_COLOR: Record<Face, CubeColor> = {
  * A shape's own color scheme, where its real puzzle differs from the
  * standard one: the 2x2x4 tower is sold blue below, yellow behind.
  */
-const SHAPE_SCHEME: Partial<Record<CubeShape, Partial<Record<Face, CubeColor>>>> = {
+const SHAPE_SCHEME: Partial<Record<CubeShape, Partial<Record<Face, Color>>>> = {
   '224': { D: 'B', B: 'Y' },
+  // The Gear Cube Ultimate: violet in place of red, red in place of orange,
+  // dark green.
+  gearU: { R: 'V', L: 'R', F: 'E' },
 }
 
 /** Solved color of each face of a shape (`FACE_COLOR` unless it has its own). */
-export function faceColorsOf(shape: CubeShape): Record<Face, CubeColor> {
+export function faceColorsOf(shape: CubeShape): Record<Face, Color> {
   return { ...FACE_COLOR, ...SHAPE_SCHEME[shape] }
 }
 
@@ -96,7 +99,15 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (shape === 'vto') return solvedVto()
   if (shape === 'gem') return solvedGem()
   if (shape === 'rainbow') return solvedRainbow()
-  if (isGear(shape)) return withGears(solvedCube('3'))
+  if (isGear(shape)) {
+    const colors = faceColorsOf(shape)
+    return withGears(
+      solvedCube('3').map((c) => ({
+        ...c,
+        stickers: c.stickers.map((s) => ({ ...s, color: colors[faceOfNormal(s.normal)] })),
+      })),
+    )
+  }
   if (shape === 'violet') return solvedViolet()
   if (shape === 'ghost') return solvedGhost()
   const dims = SHAPE_DIMS[shape]

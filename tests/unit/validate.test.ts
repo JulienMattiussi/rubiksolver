@@ -25,7 +25,7 @@ describe('validateCube', () => {
 
   it('rejects a single flipped edge', () => {
     // Edge (1,0,1): +x is red, +z is green in solved. Swap them.
-    expect(validateCube(withStickers({ '1,0,1:0': 'G', '1,0,1:4': 'R' }))).toEqual({
+    expect(validateCube(withStickers({ '1,0,1:0': 'G', '1,0,1:4': 'R' }))).toMatchObject({
       ok: false,
       error: 'impossible',
     })
@@ -33,7 +33,9 @@ describe('validateCube', () => {
 
   it('rejects a single twisted corner', () => {
     // Corner (1,1,1): +x=R, +y=W, +z=G. Cycle the colors around the piece.
-    expect(validateCube(withStickers({ '1,1,1:0': 'G', '1,1,1:2': 'R', '1,1,1:4': 'W' }))).toEqual({
+    expect(
+      validateCube(withStickers({ '1,1,1:0': 'G', '1,1,1:2': 'R', '1,1,1:4': 'W' })),
+    ).toMatchObject({
       ok: false,
       error: 'impossible',
     })
@@ -41,7 +43,7 @@ describe('validateCube', () => {
 
   it('rejects two swapped edges', () => {
     // Swap edges (1,0,1)=R,G and (1,0,-1)=R,B (a single transposition).
-    expect(validateCube(withStickers({ '1,0,1:4': 'B', '1,0,-1:5': 'G' }))).toEqual({
+    expect(validateCube(withStickers({ '1,0,1:4': 'B', '1,0,-1:5': 'G' }))).toMatchObject({
       ok: false,
       error: 'impossible',
     })
@@ -55,7 +57,7 @@ describe('validateCube (2x2)', () => {
   })
 
   it('rejects a single twisted corner', () => {
-    expect(validateCube(twistedCorner2())).toEqual({ ok: false, error: 'impossible' })
+    expect(validateCube(twistedCorner2())).toMatchObject({ ok: false, error: 'impossible' })
   }, 30000)
 })
 
@@ -73,13 +75,13 @@ describe('validateCube (4x4)', () => {
   })
 
   it('rejects a single twisted corner', () => {
-    expect(validateCube(twistedCorner('4'))).toEqual({ ok: false, error: 'impossible' })
+    expect(validateCube(twistedCorner('4'))).toMatchObject({ ok: false, error: 'impossible' })
   }, 30000)
 
   it('rejects a flipped wing (its chiral twin would be used twice)', () => {
     // Swapping the two stickers of one wing shows the disposition of its
     // twin, which already sits on the other UF cell: duplicate piece.
-    expect(validateCube(withStickers4({ '1,3,3:2': 'G', '1,3,3:4': 'W' }))).toEqual({
+    expect(validateCube(withStickers4({ '1,3,3:2': 'G', '1,3,3:4': 'W' }))).toMatchObject({
       ok: false,
       error: 'impossible',
     })
@@ -88,7 +90,7 @@ describe('validateCube (4x4)', () => {
   it('rejects a non-existent piece (opposite colors on one wing)', () => {
     // Trade a wing sticker for a center sticker: counts stay right, but a
     // white-yellow wing does not exist on a real cube.
-    expect(validateCube(withStickers4({ '1,3,3:4': 'Y', '1,-3,1:3': 'G' }))).toEqual({
+    expect(validateCube(withStickers4({ '1,3,3:4': 'Y', '1,-3,1:3': 'G' }))).toMatchObject({
       ok: false,
       error: 'impossible',
     })
@@ -114,7 +116,7 @@ describe('validateCube (tower and Domino)', () => {
           ok: true,
         })
       }
-      expect(validateCube(twistedCorner(shape))).toEqual({ ok: false, error: 'impossible' })
+      expect(validateCube(twistedCorner(shape))).toMatchObject({ ok: false, error: 'impossible' })
     },
   )
 })

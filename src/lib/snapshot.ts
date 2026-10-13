@@ -24,7 +24,7 @@ export function encodeCube(cube: Cube): string {
 }
 
 function decodeCubie(token: string): Cubie | null {
-  const match = /^(-?\d+),(-?\d+),(-?\d+):((?:[0-9a-z][A-Z])*)(?:@([0-2]))?$/.exec(token)
+  const match = /^(-?\d+),(-?\d+),(-?\d+):((?:[0-9a-z][A-Z])*)(?:@([0-5]))?$/.exec(token)
   if (!match) return null
   const stickers = (match[4]!.match(/../g) ?? []).map((s) => ({
     normal: normalOfIndex(parseInt(s[0]!, 36)),

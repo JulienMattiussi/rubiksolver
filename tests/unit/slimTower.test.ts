@@ -39,6 +39,6 @@ describe('Slim Tower (2x2x3)', () => {
   })
 
   it('rejects a twisted corner', () => {
-    expect(validateCube(twistedCorner('223'))).toEqual({ ok: false, error: 'impossible' })
+    expect(validateCube(twistedCorner('223'))).toMatchObject({ ok: false, error: 'impossible' })
   })
 })

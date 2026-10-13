@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { FACE_COLOR, stickersOfColor } from '@/lib/cube'
+import { FACE_COLOR, faceColorsOf, stickersOfColor } from '@/lib/cube'
 import { isGear, isPolyDrawn, SHAPE_DIMS, type CubeShape, type CubeVariant } from '@/lib/types'
 import { isometricDrawing } from '@/three/isometric'
 
@@ -27,7 +27,10 @@ describe('isometric thumbnails', () => {
     const { polygons } = isometricDrawing('gearU', 'classic')
     expect(polygons.filter((p) => p.paint === 'body')).toHaveLength(3)
     const colors = new Set(polygons.filter((p) => p.paint !== 'body').map((p) => p.paint))
-    expect([...colors].sort()).toEqual([FACE_COLOR.F, FACE_COLOR.R, FACE_COLOR.U].sort())
+    // Its own colors: dark green in front (violet in place of red).
+    const own = faceColorsOf('gearU')
+    expect([...colors].sort()).toEqual([own.F, own.R, own.U].sort())
+    expect(own.F).toBe('E')
   })
 
   it('shades the sides darker than the top', () => {

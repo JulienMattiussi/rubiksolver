@@ -113,12 +113,12 @@ const reversed = (c: Cubie): Cubie => ({
 describe('Pyraminx validation and editor', () => {
   it('rejects a lone flipped edge and a center piece in mirror image', () => {
     const edge = SOLVED.findIndex((c) => c.stickers.length === 2)
-    expect(validateCube(repaint(SOLVED, edge, reversed))).toEqual({
+    expect(validateCube(repaint(SOLVED, edge, reversed))).toMatchObject({
       ok: false,
       error: 'impossible',
     })
     const center = SOLVED.findIndex((c) => c.position.every((v) => Math.abs(v) === 1))
-    expect(validateCube(repaint(SOLVED, center, reversed))).toEqual({
+    expect(validateCube(repaint(SOLVED, center, reversed))).toMatchObject({
       ok: false,
       error: 'impossible',
     })

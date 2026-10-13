@@ -160,7 +160,7 @@ describe('Violet', () => {
         : c,
     )
     expect(validateCube(SOLVED)).toEqual({ ok: true })
-    expect(validateCube(swapped)).toEqual({ ok: false, error: 'impossible' })
+    expect(validateCube(swapped)).toMatchObject({ ok: false, error: 'impossible' })
   })
 
   it('is painted in as it stands, scrambled, sticker by sticker', () => {

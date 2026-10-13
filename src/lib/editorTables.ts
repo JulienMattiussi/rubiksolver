@@ -4,6 +4,7 @@ import { AXIS_ROTATIONS, normalIndex } from './geometry'
 import { layerTurnsOf } from './moves'
 import { applyMove } from './turn'
 import {
+  isGear,
   isStar,
   SHAPE_SHIFTS,
   type Color,
@@ -100,10 +101,16 @@ export interface PlacementOption {
  * its position and the normals of its stickers. The 3x3's centers (which only
  * spin), the Domino's, the Floppy's, a star prism's left screw half (the
  * slash only turns the right one); never a 4x4 center, nor a Floppy edge
- * (a half turn flips it in place).
+ * (a half turn flips it in place). A Gear Cube's centers too: its slices
+ * move them, but always as a whole (a slice's quarter turn turns all six
+ * about its axis), so holding the cube right puts them home, as the editor
+ * does (`withFixedHome`).
  */
 function fixedPieces(shape: CubeShape): Set<number> {
   const solved = solvedCube(shape)
+  if (isGear(shape)) {
+    return new Set([...solved.keys()].filter((i) => solved[i]!.stickers.length === 1))
+  }
   // Turns keep the sticker order, so each sticker's normal can be compared.
   const fixed = new Set(solved.keys())
   for (const move of layerTurnsOf(shape)) {

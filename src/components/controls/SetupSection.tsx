@@ -1,6 +1,7 @@
 import { ArchiveRestore, Bookmark, RotateCcw, Shuffle, Square } from 'lucide-react'
 import { useState } from 'react'
 import { cubeShape } from '@/lib/cube'
+import { gearsAligned } from '@/lib/gear'
 import { isGear, isPyraminx, isStar } from '@/lib/types'
 import { encodeCube } from '@/lib/snapshot'
 import { useI18n } from '@/i18n/i18nStore'
@@ -43,6 +44,7 @@ export function SetupSection() {
   const solving = useCube((s) => s.solving)
   const solved = useCube(selectSolved)
   const alreadySaved = saved?.cube === encodeCube(cube)
+  const aligned = gearsAligned(cube)
   const savedTime = saved
     ? new Date(saved.savedAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
     : ''
@@ -67,18 +69,19 @@ export function SetupSection() {
             {t.reset}
           </Button>
         )}
-        {/* No entry yet for a Gear Cube: its gears' spin is not painted. */}
-        {!isGear(shape) && (
-          <>
-            <Button onClick={enterEdit} disabled={busy} variant="edit">
-              <FEATURE_ICON.edit className="size-4" aria-hidden />
-              {t.editCube}
-            </Button>
-            <Button onClick={enterFromCurrent} disabled={busy} variant="ghost">
-              {t.fromCurrent}
-            </Button>
-          </>
-        )}
+        <Button onClick={enterEdit} disabled={busy} variant="edit">
+          <FEATURE_ICON.edit className="size-4" aria-hidden />
+          {t.editCube}
+        </Button>
+        {/* A Gear Cube is entered in the cube's shape: its gears aligned. */}
+        <Button
+          onClick={enterFromCurrent}
+          disabled={busy || !aligned}
+          variant="ghost"
+          title={aligned ? undefined : t.gearsNotAligned}
+        >
+          {t.fromCurrent}
+        </Button>
         <Button
           // Overwriting another memorized state asks first; a first save does not.
           onClick={() => (saved ? setConfirmReplace(true) : save(cube))}

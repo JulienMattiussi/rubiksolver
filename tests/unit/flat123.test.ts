@@ -87,6 +87,6 @@ describe('1x2x3 editor and validation', () => {
       },
       ...rest,
     ]
-    expect(validateCube(flipped)).toEqual({ ok: false, error: 'impossible' })
+    expect(validateCube(flipped)).toMatchObject({ ok: false, error: 'impossible' })
   })
 })

@@ -76,6 +76,6 @@ describe('5x5', () => {
   }, 60000)
 
   it('rejects a twisted corner', () => {
-    expect(validateCube(twistedCorner('5'))).toEqual({ ok: false, error: 'impossible' })
+    expect(validateCube(twistedCorner('5'))).toMatchObject({ ok: false, error: 'impossible' })
   }, 60000)
 })

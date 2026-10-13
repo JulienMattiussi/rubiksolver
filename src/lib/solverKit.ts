@@ -187,6 +187,16 @@ export function planOutline(plan: MethodPlan): { key: string; optional?: true }[
 export type MethodPlan = readonly StepSpec[]
 
 /** Run a method's steps, emitting one named step each (empty ones dropped). */
+/** A step that cannot reach its goal (an impossible puzzle, as far as this
+ *  method goes): which one, for the editor to say where to look. */
+export class StepFailure extends Error {
+  readonly step: string
+  constructor(step: string, cause: unknown) {
+    super(`${step}: ${cause instanceof Error ? cause.message : String(cause)}`)
+    this.step = step
+  }
+}
+
 export function buildSteps(cube: Cube, plan: MethodPlan): SolveStep[] {
   if (isSolved(cube)) return []
   let state = cube
@@ -194,7 +204,12 @@ export function buildSteps(cube: Cube, plan: MethodPlan): SolveStep[] {
   for (const spec of plan) {
     let moves: Turn[] = []
     for (const phase of spec.phases) {
-      const m = phase(state)
+      let m: Turn[]
+      try {
+        m = phase(state)
+      } catch (cause) {
+        throw new StepFailure(spec.key, cause)
+      }
       state = applyMoves(state, m)
       moves = moves.concat(m)
     }

@@ -121,6 +121,6 @@ describe('Floppy Ghost', () => {
     let edit = cubeToEdit(SOLVED)
     edit = nextPiece(edit, 'ghost', GHOST_SLOTS[0]!.join(','))
     expect(isComplete(edit, 'ghost')).toBe(true)
-    expect(validateCube(buildCube(edit, 'ghost'))).toEqual({ ok: false, error: 'impossible' })
+    expect(validateCube(buildCube(edit, 'ghost'))).toMatchObject({ ok: false, error: 'impossible' })
   })
 })

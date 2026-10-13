@@ -143,12 +143,12 @@ describe('Master Pyraminx validation and editor', () => {
           }
         : c,
     )
-    expect(validateCube(flipped)).toEqual({ ok: false, error: 'impossible' })
+    expect(validateCube(flipped)).toMatchObject({ ok: false, error: 'impossible' })
     // Two wings of different edges, sharing no color.
     const wings = SOLVED.flatMap((c, i) => (kindAt(c.position) === 'wing' ? [i] : []))
     const colors = (i: number) => SOLVED[i]!.stickers.map((s) => s.color)
     const other = wings.find((w) => !colors(w).some((c) => colors(wings[0]!).includes(c)))!
-    expect(validateCube(swapColors(SOLVED, wings[0]!, other))).toEqual({
+    expect(validateCube(swapColors(SOLVED, wings[0]!, other))).toMatchObject({
       ok: false,
       error: 'impossible',
     })

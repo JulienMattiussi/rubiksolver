@@ -1,4 +1,11 @@
-import { countColors, cubeOrientations, cubeShape, solvedCube, stickersTotal } from './cube'
+import {
+  countColors,
+  cubeOrientations,
+  cubeShape,
+  shapeColors,
+  solvedCube,
+  stickersTotal,
+} from './cube'
 import { normalIndex } from './geometry'
 import {
   stickerId,
@@ -9,7 +16,8 @@ import {
   type SlotTables,
 } from './editorTables'
 import { entersByPieces, piecesCube } from './pieceEditor'
-import type { Color, Cube, CubeShape } from './types'
+import { withTurnedGears } from './gear'
+import { isGear, type Color, type Cube, type CubeShape } from './types'
 
 /**
  * Constraint-guided cube editor logic (pure, no React / three.js).
@@ -42,6 +50,13 @@ import type { Color, Cube, CubeShape } from './types'
 /** The slots a cube of `shape` exposes to the editor. */
 export function slotsFor(shape: CubeShape, form?: Cube): readonly Slot[] {
   return tablesFor(shape, form).slots
+}
+
+/** The colors to pick from: the shape's, but one its pre-filled stickers
+ *  all take (the Violet's violet). */
+export function paletteColors(shape: CubeShape, form?: Cube): Color[] {
+  const { remaining } = progress(emptyEdit(shape, form), shape, form)
+  return shapeColors(shape).filter((c) => remaining[c] > 0)
 }
 
 /** Whether the user can paint this slot on a cube of `shape`. */
@@ -91,7 +106,7 @@ export function cubeToEdit(cube: Cube): EditStickers {
  * move its centers, and the centers they leave always match a whole-cube
  * rotation. Turning the cube that way is the same position, seen otherwise.
  */
-function withFixedHome(cube: Cube): Cube {
+export function withFixedHome(cube: Cube): Cube {
   const fixed = tablesFor(cubeShape(cube)).slots.filter((s) => !s.paintable && s.stickers.length)
   const home = (c: Cube) =>
     fixed.every((slot) => {
@@ -252,13 +267,19 @@ export function usesRealPieces(cube: Cube): boolean {
 }
 
 /** Build a full Cube from a complete edit state (throws if incomplete). */
-export function buildCube(edit: EditStickers, shape: CubeShape, form?: Cube): Cube {
+export function buildCube(
+  edit: EditStickers,
+  shape: CubeShape,
+  form?: Cube,
+  /** A Gear Cube's edges whose gear is turned over on its clips. */
+  turned: readonly string[] = [],
+): Cube {
   if (entersByPieces(shape)) {
     const cube = piecesCube(edit, shape)
     if (!cube) throw new Error('buildCube: a slot holds no piece')
     return cube
   }
-  return slotsFor(shape, form).map((slot) => ({
+  const cube = slotsFor(shape, form).map((slot) => ({
     position: slot.position,
     stickers: slot.stickers.map((s) => {
       const color = edit[s.id]
@@ -266,4 +287,7 @@ export function buildCube(edit: EditStickers, shape: CubeShape, form?: Cube): Cu
       return { normal: s.normal, color }
     }),
   }))
+  // A Gear Cube is entered in the cube's shape: its gears at rest, some
+  // maybe turned over on their clips.
+  return isGear(shape) ? withTurnedGears(cube, turned) : cube
 }

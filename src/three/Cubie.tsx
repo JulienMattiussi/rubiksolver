@@ -21,19 +21,35 @@ export function Cubie({
   spinning,
   progress,
   smallCenter = false,
+  colors,
+  onSelect,
+  onSelectGear,
+  gearColors,
+  onHover,
+  lit,
 }: {
   cubie: CubieType
   dims: Dims
   variant: CubeVariant
   /** Part of the turn a hovered pad button would make. */
   highlighted?: boolean
-  /** A Gear Cube's gear in a turning slice: the thirds it spins, and how far
+  /** A Gear Cube's gear in a turning slice: the sixths it spins, and how far
    *  along the turn is. */
   spinning?: number
   progress?: RefObject<number>
   /** On a Gear Cube: a small center square, its clips around it, and
    *  corners notched by the gears. */
   smallCenter?: boolean
+  /** In edit mode, a Gear Cube's piece: its colors, and a click painting
+   *  one of its stickers (see GearCorner). */
+  colors?: readonly string[]
+  onSelect?: (sticker: number) => void
+  onSelectGear?: (sticker: number) => void
+  gearColors?: readonly string[]
+  /** In edit mode, told when the pointer comes onto one of its faces and
+   *  leaves, and the face to light up (see GearCorner). */
+  onHover?: (face: string, on: boolean) => void
+  lit?: string | null
 }) {
   // A Gear Cube's core: a black block filling the middle, so the gaps
   // between the pieces' shaped bodies show no hole.
@@ -49,7 +65,14 @@ export function Cubie({
   if (smallCenter && (cubie.stickers.length === 3 || cubie.stickers.length === 1)) {
     return (
       <group position={visualPosition(cubie.position, dims)}>
-        <GearCorner cubie={cubie} highlighted={highlighted} />
+        <GearCorner
+          cubie={cubie}
+          highlighted={highlighted}
+          colors={colors}
+          onSelect={onSelect}
+          onHover={onHover}
+          lit={lit}
+        />
       </group>
     )
   }
@@ -57,7 +80,18 @@ export function Cubie({
   if (cubie.spin !== undefined) {
     return (
       <group position={visualPosition(cubie.position, dims)}>
-        <GearEdge cubie={cubie} highlighted={highlighted} spinning={spinning} progress={progress} />
+        <GearEdge
+          cubie={cubie}
+          highlighted={highlighted}
+          spinning={spinning}
+          progress={progress}
+          colors={colors}
+          onSelect={onSelect}
+          onSelectGear={onSelectGear}
+          gearColors={gearColors}
+          onHover={onHover}
+          lit={lit}
+        />
       </group>
     )
   }

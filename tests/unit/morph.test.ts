@@ -64,6 +64,6 @@ describe('Pyramorphinx solving and validation', () => {
           }
         : c,
     )
-    expect(validateCube(mirrored)).toEqual({ ok: false, error: 'impossible' })
+    expect(validateCube(mirrored)).toMatchObject({ ok: false, error: 'impossible' })
   })
 })

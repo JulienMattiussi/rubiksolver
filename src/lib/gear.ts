@@ -10,14 +10,25 @@ import type { Cube, Cubie, Face, GearMove, Vec3 } from './types'
  * the only move (fan2cube's D², Jaap's R): a face's quarter turn would leave
  * the slice at 45 degrees, where nothing else can turn.
  *
- * The slice's four gears spin while it turns, a third of a turn (120
- * degrees) each move: the same way for a clockwise turn of either face (the
- * two suns turn opposite ways around their carrier), counted here seen from
- * outside the gear. They all share that spin, which no cube rotation can
- * say: each edge keeps it (`Cubie.spin`, in thirds). The Ultimate's gears,
- * not round, fit the cube again every three moves (six quarter turns of a
- * face: what the real puzzle shows).
+ * The slice's four gears spin on their bases (the clips) while it turns,
+ * five sixths of a turn (300 degrees, about the 135 degrees per quarter
+ * turn of a face measured on the real puzzle) each move: the same way for
+ * a clockwise turn of either face (the two suns turn opposite ways around
+ * their carrier), counted here seen from outside the gear. They all share
+ * that spin, which no cube rotation can say: each edge keeps it
+ * (`Cubie.spin`, in sixths). A gear's shape has a half turn's symmetry, so
+ * the Ultimate's gears fit the cube again every three moves (six quarter
+ * turns of a face: what the real puzzle shows), turned over on their
+ * bases: a gear's colors need not be its clips'. Four moves pivot them a
+ * notch (a third), twelve bring them home.
  */
+
+/** A clockwise move's spin, in sixths of a turn. */
+const GEAR_SPIN = 5
+
+/** How far a move spins its slice's gears, in sixths (signed). */
+export const gearSpinOf = (move: GearMove): number =>
+  (move.amount === 1 ? 1 : -1) * (move.times ?? 1) * GEAR_SPIN
 
 /** A Gear Cube from a 3x3x3 (its solved one): every edge a gear, at rest. */
 export function withGears(cube: Cube): Cube {
@@ -30,7 +41,7 @@ function turned(c: Cubie, axis: 'x' | 'y' | 'z', times: number, spin = 0): Cubie
     ...c,
     position: rotateN(c.position, axis, times),
     stickers: c.stickers.map((s) => ({ normal: rotateN(s.normal, axis, times), color: s.color })),
-    ...(c.spin !== undefined && { spin: (((c.spin + spin) % 3) + 3) % 3 }),
+    ...(c.spin !== undefined && { spin: (((c.spin + spin) % 6) + 6) % 6 }),
   }
 }
 
@@ -44,13 +55,34 @@ export function applyGearMove(cube: Cube, move: GearMove): Cube {
   return cube.map((c) => {
     const at = c.position[coordIndex]!
     if (at === dir) return turned(c, axis, 2) // the face: a half turn
-    // The slice: a quarter, the face's way; its gears spin a third.
-    if (at === 0) return turned(c, axis, sign * way, c.spin === undefined ? 0 : way)
+    // The slice: a quarter, the face's way; its gears spin five sixths.
+    if (at === 0) return turned(c, axis, sign * way, c.spin === undefined ? 0 : way * GEAR_SPIN)
     return c // the opposite face, held
   })
 }
 
 const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
+
+/** Whether every gear is back in the cube's shape (no spin left, or half
+ *  a turn: turned over on its base): the shape a Gear Cube is entered in. */
+export const gearsAligned = (cube: Cube): boolean => cube.every((c) => !c.spin || c.spin === 3)
+
+/** A Gear Cube at rest, these edges' gears turned over on their clips. */
+export const withTurnedGears = (cube: Cube, turned: readonly string[]): Cube =>
+  withGears(cube).map((c) =>
+    c.spin !== undefined && turned.includes(c.position.join(',')) ? { ...c, spin: 3 } : c,
+  )
+
+/** The moves that bring every gear back in the cube's shape: a slice's
+ *  gears all share their spin, and only its own face's moves change it. */
+export function alignGears(cube: Cube): GearMove[] {
+  return (['R', 'U', 'F'] as const).flatMap((gear) => {
+    const { coordIndex } = FACE_SPEC[gear]
+    const spin = cube.find((c) => c.spin !== undefined && c.position[coordIndex] === 0)?.spin ?? 0
+    // A move spins them five sixths: the moves to a multiple of three.
+    return Array.from({ length: spin % 3 }, (): GearMove => ({ gear, amount: 1 }))
+  })
+}
 
 /** Every gear move: each face, both ways. */
 export const GEAR_TURNS: readonly GearMove[] = FACES.flatMap((gear) =>

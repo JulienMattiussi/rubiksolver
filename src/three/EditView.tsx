@@ -1,10 +1,13 @@
+import { useState } from 'react'
 import { cubeDims, cubeShape } from '@/lib/cube'
 import { canPaint, slotsFor } from '@/lib/editor'
 import { centeringOffset, cubieBox, LAYER_THICKNESS } from '@/lib/shape'
+import { isGear } from '@/lib/types'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { COLOR_HEX, MIRROR_STICKER, PLASTIC } from './colors'
 import { CUBIE_GAP, cubeScale, visualPosition } from './layout'
+import { Cubie } from './Cubie'
 import { Sticker } from './Sticker'
 
 /** Gray shown on a not-yet-painted sticker slot. */
@@ -28,8 +31,52 @@ export function EditView() {
   // While a form is being chosen, the one hovered (the box otherwise).
   const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
   const paintAt = useEditor((s) => s.paintAt)
+  const paintGearAt = useEditor((s) => s.paintGearAt)
+  const gear = useEditor((s) => s.gear)
   const thickness = LAYER_THICKNESS[mirror ? 'mirror' : 'classic']
   const [ox, oy, oz] = centeringOffset(thickness)
+  // The face under the pointer (its slot's key, then the face), lit up.
+  const [hovered, setHovered] = useState<string | null>(null)
+  const hover = (key: string) => (on: boolean) =>
+    setHovered((current) => (on ? key : current === key ? null : current))
+  const litIn = (slotKey: string) =>
+    hovered?.startsWith(`${slotKey}|`) ? hovered.slice(slotKey.length + 1) : null
+  if (isGear(shape)) {
+    // A Gear Cube's own pieces, painted face by face (gears aligned).
+    return (
+      <group scale={cubeScale(dims)}>
+        {slotsFor(shape, form).map((slot) => {
+          const paintable = canPaint(shape, slot.key, form)
+          return (
+            <Cubie
+              key={slot.key}
+              cubie={{
+                position: slot.position,
+                stickers: slot.stickers.map((s) => ({ normal: s.normal, color: s.solvedColor })),
+                ...(slot.stickers.length === 2 && { spin: 0 }),
+              }}
+              dims={dims}
+              variant="classic"
+              smallCenter
+              onHover={(face, on) => hover(`${slot.key}|${face}`)(on)}
+              lit={litIn(slot.key)}
+              colors={slot.stickers.map((s) => {
+                const color = edit[s.id]
+                return color ? COLOR_HEX[color] : EMPTY_COLOR
+              })}
+              onSelect={paintable ? (i) => paintAt(slot.key, slot.stickers[i]!.ni) : undefined}
+              onSelectGear={(i) => paintGearAt(slot.key, slot.stickers[i]!.ni)}
+              // Its gear's own colors, gray until painted.
+              gearColors={slot.stickers.map((s) => {
+                const color = gear[s.id]
+                return color ? COLOR_HEX[color] : EMPTY_COLOR
+              })}
+            />
+          )
+        })}
+      </group>
+    )
+  }
   return (
     <group scale={cubeScale(dims)}>
       <group position={[ox, oy, oz]}>
@@ -56,6 +103,8 @@ export function EditView() {
                     box={{ size: box, center }}
                     metal={mirror && color !== undefined}
                     onSelect={paintable ? () => paintAt(slot.key, s.ni) : undefined}
+                    onHover={hover(`${slot.key}|${s.ni}`)}
+                    lit={hovered === `${slot.key}|${s.ni}`}
                   />
                 )
               })}

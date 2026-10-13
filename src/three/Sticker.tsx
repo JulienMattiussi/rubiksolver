@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
-import type { ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 import { UNIT_BOX, type CubieBox } from '@/lib/shape'
 import type { Vec3 } from '@/lib/types'
+import { paintable } from './paintable'
 
 const PLANE_Z = new THREE.Vector3(0, 0, 1)
 
@@ -23,6 +23,10 @@ interface StickerProps {
   glow?: boolean
   /** When provided, the sticker is clickable (paint) with a pointer cursor. */
   onSelect?: () => void
+  /** Told when the pointer comes onto it and leaves (edit mode). */
+  onHover?: (on: boolean) => void
+  /** Lit up: the face under the pointer, in edit mode. */
+  lit?: boolean
 }
 
 /** A flat colored sticker plane, oriented to face its cubie's outward normal
@@ -34,6 +38,8 @@ export function Sticker({
   metal = false,
   glow = false,
   onSelect,
+  onHover,
+  lit = false,
 }: StickerProps) {
   const [sx, sy, sz] = box.size
   const [cx, cy, cz] = box.center
@@ -56,31 +62,16 @@ export function Sticker({
     }
   }, [normal, sx, sy, sz, cx, cy, cz])
 
-  const interactive = onSelect != null
-  const handleClick = (e: ThreeEvent<MouseEvent>) => {
-    e.stopPropagation()
-    onSelect?.()
-  }
-  const setCursor = (value: string) => (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation()
-    document.body.style.cursor = value
-  }
-
   return (
-    <mesh
-      quaternion={quaternion}
-      position={position}
-      onClick={interactive ? handleClick : undefined}
-      onPointerOver={interactive ? setCursor('pointer') : undefined}
-      onPointerOut={interactive ? () => (document.body.style.cursor = 'default') : undefined}
-    >
+    <mesh quaternion={quaternion} position={position} {...paintable(onSelect, onHover)}>
       <planeGeometry args={[width - INSET, height - INSET]} />
       <meshStandardMaterial
         color={color}
         roughness={metal ? 0.28 : 0.4}
         metalness={metal ? 0.4 : 0.05}
+        // Lit up in its own color: a gray face stays told from a painted one.
         emissive={color}
-        emissiveIntensity={glow ? 0.25 : 0}
+        emissiveIntensity={lit ? 0.5 : glow ? 0.25 : 0}
       />
     </mesh>
   )

@@ -3,9 +3,13 @@ import { countColors, cubeShape, stickersOfColor } from './cube'
 import { usesRealPieces } from './editor'
 import { solveOptimal2 } from './methods/cube2'
 import { solve } from './solver'
+import { StepFailure } from './solverKit'
 
 export type ValidationError = 'counts' | 'impossible'
-export type ValidationResult = { ok: true } | { ok: false; error: ValidationError }
+export type ValidationResult =
+  | { ok: true }
+  /** `step`: the solving step that found it impossible, when one did. */
+  | { ok: false; error: ValidationError; step?: string }
 
 /** The eight corners of a 4x4, renormalized to a 2x2 cube (coords +-3 -> +-1). */
 function cornersAsTwoByTwo(cube: Cube): Cube {
@@ -50,8 +54,10 @@ export function validateCube(cube: Cube): ValidationResult {
     } else {
       solve(cube)
     }
-  } catch {
-    return { ok: false, error: 'impossible' }
+  } catch (error) {
+    return error instanceof StepFailure
+      ? { ok: false, error: 'impossible', step: error.step }
+      : { ok: false, error: 'impossible' }
   }
   return { ok: true }
 }

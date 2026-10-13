@@ -100,6 +100,6 @@ describe('Professor Pyraminx', () => {
             }
           : c,
     )
-    expect(validateCube(swapped)).toEqual({ ok: false, error: 'impossible' })
+    expect(validateCube(swapped)).toMatchObject({ ok: false, error: 'impossible' })
   })
 })

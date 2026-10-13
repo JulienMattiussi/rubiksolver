@@ -416,7 +416,7 @@ export interface Sticker {
 export interface Cubie {
   readonly position: Vec3
   readonly stickers: readonly Sticker[]
-  /** A gear edge's turn about its own axis, in thirds of a turn (0 to 2),
+  /** A gear edge's turn about its own axis, in sixths of a turn (0 to 5),
    *  which no cube rotation says (the Gear Cubes, gear.ts). */
   readonly spin?: number
 }

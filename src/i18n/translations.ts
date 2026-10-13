@@ -98,6 +98,8 @@ const fr = {
   editTitle: 'Saisie du cube',
   editHint:
     'Choisissez une couleur puis cliquez les stickers. Tournez la vue pour atteindre les autres faces. Les pièces se complètent toutes seules et aucune combinaison impossible n’est acceptée.',
+  editHintGear:
+    'Remettez d’abord votre Gear Cube en forme de cube, engrenages réalignés (tournez une face jusqu’à ce que sa tranche reprenne sa place). Puis choisissez une couleur et cliquez les pièces : les agrafes et les engrenages se peignent à part. Un engrenage porte les couleurs de ses agrafes, dans un sens ou dans l’autre : une fois les agrafes peintes, une face de l’engrenage suffit. Tournez la vue pour atteindre les autres faces.',
   editHintMirror:
     'Choisissez une épaisseur puis cliquez les faces : la pièce prend sa forme au fur et à mesure. Tournez la vue pour atteindre les autres faces. Les pièces se complètent toutes seules et aucune combinaison impossible n’est acceptée.',
   palette: 'Couleurs',
@@ -107,8 +109,10 @@ const fr = {
   editHintPieces:
     'Cliquez un emplacement pour y poser une pièce qui peut s’y loger : chaque clic passe à la suivante (autre pièce, ou la même retournée). Tournez la vue pour voir l’arrière. Une pièce déjà posée ailleurs n’est pas proposée.',
   piecesOf: (n: number, total: number) => `${n} / ${total} pièces`,
+  facesOf: (n: number, total: number) => `${n} / ${total} faces`,
   clearAll: 'Tout effacer',
   fromCurrent: 'Depuis l’état actuel',
+  gearsNotAligned: 'Remettez d’abord le cube en forme : la saisie se fait engrenages réalignés',
   chooseForm: 'Dans quelle forme est votre puzzle ?',
   chooseFormHint:
     'Choisissez la forme dans laquelle il se trouve, tenu comme sur la vignette (survolez-en une pour la voir en grand), avant d’en placer les couleurs.',
@@ -134,7 +138,10 @@ const fr = {
   cancel: 'Annuler',
   errorCounts: 'Répartition des couleurs incohérente.',
   errorCountsMirror: 'Répartition des épaisseurs incohérente.',
+  errorGears: 'Un engrenage ne porte pas les deux couleurs de ses agrafes.',
   errorImpossible: 'Cube impossible : vérifiez l’orientation des pièces.',
+  errorImpossibleAt: (step: string) =>
+    `Cube impossible : la résolution bloque à l’étape « ${step} ». Vérifiez ces pièces.`,
   colors: {
     W: 'Blanc',
     Y: 'Jaune',
@@ -491,6 +498,8 @@ const en: Translations = {
   editTitle: 'Cube input',
   editHint:
     'Pick a color, then click stickers. Orbit the view to reach the other faces. Pieces auto-complete and no impossible combination is accepted.',
+  editHintGear:
+    'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: clips and gears are painted apart. A gear carries its clips’ colors, one way or the other: once the clips are painted, one face of the gear is enough. Rotate the view to reach the other faces.',
   editHintMirror:
     'Pick a thickness, then click faces: the piece takes its shape as you go. Orbit the view to reach the other faces. Pieces auto-complete and no impossible combination is accepted.',
   palette: 'Colors',
@@ -500,8 +509,10 @@ const en: Translations = {
   editHintPieces:
     'Click a slot to put a piece that fits there: each click moves on to the next one (another piece, or the same one flipped). Orbit the view to see the back. A piece already placed elsewhere is not offered.',
   piecesOf: (n: number, total: number) => `${n} / ${total} pieces`,
+  facesOf: (n: number, total: number) => `${n} / ${total} faces`,
   clearAll: 'Clear all',
   fromCurrent: 'From current state',
+  gearsNotAligned: 'Bring the cube back into shape first: it is entered with its gears aligned',
   chooseForm: 'What shape is your puzzle in?',
   chooseFormHint:
     'Pick the shape it stands in, held as in the thumbnail (hover one to see it large), before placing its colors.',
@@ -525,7 +536,10 @@ const en: Translations = {
   cancel: 'Cancel',
   errorCounts: 'Inconsistent color counts.',
   errorCountsMirror: 'Inconsistent thickness counts.',
+  errorGears: 'A gear does not carry its clips’ two colors.',
   errorImpossible: 'Impossible cube: check the piece orientations.',
+  errorImpossibleAt: (step: string) =>
+    `Impossible cube: solving gets stuck at the step “${step}”. Check those pieces.`,
   colors: {
     W: 'White',
     Y: 'Yellow',

@@ -58,7 +58,7 @@ describe('Floppy (3x3x1)', () => {
   })
 
   it('rejects a twisted corner', () => {
-    expect(validateCube(twistedCorner('331'))).toEqual({ ok: false, error: 'impossible' })
+    expect(validateCube(twistedCorner('331'))).toMatchObject({ ok: false, error: 'impossible' })
   })
 })
 

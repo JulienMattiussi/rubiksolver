@@ -1,7 +1,8 @@
-import { cubeShape, shapeColors } from '@/lib/cube'
-import { progress } from '@/lib/editor'
+import { cubeShape } from '@/lib/cube'
+import { gearFaces } from '@/lib/gearEditor'
+import { paletteColors, progress } from '@/lib/editor'
 import { byThickness, LAYER_THICKNESS } from '@/lib/shape'
-import type { CubeColor } from '@/lib/types'
+import { isGear, type CubeColor } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -31,8 +32,12 @@ export function ColorPalette() {
   const setColor = useEditor((s) => s.setColor)
   const form = useEditor((s) => s.form)
   const { remaining } = progress(edit, shape, form)
+  // A Gear Cube's gears take these colors too, painted apart.
+  const gear = useEditor((s) => s.gear)
+  const gearLeft = isGear(shape) ? gearFaces(gear).remaining : {}
   // Thinnest first, so the swatches read as a scale.
-  const palette = mirror ? byThickness(MIRROR_THICKNESS) : shapeColors(shape)
+  const colors = paletteColors(shape, form)
+  const palette = mirror ? byThickness(MIRROR_THICKNESS).filter((c) => colors.includes(c)) : colors
   const title = mirror ? t.paletteMirror : t.palette
 
   return (
@@ -40,7 +45,7 @@ export function ColorPalette() {
       <h2 className={`mb-2 ${SECTION_LABEL}`}>{title}</h2>
       <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={title}>
         {palette.map((c, rank) => {
-          const left = remaining[c]
+          const left = remaining[c] + (gearLeft[c] ?? 0)
           return (
             <button
               key={c}

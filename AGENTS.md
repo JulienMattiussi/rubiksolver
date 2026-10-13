@@ -103,7 +103,7 @@ src/
 │   ├── morph.ts          # Pyramorphinx : un 2x2 taillé en tétraèdre (coins à 3 stickers, milieux de face à 1)
 │   ├── oct4.ts           # 4-Trajber's Octahedron : un 4x4x4 sans cubies internes, un sticker par pièce (face de son octant)
 │   ├── vto.ts            # Octahedron VTO et GEM-0 : un 3x3x3 taillé en octaèdre (pointes à part sur le VTO, carrés sur le GEM-0)
-│   ├── gear.ts           # Gear Cubes : coups d'engrenage (demi-tour de face, quart de tranche), pivot des arêtes (Cubie.spin)
+│   ├── gear.ts           # Gear Cubes : coups d'engrenage (demi-tour de face, quart de tranche), pivot des arêtes (Cubie.spin), réalignement
 │   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
 │   ├── violetStates.ts   # Ses états vus (gros cubes pareils) : arbre des plus courts chemins (solutions), mélange sans retour
 │   ├── rainbow.ts        # Rainbow : cuboctaèdre, 12 pièces aux milieux des arêtes du cube, triangles en tiers de tour, notation
@@ -167,6 +167,7 @@ src/
 │   │   └── steps.ts      #   reduction5Plan(plan 3x3)
 │   ├── editorTables.ts   # Tables de saisie par forme : slots, placements valides étiquetés par pièce physique, budgets,
 │   │                     #   pièces fixes pré-remplies (centres du 3x3, demi-vis gauche des étoiles), stickers cachés (4-Star)
+│   ├── gearEditor.ts     # Saisie du Gear Cube : engrenages peints à part de leurs agrafes, retournés ou non
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
 │   ├── forms.ts          # Formes d'un puzzle déformable (tour) pour la saisie : formsOf, lookOf
 │   ├── pieceEditor.ts    # Saisie pièce par pièce (Floppy Ghost) : poses par emplacement, nextPiece, piecesIn
@@ -196,7 +197,7 @@ src/
 │   ├── Scene.tsx         # <Canvas> : caméra, lumières, OrbitControls ; bascule CubeView / PolyView, ou EditView / PolyEditView
 │   ├── CubeView.tsx      # Rend les cubies (via useTurnAnimation), à l'échelle de la forme, recentré selon la variante,
 │   │                     #   pièces du coup survolé en surbrillance
-│   ├── EditView.tsx      # Mode saisie : stickers peignables cliquables, vides en gris ; en épaisseurs (dorés) sur un miroir
+│   ├── EditView.tsx      # Mode saisie : stickers peignables cliquables, vides en gris, face survolée en surbrillance ; en épaisseurs (dorés) sur un miroir
 │   ├── Cubie.tsx         # Un cubie : corps + stickers, à la boîte de sa variante, en surbrillance si un coup survolé le tourne
 │   ├── layout.ts         # Échelle et position visuelles (coordonnée / pas de la grille : linéaire, juste hors de la boîte)
 │   ├── polygons.ts       # Pièces des puzzles sans grille en polygones (corps + stickers), PiecePolygon
@@ -226,6 +227,7 @@ src/
 │   ├── guideCamera.ts    #   point de vue d'une vignette (la couche qui tourne face à la caméra)
 │   ├── usePreviewed.ts   # Pièces que le coup survolé ferait tourner (surbrillance, cubes et étoile)
 │   ├── isometric.ts      # Vignette d'un puzzle résolu en vue isométrique (polygones SVG), déduite du même layout
+│   ├── paintable.ts      # Props de clic d'un mesh peignable en saisie (curseur, clic pour lui seul, survol)
 │   ├── Sticker.tsx       # Sticker orienté à sa normale et dimensionné à sa face, mutualisé play/édition (onSelect = cliquable)
 │   ├── useTurnAnimation.ts # Hook : pilote la file de rotations (rotation de la couche active)
 │   ├── camera.ts         # Cadrage caméra de référence (position de départ et de recentrage)
@@ -925,18 +927,23 @@ page « Ultimate » de fan2cube montre en fait l'Extreme, à 8) a la mécanique
 du Gear Cube, mais ses engrenages ne retrouvent la forme du cube que tous
 les trois coups (six quarts de tour de face).
 
-**Modèle** (`lib/gear.ts`) : un 3x3x3, chaque arête un engrenage. Les quatre
-engrenages de la tranche pivotent d'un tiers de tour par coup (120°, deux
-dents : observé sur le vrai puzzle), dans le
-même sens pour un coup horaire de l'une ou l'autre face : ce pivot, qu'aucune
-rotation du cube ne dit, est `Cubie.spin` (en tiers), gardé par la clé
-d'état, le mémorisé (`@n`) et les rotations du puzzle entier ; « résolu »
-l'exige à zéro. Les stickers des arêtes sont leur base (les « agrafes »). Le
+**Modèle** (`lib/gear.ts`) : un 3x3x3, chaque arête un engrenage. Ses
+couleurs sont celles du vrai puzzle (`SHAPE_SCHEME`) : vert foncé devant,
+violet à la place du rouge, rouge à la place de l'orange. Les quatre
+engrenages de la tranche pivotent sur leurs agrafes de cinq sixièmes de
+tour par coup (300°, `GEAR_SPIN` ; environ 135° par quart de tour de face
+mesurés sur le vrai puzzle), dans le même sens pour un coup horaire de
+l'une ou l'autre face : ce pivot, qu'aucune rotation du cube ne dit, est
+`Cubie.spin` (en sixièmes), gardé par la clé d'état, le mémorisé (`@n`) et
+les rotations du puzzle entier ; « résolu » l'exige à zéro. Les stickers des
+arêtes sont leur base (les « agrafes ») ; l'engrenage porte les mêmes
+couleurs, tourné de son pivot : au bout de trois coups (900°), il est
+retourné sur ses agrafes, ses couleurs à l'envers des leurs. Le
 modèle est vérifié contre Jaap : 4 × 41 472 et 4 × 165 888 positions (le
 facteur 4 : les tenues que les coups atteignent, la « téléportation » de
-fan2cube), et les formules de la page (D⁸ pivote d'un cran les 4 arêtes
-d'une tranche, (A²D²)³ échange les agrafes des 8 arêtes du haut et du bas,
-engrenages revenus, G'²D² retourne le cube).
+fan2cube), et les formules de la page (D⁸ pivote d'un cran, un tiers, les 4
+engrenages d'une tranche, (A²D²)³ échange les agrafes des 8 arêtes du haut
+et du bas, engrenages revenus tels quels, G'²D² retourne le cube).
 
 **Animation à deux vitesses** : `halfTurnedBy` donne les pièces qui tournent
 à moitié (la tranche), dans leur propre groupe (`halfRef`) ; leurs
@@ -955,18 +962,36 @@ cube sous chacune de ses faces : un bloc cacherait les dents des engrenages
 qui sortent), un noyau noir comblant le milieu. La vignette du sélecteur
 dessine la même face (`drawGear`, depuis `outlines.json`). Le guide montre
 aussi chaque coup trois fois de suite (`3U2`, `GearMove.times`) : les
-engrenages font un tour et le cube reprend sa forme. L'engrenage d'une arête
-(ses deux plaques et son corps) pivote autour de l'axe de l'arête (du centre du cube à travers
-elle) : hors de sa place il sort du cube en biais, et ne s'y réemboîte
-qu'au bout de trois crans (un tour) ; ses agrafes
-suivent la pièce, pas l'engrenage.
+engrenages font deux tours et demi et le cube reprend sa forme. L'engrenage
+d'une arête (ses deux plaques et son corps) pivote autour de l'axe de
+l'arête (du centre du cube à travers elle) : hors de sa place il sort du
+cube en biais, et ne s'y réemboîte qu'à un demi-tour près, tous les trois
+coups ; ses agrafes suivent la pièce, pas l'engrenage.
 
 **Résolution** (`methods/gear.ts`, méthode **Coins d'abord**, d'après
 fan2cube.fr/gearcube2) : chaque étape cherche parmi les seules formules de
 la page, qui laissent les étapes d'avant intactes : (1) coins, par tous les
 coups ; (2) arêtes placées, D⁴ et P²D⁴P'² ; (3) agrafes, (A²D²)³ ; (4)
-engrenages, D⁸. Les centres suivent. **Pas encore de saisie** (le pivot ne
-se peint pas) : boutons masqués, test de saisie sauté (`noEntry`).
+engrenages, D⁸. Les centres suivent. **Saisie** en forme de cube, engrenages réalignés
+(la consigne le dit ; tourner une face jusqu'à ce que sa tranche reprenne
+sa place les remet) : les stickers comme un 3x3, centres pré-remplis
+(les tranches les déplacent, mais toujours ensemble, comme un cube tourné :
+l'éditeur tient le cube centres en place, `fixedPieces`), sur ses propres pièces (`EditView` les
+dessine comme en jeu, un clic sur le corps d'une pièce la peint ;
+`paintable.ts`, partagé avec `Sticker`). Agrafes et engrenages se peignent à
+part : les agrafes sont les stickers, les engrenages des couleurs gardées
+à côté (`gear`, par les mêmes identifiants ; `lib/gearEditor.ts`). Un
+engrenage porte la paire de ses agrafes dans un sens ou dans l'autre : une
+fois celle-ci connue, une face de l'engrenage donne l'autre et une couleur
+hors de la paire est refusée (`paintGear`, `completeGears`). À la
+validation, `turnedOf` dit quels engrenages sont retournés sur leurs
+agrafes (ou qu'un engrenage n'a pas leurs couleurs), et `buildCube` les pose
+(`withTurnedGears` ; `gearColorsOf` en sens inverse). « Depuis l'état actuel » est grisé tant qu'un engrenage est
+de travers (`gearsAligned` : pivot nul ou d'un demi-tour). La validation demande une solution :
+coin vrillé ou arête retournée seule sont refusés, et le message dit à
+quelle étape la résolution bloque (`StepFailure` de `buildSteps`, lu par
+`validateCube`). Le décompte et la palette comptent aussi les faces des
+engrenages (`gearFaces`).
 
 ### Le Violet (`violet`)
 
@@ -1020,7 +1045,8 @@ l'espace que chaque solution a exactement la longueur de sa distance.
 
 **Saisie** : comme la tour, par sa forme (388, les rotations du puzzle
 entier fusionnées), puis ses couleurs. Les gros cubes arrivent déjà
-violets : `emptyEdit` remplit tout sticker que toutes les pièces qui
+violets (et la palette ne propose pas le violet : `paletteColors` écarte
+une couleur que les stickers pré-remplis prennent tous) : `emptyEdit` remplit tout sticker que toutes les pièces qui
 tiennent dans son emplacement montrent d'une seule couleur (dans la boîte,
 les trois mini-cubes de A à un sticker aussi : ils n'y sont jamais
 ailleurs). Une face sans sticker à saisir garde sa couleur dans la vue.
