@@ -124,8 +124,8 @@ export function SetupSection() {
         <PyraPad disabled={busy} />
       ) : shape === 'ghost' ? (
         <GhostPad disabled={busy} />
-      ) : shape === 'rainbow' ? (
-        <RainbowPad disabled={busy} />
+      ) : shape === 'rainbow' || shape === 'dino' || shape === 'rex' ? (
+        <RainbowPad disabled={busy} dino={shape === 'dino'} rex={shape === 'rex'} />
       ) : isGear(shape) ? (
         <GearPad disabled={busy} />
       ) : (

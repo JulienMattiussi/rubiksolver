@@ -159,6 +159,7 @@ describe('cube picker', () => {
       octahedron: ['oct4', 'vto', 'gem', 'rainbow'],
       star: ['star', 'star4'],
       gear: ['gearCube', 'gearU', 'gearX'],
+      diagonal: ['dino', 'rex'],
       odd: ['violet'],
     })
   })

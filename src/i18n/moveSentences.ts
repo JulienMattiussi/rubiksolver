@@ -77,6 +77,29 @@ export const TRIANGLE_NAMES_EN: Record<RainbowCorner, string> = {
   r: 'the right triangle, behind',
 }
 
+/** The Dino Cube's corners (the Rainbow's triangles' directions). */
+export const DINO_CORNER_NAMES_FR: Record<RainbowCorner, string> = {
+  U: 'le sommet du haut, devant à droite',
+  u: 'le sommet du haut, derrière à droite',
+  l: 'le sommet du haut, derrière à gauche',
+  L: 'le sommet du haut, devant à gauche',
+  R: 'le sommet du bas, devant à droite',
+  r: 'le sommet du bas, derrière à droite',
+  d: 'le sommet du bas, derrière à gauche',
+  D: 'le sommet du bas, devant à gauche',
+}
+
+export const DINO_CORNER_NAMES_EN: Record<RainbowCorner, string> = {
+  U: 'the top front right corner',
+  u: 'the top back right corner',
+  l: 'the top back left corner',
+  L: 'the top front left corner',
+  R: 'the bottom front right corner',
+  r: 'the bottom back right corner',
+  d: 'the bottom back left corner',
+  D: 'the bottom front left corner',
+}
+
 export const FACE_NAMES_FR: Record<Face, string> = {
   U: 'face du haut',
   D: 'face du bas',
@@ -125,6 +148,10 @@ export function describeFr(d: MoveDescription): string {
   }
   if (d.kind === 'slash') {
     return 'Le slash : toute la moitié droite fait un demi-tour, ses pièces du haut passent en bas et celles du bas en haut.'
+  }
+  if (d.kind === 'dinoCorner') {
+    const sense = d.clockwise ? 'des aiguilles' : 'inverse des aiguilles'
+    return `On tourne ${DINO_CORNER_NAMES_FR[d.corner]} d’un tiers de tour (120°) dans le sens ${sense} d’une montre, vu de face : ${d.rex ? 'ses trois arêtes, les trois centres autour et neuf pétales tournent avec lui' : 'ses trois arêtes tournent autour de lui'}.`
   }
   if (d.kind === 'triangle') {
     const sense = d.clockwise ? 'des aiguilles' : 'inverse des aiguilles'
@@ -187,6 +214,10 @@ export function describeEn(d: MoveDescription): string {
   }
   if (d.kind === 'slash') {
     return 'The slash: the whole right half makes a half turn, its top pieces going down and its bottom ones up.'
+  }
+  if (d.kind === 'dinoCorner') {
+    const sense = d.clockwise ? 'clockwise' : 'counter-clockwise'
+    return `Turn ${DINO_CORNER_NAMES_EN[d.corner]} a third of a turn (120°) ${sense}, as seen from it: ${d.rex ? 'its three edges, the three centers around it and nine petals go round with it' : 'its three edges go round it'}.`
   }
   if (d.kind === 'triangle') {
     const sense = d.clockwise ? 'clockwise' : 'counterclockwise'

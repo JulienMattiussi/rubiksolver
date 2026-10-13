@@ -80,9 +80,10 @@ export function solvedRainbow(): Cube {
 }
 
 /** Whether a triangle's turn takes a piece: its three corners (and its
- *  fixed center, which only spins). */
+ *  fixed center, which only spins); on the Rex Cube, cut deeper, its three
+ *  edges, three centers and nine petals (see `solvedRex`). */
 export const rainbowTurns = (move: RainbowMove, position: Vec3): boolean =>
-  dot(position, RAINBOW_CORNERS[move.triangle]) >= 2
+  dot(position, RAINBOW_CORNERS[move.triangle]) >= (move.rex ? 4 : 2)
 
 /** A third of a turn about a diagonal, clockwise seen from it. About
  *  (1, 1, 1) it is (x, y, z) -> (y, z, x); about another diagonal the same
@@ -164,7 +165,7 @@ const LETTERS: Record<'us' | 'fr', Record<RainbowCorner, string>> = {
 }
 
 export function formatRainbowMove(move: RainbowMove, labels: FaceLabels): string {
-  const letter = LETTERS[labels.U === 'U' ? 'us' : 'fr'][move.triangle]
+  const letter = (move.dino ? DINO_LETTERS : LETTERS)[labels.U === 'U' ? 'us' : 'fr'][move.triangle]
   return letter + (move.amount === 2 ? "'" : '')
 }
 
@@ -185,3 +186,106 @@ export function parseRainbowMoves(text: string): RainbowMove[] {
   }
   return out
 }
+
+/**
+ * The Dino Cube (fan2cube.fr/dinocube1, Robert Webb and Stephen Harvey,
+ * 1995): the Rainbow's mechanism, cut out of a cube. Its corners turn by
+ * thirds, each taking the three edge pieces around it; its 12 pieces are
+ * those edges, two triangles each (one on each of its faces, cut along the
+ * faces' diagonals), and nothing else: no fixed center. 12!/2 states.
+ */
+export function solvedDino(): Cube {
+  return solvedRainbow()
+    .filter((c) => c.position.includes(0))
+    .map((c) => ({ ...c, stickers: c.stickers.filter((s) => s.normal.includes(0)) }))
+}
+
+/** Every Dino turn, both ways. */
+export const DINO_TURNS: readonly RainbowMove[] = RAINBOW_TURNS.map((m) => ({ ...m, dino: true }))
+
+/** A Dino scramble: the Rainbow's, in the Dino's turns. */
+export const scrambleDino = (length: number, rng: () => number): RainbowMove[] =>
+  scrambleRainbow(length, rng).map((m) => ({ ...m, dino: true }))
+
+/** Each corner's letter, as fan2cube names them (dinocube2): A (HDA), D
+ *  (HPD), P (HGP), G (HAG) on top, B (BAD), E (BDP), H (BPG), O (BGA)
+ *  below; in English, its three faces. */
+const DINO_LETTERS: Record<'us' | 'fr', Record<RainbowCorner, string>> = {
+  us: { U: 'UFR', u: 'UBR', l: 'UBL', L: 'UFL', R: 'DFR', r: 'DBR', d: 'DBL', D: 'DFL' },
+  fr: { U: 'A', u: 'D', l: 'P', L: 'G', R: 'B', r: 'E', d: 'H', D: 'O' },
+}
+
+/** Read fan2cube's Dino formulas (`[GA']`, `DAD'.GAE'`): a letter a
+ *  corner, `'` back, `²` twice, `[a b]` the commutator a b a' b' (`rex`:
+ *  the Rex Cube's turns). */
+export function parseDinoMoves(text: string, rex = false): RainbowMove[] {
+  const out: RainbowMove[] = []
+  let group: RainbowMove[] | null = null
+  const flag = rex ? { dino: true as const, rex: true as const } : { dino: true as const }
+  for (const m of text.matchAll(/(\[)|(\])|([ADPGBEHO])(')?(²)?/g)) {
+    if (m[1]) group = []
+    else if (m[2]) {
+      // The commutator's second half: its turns undone, in the same order.
+      out.push(...group!, ...group!.map(invertRainbowMove))
+      group = null
+    } else {
+      const triangle = RAINBOW_TRIANGLES.find((t) => DINO_LETTERS.fr[t] === m[3])!
+      const turn: RainbowMove = { triangle, amount: m[4] ? 2 : 1, ...flag }
+      ;(group ?? out).push(...(m[5] ? [turn, turn] : [turn]))
+    }
+  }
+  return out
+}
+
+/**
+ * The Rex Cube (fan2cube.fr/rexcube1, Andrew Cormier, 2010): the Dino's
+ * turns, cut deeper (curved cuts meeting at the corners, so no corner
+ * pieces): a corner's third of a turn takes its three edges, the three
+ * centers around it and nine petals. In integer units of a quarter of the
+ * cube's half side: centers at 4 on an axis, edges at (3, 3, 0), petals at
+ * (2, 4, 2) (on a face, toward a corner); a corner turns what is at least 4
+ * along its diagonal: its three petals (8), the six around them (4), its
+ * three edges (6), its three centers (4). 11!/2 x 6!/2 x 24!/4!^6 states,
+ * as the page counts.
+ */
+export function solvedRex(): Cube {
+  const out: Cubie[] = []
+  const colorOf = (normal: Vec3) =>
+    SQUARE_COLOR[
+      (Object.keys(FACE_NORMAL) as Face[]).find((f) => FACE_NORMAL[f].join() === normal.join())!
+    ]
+  const axes = (Object.keys(FACE_NORMAL) as Face[]).map((f) => FACE_NORMAL[f])
+  // Centers.
+  for (const n of axes) {
+    out.push({
+      position: n.map((x) => 4 * x) as unknown as Vec3,
+      stickers: [{ normal: n, color: colorOf(n) }],
+    })
+  }
+  // Edges: two coordinates +-3.
+  for (const piece of solvedDino()) {
+    out.push({ ...piece, position: piece.position.map((x) => 3 * x) as unknown as Vec3 })
+  }
+  // Petals: on each face, toward each of its corners.
+  for (const n of axes) {
+    const a = n.findIndex((x) => x !== 0)
+    for (const s of [1, -1]) {
+      for (const t of [1, -1]) {
+        const [u, v] = [0, 1, 2].filter((d) => d !== a)
+        const position = [0, 0, 0] as [number, number, number]
+        position[a] = 4 * n[a]!
+        position[u!] = 2 * s
+        position[v!] = 2 * t
+        out.push({ position, stickers: [{ normal: n, color: colorOf(n) }] })
+      }
+    }
+  }
+  return out
+}
+
+/** Every Rex turn, both ways. */
+export const REX_TURNS: readonly RainbowMove[] = DINO_TURNS.map((m) => ({ ...m, rex: true }))
+
+/** A Rex scramble: the Dino's, in the Rex's turns. */
+export const scrambleRex = (length: number, rng: () => number): RainbowMove[] =>
+  scrambleRainbow(length, rng).map((m) => ({ ...m, dino: true, rex: true }))

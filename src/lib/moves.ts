@@ -22,7 +22,11 @@ import {
   formatRainbowMove,
   invertRainbowMove,
   RAINBOW_TURNS,
+  scrambleDino,
+  scrambleRex,
+  REX_TURNS,
   scrambleRainbow,
+  DINO_TURNS,
   simplifyRainbowMoves,
 } from './rainbow'
 import { formatStarMove, invertStarMove, scrambleStar, simplifyStarMoves, STAR_RINGS } from './star'
@@ -372,6 +376,8 @@ export function scrambleTurns(
   if (isPyraminx(shape)) return scramblePyraminx(shape, length, rng)
   if (shape === 'ghost') return scrambleGhost(length, rng)
   if (shape === 'rainbow') return scrambleRainbow(length, rng)
+  if (shape === 'dino') return scrambleDino(length, rng)
+  if (shape === 'rex') return scrambleRex(length, rng)
   if (isGear(shape)) return scrambleGear(shape, length, rng)
   if (shape === 'violet') return scrambleViolet(length, rng, start)
   return scramble(shape, length, rng, start)
@@ -386,6 +392,8 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
   if (isPyraminx(shape)) return pyraTurnsOf(shape)
   if (shape === 'ghost') return GHOST_TURNS
   if (shape === 'rainbow') return RAINBOW_TURNS
+  if (shape === 'dino') return DINO_TURNS
+  if (shape === 'rex') return REX_TURNS
   if (isGear(shape)) return gearTurnsOf(shape)
   return movesFor(shape)
 }

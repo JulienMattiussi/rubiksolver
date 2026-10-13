@@ -13,6 +13,8 @@ import {
   FACE_NAMES_FR,
   SIDE_NAMES_EN,
   SIDE_NAMES_FR,
+  DINO_CORNER_NAMES_EN,
+  DINO_CORNER_NAMES_FR,
   TRIANGLE_NAMES_EN,
   TRIANGLE_NAMES_FR,
   STAR_LAYER_EN,
@@ -60,6 +62,10 @@ const fr = {
   ghostTurnTitle: (side: GhostSide) => `Retourner ${SIDE_NAMES_FR[side]} (demi-tour)`,
   rainbowTurnTitle: (triangle: RainbowCorner, clockwise: boolean) =>
     `Tourner ${TRIANGLE_NAMES_FR[triangle]} d’un tiers dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
+  dinoTurnTitle: (corner: RainbowCorner, clockwise: boolean) =>
+    `Tourner ${DINO_CORNER_NAMES_FR[corner]} d’un tiers dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
+  dinoTop: 'Haut',
+  dinoBottom: 'Bas',
   rainbowFront: 'Devant',
   rainbowBack: 'Derrière',
   pyraTurnTitle: (vertex: PyraVertex, layer: PyraLayer | 'faces', clockwise: boolean) => {
@@ -215,6 +221,7 @@ const fr = {
     gears: 'Faces (demi-tours, la tranche suit d’un quart)',
     gearsThrice: 'Trois de suite (le cube reprend sa forme)',
     triangles: 'Triangles (le centre ne bouge pas)',
+    dinoCorners: 'Sommets',
   },
   describeMove: describeFr,
   guideBlocked: 'Ce mouvement n’est pas possible dans cette configuration',
@@ -229,6 +236,7 @@ const fr = {
     octahedron: 'Octaèdres',
     star: 'Étoiles',
     gear: 'Engrenages',
+    diagonal: 'Coupes diagonales',
     odd: 'Bizarres',
   },
   sectionSetup: 'Initialisation',
@@ -323,6 +331,14 @@ const fr = {
       name: 'Équateur puis coins',
       desc: 'L’équateur et les centres d’abord, intuitivement, puis les coins du bas descendus un à un ((D²H)².(D²H²)²), ceux du haut par 3-cycle et échange, les arêtes du bas isolées en bas ((BG²B’G’²)⁵), toutes les arêtes placées par paires échangées, les agrafes remises à l’endroit (D²(D²H)¹²D’²) et enfin les engrenages, un tiers de tour à la fois ((D²H)².D⁸.(H’D’²)²).',
     },
+    dinoLayers: {
+      name: 'Étage par étage',
+      desc: 'Une seule formule, [GA’] = GA’G’A, qui fait tourner trois arêtes en laissant le reste en place : le haut, puis l’équateur, puis le bas, une arête à la fois. Les arêtes s’orientent toutes seules une fois en place.',
+    },
+    rexEdgesFirst: {
+      name: 'Arêtes, centres, pétales',
+      desc: 'Les arêtes d’abord, par 3-cycles ([GA’] = GA’G’A, qui dérange centres et pétales), puis les centres, par 3-cycles ([DG’] = DG’D’G, qui ne dérange que des pétales), et enfin les pétales, face par face, avec [DG’][D’B], qui n’échange que des pétales.',
+    },
     gearCornersFirst: {
       name: 'Coins d’abord',
       desc: 'Les coins d’abord, intuitivement, puis les arêtes placées par paires échangées (D⁴ : deux demi-tours d’une face), sur l’Ultimate les agrafes remises à l’endroit ((A² D²)³, qui retourne sur place les arêtes de deux étages) et enfin les engrenages remis en place, ceux d’une tranche d’un tiers de tour à la fois (D⁸). Les centres suivent tout seuls.',
@@ -369,6 +385,12 @@ const fr = {
     stepXEdges: 'Les arêtes placées',
     stepXClips: 'Les agrafes',
     stepXGears: 'Les engrenages',
+    stepDinoTop: 'Le haut',
+    stepDinoMiddle: 'L’équateur',
+    stepDinoBottom: 'Le bas',
+    stepRexEdges: 'Les arêtes',
+    stepRexCenters: 'Les centres',
+    stepRexPetals: 'Les pétales',
     stepGearSpins: 'Les engrenages',
     stepVtoCenters: 'Les centres',
     stepVtoEdges: 'Les arêtes placées',
@@ -478,6 +500,10 @@ const en: Translations = {
   ghostTurnTitle: (side: GhostSide) => `Flip ${SIDE_NAMES_EN[side]} over (half turn)`,
   rainbowTurnTitle: (triangle: RainbowCorner, clockwise: boolean) =>
     `Turn ${TRIANGLE_NAMES_EN[triangle]} a third ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
+  dinoTurnTitle: (corner: RainbowCorner, clockwise: boolean) =>
+    `Turn ${DINO_CORNER_NAMES_EN[corner]} a third ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
+  dinoTop: 'Top',
+  dinoBottom: 'Bottom',
   rainbowFront: 'Front',
   rainbowBack: 'Back',
   pyraTurnTitle: (vertex: PyraVertex, layer: PyraLayer | 'faces', clockwise: boolean) => {
@@ -627,6 +653,7 @@ const en: Translations = {
     gears: 'Faces (half turns, the slice follows a quarter)',
     gearsThrice: 'Three in a row (the cube is back in shape)',
     triangles: 'Triangles (the center stays put)',
+    dinoCorners: 'Corners',
   },
   describeMove: describeEn,
   guideBlocked: 'This move is not possible in this configuration',
@@ -641,6 +668,7 @@ const en: Translations = {
     octahedron: 'Octahedra',
     star: 'Stars',
     gear: 'Gears',
+    diagonal: 'Diagonal cuts',
     odd: 'Oddities',
   },
   sectionSetup: 'Setup',
@@ -735,6 +763,14 @@ const en: Translations = {
       name: 'Equator then corners',
       desc: 'The equator and the centers first, intuitively, then the bottom corners lowered one at a time ((R²U)².(R²U²)²), the top ones by a 3-cycle and a swap, the bottom edges isolated at the bottom ((DL²D’L’²)⁵), every edge placed by pairs swapped, the clips turned right way round (R²(R²U)¹²R’²) and last the gears, a third of a turn at a time ((R²U)².R⁸.(U’R’²)²).',
     },
+    dinoLayers: {
+      name: 'Layer by layer',
+      desc: 'One formula only, [GA’] = GA’G’A, which cycles three edges and leaves the rest be: the top, then the equator, then the bottom, an edge at a time. Edges turn the right way round on their own once in place.',
+    },
+    rexEdgesFirst: {
+      name: 'Edges, centers, petals',
+      desc: 'The edges first, by 3-cycles ([GA’] = GA’G’A, which stirs centers and petals), then the centers, by 3-cycles ([DG’] = DG’D’G, which stirs petals only), and last the petals, face by face, with [DG’][D’B], which swaps petals and nothing else.',
+    },
     gearCornersFirst: {
       name: 'Corners first',
       desc: 'The corners first, intuitively, then the edges placed by pairs swapped (R⁴: two half turns of a face), on the Ultimate the clips turned right way round ((F² R²)³, which turns over in place the edges of two layers) and last the gears spun home, a slice’s a third of a turn at a time (R⁸). The centers follow on their own.',
@@ -781,6 +817,12 @@ const en: Translations = {
     stepXEdges: 'The edges placed',
     stepXClips: 'The clips',
     stepXGears: 'The gears',
+    stepDinoTop: 'The top',
+    stepDinoMiddle: 'The equator',
+    stepDinoBottom: 'The bottom',
+    stepRexEdges: 'The edges',
+    stepRexCenters: 'The centers',
+    stepRexPetals: 'The petals',
     stepGearSpins: 'The gears',
     stepVtoCenters: 'The centers',
     stepVtoEdges: 'The edges placed',

@@ -78,6 +78,8 @@ const PUZZLES: ReadonlyArray<{
     painted: 33,
     scramble: 25,
   },
+  { shape: 'dino', pieces: 12, stickers: 24, orientations: 24, painted: 24, scramble: 20 },
+  { shape: 'rex', pieces: 42, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
   { shape: 'ghost', pieces: 11, stickers: 36, orientations: 1, painted: 36, scramble: 15 },
   {
     shape: 'gearCube',

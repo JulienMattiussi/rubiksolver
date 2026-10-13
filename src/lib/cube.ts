@@ -13,7 +13,7 @@ import { solvedGhost } from './ghost'
 import { solvedMorph } from './morph'
 import { solvedOct4 } from './oct4'
 import { solvedGem, solvedVto } from './vto'
-import { solvedRainbow } from './rainbow'
+import { solvedDino, solvedRainbow, solvedRex } from './rainbow'
 import { solvedViolet, turnAboutA, violetBoxed, violetSolved } from './violet'
 import { withGears } from './gear'
 import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
@@ -107,6 +107,8 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (shape === 'vto') return solvedVto()
   if (shape === 'gem') return solvedGem()
   if (shape === 'rainbow') return solvedRainbow()
+  if (shape === 'dino') return solvedDino()
+  if (shape === 'rex') return solvedRex()
   if (isGear(shape)) {
     const colors = faceColorsOf(shape)
     return withGears(

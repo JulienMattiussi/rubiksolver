@@ -14,6 +14,8 @@ import {
   vtoPolygons,
   vtoThumbnail,
 } from './octGeometry'
+import { dinoPolygons } from './dinoGeometry'
+import { rexCut, rexPolygons } from './rexGeometry'
 import { RAINBOW_ORIENT, RAINBOW_YAW, rainbowPolygons } from './rainbowGeometry'
 import { VIOLET_OFFSET, violetPolygons } from './violetGeometry'
 import { gemEmblemPicture } from './gemEmblem'
@@ -80,6 +82,11 @@ const RAINBOW: PolyDrawing = {
   orient: RAINBOW_ORIENT,
 }
 
+/** The Dino Cube, upright and square to the view, as the cubes are. */
+const DINO: PolyDrawing = { polygons: dinoPolygons, yaw: 0 }
+/** The Rex Cube, held as the Dino. */
+const REX: PolyDrawing = { polygons: rexPolygons, yaw: 0, cut: rexCut }
+
 const VIOLET: PolyDrawing = {
   polygons: violetPolygons,
   yaw: 0,
@@ -98,6 +105,8 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'vto') return VTO
   if (shape === 'gem') return GEM
   if (shape === 'rainbow') return RAINBOW
+  if (shape === 'dino') return DINO
+  if (shape === 'rex') return REX
   if (shape === 'violet') return VIOLET
   if (shape === 'pyra5') return PROFESSOR
   return shape === 'pyra4'

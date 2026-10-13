@@ -11,7 +11,8 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 **Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme), le
 **4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), l'**Octahedron VTO**
 (un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
-(un cuboctaèdre dont les triangles tournent), le **Violet** (un 2x2x2 à
+(un cuboctaèdre dont les triangles tournent), le **Dino Cube** et le **Rex Cube** (leurs sommets
+tournent), le **Violet** (un 2x2x2 à
 pivot excentré, qui se déforme), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages)
 et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
@@ -106,7 +107,8 @@ src/
 │   ├── gear.ts           # Gear Cubes : coups d'engrenage (demi-tour de face, quart de tranche), pivot des arêtes (Cubie.spin), réalignement
 │   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
 │   ├── violetStates.ts   # Ses états vus (gros cubes pareils) : arbre des plus courts chemins (solutions), mélange sans retour
-│   ├── rainbow.ts        # Rainbow : cuboctaèdre, 12 pièces aux milieux des arêtes du cube, triangles en tiers de tour, notation
+│   ├── rainbow.ts        # Rainbow : cuboctaèdre, 12 pièces aux milieux des arêtes du cube, triangles en tiers de tour, notation ;
+│   │                     #   le Dino Cube, même mécanique (ses arêtes seules, notation de fan2cube) ; le Rex Cube, coupé plus profond
 │   ├── cycleLibrary.ts   # 3-cycles purs des grands cubes (commutateurs [A, X Y X'] conjugués), findCycle, placeAll, borrow
 │   ├── ghost.ts          # Floppy Ghost : 10 emplacements autour du centre, demi-tours = réflexions entières, notation fan2cube
 │   ├── pyraminx.ts       # Pyraminx, Master et Jing : modèle tétraédrique entier (couches, pointes, tranches, moitiés), mélange
@@ -142,6 +144,8 @@ src/
 │   │   ├── oct4.ts       #   4-Trajber's Octahedron : parité, sommets, arêtes, centres (3-cycles, fan2cube.fr)
 │   │   ├── vto.ts        #   VTO et GEM-0 : centres, arêtes placées (3-cycles), retournées par paires, pointes (fan2cube.fr)
 │   │   ├── rainbow.ts    #   Rainbow : triangle du haut, puis les autres par 3-cycles ([H' G'], [H D], fan2cube.fr)
+│   │   ├── dino.ts       #   Dino Cube : étage par étage, par le 3-cycle [GA'] (fan2cube.fr)
+│   │   ├── rex.ts        #   Rex Cube : arêtes, centres, pétales, par 3-cycles (fan2cube.fr)
 │   │   ├── pyraCycles.ts #   3-cycles d'une sorte de pièce par conjugaison (cycleTable), chiralité (handedHome), placement
 │   │   ├── jing.ts       #   Pyraminx Jing : sommets d'abord (crochet [DH] de fan2cube.fr)
 │   │   ├── morph.ts      #   Pyramorphinx : comme un Pocket (lu comme un 2x2, solveur optimal du 2x2)
@@ -214,6 +218,8 @@ src/
 │   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
 │   ├── Decal.tsx         # Une image posée sur la face de pièces choisies, qui tourne avec elles (PolyDrawing.decal)
 │   ├── rainbowGeometry.ts # Pièces du Rainbow : cellule de chaque pièce dans le cuboctaèdre (polyhedron.ts)
+│   ├── dinoGeometry.ts   # Pièces du Dino Cube : le cube coupé le long des diagonales de ses faces
+│   ├── rexGeometry.ts    # Pièces du Rex Cube : chaque face coupée par quatre cercles, régions tracées par rayons
 │   ├── ghostGeometry.ts  # Pièces du Floppy Ghost : régions du carré coupé par le pentagramme, extrudées, posées par réflexions
 │   ├── jingGeometry.ts   # Géométrie courbe du Jing : surface arrondie maillée fin, découpée le long des coupes
 │   ├── polyDrawing.ts    # Dessin d'un puzzle sans grille : ses polygones, son lacet à l'écran, sa teinte unique (argent du Ghost)
@@ -339,6 +345,10 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 - **Équateur puis coins** (`gearEquatorFirst`, Gear Cube Extreme) : équateur et
   centres, coins du bas puis du haut, arêtes isolées puis placées, agrafes,
   engrenages - voir « Le Gear Cube Extreme ».
+- **Étage par étage** (`dinoLayers`, Dino Cube) : le haut, l'équateur, le bas,
+  avec le seul 3-cycle [GA'] - voir « Le Dino Cube ».
+- **Arêtes, centres, pétales** (`rexEdgesFirst`, Rex Cube) : par 3-cycles - voir
+  « Le Rex Cube ».
 - **Forme puis couleurs** (`shapeFirst`, Violet) : redevenir un cube, puis
   les couleurs du coin composé - voir « Le Violet ».
 - **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
@@ -925,6 +935,52 @@ avec les deux commutateurs de la page, « placer à gauche » `[H' G']` et
 « placer à droite » `[H D]`, vus de chaque côté et conjugués par un tour.
 Environ 25 coups.
 
+### Le Dino Cube (`dino`)
+
+Le Dino Cube (fan2cube.fr/dinocube1 et 2, Robert Webb et Stephen Harvey, 1995) a la mécanique du Rainbow : chaque sommet tourne d'un tiers de tour et
+fait un 3-cycle des trois arêtes autour de lui. Ses 12 pièces sont ces
+arêtes, deux triangles chacune (les faces coupées le long de leurs
+diagonales), sans centre : 12!/2 positions. Le modèle est celui du Rainbow
+(`solvedDino` garde ses arêtes et leurs carrés, `RainbowMove.dino` sa
+notation : les lettres de fan2cube, A D P G en haut, B E H O en bas ; UFR...
+en anglais). Catégorie « Coupes diagonales ». Rendu (`three/dinoGeometry.ts`) :
+chaque arête est la part du cube où ses deux coordonnées sont les plus
+grandes.
+
+**Résolution** (`methods/dino.ts`, méthode **Étage par étage**) : une seule
+formule, [GA'] = GA'G'A ((HA)->(HD)->(HG), testée), vue de chaque côté et
+préparée par un tour (`cycleTable`, `placeByCycles`) : le haut, l'équateur,
+le bas. Rien n'est fixe : la cible est la tenue du puzzle résolu la plus
+proche ; et il se résout de deux façons (gauche et droite échangées, un
+miroir), dont une seule à un nombre pair d'échanges, celle qu'on vise.
+
+### Le Rex Cube (`rex`)
+
+Le Rex Cube (fan2cube.fr/rexcube1 et 2, Andrew Cormier, 2010) est le Dino
+coupé plus profond (le Master Skewb sans coins, selon Jaap) : un tiers de
+tour d'un sommet emporte ses 3 arêtes, les 3 centres autour et 9 pétales
+(testé). 12 arêtes, 6 centres, 24 pétales ; 11!/2 × 6!/2 × 24!/4!⁶
+positions. Même modèle (`solvedRex`, `RainbowMove.rex` : un sommet tourne ce
+qui est à au moins 4 le long de sa diagonale, en quarts de demi-côté : centres
+à 4, arêtes en (3, 3, 0), pétales en (2, 4, 2)), même notation que le Dino,
+boîte de 9 (`SHAPE_DIMS`). Rendu (`three/rexGeometry.ts`) : chaque face
+coupée par quatre cercles, chacun passant par les deux coins voisins du sien,
+son centre au-delà du coin (le carré central fait moitié moins que s'il y était) ; une
+région est tracée par rayons depuis un point intérieur, puis posée en plaque
+épaisse. Pendant un tour, la sphère de coupe du sommet (celle qui porte ses
+cercles) est dessinée, immobile, comme sur le Jing (`rexCut`).
+
+**Résolution** (`methods/rex.ts`, méthode **Arêtes, centres, pétales**,
+d'après la page) : (1) les arêtes par 3-cycles, [GA'] ; (2) les centres par
+3-cycles, [DG'] ; (3) les pétales, avec [DG'][D'B], qui échange deux paires
+de pétales d'une même face (rien de visible sur une face finie) : préparé
+par un ou deux tours puis rejoué, il donne des 3-cycles de pétales. Les
+pétales forment deux familles de 12 que rien ne mélange (ceux qui pointent
+vers les sommets d'un tétraèdre ou de l'autre) : chacune se place à son
+tour, les pétales d'une couleur étant interchangeables. Cible choisie comme
+sur le Dino (tenue, et gauche et droite échangées), à permutations paires
+d'arêtes et de centres. Environ 300 coups, moins d'une demi-seconde.
+
 ### Le Gear Cube Ultimate (`gearU`)
 
 Les Gear Cubes (Oskar van Deventer, fan2cube.fr/gearcube1 et 2, Jaap) sont
@@ -1149,7 +1205,9 @@ vers leur centre. Chaque petit triangle est **coupé exactement** le long de
 ces sphères et des arêtes du tétraèdre, puis attribué à la pièce des
 moitiés où il se trouve, avec des normales lissées par sommet
 (`PiecePolygon.normals` : pas de facettes dans les reflets). Les bandes le
-long des coupes sont les joints sombres, chaque sticker est doublé vers
+long des coupes sont les joints sombres, enfoncées sous la surface en
+rainures (`GROOVE` : à fleur, elles dépasseraient de l'autre moitié pendant
+un tour), chaque sticker est doublé vers
 l'intérieur en plastique ; pendant qu'une moitié tourne, sa sphère de
 coupe est dessinée, immobile (`PolyDrawing.cut`) : une sphère autour de
 l'axe tourne en elle-même, donc une seule calotte ferme les deux parties,
@@ -1365,7 +1423,7 @@ mobile et en saisie, une seule carte) :
   (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Bizarres Violet.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube, Bizarres Violet.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

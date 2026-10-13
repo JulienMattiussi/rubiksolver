@@ -42,6 +42,8 @@ const SEAM = 0.035
 /** Half the width of the seam along the puzzle's own edges, as a share of
  *  a face's height (each face draws its half). */
 const CREASE = 0.009
+/** How deep a seam's groove lies below the surface. */
+const GROOVE = 0.06
 /** How far inward the plastic lining of a sticker lies. */
 const LINING = 0.02
 /** Subdivisions of a face's side. */
@@ -191,14 +193,22 @@ function mesh(subdivisions: number): Map<string, Patch[]> {
         const crease = sides.some((side) => side(centerOf(part)) < CREASE)
         for (const polygon of cutAlongSeams(part.map(surface))) {
           const middle = centerOf(polygon)
+          // A seam is a groove: its strip sunk below the surface, where it
+          // closes the gap without standing out of the other half as it
+          // turns (the halves' surfaces part a little then).
+          const seam = !crease && onSeam(middle)
           const key = halvesOf(middle)
           const normals = polygon.map((p) => unit(p.slice(3)))
           const list = pieces.get(key) ?? []
           list.push({
-            polygon: polygon.map((p) => p.slice(0, 3) as P3),
+            polygon: polygon.map((p, i) =>
+              seam
+                ? (p.slice(0, 3).map((x, d) => x - normals[i]![d]! * GROOVE) as P3)
+                : (p.slice(0, 3) as P3),
+            ),
             normals,
             normal: unit(centerOf(normals)),
-            ...(crease || onSeam(middle) ? {} : { ni: normalIndex(normal) }),
+            ...(crease || seam ? {} : { ni: normalIndex(normal) }),
           })
           pieces.set(key, list)
         }

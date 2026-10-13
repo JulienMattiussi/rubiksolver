@@ -64,6 +64,7 @@ type GuideSection =
   | 'triangles'
   | 'gears'
   | 'gearsThrice'
+  | 'dinoCorners'
   | PyraLayer
 
 export interface GuideGroup {
@@ -115,6 +116,13 @@ export type MoveDescription =
       readonly kind: 'triangle'
       readonly triangle: RainbowCorner
       readonly clockwise: boolean
+    }
+  | {
+      /** A Dino Cube corner turned a third (or a Rex Cube's). */
+      readonly kind: 'dinoCorner'
+      readonly corner: RainbowCorner
+      readonly clockwise: boolean
+      readonly rex?: true
     }
 
 /** The face each middle slice of a 3-layer axis follows (M: L, E: D, S: F). */
@@ -192,6 +200,9 @@ function pyraGuide(shape: PyraShape): GuideGroup[] {
   }))
 }
 
+/** The Dino's corners: the top's, then the bottom's (front right first). */
+const DINO_CORNERS: readonly RainbowCorner[] = ['U', 'u', 'l', 'L', 'R', 'r', 'd', 'D']
+
 /** The guide of a shape, section by section. */
 export function moveGuide(shape: CubeShape): GuideGroup[] {
   if (isStar(shape)) return starGuide(shape)
@@ -220,6 +231,12 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
       ([1, 2] as const).map((amount): RainbowMove => ({ triangle, amount }))
     return [{ section: 'triangles', rows: RAINBOW_TRIANGLES.map(row) }]
   }
+  if (shape === 'dino' || shape === 'rex') {
+    const rex = shape === 'rex' ? { rex: true as const } : {}
+    const row = (triangle: RainbowCorner) =>
+      ([1, 2] as const).map((amount): RainbowMove => ({ triangle, amount, dino: true, ...rex }))
+    return [{ section: 'dinoCorners', rows: DINO_CORNERS.map(row) }]
+  }
   return isPyraminx(shape) ? pyraGuide(shape) : cubeGuide(shape)
 }
 
@@ -231,7 +248,14 @@ export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
     return turn.times ? { ...base, thrice: true } : base
   }
   if (isRainbowMove(turn)) {
-    return { kind: 'triangle', triangle: turn.triangle, clockwise: turn.amount === 1 }
+    return turn.dino
+      ? {
+          kind: 'dinoCorner',
+          corner: turn.triangle,
+          clockwise: turn.amount === 1,
+          ...(turn.rex && { rex: true as const }),
+        }
+      : { kind: 'triangle', triangle: turn.triangle, clockwise: turn.amount === 1 }
   }
   if (isPyraMove(turn)) {
     const layer = pyraLayerOf(turn)
