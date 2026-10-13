@@ -1,4 +1,4 @@
-import { turnAllowed, turnedBy } from '@/lib/turn'
+import { halfTurnedBy, turnAllowed, turnedBy } from '@/lib/turn'
 import { selectBusy, useCube } from '@/store/cubeStore'
 import { useView } from '@/store/viewStore'
 import { NO_PIECES } from './noPieces'
@@ -9,5 +9,9 @@ export function usePreviewed(): (index: number) => boolean {
   const cube = useCube((s) => s.cube)
   const preview = useView((s) => s.preview)
   const idle = !useCube(selectBusy)
-  return preview && idle && turnAllowed(cube, preview) ? turnedBy(cube, preview) : NO_PIECES
+  if (!preview || !idle || !turnAllowed(cube, preview)) return NO_PIECES
+  // A Gear Cube's slice turns too, half as far.
+  const full = turnedBy(cube, preview)
+  const half = halfTurnedBy(cube, preview)
+  return (index) => full(index) || half(index)
 }

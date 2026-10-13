@@ -1,6 +1,8 @@
 import { GHOST_TURNS } from './ghost'
+import { GEAR_TURNS } from './gear'
 import { RAINBOW_TURNS } from './rainbow'
 import { movesFor, parseMoves, sameLayer } from './moves'
+import { isGear } from './types'
 import type { CubeShape, Move, Turn } from './types'
 
 /**
@@ -37,7 +39,13 @@ export const OUTER_TURNS = moveSet('U D L R F B')
  *  Rainbow). */
 export function allTurnsOf(shape: CubeShape): MoveSet {
   const turns =
-    shape === 'ghost' ? GHOST_TURNS : shape === 'rainbow' ? RAINBOW_TURNS : movesFor(shape)
+    shape === 'ghost'
+      ? GHOST_TURNS
+      : shape === 'rainbow'
+        ? RAINBOW_TURNS
+        : isGear(shape)
+          ? GEAR_TURNS
+          : movesFor(shape)
   return { generators: turns, turns }
 }
 

@@ -15,9 +15,10 @@ import { solvedOct4 } from './oct4'
 import { solvedGem, solvedVto } from './vto'
 import { solvedRainbow } from './rainbow'
 import { solvedViolet, turnAboutA, violetBoxed, violetSolved } from './violet'
+import { withGears } from './gear'
 import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
-import { ALL_COLORS, isPyraminx, isStar, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
+import { ALL_COLORS, isGear, isPyraminx, isStar, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
 import type {
   Axis,
   Color,
@@ -95,6 +96,7 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (shape === 'vto') return solvedVto()
   if (shape === 'gem') return solvedGem()
   if (shape === 'rainbow') return solvedRainbow()
+  if (isGear(shape)) return withGears(solvedCube('3'))
   if (shape === 'violet') return solvedViolet()
   if (shape === 'ghost') return solvedGhost()
   const dims = SHAPE_DIMS[shape]
@@ -121,8 +123,10 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   return cubies
 }
 
-/** Stickers a puzzle wears in all: kept by every turn. */
-const stickerCount = (cube: Cube): number => cube.reduce((n, c) => n + c.stickers.length, 0)
+/** Stickers a puzzle wears in all: kept by every turn. Gears count apart
+ *  (a Gear Cube has a 3x3's cubies and stickers). */
+const stickerCount = (cube: Cube): number =>
+  cube.reduce((n, c) => n + c.stickers.length + (c.spin === undefined ? 0 : 1000), 0)
 
 /**
  * The shapes by cubie count, the signature `cubeShape` recognizes: a count
@@ -248,6 +252,8 @@ export function isBoxed(cube: Cube): boolean {
  * but A, so its faces are not one color each.
  */
 export function isSolved(cube: Cube): boolean {
+  // A Gear Cube's gears must be home too, which its stickers do not say.
+  if (cube.some((c) => c.spin)) return false
   if (cubeShape(cube) === 'violet') return violetSolved(cube)
   return isBoxed(cube) && uniformFaces(cube) === faceCount(cubeShape(cube))
 }
@@ -268,6 +274,7 @@ export function stateKey(cube: Cube): string {
       256 + (c.position[0] + 4) * 81 + (c.position[1] + 4) * 9 + (c.position[2] + 4),
     )
     for (const s of c.stickers) out += normalIndex(s.normal).toString(36) + s.color
+    if (c.spin !== undefined) out += '@' + c.spin
     out += '|'
   }
   return out
@@ -276,6 +283,7 @@ export function stateKey(cube: Cube): string {
 /** Reorient the whole puzzle: a change of viewpoint, not a move. */
 function rotateCube(cube: Cube, axis: Axis, quarterTurns: number): Cube {
   return cube.map((cubie) => ({
+    ...cubie,
     position: rotateN(cubie.position, axis, quarterTurns),
     stickers: cubie.stickers.map((s) => ({
       normal: rotateN(s.normal, axis, quarterTurns),

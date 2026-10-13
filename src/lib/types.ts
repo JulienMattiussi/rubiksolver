@@ -23,6 +23,7 @@ export type CubeShape =
   | 'vto'
   | 'gem'
   | 'rainbow'
+  | 'gearU'
   | 'violet'
   | 'ghost'
   | 'star'
@@ -67,6 +68,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   gem: [3, 3, 3],
   // The Rainbow (rainbow.ts) is no grid: its pieces sit within +-1.
   rainbow: [3, 3, 3],
+  // The Gear Cube Ultimate (gear.ts): a 3x3x3 whose edges are gears.
+  gearU: [3, 3, 3],
   // The Violet (violet.ts) turns on a 5x5's outer slabs: its pieces sit
   // within +-3, in half mini cubes about its off-center core.
   violet: [5, 5, 5],
@@ -96,18 +99,21 @@ export type PyraShape = 'pyra' | 'pyra4' | 'pyra5' | 'jing'
 export const isPyraminx = (shape: CubeShape): shape is PyraShape =>
   shape === 'pyra' || shape === 'pyra4' || shape === 'pyra5' || shape === 'jing'
 
+/** The Gear Cubes (gear.ts): a 3x3x3's cubies, turned by gear moves. */
+export const isGear = (shape: CubeShape): boolean => shape === 'gearU'
+
 /** Whether a shape builds and turns in its own module rather than on a grid
  *  of layers (the star prisms, the Pyraminx, the Floppy Ghost): drawn from
  *  polygons, turned by its own pad. */
 export const isGridless = (shape: CubeShape): boolean =>
-  isStar(shape) || isPyraminx(shape) || shape === 'ghost' || shape === 'rainbow'
+  isStar(shape) || isPyraminx(shape) || shape === 'ghost' || shape === 'rainbow' || isGear(shape)
 
 /** Whether a shape is drawn from polygons rather than cubie boxes: every
  *  gridless one, the Pyramorphinx (a 2x2 whose pieces are not cubes) and
  *  the 4-Trajber's Octahedron and the VTO (cubes cut to an octahedron), the Violet
  *  (pieces of two sizes). */
 export const isPolyDrawn = (shape: CubeShape): boolean =>
-  isGridless(shape) ||
+  (isGridless(shape) && !isGear(shape)) ||
   shape === 'morph' ||
   shape === 'oct4' ||
   shape === 'vto' ||
@@ -144,6 +150,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   vto: false,
   gem: false,
   rainbow: false,
+  gearU: false,
   violet: true,
   ghost: false,
   star: false,
@@ -178,6 +185,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   vto: ['wide'],
   gem: [],
   rainbow: [],
+  gearU: [],
   violet: [],
   ghost: [],
   star: [],
@@ -208,6 +216,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   vto: [],
   gem: [],
   rainbow: [],
+  gearU: [],
   violet: [],
   ghost: [],
   star: [],
@@ -234,6 +243,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   vto: 'Octahedron VTO',
   gem: 'GEM-0 (Jewel)',
   rainbow: 'Rainbow',
+  gearU: 'Gear Cube Ultimate',
   violet: 'Violet',
   ghost: 'Floppy Ghost',
   star: '2-Star Prism (UFO)',
@@ -261,6 +271,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   vto: 'vto',
   gem: 'gem-0',
   rainbow: 'rainbow',
+  gearU: 'gear-cube-ultimate',
   violet: 'violet',
   ghost: 'floppy-ghost',
   star: '2-star',
@@ -302,6 +313,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   vto: false,
   gem: false,
   rainbow: false,
+  gearU: false,
   violet: false,
   ghost: false,
   star: false,
@@ -329,6 +341,7 @@ export const CUBE_CATEGORIES = [
   'pyramid',
   'octahedron',
   'star',
+  'gear',
   'odd',
 ] as const
 export type CubeCategory = (typeof CUBE_CATEGORIES)[number]
@@ -341,6 +354,7 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (shape === 'oct4' || shape === 'vto' || shape === 'gem' || shape === 'rainbow') {
     return 'octahedron'
   }
+  if (shape === 'gearU') return 'gear'
   if (shape === 'violet') return 'odd'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
@@ -402,6 +416,9 @@ export interface Sticker {
 export interface Cubie {
   readonly position: Vec3
   readonly stickers: readonly Sticker[]
+  /** A gear edge's turn about its own axis, in sixths of a turn (0 to 5),
+   *  which no cube rotation says (the Gear Cubes, gear.ts). */
+  readonly spin?: number
 }
 
 /**
@@ -494,7 +511,15 @@ export interface RainbowMove {
  *  Pyraminx's, the Floppy Ghost's or the Rainbow's. Generic code (the animation queue, the
  *  display) handles turns; solvers of the cubes, which only ever make face
  *  moves, keep `Move`. */
-export type Turn = Move | StarMove | PyraMove | GhostMove | RainbowMove
+/** A Gear Cube move (gear.ts): a half turn of a face, clockwise seen from
+ *  it (1) or back (3), its opposite face held, the slice between a quarter
+ *  along, its gears a sixth of a turn. */
+export interface GearMove {
+  readonly gear: Face
+  readonly amount: 1 | 3
+}
+
+export type Turn = Move | StarMove | PyraMove | GhostMove | RainbowMove | GearMove
 
 /** Whether a turn is a star prism's. */
 export const isStarMove = (turn: Turn): turn is StarMove => 'ring' in turn || 'slash' in turn
@@ -507,6 +532,9 @@ export const isGhostMove = (turn: Turn): turn is GhostMove => 'side' in turn
 
 /** Whether a turn is the Rainbow's. */
 export const isRainbowMove = (turn: Turn): turn is RainbowMove => 'triangle' in turn
+
+/** Whether a turn is a Gear Cube's. */
+export const isGearMove = (turn: Turn): turn is GearMove => 'gear' in turn
 
 /** Whether a turn is a face-layer move (the cubes and cuboids). */
 export const isFaceMove = (turn: Turn): turn is Move => 'face' in turn

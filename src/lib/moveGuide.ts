@@ -15,6 +15,8 @@ import { RAINBOW_TRIANGLES } from './rainbow'
 import { signedPieces, STAR_RINGS } from './star'
 import {
   isFaceMove,
+  isGear,
+  isGearMove,
   isGhostMove,
   isPyraminx,
   isPyraMove,
@@ -26,6 +28,7 @@ import type {
   CubeShape,
   Dims,
   Face,
+  GearMove,
   GhostSide,
   RainbowCorner,
   RainbowMove,
@@ -51,7 +54,16 @@ import type {
  */
 
 type GuideSection =
-  'faces' | 'middle' | 'slices' | 'wide' | 'rings' | 'slash' | 'sides' | 'triangles' | PyraLayer
+  | 'faces'
+  | 'middle'
+  | 'slices'
+  | 'wide'
+  | 'rings'
+  | 'slash'
+  | 'sides'
+  | 'triangles'
+  | 'gears'
+  | PyraLayer
 
 export interface GuideGroup {
   readonly section: GuideSection
@@ -88,6 +100,12 @@ export type MoveDescription =
       /** A Floppy Ghost side flipped over. */
       readonly kind: 'side'
       readonly side: GhostSide
+    }
+  | {
+      /** A Gear Cube face's half turn, the slice beside it a quarter. */
+      readonly kind: 'gear'
+      readonly face: Face
+      readonly clockwise: boolean
     }
   | {
       /** A Rainbow triangle turned a third. */
@@ -175,6 +193,10 @@ function pyraGuide(shape: PyraShape): GuideGroup[] {
 export function moveGuide(shape: CubeShape): GuideGroup[] {
   if (isStar(shape)) return starGuide(shape)
   if (shape === 'ghost') return [{ section: 'sides', rows: GHOST_TURNS.map((turn) => [turn]) }]
+  if (isGear(shape)) {
+    const row = (gear: Face) => ([1, 3] as const).map((amount): GearMove => ({ gear, amount }))
+    return [{ section: 'gears', rows: FACES.map(row) }]
+  }
   if (shape === 'rainbow') {
     const row = (triangle: RainbowCorner) =>
       ([1, 2] as const).map((amount): RainbowMove => ({ triangle, amount }))
@@ -186,6 +208,7 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
 /** What a turn does on a shape. */
 export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
   if (isGhostMove(turn)) return { kind: 'side', side: turn.side }
+  if (isGearMove(turn)) return { kind: 'gear', face: turn.gear, clockwise: turn.amount === 1 }
   if (isRainbowMove(turn)) {
     return { kind: 'triangle', triangle: turn.triangle, clockwise: turn.amount === 1 }
   }

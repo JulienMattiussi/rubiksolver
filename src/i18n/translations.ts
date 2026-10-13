@@ -54,6 +54,8 @@ const fr = {
   starTurnTitle: (layer: StarLayer, clockwise: boolean) =>
     `Tourner ${STAR_LAYER_FR[layer]} d’une pièce dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
   slashTitle: 'Slash : retourner la moitié droite',
+  gearTurnTitle: (faceName: string, clockwise: boolean) =>
+    `Demi-tour de la ${faceName} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'} (la tranche suit d’un quart)`,
   ghostTurnTitle: (side: GhostSide) => `Retourner ${SIDE_NAMES_FR[side]} (demi-tour)`,
   rainbowTurnTitle: (triangle: RainbowCorner, clockwise: boolean) =>
     `Tourner ${TRIANGLE_NAMES_FR[triangle]} d’un tiers dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
@@ -191,6 +193,7 @@ const fr = {
     slice4: 'Quatrièmes tranches',
     deep: 'Sommets (chacun sa moitié du puzzle)',
     sides: 'Côtés (demi-tours)',
+    gears: 'Faces (demi-tours, la tranche suit d’un quart)',
     triangles: 'Triangles (le centre ne bouge pas)',
   },
   describeMove: describeFr,
@@ -205,6 +208,7 @@ const fr = {
     pyramid: 'Pyramides',
     octahedron: 'Octaèdres',
     star: 'Étoiles',
+    gear: 'Engrenages',
     odd: 'Bizarre',
   },
   sectionSetup: 'Initialisation',
@@ -293,6 +297,10 @@ const fr = {
       name: 'Centres puis arêtes',
       desc: 'Comme un Pyraminx : chaque sommet tourné pour que les quatre centres autour de lui aillent avec leurs faces, puis les arêtes placées par 3-cycles (trois arêtes d’une face, [A D’], ou autour d’un sommet, A’HA.H.A’H²A, chaque lettre un sommet entier, Aw...), retournées deux par deux ([A D’][H’ D]), et enfin les pointes tournées seules.',
     },
+    gearCornersFirst: {
+      name: 'Coins d’abord',
+      desc: 'Les coins d’abord, intuitivement, puis les arêtes placées par paires échangées (D⁴ : deux demi-tours d’une face), les agrafes remises à l’endroit ((A² D²)³, qui retourne sur place les arêtes de deux étages) et enfin les engrenages remis en place, ceux d’une tranche d’un tiers de tour à la fois (D⁸). Les centres suivent tout seuls.',
+    },
     shapeFirst: {
       name: 'Forme puis couleurs',
       desc: 'D’abord le moins de coups possible pour qu’il redevienne un cube, quelles que soient les couleurs du coin composé ; puis, depuis ce cube (35 cas possibles), la suite la plus courte qui remet ses couleurs : un algorithme par cas. Trouvé par une recherche sur tous ses états.',
@@ -325,6 +333,10 @@ const fr = {
     stepPLL: 'PLL (permuter la dernière couche)',
     stepOptimal: 'Solution optimale',
     stepVioletCube: 'Redevenir un cube',
+    stepGearCorners: 'Les coins',
+    stepGearEdges: 'Les arêtes placées',
+    stepGearClips: 'Les agrafes',
+    stepGearSpins: 'Les engrenages',
     stepVtoCenters: 'Les centres',
     stepVtoEdges: 'Les arêtes placées',
     stepVtoFlips: 'Les arêtes retournées',
@@ -427,6 +439,8 @@ const en: Translations = {
   starTurnTitle: (layer: StarLayer, clockwise: boolean) =>
     `Turn the ${STAR_LAYER_EN[layer]} layer one piece ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   slashTitle: 'Slash: flip the right half',
+  gearTurnTitle: (faceName: string, clockwise: boolean) =>
+    `Half turn of the ${faceName} ${clockwise ? 'clockwise' : 'counter-clockwise'} (the slice follows a quarter)`,
   ghostTurnTitle: (side: GhostSide) => `Flip ${SIDE_NAMES_EN[side]} over (half turn)`,
   rainbowTurnTitle: (triangle: RainbowCorner, clockwise: boolean) =>
     `Turn ${TRIANGLE_NAMES_EN[triangle]} a third ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
@@ -559,6 +573,7 @@ const en: Translations = {
     slice4: 'Fourth slices',
     deep: 'Corners (each its half of the puzzle)',
     sides: 'Sides (half turns)',
+    gears: 'Faces (half turns, the slice follows a quarter)',
     triangles: 'Triangles (the center stays put)',
   },
   describeMove: describeEn,
@@ -573,6 +588,7 @@ const en: Translations = {
     pyramid: 'Pyramids',
     octahedron: 'Octahedra',
     star: 'Stars',
+    gear: 'Gears',
     odd: 'Odd',
   },
   sectionSetup: 'Setup',
@@ -661,6 +677,10 @@ const en: Translations = {
       name: 'Centers then edges',
       desc: 'Like a Pyraminx: each corner turned so the four centers around it go with their faces, then the edges placed by 3-cycles (three edges of a face, [F R’], or around a corner, F’UF.U.F’U²F, each letter a whole corner, Fw...), flipped two at a time ([F R’][U’ R]), and last the tips turned alone.',
     },
+    gearCornersFirst: {
+      name: 'Corners first',
+      desc: 'The corners first, intuitively, then the edges placed by pairs swapped (R⁴: two half turns of a face), the clips turned right way round ((F² R²)³, which turns over in place the edges of two layers) and last the gears spun home, a slice’s a third of a turn at a time (R⁸). The centers follow on their own.',
+    },
     shapeFirst: {
       name: 'Shape then colors',
       desc: 'First the fewest turns to make it a cube again, whatever the split corner’s colors; then, from that cube (35 possible cases), the shortest sequence putting its colors back: one algorithm per case. Found by a search over all its states.',
@@ -693,6 +713,10 @@ const en: Translations = {
     stepPLL: 'PLL (permute last layer)',
     stepOptimal: 'Optimal solution',
     stepVioletCube: 'Back to a cube',
+    stepGearCorners: 'The corners',
+    stepGearEdges: 'The edges placed',
+    stepGearClips: 'The clips',
+    stepGearSpins: 'The gears',
     stepVtoCenters: 'The centers',
     stepVtoEdges: 'The edges placed',
     stepVtoFlips: 'The edges flipped',

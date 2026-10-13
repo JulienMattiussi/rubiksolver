@@ -12,7 +12,8 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 **4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), l'**Octahedron VTO**
 (un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
 (un cuboctaèdre dont les triangles tournent), le **Violet** (un 2x2x2 à
-pivot excentré, qui se déforme) et les
+pivot excentré, qui se déforme), le **Gear Cube Ultimate** (un 3x3x3 à engrenages)
+et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
@@ -93,7 +94,7 @@ voisins (ex : `big-bang-clicker`).
 ```
 src/
 ├── lib/                  # Logique pure, zéro React / zéro three.js (entièrement testée)
-│   ├── types.ts          # Types du domaine (CubeShape + SHAPE_DIMS/SHAPE_SHIFTS/SHAPE_INNER_TURNS, Dims, CubeVariant, Face, Color, Axis, Vec3, Sticker, Cubie, Cube, Move avec depth/wide)
+│   ├── types.ts          # Types du domaine (CubeShape + SHAPE_DIMS/SHAPE_SHIFTS/SHAPE_INNER_TURNS, Dims, CubeVariant, Face, Color, Axis, Vec3, Sticker, Cubie (+ spin), Cube, Move avec depth/wide)
 │   │                     #   + CUBE_KINDS : les choix exposés (forme x variante), leur id, libellé et catégorie
 │   ├── geometry.ts       # Géométrie entière : normales des faces, normalIndex, grilles par axe (layerCoords), rotations exactes
 │   ├── cube.ts           # Le puzzle : solvedCube, schéma de couleurs par forme (faceColorsOf), cubeShape (pièces + stickers),
@@ -102,6 +103,7 @@ src/
 │   ├── morph.ts          # Pyramorphinx : un 2x2 taillé en tétraèdre (coins à 3 stickers, milieux de face à 1)
 │   ├── oct4.ts           # 4-Trajber's Octahedron : un 4x4x4 sans cubies internes, un sticker par pièce (face de son octant)
 │   ├── vto.ts            # Octahedron VTO et GEM-0 : un 3x3x3 taillé en octaèdre (pointes à part sur le VTO, carrés sur le GEM-0)
+│   ├── gear.ts           # Gear Cubes : coups d'engrenage (demi-tour de face, quart de tranche), pivot des arêtes (Cubie.spin)
 │   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
 │   ├── violetStates.ts   # Ses états vus (gros cubes pareils) : arbre des plus courts chemins (solutions), mélange sans retour
 │   ├── rainbow.ts        # Rainbow : cuboctaèdre, 12 pièces aux milieux des arêtes du cube, triangles en tiers de tour, notation
@@ -149,6 +151,7 @@ src/
 │   │   ├── domino.ts     #   Domino 3x3x2 : coins puis arêtes (formules de fan2cube.fr, reprises élargies par la tour)
 │   │   ├── floppy.ts     #   Floppy 3x3x1 : coins puis arêtes retournées deux par deux (fan2cube.fr)
 │   │   ├── ghost.ts      #   Floppy Ghost : sommets placés, orientés, puis arêtes (formules de fan2cube, des 5 côtés)
+│   │   ├── gear.ts       #   Gear Cube : coins, arêtes placées, agrafes, engrenages (formules de fan2cube.fr)
 │   │   └── violet.ts     #   Violet : forme puis couleurs, et optimale (arbre de recherche de violetStates.ts)
 │   ├── solver4/          # Solveur 4x4 par réduction :
 │   │   ├── centers.ts    #   centres par comptage (D, U, puis ceinture), recherches bornées sans régression
@@ -201,6 +204,7 @@ src/
 │   ├── morphGeometry.ts  # Pièces du Pyramorphinx : case du 2x2 coupée par le tétraèdre (polyèdre convexe)
 │   ├── octGeometry.ts    # Pièces des octaèdres (4-Trajber, VTO, GEM-0) : case du cube coupée par l'octaèdre (polyhedron.ts)
 │   ├── gemEmblem.ts      # L'emblème rond des carrés dorés du GEM-0, dessiné sur un canvas
+│   ├── GearFace.tsx      # Une face d'arête du Gear Cube : demi-engrenage bicolore qui pivote, deux agrafes
 │   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
 │   ├── Decal.tsx         # Une image posée sur la face de pièces choisies, qui tourne avec elles (PolyDrawing.decal)
 │   ├── rainbowGeometry.ts # Pièces du Rainbow : cellule de chaque pièce dans le cuboctaèdre (polyhedron.ts)
@@ -228,7 +232,7 @@ src/
 │   │                     #   + styles.ts : classes partagées (SECTION_BOX, SECTION_LABEL, TURN_PAIR)
 │   │                     #   + features.ts : icône et couleur des 3 fonctionnalités (saisie bleu ciel, guide violet,
 │   │                     #     résolution ambre), partagées par les cartes de l'accueil et les boutons (variantes de Button)
-│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad / GhostPad / RainbowPad (+ PadHeader,
+│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad / GhostPad / RainbowPad / GearPad (+ PadHeader,
 │   │                     #   PadButton : un coup, sa surbrillance au survol), LanguageToggle, NotationToggle,
 │   │                     #   RecenterButton, CollapseButton, SpeedSlider
 │   ├── picker/           # Choix du cube : CubePicker (bouton + modale), PickerTile, PuzzleIcon (vignette SVG),
@@ -322,6 +326,8 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 - **Optimale** (`optimal`, 2x2, 1x2x3, Floppy, Floppy Ghost et Violet) : recherche exhaustive,
   solution la plus courte possible (11 coups max sur 2x2, 6 sur 1x2x3, 8 sur
   Floppy, 15 sur Floppy Ghost, 30 sur Violet), une seule étape.
+- **Coins d'abord** (`gearCornersFirst`, Gear Cube Ultimate) : coins, arêtes
+  placées, agrafes, engrenages - voir « Le Gear Cube Ultimate ».
 - **Forme puis couleurs** (`shapeFirst`, Violet) : redevenir un cube, puis
   les couleurs du coin composé - voir « Le Violet ».
 - **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
@@ -900,6 +906,47 @@ avec les deux commutateurs de la page, « placer à gauche » `[H' G']` et
 « placer à droite » `[H D]`, vus de chaque côté et conjugués par un tour.
 Environ 25 coups.
 
+### Le Gear Cube Ultimate (`gearU`)
+
+Les Gear Cubes (Oskar van Deventer, fan2cube.fr/gearcube1 et 2, Jaap) sont
+des 3x3x3 dont les arêtes sont des engrenages : les deux faces d'un axe sont
+des planétaires, la tranche entre elles leur porte-satellites, ses quatre
+arêtes les satellites. La tranche reste donc toujours à mi-chemin de ses
+faces : un **demi-tour de face** (l'opposée tenue) la fait tourner d'un
+**quart**, dans le même sens. C'est le seul coup (`GearMove`, le D² de
+fan2cube, le R de Jaap) : un quart de tour de face laisserait la tranche à
+45°, où plus rien ne tourne. L'**Ultimate** (le vrai, à 12 engrenages ; la
+page « Ultimate » de fan2cube montre en fait l'Extreme, à 8) a la mécanique
+du Gear Cube, mais ses engrenages ne retrouvent la forme du cube que tous
+les six coups.
+
+**Modèle** (`lib/gear.ts`) : un 3x3x3, chaque arête un engrenage. Les quatre
+engrenages de la tranche pivotent d'un sixième de tour par coup, dans le
+même sens pour un coup horaire de l'une ou l'autre face : ce pivot, qu'aucune
+rotation du cube ne dit, est `Cubie.spin` (en sixièmes), gardé par la clé
+d'état, le mémorisé (`@n`) et les rotations du puzzle entier ; « résolu »
+l'exige à zéro. Les stickers des arêtes sont leur base (les « agrafes »). Le
+modèle est vérifié contre Jaap : 4 × 41 472 et 4 × 165 888 positions (le
+facteur 4 : les tenues que les coups atteignent, la « téléportation » de
+fan2cube), et les formules de la page (D⁸ pivote les 4 arêtes d'une
+tranche, (A²D²)³ retourne sur place les 8 arêtes du haut et du bas,
+G'²D² retourne le cube). Le pivot vu sur 6 au lieu de 3 n'ajoute aucun état.
+
+**Animation à deux vitesses** : `halfTurnedBy` donne les pièces qui tournent
+à moitié (la tranche), dans leur propre groupe (`halfRef`) ; leurs
+engrenages pivotent en suivant l'avancement du coup (`turnSpin`,
+`progress`). **Rendu** (`GearFace.tsx`) : chaque face d'arête porte un
+demi-engrenage à cheval sur son arête, aux couleurs de ses deux faces, que
+le pivot fait passer d'une face à l'autre, et deux agrafes ; hors de sa
+place, l'engrenage dépasse de la face.
+
+**Résolution** (`methods/gear.ts`, méthode **Coins d'abord**, d'après
+fan2cube.fr/gearcube2) : chaque étape cherche parmi les seules formules de
+la page, qui laissent les étapes d'avant intactes : (1) coins, par tous les
+coups ; (2) arêtes placées, D⁴ et P²D⁴P'² ; (3) agrafes, (A²D²)³ ; (4)
+engrenages, D⁸. Les centres suivent. **Pas encore de saisie** (le pivot ne
+se peint pas) : boutons masqués, test de saisie sauté (`noEntry`).
+
 ### Le Violet (`violet`)
 
 Un puzzle dont le nom s'est perdu, décrit de mémoire et validé à l'écran :
@@ -1224,7 +1271,7 @@ mobile et en saisie, une seule carte) :
   (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Bizarre Violet.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube Ultimate, Bizarre Violet.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

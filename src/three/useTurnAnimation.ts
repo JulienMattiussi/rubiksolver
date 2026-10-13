@@ -1,9 +1,10 @@
 import { useEffect, useRef, type RefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { turnRotation, turnedBy } from '@/lib/turn'
+import { halfTurnedBy, turnRotation, turnedBy } from '@/lib/turn'
 import { easeInOut } from '@/lib/easing'
 import { useCube } from '@/store/cubeStore'
+import { isGearMove } from '@/lib/types'
 import { NO_PIECES } from './noPieces'
 
 interface TurnAnimation {
@@ -11,6 +12,12 @@ interface TurnAnimation {
   groupRef: RefObject<THREE.Group | null>
   /** Whether the cubie at `index` belongs to the layer being turned. */
   isTurning: (index: number) => boolean
+  /** The pieces turning half as far (a Gear Cube's slice), and their group. */
+  halfRef: RefObject<THREE.Group | null>
+  isHalfTurning: (index: number) => boolean
+  /** The sixths a Gear Cube's turning gears spin, and the turn's progress. */
+  turnSpin: number
+  progress: RefObject<number>
 }
 
 /**
@@ -31,11 +38,15 @@ export function useTurnAnimation(): TurnAnimation {
   const commitActive = useCube((s) => s.commitActive)
 
   const groupRef = useRef<THREE.Group>(null)
+  const halfRef = useRef<THREE.Group>(null)
+  const progress = useRef(0)
   const elapsed = useRef(0)
 
   useEffect(() => {
     elapsed.current = 0
+    progress.current = 0
     groupRef.current?.rotation.set(0, 0, 0)
+    halfRef.current?.rotation.set(0, 0, 0)
   }, [active])
 
   useFrame((_, delta) => {
@@ -52,11 +63,16 @@ export function useTurnAnimation(): TurnAnimation {
     if (groupRef.current) {
       AXIS.set(geo.axis[0], geo.axis[1], geo.axis[2])
       groupRef.current.setRotationFromAxisAngle(AXIS, geo.angle * easeInOut(t))
+      halfRef.current?.setRotationFromAxisAngle(AXIS, (geo.angle / 2) * easeInOut(t))
+      progress.current = easeInOut(t)
     }
     if (t >= 1) commitActive()
   })
 
   const isTurning = active ? turnedBy(cube, active) : NO_PIECES
+  const isHalfTurning = active ? halfTurnedBy(cube, active) : NO_PIECES
 
-  return { groupRef, isTurning }
+  const turnSpin = active && isGearMove(active) ? (active.amount === 1 ? 1 : -1) : 0
+
+  return { groupRef, isTurning, halfRef, isHalfTurning, turnSpin, progress }
 }

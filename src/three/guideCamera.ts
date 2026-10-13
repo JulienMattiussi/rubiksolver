@@ -43,7 +43,7 @@ export function guideCameraPosition(turn: Turn, drawing?: PolyDrawing): [number,
     const across = Math.hypot(x, z)
     return [Math.sin(bearing) * across, y, Math.cos(bearing) * across]
   }
-  const { coordIndex, dir } = FACE_SPEC[turn.face]
+  const { coordIndex, dir } = FACE_SPEC['gear' in turn ? turn.gear : turn.face]
   const position: [number, number, number] = [x, y, z]
   position[coordIndex] = Math.abs(position[coordIndex]) * dir
   return position

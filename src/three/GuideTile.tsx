@@ -2,9 +2,9 @@ import { useMemo, useRef, useState } from 'react'
 import { createPortal, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { easeInOut } from '@/lib/easing'
-import { turnAllowed, turnedBy, turnRotation } from '@/lib/turn'
+import { halfTurnedBy, turnAllowed, turnedBy, turnRotation } from '@/lib/turn'
 import { cubeShape } from '@/lib/cube'
-import { isPolyDrawn, type Cube, type CubeVariant, type Turn } from '@/lib/types'
+import { isGearMove, isPolyDrawn, type Cube, type CubeVariant, type Turn } from '@/lib/types'
 import { CubeModel } from './CubeModel'
 import { guideCameraPosition } from './guideCamera'
 import { NO_PIECES } from './noPieces'
@@ -60,9 +60,12 @@ export function GuideTile({ track, cube, variant, turn, playing }: GuideTileProp
     [turn, shape],
   )
   const groupRef = useRef<THREE.Group>(null)
+  const halfRef = useRef<THREE.Group>(null)
+  const progress = useRef(0)
   const clock = useRef(0)
   const blocked = !turnAllowed(cube, turn)
   const isTurning = blocked ? NO_PIECES : turnedBy(cube, turn)
+  const isHalfTurning = blocked ? NO_PIECES : halfTurnedBy(cube, turn)
   const { axis, angle } = turnRotation(turn)
   const duration = Math.abs(angle) > Math.PI / 2 + 0.01 ? HALF : QUARTER
 
@@ -72,12 +75,16 @@ export function GuideTile({ track, cube, variant, turn, playing }: GuideTileProp
     if (!playing || blocked) {
       clock.current = 0
       group.rotation.set(0, 0, 0)
+      halfRef.current?.rotation.set(0, 0, 0)
+      progress.current = 0
       return
     }
     clock.current = (clock.current + delta) % (LEAD + duration + HOLD)
     const t = Math.min(1, Math.max(0, (clock.current - LEAD) / duration))
     AXIS.set(axis[0], axis[1], axis[2])
     group.setRotationFromAxisAngle(AXIS, angle * easeInOut(t))
+    halfRef.current?.setRotationFromAxisAngle(AXIS, (angle / 2) * easeInOut(t))
+    progress.current = easeInOut(t)
   })
 
   useFrame(({ gl }) => {
@@ -97,7 +104,8 @@ export function GuideTile({ track, cube, variant, turn, playing }: GuideTileProp
     gl.render(scene, camera)
   }, 2)
 
-  const model = { cube, groupRef, isTurning }
+  const turnSpin = isGearMove(turn) ? (turn.amount === 1 ? 1 : -1) : 0
+  const model = { cube, groupRef, isTurning, halfRef, isHalfTurning, turnSpin, progress }
   return createPortal(
     <>
       <ambientLight intensity={1.05} />

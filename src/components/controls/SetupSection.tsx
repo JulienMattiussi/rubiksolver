@@ -1,7 +1,7 @@
 import { ArchiveRestore, Bookmark, RotateCcw, Shuffle, Square } from 'lucide-react'
 import { useState } from 'react'
 import { cubeShape } from '@/lib/cube'
-import { isPyraminx, isStar } from '@/lib/types'
+import { isGear, isPyraminx, isStar } from '@/lib/types'
 import { encodeCube } from '@/lib/snapshot'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
@@ -14,6 +14,7 @@ import { SECTION_BOX } from '@/components/ui/styles'
 import { FEATURE_ICON } from '@/components/ui/features'
 import { MovePad } from './MovePad'
 import { GhostPad } from './GhostPad'
+import { GearPad } from './GearPad'
 import { RainbowPad } from './RainbowPad'
 import { PyraPad } from './PyraPad'
 import { StarPad } from './StarPad'
@@ -66,13 +67,18 @@ export function SetupSection() {
             {t.reset}
           </Button>
         )}
-        <Button onClick={enterEdit} disabled={busy} variant="edit">
-          <FEATURE_ICON.edit className="size-4" aria-hidden />
-          {t.editCube}
-        </Button>
-        <Button onClick={enterFromCurrent} disabled={busy} variant="ghost">
-          {t.fromCurrent}
-        </Button>
+        {/* No entry yet for a Gear Cube: its gears' spin is not painted. */}
+        {!isGear(shape) && (
+          <>
+            <Button onClick={enterEdit} disabled={busy} variant="edit">
+              <FEATURE_ICON.edit className="size-4" aria-hidden />
+              {t.editCube}
+            </Button>
+            <Button onClick={enterFromCurrent} disabled={busy} variant="ghost">
+              {t.fromCurrent}
+            </Button>
+          </>
+        )}
         <Button
           // Overwriting another memorized state asks first; a first save does not.
           onClick={() => (saved ? setConfirmReplace(true) : save(cube))}
@@ -117,6 +123,8 @@ export function SetupSection() {
         <GhostPad disabled={busy} />
       ) : shape === 'rainbow' ? (
         <RainbowPad disabled={busy} />
+      ) : isGear(shape) ? (
+        <GearPad disabled={busy} />
       ) : (
         <MovePad disabled={busy} />
       )}

@@ -1,3 +1,4 @@
+import { formatGearMove, GEAR_TURNS, invertGearMove, scrambleGear, simplifyGearMoves } from './gear'
 import { scrambleViolet } from './violetStates'
 import { solvedCube, turnDims } from './cube'
 import { faceAxis, faceLayers, quarterTurnFits } from './geometry'
@@ -23,6 +24,8 @@ import {
   isGhostMove,
   isGridless,
   isRainbowMove,
+  isGearMove,
+  isGear,
   isPyraMove,
   isPyraminx,
   isStar,
@@ -40,6 +43,7 @@ import type {
   Move,
   PyraMove,
   RainbowMove,
+  GearMove,
   StarMove,
   Turn,
 } from './types'
@@ -142,6 +146,7 @@ export function formatMove(move: Turn, labels: FaceLabels = NOTATION_US, dims?: 
   if (isPyraMove(move)) return formatPyraMove(move, labels)
   if (isGhostMove(move)) return formatGhostMove(move, labels)
   if (isRainbowMove(move)) return formatRainbowMove(move, labels)
+  if (isGearMove(move)) return formatGearMove(move, labels)
   if (dims && move.depth && !move.wide && faceLayers(dims, move.face) === 3) {
     const slice = SLICES.find((s) => s.face === move.face || s.opposite === move.face)!
     const amount = slice.face === move.face ? move.amount : invertMove(move).amount
@@ -231,6 +236,7 @@ export function sameLayer(a: Turn, b: Turn): boolean {
   if (isRainbowMove(a) || isRainbowMove(b)) {
     return isRainbowMove(a) && isRainbowMove(b) && a.triangle === b.triangle
   }
+  if (isGearMove(a) || isGearMove(b)) return isGearMove(a) && isGearMove(b) && a.gear === b.gear
   return a.face === b.face && a.depth === b.depth && a.wide === b.wide
 }
 
@@ -252,7 +258,9 @@ export function invertMoves<T extends Turn>(moves: readonly T[]): T[] {
             ? m // a half turn
             : isRainbowMove(m)
               ? invertRainbowMove(m)
-              : invertMove(m)) as T,
+              : isGearMove(m)
+                ? invertGearMove(m)
+                : invertMove(m)) as T,
   )
 }
 
@@ -269,6 +277,7 @@ export function simplifyMoves<T extends Turn>(moves: readonly T[]): T[] {
   if (moves.some(isRainbowMove)) {
     return simplifyRainbowMoves(moves as readonly RainbowMove[]) as T[]
   }
+  if (moves.some(isGearMove)) return simplifyGearMoves(moves as readonly GearMove[]) as T[]
   const out: Move[] = []
   for (const move of moves as readonly Move[]) {
     const last = out[out.length - 1]
@@ -351,6 +360,7 @@ export function scrambleTurns(
   if (isPyraminx(shape)) return scramblePyraminx(shape, length, rng)
   if (shape === 'ghost') return scrambleGhost(length, rng)
   if (shape === 'rainbow') return scrambleRainbow(length, rng)
+  if (isGear(shape)) return scrambleGear(length, rng)
   if (shape === 'violet') return scrambleViolet(length, rng, start)
   return scramble(shape, length, rng, start)
 }
@@ -364,6 +374,7 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
   if (isPyraminx(shape)) return pyraTurnsOf(shape)
   if (shape === 'ghost') return GHOST_TURNS
   if (shape === 'rainbow') return RAINBOW_TURNS
+  if (isGear(shape)) return GEAR_TURNS
   return movesFor(shape)
 }
 

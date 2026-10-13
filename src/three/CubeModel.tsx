@@ -12,6 +12,14 @@ export interface ModelProps {
   /** Group the turning pieces are parented to (the animation rotates it). */
   groupRef: RefObject<THREE.Group | null>
   isTurning: (index: number) => boolean
+  /** Group of the pieces turning half as far (a Gear Cube's slice), and
+   *  which they are; none on other puzzles. */
+  halfRef?: RefObject<THREE.Group | null>
+  isHalfTurning?: (index: number) => boolean
+  /** The sixths a Gear Cube's turning gears spin (+-1), and how far along
+   *  the turn is (0 to 1), for them to spin along. */
+  turnSpin?: number
+  progress?: RefObject<number>
   highlighted?: (index: number) => boolean
 }
 
@@ -23,6 +31,10 @@ export function CubeModel({
   variant,
   groupRef,
   isTurning,
+  halfRef,
+  isHalfTurning = NO_PIECES,
+  turnSpin,
+  progress,
   highlighted = NO_PIECES,
 }: ModelProps & { variant: CubeVariant }) {
   const dims = cubeDims(cube)
@@ -31,13 +43,27 @@ export function CubeModel({
     <group scale={cubeScale(dims)}>
       <group position={[ox, oy, oz]}>
         {cube.map((c, i) =>
-          isTurning(i) ? null : (
+          isTurning(i) || isHalfTurning(i) ? null : (
             <Cubie key={i} cubie={c} dims={dims} variant={variant} highlighted={highlighted(i)} />
           ),
         )}
         <group ref={groupRef}>
           {cube.map((c, i) =>
             isTurning(i) ? <Cubie key={i} cubie={c} dims={dims} variant={variant} /> : null,
+          )}
+        </group>
+        <group ref={halfRef}>
+          {cube.map((c, i) =>
+            isHalfTurning(i) ? (
+              <Cubie
+                key={i}
+                cubie={c}
+                dims={dims}
+                variant={variant}
+                spinning={turnSpin}
+                progress={progress}
+              />
+            ) : null,
           )}
         </group>
       </group>

@@ -9,7 +9,7 @@ import { useTurnAnimation } from './useTurnAnimation'
 export function CubeView() {
   const cube = useCube((s) => s.cube)
   const variant = useCube((s) => s.variant)
-  const { groupRef, isTurning } = useTurnAnimation()
+  const { groupRef, isTurning, halfRef, isHalfTurning, turnSpin, progress } = useTurnAnimation()
   const highlighted = usePreviewed()
   return (
     <CubeModel
@@ -17,6 +17,10 @@ export function CubeView() {
       variant={variant}
       groupRef={groupRef}
       isTurning={isTurning}
+      halfRef={halfRef}
+      isHalfTurning={isHalfTurning}
+      turnSpin={turnSpin}
+      progress={progress}
       highlighted={highlighted}
     />
   )

@@ -219,6 +219,7 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
     ['Octaèdres', 'Rainbow'],
     ['Étoiles', '2-Star Prism (UFO)'],
     ['Étoiles', '4-Star Prism'],
+    ['Engrenages', 'Gear Cube Ultimate'],
     ['Bizarre', 'Violet'],
   ]
   for (const [category, name] of puzzles) {

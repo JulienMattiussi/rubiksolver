@@ -1,6 +1,7 @@
 import { cubeShape, turnDims } from './cube'
 import { FACE_SPEC, layerCoords, rotateN } from './geometry'
 import { applyGhostMove, ghostAxis, ghostTurns } from './ghost'
+import { applyGearMove, gearFaceTurns, gearRotation, gearSliceTurns } from './gear'
 import { applyRainbowMove, rainbowRotation, rainbowTurns } from './rainbow'
 import { violetTurns } from './violet'
 import { applyPyraMove, pyraRotation, pyraSize, pyraTurns } from './pyraminx'
@@ -8,6 +9,7 @@ import { applyStarMove, starRotation, starTurns } from './star'
 import {
   isGhostMove,
   isPyraMove,
+  isGearMove,
   isRainbowMove,
   isStarMove,
   SHAPE_DIMS,
@@ -78,12 +80,20 @@ export function turnedBy(cube: Cube, move: Turn): (index: number) => boolean {
   if (isStarMove(move)) return (index) => starTurns(move, cube[index]!.position)
   if (isGhostMove(move)) return (index) => ghostTurns(move, cube[index]!.position)
   if (isRainbowMove(move)) return (index) => rainbowTurns(move, cube[index]!.position)
+  if (isGearMove(move)) return (index) => gearFaceTurns(move, cube[index]!.position)
   if (isPyraMove(move)) {
     const size = pyraSize(turnDims(cubeShape(cube)))
     return (index) => pyraTurns(move, cube[index]!.position, size)
   }
   const turns = turnsPosition(move, turnDims(cubeShape(cube)))
   return (index) => turns(cube[index]!.position)
+}
+
+/** Which cubies `move` turns half as far as the others (a Gear Cube's
+ *  slice, beside the face it turns), by index; none on other puzzles. */
+export function halfTurnedBy(cube: Cube, move: Turn): (index: number) => boolean {
+  if (isGearMove(move)) return (index) => gearSliceTurns(move, cube[index]!.position)
+  return () => false
 }
 
 /**
@@ -98,7 +108,7 @@ export function turnedBy(cube: Cube, move: Turn): (index: number) => boolean {
  */
 export function turnAllowed(cube: Cube, move: Turn): boolean {
   if (isStarMove(move)) return true // pieces are whole 60 degree sectors
-  if (isPyraMove(move) || isGhostMove(move) || isRainbowMove(move)) return true
+  if (isPyraMove(move) || isGhostMove(move) || isRainbowMove(move) || isGearMove(move)) return true
   const shape = cubeShape(cube)
   if (!SHAPE_SHIFTS[shape]) return true
   if (shape === 'violet') return violetTurns(cube, move.face)
@@ -128,6 +138,7 @@ export function turnRotation(move: Turn): TurnRotation {
   if (isPyraMove(move)) return pyraRotation(move)
   if (isGhostMove(move)) return { axis: ghostAxis(move.side), angle: Math.PI }
   if (isRainbowMove(move)) return rainbowRotation(move)
+  if (isGearMove(move)) return gearRotation(move)
   const spec = FACE_SPEC[move.face]
   const t = (((spec.sign * move.amount) % 4) + 4) % 4 // 1, 2 or 3 quarter turns
   return { axis: AXIS_VECTOR[spec.axis], angle: (t === 3 ? -1 : t) * (Math.PI / 2) }
@@ -147,6 +158,7 @@ export function applyMove(
   if (isPyraMove(move)) return applyPyraMove(cube, move, pyraSize(mechanism))
   if (isGhostMove(move)) return applyGhostMove(cube, move)
   if (isRainbowMove(move)) return applyRainbowMove(cube, move)
+  if (isGearMove(move)) return applyGearMove(cube, move)
   const spec = FACE_SPEC[move.face]
   const turns = turnsPosition(move, mechanism)
   const times = spec.sign * move.amount
