@@ -1,8 +1,6 @@
-import { useState } from 'react'
 import { cubeShape } from '@/lib/cube'
-import { formatMoves } from '@/lib/moves'
 import { formsOf, type Form } from '@/lib/forms'
-import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
+import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { SECTION_LABEL } from '@/components/ui/styles'
@@ -19,9 +17,6 @@ export function FormPicker() {
   const shape = useCube((s) => cubeShape(s.cube))
   const pickForm = useEditor((s) => s.pickForm)
   const setPreview = useEditor((s) => s.setPreview)
-  const labels = useI18n(selectMoveLabels)
-  // The form hovered, to tell the turns that reach it.
-  const [hovered, setHovered] = useState<Form | undefined>()
   const forms = formsOf(shape)
   const groups = new Map<number, { form: Form; n: number }[]>()
   forms.forEach((form, i) => {
@@ -45,22 +40,10 @@ export function FormPicker() {
                   key={n}
                   type="button"
                   onClick={() => pickForm(form.cube)}
-                  onPointerEnter={() => {
-                    setPreview(form.cube)
-                    setHovered(form)
-                  }}
-                  onPointerLeave={() => {
-                    setPreview(undefined)
-                    setHovered(undefined)
-                  }}
-                  onFocus={() => {
-                    setPreview(form.cube)
-                    setHovered(form)
-                  }}
-                  onBlur={() => {
-                    setPreview(undefined)
-                    setHovered(undefined)
-                  }}
+                  onPointerEnter={() => setPreview(form.cube)}
+                  onPointerLeave={() => setPreview(undefined)}
+                  onFocus={() => setPreview(form.cube)}
+                  onBlur={() => setPreview(undefined)}
                   className="rounded-lg border border-slate-700/60 p-1.5 hover:border-sky-400 focus-visible:outline-2 focus-visible:outline-sky-400"
                   aria-label={t.formTile(n, tips)}
                   title={t.formTile(n, tips)}
@@ -77,10 +60,6 @@ export function FormPicker() {
           </section>
         ))}
       </div>
-      {/* The turns that reach the form hovered, to try on the real puzzle. */}
-      <p className="min-h-8 font-mono text-xs text-slate-300">
-        {hovered && hovered.moves.length > 0 && t.formReachedBy(formatMoves(hovered.moves, labels))}
-      </p>
     </div>
   )
 }

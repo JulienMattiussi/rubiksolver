@@ -114,7 +114,6 @@ const fr = {
     tips === 0
       ? 'Sans cube isolé'
       : `${tips} cube${tips > 1 ? 's' : ''} isolé${tips > 1 ? 's' : ''}`,
-  formReachedBy: (moves: string) => `Atteinte par : ${moves}`,
   formTile: (n: number, tips: number) =>
     `Forme ${n}${n === 1 ? ' (d’origine)' : `, ${tips} cube${tips > 1 ? 's' : ''} isolé${tips > 1 ? 's' : ''}`}`,
   changeForm: 'Changer de forme',
@@ -470,7 +469,6 @@ const en: Translations = {
   formSortHint: 'They are grouped by how many small cubes stick out alone.',
   formGroup: (tips: number) =>
     tips === 0 ? 'No cube sticking out' : `${tips} cube${tips > 1 ? 's' : ''} sticking out`,
-  formReachedBy: (moves: string) => `Reached by: ${moves}`,
   formTile: (n: number, tips: number) =>
     `Shape ${n}${n === 1 ? ' (original)' : `, ${tips} cube${tips > 1 ? 's' : ''} sticking out`}`,
   changeForm: 'Change shape',

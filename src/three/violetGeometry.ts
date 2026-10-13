@@ -14,7 +14,7 @@ import { face, type P3, type PiecePolygon } from './polygons'
  *  3x3's. */
 const SCALE = 3 / 8
 /** Each piece shrunk about its center, leaving dark seams between them. */
-const SHRINK = 0.96
+const SHRINK = 0.99
 const STICKER_SCALE = 0.9
 
 /** Where the solved cube's center is in the model, its box being off the

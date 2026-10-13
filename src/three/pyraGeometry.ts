@@ -17,7 +17,7 @@ import { face, type P3, type PiecePolygon } from './polygons'
  *  as a 3x3's; the Master's cells are smaller, its size the same. */
 const SCALE = 0.52 * 3
 /** Each piece shrunk about its center, leaving dark seams between them. */
-const SHRINK = 0.95
+const SHRINK = 0.985
 /** Share of a face its sticker covers (triangles need a wider margin). */
 const STICKER_SCALE = 0.82
 

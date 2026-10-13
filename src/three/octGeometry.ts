@@ -17,7 +17,7 @@ const REACH = 8
 /** Model units to scene units: about the Pyraminx's size. */
 const SCALE = 0.3
 /** Each piece shrunk about its center, leaving dark seams between them. */
-const SHRINK = 0.94
+const SHRINK = 0.98
 const STICKER_SCALE = 0.84
 
 const DIAGONALS: readonly Vec3[] = [-1, 1].flatMap((x) =>

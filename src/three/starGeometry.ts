@@ -19,7 +19,7 @@ const TIP = 1.45
 const VALLEY = 0.93
 /** Height of a layer, and the gap between the two. */
 const LAYER = 0.62
-const GAP = 0.04
+const GAP = 0.015
 /** Radius of the screw's half discs: the plastic rim, then the sticker. */
 const SCREW = 0.44
 const SCREW_STICKER = 0.35

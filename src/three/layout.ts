@@ -29,4 +29,4 @@ export function visualPosition(p: Vec3, dims: Dims): [number, number, number] {
 }
 
 /** Gap between two neighboring cubies, so the pieces read as separate blocks. */
-export const CUBIE_GAP = 0.04
+export const CUBIE_GAP = 0.012

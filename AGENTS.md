@@ -469,9 +469,7 @@ diffèrent que par la façon de tenir le puzzle (rotation entière, miroirs à
 part) sont fusionnées : 102, en vignettes (`formDrawing`) groupées par
 nombre de petits cubes isolés aux pointes (pièces qui n'en touchent qu'une
 autre : ce qu'on remarque d'abord sur une tour déformée), puis par
-éloignement de la boîte ; survoler une vignette montre la forme en 3D, et
-la suite de coups la plus courte qui l'atteint depuis la boîte
-(`Form.moves`, pour la vérifier sur le vrai puzzle). La forme suffit à dire où sont les stickers. Les
+éloignement de la boîte ; survoler une vignette montre la forme en 3D. La forme suffit à dire où sont les stickers. Les
 fonctions de saisie prennent cette forme (`form`, un état de cette forme) ;
 ses emplacements sont les siens, et un emplacement accepte toute pièce de
 son type tournée pour présenter ses stickers sur ses faces (aucune

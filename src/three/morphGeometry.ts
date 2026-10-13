@@ -18,7 +18,7 @@ import { dot, polyhedron, type Plane } from './polyhedron'
 /** Model units to scene units: its corners about as far out as a Pyraminx's. */
 const SCALE = 0.72
 /** Each piece shrunk about its center, leaving dark seams between them. */
-const SHRINK = 0.95
+const SHRINK = 0.985
 const STICKER_SCALE = 0.82
 
 /** A cubie's cell (the octant of `signs`) cut by the tetrahedron. */

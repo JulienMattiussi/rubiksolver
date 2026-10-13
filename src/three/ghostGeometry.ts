@@ -28,7 +28,7 @@ const CENTER: readonly [number, number] = [0, -0.15]
 /** From the pentagram's center to each of its cuts. */
 const RHO = 0.8
 /** Each piece pulled in from its cuts, leaving dark seams between them. */
-const INSET = 0.03
+const INSET = 0.012
 /** Share of a face its sticker covers. */
 const STICKER_SCALE = 0.9
 

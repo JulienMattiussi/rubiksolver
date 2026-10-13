@@ -15,7 +15,7 @@ import { polyhedron, type Plane } from './polyhedron'
 /** Model units to scene units. */
 const SCALE = 1.35
 /** Each piece shrunk about its center, leaving dark seams between them. */
-const SHRINK = 0.93
+const SHRINK = 0.98
 const STICKER_SCALE = 0.82
 
 const AXES: readonly Vec3[] = [
