@@ -60,8 +60,8 @@ const SOLVE_METHODS = [
   },
   { id: 'cfop', plans: { '3': withCentersHome(CFOP_PLAN), twist: twistPlan(CFOP_PLAN) } },
   { id: 'roux', plans: { '3': withCentersHome(ROUX_PLAN) } },
-  { id: 'petrus', plans: { '3': withCentersHome(PETRUS_PLAN) } },
-  { id: 'zz', plans: { '3': withCentersHome(ZZ_PLAN) } },
+  { id: 'petrus', plans: { '3': withCentersHome(PETRUS_PLAN), twist: twistPlan(PETRUS_PLAN) } },
+  { id: 'zz', plans: { '3': withCentersHome(ZZ_PLAN), twist: twistPlan(ZZ_PLAN) } },
   {
     id: 'reduction',
     plans: { '4': reductionPlan(BEGINNER_PLAN), '5': reduction5Plan(BEGINNER_PLAN) },

@@ -331,12 +331,12 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   CMLL en 2 temps (orienter avec Sune/Antisune, permuter), puis les six
   dernières arêtes en `<M, U>` : orientation, UL/UR, tranche M en `<M, U2>`
   - 6 étapes.
-- **Petrus** (`petrus`, 3x3), les 7 étapes de Lars Petrus : bloc 2x2x2 (DBL),
+- **Petrus** (`petrus`, 3x3 et Z-Twist), les 7 étapes de Lars Petrus : bloc 2x2x2 (DBL),
   extension en 2x2x3 en `<U, R, F>` (ne touchent pas le 2x2x2), arêtes
   orientées (F et B n'apparaissent que dans `F' U F` / `B U B'`, qui
   préservent le bloc), fin du F2L en `<R, U>` seulement, puis coins placés
   (Niklas), coins tournés (Sune/Antisune), arêtes placées (Ua).
-- **ZZ** (`zz`, 3x3) : EOLine (les 12 arêtes orientées, puis DF/DB en coups
+- **ZZ** (`zz`, 3x3 et Z-Twist) : EOLine (les 12 arêtes orientées, puis DF/DB en coups
   qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
   droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL
   - 5 étapes.
@@ -1182,8 +1182,9 @@ emplacement (`asSeenTwist`, aussi pour « Depuis l'état actuel ») et
 `buildCube` choisit le sens qui rend la position atteignable
 (`withRealThinEdges` : un nombre pair d'arêtes retournées).
 
-**Résolution** (`methods/twist.ts`) : les méthodes du 3x3, par couches et
-CFOP, jouées sur ses couleurs (`twistPlan` : les centres mis de côté), puis
+**Résolution** (`methods/twist.ts`) : les méthodes du 3x3 sans tranches (par
+couches, CFOP, Petrus, ZZ ; pas Roux, dont les `M` mêleraient centres
+orientés et non orientés), jouées sur ses couleurs (`twistPlan` : les centres mis de côté), puis
 **Les centres tordus** : des suites qui ne déplacent aucune pièce (un
 mélange fixe puis sa résolution 3x3) retournent chacune certains centres ;
 assemblées (sur GF(2)), elles en retournent n'importe quel ensemble.
