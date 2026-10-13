@@ -3,7 +3,8 @@ import { cubieBox, LAYER_THICKNESS } from '@/lib/shape'
 import type { CubeVariant, Cubie as CubieType, Dims } from '@/lib/types'
 import { COLOR_HEX, HIGHLIGHT, MIRROR_STICKER, PLASTIC } from './colors'
 import { CUBIE_GAP, visualPosition } from './layout'
-import { GearFace } from './GearFace'
+import { GearCorner } from './GearCorner'
+import { GearEdge } from './GearEdge'
 import { Sticker } from './Sticker'
 
 /** One small cube: a dark body plus a sticker on each exterior face. Its box
@@ -16,6 +17,7 @@ export function Cubie({
   highlighted = false,
   spinning,
   progress,
+  smallCenter = false,
 }: {
   cubie: CubieType
   dims: Dims
@@ -26,7 +28,26 @@ export function Cubie({
    *  along the turn is. */
   spinning?: number
   progress?: RefObject<number>
+  /** On a Gear Cube: a small center square, its clips around it, and
+   *  corners notched by the gears. */
+  smallCenter?: boolean
 }) {
+  // A Gear Cube's corner or center: plates cut to the agreed shape.
+  if (smallCenter && (cubie.stickers.length === 3 || cubie.stickers.length === 1)) {
+    return (
+      <group position={visualPosition(cubie.position, dims)}>
+        <GearCorner cubie={cubie} highlighted={highlighted} />
+      </group>
+    )
+  }
+  // A Gear Cube's edge: its gear turns about the edge (GearEdge).
+  if (cubie.spin !== undefined) {
+    return (
+      <group position={visualPosition(cubie.position, dims)}>
+        <GearEdge cubie={cubie} highlighted={highlighted} spinning={spinning} progress={progress} />
+      </group>
+    )
+  }
   const { size, center } = cubieBox(cubie.stickers, LAYER_THICKNESS[variant])
   const mirror = variant === 'mirror'
   return (
@@ -41,33 +62,16 @@ export function Cubie({
           emissiveIntensity={highlighted ? 0.7 : 0}
         />
       </mesh>
-      {cubie.spin !== undefined
-        ? cubie.stickers.map((s, i) => {
-            const other = cubie.stickers[1 - i]!
-            return (
-              <GearFace
-                key={i}
-                normal={s.normal}
-                other={other.normal}
-                color={COLOR_HEX[s.color]}
-                otherColor={COLOR_HEX[other.color]}
-                clipColor={COLOR_HEX[s.color]}
-                spin={cubie.spin!}
-                spinning={spinning}
-                progress={progress}
-              />
-            )
-          })
-        : cubie.stickers.map((s, i) => (
-            <Sticker
-              key={i}
-              normal={s.normal}
-              color={mirror ? MIRROR_STICKER : COLOR_HEX[s.color]}
-              box={{ size, center }}
-              metal={mirror}
-              glow={highlighted}
-            />
-          ))}
+      {cubie.stickers.map((s, i) => (
+        <Sticker
+          key={i}
+          normal={s.normal}
+          color={mirror ? MIRROR_STICKER : COLOR_HEX[s.color]}
+          box={{ size, center }}
+          metal={mirror}
+          glow={highlighted}
+        />
+      ))}
     </group>
   )
 }

@@ -204,7 +204,10 @@ src/
 │   ├── morphGeometry.ts  # Pièces du Pyramorphinx : case du 2x2 coupée par le tétraèdre (polyèdre convexe)
 │   ├── octGeometry.ts    # Pièces des octaèdres (4-Trajber, VTO, GEM-0) : case du cube coupée par l'octaèdre (polyhedron.ts)
 │   ├── gemEmblem.ts      # L'emblème rond des carrés dorés du GEM-0, dessiné sur un canvas
-│   ├── GearFace.tsx      # Une face d'arête du Gear Cube : demi-engrenage bicolore qui pivote, deux agrafes
+│   ├── gearFace.ts       # La face du Gear Cube convenue : masques des 4 sortes de pièce (src/assets/gear), plaques tournées en place
+│   ├── GearPlate.tsx     # Une plaque d'une pièce du Gear Cube, découpée par son masque
+│   ├── GearEdge.tsx      # Une arête du Gear Cube : deux agrafes, l'engrenage (deux plaques et son corps) qui pivote
+│   ├── GearCorner.tsx    # Un coin ou un centre du Gear Cube : corps noir et plaques
 │   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
 │   ├── Decal.tsx         # Une image posée sur la face de pièces choisies, qui tourne avec elles (PolyDrawing.decal)
 │   ├── rainbowGeometry.ts # Pièces du Rainbow : cellule de chaque pièce dans le cuboctaèdre (polyhedron.ts)
@@ -242,6 +245,7 @@ src/
 │   ├── home/             # Accueil : HomeGallery (galerie de 7 modèles + ce que fait l'app, à la place de la scène)
 │   ├── solve/            # Résolution : SolvePanel, MethodSelect, StepList
 │   └── edit/             # Saisie : EditPanel, FormPicker (forme d'un puzzle déformable), ColorPalette
+├── assets/gear/          # Masques des pièces du Gear Cube (générés par scripts/gear_face.py)
 ├── App.tsx               # Coquille : scène 3D plein écran + panneau en overlay (empilé sur mobile en saisie)
 └── main.tsx
 tests/
@@ -935,10 +939,19 @@ G'²D² retourne le cube). Le pivot vu sur 6 au lieu de 3 n'ajoute aucun état.
 **Animation à deux vitesses** : `halfTurnedBy` donne les pièces qui tournent
 à moitié (la tranche), dans leur propre groupe (`halfRef`) ; leurs
 engrenages pivotent en suivant l'avancement du coup (`turnSpin`,
-`progress`). **Rendu** (`GearFace.tsx`) : chaque face d'arête porte un
-demi-engrenage à cheval sur son arête, aux couleurs de ses deux faces, que
-le pivot fait passer d'une face à l'autre, et deux agrafes ; hors de sa
-place, l'engrenage dépasse de la face.
+`progress`). **Rendu** : la face convenue avec l'utilisateur, pièce par
+pièce sur un dessin à plat (`scripts/gear_face.py`, qui produit aussi les
+masques de `src/assets/gear`), 13 pièces : 4 coins encochés (deux petites
+dents à angle droit vers le centre), 4 engrenages (un demi-disque sur le
+bord, une dent fine au milieu et deux dents évasées à 60°), le petit carré
+central et ses 4 agrafes en U (pattes penchées, barre creusée en arc) ; tout
+angle saillant arrondi. En 3D (`gearFace.ts`, `GearPlate.tsx`), chaque pièce
+est une plaque sur sa face, découpée par le masque de sa sorte tourné à sa
+place (alpha test), sur un corps noir. L'engrenage d'une arête (ses deux
+plaques et son corps noir) pivote autour de l'axe de l'arête (du centre du cube à travers
+elle) : hors de sa place il sort du cube en biais, se réemboîte tous les
+demi-tours (couleurs échangées) et revient tous les six crans ; ses agrafes
+suivent la pièce, pas l'engrenage.
 
 **Résolution** (`methods/gear.ts`, méthode **Coins d'abord**, d'après
 fan2cube.fr/gearcube2) : chaque étape cherche parmi les seules formules de

@@ -38,18 +38,29 @@ export function CubeModel({
   highlighted = NO_PIECES,
 }: ModelProps & { variant: CubeVariant }) {
   const dims = cubeDims(cube)
+  // A Gear Cube: small center squares, the edges' clips around them.
+  const gear = cube.some((c) => c.spin !== undefined)
   const [ox, oy, oz] = centeringOffset(LAYER_THICKNESS[variant])
   return (
     <group scale={cubeScale(dims)}>
       <group position={[ox, oy, oz]}>
         {cube.map((c, i) =>
           isTurning(i) || isHalfTurning(i) ? null : (
-            <Cubie key={i} cubie={c} dims={dims} variant={variant} highlighted={highlighted(i)} />
+            <Cubie
+              key={i}
+              cubie={c}
+              dims={dims}
+              variant={variant}
+              highlighted={highlighted(i)}
+              smallCenter={gear}
+            />
           ),
         )}
         <group ref={groupRef}>
           {cube.map((c, i) =>
-            isTurning(i) ? <Cubie key={i} cubie={c} dims={dims} variant={variant} /> : null,
+            isTurning(i) ? (
+              <Cubie key={i} cubie={c} dims={dims} variant={variant} smallCenter={gear} />
+            ) : null,
           )}
         </group>
         <group ref={halfRef}>
@@ -62,6 +73,7 @@ export function CubeModel({
                 variant={variant}
                 spinning={turnSpin}
                 progress={progress}
+                smallCenter={gear}
               />
             ) : null,
           )}
