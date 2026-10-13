@@ -1,5 +1,15 @@
 import { FACE_SPEC, rotateN } from './geometry'
-import type { Cube, Cubie, Face, GearMove, Vec3 } from './types'
+import {
+  isGearMove,
+  type Cube,
+  type CubeShape,
+  type Cubie,
+  type Face,
+  type GearMove,
+  type Move,
+  type Turn,
+  type Vec3,
+} from './types'
 
 /**
  * The Gear Cubes (Oskar van Deventer, 2009-2010, fan2cube.fr/gearcube1):
@@ -30,11 +40,20 @@ const GEAR_SPIN = 5
 export const gearSpinOf = (move: GearMove): number =>
   (move.amount === 1 ? 1 : -1) * (move.times ?? 1) * GEAR_SPIN
 
-/** A Gear Cube from a 3x3x3 (its solved one): every edge a gear, at rest;
+/** Whether a position is an edge's (two coordinates off the middle). */
+const isEdgeAt = (p: Vec3) => p.filter((v) => v !== 0).length === 2
+
+/** Whether the edge at a position is a gear on a shape: every one, but the
+ *  Extreme's middle layer (no gears: plain blocks, its top and bottom turn
+ *  freely). */
+export const gearAt = (shape: CubeShape, p: Vec3): boolean =>
+  isEdgeAt(p) && (shape !== 'gearX' || p[1] !== 0)
+
+/** A Gear Cube from a 3x3x3 (its solved one): its edges gears, at rest;
  *  with `plainClips`, clips that bear no color (the plain Gear Cube). */
-export function withGears(cube: Cube, plainClips = false): Cube {
+export function withGears(cube: Cube, plainClips = false, shape: CubeShape = 'gearU'): Cube {
   return cube.map((c) =>
-    c.position.filter((v) => v !== 0).length === 2
+    gearAt(shape, c.position)
       ? { ...c, spin: 0, ...(plainClips && { plainClips: true as const }) }
       : c,
   )
@@ -91,8 +110,8 @@ const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
 export const gearsAligned = (cube: Cube): boolean => cube.every((c) => !c.spin || c.spin === 3)
 
 /** A Gear Cube at rest, these edges' gears turned over on their clips. */
-export const withTurnedGears = (cube: Cube, turned: readonly string[]): Cube =>
-  withGears(cube).map((c) =>
+export const withTurnedGears = (cube: Cube, turned: readonly string[], shape: CubeShape): Cube =>
+  withGears(cube, false, shape).map((c) =>
     c.spin !== undefined && turned.includes(c.position.join(',')) ? { ...c, spin: 3 } : c,
   )
 
@@ -111,6 +130,21 @@ export function alignGears(cube: Cube): GearMove[] {
 export const GEAR_TURNS: readonly GearMove[] = FACES.flatMap((gear) =>
   ([1, 3] as const).map((amount): GearMove => ({ gear, amount })),
 )
+
+/**
+ * Every turn of a Gear Cube shape: its gear moves; on the Extreme, the side
+ * faces' only, its top and bottom turning like a 3x3's (a quarter, either
+ * way, or a half), the middle layer's edges being no gears.
+ */
+export function gearTurnsOf(shape: CubeShape): readonly Turn[] {
+  if (shape !== 'gearX') return GEAR_TURNS
+  return [
+    ...GEAR_TURNS.filter((m) => m.gear !== 'U' && m.gear !== 'D'),
+    ...(['U', 'D'] as const).flatMap((face) =>
+      ([1, 2, 3] as const).map((amount): Move => ({ face, amount })),
+    ),
+  ]
+}
 
 /** Whether a move turns a piece fully (its face's layer). */
 export function gearFaceTurns(move: GearMove, position: Vec3): boolean {
@@ -135,25 +169,23 @@ export const invertGearMove = (move: GearMove): GearMove => ({
   amount: move.amount === 1 ? 3 : 1,
 })
 
-/** A move and its inverse in a row cancel; two the same way stay (they
- *  are not one: the slice turned a half, its gears two thirds). */
-export function simplifyGearMoves(moves: readonly GearMove[]): GearMove[] {
-  const out: GearMove[] = []
-  for (const move of moves) {
-    const last = out[out.length - 1]
-    if (last?.gear === move.gear && last.amount !== move.amount) out.pop()
-    else out.push(move)
-  }
-  return out
-}
+/** Whether two gear moves in a row cancel: a move and its inverse. Two
+ *  the same way stay (they are not one: the slice turned a half, its gears
+ *  ten sixths). */
+export const gearMovesCancel = (a: GearMove, b: GearMove): boolean =>
+  a.gear === b.gear && a.amount !== b.amount
 
-/** A scramble: gear moves at random, never undoing the last one. */
-export function scrambleGear(length: number, rng: () => number): GearMove[] {
-  const moves: GearMove[] = []
+/** A scramble: turns at random, never undoing the last one (nor, for a
+ *  plain face's, turning it again). */
+export function scrambleGear(shape: CubeShape, length: number, rng: () => number): Turn[] {
+  const turns = gearTurnsOf(shape)
+  const moves: Turn[] = []
   while (moves.length < length) {
-    const move = GEAR_TURNS[Math.floor(rng() * GEAR_TURNS.length)]!
+    const move = turns[Math.floor(rng() * turns.length)]!
     const last = moves[moves.length - 1]
-    if (last?.gear === move.gear && last.amount !== move.amount) continue
+    if (last && isGearMove(last) && isGearMove(move)) {
+      if (last.gear === move.gear && last.amount !== move.amount) continue
+    } else if (last && 'face' in last && 'face' in move && last.face === move.face) continue
     moves.push(move)
   }
   return moves
@@ -163,4 +195,29 @@ export function scrambleGear(length: number, rng: () => number): GearMove[] {
  *  three in a row. */
 export function formatGearMove(move: GearMove, labels: Record<Face, string>): string {
   return (move.times ? '3' : '') + labels[move.gear] + '2' + (move.amount === 3 ? "'" : '')
+}
+
+/** fan2cube's letters: H(aut), B(as), G(auche), D(roite), A(vant),
+ *  P(ostérieur). */
+const FAN2CUBE: Record<string, Face> = { H: 'U', B: 'D', G: 'L', D: 'R', A: 'F', P: 'B' }
+
+/**
+ * A Gear Cube formula as fan2cube writes it (gearultimate2): a side face
+ * turns by gears, `D²` one move (our R2), `D4` two, `D8` four, `D'²` the
+ * other way; the Extreme's top and bottom by quarters (`H`, `B'`, `H²`).
+ * Dots and spaces only space it out.
+ */
+export function parseGearFormula(text: string): Turn[] {
+  const out: Turn[] = []
+  for (const [, letter, prime, power] of text.matchAll(/([HBGDAP])('?)(²|2|4|8)?/g)) {
+    const face = FAN2CUBE[letter!]!
+    const amount = prime ? 3 : 1
+    if (face === 'U' || face === 'D') {
+      out.push({ face, amount: power === '²' || power === '2' ? 2 : amount })
+    } else {
+      const times = power === '4' ? 2 : power === '8' ? 4 : 1
+      for (let i = 0; i < times; i++) out.push({ gear: face, amount })
+    }
+  }
+  return out
 }

@@ -108,7 +108,9 @@ export interface PlacementOption {
  */
 function fixedPieces(shape: CubeShape): Set<number> {
   const solved = solvedCube(shape)
-  if (isGear(shape)) {
+  // (Not the Extreme's: its slices move its centers off the top and bottom,
+  // which its middle layer, never moving, holds where they are.)
+  if (isGear(shape) && shape !== 'gearX') {
     return new Set([...solved.keys()].filter((i) => solved[i]!.stickers.length === 1))
   }
   // Turns keep the sticker order, so each sticker's normal can be compared.

@@ -290,5 +290,7 @@ export function buildCube(
   // A Gear Cube is entered in the cube's shape: its gears at rest, some
   // maybe turned over on their clips.
   if (!isGear(shape)) return cube
-  return hasColoredClips(shape) ? withTurnedGears(cube, turned) : withGears(cube, true)
+  return hasColoredClips(shape)
+    ? withTurnedGears(cube, turned, shape)
+    : withGears(cube, true, shape)
 }

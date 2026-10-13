@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube, stateKey } from '@/lib/cube'
 import { buildCube, cubeToEdit, emptyEdit, withFixedHome } from '@/lib/editor'
 import { tablesFor } from '@/lib/editorTables'
-import { applyGearMove, GEAR_TURNS } from '@/lib/gear'
+import { applyGearMove, GEAR_TURNS, parseGearFormula } from '@/lib/gear'
+import { applyMoves } from '@/lib/turn'
 import {
   completeGears,
   gearColorsOf,
@@ -103,7 +104,7 @@ describe('Gear Cube entry', () => {
   const clips = { [a.id]: a.solvedColor, [b.id]: b.solvedColor }
 
   it('counts the gear faces left in each color: four per face', () => {
-    const { remaining, painted, total } = gearFaces({})
+    const { remaining, painted, total } = gearFaces({}, 'gearU')
     expect([painted, total]).toEqual([0, 24])
     expect(Object.values(remaining).every((n) => n === 4)).toBe(true)
   })
@@ -115,28 +116,28 @@ describe('Gear Cube entry', () => {
   })
 
   it('paints a gear apart from its clips, alone while they are not painted', () => {
-    const gear = paintGear({}, emptyEdit('gearU'), slot.key, a.ni, b.solvedColor)
+    const gear = paintGear({}, emptyEdit('gearU'), 'gearU', slot.key, a.ni, b.solvedColor)
     expect(gear).toEqual({ [a.id]: b.solvedColor })
   })
 
   it('completes a gear from its clips, and refuses a color not theirs', () => {
     const edit = { ...emptyEdit('gearU'), ...clips }
-    const turned = paintGear({}, edit, slot.key, a.ni, b.solvedColor)
+    const turned = paintGear({}, edit, 'gearU', slot.key, a.ni, b.solvedColor)
     expect(turned).toEqual({ [a.id]: b.solvedColor, [b.id]: a.solvedColor })
     const other = SOLVED.flatMap((c) => c.stickers).find(
       (s) => s.color !== a.solvedColor && s.color !== b.solvedColor,
     )!.color
-    expect(paintGear({}, edit, slot.key, a.ni, other)).toEqual({})
+    expect(paintGear({}, edit, 'gearU', slot.key, a.ni, other)).toEqual({})
     // Painted before its clips, a gear's other face follows them.
-    expect(completeGears({ [a.id]: a.solvedColor }, edit)).toEqual(clips)
+    expect(completeGears({ [a.id]: a.solvedColor }, edit, 'gearU')).toEqual(clips)
   })
 
   it('tells the gears turned over on their clips, or a gear not theirs', () => {
     const cube = play('R R R')
     const edit = cubeToEdit(cube)
     const gear = gearColorsOf(cube)
-    expect(gearsPainted(gear)).toEqual({ painted: 12, total: 12 })
-    expect(turnedOf(gear, edit)).toHaveLength(4)
+    expect(gearsPainted(gear, 'gearU')).toEqual({ painted: 12, total: 12 })
+    expect(turnedOf(gear, edit, 'gearU')).toHaveLength(4)
     // The same state, its pieces and their stickers listed in another order.
     const look = (cube: Cube) =>
       cube
@@ -148,10 +149,10 @@ describe('Gear Cube entry', () => {
               .join()}@${c.spin}`,
         )
         .sort()
-    expect(look(buildCube(edit, 'gearU', undefined, turnedOf(gear, edit)!))).toEqual(
+    expect(look(buildCube(edit, 'gearU', undefined, turnedOf(gear, edit, 'gearU')!))).toEqual(
       look(withFixedHome(cube)), // held as entered: its centers home
     )
-    expect(turnedOf({ ...gear, [a.id]: 'V' }, edit)).toBeNull()
+    expect(turnedOf({ ...gear, [a.id]: 'V' }, edit, 'gearU')).toBeNull()
   })
 })
 
@@ -186,4 +187,77 @@ describe('plain Gear Cube', () => {
     }
     expect(seen.size).toBe(4 * 41472)
   }, 60000)
+})
+
+describe('Gear Cube Extreme (fan2cube.fr/gearultimate2)', () => {
+  const X = solvedCube('gearX')
+  const run = (formula: string) => applyMoves(X, parseGearFormula(formula))
+  /** What a formula changed: each piece's colors, where it went, how. */
+  const changed = (cube: Cube) =>
+    X.flatMap((c, i) => {
+      const a = cube[i]!
+      const moved = a.position.join() !== c.position.join()
+      const turned = a.stickers.some((s, k) => s.normal.join() !== c.stickers[k]!.normal.join())
+      return moved || turned || a.spin !== c.spin
+        ? [{ piece: c, to: a.position.join(), turned, spin: a.spin }]
+        : []
+    })
+  const corners = (cube: Cube) => changed(cube).filter((c) => c.piece.stickers.length === 3)
+  const held = (cube: Cube) =>
+    changed(cube).every(
+      (c) =>
+        (c.piece.stickers.length !== 1 && c.piece.spin !== undefined) ||
+        c.piece.stickers.length === 3,
+    )
+
+  it('turns its top and bottom a quarter, its sides by gears; its middle edges are no gears', () => {
+    expect(X.filter((c) => c.spin !== undefined)).toHaveLength(8)
+    expect(X.filter((c) => c.spin !== undefined).every((c) => c.position[1] !== 0)).toBe(true)
+    const u = applyMoves(X, [{ face: 'U', amount: 1 }])
+    expect(changed(u).every((c) => c.piece.position[1] === 1)).toBe(true)
+  })
+
+  it('lowers a corner, (HDA)->(BAD): (D²H)².(D²H²)², the equator and centers kept', () => {
+    const cube = run('(D²H)(D²H).(D²H²)(D²H²)')
+    expect(held(cube)).toBe(true)
+    const lowered = corners(cube).find((c) => c.to === '1,-1,1')!
+    expect(lowered.piece.position.join()).toBe('1,1,1')
+    // The other bottom corners stay.
+    expect(corners(cube).filter((c) => c.piece.position[1] === -1)).toHaveLength(1)
+  })
+
+  it('cycles three top corners and swaps two, nothing else of the corners', () => {
+    const cycle = corners(run("D²BH'D'²H.D²B'D'²B.D²B'D'²"))
+    expect(cycle).toHaveLength(3)
+    expect(cycle.every((c) => c.piece.position[1] === 1 && c.to.split(',')[1] === '1')).toBe(true)
+    const swap = corners(run("G²BH'G'²HG²B'G'²BG²B'G'².H"))
+    expect(swap.map((c) => c.piece.position.join()).sort()).toEqual(['-1,1,1', '1,1,1'])
+  })
+
+  it('moves edges only with (BG²B’G’²)⁵ and the pair swap, their clips with D²(D²H)¹²D’²', () => {
+    for (const formula of ["BG²B'G'²".repeat(5), "D²BD'².D4H²D4H².D²B'D'²"]) {
+      expect(corners(run(formula))).toEqual([])
+      expect(held(run(formula))).toBe(true)
+    }
+    // (HA,HD)(BA,BD): two top edges swapped, two bottom ones.
+    const swapped = changed(run("D²BD'².D4H²D4H².D²B'D'²")).filter(
+      (c) => c.to !== c.piece.position.join(),
+    )
+    expect(swapped).toHaveLength(4)
+    // The clips: the bottom-back edge's turned over, its gear as it was (a
+    // half turn on its clips), three top ones too.
+    const clips = changed(run(`D²${'D²H'.repeat(12)}D'²`))
+    expect(
+      clips.filter((c) => c.turned && c.spin === 3 && c.piece.position[1] === -1),
+    ).toHaveLength(1)
+    expect(clips.every((c) => c.to === c.piece.position.join())).toBe(true)
+  })
+
+  it('turns the front bottom gear a third with (D²H)².D⁸.(H’D’²)², stirring three top ones', () => {
+    const twisted = changed(run("D²HD²H.D8.H'D'²H'D'²"))
+    expect(
+      twisted.every((c) => !c.turned && c.spin === 2 && c.to === c.piece.position.join()),
+    ).toBe(true)
+    expect(twisted.map((c) => c.piece.position[1]).sort()).toEqual([-1, 1, 1, 1])
+  })
 })

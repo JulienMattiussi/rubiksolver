@@ -25,6 +25,7 @@ export type CubeShape =
   | 'rainbow'
   | 'gearCube'
   | 'gearU'
+  | 'gearX'
   | 'violet'
   | 'ghost'
   | 'star'
@@ -72,6 +73,7 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   // The Gear Cubes (gear.ts): a 3x3x3 whose edges are gears.
   gearCube: [3, 3, 3],
   gearU: [3, 3, 3],
+  gearX: [3, 3, 3],
   // The Violet (violet.ts) turns on a 5x5's outer slabs: its pieces sit
   // within +-3, in half mini cubes about its off-center core.
   violet: [5, 5, 5],
@@ -102,11 +104,13 @@ export const isPyraminx = (shape: CubeShape): shape is PyraShape =>
   shape === 'pyra' || shape === 'pyra4' || shape === 'pyra5' || shape === 'jing'
 
 /** The Gear Cubes (gear.ts): a 3x3x3's cubies, turned by gear moves. */
-export const isGear = (shape: CubeShape): boolean => shape === 'gearCube' || shape === 'gearU'
+export const isGear = (shape: CubeShape): boolean =>
+  shape === 'gearCube' || shape === 'gearU' || shape === 'gearX'
 
-/** Whether a Gear Cube's clips bear colors (the Ultimate): then they turn
- *  over apart from their gears, which the plain Gear Cube does not show. */
-export const hasColoredClips = (shape: CubeShape): boolean => shape === 'gearU'
+/** Whether a Gear Cube's clips bear colors (the Ultimate, the Extreme):
+ *  then they turn over apart from their gears, which the plain Gear Cube
+ *  does not show. */
+export const hasColoredClips = (shape: CubeShape): boolean => shape === 'gearU' || shape === 'gearX'
 
 /** Whether a shape builds and turns in its own module rather than on a grid
  *  of layers (the star prisms, the Pyraminx, the Floppy Ghost): drawn from
@@ -158,6 +162,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   rainbow: false,
   gearCube: false,
   gearU: false,
+  gearX: false,
   violet: true,
   ghost: false,
   star: false,
@@ -194,6 +199,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   rainbow: [],
   gearCube: [],
   gearU: [],
+  gearX: [],
   violet: [],
   ghost: [],
   star: [],
@@ -226,6 +232,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   rainbow: [],
   gearCube: [],
   gearU: [],
+  gearX: [],
   violet: [],
   ghost: [],
   star: [],
@@ -254,6 +261,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   rainbow: 'Rainbow',
   gearCube: 'Gear Cube',
   gearU: 'Gear Cube Ultimate',
+  gearX: 'Gear Cube Extreme',
   violet: 'Violet',
   ghost: 'Floppy Ghost',
   star: '2-Star Prism (UFO)',
@@ -283,6 +291,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   rainbow: 'rainbow',
   gearCube: 'gear-cube',
   gearU: 'gear-cube-ultimate',
+  gearX: 'gear-cube-extreme',
   violet: 'violet',
   ghost: 'floppy-ghost',
   star: '2-star',
@@ -326,6 +335,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   rainbow: false,
   gearCube: false,
   gearU: false,
+  gearX: false,
   violet: false,
   ghost: false,
   star: false,

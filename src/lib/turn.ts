@@ -165,6 +165,7 @@ export function applyMove(
   return cube.map((cubie) => {
     if (!turns(cubie.position)) return cubie
     return {
+      ...cubie, // a gear's spin (a top or bottom turn of the Gear Cube Extreme)
       position: rotateN(cubie.position, spec.axis, times),
       stickers: cubie.stickers.map((s) => ({
         normal: rotateN(s.normal, spec.axis, times),

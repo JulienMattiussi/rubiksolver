@@ -200,16 +200,29 @@ function drawGear(shape: CubeShape): IsoDrawing {
     const kinds = Object.entries(OUTLINES).filter(
       ([kind]) => kind !== 'clip' || hasColoredClips(shape),
     )
+    // The Extreme's middle-layer edges are blocks, no gears nor clips; a
+    // block is drawn nowhere else.
+    const middle = (k: number) => {
+      let cell: readonly number[] = [150, 50]
+      for (let i = 0; i < k; i++) cell = quarter(cell)
+      return axis !== 1 && Math.abs(at(cell)[1]) < 0.5
+    }
+    const drawn = (kind: string, k: number) =>
+      kind === 'block'
+        ? shape === 'gearX' && middle(k)
+        : !(shape === 'gearX' && (kind === 'gear' || kind === 'clip') && middle(k))
     const pieces = kinds.flatMap(([kind, polygons]) =>
-      (kind === 'center' ? [0] : [0, 1, 2, 3]).flatMap((k) =>
-        (polygons as number[][][]).map((poly) =>
-          poly.map((point) => {
-            let p = point as readonly number[]
-            for (let i = 0; i < k; i++) p = quarter(p)
-            return at(p)
-          }),
+      (kind === 'center' ? [0] : [0, 1, 2, 3])
+        .filter((k) => drawn(kind, k))
+        .flatMap((k) =>
+          (polygons as number[][][]).map((poly) =>
+            poly.map((point) => {
+              let p = point as readonly number[]
+              for (let i = 0; i < k; i++) p = quarter(p)
+              return at(p)
+            }),
+          ),
         ),
-      ),
     )
     return {
       depth: 0,

@@ -115,6 +115,7 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
         stickers: c.stickers.map((s) => ({ ...s, color: colors[faceOfNormal(s.normal)] })),
       })),
       !hasColoredClips(shape),
+      shape,
     )
   }
   if (shape === 'violet') return solvedViolet()

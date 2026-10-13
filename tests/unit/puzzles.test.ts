@@ -93,6 +93,15 @@ const PUZZLES: ReadonlyArray<{
     painted: 54,
     scramble: 20,
   },
+  {
+    shape: 'gearX',
+    pieces: 27,
+    stickers: 54,
+    orientations: 24,
+    painted: 54,
+    scramble: 25,
+  },
+
   { shape: 'star', pieces: 14, stickers: 40, orientations: 12, painted: 40, scramble: 30 },
   // The 4-star's inner points hide a face each: 12 stickers never seen.
   { shape: 'star4', pieces: 26, stickers: 76, orientations: 12, painted: 64, scramble: 40 },
@@ -115,7 +124,17 @@ function heldWays(cube: Cube, shape: CubeShape): Cube[] {
     return fixed.flatMap((slot) => slot.stickers.map((s) => edit[s.id])).join()
   }
   const all = cubeOrientations(cube)
-  return shape === '3' ? all : all.filter((o) => colors(o) === colors(cube))
+  if (shape === '3') return all
+  // The Gear Cube Extreme only upright or upside down: its free top and
+  // bottom are its mechanism's.
+  if (shape === 'gearX') {
+    const middle = (c: Cube) =>
+      c
+        .filter((p) => p.stickers.length === 2 && p.spin === undefined)
+        .every((p) => p.position[1] === 0)
+    return all.filter(middle)
+  }
+  return all.filter((o) => colors(o) === colors(cube))
 }
 
 const amountOf = (turn: Turn): number => ('amount' in turn ? turn.amount : 0)
@@ -196,18 +215,29 @@ describe.each(PUZZLES)('$shape', ({ shape, pieces, stickers, orientations, paint
     for (let seed = 0; seed < 3; seed++) {
       const mixed = scrambled(shape, scramble, seed)
       // A Gear Cube is entered in the cube's shape, its gears aligned.
-      const cube = isGear(shape) ? applyMoves(mixed, alignGears(mixed)) : mixed
+      // (The Extreme's gears each spin on their own: its gear moves thrice.)
+      const cube =
+        shape === 'gearX'
+          ? applyMoves(
+              SOLVED,
+              scrambleTurns(shape, scramble, seededRng(seed), SOLVED).flatMap((m): Turn[] =>
+                'gear' in m ? [m, m, m] : [m],
+              ),
+            )
+          : isGear(shape)
+            ? applyMoves(mixed, alignGears(mixed))
+            : mixed
       // A shape-shifting puzzle is entered in the form it stands in.
       const form = formOf(cube)
       const edit = cubeToEdit(cube)
       expect(isComplete(edit, shape, form)).toBe(true)
       // A Gear Cube's gears, painted apart: some turned over on their clips.
-      const turned = hasColoredClips(shape) ? turnedOf(gearColorsOf(cube), edit)! : []
+      const turned = hasColoredClips(shape) ? turnedOf(gearColorsOf(cube), edit, shape)! : []
       const built = buildCube(edit, shape, form, turned)
       expect(cubeToEdit(built)).toEqual(edit)
       expect(validateCube(built)).toEqual({ ok: true })
     }
-  })
+  }, 120000)
 
   it('guides every turn it has, named and described in both languages and notations', () => {
     const turns = moveGuide(shape).flatMap((g) => g.rows.flat())

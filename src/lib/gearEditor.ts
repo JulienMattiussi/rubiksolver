@@ -1,5 +1,6 @@
 import { stickerId, tablesFor } from './editorTables'
 import { withFixedHome, type EditStickers } from './editor'
+import { gearAt } from './gear'
 import { normalIndex } from './geometry'
 import type { Color, Cube, CubeShape } from './types'
 
@@ -12,9 +13,9 @@ import type { Color, Cube, CubeShape } from './types'
  */
 export type GearColors = Readonly<Record<string, Color>>
 
-const SHAPE: CubeShape = 'gearU'
-
-const edgeSlots = () => tablesFor(SHAPE).slots.filter((s) => s.kind === 'edge')
+/** The edge slots that hold gears (not the Extreme's middle ones). */
+const edgeSlots = (shape: CubeShape) =>
+  tablesFor(shape).slots.filter((s) => s.kind === 'edge' && gearAt(shape, s.position))
 
 /** The clips' pair of an edge slot, once both are painted. */
 function clipPair(edit: EditStickers, ids: readonly string[]): readonly Color[] | null {
@@ -27,11 +28,12 @@ function clipPair(edit: EditStickers, ids: readonly string[]): readonly Color[] 
 export function paintGear(
   gear: GearColors,
   edit: EditStickers,
+  shape: CubeShape,
   slotKey: string,
   ni: number,
   color: Color,
 ): GearColors {
-  const slot = tablesFor(SHAPE).byKey.get(slotKey)
+  const slot = tablesFor(shape).byKey.get(slotKey)
   const here = slot?.stickers.find((s) => s.ni === ni)
   if (!slot || !here) return gear
   const pair = clipPair(
@@ -42,14 +44,14 @@ export function paintGear(
   const next: Record<string, Color> = { ...gear, [here.id]: color }
   const there = slot.stickers.find((s) => s.ni !== ni)!
   if (next[there.id] === color) delete next[there.id]
-  return completeGears(next, edit)
+  return completeGears(next, edit, shape)
 }
 
 /** Each gear one face of which is painted, and its clips' pair known: its
  *  other face, the pair's other color. */
-export function completeGears(gear: GearColors, edit: EditStickers): GearColors {
+export function completeGears(gear: GearColors, edit: EditStickers, shape: CubeShape): GearColors {
   const next: Record<string, Color> = { ...gear }
-  for (const slot of edgeSlots()) {
+  for (const slot of edgeSlots(shape)) {
     const [a, b] = slot.stickers.map((s) => s.id) as [string, string]
     const pair = clipPair(edit, [a, b])
     if (!pair) continue
@@ -62,12 +64,15 @@ export function completeGears(gear: GearColors, edit: EditStickers): GearColors 
 
 /** The gear faces left to paint in each color (a face's four gears each
  *  show it once), and how many are painted, of all. */
-export function gearFaces(gear: GearColors): {
+export function gearFaces(
+  gear: GearColors,
+  shape: CubeShape,
+): {
   remaining: Partial<Record<Color, number>>
   painted: number
   total: number
 } {
-  const slots = edgeSlots()
+  const slots = edgeSlots(shape)
   const remaining: Partial<Record<Color, number>> = {}
   for (const slot of slots) {
     for (const s of slot.stickers) remaining[s.solvedColor] = (remaining[s.solvedColor] ?? 0) + 1
@@ -78,17 +83,20 @@ export function gearFaces(gear: GearColors): {
 }
 
 /** How many gears are painted, of all. */
-export function gearsPainted(gear: GearColors): { painted: number; total: number } {
-  const slots = edgeSlots()
+export function gearsPainted(
+  gear: GearColors,
+  shape: CubeShape,
+): { painted: number; total: number } {
+  const slots = edgeSlots(shape)
   const painted = slots.filter((s) => s.stickers.every((st) => gear[st.id])).length
   return { painted, total: slots.length }
 }
 
 /** The edges whose gear stands turned over on its clips, by slot; null when
  *  a gear is not its clips' pair, either way. */
-export function turnedOf(gear: GearColors, edit: EditStickers): string[] | null {
+export function turnedOf(gear: GearColors, edit: EditStickers, shape: CubeShape): string[] | null {
   const turned: string[] = []
-  for (const slot of edgeSlots()) {
+  for (const slot of edgeSlots(shape)) {
     const [a, b] = slot.stickers.map((s) => s.id) as [string, string]
     if (gear[a] === edit[a] && gear[b] === edit[b]) continue
     if (gear[a] === edit[b] && gear[b] === edit[a]) turned.push(slot.key)

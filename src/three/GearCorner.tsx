@@ -5,7 +5,7 @@ import { pieceBody } from './gearFace'
 import { GearPlate } from './GearPlate'
 import { paintable } from './paintable'
 
-/** A Gear Cube's corner or center: under each of its faces, a plate cut to
+/** A Gear Cube's corner or center (or the Extreme's middle edge, a block): under each of its faces, a plate cut to
  *  the agreed shape on a black body of that shape (gearFace.ts), so nothing
  *  of it hides the gears swinging out beside it. In edit mode, `colors`
  *  replaces its stickers' (gray when empty) and a click on a face's body
@@ -27,7 +27,9 @@ export function GearCorner({
   onHover?: (face: string, on: boolean) => void
   lit?: string | null
 }) {
-  const kind = cubie.stickers.length === 3 ? 'corner' : 'center'
+  // Two stickers and no gear: the Extreme's middle-layer edge, a block.
+  const kind =
+    cubie.stickers.length === 3 ? 'corner' : cubie.stickers.length === 2 ? 'block' : 'center'
   return (
     <>
       {cubie.stickers.map((s, i) => (

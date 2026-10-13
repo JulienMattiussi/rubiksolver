@@ -134,14 +134,16 @@ export const useEditor = create<EditorStore>((set, get) => ({
       const edit = paint(s.edit, currentShape(), slotKey, ni, s.selectedColor, s.form)
       return {
         edit,
-        gear: hasColoredClips(currentShape()) ? completeGears(s.gear, edit) : s.gear,
+        gear: hasColoredClips(currentShape())
+          ? completeGears(s.gear, edit, currentShape())
+          : s.gear,
         error: null,
       }
     }),
 
   paintGearAt: (slotKey, ni) =>
     set((s) => ({
-      gear: paintGear(s.gear, s.edit, slotKey, ni, s.selectedColor),
+      gear: paintGear(s.gear, s.edit, currentShape(), slotKey, ni, s.selectedColor),
       error: null,
     })),
 
@@ -155,8 +157,8 @@ export const useEditor = create<EditorStore>((set, get) => ({
     const shape = currentShape()
     if (!isComplete(edit, shape, form)) return false
     const gears = hasColoredClips(shape)
-    if (gears && gearsPainted(gear).painted < gearsPainted(gear).total) return false
-    const turned = gears ? turnedOf(gear, edit) : []
+    if (gears && gearsPainted(gear, shape).painted < gearsPainted(gear, shape).total) return false
+    const turned = gears ? turnedOf(gear, edit, shape) : []
     if (!turned) {
       set({ error: 'gears' })
       return false

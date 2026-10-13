@@ -62,7 +62,13 @@ export function Cubie({
     )
   }
   // A Gear Cube's corner or center: plates cut to the agreed shape.
-  if (smallCenter && (cubie.stickers.length === 3 || cubie.stickers.length === 1)) {
+  // (The Extreme's middle edges, no gears, are blocks drawn the same way.)
+  if (
+    smallCenter &&
+    (cubie.stickers.length === 3 ||
+      cubie.stickers.length === 1 ||
+      (cubie.stickers.length === 2 && cubie.spin === undefined))
+  ) {
     return (
       <group position={visualPosition(cubie.position, dims)}>
         <GearCorner

@@ -22,7 +22,8 @@ const MOVE_BUTTON = 'py-1.5 text-xs'
 
 export function SolvePanel({ home = false }: { home?: boolean }) {
   const t = useI18n((s) => s.t)
-  useAutoPlan(!home)
+  // The solution computed (in a worker): until then, nothing to play.
+  const ready = useAutoPlan(!home)
   const solveAll = useCube((s) => s.solveAll)
   const pause = useCube((s) => s.pause)
   const solving = useCube((s) => s.solving)
@@ -41,14 +42,14 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
     dispatched > 0 && dispatched < total && stepEnd(lengths, dispatched - 1) !== dispatched
   // On the home page every button shows, grayed: no puzzle to solve yet.
   const back = home || busy || dispatched === 0
-  const ahead = home || busy || solved || (dispatched > 0 && dispatched >= total)
+  const ahead = home || busy || solved || !ready || (dispatched > 0 && dispatched >= total)
   const editing = useEditor((s) => s.mode === 'edit')
   useSolveShortcuts({
     enabled: !home && !editing,
     canBack: !back,
     canAhead: !ahead,
     playing: busy && solving,
-    canSolve: !busy && !solved,
+    canSolve: !busy && !solved && ready,
     nextMove: playNextMove,
     undoMove,
     nextStep: playNextStep,
@@ -84,12 +85,13 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
           <Button
             variant="solve"
             onClick={solveAll}
-            disabled={home || busy || solved}
+            disabled={home || busy || solved || !ready}
             className="col-span-2"
             title={`${t.solve} (${t.solveKeys.solve})`}
           >
             <FEATURE_ICON.solve className="size-4" aria-hidden />
-            {t.solve}
+            {/* Said while the solution is being computed. */}
+            {!home && !solved && !ready ? t.computing : t.solve}
           </Button>
         )}
         <Button

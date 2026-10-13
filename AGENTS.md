@@ -12,7 +12,7 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 **4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), l'**Octahedron VTO**
 (un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
 (un cuboctaèdre dont les triangles tournent), le **Violet** (un 2x2x2 à
-pivot excentré, qui se déforme), le **Gear Cube** et le **Gear Cube Ultimate** (des 3x3x3 à engrenages)
+pivot excentré, qui se déforme), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages)
 et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
@@ -152,6 +152,7 @@ src/
 │   │   ├── floppy.ts     #   Floppy 3x3x1 : coins puis arêtes retournées deux par deux (fan2cube.fr)
 │   │   ├── ghost.ts      #   Floppy Ghost : sommets placés, orientés, puis arêtes (formules de fan2cube, des 5 côtés)
 │   │   ├── gear.ts       #   Gear Cube : coins, arêtes placées, agrafes, engrenages (formules de fan2cube.fr)
+│   │   ├── gearExtreme.ts #  Gear Cube Extreme : équateur, coins, arêtes, agrafes, engrenages (fan2cube.fr)
 │   │   └── violet.ts     #   Violet : forme puis couleurs, et optimale (arbre de recherche de violetStates.ts)
 │   ├── solver4/          # Solveur 4x4 par réduction :
 │   │   ├── centers.ts    #   centres par comptage (D, U, puis ceinture), recherches bornées sans régression
@@ -335,6 +336,9 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   Floppy, 15 sur Floppy Ghost, 30 sur Violet), une seule étape.
 - **Coins d'abord** (`gearCornersFirst`, Gear Cube et Ultimate) : coins, arêtes
   placées, agrafes (Ultimate), engrenages - voir « Le Gear Cube Ultimate ».
+- **Équateur puis coins** (`gearEquatorFirst`, Gear Cube Extreme) : équateur et
+  centres, coins du bas puis du haut, arêtes isolées puis placées, agrafes,
+  engrenages - voir « Le Gear Cube Extreme ».
 - **Forme puis couleurs** (`shapeFirst`, Violet) : redevenir un cube, puis
   les couleurs du coin composé - voir « Le Violet ».
 - **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
@@ -1007,6 +1011,27 @@ visible) ; ses arêtes se placent dans le bon sens avec D⁴ et D⁸. Saisie :
 les engrenages sont les stickers (`hasColoredClips` décide de la saisie à
 part de l'Ultimate).
 
+**Le Gear Cube Extreme** (`gearX`, fan2cube.fr/gearultimate1 et 2, qui le
+nomment Ultimate) : la tranche du milieu n'a pas d'engrenages, ses quatre
+arêtes sont des blocs (`gearAt`, dessinés comme un bloc qui finit en
+agrafe : la sorte `block` de `scripts/gear_face.py`). Le haut et le bas
+tournent donc d'un quart, comme sur un 3x3 (des `Move` parmi les coups
+d'engrenage, `gearTurnsOf` ; `applyMove` garde le pivot des pièces), les
+côtés par engrenages, comme l'Ultimate (trois coups pour retrouver la
+forme). Méthode **Équateur puis coins** (`methods/gearExtreme.ts`, d'après
+la page) : (A) l'équateur et les centres, par tous les coups ; (B) les coins
+du bas descendus un à un, (D²H)².(D²H²)² ; (C) ceux du haut, 3-cycle et
+échange ; (D) les arêtes du bas isolées en bas, (BG²B'G'²)⁵ ; (E) toutes
+placées, (HA,HD)(BA,BD) ; (F) les agrafes, D²(D²H)¹²D'² ; (G) les
+engrenages, (D²H)².D⁸.(H'D'²)². Chaque formule vue de chaque côté (et à
+l'envers), préparée par des tours du haut et du bas défaits ensuite, sur
+les seules pièces de l'étape, une pièce à la fois ; l'effet de chacune est
+testé (`parseGearFormula` lit la notation de la page). Quelques secondes
+de calcul, parfois plus (dans le worker). **Saisie** comme l'Ultimate, en
+forme de cube (engrenages réalignés), ses blocs peints comme des stickers ;
+ses centres se peignent (les tranches les sortent du haut et du bas, que sa
+couche du milieu, immobile, tient en place).
+
 ### Le Violet (`violet`)
 
 Un puzzle dont le nom s'est perdu, décrit de mémoire et validé à l'écran :
@@ -1332,7 +1357,7 @@ mobile et en saisie, une seule carte) :
   (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate, Bizarres Violet.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Bizarres Violet.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer
@@ -1370,7 +1395,9 @@ mobile et en saisie, une seule carte) :
   est au repos, calculée d'avance dans un worker (`useAutoPlan`,
   `workers/solveWorker.ts`) pour ne jamais figer la page ; Résoudre et Pas à
   pas la réutilisent tant qu'elle vaut pour l'état et la méthode
-  (`planKey`). **Clavier** (`useSolveShortcuts`, rappelé dans l'infobulle de chaque bouton) :
+  (`planKey`) ; tant qu'elle n'est pas prête, Résoudre dit « Calcul de la
+  solution… » et ses boutons restent grisés (`useAutoPlan` le renvoie).
+  **Clavier** (`useSolveShortcuts`, rappelé dans l'infobulle de chaque bouton) :
   flèches droite / gauche un coup en avant / en arrière, Page suivante /
   précédente une étape (en arrière, une solution qui joue s'arrête d'abord,
   puis le dernier coup ou l'étape sont défaits), Espace met en pause ou reprend, Entrée joue tout le

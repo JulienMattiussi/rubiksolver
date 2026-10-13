@@ -12,6 +12,8 @@ import {
   type CubeShape,
   type Face,
   type GearMove,
+  type Turn,
+  type Dims,
 } from '../types'
 
 /**
@@ -63,21 +65,23 @@ function fromEverySide(moves: readonly GearMove[]): GearMove[][] {
 }
 
 /** The fewest of `macros` (each a formula played whole) reaching `goal`,
- *  states told apart by `look` (what the goal reads). */
-function search(
+ *  states told apart by `look` (what the goal reads). `mechanism` when
+ *  `cube` holds some pieces only (cubeShape cannot tell its shape). */
+export function search<T extends Turn>(
   cube: Cube,
-  macros: readonly (readonly GearMove[])[],
+  macros: readonly (readonly T[])[],
   goal: (c: Cube) => boolean,
   look: (c: Cube) => string,
-): GearMove[] {
+  mechanism?: Dims,
+): T[] {
   if (goal(cube)) return []
   const seen = new Set([look(cube)])
-  let frontier: { state: Cube; moves: GearMove[] }[] = [{ state: cube, moves: [] }]
+  let frontier: { state: Cube; moves: T[] }[] = [{ state: cube, moves: [] }]
   while (frontier.length) {
     const next: typeof frontier = []
     for (const { state, moves } of frontier) {
       for (const macro of macros) {
-        const after = applyMoves(state, macro)
+        const after = applyMoves(state, macro, mechanism)
         const k = look(after)
         if (seen.has(k)) continue
         seen.add(k)

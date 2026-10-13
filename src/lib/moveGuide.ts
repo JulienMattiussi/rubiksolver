@@ -198,10 +198,21 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
   if (shape === 'ghost') return [{ section: 'sides', rows: GHOST_TURNS.map((turn) => [turn]) }]
   if (isGear(shape)) {
     const row = (gear: Face) => ([1, 3] as const).map((amount): GearMove => ({ gear, amount }))
+    // The Extreme's top and bottom turn as a 3x3's, the sides by gears.
+    const plain = shape === 'gearX' ? (['U', 'D'] as const) : []
+    const gears = FACES.filter((f) => !(plain as readonly Face[]).includes(f))
     // Then each three times in a row: the gears go round, the cube is back.
     return [
-      { section: 'gears', rows: FACES.map(row) },
-      { section: 'gearsThrice', rows: FACES.map((gear) => [{ gear, amount: 1, times: 3 }]) },
+      ...(plain.length
+        ? [
+            {
+              section: SECTION_OF.face,
+              rows: plain.flatMap((face) => layerRows(shape, { face, amount: 1 })),
+            },
+          ]
+        : []),
+      { section: 'gears', rows: gears.map(row) },
+      { section: 'gearsThrice', rows: gears.map((gear) => [{ gear, amount: 1, times: 3 }]) },
     ]
   }
   if (shape === 'rainbow') {

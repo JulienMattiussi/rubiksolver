@@ -1,4 +1,10 @@
-import { formatGearMove, GEAR_TURNS, invertGearMove, scrambleGear, simplifyGearMoves } from './gear'
+import {
+  formatGearMove,
+  gearTurnsOf,
+  invertGearMove,
+  scrambleGear,
+  gearMovesCancel as cancels,
+} from './gear'
 import { scrambleViolet } from './violetStates'
 import { solvedCube, turnDims } from './cube'
 import { faceAxis, faceLayers, quarterTurnFits } from './geometry'
@@ -277,10 +283,16 @@ export function simplifyMoves<T extends Turn>(moves: readonly T[]): T[] {
   if (moves.some(isRainbowMove)) {
     return simplifyRainbowMoves(moves as readonly RainbowMove[]) as T[]
   }
-  if (moves.some(isGearMove)) return simplifyGearMoves(moves as readonly GearMove[]) as T[]
-  const out: Move[] = []
-  for (const move of moves as readonly Move[]) {
+  // Gear moves (and the Extreme's plain top and bottom turns among them).
+  const out: (Move | GearMove)[] = []
+  for (const move of moves as readonly (Move | GearMove)[]) {
     const last = out[out.length - 1]
+    if (isGearMove(move) || (last && isGearMove(last))) {
+      // A gear move and its inverse cancel; two the same way stay (gear.ts).
+      if (last && isGearMove(last) && isGearMove(move) && cancels(last, move)) out.pop()
+      else out.push(move)
+      continue
+    }
     if (last && sameLayer(last, move)) {
       const total = (last.amount + move.amount) % 4
       out.pop()
@@ -360,7 +372,7 @@ export function scrambleTurns(
   if (isPyraminx(shape)) return scramblePyraminx(shape, length, rng)
   if (shape === 'ghost') return scrambleGhost(length, rng)
   if (shape === 'rainbow') return scrambleRainbow(length, rng)
-  if (isGear(shape)) return scrambleGear(length, rng)
+  if (isGear(shape)) return scrambleGear(shape, length, rng)
   if (shape === 'violet') return scrambleViolet(length, rng, start)
   return scramble(shape, length, rng, start)
 }
@@ -374,7 +386,7 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
   if (isPyraminx(shape)) return pyraTurnsOf(shape)
   if (shape === 'ghost') return GHOST_TURNS
   if (shape === 'rainbow') return RAINBOW_TURNS
-  if (isGear(shape)) return GEAR_TURNS
+  if (isGear(shape)) return gearTurnsOf(shape)
   return movesFor(shape)
 }
 

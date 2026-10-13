@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { cubeDims, cubeShape } from '@/lib/cube'
 import { canPaint, slotsFor } from '@/lib/editor'
 import { centeringOffset, cubieBox, LAYER_THICKNESS } from '@/lib/shape'
+import { gearAt } from '@/lib/gear'
 import { hasColoredClips, isGear } from '@/lib/types'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -50,7 +51,8 @@ export function EditView() {
       <group scale={cubeScale(dims)}>
         {slotsFor(shape, form).map((slot) => {
           const paintable = canPaint(shape, slot.key, form)
-          const edge = slot.stickers.length === 2
+          // A gear's slot (not the Extreme's middle edges, plain blocks).
+          const edge = gearAt(shape, slot.position)
           const colors = slot.stickers.map((s) => {
             const color = edit[s.id]
             return color ? COLOR_HEX[color] : EMPTY_COLOR

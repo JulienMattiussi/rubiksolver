@@ -30,8 +30,10 @@ function solver(): Worker | null {
  * step is clicked (which then reuse them). A newer state simply makes an
  * older answer stale: `setPlan` only takes the one for the current state.
  * Off (`enabled` false) on the home page, where no puzzle is shown.
+ * Returns whether the solution is ready: the solve buttons wait for it
+ * (without a worker, it is computed on click, so always).
  */
-export function useAutoPlan(enabled = true): void {
+export function useAutoPlan(enabled = true): boolean {
   const cube = useCube((s) => s.cube)
   const method = useCube((s) => s.method)
   const busy = useCube(selectBusy)
@@ -48,4 +50,5 @@ export function useAutoPlan(enabled = true): void {
     }, SETTLE_MS)
     return () => clearTimeout(timer)
   }, [enabled, cube, method, busy, planned])
+  return planned || typeof Worker === 'undefined'
 }

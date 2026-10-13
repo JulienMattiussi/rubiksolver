@@ -2,7 +2,8 @@
 (argv[1], a PNG to look at) and, given a folder (argv[2]), the mask of one
 piece of each kind at its set place (src/assets/gear: a corner top right, a
 gear and a clip at the top, the center), which src/three/gearFace.ts turns
-into place, and their outlines (outlines.json) for their volumes. Units: a cell is 100, the face 300 x 300, drawn at SCALE.
+into place, and their outlines (outlines.json) for their volumes, plus the
+Extreme's middle edges, a block (block.png). Units: a cell is 100, the face 300 x 300, drawn at SCALE.
 
     python3 scripts/gear_face.py /tmp/face.png src/assets/gear
 """
@@ -151,8 +152,8 @@ piece(kind='center').rectangle([c0 * SCALE, c0 * SCALE, c1 * SCALE, c1 * SCALE])
 CLIP_TIP = 23.5               # the arms lean in: their ends almost the square's width
 CLIP_BOW = 4                 # the base bows toward the center, this deep
 ARM_BASE, ARM_END = 9, 5.5   # an arm's width at the base, at its end
-def clip(rotate):
-    # Drawn for the top side, then turned a quarter at a time about the center.
+def clip_shapes():
+    """A clip's polygons, for the top side."""
     y0 = c0 - CLIP_AT
     y1 = y0 + CLIP_D
     half = CLIP_W / 2
@@ -169,18 +170,46 @@ def clip(rotate):
         [(150 - half, y0), (150 - half + ARM_BASE, y0), (150 - CLIP_TIP + ARM_END, y1), (150 - CLIP_TIP, y1)],
         [(150 + half - ARM_BASE, y0), (150 + half, y0), (150 + CLIP_TIP, y1), (150 + CLIP_TIP - ARM_END, y1)],
     ]
+    return shapes
+
+def clip(rotate):
+    # Drawn for the top side, then turned a quarter at a time about the center.
     a = math.radians(90 * rotate)
     cp = piece(ROUND_CLIP, 'clip' if rotate == 0 else '')
-    for corners in shapes:
+    for corners in clip_shapes():
         turned = [(150 + (x - 150) * math.cos(a) - (y - 150) * math.sin(a),
                    150 + (x - 150) * math.sin(a) + (y - 150) * math.cos(a)) for x, y in corners]
         cp.polygon(scaled(turned))
 for k in range(4):
     clip(k)
 
+# The Extreme's middle-layer edges are no gears: a block a little longer
+# than a cell, narrowing into its clip, a U drawn as the others are (one
+# piece with the block). Not on this face (its gears are), only its mask and
+# outline: drawn for the top side, like a gear.
+# Each side runs from the face's border straight into its clip's arm,
+# almost a line, a slight hollow along it (no break where it meets the arm).
+HOLLOW = 4                      # how deep the hollow, at its middle
+ARM_TOP = 94 + 2                # where it meets the clip's arm, its outer side
+def side(x0, y0, x1, y1, steps=24):
+    pts = []
+    for k in range(steps + 1):
+        t = k / steps
+        x, y = x0 + (x1 - x0) * t, y0 + (y1 - y0) * t
+        # The hollow: into the piece (toward its middle, x = 150).
+        pts.append((x + HOLLOW * math.sin(math.pi * t), y))
+    return pts
+left = side(103, 0, 150 - CLIP_W / 2, ARM_TOP)
+right = [(300 - x, y) for x, y in left]
+BLOCK = right + [(150 + CLIP_W / 2, 100), (150 - CLIP_W / 2, 100)] + list(reversed(left))
+bp = piece(ROUND_CLIP, 'block')
+for corners in [BLOCK] + clip_shapes():
+    bp.polygon(scaled(corners))
+
 for p in pieces:
     m = rounded(p.mask, p.r * SCALE)
-    img.paste(GREEN, mask=m)
+    if p.kind != 'block':
+        img.paste(GREEN, mask=m)
     if p.kind and len(sys.argv) > 2:
         m.save(f'{sys.argv[2]}/{p.kind}.png', optimize=True)
 if len(sys.argv) > 2:

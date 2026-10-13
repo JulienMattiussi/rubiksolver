@@ -28,6 +28,7 @@ const SCRAMBLE_LENGTH: Record<CubeShape, number> = {
   rainbow: 20,
   gearCube: 20,
   gearU: 20,
+  gearX: 25,
   violet: 25,
   ghost: 15,
   star: 20,

@@ -34,7 +34,7 @@ export function ColorPalette() {
   const { remaining } = progress(edit, shape, form)
   // A Gear Cube's gears take these colors too, painted apart.
   const gear = useEditor((s) => s.gear)
-  const gearLeft = hasColoredClips(shape) ? gearFaces(gear).remaining : {}
+  const gearLeft = hasColoredClips(shape) ? gearFaces(gear, shape).remaining : {}
   // Thinnest first, so the swatches read as a scale.
   const colors = paletteColors(shape, form)
   const palette = mirror ? byThickness(MIRROR_THICKNESS).filter((c) => colors.includes(c)) : colors

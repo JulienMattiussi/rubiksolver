@@ -47,10 +47,10 @@ export function EditPanel() {
   const { filled, total } = progress(edit, shape, form)
   const { placed, total: slots } = byPieces ? placedCount(edit, shape) : { placed: 0, total: 0 }
   // A Gear Cube's gears are painted apart from their clips.
-  const gears = hasColoredClips(shape) ? gearsPainted(gear) : null
+  const gears = hasColoredClips(shape) ? gearsPainted(gear, shape) : null
   const complete = isComplete(edit, shape, form) && (!gears || gears.painted === gears.total)
   // Counted with the stickers: every face to paint, clips and gears alike.
-  const faces = hasColoredClips(shape) ? gearFaces(gear) : null
+  const faces = hasColoredClips(shape) ? gearFaces(gear, shape) : null
   const shifts = formsOf(shape).length > 1
 
   return (

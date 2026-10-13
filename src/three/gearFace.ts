@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import type { Vec3 } from '@/lib/types'
+import blockUrl from '@/assets/gear/block.png'
 import centerUrl from '@/assets/gear/center.png'
 import clipUrl from '@/assets/gear/clip.png'
 import cornerUrl from '@/assets/gear/corner.png'
@@ -14,13 +15,16 @@ import OUTLINES from '@/assets/gear/outlines.json'
  * a plate over its face, cut out by its mask (alpha test), in its color.
  */
 
-export type GearPiece = 'corner' | 'gear' | 'clip' | 'center'
+/** The Gear Cubes' piece kinds; a block is the Extreme's middle-layer edge
+ *  (no gear: its clip part of it). */
+export type GearPiece = 'corner' | 'gear' | 'clip' | 'center' | 'block'
 
 const URLS: Record<GearPiece, string> = {
   corner: cornerUrl,
   gear: gearUrl,
   clip: clipUrl,
   center: centerUrl,
+  block: blockUrl,
 }
 
 /** Where each kind's mask sits on the face, in cells (x right, y down). */
@@ -29,6 +33,7 @@ const HOME: Record<GearPiece, readonly [number, number]> = {
   gear: [0, -1],
   clip: [0, -1],
   center: [0, 0],
+  block: [0, -1],
 }
 
 const loader = new THREE.TextureLoader()
@@ -119,7 +124,13 @@ export function gearPlate(
 }
 
 /** How deep each kind's body goes under its face. */
-const DEPTH: Record<GearPiece, number> = { corner: 0.45, gear: 0.42, center: 0.45, clip: 0.2 }
+const DEPTH: Record<GearPiece, number> = {
+  corner: 0.45,
+  gear: 0.42,
+  center: 0.45,
+  clip: 0.2,
+  block: 0.45,
+}
 /** How much an outline is drawn in: its plate's corners are rounded, the
  *  body's are not. */
 const SHRINK = 0.015
