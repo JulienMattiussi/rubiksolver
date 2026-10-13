@@ -9,7 +9,7 @@ puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (sans pointes), le **Ma
 le **Rainbow** (un cuboctaèdre aux triangles qui tournent), le **Dino Cube** et le
 **Rex Cube** (leurs sommets tournent),
 le **Violet** (un 2x2x2 à pivot excentré qui se déforme), le **Z-Twist** (un 3x3x3
-à la forme tordue), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube
+à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube
 Extreme** (des 3x3x3 à engrenages)
 et les **Star Prism** à 2 et 4 étages.
 On manipule le puzzle, on le mélange **ou on saisit sa propre
@@ -54,6 +54,7 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   - Dino Cube : **étage par étage** ;
   - Rex Cube : **arêtes, centres, pétales** ;
   - Violet : **forme puis couleurs** ;
+  - Tori : **croix prolongée** ;
   - Gear Cube et Gear Cube Ultimate : **coins d'abord** ;
   - Gear Cube Extreme : **équateur puis coins** ;
   - Star Prism : **isoler puis permuter** ;

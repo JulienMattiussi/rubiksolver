@@ -296,6 +296,10 @@ const fr = {
       name: 'Comme un Pocket',
       desc: 'Le Pyramorphinx n’est qu’un Pocket (2x2) déguisé : ses 8 pièces sont les 8 coins d’un 2x2 et ses mouvements ceux d’un 2x2. On le lit comme tel et on le résout comme un Pocket, en un minimum de mouvements, sans se laisser troubler par les formes qu’il prend.',
     },
+    extendedCross: {
+      name: 'Croix prolongée',
+      desc: 'Comme un Rubik’s Cube dont on ignore les coins : la croix du bas, les arêtes du milieu placées par un simple commutateur ([H’A’] ou [HD], aucun coin à préserver), la croix du haut retournée deux arêtes à la fois, puis les arêtes du haut placées par 3-cycles.',
+    },
     extendedTriangle: {
       name: 'Triangle prolongé',
       desc: 'Les trois pièces du triangle du haut d’abord, chacune prolongeant les carrés autour, puis toutes les autres avec deux commutateurs, « placer à gauche » [H’ G’] et « placer à droite » [H D] : quand sept triangles sont faits, le huitième l’est aussi.',
@@ -741,6 +745,10 @@ const en: Translations = {
     asPocket: {
       name: 'As a Pocket',
       desc: 'The Pyramorphinx is a Pocket (2x2) in disguise: its 8 pieces are a 2x2’s 8 corners and its turns a 2x2’s. Read as such, it is solved like a Pocket, in as few turns as can be, whatever strange shapes it takes.',
+    },
+    extendedCross: {
+      name: 'Extended cross',
+      desc: 'As a Rubik’s Cube whose corners are ignored: the bottom cross, the middle edges placed by a mere commutator ([U’F’] or [UR], no corner to keep), the top cross turned two edges at a time, then the top edges placed by 3-cycles.',
     },
     extendedTriangle: {
       name: 'Extended triangle',

@@ -32,6 +32,7 @@ export type CubeShape =
   | 'gearX'
   | 'violet'
   | 'twist'
+  | 'tori'
   | 'ghost'
   | 'star'
   | 'star4'
@@ -90,6 +91,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   violet: [5, 5, 5],
   // The Z-Twist (twist.ts): a 3x3x3, shaped otherwise.
   twist: [3, 3, 3],
+  // The Tori (tori.ts): a 3x3x3 without its corners.
+  tori: [3, 3, 3],
   // The Floppy Ghost (ghost.ts) is no grid: its slots sit within +-3 in its
   // plane, all at z = 0.
   ghost: [7, 7, 1],
@@ -151,7 +154,8 @@ export const isPolyDrawn = (shape: CubeShape): boolean =>
   shape === 'vto' ||
   shape === 'gem' ||
   shape === 'violet' ||
-  shape === 'twist'
+  shape === 'twist' ||
+  shape === 'tori'
 
 /**
  * Shapes that leave their box: their mechanism is a bigger cube with pieces
@@ -192,6 +196,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   gearX: false,
   violet: true,
   twist: false,
+  tori: false,
   ghost: false,
   star: false,
   star4: false,
@@ -238,6 +243,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   gearX: [],
   violet: [],
   twist: [],
+  tori: [],
   ghost: [],
   star: [],
   star4: [],
@@ -276,6 +282,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   gearX: [],
   violet: [],
   twist: [],
+  tori: [],
   ghost: [],
   star: [],
   star4: [],
@@ -310,6 +317,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   gearX: 'Gear Cube Extreme',
   violet: 'Violet',
   twist: 'Z-Twist',
+  tori: 'Tori',
   ghost: 'Floppy Ghost',
   star: '2-Star Prism (UFO)',
   star4: '4-Star Prism',
@@ -345,6 +353,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   gearX: 'gear-cube-extreme',
   violet: 'violet',
   twist: 'z-twist',
+  tori: 'tori',
   ghost: 'floppy-ghost',
   star: '2-star',
   star4: '4-star',
@@ -394,6 +403,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   gearX: false,
   violet: false,
   twist: false,
+  tori: false,
   ghost: false,
   star: false,
   star4: false,
@@ -437,7 +447,7 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   }
   if (isGear(shape)) return 'gear'
   if (shape === 'dino' || shape === 'rex') return 'diagonal'
-  if (shape === 'violet' || shape === 'twist') return 'odd'
+  if (shape === 'violet' || shape === 'twist' || shape === 'tori') return 'odd'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
   // One layer thick: the 1x2x3 and the Floppy.

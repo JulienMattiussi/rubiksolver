@@ -81,6 +81,8 @@ const PUZZLES: ReadonlyArray<{
   },
   { shape: 'dino', pieces: 12, stickers: 24, orientations: 24, painted: 24, scramble: 20 },
   { shape: 'rex', pieces: 42, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
+  // A 3x3 without its corners.
+  { shape: 'tori', pieces: 19, stickers: 30, orientations: 24, painted: 30, scramble: 20 },
   { shape: 'twist', pieces: 27, stickers: 54, orientations: 24, painted: 54, scramble: 20 },
   { shape: 'ghost', pieces: 11, stickers: 36, orientations: 1, painted: 36, scramble: 15 },
   {

@@ -16,6 +16,7 @@ import {
 } from './octGeometry'
 import { dinoPolygons } from './dinoGeometry'
 import { rexCut, rexPolygons } from './rexGeometry'
+import { toriPolygons, toriThumbnail } from './toriGeometry'
 import { twistPolygons, twistThumbnail } from './twistGeometry'
 import { RAINBOW_ORIENT, RAINBOW_YAW, rainbowPolygons } from './rainbowGeometry'
 import { VIOLET_OFFSET, violetPolygons } from './violetGeometry'
@@ -87,6 +88,8 @@ const RAINBOW: PolyDrawing = {
 const DINO: PolyDrawing = { polygons: dinoPolygons, yaw: 0 }
 /** The Z-Twist, upright as the cubes. */
 const TWIST: PolyDrawing = { polygons: twistPolygons, yaw: 0, thumbnail: twistThumbnail }
+/** The Tori, upright as the cubes. */
+const TORI: PolyDrawing = { polygons: toriPolygons, yaw: 0, thumbnail: toriThumbnail }
 /** The Rex Cube, held as the Dino. */
 const REX: PolyDrawing = { polygons: rexPolygons, yaw: 0, cut: rexCut }
 
@@ -111,6 +114,7 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'dino') return DINO
   if (shape === 'rex') return REX
   if (shape === 'twist') return TWIST
+  if (shape === 'tori') return TORI
   if (shape === 'violet') return VIOLET
   if (shape === 'pyra5') return PROFESSOR
   return shape === 'pyra4'

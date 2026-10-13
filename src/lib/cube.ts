@@ -123,6 +123,8 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   }
   if (shape === 'violet') return solvedViolet()
   if (shape === 'twist') return withCenterSpins(solvedCube('3'))
+  // The Tori: a 3x3 without its corners.
+  if (shape === 'tori') return solvedCube('3').filter((c) => c.stickers.length !== 3)
   if (shape === 'ghost') return solvedGhost()
   const dims = SHAPE_DIMS[shape]
   const colors = faceColorsOf(shape)

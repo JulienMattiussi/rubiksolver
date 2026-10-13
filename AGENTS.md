@@ -13,7 +13,7 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 (un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
 (un cuboctaèdre dont les triangles tournent), le **Dino Cube** et le **Rex Cube** (leurs sommets
 tournent), le **Violet** (un 2x2x2 à
-pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages)
+pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages)
 et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
@@ -161,6 +161,7 @@ src/
 │   │   ├── gear.ts       #   Gear Cube : coins, arêtes placées, agrafes, engrenages (formules de fan2cube.fr)
 │   │   ├── gearExtreme.ts #  Gear Cube Extreme : équateur, coins, arêtes, agrafes, engrenages (fan2cube.fr)
 │   │   ├── twist.ts      #   Z-Twist : une méthode 3x3 sur les couleurs, puis les centres de côté remis
+│   │   ├── tori.ts       #   Tori : croix prolongée (formules de fan2cube.fr)
 │   │   └── violet.ts     #   Violet : forme puis couleurs, et optimale (arbre de recherche de violetStates.ts)
 │   ├── solver4/          # Solveur 4x4 par réduction :
 │   │   ├── centers.ts    #   centres par comptage (D, U, puis ceinture), recherches bornées sans régression
@@ -224,6 +225,7 @@ src/
 │   ├── GearPlate.tsx     # Une plaque d'une pièce du Gear Cube, découpée par son masque
 │   ├── GearEdge.tsx      # Une arête du Gear Cube : deux agrafes, l'engrenage (deux plaques et son corps à sa forme) qui pivote
 │   ├── GearCorner.tsx    # Un coin ou un centre du Gear Cube : plaques sur des corps à leur forme
+│   ├── toriGeometry.ts   # Pièces du Tori : cube arrondi coupé par les plans du 3x3, faces percées en anneaux
 │   ├── twistGeometry.ts  # Pièces du Z-Twist : la case du 3x3 dans le solide tordu, portée par la pièce
 │   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
 │   ├── Decal.tsx         # Une image posée sur la face de pièces choisies, qui tourne avec elles (PolyDrawing.decal)
@@ -365,6 +367,8 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   avec le seul 3-cycle [GA'] - voir « Le Dino Cube ».
 - **Arêtes, centres, pétales** (`rexEdgesFirst`, Rex Cube) : par 3-cycles - voir
   « Le Rex Cube ».
+- **Croix prolongée** (`extendedCross`, Tori) : croix du bas, arêtes du milieu,
+  croix du haut, arêtes du haut placées - voir « Le Tori ».
 - **Forme puis couleurs** (`shapeFirst`, Violet) : redevenir un cube, puis
   les couleurs du coin composé - voir « Le Violet ».
 - **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
@@ -1205,6 +1209,32 @@ Plusieurs centaines de coups pour cette étape. **Saisie** pièce par pièce, co
 pièces montrent les couleurs des côtés tordus, pas des stickers de 3x3) ;
 un clic sur un centre de côté le tourne d'un quart (`twisted` de l'éditeur).
 
+### Le Tori (`tori`)
+
+Le Tori (fan2cube.fr/tori1 et 2, QiYi, 2023) est « un Rubik's Cube sans
+sommets » : 6 centres fixes et 12 arêtes, soit 12!·2¹²/2 positions. Le
+modèle est celui du 3x3 sans ses coins (`solvedCube`), coups compris : rien
+d'autre à lui apprendre. Catégorie « Bizarres ».
+
+**Rendu** (`three/toriGeometry.ts`) : le solide est un cube arrondi
+(|x|³ + |y|³ + |z|³ <= R³), coupé par les plans du 3x3 assez loin du
+centre pour qu'il ne reste rien là où seraient les coins. Chaque centre est
+un grand carré arrondi, percé jusqu'au cœur (un anneau, coloré jusque dans
+le trou comme le plastique du vrai puzzle), chaque arête une mince amande
+le long d'une arête du cube, de la couleur de chaque face de part et
+d'autre de son arête vive. La surface est maillée en polaire autour du
+milieu de chaque face (trous ronds), normales lissées. La vignette prend
+quelques grandes pièces (anneaux en quarts, amandes en moitiés), ombrées
+d'un bloc par face.
+
+**Résolution** (`methods/tori.ts`, méthode **Croix prolongée**, d'après
+la page) : comme un Rubik's Cube dont on ignore les coins. (1) croix du
+bas : A², BDB'A et DHD' ; (2) arêtes du milieu, d'un simple commutateur,
+[H'A'] ou [HD], aucun coin à préserver ; (3) croix du haut, deux arêtes
+retournées à la fois par A[HD]A'H' ; (4) arêtes du haut par deux 3-cycles.
+Chaque formule vue de chaque côté, H plaçant les pièces dessous ; effet de
+chacune testé. Saisie des stickers comme un 3x3, centres pré-remplis.
+
 ### Le Professor Pyraminx (`pyra5`)
 
 Le Pyraminx 5x5x5 (fan2cube.fr/profpyraminx1 et 2, Timur Evbatyrov, 2011) :
@@ -1505,7 +1535,7 @@ mobile et en saisie, une seule carte) :
   (Slim)/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube, Bizarres Violet/Z-Twist.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube, Bizarres Violet/Z-Twist/Tori.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

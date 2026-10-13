@@ -160,7 +160,7 @@ describe('cube picker', () => {
       star: ['star', 'star4'],
       gear: ['gearCube', 'gearU', 'gearX'],
       diagonal: ['dino', 'rex'],
-      odd: ['violet', 'twist'],
+      odd: ['violet', 'twist', 'tori'],
     })
   })
 })
