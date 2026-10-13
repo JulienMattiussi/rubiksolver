@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/Button'
 import { SECTION_BOX, SECTION_LABEL } from '@/components/ui/styles'
 import { FEATURE_ICON } from '@/components/ui/features'
 import { useAutoPlan } from '@/hooks/useAutoPlan'
+import { useSolveShortcuts } from '@/hooks/useSolveShortcuts'
+import { useEditor } from '@/store/editorStore'
 import { MethodSelect } from './MethodSelect'
 import { PlanOutline } from './PlanOutline'
 import { StepList } from './StepList'
@@ -40,6 +42,20 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
   // On the home page every button shows, grayed: no puzzle to solve yet.
   const back = home || busy || dispatched === 0
   const ahead = home || busy || solved || (dispatched > 0 && dispatched >= total)
+  const editing = useEditor((s) => s.mode === 'edit')
+  useSolveShortcuts({
+    enabled: !home && !editing,
+    canBack: !back,
+    canAhead: !ahead,
+    playing: busy && solving,
+    canSolve: !busy && !solved,
+    nextMove: playNextMove,
+    undoMove,
+    nextStep: playNextStep,
+    undoStep,
+    solveAll,
+    pause,
+  })
 
   return (
     // Free to shrink, so that only the step list scrolls when room is short.
@@ -56,7 +72,11 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
       <div className="grid grid-cols-2 gap-2">
         {busy && solving ? (
           // Pauses where it stands: the move under way ends, the rest waits.
-          <Button onClick={pause} className="col-span-2" title={t.pauseTitle}>
+          <Button
+            onClick={pause}
+            className="col-span-2"
+            title={`${t.pauseTitle} (${t.solveKeys.pause})`}
+          >
             <Square className="size-4" aria-hidden />
             {t.stop}
           </Button>
@@ -66,24 +86,43 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
             onClick={solveAll}
             disabled={home || busy || solved}
             className="col-span-2"
+            title={`${t.solve} (${t.solveKeys.solve})`}
           >
             <FEATURE_ICON.solve className="size-4" aria-hidden />
             {t.solve}
           </Button>
         )}
-        <Button onClick={undoStep} disabled={back}>
+        <Button
+          onClick={undoStep}
+          disabled={back}
+          title={`${midStep ? t.undoStep : t.prevStep} (${t.solveKeys.stepBack})`}
+        >
           <ChevronsLeft className="size-4" aria-hidden />
           {midStep ? t.undoStep : t.prevStep}
         </Button>
-        <Button onClick={playNextStep} disabled={ahead}>
+        <Button
+          onClick={playNextStep}
+          disabled={ahead}
+          title={`${midStep ? t.finishStep : t.nextStep} (${t.solveKeys.stepAhead})`}
+        >
           {midStep ? t.finishStep : t.nextStep}
           <ChevronsRight className="size-4" aria-hidden />
         </Button>
-        <Button onClick={undoMove} disabled={back} className={MOVE_BUTTON}>
+        <Button
+          onClick={undoMove}
+          disabled={back}
+          className={MOVE_BUTTON}
+          title={`${t.prevMove} (${t.solveKeys.moveBack})`}
+        >
           <ChevronLeft className="size-4" aria-hidden />
           {t.prevMove}
         </Button>
-        <Button onClick={playNextMove} disabled={ahead} className={MOVE_BUTTON}>
+        <Button
+          onClick={playNextMove}
+          disabled={ahead}
+          className={MOVE_BUTTON}
+          title={`${t.nextMove} (${t.solveKeys.moveAhead})`}
+        >
           {t.nextMove}
           <ChevronRight className="size-4" aria-hidden />
         </Button>

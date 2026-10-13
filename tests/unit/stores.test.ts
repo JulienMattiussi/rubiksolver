@@ -128,6 +128,20 @@ describe('cube store', () => {
     expect(isSolved(useCube.getState().cube)).toBe(true)
   })
 
+  it('pauses then takes back the move under way (the left arrow while playing)', () => {
+    const start = applyMoves(solvedCube(), parseMoves("R U F' L2 D B'"))
+    useCube.getState().loadCube(start)
+    useCube.getState().solveAll()
+    const steps = useCube.getState().steps!
+    useCube.getState().startNext() // the first move animates
+    useCube.getState().pause()
+    useCube.getState().undoMove()
+    expect(useCube.getState().dispatched).toBe(0)
+    drain()
+    expect(useCube.getState().cube).toEqual(start)
+    expect(useCube.getState().steps).toBe(steps)
+  })
+
   it('drops the solution when the cube is turned by hand', () => {
     useCube.getState().loadCube(applyMoves(solvedCube(), parseMoves('R')))
     useCube.getState().prepareSolution()

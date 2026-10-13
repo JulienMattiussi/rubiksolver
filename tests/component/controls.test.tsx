@@ -80,7 +80,7 @@ describe('<Controls />', () => {
     const user = userEvent.setup()
     render(<Controls />)
 
-    await pickCube(user, 'Standard', '4x4')
+    await pickCube(user, 'Standards', '4x4')
     await user.click(screen.getByRole('button', { name: 'Tranche' }))
     await user.click(
       screen.getByRole('button', {
@@ -155,7 +155,7 @@ describe('<Controls />', () => {
   it('on the 2x2x4 tower, offers outer and wide turns, jamming incomplete ends', async () => {
     const user = userEvent.setup()
     render(<Controls />)
-    await pickCube(user, 'Tower', '2x2x4')
+    await pickCube(user, 'Tours', '2x2x4')
     // A 4x4x4 mechanism with pieces missing: no inner slice to pick.
     expect(screen.queryByRole('button', { name: 'Tranche' })).not.toBeInTheDocument()
     const jammed = (face: string) =>
@@ -204,11 +204,11 @@ describe('<Controls />', () => {
     // The picker always opens on the categories, the current one marked.
     await user.click(screen.getByRole('button', { name: 'Choix du cube : 3x3' }))
     expect(screen.getByRole('dialog', { name: 'Choisir un cube' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Standard, 4 puzzles' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Standards, 4 puzzles' })).toHaveAttribute(
       'aria-current',
       'true',
     )
-    await user.click(screen.getByRole('button', { name: 'Standard, 4 puzzles' }))
+    await user.click(screen.getByRole('button', { name: 'Standards, 4 puzzles' }))
     expect(screen.getByRole('button', { name: '3x3' })).toHaveAttribute('aria-current', 'true')
     await user.click(screen.getByRole('button', { name: 'Toutes les catégories' }))
     await user.click(screen.getByRole('button', { name: 'Plats, 3 puzzles' }))
@@ -223,7 +223,7 @@ describe('<Controls />', () => {
   it('on the slim tower, offers wide turns on U and D only', async () => {
     const user = userEvent.setup()
     render(<Controls />)
-    await pickCube(user, 'Tower', '2x2x3 (Slim Tower)')
+    await pickCube(user, 'Tours', '2x2x3 (Slim Tower)')
     await user.click(screen.getByRole('button', { name: 'Large' }))
     // Its sides are two layers deep: no wide turn there.
     expect(

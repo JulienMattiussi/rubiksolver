@@ -179,7 +179,8 @@ src/
 │   ├── speed.ts          # Curseur 0..100 <-> secondes par rotation (exponentiel, de 2,5 s à 0,06 s)
 │   └── progress.ts       # solveProgress : avancement par étape d'une solution (pour l'UI)
 ├── hooks/
-│   └── useIsDesktop.ts   # Breakpoint `sm` via matchMedia (bascule panneau unique / deux panneaux)
+│   ├── useIsDesktop.ts   # Breakpoint `sm` via matchMedia (bascule panneau unique / deux panneaux)
+│   └── useSolveShortcuts.ts # Clavier de la solution : ← → un coup, Pg↑ Pg↓ une étape, Espace pause, Entrée tout
 ├── store/
 │   ├── cubeStore.ts      # Zustand : cube + variante de rendu + file de rotations + pilotage animation ;
 │   │                     #   méthode, étapes, jouer tout / pas à pas, loadCube ; sélecteurs selectBusy / selectSolved
@@ -242,7 +243,7 @@ src/
 │   │                     #   CategoryIcon (plusieurs puzzles groupés : une catégorie se distingue d'un puzzle)
 │   ├── guide/            # Guide des mouvements : MoveGuideButton (dans PadHeader), MoveGuideDialog
 │   ├── celebration/      # Fireworks : petit feu d'artifice (canvas 2D monté le temps du spectacle) quand un coup résout
-│   ├── home/             # Accueil : HomeGallery (galerie de 7 modèles + ce que fait l'app, à la place de la scène)
+│   ├── home/             # Accueil : HomeGallery (galerie de 7 modèles, dont le Gear Cube Ultimate, + ce que fait l'app)
 │   ├── solve/            # Résolution : SolvePanel, MethodSelect, StepList
 │   └── edit/             # Saisie : EditPanel, FormPicker (forme d'un puzzle déformable), ColorPalette
 ├── assets/gear/          # Masques et contours des pièces du Gear Cube (générés par scripts/gear_face.py)
@@ -1287,11 +1288,11 @@ mobile et en saisie, une seule carte) :
   sélecteur en modale, d'abord les **catégories** en vignettes, puis les
   **puzzles** de la catégorie choisie (toujours ouvert sur les catégories ; le
   puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`), dans
-  l'ordre : Standard 2x2 (Pocket)/3x3/4x4/5x5, Miroir 2x2/3x3/4x4, Tower 2x2x3
+  l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4/5x5, Miroirs 2x2/3x3/4x4, Tours 2x2x3
   (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube Ultimate, Bizarre Violet.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube Ultimate, Bizarres Violet.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer
@@ -1329,7 +1330,12 @@ mobile et en saisie, une seule carte) :
   est au repos, calculée d'avance dans un worker (`useAutoPlan`,
   `workers/solveWorker.ts`) pour ne jamais figer la page ; Résoudre et Pas à
   pas la réutilisent tant qu'elle vaut pour l'état et la méthode
-  (`planKey`).
+  (`planKey`). **Clavier** (`useSolveShortcuts`, rappelé dans l'infobulle de chaque bouton) :
+  flèches droite / gauche un coup en avant / en arrière, Page suivante /
+  précédente une étape (en arrière, une solution qui joue s'arrête d'abord,
+  puis le dernier coup ou l'étape sont défaits), Espace met en pause ou reprend, Entrée joue tout le
+  reste ; rien pendant une saisie, dans un champ ou une fenêtre ouverte, ni
+  ce que le bouton correspondant ne pourrait pas faire.
 
 **Mobile** : le panneau se **replie** en une barre compacte (Mélanger +
 Résoudre) ; en mode saisie, le cube est empilé **au-dessus** du panneau pour

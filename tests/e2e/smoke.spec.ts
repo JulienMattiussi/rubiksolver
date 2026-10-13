@@ -58,12 +58,12 @@ test('mirror cube: the variant is a skin, it keeps the state and renders', async
   await expect(page.getByRole('button', { name: 'Résoudre' })).toBeEnabled({ timeout: 30000 })
 
   // Same cube, still scrambled: only its rendering changed.
-  await pickCube(page, 'Miroir', '3x3 miroir')
+  await pickCube(page, 'Miroirs', '3x3 miroir')
   await expect(page.getByText('Prêt')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Réinitialiser' })).toBeEnabled()
 
   // A mirror size switch mounts fine too (the 4x4 has middle layers).
-  await pickCube(page, 'Miroir', '4x4 miroir')
+  await pickCube(page, 'Miroirs', '4x4 miroir')
   await expect(page.getByText('Cube résolu')).toBeVisible()
   await expect(page.locator('canvas:not([aria-hidden])')).toBeVisible()
 
@@ -105,7 +105,7 @@ test('2x2: switch size, scramble, then solve with the optimal method', async ({ 
   await page.goto('/#/fr/3x3')
 
   await page.getByLabel('Vitesse').fill('100')
-  await pickCube(page, 'Standard', '2x2 (Pocket)')
+  await pickCube(page, 'Standards', '2x2 (Pocket)')
 
   // The 2x2 offers the optimal method; its solutions are at most 11 moves.
   await page.getByLabel('Méthode de résolution').selectOption('optimal')
@@ -127,7 +127,7 @@ test('4x4: switch size, scramble, then solve by reduction', async ({ page }) => 
   await page.goto('/#/fr/3x3')
 
   await page.getByLabel('Vitesse').fill('100')
-  await pickCube(page, 'Standard', '4x4')
+  await pickCube(page, 'Standards', '4x4')
   await page.getByLabel('Méthode de résolution').selectOption('reduction')
 
   const scramble = page.getByRole('button', { name: 'Mélanger' })
@@ -144,7 +144,7 @@ test('4x4: switch size, scramble, then solve by reduction', async ({ page }) => 
 test('4x4 cube editor: movable centers count toward the 96 stickers', async ({ page }) => {
   await page.goto('/#/fr/3x3')
 
-  await pickCube(page, 'Standard', '4x4')
+  await pickCube(page, 'Standards', '4x4')
   await page.getByRole('button', { name: /Depuis l.?.tat actuel/ }).click()
   await expect(page.getByText('96 / 96 stickers')).toBeVisible()
 
@@ -177,7 +177,7 @@ test('cube editor: enter, fill from current state, apply', async ({ page }) => {
 
 test('move guide: every turn of the current puzzle, a jammed one marked', async ({ page }) => {
   await page.goto('/#/fr/3x3')
-  await pickCube(page, 'Tower', '2x2x4')
+  await pickCube(page, 'Tours', '2x2x4')
   await page.getByRole('button', { name: 'Guide des mouvements' }).click()
   const guide = page.getByRole('dialog', { name: 'Guide des mouvements' })
   await expect(guide).toBeVisible()
@@ -198,13 +198,13 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
   page.on('pageerror', (e) => errors.push(e.message))
   await page.goto('/#/fr/3x3')
   const puzzles: [string, string][] = [
-    ['Standard', '2x2 (Pocket)'],
-    ['Standard', '3x3'],
-    ['Standard', '4x4'],
-    ['Standard', '5x5'],
-    ['Miroir', '3x3 miroir'],
-    ['Tower', '2x2x3 (Slim Tower)'],
-    ['Tower', '3x3x2 (Domino)'],
+    ['Standards', '2x2 (Pocket)'],
+    ['Standards', '3x3'],
+    ['Standards', '4x4'],
+    ['Standards', '5x5'],
+    ['Miroirs', '3x3 miroir'],
+    ['Tours', '2x2x3 (Slim Tower)'],
+    ['Tours', '3x3x2 (Domino)'],
     ['Plats', '1x2x3'],
     ['Plats', '3x3x1 (Floppy)'],
     ['Plats', 'Floppy Ghost'],
@@ -220,7 +220,7 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
     ['Étoiles', '2-Star Prism (UFO)'],
     ['Étoiles', '4-Star Prism'],
     ['Engrenages', 'Gear Cube Ultimate'],
-    ['Bizarre', 'Violet'],
+    ['Bizarres', 'Violet'],
   ]
   for (const [category, name] of puzzles) {
     await pickCube(page, category, name)
@@ -235,9 +235,9 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
 /** Puzzles entered from a scrambled state, then solved: their category, name,
  *  and the stickers the editor counts. */
 const ENTERED: [string, string, string][] = [
-  ['Standard', '2x2 (Pocket)', '24 / 24 stickers'],
+  ['Standards', '2x2 (Pocket)', '24 / 24 stickers'],
   // Most often out of its box once scrambled: entered in the form it stands in.
-  ['Tower', '2x2x4', '40 / 40 stickers'],
+  ['Tours', '2x2x4', '40 / 40 stickers'],
   ['Pyramides', 'Pyraminx', '36 / 36 stickers'],
   ['Pyramides', 'Master Pyraminx (4x4)', '64 / 64 stickers'],
   ['Pyramides', 'Professor Pyraminx (5x5)', '100 / 100 stickers'],
@@ -247,7 +247,7 @@ const ENTERED: [string, string, string][] = [
   ['Octaèdres', 'Octahedron VTO', '72 / 72 stickers'],
   ['Octaèdres', 'GEM-0 (Jewel)', '54 / 54 stickers'],
   ['Octaèdres', 'Rainbow', '56 / 56 stickers'],
-  ['Bizarre', 'Violet', '33 / 33 stickers'],
+  ['Bizarres', 'Violet', '33 / 33 stickers'],
   // Entered piece by piece: its ten pieces counted.
   ['Plats', 'Floppy Ghost', '10 / 10 pièces'],
   // Only the stickers one sees count: the inner points' flat faces fill in.
@@ -278,7 +278,7 @@ for (const [category, name, complete] of ENTERED) {
 
 test('tower entry: pick the form it stands in, then paint on it', async ({ page }) => {
   await page.goto('/#/fr/3x3')
-  await pickCube(page, 'Tower', '2x2x4')
+  await pickCube(page, 'Tours', '2x2x4')
   await page.getByRole('button', { name: 'Saisir un cube' }).click()
   await expect(page.getByText('Dans quelle forme est votre puzzle ?')).toBeVisible()
   await page.getByRole('button', { name: /^Forme 2,/ }).click()
