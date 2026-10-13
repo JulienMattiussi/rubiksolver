@@ -1,7 +1,7 @@
 import { ArchiveRestore, Bookmark, RotateCcw, Shuffle, Square } from 'lucide-react'
 import { useState } from 'react'
 import { cubeShape } from '@/lib/cube'
-import { gearsAligned } from '@/lib/gear'
+import { notEnterable } from '@/lib/forms'
 import { isGear, isPyraminx, isStar } from '@/lib/types'
 import { encodeCube } from '@/lib/snapshot'
 import { useI18n } from '@/i18n/i18nStore'
@@ -44,7 +44,7 @@ export function SetupSection() {
   const solving = useCube((s) => s.solving)
   const solved = useCube(selectSolved)
   const alreadySaved = saved?.cube === encodeCube(cube)
-  const aligned = gearsAligned(cube)
+  const blocked = notEnterable(cube)
   const savedTime = saved
     ? new Date(saved.savedAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
     : ''
@@ -73,12 +73,15 @@ export function SetupSection() {
           <FEATURE_ICON.edit className="size-4" aria-hidden />
           {t.editCube}
         </Button>
-        {/* A Gear Cube is entered in the cube's shape: its gears aligned. */}
+        {/* A Gear Cube is entered in the cube's shape (its gears aligned),
+            a Camouflage in its box. */}
         <Button
           onClick={enterFromCurrent}
-          disabled={busy || !aligned}
+          disabled={busy || blocked !== null}
           variant="ghost"
-          title={aligned ? undefined : t.gearsNotAligned}
+          title={
+            blocked === 'gears' ? t.gearsNotAligned : blocked === 'box' ? t.notInBox : undefined
+          }
         >
           {t.fromCurrent}
         </Button>

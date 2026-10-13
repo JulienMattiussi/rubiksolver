@@ -58,15 +58,17 @@ export function EditPanel() {
       <p className="text-xs leading-relaxed text-slate-400">
         {shape === 'twist'
           ? t.editHintTwist
-          : byPieces
-            ? t.editHintPieces
-            : mirror
-              ? t.editHintMirror
-              : hasColoredClips(shape)
-                ? t.editHintGear
-                : isGear(shape)
-                  ? t.editHintGearPlain
-                  : t.editHint}
+          : shape === 'camo'
+            ? t.editHintCamo
+            : byPieces
+              ? t.editHintPieces
+              : mirror
+                ? t.editHintMirror
+                : hasColoredClips(shape)
+                  ? t.editHintGear
+                  : isGear(shape)
+                    ? t.editHintGearPlain
+                    : t.editHint}
       </p>
 
       {!byPieces && <ColorPalette />}

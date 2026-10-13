@@ -14,8 +14,9 @@ import {
   vtoPolygons,
   vtoThumbnail,
 } from './octGeometry'
-import { dinoPolygons } from './dinoGeometry'
+import { dinoPolygons, edgeOnlyPolygons } from './dinoGeometry'
 import { rexCut, rexPolygons } from './rexGeometry'
+import { camoPolygons } from './camoGeometry'
 import { toriPolygons, toriThumbnail } from './toriGeometry'
 import { twistPolygons, twistThumbnail } from './twistGeometry'
 import { RAINBOW_ORIENT, RAINBOW_YAW, rainbowPolygons } from './rainbowGeometry'
@@ -90,6 +91,10 @@ const DINO: PolyDrawing = { polygons: dinoPolygons, yaw: 0 }
 const TWIST: PolyDrawing = { polygons: twistPolygons, yaw: 0, thumbnail: twistThumbnail }
 /** The Tori, upright as the cubes. */
 const TORI: PolyDrawing = { polygons: toriPolygons, yaw: 0, thumbnail: toriThumbnail }
+/** The Camouflage, upright as the cubes. */
+const CAMO: PolyDrawing = { polygons: camoPolygons, yaw: 0 }
+/** The Edge Only, held as the Dino. */
+const EDGE: PolyDrawing = { polygons: edgeOnlyPolygons, yaw: 0 }
 /** The Rex Cube, held as the Dino. */
 const REX: PolyDrawing = { polygons: rexPolygons, yaw: 0, cut: rexCut }
 
@@ -115,6 +120,8 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'rex') return REX
   if (shape === 'twist') return TWIST
   if (shape === 'tori') return TORI
+  if (shape === 'edge') return EDGE
+  if (shape === 'camo') return CAMO
   if (shape === 'violet') return VIOLET
   if (shape === 'pyra5') return PROFESSOR
   return shape === 'pyra4'

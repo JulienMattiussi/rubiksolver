@@ -7,6 +7,8 @@ import { GHOST_PLAN } from './methods/ghost'
 import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { twistPlan } from './methods/twist'
 import { TORI_PLAN } from './methods/tori'
+import { EDGE_ONLY_PLAN } from './methods/edgeOnly'
+import { CAMO_PLAN } from './methods/camo'
 import { PETRUS_PLAN } from './methods/petrus'
 import { PYRAMINX_PLAN, TETRAMINX_PLAN } from './methods/pyraminx'
 import { PYRAMINX4_PLAN } from './methods/pyraminx4'
@@ -81,6 +83,7 @@ const SOLVE_METHODS = [
     },
   },
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
+  { id: 'camoReduction', plans: { camo: CAMO_PLAN } },
   { id: 'equatorFirst', plans: { '223': SLIM_TOWER_PLAN } },
   { id: 'centersFirst', plans: { pyra: PYRAMINX_PLAN, tetra: TETRAMINX_PLAN } },
   { id: 'wingsFirst', plans: { pyra4: PYRAMINX4_PLAN, pyra5: PYRAMINX5_PLAN } },
@@ -95,7 +98,7 @@ const SOLVE_METHODS = [
   { id: 'gearCornersFirst', plans: { gearCube: GEAR_PLAN, gearU: GEAR_ULTIMATE_PLAN } },
   { id: 'gearEquatorFirst', plans: { gearX: GEAR_EXTREME_PLAN } },
   { id: 'shapeFirst', plans: { violet: VIOLET_SHAPE_FIRST_PLAN } },
-  { id: 'extendedCross', plans: { tori: TORI_PLAN } },
+  { id: 'extendedCross', plans: { tori: TORI_PLAN, edge: EDGE_ONLY_PLAN } },
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },
   { id: 'twoStars', plans: { star4: STAR4_PLAN } },
   { id: 'cornersFirst', plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN, ghost: GHOST_PLAN } },

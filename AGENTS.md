@@ -3,8 +3,8 @@
 ## Description du projet
 
 POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3,
-4x4, 5x5 ou 6x6**, **classique ou miroir** (sauf le 5x5 et le 6x6), plus cinq cuboïdes : le **1x2x3**, la
-**tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**
+4x4, 5x5 ou 6x6**, **classique ou miroir** (sauf le 5x5 et le 6x6), plus six cuboïdes : le **1x2x3**, la
+**tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**, le **Camouflage 4x4x2** (un 4x4x4 bandé, qui se déforme)
 et le **Floppy 3x3x1**, le **Floppy Ghost** (un Floppy Megaminx découpé en
 pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (un Pyraminx sans pointes), le
 **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le **Pyraminx Jing** (pièces courbes), le
@@ -13,7 +13,7 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 (un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
 (un cuboctaèdre dont les triangles tournent), le **Dino Cube** et le **Rex Cube** (leurs sommets
 tournent), le **Violet** (un 2x2x2 à
-pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages)
+pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages)
 et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
@@ -108,6 +108,8 @@ src/
 │   ├── vto.ts            # Octahedron VTO et GEM-0 : un 3x3x3 taillé en octaèdre (pointes à part sur le VTO, carrés sur le GEM-0)
 │   ├── gear.ts           # Gear Cubes : coups d'engrenage (demi-tour de face, quart de tranche), pivot des arêtes (Cubie.spin), réalignement
 │   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
+│   ├── camo.ts           # Camouflage 4x4x2 : boîte de chaque pièce (épaisse ou fine, tournée avec elle), coups bloqués
+│   ├── camoShape.ts      # Sa forme seule (axe haut de chaque pièce) : retour dans la boîte par les deux bouts, formules qui y reviennent
 │   ├── twist.ts          # Z-Twist : un 3x3 dont les centres de côté gardent leur quart de tour (Cubie.spin)
 │   ├── violetStates.ts   # Ses états vus (gros cubes pareils) : arbre des plus courts chemins (solutions), mélange sans retour
 │   ├── rainbow.ts        # Rainbow : cuboctaèdre, 12 pièces aux milieux des arêtes du cube, triangles en tiers de tour, notation ;
@@ -161,7 +163,9 @@ src/
 │   │   ├── gear.ts       #   Gear Cube : coins, arêtes placées, agrafes, engrenages (formules de fan2cube.fr)
 │   │   ├── gearExtreme.ts #  Gear Cube Extreme : équateur, coins, arêtes, agrafes, engrenages (fan2cube.fr)
 │   │   ├── twist.ts      #   Z-Twist : une méthode 3x3 sur les couleurs, puis les centres de côté remis
+│   │   ├── camo.ts       #   Camouflage : forme (et parité des ailes), centres, arêtes, puis la méthode du Domino
 │   │   ├── tori.ts       #   Tori : croix prolongée (formules de fan2cube.fr)
+│   │   ├── edgeOnly.ts   #   Edge Only : lu comme le Tori de la tenue la plus proche, résolu par sa méthode
 │   │   └── violet.ts     #   Violet : forme puis couleurs, et optimale (arbre de recherche de violetStates.ts)
 │   ├── solver4/          # Solveur 4x4 par réduction :
 │   │   ├── centers.ts    #   centres par comptage (D, U, puis ceinture), recherches bornées sans régression
@@ -225,12 +229,13 @@ src/
 │   ├── GearPlate.tsx     # Une plaque d'une pièce du Gear Cube, découpée par son masque
 │   ├── GearEdge.tsx      # Une arête du Gear Cube : deux agrafes, l'engrenage (deux plaques et son corps à sa forme) qui pivote
 │   ├── GearCorner.tsx    # Un coin ou un centre du Gear Cube : plaques sur des corps à leur forme
+│   ├── camoGeometry.ts   # Pièces du Camouflage : leur boîte telle qu'elle se tient
 │   ├── toriGeometry.ts   # Pièces du Tori : cube arrondi coupé par les plans du 3x3, faces percées en anneaux
 │   ├── twistGeometry.ts  # Pièces du Z-Twist : la case du 3x3 dans le solide tordu, portée par la pièce
 │   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
 │   ├── Decal.tsx         # Une image posée sur la face de pièces choisies, qui tourne avec elles (PolyDrawing.decal)
 │   ├── rainbowGeometry.ts # Pièces du Rainbow : cellule de chaque pièce dans le cuboctaèdre (polyhedron.ts)
-│   ├── dinoGeometry.ts   # Pièces du Dino Cube : le cube coupé le long des diagonales de ses faces
+│   ├── dinoGeometry.ts   # Pièces du Dino Cube : le cube coupé le long des diagonales de ses faces ; l'Edge Only, percé au milieu
 │   ├── rexGeometry.ts    # Pièces du Rex Cube : chaque face coupée par quatre cercles, régions tracées par rayons
 │   ├── ghostGeometry.ts  # Pièces du Floppy Ghost : régions du carré coupé par le pentagramme, extrudées, posées par réflexions
 │   ├── jingGeometry.ts   # Géométrie courbe du Jing : surface arrondie maillée fin, découpée le long des coupes
@@ -367,10 +372,12 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   avec le seul 3-cycle [GA'] - voir « Le Dino Cube ».
 - **Arêtes, centres, pétales** (`rexEdgesFirst`, Rex Cube) : par 3-cycles - voir
   « Le Rex Cube ».
-- **Croix prolongée** (`extendedCross`, Tori) : croix du bas, arêtes du milieu,
+- **Croix prolongée** (`extendedCross`, Tori et Edge Only) : croix du bas, arêtes du milieu,
   croix du haut, arêtes du haut placées - voir « Le Tori ».
 - **Forme puis couleurs** (`shapeFirst`, Violet) : redevenir un cube, puis
   les couleurs du coin composé - voir « Le Violet ».
+- **Réduction en Domino** (`camoReduction`, Camouflage 4x4x2) : forme, centres,
+  arêtes appariées, puis le Domino - voir « Le Camouflage 4x4x2 ».
 - **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
   Pocket extérieur - voir « La tour 2x2x4 ».
 - **Équateur puis coins** (`equatorFirst`, Slim Tower 2x2x3) : les arêtes de
@@ -633,6 +640,51 @@ et III. Les deux pièces du milieu d'une colonne sont **jumelles** (mêmes
 couleurs) : objectifs et clés comparent des couleurs, pas des identités
 (`pieceSearch` sait suivre des jumelles). L'effet de chaque formule est testé
 (`tests/unit/tower.test.ts`).
+
+### Le Camouflage 4x4x2 (`camo`)
+
+Le Camouflage 4x4x2 (fan2cube.fr/camouflage4421 et 2, WitEden, 2012) est
+un 4x4x4 bandé : vu de dessus un 4x4 aux rangées externes épaisses et
+internes fines (un Domino 3x3x2 dont la couche du milieu est coupée en
+deux), haut de deux pièces, chacune collée sur une couche fine et une
+épaisse du 4x4x4. Le modèle garde le mécanisme du 4x4x4 (`turnDims`),
+chaque pièce à sa case des deux couches du milieu (`SHAPE_DIMS`
+`[4, 2, 4]`, `SHAPE_SHIFTS`) ; ce qu'elle montre et ce qu'elle bloque est
+sa boîte (`lib/camo.ts`, `camoBox` : épaisseurs 1 et 0,5, hauteur 1, la
+boîte résolue tournée comme la pièce, retrouvée sur sa case et ses
+stickers). `isBoxed` lit ces boîtes : une pièce peut être dans sa case
+mais couchée.
+
+**Coups** (`camoTurns`) : un coup passe quand aucune boîte ne chevauche
+une de ses coupes. Chaque pièce n'est haute d'une unité que sur un axe (son
+étage), et c'est là seulement qu'elle chevauche la coupe de la couche
+externe : les blocs (la moitié du puzzle, H*, A* : `Uw`, `Fw`) tournent
+toujours, une couche seule (`R`, `2R`) tant qu'aucune pièce n'est debout
+sur son axe de son côté. Dans la boîte, le haut ne tourne donc qu'en bloc ;
+les côtés tournent couche par couche, et la déforment.
+
+**Saisie** dans la boîte seulement (`notEnterable`, `formsOf`) : ses formes
+se comptent par centaines de milliers (six fois plus à chaque coup), trop
+pour des vignettes ; « Depuis l'état actuel » attend qu'il y soit revenu.
+
+**Résolution** (`methods/camo.ts`, méthode **Réduction en Domino**,
+d'après la page) : (A) la forme (« au feeling », dit la page) : une
+recherche sur la forme seule (`lib/camoShape.ts` : case par case, l'axe sur
+lequel la pièce est haute ; une couche bloquée par les seules pièces debout
+sur son axe), par les deux bouts, de la boîte une fois (5 coups, gardés),
+puis de la forme jusqu'à la rencontre : 9 coups au plus, même après 1 000
+de mélange. Les quarts de tour d'une couche peuvent laisser les ailes en
+permutation impaire, que les formules suivantes, toutes paires, ne défont
+pas : une formule de 10 coups qui sort de la boîte et y revient
+(`WING_PARITY`, trouvée par la même recherche, aucune de 6 coups ou moins)
+la change. (B) les centres blancs en haut ; (C) les deux ailes de chaque
+arête réunies, une arête après l'autre, avec l'échange D*²H'D²HD*² de la
+page vu de chaque côté et des allers-retours hors de la boîte (`2R Uw 2R'`,
+« comme dans le Revenge ») ; (D) c'est alors un Domino 3x3x2, lu sur ses
+pièces (une aile par arête, un centre par face) et résolu par sa méthode
+(`DOMINO_PLAN`), son haut et son bas devenant les blocs du Camouflage.
+Environ 130 coups, quelques secondes au plus. La page note X pour X* ou X²
+« pour ne pas alourdir » : seules ses formules sans ambiguïté sont reprises.
 
 ### Le Domino, le Floppy et la Slim Tower
 
@@ -1235,6 +1287,26 @@ retournées à la fois par A[HD]A'H' ; (4) arêtes du haut par deux 3-cycles.
 Chaque formule vue de chaque côté, H plaçant les pièces dessous ; effet de
 chacune testé. Saisie des stickers comme un 3x3, centres pré-remplis.
 
+### L'Edge Only (`edge`)
+
+L'Edge Only (fan2cube.fr/edgeonly1 et 2, Jürgen Brandt, 2009) : « comme le
+Void Cube mais sans sommets », les 12 arêtes d'un 3x3 seules, chaque face
+percée d'un trou carré. Le modèle est le 3x3 réduit à ses arêtes et à son
+cœur caché : sans lui, rien ne le distinguerait du Dino Cube (12 pièces à
+deux stickers aux mêmes places). Rendu (`three/dinoGeometry.ts`) : les
+pièces du Dino, le cube coupé le long des diagonales de ses faces, chacune
+coupée en plus par le trou (un tiers de la face) : un prisme le long de son
+arête, un trapèze sur chacune de ses deux faces.
+
+**Résolution** (`methods/edgeOnly.ts`, méthode **Croix prolongée**) : la
+page le résout « comme un Void Cube en ignorant les sommets », c'est-à-dire
+comme le Tori, dont il reprend les formules. Sans centres, rien ne fixe les
+couleurs : la cible est la tenue du puzzle résolu la plus proche parmi
+celles que ses arêtes peuvent atteindre (même parité de retournements),
+et l'Edge Only est lu comme le Tori qu'il serait avec les centres de cette
+tenue, ses couleurs renommées ; le plan du Tori le résout, mêmes coups. Une
+arête retournée seule reste impossible, quelle que soit la tenue (testé).
+
 ### Le Professor Pyraminx (`pyra5`)
 
 Le Pyraminx 5x5x5 (fan2cube.fr/profpyraminx1 et 2, Timur Evbatyrov, 2011) :
@@ -1531,11 +1603,11 @@ mobile et en saisie, une seule carte) :
   sélecteur en modale, d'abord les **catégories** en vignettes, puis les
   **puzzles** de la catégorie choisie (toujours ouvert sur les catégories ; le
   puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`), dans
-  l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4/5x5/6x6, Miroirs 2x2/3x3/4x4, Tours 2x2x4/2x2x3
-  (Slim)/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
+  l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4/5x5/6x6, Miroirs 2x2/3x3/4x4, Tours 2x2x3
+  (Slim)/2x2x4/3x3x2 (Domino)/Camouflage 4x4x2, Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube, Bizarres Violet/Z-Twist/Tori.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube, Bizarres Violet/Z-Twist/Tori/Edge Only.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

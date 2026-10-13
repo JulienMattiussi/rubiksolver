@@ -120,6 +120,8 @@ const fr = {
     'Remettez d’abord votre Gear Cube en forme de cube, engrenages réalignés (tournez une face jusqu’à ce que sa tranche reprenne sa place). Puis choisissez une couleur et cliquez les pièces : coins et engrenages, les agrafes sont noires. Tournez la vue pour atteindre les autres faces.',
   editHintGear:
     'Remettez d’abord votre Gear Cube en forme de cube, engrenages réalignés (tournez une face jusqu’à ce que sa tranche reprenne sa place). Puis choisissez une couleur et cliquez les pièces : les agrafes et les engrenages se peignent à part. Tournez la vue pour atteindre les autres faces.',
+  editHintCamo:
+    'Remettez d’abord votre Camouflage en forme de pavé, chaque pièce à plat, avant de le saisir. Déformé, il peut prendre des centaines de milliers de formes : bien trop pour vous les proposer, et pas moyen de deviner la vôtre. Une fois en forme, choisissez une couleur et cliquez les stickers ; tournez la vue pour atteindre les autres faces.',
   editHintTwist:
     'Cliquez un coin ou une arête pour y poser une pièce qui peut s’y loger : chaque clic passe à la suivante (autre pièce, ou la même tournée). Un clic sur un centre de côté le tourne d’un quart de tour, pour lui donner la forme du vôtre.',
   editHintMirror:
@@ -135,6 +137,8 @@ const fr = {
   clearAll: 'Tout effacer',
   fromCurrent: 'Depuis l’état actuel',
   gearsNotAligned: 'Remettez d’abord le cube en forme : la saisie se fait engrenages réalignés',
+  notInBox:
+    'Remettez d’abord le puzzle en forme de pavé : déformé, ses formes sont trop nombreuses pour être proposées',
   chooseForm: 'Dans quelle forme est votre puzzle ?',
   chooseFormHint:
     'Choisissez la forme dans laquelle il se trouve, tenu comme sur la vignette (survolez-en une pour la voir en grand), avant d’en placer les couleurs.',
@@ -288,6 +292,10 @@ const fr = {
       name: 'Réduction CFOP',
       desc: 'Centres, appariement des arêtes, puis Croix, F2L, OLL et PLL comme un 3x3.',
     },
+    camoReduction: {
+      name: 'Réduction en Domino',
+      desc: 'Le Camouflage remis en forme (et ses ailes en permutation paire), puis traité comme un 4x4x4 : les centres blancs en haut, les deux ailes de chaque arête réunies avec l’échange D*²H’D²HD*², et ce qui reste est un Domino 3x3x2, résolu comme tel.',
+    },
     twoPockets: {
       name: 'Deux Pockets',
       desc: 'La tour vue comme deux Pockets empilés : la remettre en forme en pivotant ses sommets, puis finir le Pocket intérieur, puis le Pocket extérieur, avec deux formules du Domino (descendre un sommet, permuter deux sommets).',
@@ -433,6 +441,7 @@ const fr = {
     stepRightBlock: 'Bloc de droite',
     stepOCLL: 'OCLL (orienter les coins)',
     stepTowerShape: 'Remettre en forme (pivoter les sommets)',
+    stepCamoShape: 'Remettre en forme',
     stepTopCorners: 'Coins du haut',
     stepBottomEdges: 'Arêtes du bas',
     stepTopEdges: 'Arêtes du haut',
@@ -574,6 +583,8 @@ const en: Translations = {
     'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: corners and gears, the clips are black. Rotate the view to reach the other faces.',
   editHintGear:
     'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: clips and gears are painted apart. Rotate the view to reach the other faces.',
+  editHintCamo:
+    'First put your Camouflage back into its brick shape, every piece lying flat, before entering it. Deformed, it can take hundreds of thousands of shapes: far too many to offer you, and no way to guess yours. Once in shape, pick a color and click the stickers; turn the view to reach the other faces.',
   editHintTwist:
     'Click a corner or an edge to put a piece there that fits: each click moves on to the next (another piece, or the same one turned). A click on a side center turns it a quarter turn, to match the shape of yours.',
   editHintMirror:
@@ -589,6 +600,8 @@ const en: Translations = {
   clearAll: 'Clear all',
   fromCurrent: 'From current state',
   gearsNotAligned: 'Bring the cube back into shape first: it is entered with its gears aligned',
+  notInBox:
+    'Bring the puzzle back into its brick shape first: deformed, its shapes are too many to offer',
   chooseForm: 'What shape is your puzzle in?',
   chooseFormHint:
     'Pick the shape it stands in, held as in the thumbnail (hover one to see it large), before placing its colors.',
@@ -738,6 +751,10 @@ const en: Translations = {
       name: 'Reduction (CFOP)',
       desc: 'Centers, edge pairing, then Cross, F2L, OLL and PLL like a 3x3.',
     },
+    camoReduction: {
+      name: 'Reduction to a Domino',
+      desc: 'The Camouflage put back in shape (its wings an even permutation), then handled as a 4x4x4: the white centers on top, each edge’s two wings brought together with the exchange Rw2 Uw’ R2 Uw Rw2, and what is left is a Domino 3x3x2, solved as one.',
+    },
     twoPockets: {
       name: 'Two Pockets',
       desc: 'The tower seen as two stacked Pockets: put it back in shape by pivoting its corners, then finish the inner Pocket, then the outer Pocket, with two Domino formulas (descend a corner, swap two corners).',
@@ -883,6 +900,7 @@ const en: Translations = {
     stepRightBlock: 'Right block',
     stepOCLL: 'OCLL (orient corners)',
     stepTowerShape: 'Back in shape (pivot the corners)',
+    stepCamoShape: 'Back in shape',
     stepTopCorners: 'Top corners',
     stepBottomEdges: 'Bottom edges',
     stepTopEdges: 'Top edges',

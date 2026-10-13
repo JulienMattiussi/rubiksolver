@@ -153,14 +153,14 @@ describe('cube picker', () => {
     expect(groups).toEqual({
       standard: ['2', '3', '4', '5', '6'],
       mirror: ['2m', '3m', '4m'],
-      tower: ['223', '224', '332'],
+      tower: ['223', '224', '332', 'camo'],
       flat: ['123', '331', 'ghost'],
       pyramid: ['pyra', 'tetra', 'pyra4', 'pyra5', 'jing', 'morph'],
       octahedron: ['oct4', 'vto', 'gem', 'rainbow'],
       star: ['star', 'star4'],
       gear: ['gearCube', 'gearU', 'gearX'],
       diagonal: ['dino', 'rex'],
-      odd: ['violet', 'twist', 'tori'],
+      odd: ['violet', 'twist', 'tori', 'edge'],
     })
   })
 })

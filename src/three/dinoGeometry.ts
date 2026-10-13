@@ -10,6 +10,10 @@ import { polyhedron, type Plane } from './polyhedron'
  * the faces' diagonals, each face is four triangles, one per edge around
  * it. A piece's shape only depends on its slot, so it is drawn where it
  * stands.
+ *
+ * The Edge Only's pieces are the same, a square hole cut out of the middle
+ * of each face (a third of its width): each is then a prism along its edge,
+ * a trapezoid on each of its two faces.
  */
 
 /** Model units to scene units, its corners about as far out as a 3x3's. */
@@ -30,10 +34,15 @@ const CUBE: Plane[] = AXES.map((normal) => ({ normal, offset: 1 }))
 
 const SHAPES = new Map<string, { corners: P3[]; normal: Vec3 }[]>()
 
+/** How far in from a face the Edge Only's hole goes: to the core, a third
+ *  of the way from each face's middle to its edge. */
+const HOLE = 1 / 3
+
 /** The edge at `position` (two coordinates +-1, one 0): along each of its
- *  axes, at least as far out as along the third, both ways. */
-function pieceFaces(position: Vec3) {
-  const id = position.join()
+ *  axes, at least as far out as along the third, both ways; with `hole`,
+ *  clear of the faces' holes too. */
+function pieceFaces(position: Vec3, hole: boolean) {
+  const id = position.join() + hole
   let faces = SHAPES.get(id)
   if (faces) return faces
   const third = position.findIndex((x) => x === 0)
@@ -47,14 +56,17 @@ function pieceFaces(position: Vec3) {
         return { normal, offset: 0 }
       }),
     )
-  faces = polyhedron([...CUBE, ...cuts])
+  // Clear of the holes: its two coordinates add up to at least 1 + HOLE.
+  const inner = [0, 1, 2].map((a) => (a === third ? 0 : -position[a]!)) as unknown as Vec3
+  faces = polyhedron([...CUBE, ...cuts, ...(hole ? [{ normal: inner, offset: -(1 + HOLE) }] : [])])
   SHAPES.set(id, faces)
   return faces
 }
 
-/** Every polygon of a Dino piece, as it stands. */
-export function dinoPolygons(cubie: Cubie): PiecePolygon[] {
-  const faces = pieceFaces(cubie.position)
+/** Every polygon of a Dino piece (or an Edge Only's: `hole`), as it stands. */
+function edgePolygons(cubie: Cubie, hole: boolean): PiecePolygon[] {
+  if (cubie.stickers.length === 0) return [] // the Edge Only's core never shows
+  const faces = pieceFaces(cubie.position, hole)
   const points = faces.flatMap((f) => f.corners)
   const center = [0, 1, 2].map((d) => points.reduce((s, p) => s + p[d]!, 0) / points.length)
   const toScene = (p: P3): P3 =>
@@ -72,3 +84,6 @@ export function dinoPolygons(cubie: Cubie): PiecePolygon[] {
     )
   })
 }
+
+export const dinoPolygons = (cubie: Cubie) => edgePolygons(cubie, false)
+export const edgeOnlyPolygons = (cubie: Cubie) => edgePolygons(cubie, true)

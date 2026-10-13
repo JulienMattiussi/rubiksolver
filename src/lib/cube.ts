@@ -16,6 +16,7 @@ import { solvedGem, solvedVto } from './vto'
 import { solvedDino, solvedRainbow, solvedRex } from './rainbow'
 import { solvedViolet, turnAboutA, violetBoxed, violetSolved } from './violet'
 import { withGears } from './gear'
+import { camoBoxed } from './camo'
 import { twistSolved, withCenterSpins } from './twist'
 import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
@@ -125,6 +126,10 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (shape === 'twist') return withCenterSpins(solvedCube('3'))
   // The Tori: a 3x3 without its corners.
   if (shape === 'tori') return solvedCube('3').filter((c) => c.stickers.length !== 3)
+  // The Edge Only: its edges alone, about its hidden core (which tells it
+  // from the Dino Cube, twelve such edges too).
+  if (shape === 'edge')
+    return solvedCube('3').filter((c) => c.stickers.length !== 1 && c.stickers.length !== 3)
   if (shape === 'ghost') return solvedGhost()
   const dims = SHAPE_DIMS[shape]
   const colors = faceColorsOf(shape)
@@ -267,6 +272,8 @@ function faceCount(shape: CubeShape): number {
 export function isBoxed(cube: Cube): boolean {
   // The Violet's box is off its core, which its coordinates are about.
   if (cubeShape(cube) === 'violet') return violetBoxed(cube)
+  // The Camouflage's pieces can stand in their cells, turned out of shape.
+  if (cubeShape(cube) === 'camo') return camoBoxed(cube)
   const dims = cubeDims(cube)
   const max = [0, 1, 2].map((a) => outerCoord(dims[a]!, 1))
   return cube.every((c) => c.position.every((v, a) => Math.abs(v) <= max[a]!))

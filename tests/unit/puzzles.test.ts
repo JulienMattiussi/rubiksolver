@@ -57,6 +57,8 @@ const PUZZLES: ReadonlyArray<{
   { shape: '123', pieces: 6, stickers: 22, orientations: 4, painted: 22, scramble: 10 },
   { shape: '223', pieces: 12, stickers: 32, orientations: 8, painted: 32, scramble: 20 },
   { shape: '224', pieces: 16, stickers: 40, orientations: 8, painted: 40, scramble: 25 },
+  // A 4x4x4 two pieces tall: shifts shape, turns by blocks out of its box.
+  { shape: 'camo', pieces: 32, stickers: 64, orientations: 8, painted: 64, scramble: 40 },
   { shape: '331', pieces: 9, stickers: 30, orientations: 8, painted: 30, scramble: 12 },
   { shape: '332', pieces: 18, stickers: 42, orientations: 8, painted: 42, scramble: 20 },
   { shape: 'pyra', pieces: 15, stickers: 36, orientations: 12, painted: 36, scramble: 11 },
@@ -83,6 +85,8 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'rex', pieces: 42, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
   // A 3x3 without its corners.
   { shape: 'tori', pieces: 19, stickers: 30, orientations: 24, painted: 30, scramble: 20 },
+  // A 3x3's edges alone.
+  { shape: 'edge', pieces: 13, stickers: 24, orientations: 24, painted: 24, scramble: 20 },
   { shape: 'twist', pieces: 27, stickers: 54, orientations: 24, painted: 54, scramble: 20 },
   { shape: 'ghost', pieces: 11, stickers: 36, orientations: 1, painted: 36, scramble: 15 },
   {

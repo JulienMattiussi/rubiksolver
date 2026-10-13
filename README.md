@@ -1,15 +1,15 @@
 # Rubik Solver
 
 Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2
-(Pocket), 3x3, 4x4, 5x5 ou 6x6**, plus cinq cuboïdes (le **1x2x3**, la **tour 2x2x4**,
-la **Slim Tower 2x2x3**, le **Domino 3x3x2** et le **Floppy 3x3x1**), le
+(Pocket), 3x3, 4x4, 5x5 ou 6x6**, plus six cuboïdes (le **1x2x3**, la **tour 2x2x4**,
+la **Slim Tower 2x2x3**, le **Domino 3x3x2**, le **Camouflage 4x4x2** et le **Floppy 3x3x1**), le
 **Floppy Ghost** (un Floppy Megaminx découpé en pentagramme, argenté) et des
 puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (sans pointes), le **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le
 **Pyraminx Jing**, le **Pyramorphinx**, le **4-Trajber's Octahedron** (un 4x4x4 en octaèdre), l'**Octahedron VTO** (un 3x3x3 en octaèdre), le **GEM-0** (le VTO sans pointes),
 le **Rainbow** (un cuboctaèdre aux triangles qui tournent), le **Dino Cube** et le
 **Rex Cube** (leurs sommets tournent),
 le **Violet** (un 2x2x2 à pivot excentré qui se déforme), le **Z-Twist** (un 3x3x3
-à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube
+à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube
 Extreme** (des 3x3x3 à engrenages)
 et les **Star Prism** à 2 et 4 étages.
 On manipule le puzzle, on le mélange **ou on saisit sa propre
@@ -44,6 +44,7 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
     extérieur) ;
   - Slim Tower : **équateur puis coins** ;
   - Domino : **coins puis arêtes** ;
+  - Camouflage 4x4x2 : **réduction en Domino** (forme, centres, arêtes, puis comme un Domino) ;
   - Pyraminx et Tetraminx : **centres d'abord** ;
   - Master et Professor Pyraminx : **ailes puis co-ailes** ;
   - Pyraminx Jing : **sommets d'abord** ;
@@ -54,7 +55,7 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   - Dino Cube : **étage par étage** ;
   - Rex Cube : **arêtes, centres, pétales** ;
   - Violet : **forme puis couleurs** ;
-  - Tori : **croix prolongée** ;
+  - Tori et Edge Only : **croix prolongée** ;
   - Gear Cube et Gear Cube Ultimate : **coins d'abord** ;
   - Gear Cube Extreme : **équateur puis coins** ;
   - Star Prism : **isoler puis permuter** ;

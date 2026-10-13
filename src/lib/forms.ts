@@ -1,4 +1,5 @@
-import { cubeShape, solvedCube, turnDims } from './cube'
+import { cubeShape, isBoxed, solvedCube, turnDims } from './cube'
+import { gearsAligned } from './gear'
 import { AXIS_ROTATIONS, normalIndex } from './geometry'
 import { layerTurnsOf } from './moves'
 import { applyMove, turnAllowed } from './turn'
@@ -77,13 +78,24 @@ function heldLook(cube: Cube): string {
 
 const FORMS = new Map<CubeShape, readonly Form[]>()
 
+/** Shape-shifting puzzles with too many forms to offer (the Camouflage's,
+ *  hundreds of thousands): entered in their box only. */
+const BOX_ONLY: readonly CubeShape[] = ['camo']
+
+/** Why a state cannot be entered as it stands ("from the current state"),
+ *  if so: a Gear Cube's gears askew, a puzzle entered in its box out of it. */
+export function notEnterable(cube: Cube): 'gears' | 'box' | null {
+  if (!gearsAligned(cube)) return 'gears'
+  return BOX_ONLY.includes(cubeShape(cube)) && !isBoxed(cube) ? 'box' : null
+}
+
 /** The forms of a shape, the box first, then by tips and distance; a
- *  puzzle that keeps its box has that one only. */
+ *  puzzle that keeps its box (or is entered in it) has that one only. */
 export function formsOf(shape: CubeShape): readonly Form[] {
   let forms = FORMS.get(shape)
   if (forms) return forms
   const solved = solvedCube(shape)
-  if (!SHAPE_SHIFTS[shape]) {
+  if (!SHAPE_SHIFTS[shape] || BOX_ONLY.includes(shape)) {
     forms = [{ cube: solved, distance: 0, tips: 0 }]
   } else {
     const turns = layerTurnsOf(shape)

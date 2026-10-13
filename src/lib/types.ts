@@ -12,6 +12,7 @@ export type CubeShape =
   | '6'
   | '123'
   | '224'
+  | 'camo'
   | '223'
   | '332'
   | '331'
@@ -33,6 +34,7 @@ export type CubeShape =
   | 'violet'
   | 'twist'
   | 'tori'
+  | 'edge'
   | 'ghost'
   | 'star'
   | 'star4'
@@ -57,6 +59,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   '6': [6, 6, 6],
   '123': [3, 2, 1],
   '224': [2, 4, 2],
+  // The Camouflage 4x4x2 (camo.ts): a 4x4x4 two pieces tall, bandaged.
+  camo: [4, 2, 4],
   '223': [2, 3, 2],
   '332': [3, 2, 3],
   '331': [3, 1, 3],
@@ -93,6 +97,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   twist: [3, 3, 3],
   // The Tori (tori.ts): a 3x3x3 without its corners.
   tori: [3, 3, 3],
+  // The Edge Only (methods/edgeOnly.ts): a 3x3x3's twelve edges alone.
+  edge: [3, 3, 3],
   // The Floppy Ghost (ghost.ts) is no grid: its slots sit within +-3 in its
   // plane, all at z = 0.
   ghost: [7, 7, 1],
@@ -155,7 +161,9 @@ export const isPolyDrawn = (shape: CubeShape): boolean =>
   shape === 'gem' ||
   shape === 'violet' ||
   shape === 'twist' ||
-  shape === 'tori'
+  shape === 'tori' ||
+  shape === 'edge' ||
+  shape === 'camo'
 
 /**
  * Shapes that leave their box: their mechanism is a bigger cube with pieces
@@ -177,6 +185,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '123': false,
   '223': false,
   '224': true,
+  camo: true,
   '332': false,
   '331': false,
   pyra: false,
@@ -197,6 +206,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   violet: true,
   twist: false,
   tori: false,
+  edge: false,
   ghost: false,
   star: false,
   star4: false,
@@ -223,6 +233,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   '6': ['slice', 'slice3', 'wide', 'wide3'],
   '123': [],
   '224': ['wide'],
+  camo: ['slice', 'wide'],
   '223': ['wide'],
   '332': [],
   '331': [],
@@ -244,6 +255,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   violet: [],
   twist: [],
   tori: [],
+  edge: [],
   ghost: [],
   star: [],
   star4: [],
@@ -262,6 +274,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   '6': [],
   '123': [],
   '224': [],
+  camo: [],
   '223': [],
   '332': [],
   '331': [],
@@ -283,6 +296,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   violet: [],
   twist: [],
   tori: [],
+  edge: [],
   ghost: [],
   star: [],
   star4: [],
@@ -297,6 +311,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '6': '6x6',
   '123': '1x2x3',
   '224': '2x2x4',
+  camo: 'Camouflage 4x4x2',
   '223': '2x2x3 (Slim Tower)',
   '332': '3x3x2 (Domino)',
   '331': '3x3x1 (Floppy)',
@@ -318,6 +333,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   violet: 'Violet',
   twist: 'Z-Twist',
   tori: 'Tori',
+  edge: 'Edge Only',
   ghost: 'Floppy Ghost',
   star: '2-Star Prism (UFO)',
   star4: '4-Star Prism',
@@ -333,6 +349,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   '6': '6x6',
   '123': '1x2x3',
   '224': '2x2x4',
+  camo: 'camouflage',
   '223': 'slim-tower',
   '332': 'domino',
   '331': 'floppy',
@@ -354,6 +371,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   violet: 'violet',
   twist: 'z-twist',
   tori: 'tori',
+  edge: 'edge-only',
   ghost: 'floppy-ghost',
   star: '2-star',
   star4: '4-star',
@@ -384,6 +402,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   '123': false,
   '223': false,
   '224': false,
+  camo: false,
   '332': false,
   '331': false,
   pyra: false,
@@ -404,6 +423,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   violet: false,
   twist: false,
   tori: false,
+  edge: false,
   ghost: false,
   star: false,
   star4: false,
@@ -447,7 +467,7 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   }
   if (isGear(shape)) return 'gear'
   if (shape === 'dino' || shape === 'rex') return 'diagonal'
-  if (shape === 'violet' || shape === 'twist' || shape === 'tori') return 'odd'
+  if (shape === 'violet' || shape === 'twist' || shape === 'tori' || shape === 'edge') return 'odd'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
   // One layer thick: the 1x2x3 and the Floppy.
