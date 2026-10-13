@@ -22,7 +22,8 @@ import type { Color, Cube, CubeShape, Cubie } from './types'
  */
 
 /** Whether a shape is entered piece by piece rather than painted. */
-export const entersByPieces = (shape: CubeShape): boolean => shape === 'ghost' || shape === 'twist'
+export const entersByPieces = (shape: CubeShape): boolean =>
+  shape === 'ghost' || shape === 'twist' || shape === 'puck'
 
 interface Pose {
   /** The piece's index in the solved puzzle: its identity. */

@@ -11,7 +11,7 @@ le **Rainbow** (un cuboctaèdre aux triangles qui tournent), le **Dino Cube** et
 le **Violet** (un 2x2x2 à pivot excentré qui se déforme), le **Z-Twist** (un 3x3x3
 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube
 Extreme** (des 3x3x3 à engrenages)
-et les **Star Prism** à 2 et 4 étages.
+le **Hockey Puck** (deux disques de 12 pièces, de la famille des étoiles) et les **Star Prism** à 2 et 4 étages.
 On manipule le puzzle, on le mélange **ou on saisit sa propre
 configuration** en peignant les stickers en 3D, puis on le résout selon
 **plusieurs vraies méthodes**. La solution, affichée dès que le puzzle est au
@@ -59,7 +59,8 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   - Gear Cube et Gear Cube Ultimate : **coins d'abord** ;
   - Gear Cube Extreme : **équateur puis coins** ;
   - Star Prism : **isoler puis permuter** ;
-  - 4-Star Prism : **deux étoiles** (l'interne puis l'externe).
+  - 4-Star Prism : **deux étoiles** (l'interne puis l'externe) ;
+  - Hockey Puck : **isoler puis permuter**.
 - **Solution pas à pas** : le plan de la méthode dès son choix, puis la vraie
   solution calculée d'avance (en arrière-plan) ; on la joue d'un coup, étape
   par étape ou coup par coup, et on revient en arrière de la même façon, le

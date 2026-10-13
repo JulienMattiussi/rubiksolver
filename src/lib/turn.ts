@@ -1,6 +1,7 @@
 import { cubeShape, turnDims } from './cube'
 import { FACE_SPEC, layerCoords, rotateN } from './geometry'
 import { applyGhostMove, ghostAxis, ghostTurns } from './ghost'
+import { applyPuckMove, puckRotation, puckTurns } from './puck'
 import { applyGearMove, gearFaceTurns, gearRotation, gearSliceTurns } from './gear'
 import { applyRainbowMove, rainbowRotation, rainbowTurns } from './rainbow'
 import { violetTurns } from './violet'
@@ -9,6 +10,7 @@ import { applyPyraMove, pyraRotation, pyraSize, pyraTurns } from './pyraminx'
 import { applyStarMove, starRotation, starTurns } from './star'
 import {
   isGhostMove,
+  isPuckMove,
   isPyraMove,
   isGearMove,
   isRainbowMove,
@@ -80,6 +82,7 @@ function turnsPosition(move: Move, mechanism: Dims): (position: readonly number[
 export function turnedBy(cube: Cube, move: Turn): (index: number) => boolean {
   if (isStarMove(move)) return (index) => starTurns(move, cube[index]!.position)
   if (isGhostMove(move)) return (index) => ghostTurns(move, cube[index]!.position)
+  if (isPuckMove(move)) return (index) => puckTurns(move, cube[index]!.position)
   if (isRainbowMove(move)) return (index) => rainbowTurns(move, cube[index]!.position)
   if (isGearMove(move)) return (index) => gearFaceTurns(move, cube[index]!.position)
   if (isPyraMove(move)) {
@@ -109,7 +112,8 @@ export function halfTurnedBy(cube: Cube, move: Turn): (index: number) => boolean
  */
 export function turnAllowed(cube: Cube, move: Turn): boolean {
   if (isStarMove(move)) return true // pieces are whole 60 degree sectors
-  if (isPyraMove(move) || isGhostMove(move) || isRainbowMove(move) || isGearMove(move)) return true
+  if (isPyraMove(move) || isGhostMove(move) || isPuckMove(move)) return true
+  if (isRainbowMove(move) || isGearMove(move)) return true
   const shape = cubeShape(cube)
   if (!SHAPE_SHIFTS[shape]) return true
   if (shape === 'violet') return violetTurns(cube, move.face)
@@ -142,6 +146,7 @@ export function turnRotation(move: Turn): TurnRotation {
   if (isStarMove(move)) return starRotation(move)
   if (isPyraMove(move)) return pyraRotation(move)
   if (isGhostMove(move)) return { axis: ghostAxis(move.side), angle: Math.PI }
+  if (isPuckMove(move)) return puckRotation(move)
   if (isRainbowMove(move)) return rainbowRotation(move)
   if (isGearMove(move)) return gearRotation(move)
   const spec = FACE_SPEC[move.face]
@@ -162,6 +167,7 @@ export function applyMove(
   if (isStarMove(move)) return applyStarMove(cube, move)
   if (isPyraMove(move)) return applyPyraMove(cube, move, pyraSize(mechanism))
   if (isGhostMove(move)) return applyGhostMove(cube, move)
+  if (isPuckMove(move)) return applyPuckMove(cube, move)
   if (isRainbowMove(move)) return applyRainbowMove(cube, move)
   if (isGearMove(move)) return applyGearMove(cube, move)
   const spec = FACE_SPEC[move.face]

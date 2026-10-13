@@ -32,7 +32,7 @@ export function guideCameraPosition(turn: Turn, drawing?: PolyDrawing): [number,
     return mix.map((v) => (v / length) * distance) as [number, number, number]
   }
   // A Floppy Ghost side flips over in front of the home framing.
-  if ('side' in turn || 'triangle' in turn) return [x, y, z]
+  if ('side' in turn || 'triangle' in turn || 'layer' in turn || 'flip' in turn) return [x, y, z]
   if ('slash' in turn) return [x, y, z]
   if ('ring' in turn) return turn.ring === 'D' || turn.ring === 'd' ? [x, -y, z] : [x, y, z]
   if ('vertex' in turn) {

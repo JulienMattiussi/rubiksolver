@@ -89,6 +89,8 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'edge', pieces: 13, stickers: 24, orientations: 24, painted: 24, scramble: 20 },
   { shape: 'twist', pieces: 27, stickers: 54, orientations: 24, painted: 54, scramble: 20 },
   { shape: 'ghost', pieces: 11, stickers: 36, orientations: 1, painted: 36, scramble: 15 },
+  // Two layers of twelve round a center in two halves.
+  { shape: 'puck', pieces: 26, stickers: 48, orientations: 1, painted: 48, scramble: 25 },
   {
     shape: 'gearCube',
     pieces: 27,

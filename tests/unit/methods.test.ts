@@ -157,7 +157,7 @@ describe('cube picker', () => {
       flat: ['123', '331', 'ghost'],
       pyramid: ['pyra', 'tetra', 'pyra4', 'pyra5', 'jing', 'morph'],
       octahedron: ['oct4', 'vto', 'gem', 'rainbow'],
-      star: ['star', 'star4'],
+      star: ['puck', 'star', 'star4'],
       gear: ['gearCube', 'gearU', 'gearX'],
       diagonal: ['dino', 'rex'],
       odd: ['violet', 'twist', 'tori', 'edge'],

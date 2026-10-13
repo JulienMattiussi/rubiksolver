@@ -18,6 +18,7 @@ import {
   isGear,
   isGearMove,
   isGhostMove,
+  isPuckMove,
   isPyraminx,
   isPyraMove,
   isRainbowMove,
@@ -36,6 +37,8 @@ import type {
   PyraMove,
   PyraShape,
   PyraVertex,
+  PuckMove,
+  PuckSteps,
   RingMove,
   StarMove,
   StarShape,
@@ -99,6 +102,16 @@ export type MoveDescription =
       readonly vertex: PyraVertex
       readonly clockwise: boolean
       readonly slice?: 1 | 2 | 3 | 4
+    }
+  | {
+      /** A Hockey Puck's layer turned some twelfths (signed: clockwise seen
+       *  from above when positive), or its slash. */
+      readonly kind: 'puckLayer'
+      readonly layer: 'U' | 'D'
+      readonly twelfths: number
+    }
+  | {
+      readonly kind: 'puckSlash'
     }
   | {
       /** A Floppy Ghost side flipped over. */
@@ -209,6 +222,17 @@ const DINO_CORNERS: readonly RainbowCorner[] = ['U', 'u', 'l', 'L', 'R', 'r', 'd
 export function moveGuide(shape: CubeShape): GuideGroup[] {
   if (isStar(shape)) return starGuide(shape)
   if (shape === 'ghost') return [{ section: 'sides', rows: GHOST_TURNS.map((turn) => [turn]) }]
+  if (shape === 'puck') {
+    const layer = (layer: 'U' | 'D'): PuckMove[][] =>
+      [1, 2, 3].map((k): PuckMove[] => [
+        { layer, steps: k as PuckSteps },
+        { layer, steps: (12 - k) as PuckSteps },
+      ])
+    return [
+      { section: 'rings', rows: [...layer('U'), ...layer('D')] },
+      { section: 'slash', rows: [[{ flip: true }]] },
+    ]
+  }
   if (isGear(shape)) {
     const row = (gear: Face) => ([1, 3] as const).map((amount): GearMove => ({ gear, amount }))
     // The Extreme's top and bottom turn as a 3x3's, the sides by gears.
@@ -245,6 +269,11 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
 /** What a turn does on a shape. */
 export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
   if (isGhostMove(turn)) return { kind: 'side', side: turn.side }
+  if (isPuckMove(turn)) {
+    if ('flip' in turn) return { kind: 'puckSlash' }
+    const twelfths = turn.steps > 6 ? turn.steps - 12 : turn.steps
+    return { kind: 'puckLayer', layer: turn.layer, twelfths }
+  }
   if (isGearMove(turn)) {
     const base = { kind: 'gear', face: turn.gear, clockwise: turn.amount === 1 } as const
     return turn.times ? { ...base, thrice: true } : base

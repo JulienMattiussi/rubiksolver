@@ -13,8 +13,8 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 (un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
 (un cuboctaèdre dont les triangles tournent), le **Dino Cube** et le **Rex Cube** (leurs sommets
 tournent), le **Violet** (un 2x2x2 à
-pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages)
-et les
+pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages),
+le **Hockey Puck** (deux disques de 12 pièces, de la famille des étoiles) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
@@ -118,6 +118,7 @@ src/
 │   ├── ghost.ts          # Floppy Ghost : 10 emplacements autour du centre, demi-tours = réflexions entières, notation fan2cube
 │   ├── pyraminx.ts       # Pyraminx, Tetraminx, Master, Professor et Jing : modèle tétraédrique entier (couches, pointes, tranches, moitiés), mélange
 │   ├── pyraNotation.ts   # Leur notation hybride (FR fan2cube / US WCA), lecture des formules de fan2cube
+│   ├── puck.ts           # Hockey Puck : deux étages de 12 secteurs, tours par crans et slash, numéro de chaque pièce
 │   ├── star.ts           # Star Prism 2 et 4 étages : modèle hexagonal entier (anneaux + slash), notation fan2cube, mélange
 │   ├── turn.ts           # Les coups : moveSlab/inSlab, applyMove(s), turnAllowed (tour), turnedBy, turnRotation (animation)
 │   ├── moves.ts          # Notation US/FR (parse/format, 2R/Rw, M/E/S sur 3x3), sameLayer, inversion, simplification,
@@ -154,6 +155,7 @@ src/
 │   │   ├── pyraCycles.ts #   3-cycles d'une sorte de pièce par conjugaison (cycleTable), chiralité (handedHome), placement
 │   │   ├── jing.ts       #   Pyraminx Jing : sommets d'abord (crochet [DH] de fan2cube.fr)
 │   │   ├── morph.ts      #   Pyramorphinx : comme un Pocket (lu comme un 2x2, solveur optimal du 2x2)
+│   │   ├── puck.ts       #   Hockey Puck : isoler, puis ranger le bas et le haut par la formule K et sa famille
 │   │   ├── starPrism.ts  #   Star Prism : isoler puis permuter (formule K de fan2cube.fr)
 │   │   ├── starPrism4.ts #   4-Star : deux étoiles (le plan du 2-Star projeté sur l'interne puis l'externe)
 │   │   ├── slimTower.ts  #   Slim Tower 2x2x3 : équateur puis coins (formules du Domino, fan2cube.fr)
@@ -219,6 +221,7 @@ src/
 │   ├── Cubie.tsx         # Un cubie : corps + stickers, à la boîte de sa variante, en surbrillance si un coup survolé le tourne
 │   ├── layout.ts         # Échelle et position visuelles (coordonnée / pas de la grille : linéaire, juste hors de la boîte)
 │   ├── polygons.ts       # Pièces des puzzles sans grille en polygones (corps + stickers), PiecePolygon
+│   ├── puckGeometry.ts   # Pièces du Hockey Puck : secteurs d'anneau de leur étage, numéros dorés en décalcomanie
 │   ├── starGeometry.ts   # Géométrie des pièces de l'étoile (cerfs-volants extrudés), partagée vue 3D / vignette
 │   ├── pyraGeometry.ts   # Géométrie des pièces du Pyraminx (petits tétraèdres et octaèdres des cellules du modèle)
 │   ├── morphGeometry.ts  # Pièces du Pyramorphinx : case du 2x2 coupée par le tétraèdre (polyèdre convexe)
@@ -262,7 +265,7 @@ src/
 │   │                     #   + styles.ts : classes partagées (SECTION_BOX, SECTION_LABEL, TURN_PAIR)
 │   │                     #   + features.ts : icône et couleur des 3 fonctionnalités (saisie bleu ciel, guide violet,
 │   │                     #     résolution ambre), partagées par les cartes de l'accueil et les boutons (variantes de Button)
-│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad / GhostPad / RainbowPad / GearPad (+ PadHeader,
+│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad / GhostPad / PuckPad / RainbowPad / GearPad (+ PadHeader,
 │   │                     #   PadButton : un coup, sa surbrillance au survol), LanguageToggle, NotationToggle,
 │   │                     #   RecenterButton, CollapseButton, SpeedSlider
 │   ├── picker/           # Choix du cube : CubePicker (bouton + modale), PickerTile, PuzzleIcon (vignette SVG),
@@ -385,6 +388,8 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   - voir « Le Domino, le Floppy et la Slim Tower ».
 - **Isoler puis permuter** (`isolateFirst`, Star Prism) : sommets isolés,
   puis le bas et le haut avec la formule `K` - voir « Le Star Prism ».
+- **Isoler puis permuter** (`puckIsolate`, Hockey Puck) : isoler, ranger le bas,
+  puis le haut, aligner - voir « Le Hockey Puck ».
 - **Deux étoiles** (`twoStars`, 4-Star Prism) : l'étoile interne puis
   l'externe, chacune par « isoler puis permuter », puis alignement.
 - **Centres d'abord** (`centersFirst`, Pyraminx et Tetraminx) : centres, pointes
@@ -742,7 +747,8 @@ cube), partagée par les deux faces qui le forment : « résolu » reste « chaq
 direction d'une seule couleur » (`isSolved` inchangé). Couleurs : vert dessus,
 bleu dessous, et sur les côtés orange, blanc, jaune, rouge, violet, rose (les
 deux dernières sont propres à l'étoile : `Color` = `CubeColor` + `P`, `V`,
-plus les six du Rainbow et le doré du GEM-0, `C`).
+plus les six du Rainbow, le doré du GEM-0, `C`, et le graphite du centre du
+Hockey Puck, `H`, qu'aucun sticker ne porte).
 
 Intégration : un coup est un `Turn` = `Move` (cubes) | `StarMove` (`RingMove` |
 slash) dans le code générique (file d'animation, rendu, notation) ; les
@@ -796,6 +802,46 @@ le 4x4) sur l'étoile interne (ses pièces ramenées à ±2, ses tours joués su
 vis en place, donc slashe un nombre pair de fois sans tourner l'interne
 entre deux slashs : l'étoile interne ne voit rien. Reste à aligner les deux
 étoiles (`u` et `d` ensemble), chacune pouvant finir tournée d'un bloc.
+
+### Le Hockey Puck (`puck`)
+
+Le Hockey Puck, dans les « Cylindriques » avec les étoiles, dont il a la
+mécanique : un disque de deux étages de douze pièces autour d'un centre
+noir ; chaque étage tourne sur l'autre par crans de 30°, et le slash
+(le pivot) retourne la moitié droite autour de l'axe perpendiculaire à sa
+coupe : ses six pièces de chaque étage changent d'étage. Les pièces du haut
+portent leur numéro (1 à 12) sur le dessus, celles du bas leur seule
+couleur ; les couleurs vont par paires (1-2 rouge, 3-4 vert, 5-6 jaune, 7-8
+orange, 9-10 bleu, 11-12 violet), le bas sous le haut, comme le vrai
+puzzle. (fan2cube.fr/puck1 décrit un autre puck, d'un seul étage.)
+
+**Modèle entier** (`lib/puck.ts`, puzzle sans grille) : secteur m (0 à 11)
+dans le plan x, y, l'étage du haut à z = 1, celui du bas à z = -1 ; un tour
+de k crans envoie m sur m + k, le slash le secteur m (0 à 5) de chaque
+étage sur le secteur 5 - m de l'autre. La face cachée d'une pièce (contre
+l'autre étage) dit, pour le modèle seul, laquelle c'est (`puckNumber`) ; le
+dessin la peint sombre. `puckSolved` : les numéros dans l'ordre en haut,
+chaque paire sur sa couleur, le tout tourné comme on veut. Notation des
+étoiles : `1`, `-2` en haut, `B`, `-2B` en bas (`D` en anglais), `/`.
+
+**Rendu** (`three/puckGeometry.ts`) : chaque pièce est un secteur d'anneau
+de son étage, posé à plat (`PUCK_ORIENT`), le numéro en décalcomanie sur
+sa face numérotée (`PolyDrawing.decal`, dont l'image dépend de la pièce) ;
+le centre, deux demi-disques ronds aux faces graphite tenues à l'écart de la
+coupe (un trait noir y montre l'axe du pivot, comme la vis des étoiles), sa
+moitié droite basculant avec le slash.
+**Saisie** pièce par pièce, comme le Floppy Ghost.
+
+**Résolution** (`methods/puck.ts`, méthode **Isoler puis permuter**, aucune
+page ne l'enseignant) : (1) isoler les pièces numérotées en haut, par une
+recherche sur leur répartition, chaque pas étant des tours puis le slash ;
+(2) ranger les couleurs du bas par échanges : K = / B / 1-B / -1 / échange
+les deux pièces du haut de part et d'autre de la coupe et les deux du bas,
+et sa famille `SWAPS` (/ dB / 1-B / -1 (1-d)B /, trouvée en essayant tous
+les tours entre quatre slashs) en échange d'éloignées de d crans, des
+tours avant et après visant n'importe quelle paire ; (3) ranger les numéros
+du haut par 3-cycles, deux échanges de la même paire du bas (qui revient) ;
+(4) aligner le haut sur le bas. Environ 300 coups, quelques millisecondes.
 
 ### Le Pyraminx (`src/lib/pyraminx.ts`)
 
@@ -1607,7 +1653,7 @@ mobile et en saisie, une seule carte) :
   (Slim)/2x2x4/3x3x2 (Domino)/Camouflage 4x4x2, Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube, Bizarres Violet/Z-Twist/Tori/Edge Only.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Cylindriques Hockey Puck/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube, Bizarres Violet/Z-Twist/Tori/Edge Only.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

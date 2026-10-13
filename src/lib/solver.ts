@@ -7,6 +7,7 @@ import { GHOST_PLAN } from './methods/ghost'
 import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { twistPlan } from './methods/twist'
 import { TORI_PLAN } from './methods/tori'
+import { PUCK_PLAN } from './methods/puck'
 import { EDGE_ONLY_PLAN } from './methods/edgeOnly'
 import { CAMO_PLAN } from './methods/camo'
 import { PETRUS_PLAN } from './methods/petrus'
@@ -101,6 +102,7 @@ const SOLVE_METHODS = [
   { id: 'extendedCross', plans: { tori: TORI_PLAN, edge: EDGE_ONLY_PLAN } },
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },
   { id: 'twoStars', plans: { star4: STAR4_PLAN } },
+  { id: 'puckIsolate', plans: { puck: PUCK_PLAN } },
   { id: 'cornersFirst', plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN, ghost: GHOST_PLAN } },
   {
     id: 'optimal',

@@ -10,6 +10,7 @@ import {
   rotateN,
 } from './geometry'
 import { solvedGhost } from './ghost'
+import { puckSolved, solvedPuck } from './puck'
 import { solvedMorph } from './morph'
 import { solvedOct4 } from './oct4'
 import { solvedGem, solvedVto } from './vto'
@@ -131,6 +132,7 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (shape === 'edge')
     return solvedCube('3').filter((c) => c.stickers.length !== 1 && c.stickers.length !== 3)
   if (shape === 'ghost') return solvedGhost()
+  if (shape === 'puck') return solvedPuck()
   const dims = SHAPE_DIMS[shape]
   const colors = faceColorsOf(shape)
   const cubies: Cubie[] = []
@@ -295,6 +297,8 @@ export function isSolved(cube: Cube): boolean {
   if (cubeShape(cube) === 'violet') return violetSolved(cube)
   // A Z-Twist's thin edges show one color: their way round does not count.
   if (cubeShape(cube) === 'twist') return twistSolved(cube)
+  // Its pieces go by pairs of a color: its numbers say the order.
+  if (cubeShape(cube) === 'puck') return puckSolved(cube)
   return isBoxed(cube) && uniformFaces(cube) === faceCount(cubeShape(cube))
 }
 
@@ -349,8 +353,8 @@ export function cubeOrientations(cube: Cube): Cube[] {
     ? STAR_SYMMETRIES
     : isPyraminx(shape)
       ? PYRA_SYMMETRIES
-      : shape === 'ghost'
-        ? [] // held one way only: no turn of it keeps its square
+      : shape === 'ghost' || shape === 'puck'
+        ? [] // held one way only (the puck by its piece 12, which never moves)
         : shape === 'violet'
           ? [turnAboutA] // only about its diagonal through A
           : (['x', 'y', 'z'] as Axis[]).map(

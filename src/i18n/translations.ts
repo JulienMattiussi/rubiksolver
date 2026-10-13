@@ -64,6 +64,9 @@ const fr = {
   gearTurnTitle: (faceName: string, clockwise: boolean) =>
     `Demi-tour de la ${faceName} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'} (la tranche suit d’un quart)`,
   ghostTurnTitle: (side: GhostSide) => `Retourner ${SIDE_NAMES_FR[side]} (demi-tour)`,
+  puckTurnTitle: (layer: 'U' | 'D', clockwise: boolean) =>
+    `Tourner le disque ${layer === 'U' ? 'du haut' : 'du bas'} d’un cran dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
+  puckSlashTitle: 'Pivot : retourner la moitié droite',
   rainbowTurnTitle: (triangle: RainbowCorner, clockwise: boolean) =>
     `Tourner ${TRIANGLE_NAMES_FR[triangle]} d’un tiers dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
   dinoTurnTitle: (corner: RainbowCorner, clockwise: boolean) =>
@@ -184,6 +187,7 @@ const fr = {
     M: 'Marron',
     L: 'Vert citron',
     C: 'Doré',
+    H: 'Graphite',
   },
   cubeLabel: 'Choix du cube',
   chooseCube: 'Choisir un cube',
@@ -251,7 +255,7 @@ const fr = {
     flat: 'Plats',
     pyramid: 'Pyramides',
     octahedron: 'Octaèdres',
-    star: 'Étoiles',
+    star: 'Cylindriques',
     gear: 'Engrenages',
     diagonal: 'Coupes diagonales',
     odd: 'Bizarres',
@@ -331,6 +335,10 @@ const fr = {
     isolateFirst: {
       name: 'Isoler puis permuter',
       desc: 'Séparer les sommets verts (en haut) et bleus (en bas), puis finir le bas et le haut avec une seule formule, K, qui échange deux sommets de chaque étage.',
+    },
+    puckIsolate: {
+      name: 'Isoler puis permuter',
+      desc: 'Séparer les pièces numérotées (en haut) des autres (en bas), puis ranger les couleurs du bas et les numéros du haut avec la formule K, / B / 1-B / -1 /, qui échange deux pièces voisines de chaque étage, et ses cousines qui en échangent de plus éloignées ; deux K de même paire du bas font un 3-cycle en haut. Enfin, aligner le haut sur le bas.',
     },
     twoStars: {
       name: 'Deux étoiles',
@@ -441,6 +449,10 @@ const fr = {
     stepRightBlock: 'Bloc de droite',
     stepOCLL: 'OCLL (orienter les coins)',
     stepTowerShape: 'Remettre en forme (pivoter les sommets)',
+    stepPuckIsolate: 'Isoler les pièces numérotées',
+    stepPuckBottom: 'Ranger les couleurs du bas',
+    stepPuckTop: 'Ranger les numéros du haut',
+    stepPuckAlign: 'Aligner le haut sur le bas',
     stepCamoShape: 'Remettre en forme',
     stepTopCorners: 'Coins du haut',
     stepBottomEdges: 'Arêtes du bas',
@@ -529,6 +541,9 @@ const en: Translations = {
   gearTurnTitle: (faceName: string, clockwise: boolean) =>
     `Half turn of the ${faceName} ${clockwise ? 'clockwise' : 'counter-clockwise'} (the slice follows a quarter)`,
   ghostTurnTitle: (side: GhostSide) => `Flip ${SIDE_NAMES_EN[side]} over (half turn)`,
+  puckTurnTitle: (layer: 'U' | 'D', clockwise: boolean) =>
+    `Turn the ${layer === 'U' ? 'top' : 'bottom'} disc one notch ${clockwise ? 'clockwise' : 'counterclockwise'}`,
+  puckSlashTitle: 'Pivot: flip the right half over',
   rainbowTurnTitle: (triangle: RainbowCorner, clockwise: boolean) =>
     `Turn ${TRIANGLE_NAMES_EN[triangle]} a third ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
   dinoTurnTitle: (corner: RainbowCorner, clockwise: boolean) =>
@@ -645,6 +660,7 @@ const en: Translations = {
     M: 'Brown',
     L: 'Lime',
     C: 'Gold',
+    H: 'Graphite',
   },
   cubeLabel: 'Cube choice',
   chooseModel: 'Choose a model',
@@ -710,7 +726,7 @@ const en: Translations = {
     flat: 'Flats',
     pyramid: 'Pyramids',
     octahedron: 'Octahedra',
-    star: 'Stars',
+    star: 'Cylinders',
     gear: 'Gears',
     diagonal: 'Diagonal cuts',
     odd: 'Oddities',
@@ -790,6 +806,10 @@ const en: Translations = {
     isolateFirst: {
       name: 'Isolate then permute',
       desc: 'Separate the green points (up) from the blue ones (down), then finish the bottom and the top with a single formula, K, which swaps two points of each layer.',
+    },
+    puckIsolate: {
+      name: 'Isolate then permute',
+      desc: 'Separate the numbered pieces (up) from the others (down), then put the bottom colors and the top numbers in order with the formula K, / D / 1-D / -1 /, which swaps two neighboring pieces of each layer, and its kin that swap pieces further apart; two K on one bottom pair make a 3-cycle on top. Last, align the top on the bottom.',
     },
     twoStars: {
       name: 'Two stars',
@@ -900,6 +920,10 @@ const en: Translations = {
     stepRightBlock: 'Right block',
     stepOCLL: 'OCLL (orient corners)',
     stepTowerShape: 'Back in shape (pivot the corners)',
+    stepPuckIsolate: 'Isolate the numbered pieces',
+    stepPuckBottom: 'Order the bottom colors',
+    stepPuckTop: 'Order the top numbers',
+    stepPuckAlign: 'Align the top on the bottom',
     stepCamoShape: 'Back in shape',
     stepTopCorners: 'Top corners',
     stepBottomEdges: 'Bottom edges',

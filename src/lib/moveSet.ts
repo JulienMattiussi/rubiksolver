@@ -1,4 +1,5 @@
 import { GHOST_TURNS } from './ghost'
+import { PUCK_TURNS } from './puck'
 import { gearTurnsOf } from './gear'
 import { DINO_TURNS, RAINBOW_TURNS, REX_TURNS } from './rainbow'
 import { movesFor, parseMoves, sameLayer } from './moves'
@@ -41,15 +42,17 @@ export function allTurnsOf(shape: CubeShape): MoveSet {
   const turns =
     shape === 'ghost'
       ? GHOST_TURNS
-      : shape === 'rainbow'
-        ? RAINBOW_TURNS
-        : shape === 'dino'
-          ? DINO_TURNS
-          : shape === 'rex'
-            ? REX_TURNS
-            : isGear(shape)
-              ? gearTurnsOf(shape)
-              : movesFor(shape)
+      : shape === 'puck'
+        ? PUCK_TURNS
+        : shape === 'rainbow'
+          ? RAINBOW_TURNS
+          : shape === 'dino'
+            ? DINO_TURNS
+            : shape === 'rex'
+              ? REX_TURNS
+              : isGear(shape)
+                ? gearTurnsOf(shape)
+                : movesFor(shape)
   return { generators: turns, turns }
 }
 

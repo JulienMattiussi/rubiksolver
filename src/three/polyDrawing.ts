@@ -17,6 +17,14 @@ import {
 import { dinoPolygons, edgeOnlyPolygons } from './dinoGeometry'
 import { rexCut, rexPolygons } from './rexGeometry'
 import { camoPolygons } from './camoGeometry'
+import {
+  numbered,
+  PUCK_ORIENT,
+  puckNumberPicture,
+  puckNumberPlace,
+  puckPolygons,
+  puckThumbnail,
+} from './puckGeometry'
 import { toriPolygons, toriThumbnail } from './toriGeometry'
 import { twistPolygons, twistThumbnail } from './twistGeometry'
 import { RAINBOW_ORIENT, RAINBOW_YAW, rainbowPolygons } from './rainbowGeometry'
@@ -48,7 +56,7 @@ export interface PolyDrawing {
   readonly decal?: {
     readonly on: (index: number, cubie: Cubie) => boolean
     readonly place: (cubie: Cubie) => DecalPlace
-    readonly picture: () => THREE.Texture
+    readonly picture: (cubie: Cubie) => THREE.Texture
   }
   /** The one color of every sticker, when the puzzle wears a single one
    *  (the Floppy Ghost's silver): its pieces are told apart by shape. */
@@ -95,6 +103,18 @@ const TORI: PolyDrawing = { polygons: toriPolygons, yaw: 0, thumbnail: toriThumb
 const CAMO: PolyDrawing = { polygons: camoPolygons, yaw: 0 }
 /** The Edge Only, held as the Dino. */
 const EDGE: PolyDrawing = { polygons: edgeOnlyPolygons, yaw: 0 }
+/** The Hockey Puck, lying flat, its numbers on its pieces' tops. */
+const PUCK: PolyDrawing = {
+  polygons: puckPolygons,
+  thumbnail: puckThumbnail,
+  yaw: 0,
+  orient: PUCK_ORIENT,
+  decal: {
+    on: (_, c) => numbered(c),
+    place: puckNumberPlace,
+    picture: puckNumberPicture,
+  },
+}
 /** The Rex Cube, held as the Dino. */
 const REX: PolyDrawing = { polygons: rexPolygons, yaw: 0, cut: rexCut }
 
@@ -112,6 +132,7 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (isStar(shape)) return shape === 'star4' ? STAR4 : STAR
   if (shape === 'morph') return MORPH
   if (shape === 'ghost') return GHOST
+  if (shape === 'puck') return PUCK
   if (shape === 'oct4') return OCT4
   if (shape === 'vto') return VTO
   if (shape === 'gem') return GEM

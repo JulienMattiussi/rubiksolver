@@ -157,6 +157,15 @@ export function describeFr(d: MoveDescription): string {
     const sense = d.clockwise ? 'des aiguilles' : 'inverse des aiguilles'
     return `On tourne ${TRIANGLE_NAMES_FR[d.triangle]} d’un tiers de tour (120°) dans le sens ${sense} d’une montre, vu de face : ses trois pièces tournent autour de son centre, qui ne bouge pas.`
   }
+  if (d.kind === 'puckSlash') {
+    return 'Le pivot : toute la moitié droite du disque fait un demi-tour sur l’axe central, ses six pièces du haut passent en bas et celles du bas en haut, retournées.'
+  }
+  if (d.kind === 'puckLayer') {
+    const n = Math.abs(d.twelfths)
+    const notches = n === 1 ? 'd’un cran' : `de ${n} crans`
+    const sense = d.twelfths > 0 ? 'des aiguilles' : 'inverse des aiguilles'
+    return `On tourne le disque ${d.layer === 'U' ? 'du haut' : 'du bas'} ${notches} (${30 * n}°) dans le sens ${sense} d’une montre, vu de dessus.`
+  }
   if (d.kind === 'side') {
     return `On retourne ${SIDE_NAMES_FR[d.side]} d’un demi-tour, autour de l’axe perpendiculaire à sa coupe : son arête se retourne, ses deux sommets s’échangent.`
   }
@@ -224,6 +233,15 @@ export function describeEn(d: MoveDescription): string {
   if (d.kind === 'triangle') {
     const sense = d.clockwise ? 'clockwise' : 'counterclockwise'
     return `Turn ${TRIANGLE_NAMES_EN[d.triangle]} a third of a turn (120°) ${sense}, as seen from it: its three pieces go round its center, which stays put.`
+  }
+  if (d.kind === 'puckSlash') {
+    return 'The pivot: the whole right half of the disc turns half round the center line, its six top pieces going below and the bottom ones on top, turned over.'
+  }
+  if (d.kind === 'puckLayer') {
+    const n = Math.abs(d.twelfths)
+    const notches = n === 1 ? 'one notch' : `${n} notches`
+    const sense = d.twelfths > 0 ? 'clockwise' : 'counterclockwise'
+    return `Turn the ${d.layer === 'U' ? 'top' : 'bottom'} disc ${notches} (${30 * n}°) ${sense}, as seen from above.`
   }
   if (d.kind === 'side') {
     return `Flip ${SIDE_NAMES_EN[d.side]} over with a half turn, about the axis across its cut: its edge turns over, its two corners swap.`

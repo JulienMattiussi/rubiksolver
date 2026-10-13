@@ -36,6 +36,7 @@ export type CubeShape =
   | 'tori'
   | 'edge'
   | 'ghost'
+  | 'puck'
   | 'star'
   | 'star4'
 
@@ -102,6 +103,9 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   // The Floppy Ghost (ghost.ts) is no grid: its slots sit within +-3 in its
   // plane, all at z = 0.
   ghost: [7, 7, 1],
+  // The Hockey Puck (puck.ts) is no grid: its slots sit within +-6 in its
+  // plane, one layer thick.
+  puck: [13, 13, 1],
   // The star prisms (star.ts) are no grid: their own module builds and turns
   // them. These only bound their hexagonal model (q and r within +-1, the
   // layers at y = +-1 and +-2).
@@ -147,7 +151,12 @@ const isRainbowLike = (shape: CubeShape): boolean =>
  *  of layers (the star prisms, the Pyraminx, the Floppy Ghost): drawn from
  *  polygons, turned by its own pad. */
 export const isGridless = (shape: CubeShape): boolean =>
-  isStar(shape) || isPyraminx(shape) || shape === 'ghost' || isRainbowLike(shape) || isGear(shape)
+  isStar(shape) ||
+  isPyraminx(shape) ||
+  shape === 'ghost' ||
+  shape === 'puck' ||
+  isRainbowLike(shape) ||
+  isGear(shape)
 
 /** Whether a shape is drawn from polygons rather than cubie boxes: every
  *  gridless one, the Pyramorphinx (a 2x2 whose pieces are not cubes) and
@@ -208,6 +217,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   tori: false,
   edge: false,
   ghost: false,
+  puck: false,
   star: false,
   star4: false,
 }
@@ -257,6 +267,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   tori: [],
   edge: [],
   ghost: [],
+  puck: [],
   star: [],
   star4: [],
 }
@@ -298,6 +309,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   tori: [],
   edge: [],
   ghost: [],
+  puck: [],
   star: [],
   star4: [],
 }
@@ -335,6 +347,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   tori: 'Tori',
   edge: 'Edge Only',
   ghost: 'Floppy Ghost',
+  puck: 'Hockey Puck',
   star: '2-Star Prism (UFO)',
   star4: '4-Star Prism',
 }
@@ -373,6 +386,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   tori: 'tori',
   edge: 'edge-only',
   ghost: 'floppy-ghost',
+  puck: 'hockey-puck',
   star: '2-star',
   star4: '4-star',
 }
@@ -425,6 +439,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   tori: false,
   edge: false,
   ghost: false,
+  puck: false,
   star: false,
   star4: false,
 }
@@ -460,7 +475,8 @@ export type CubeCategory = (typeof CUBE_CATEGORIES)[number]
 /** Picker group of a cube choice, derived from its variant and dimensions. */
 export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (variant === 'mirror') return 'mirror'
-  if (isStar(shape)) return 'star'
+  // Round, turning by halves: the star prisms, the Hockey Puck.
+  if (isStar(shape) || shape === 'puck') return 'star'
   if (isPyraminx(shape) || shape === 'morph') return 'pyramid'
   if (shape === 'oct4' || shape === 'vto' || shape === 'gem' || shape === 'rainbow') {
     return 'octahedron'
@@ -490,7 +506,7 @@ export type Face = 'U' | 'D' | 'L' | 'R' | 'F' | 'B'
 
 /** Sticker colors. Kept distinct from Face letters (a sticker's color is not
  *  the same concept as the face it currently sits on). */
-export type Color = CubeColor | 'P' | 'V' | RainbowColor | GemColor
+export type Color = CubeColor | 'P' | 'V' | RainbowColor | GemColor | 'H'
 
 /** The Rainbow's six more triangle colors: dark green, dark blue,
  *  turquoise, pale pink, brown, lime. */
@@ -507,7 +523,19 @@ export type CubeColor = 'W' | 'Y' | 'G' | 'B' | 'O' | 'R'
 const COLORS: readonly CubeColor[] = ['W', 'Y', 'G', 'B', 'O', 'R']
 
 /** Every sticker color of every puzzle. */
-export const ALL_COLORS: readonly Color[] = [...COLORS, 'P', 'V', 'E', 'N', 'T', 'K', 'M', 'L', 'C']
+export const ALL_COLORS: readonly Color[] = [
+  ...COLORS,
+  'P',
+  'V',
+  'E',
+  'N',
+  'T',
+  'K',
+  'M',
+  'L',
+  'C',
+  'H',
+]
 
 /** Integer coordinate axis. */
 export type Axis = 'x' | 'y' | 'z'
@@ -613,6 +641,12 @@ export interface GhostMove {
   readonly side: GhostSide
 }
 
+/** A Hockey Puck turn (puck.ts): a layer turned some twelfths, clockwise
+ *  seen from above, or the slash. */
+export type PuckSteps = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
+export type PuckMove =
+  { readonly layer: 'U' | 'D'; readonly steps: PuckSteps } | { readonly flip: true }
+
 /** A triangle of the Rainbow, as the puzzle is held (a square in front):
  *  the four around the front square (U above, D below, L left, R right),
  *  then the four behind them, in lowercase. */
@@ -644,7 +678,7 @@ export interface GearMove {
   readonly times?: 3
 }
 
-export type Turn = Move | StarMove | PyraMove | GhostMove | RainbowMove | GearMove
+export type Turn = Move | StarMove | PyraMove | GhostMove | PuckMove | RainbowMove | GearMove
 
 /** Whether a turn is a star prism's. */
 export const isStarMove = (turn: Turn): turn is StarMove => 'ring' in turn || 'slash' in turn
@@ -654,6 +688,9 @@ export const isPyraMove = (turn: Turn): turn is PyraMove => 'vertex' in turn
 
 /** Whether a turn is the Floppy Ghost's. */
 export const isGhostMove = (turn: Turn): turn is GhostMove => 'side' in turn
+
+/** Whether a turn is the Hockey Puck's. */
+export const isPuckMove = (turn: Turn): turn is PuckMove => 'layer' in turn || 'flip' in turn
 
 /** Whether a turn is the Rainbow's. */
 export const isRainbowMove = (turn: Turn): turn is RainbowMove => 'triangle' in turn

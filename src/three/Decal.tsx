@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import * as THREE from 'three'
 import type { Cubie } from '@/lib/types'
 import type { PolyDrawing } from './polyDrawing'
@@ -13,7 +12,8 @@ export function Decal({
   decal: NonNullable<PolyDrawing['decal']>
 }) {
   const { center, normal, up, size } = decal.place(cubie)
-  const texture = useMemo(() => decal.picture(), [decal])
+  // Each picture is drawn once (its function keeps it).
+  const texture = decal.picture(cubie)
   const n = new THREE.Vector3(...normal)
   const u = new THREE.Vector3(...up)
   // Seen from outside: right is up turned a quarter about the normal.

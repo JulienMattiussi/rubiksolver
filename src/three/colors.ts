@@ -20,6 +20,8 @@ export const COLOR_HEX: Record<Color, string> = {
   L: '#a3e635',
   // The GEM-0's squares, golden.
   C: '#d6b25e',
+  // The Hockey Puck's center, graphite (drawn only: no sticker wears it).
+  H: '#5b6273',
 }
 
 /** Dark plastic body of a cubie. */

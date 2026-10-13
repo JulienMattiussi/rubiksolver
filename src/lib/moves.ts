@@ -18,6 +18,7 @@ import {
 } from './pyraminx'
 import { formatPyraMove } from './pyraNotation'
 import { formatGhostMove, GHOST_TURNS, scrambleGhost, simplifyGhostMoves } from './ghost'
+import { formatPuckMove, invertPuckMove, PUCK_TURNS, scramblePuck, simplifyPuckMoves } from './puck'
 import {
   formatRainbowMove,
   invertRainbowMove,
@@ -32,6 +33,7 @@ import {
 import { formatStarMove, invertStarMove, scrambleStar, simplifyStarMoves, STAR_RINGS } from './star'
 import {
   isGhostMove,
+  isPuckMove,
   isGridless,
   isRainbowMove,
   isGearMove,
@@ -51,6 +53,7 @@ import type {
   Dims,
   Face,
   GhostMove,
+  PuckMove,
   Move,
   PyraMove,
   RainbowMove,
@@ -169,6 +172,7 @@ export function formatMove(move: Turn, labels: FaceLabels = NOTATION_US, dims?: 
   if (isStarMove(move)) return formatStarMove(move, labels)
   if (isPyraMove(move)) return formatPyraMove(move, labels)
   if (isGhostMove(move)) return formatGhostMove(move, labels)
+  if (isPuckMove(move)) return formatPuckMove(move, labels)
   if (isRainbowMove(move)) return formatRainbowMove(move, labels)
   if (isGearMove(move)) return formatGearMove(move, labels)
   if (dims && move.depth && !move.wide && faceLayers(dims, move.face) === 3) {
@@ -258,6 +262,10 @@ export function sameLayer(a: Turn, b: Turn): boolean {
   }
   if (isPyraMove(a) || isPyraMove(b)) return isPyraMove(a) && isPyraMove(b) && samePyraLayer(a, b)
   if (isGhostMove(a) || isGhostMove(b)) return isGhostMove(a) && isGhostMove(b) && a.side === b.side
+  if (isPuckMove(a) || isPuckMove(b)) {
+    if (!isPuckMove(a) || !isPuckMove(b)) return false
+    return 'flip' in a ? 'flip' in b : 'layer' in b && a.layer === b.layer
+  }
   if (isRainbowMove(a) || isRainbowMove(b)) {
     return isRainbowMove(a) && isRainbowMove(b) && a.triangle === b.triangle
   }
@@ -281,11 +289,13 @@ export function invertMoves<T extends Turn>(moves: readonly T[]): T[] {
           ? invertPyraMove(m)
           : isGhostMove(m)
             ? m // a half turn
-            : isRainbowMove(m)
-              ? invertRainbowMove(m)
-              : isGearMove(m)
-                ? invertGearMove(m)
-                : invertMove(m)) as T,
+            : isPuckMove(m)
+              ? invertPuckMove(m)
+              : isRainbowMove(m)
+                ? invertRainbowMove(m)
+                : isGearMove(m)
+                  ? invertGearMove(m)
+                  : invertMove(m)) as T,
   )
 }
 
@@ -299,6 +309,7 @@ export function simplifyMoves<T extends Turn>(moves: readonly T[]): T[] {
   if (moves.some(isStarMove)) return simplifyStarMoves(moves as readonly StarMove[]) as T[]
   if (moves.some(isPyraMove)) return simplifyPyraMoves(moves as readonly PyraMove[]) as T[]
   if (moves.some(isGhostMove)) return simplifyGhostMoves(moves as readonly GhostMove[]) as T[]
+  if (moves.some(isPuckMove)) return simplifyPuckMoves(moves as readonly PuckMove[]) as T[]
   if (moves.some(isRainbowMove)) {
     return simplifyRainbowMoves(moves as readonly RainbowMove[]) as T[]
   }
@@ -390,6 +401,7 @@ export function scrambleTurns(
   if (isStar(shape)) return scrambleStar(shape, length, rng)
   if (isPyraminx(shape)) return scramblePyraminx(shape, length, rng)
   if (shape === 'ghost') return scrambleGhost(length, rng)
+  if (shape === 'puck') return scramblePuck(length, rng)
   if (shape === 'rainbow') return scrambleRainbow(length, rng)
   if (shape === 'dino') return scrambleDino(length, rng)
   if (shape === 'rex') return scrambleRex(length, rng)
@@ -406,6 +418,7 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
   }
   if (isPyraminx(shape)) return pyraTurnsOf(shape)
   if (shape === 'ghost') return GHOST_TURNS
+  if (shape === 'puck') return PUCK_TURNS
   if (shape === 'rainbow') return RAINBOW_TURNS
   if (shape === 'dino') return DINO_TURNS
   if (shape === 'rex') return REX_TURNS
