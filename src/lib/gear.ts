@@ -107,7 +107,9 @@ const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
 
 /** Whether every gear is back in the cube's shape (no spin left, or half
  *  a turn: turned over on its base): the shape a Gear Cube is entered in. */
-export const gearsAligned = (cube: Cube): boolean => cube.every((c) => !c.spin || c.spin === 3)
+export const gearsAligned = (cube: Cube): boolean =>
+  // Gears only (edges): a Z-Twist's centers keep a spin too (twist.ts).
+  cube.every((c) => c.stickers.length !== 2 || !c.spin || c.spin === 3)
 
 /** A Gear Cube at rest, these edges' gears turned over on their clips. */
 export const withTurnedGears = (cube: Cube, turned: readonly string[], shape: CubeShape): Cube =>

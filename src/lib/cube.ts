@@ -16,7 +16,7 @@ import { solvedGem, solvedVto } from './vto'
 import { solvedDino, solvedRainbow, solvedRex } from './rainbow'
 import { solvedViolet, turnAboutA, violetBoxed, violetSolved } from './violet'
 import { withGears } from './gear'
-import { withTwistedCenters } from './twist'
+import { twistSolved, withTwistedCenters } from './twist'
 import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
 import {
@@ -284,6 +284,8 @@ export function isSolved(cube: Cube): boolean {
   // A Gear Cube's gears must be home too, which its stickers do not say.
   if (cube.some((c) => c.spin)) return false
   if (cubeShape(cube) === 'violet') return violetSolved(cube)
+  // A Z-Twist's thin edges show one color: their way round does not count.
+  if (cubeShape(cube) === 'twist') return twistSolved(cube)
   return isBoxed(cube) && uniformFaces(cube) === faceCount(cubeShape(cube))
 }
 

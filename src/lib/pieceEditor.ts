@@ -3,6 +3,7 @@ import { stickerId, tablesFor } from './editorTables'
 import { normalIndex } from './geometry'
 import { layerTurnsOf } from './moves'
 import { applyMove } from './turn'
+import { asSeenTwist } from './twist'
 import type { Color, Cube, CubeShape, Cubie } from './types'
 
 /**
@@ -48,7 +49,10 @@ function posesBySlot(shape: CubeShape): ReadonlyMap<string, readonly Pose[]> {
     const queue: Cubie[] = [home]
     for (let i = 0; i < queue.length; i++) {
       const cubie = queue[i]!
-      bySlot.get(cubie.position.join(','))?.push({ piece, cubie })
+      // A Z-Twist's thin edge only one way round: the other never shows.
+      if (shape !== 'twist' || asSeenTwist([cubie])[0] === cubie) {
+        bySlot.get(cubie.position.join(','))?.push({ piece, cubie })
+      }
       for (const turn of layerTurnsOf(shape)) {
         const [next] = applyMove([cubie], turn, mechanism)
         const key = stateKey([next!])

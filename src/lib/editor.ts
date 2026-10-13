@@ -17,7 +17,7 @@ import {
 } from './editorTables'
 import { entersByPieces, piecesCube } from './pieceEditor'
 import { withGears, withTurnedGears } from './gear'
-import { withTwistedCenters } from './twist'
+import { asSeenTwist, withRealThinEdges, withTwistedCenters } from './twist'
 import { hasColoredClips, isGear, type Color, type Cube, type CubeShape } from './types'
 
 /**
@@ -95,7 +95,9 @@ export function emptyEdit(shape: CubeShape, form?: Cube): EditStickers {
 /** Extract a paintable state from an existing cube (e.g. the current one). */
 export function cubeToEdit(cube: Cube): EditStickers {
   const edit: EditStickers = {}
-  for (const cubie of withFixedHome(cube)) {
+  // A Z-Twist's thin edges entered the way round the editor offers.
+  const held = withFixedHome(cube)
+  for (const cubie of cubeShape(cube) === 'twist' ? asSeenTwist(held) : held) {
     for (const s of cubie.stickers) edit[stickerId(cubie.position, normalIndex(s.normal))] = s.color
   }
   return edit
@@ -269,8 +271,10 @@ export function usesRealPieces(cube: Cube): boolean {
 
 /** A Z-Twist with these side centers a quarter turn off (twist.ts). */
 const withTurnedCenters = (cube: Cube, turned: readonly string[]): Cube =>
-  withTwistedCenters(cube).map((c) =>
-    c.spin === undefined ? c : { ...c, spin: turned.includes(c.position.join(',')) ? 1 : 0 },
+  withRealThinEdges(
+    withTwistedCenters(cube).map((c) =>
+      c.spin === undefined ? c : { ...c, spin: turned.includes(c.position.join(',')) ? 1 : 0 },
+    ),
   )
 
 /** Build a full Cube from a complete edit state (throws if incomplete). */

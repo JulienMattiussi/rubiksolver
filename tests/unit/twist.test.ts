@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/cube'
+import { gearsAligned } from '@/lib/gear'
+import { asSeenTwist, isThinEdge, withRealThinEdges } from '@/lib/twist'
+import { validateCube } from '@/lib/validate'
 import { parseMoves } from '@/lib/moves'
 import { applyMoves } from '@/lib/turn'
 
@@ -21,4 +24,28 @@ describe('Z-Twist', () => {
     expect(isSolved(applyMoves(TWIST, parseMoves('R R R R R')))).toBe(false)
     expect(isSolved(applyMoves(TWIST, parseMoves('R4'.replace('4', '2 R2'))))).toBe(true)
   })
+
+  it('can be entered from its state whatever its centers (no gears to align)', () => {
+    expect(gearsAligned(applyMoves(TWIST, parseMoves('R U F')))).toBe(true)
+  })
+
+  it('counts nothing of its thin edges’ way round, which never shows', () => {
+    // L R' U D' with its thin edges entered the other way round: the same
+    // puzzle to see, real and solved by the same means.
+    const real = applyMoves(TWIST, parseMoves("L R' U D'"))
+    const seen = asSeenTwist(real)
+    const swapped = seen.map((c) =>
+      isThinEdge(c)
+        ? { ...c, stickers: c.stickers.map((s, i) => ({ ...s, color: c.stickers[1 - i]!.color })) }
+        : c,
+    )
+    expect(validateCube(withRealThinEdges(swapped)).ok).toBe(true)
+    // A thin edge turned over at home: solved still.
+    const home = TWIST.map((c) =>
+      isThinEdge(c) && c.position.join() === '-1,0,1'
+        ? { ...c, stickers: c.stickers.map((s, i) => ({ ...s, color: c.stickers[1 - i]!.color })) }
+        : c,
+    )
+    expect(isSolved(home)).toBe(true)
+  }, 30_000)
 })

@@ -1174,7 +1174,13 @@ plastique), puis portée par la rotation qui l'amène où elle est (lue sur
 ses couleurs). Arêtes et coins se reconnaissent à leurs couleurs, mais un
 centre de côté montre par sa forme s'il est tourné d'un quart (un demi-tour
 ne se voit pas) : `Cubie.spin` (0 ou 1, `lib/twist.ts`), changé par chaque
-quart de tour de sa face (`applyMove`) ; résolu, tous à 0.
+quart de tour de sa face (`applyMove`) ; résolu, tous à 0. À l'inverse,
+les 4 arêtes fines de la couche du milieu ne montrent qu'une couleur : leur
+sens ne se voit pas et ne compte pas. `isSolved` (`twistSolved`) les
+accepte dans un sens ou l'autre, la saisie ne propose qu'une pose par
+emplacement (`asSeenTwist`, aussi pour « Depuis l'état actuel ») et
+`buildCube` choisit le sens qui rend la position atteignable
+(`withRealThinEdges` : un nombre pair d'arêtes retournées).
 
 **Résolution** (`methods/twist.ts`) : les méthodes du 3x3, par couches et
 CFOP, jouées sur ses couleurs (`twistPlan` : les centres mis de côté), puis
