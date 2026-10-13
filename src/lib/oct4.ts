@@ -22,7 +22,7 @@ import type { Color, Cube, Cubie, Vec3 } from './types'
 
 /** The color of each face, by its octant (x, y, z signs): the four faces
  *  above, then the four below, each opposite one above. */
-const FACE_COLOR: ReadonlyMap<string, Color> = new Map([
+export const OCT_FACE_COLOR: ReadonlyMap<string, Color> = new Map([
   ['1,1,1', 'R'],
   ['-1,1,1', 'G'],
   ['-1,1,-1', 'P'],
@@ -43,7 +43,7 @@ export function solvedOct4(): Cube {
         const position: Vec3 = [x, y, z]
         if (position.every((v) => Math.abs(v) === 1)) continue // inside
         const normal = position.map(Math.sign) as unknown as Vec3
-        cubies.push({ position, stickers: [{ normal, color: FACE_COLOR.get(normal.join())! }] })
+        cubies.push({ position, stickers: [{ normal, color: OCT_FACE_COLOR.get(normal.join())! }] })
       }
     }
   }

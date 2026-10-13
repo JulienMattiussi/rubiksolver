@@ -20,6 +20,8 @@ export type CubeShape =
   | 'jing'
   | 'morph'
   | 'oct4'
+  | 'vto'
+  | 'gem'
   | 'rainbow'
   | 'violet'
   | 'ghost'
@@ -58,6 +60,11 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   morph: [2, 2, 2],
   // The 4-Trajber's Octahedron is a 4x4x4 cut to an octahedron (oct4.ts).
   oct4: [4, 4, 4],
+  // The Octahedron VTO is a 3x3x3 cut to an octahedron, its tips apart: it
+  // turns on a 5x5's grid (vto.ts).
+  vto: [5, 5, 5],
+  // The GEM-0 is the VTO with its tips cut flat (vto.ts).
+  gem: [3, 3, 3],
   // The Rainbow (rainbow.ts) is no grid: its pieces sit within +-1.
   rainbow: [3, 3, 3],
   // The Violet (violet.ts) turns on a 5x5's outer slabs: its pieces sit
@@ -97,10 +104,15 @@ export const isGridless = (shape: CubeShape): boolean =>
 
 /** Whether a shape is drawn from polygons rather than cubie boxes: every
  *  gridless one, the Pyramorphinx (a 2x2 whose pieces are not cubes) and
- *  the 4-Trajber's Octahedron (a 4x4x4 cut to an octahedron), the Violet
+ *  the 4-Trajber's Octahedron and the VTO (cubes cut to an octahedron), the Violet
  *  (pieces of two sizes). */
 export const isPolyDrawn = (shape: CubeShape): boolean =>
-  isGridless(shape) || shape === 'morph' || shape === 'oct4' || shape === 'violet'
+  isGridless(shape) ||
+  shape === 'morph' ||
+  shape === 'oct4' ||
+  shape === 'vto' ||
+  shape === 'gem' ||
+  shape === 'violet'
 
 /**
  * Shapes that leave their box: their mechanism is a bigger cube with pieces
@@ -129,6 +141,8 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   jing: false,
   morph: true,
   oct4: false,
+  vto: false,
+  gem: false,
   rainbow: false,
   violet: true,
   ghost: false,
@@ -161,6 +175,8 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   jing: [],
   morph: [],
   oct4: ['slice'],
+  vto: ['wide'],
+  gem: [],
   rainbow: [],
   violet: [],
   ghost: [],
@@ -189,6 +205,8 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   jing: [],
   morph: [],
   oct4: [],
+  vto: [],
+  gem: [],
   rainbow: [],
   violet: [],
   ghost: [],
@@ -213,6 +231,8 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   jing: 'Pyraminx Jing',
   morph: 'Pyramorphinx',
   oct4: "4-Trajber's Octahedron",
+  vto: 'Octahedron VTO',
+  gem: 'GEM-0 (Jewel)',
   rainbow: 'Rainbow',
   violet: 'Violet',
   ghost: 'Floppy Ghost',
@@ -238,6 +258,8 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   jing: 'pyraminx-jing',
   morph: 'pyramorphinx',
   oct4: '4-trajber',
+  vto: 'vto',
+  gem: 'gem-0',
   rainbow: 'rainbow',
   violet: 'violet',
   ghost: 'floppy-ghost',
@@ -277,6 +299,8 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   jing: false,
   morph: false,
   oct4: false,
+  vto: false,
+  gem: false,
   rainbow: false,
   violet: false,
   ghost: false,
@@ -314,7 +338,9 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (variant === 'mirror') return 'mirror'
   if (isStar(shape)) return 'star'
   if (isPyraminx(shape) || shape === 'morph') return 'pyramid'
-  if (shape === 'oct4' || shape === 'rainbow') return 'octahedron'
+  if (shape === 'oct4' || shape === 'vto' || shape === 'gem' || shape === 'rainbow') {
+    return 'octahedron'
+  }
   if (shape === 'violet') return 'odd'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
@@ -338,11 +364,14 @@ export type Face = 'U' | 'D' | 'L' | 'R' | 'F' | 'B'
 
 /** Sticker colors. Kept distinct from Face letters (a sticker's color is not
  *  the same concept as the face it currently sits on). */
-export type Color = CubeColor | 'P' | 'V' | RainbowColor
+export type Color = CubeColor | 'P' | 'V' | RainbowColor | GemColor
 
 /** The Rainbow's six more triangle colors: dark green, dark blue,
  *  turquoise, pale pink, brown, lime. */
 type RainbowColor = 'E' | 'N' | 'T' | 'K' | 'M' | 'L'
+
+/** The GEM-0's squares: golden, as on the real puzzle. */
+type GemColor = 'C'
 
 /** The six colors of the cubes (the standard scheme); the star prism adds
  *  pink and violet for its six valleys. */
@@ -352,7 +381,7 @@ export type CubeColor = 'W' | 'Y' | 'G' | 'B' | 'O' | 'R'
 const COLORS: readonly CubeColor[] = ['W', 'Y', 'G', 'B', 'O', 'R']
 
 /** Every sticker color of every puzzle. */
-export const ALL_COLORS: readonly Color[] = [...COLORS, 'P', 'V', 'E', 'N', 'T', 'K', 'M', 'L']
+export const ALL_COLORS: readonly Color[] = [...COLORS, 'P', 'V', 'E', 'N', 'T', 'K', 'M', 'L', 'C']
 
 /** Integer coordinate axis. */
 export type Axis = 'x' | 'y' | 'z'

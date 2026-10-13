@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import type { Cubie } from '@/lib/types'
 import type { PolyDrawing } from './polyDrawing'
 
-/** A picture laid on a piece's face (the Violet's logo), turning with it:
+/** A picture laid on a piece's face (a GEM-0 emblem), turning with it:
  *  a square facing out of the face, upright the way the piece says. */
 export function Decal({
   cubie,

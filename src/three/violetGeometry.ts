@@ -50,30 +50,3 @@ export function violetPolygons(cubie: Cubie): PiecePolygon[] {
     return face(corners, [...n] as P3, shown, ni, STICKER_SCALE)
   })
 }
-
-/** Where a decal lies on a piece: the middle of a face, lifted off it, which
- *  way is up on it, and its width (scene units). */
-export interface DecalPlace {
-  readonly center: P3
-  readonly normal: P3
-  readonly up: P3
-  readonly size: number
-}
-
-/** The Violet's logo, on the big cube that starts down, front, left (the
- *  second piece): on its front face (its third sticker), up where that
- *  cube's top was (the way its second sticker, the bottom, does not look). */
-export function violetLogo(cubie: Cubie): DecalPlace {
-  const [, bottom, face] = cubie.stickers as [
-    Cubie['stickers'][0],
-    Cubie['stickers'][0],
-    Cubie['stickers'][0],
-  ]
-  const lift = 2 * SHRINK + 0.02
-  return {
-    center: [0, 1, 2].map((a) => (cubie.position[a]! + face.normal[a]! * lift) * SCALE) as P3,
-    normal: [...face.normal] as P3,
-    up: bottom.normal.map((v) => -v) as P3,
-    size: 2.4 * SCALE,
-  }
-}

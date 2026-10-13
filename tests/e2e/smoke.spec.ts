@@ -214,6 +214,8 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
     ['Pyramides', 'Pyraminx Jing'],
     ['Pyramides', 'Pyramorphinx'],
     ['Octaèdres', "4-Trajber's Octahedron"],
+    ['Octaèdres', 'Octahedron VTO'],
+    ['Octaèdres', 'GEM-0 (Jewel)'],
     ['Octaèdres', 'Rainbow'],
     ['Étoiles', '2-Star Prism (UFO)'],
     ['Étoiles', '4-Star Prism'],
@@ -241,6 +243,8 @@ const ENTERED: [string, string, string][] = [
   ['Pyramides', 'Pyraminx Jing', '28 / 28 stickers'],
   ['Pyramides', 'Pyramorphinx', '16 / 16 stickers'],
   ['Octaèdres', "4-Trajber's Octahedron", '56 / 56 stickers'],
+  ['Octaèdres', 'Octahedron VTO', '72 / 72 stickers'],
+  ['Octaèdres', 'GEM-0 (Jewel)', '54 / 54 stickers'],
   ['Octaèdres', 'Rainbow', '56 / 56 stickers'],
   ['Bizarre', 'Violet', '33 / 33 stickers'],
   // Entered piece by piece: its ten pieces counted.

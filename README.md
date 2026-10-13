@@ -5,7 +5,7 @@ Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2
 la **Slim Tower 2x2x3**, le **Domino 3x3x2** et le **Floppy 3x3x1**), le
 **Floppy Ghost** (un Floppy Megaminx découpé en pentagramme, argenté) et des
 puzzles non cubiques : le **Pyraminx**, le **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le
-**Pyraminx Jing**, le **Pyramorphinx**, le **4-Trajber's Octahedron** (un 4x4x4 en octaèdre),
+**Pyraminx Jing**, le **Pyramorphinx**, le **4-Trajber's Octahedron** (un 4x4x4 en octaèdre), l'**Octahedron VTO** (un 3x3x3 en octaèdre), le **GEM-0** (le VTO sans pointes),
 le **Rainbow** (un cuboctaèdre aux triangles qui tournent),
 le **Violet** (un 2x2x2 à pivot excentré qui se déforme)
 et les **Star Prism** à 2 et 4 étages.
@@ -45,6 +45,7 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   - Pyraminx Jing : **sommets d'abord** ;
   - Pyramorphinx : **comme un Pocket** ;
   - 4-Trajber's Octahedron : **sommets d'abord** ;
+  - Octahedron VTO et GEM-0 : **centres puis arêtes** ;
   - Rainbow : **triangle prolongé** ;
   - Violet : **forme puis couleurs** ;
   - Star Prism : **isoler puis permuter** ;

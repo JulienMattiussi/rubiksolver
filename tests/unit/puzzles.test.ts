@@ -62,6 +62,8 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'jing', pieces: 15, stickers: 28, orientations: 12, painted: 28, scramble: 15 },
   { shape: 'morph', pieces: 8, stickers: 16, orientations: 24, painted: 16, scramble: 11 },
   { shape: 'oct4', pieces: 56, stickers: 56, orientations: 24, painted: 56, scramble: 40 },
+  { shape: 'vto', pieces: 24, stickers: 72, orientations: 24, painted: 72, scramble: 25 },
+  { shape: 'gem', pieces: 18, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
   { shape: 'rainbow', pieces: 20, stickers: 56, orientations: 24, painted: 56, scramble: 20 },
   // Held three ways: about its diagonal through A, its one symmetry.
   {

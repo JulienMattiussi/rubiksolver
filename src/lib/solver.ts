@@ -12,6 +12,7 @@ import { PYRAMINX5_PLAN } from './methods/pyraminx5'
 import { JING_PLAN } from './methods/jing'
 import { MORPH_PLAN } from './methods/morph'
 import { OCT4_PLAN } from './methods/oct4'
+import { GEM_PLAN, VTO_PLAN } from './methods/vto'
 import { RAINBOW_PLAN } from './methods/rainbow'
 import { VIOLET_OPTIMAL_PLAN, VIOLET_SHAPE_FIRST_PLAN } from './methods/violet'
 import { withCentersHome } from './methods/recenter'
@@ -64,6 +65,8 @@ const SOLVE_METHODS = [
   { id: 'jingCornersFirst', plans: { jing: JING_PLAN } },
   { id: 'asPocket', plans: { morph: MORPH_PLAN } },
   { id: 'octCornersFirst', plans: { oct4: OCT4_PLAN } },
+  { id: 'vtoCentersFirst', plans: { vto: VTO_PLAN } },
+  { id: 'gemCentersFirst', plans: { gem: GEM_PLAN } },
   { id: 'extendedTriangle', plans: { rainbow: RAINBOW_PLAN } },
   { id: 'shapeFirst', plans: { violet: VIOLET_SHAPE_FIRST_PLAN } },
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },

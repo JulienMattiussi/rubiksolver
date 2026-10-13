@@ -22,6 +22,15 @@ export interface PiecePolygon {
   readonly ni?: number
 }
 
+/** Where a decal lies on a piece: the middle of a face, lifted off it, which
+ *  way is up on it, and its width (scene units). */
+export interface DecalPlace {
+  readonly center: P3
+  readonly normal: P3
+  readonly up: P3
+  readonly size: number
+}
+
 /** Share of a face its sticker covers, unless told otherwise. */
 const STICKER_SCALE = 0.84
 

@@ -9,7 +9,8 @@ et le **Floppy 3x3x1**, le **Floppy Ghost** (un Floppy Megaminx découpé en
 pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le **Pyraminx**, le
 **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le **Pyraminx Jing** (pièces courbes), le
 **Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme), le
-**4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), le **Rainbow**
+**4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), l'**Octahedron VTO**
+(un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
 (un cuboctaèdre dont les triangles tournent), le **Violet** (un 2x2x2 à
 pivot excentré, qui se déforme) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
@@ -100,6 +101,7 @@ src/
 │   ├── pieces.ts         # Requêtes de pièces : colorAt, colorsOf, cubieAt, atHome/homeAt/homesOf, listedAs (pièces listées dans le même ordre)
 │   ├── morph.ts          # Pyramorphinx : un 2x2 taillé en tétraèdre (coins à 3 stickers, milieux de face à 1)
 │   ├── oct4.ts           # 4-Trajber's Octahedron : un 4x4x4 sans cubies internes, un sticker par pièce (face de son octant)
+│   ├── vto.ts            # Octahedron VTO et GEM-0 : un 3x3x3 taillé en octaèdre (pointes à part sur le VTO, carrés sur le GEM-0)
 │   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
 │   ├── violetStates.ts   # Ses états vus (gros cubes pareils) : arbre des plus courts chemins (solutions), mélange sans retour
 │   ├── rainbow.ts        # Rainbow : cuboctaèdre, 12 pièces aux milieux des arêtes du cube, triangles en tiers de tour, notation
@@ -136,6 +138,7 @@ src/
 │   │   ├── pyraminx4.ts  #   Master Pyraminx : ailes puis co-ailes (3-cycles d'ailes, formules de fan2cube.fr)
 │   │   ├── pyraminx5.ts  #   Professor Pyraminx : ailes, co-ailes, arêtes, co-centres, centres (fan2cube.fr)
 │   │   ├── oct4.ts       #   4-Trajber's Octahedron : parité, sommets, arêtes, centres (3-cycles, fan2cube.fr)
+│   │   ├── vto.ts        #   VTO et GEM-0 : centres, arêtes placées (3-cycles), retournées par paires, pointes (fan2cube.fr)
 │   │   ├── rainbow.ts    #   Rainbow : triangle du haut, puis les autres par 3-cycles ([H' G'], [H D], fan2cube.fr)
 │   │   ├── pyraCycles.ts #   3-cycles d'une sorte de pièce par conjugaison (cycleTable), chiralité (handedHome), placement
 │   │   ├── jing.ts       #   Pyraminx Jing : sommets d'abord (crochet [DH] de fan2cube.fr)
@@ -170,7 +173,7 @@ src/
 │   ├── route.ts          # Adresse `#/<langue>/<puzzle>` (`#/<langue>` : l'accueil) : nom de chaque puzzle (SHAPE_SLUG + -mirror), routeHash, parseRoute
 │   ├── snapshot.ts       # encodeCube/decodeCube : forme texte d'un état (mémorisation), décodage qui rejette un texte corrompu
 │   ├── easing.ts         # easeInOut (partagé par les animations)
-│   ├── speed.ts          # Curseur 0..100 <-> secondes par rotation
+│   ├── speed.ts          # Curseur 0..100 <-> secondes par rotation (exponentiel, de 2,5 s à 0,06 s)
 │   └── progress.ts       # solveProgress : avancement par étape d'une solution (pour l'UI)
 ├── hooks/
 │   └── useIsDesktop.ts   # Breakpoint `sm` via matchMedia (bascule panneau unique / deux panneaux)
@@ -196,10 +199,10 @@ src/
 │   ├── starGeometry.ts   # Géométrie des pièces de l'étoile (cerfs-volants extrudés), partagée vue 3D / vignette
 │   ├── pyraGeometry.ts   # Géométrie des pièces du Pyraminx (petits tétraèdres et octaèdres des cellules du modèle)
 │   ├── morphGeometry.ts  # Pièces du Pyramorphinx : case du 2x2 coupée par le tétraèdre (polyèdre convexe)
-│   ├── octGeometry.ts    # Pièces du 4-Trajber : case du 4x4x4 coupée par l'octaèdre (polyhedron.ts, partagé avec le Pyramorphinx)
+│   ├── octGeometry.ts    # Pièces des octaèdres (4-Trajber, VTO, GEM-0) : case du cube coupée par l'octaèdre (polyhedron.ts)
+│   ├── gemEmblem.ts      # L'emblème rond des carrés dorés du GEM-0, dessiné sur un canvas
 │   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
-│   ├── violetLogo.ts     # Son logo (Pyraminx jaune, M rouge), dessiné sur un canvas
-│   ├── Decal.tsx         # Une image posée sur la face d'une pièce, qui tourne avec elle (PolyDrawing.decal)
+│   ├── Decal.tsx         # Une image posée sur la face de pièces choisies, qui tourne avec elles (PolyDrawing.decal)
 │   ├── rainbowGeometry.ts # Pièces du Rainbow : cellule de chaque pièce dans le cuboctaèdre (polyhedron.ts)
 │   ├── ghostGeometry.ts  # Pièces du Floppy Ghost : régions du carré coupé par le pentagramme, extrudées, posées par réflexions
 │   ├── jingGeometry.ts   # Géométrie courbe du Jing : surface arrondie maillée fin, découpée le long des coupes
@@ -338,6 +341,9 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   optimale du 2x2 qu'il est - voir « Le Pyramorphinx ».
 - **Sommets d'abord** (`octCornersFirst`, 4-Trajber's Octahedron) : parité,
   sommets, arêtes, centres - voir « Le 4-Trajber's Octahedron ».
+- **Centres puis arêtes** (`vtoCentersFirst`, Octahedron VTO ; `gemCentersFirst`,
+  GEM-0) : centres, arêtes placées, retournées, pointes du VTO - voir
+  « L'Octahedron VTO et le GEM-0 ».
 - **Triangle prolongé** (`extendedTriangle`, Rainbow) : le triangle du haut,
   puis les autres par 3-cycles - voir « Le Rainbow ».
 - **Ailes puis co-ailes** (`wingsFirst`, Master et Professor Pyraminx) :
@@ -809,6 +815,51 @@ de tranches (comme les ailes du 5x5), et non par paires avec les formules
 du VTO de la page, dont l'effet est tout de même vérifié en test. Environ
 250 coups.
 
+### L'Octahedron VTO (`vto`) et le GEM-0 (`gem`)
+
+Le Vertex Turning Octahedron (fan2cube.fr/VTO1 et 2) est un **3x3x3 taillé
+en octaèdre**, à la profondeur de ses coupes (un tiers depuis chaque sommet)
+: chaque face se découpe comme celle d'un Pyraminx, en 9 triangles. Ses six
+sommets sont les centres du cube et tournent d'un quart de tour, avec leur
+pointe, les quatre triangles qui l'entourent (les « centres » de la page) et
+leurs quatre arêtes ; les **pointes tournent aussi seules** (la page compte
+leurs tours à part, 4⁶ deux fois, et dit qu'elles « ne servent à rien »).
+Il tourne donc sur la grille d'un 5x5 (`SHAPE_DIMS` `[5, 5, 5]`) : pointe à
+2 sur son axe, triangles à 1, arêtes du cube en (1, 1, 0) ; le coup large
+(`Rw`) est celui du sommet, l'externe (`R`) celui de la pointe seule. Le pad
+les présente en onglets « Sommets » (d'abord) et « Pointes ». Les coins du
+cube, cachés (ils ne touchent les faces qu'en leur milieu), sont omis avec
+le cœur. Les cases n'ont pas la même taille (`VTO_CELL` : 1/2 autour du
+cœur, de 1/2 à 1, puis la pointe au-delà, dans les unités de l'octaèdre
+|x| + |y| + |z| <= 3/2) ; une pièce porte un sticker par face dont le plan
+coupe sa case, aux couleurs du 4-Trajber (`OCT_FACE_COLOR`).
+
+Le **GEM-0** (Jewel, fan2cube.fr/GEM-O1 et 2, Christoph Bandelow, 2010) est
+« un VTO sans sommet » : ses pointes sont rabotées en carrés (|x|, |y|, |z|
+<= 1, `truncate`), dorés avec un emblème rond comme sur le vrai puzzle
+(`gemEmblem.ts`, posé par `PolyDrawing.decal`). Sans pointes, il tourne
+comme un 3x3x3 (`GEM_CELL`), et chaque centre porte son carré en plus de
+ses quatre triangles. La page annonce des tours de 120°, mais son propre
+décompte (4⁶ orientations de centres) et le mécanisme donnent des quarts.
+
+**Rendu** (`octGeometry.ts`, partagé avec le 4-Trajber) : chaque pièce est
+sa case coupée par l'octaèdre (et, au GEM-0, par les plans des carrés) ; les
+vignettes n'en gardent que les faces extérieures (`outside`), sans quoi les
+faces entre pièces passent devant dans l'ordre du peintre.
+
+**Résolution** (`methods/vto.ts`, `centersThenEdges`, d'après les pages) :
+la page du VTO tient le puzzle une face vers soi, le sommet P en haut, G en
+bas à gauche, D en bas à droite, soit U, F et R du cube ; celle du GEM-0
+nomme ses carrés comme nos lettres françaises (A, D, H = F, R, U). (1) chaque
+sommet tourné jusqu'à ce que ses triangles aillent avec leurs faces (la
+tenue se lit sur eux, qui ne quittent jamais leur place) ; (2) arêtes
+placées par 3-cycles (`pyraCycles.ts`) : au VTO `[G D']` et `G'PG.P.G'P²G`,
+au GEM-0 `[H D]` ((HP) -> (HD) -> (AD)), de chaque côté puis conjugués ;
+(3) retournées deux par deux, `[G D'][P' D]` (`[A D'][H' D]` au GEM-0) ;
+(4) au VTO, les pointes tournées seules. Les sommets faits, les arêtes sont
+en permutation paire (un quart de tour est un 4-cycle d'arêtes et un quart
+de sommet) : les 3-cycles suffisent. Effet de chaque formule testé.
+
 ### Le Rainbow (`rainbow`)
 
 Le Rainbow (fan2cube.fr/rainbow1 et 2) est un **cuboctaèdre** : 6 carrés et
@@ -888,12 +939,6 @@ au-delà de sa longueur tant que A n'est pas disloqué.
 sur toutes ses faces (comme le vrai puzzle, aussi celles qu'un coup fait
 apparaître) sauf les stickers de A ; `PolyDrawing.offset` recentre la boîte, décalée du cœur autour
 duquel tout tourne.
-
-**Logo** (décoratif, `violetLogo.ts`, `Decal.tsx`) : un petit Pyraminx
-jaune et un M rouge sur la face avant du gros cube du bas, à gauche, devant.
-Les gros cubes étant pareils dans le modèle, il suit la pièce qui part de là
-(sa place dans la liste ne change jamais, son troisième sticker est sa face
-avant) ; il ne compte ni pour « résolu » ni pour les solveurs.
 
 **Résolution** (`methods/violet.ts`), aucune méthode humaine n'étant
 connue : tout vient d'un parcours de ses 41 760 états depuis le résolu
@@ -1179,7 +1224,7 @@ mobile et en saisie, une seule carte) :
   (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
-  4-Trajber's Octahedron/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Bizarre Violet.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Bizarre Violet.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

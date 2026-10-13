@@ -18,6 +18,8 @@ export const COLOR_HEX: Record<Color, string> = {
   K: '#fbcfe8',
   M: '#92400e',
   L: '#a3e635',
+  // The GEM-0's squares, golden.
+  C: '#d6b25e',
 }
 
 /** Dark plastic body of a cubie. */

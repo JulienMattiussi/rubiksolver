@@ -45,8 +45,15 @@ export function Controls() {
           type="button"
           onClick={() => goTo({ kind: null })}
           title={t.homeLink}
-          className="rounded transition hover:text-sky-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+          className="flex items-center gap-2 rounded transition hover:text-sky-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
         >
+          {/* The app's icon (the favicon), decorative beside its name. */}
+          <img
+            src={`${import.meta.env.BASE_URL}favicon.svg`}
+            alt=""
+            aria-hidden
+            className="size-6"
+          />
           {t.title}
         </button>
       )}

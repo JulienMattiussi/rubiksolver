@@ -4,11 +4,20 @@ import { GHOST_STICKER } from './colors'
 import { GHOST_YAW, ghostPolygons } from './ghostGeometry'
 import { jingCut, jingPolygons, jingThumbnail } from './jingGeometry'
 import { MORPH_ORIENT, morphPolygons } from './morphGeometry'
-import { OCT_YAW, octPolygons } from './octGeometry'
+import {
+  gemEmblem,
+  gemPolygons,
+  gemThumbnail,
+  OCT_YAW,
+  octPolygons,
+  octThumbnail,
+  vtoPolygons,
+  vtoThumbnail,
+} from './octGeometry'
 import { RAINBOW_ORIENT, RAINBOW_YAW, rainbowPolygons } from './rainbowGeometry'
-import { violetLogo, VIOLET_OFFSET, violetPolygons, type DecalPlace } from './violetGeometry'
-import { violetLogoPicture } from './violetLogo'
-import type { PiecePolygon } from './polygons'
+import { VIOLET_OFFSET, violetPolygons } from './violetGeometry'
+import { gemEmblemPicture } from './gemEmblem'
+import type { DecalPlace, PiecePolygon } from './polygons'
 import { PYRA_YAW, pyraPolygons } from './pyraGeometry'
 import { STAR_YAW, starPolygons } from './starGeometry'
 
@@ -28,10 +37,11 @@ export interface PolyDrawing {
   /** Where the model's origin stands in its frame, when its turns are about
    *  a point off its middle (the Violet's core). */
   readonly offset?: readonly [number, number, number]
-  /** A picture on one piece (the Violet's logo): the piece, by its index,
-   *  where on it, and the picture, drawn once. */
+  /** A picture on some pieces (the GEM-0's emblems):
+   *  which pieces (by index, or by what they are), where on each, and the
+   *  picture, drawn once. */
   readonly decal?: {
-    readonly index: number
+    readonly on: (index: number, cubie: Cubie) => boolean
     readonly place: (cubie: Cubie) => DecalPlace
     readonly picture: () => THREE.Texture
   }
@@ -54,7 +64,14 @@ const JING: PolyDrawing = {
 
 const MORPH: PolyDrawing = { polygons: morphPolygons, yaw: PYRA_YAW, orient: MORPH_ORIENT }
 
-const OCT4: PolyDrawing = { polygons: octPolygons, yaw: OCT_YAW }
+const OCT4: PolyDrawing = { polygons: octPolygons, yaw: OCT_YAW, thumbnail: octThumbnail }
+const VTO: PolyDrawing = { polygons: vtoPolygons, yaw: OCT_YAW, thumbnail: vtoThumbnail }
+const GEM: PolyDrawing = {
+  polygons: gemPolygons,
+  yaw: OCT_YAW,
+  thumbnail: gemThumbnail,
+  decal: { on: (_, c) => c.stickers.length === 5, place: gemEmblem, picture: gemEmblemPicture },
+}
 const RAINBOW: PolyDrawing = {
   polygons: rainbowPolygons,
   yaw: RAINBOW_YAW,
@@ -65,7 +82,6 @@ const VIOLET: PolyDrawing = {
   polygons: violetPolygons,
   yaw: 0,
   offset: VIOLET_OFFSET,
-  decal: { index: 1, place: violetLogo, picture: violetLogoPicture },
 }
 
 const GHOST: PolyDrawing = { polygons: ghostPolygons, yaw: GHOST_YAW, skin: GHOST_STICKER }
@@ -77,6 +93,8 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'morph') return MORPH
   if (shape === 'ghost') return GHOST
   if (shape === 'oct4') return OCT4
+  if (shape === 'vto') return VTO
+  if (shape === 'gem') return GEM
   if (shape === 'rainbow') return RAINBOW
   if (shape === 'violet') return VIOLET
   if (shape === 'pyra5') return PROFESSOR

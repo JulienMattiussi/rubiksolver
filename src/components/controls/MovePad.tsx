@@ -41,14 +41,18 @@ export function MovePad({ disabled }: { disabled: boolean }) {
   const shape = useCube((s) => cubeShape(s.cube))
   const cube = useCube((s) => s.cube)
   const dims = cubeDims(cube)
-  const [tab, setTab] = useState<PadTab>('outer')
+  const [tab, setTab] = useState<PadTab | null>(null)
   const moves = movesFor(shape)
   const advanced = advancedMovesFor(shape)
+  // The VTO turns its corners wide, its tips alone outer: corners first.
+  const vto = shape === 'vto'
   const tabs: PadTab[] = [
-    ...(['outer', 'slice', 'wide'] as const).filter((k) => moves.some((m) => layerKindOf(m) === k)),
+    ...((vto ? ['wide', 'outer'] : ['outer', 'slice', 'wide']) as LayerKind[]).filter((k) =>
+      moves.some((m) => layerKindOf(m) === k),
+    ),
     ...(advanced.length ? (['advanced'] as const) : []),
   ]
-  const current = tabs.includes(tab) ? tab : 'outer'
+  const current = tab && tabs.includes(tab) ? tab : tabs[0]!
   const kind: LayerKind = current === 'advanced' ? 'outer' : current
   const turn = (face: Face, amount: 1 | 2 | 3): Move =>
     kind === 'slice'
@@ -117,7 +121,11 @@ export function MovePad({ disabled }: { disabled: boolean }) {
             ariaLabel={t.layerLabel}
             value={current}
             onChange={setTab}
-            options={tabs.map((k) => ({ value: k, label: t.layerKinds[k] }))}
+            options={tabs.map((k) => ({
+              value: k,
+              label:
+                vto && k !== 'advanced' && k !== 'slice' ? t.vtoLayerKinds[k] : t.layerKinds[k],
+            }))}
           />
         </div>
       )}

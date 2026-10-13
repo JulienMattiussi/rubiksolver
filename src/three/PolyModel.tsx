@@ -37,16 +37,20 @@ export function PolyModel({ cube, groupRef, isTurning, highlighted = NO_PIECES }
             <PolyPiece key={i} cubie={c} drawing={drawing} highlighted={highlighted(i)} />
           ),
         )}
-        {drawing.decal && !isTurning(drawing.decal.index) && (
-          <Decal cubie={cube[drawing.decal.index]!} decal={drawing.decal} />
+        {cube.map((c, i) =>
+          drawing.decal?.on(i, c) && !isTurning(i) ? (
+            <Decal key={i} cubie={c} decal={drawing.decal} />
+          ) : null,
         )}
         {inside && <PolyPiece cubie={INSIDE} drawing={inside} />}
         <group ref={groupRef}>
           {cube.map((c, i) =>
             isTurning(i) ? <PolyPiece key={i} cubie={c} drawing={drawing} /> : null,
           )}
-          {drawing.decal && isTurning(drawing.decal.index) && (
-            <Decal cubie={cube[drawing.decal.index]!} decal={drawing.decal} />
+          {cube.map((c, i) =>
+            drawing.decal?.on(i, c) && isTurning(i) ? (
+              <Decal key={i} cubie={c} decal={drawing.decal} />
+            ) : null,
           )}
         </group>
       </group>
