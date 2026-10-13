@@ -7,7 +7,7 @@ import { cubeToEdit, emptyEdit, paint, progress } from '@/lib/editor'
 import { formOf } from '@/lib/forms'
 import { normalIndex } from '@/lib/geometry'
 import { validateCube } from '@/lib/validate'
-import { aBroken } from '@/lib/violetStates'
+import { aBroken, solveViolet } from '@/lib/violetStates'
 import { seededRng } from '../helpers'
 
 const SOLVED = solvedCube('violet')
@@ -113,6 +113,10 @@ describe('Violet', () => {
           const after = applyMove(state, m)
           if (seen.has(key(after))) continue
           seen.add(key(after))
+          // Solved in as many turns as it lies from solved: the fewest.
+          const solution = solveViolet(after)
+          expect(solution).toHaveLength(depth + 1)
+          expect(isSolved(applyMoves(after, solution))).toBe(true)
           next.push(after)
           expect(isSolved(after)).toBe(false)
           if (isBoxed(after)) {

@@ -11,7 +11,7 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 **Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme), le
 **4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), le **Rainbow**
 (un cuboctaèdre dont les triangles tournent), le **Violet** (un 2x2x2 à
-pivot excentré, qui se déforme, encore sans méthode) et les
+pivot excentré, qui se déforme) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
@@ -29,7 +29,7 @@ est au repos, est découpée en **étapes nommées** qu'on joue d'un coup,
 **étape par étape** ou **coup par coup**, dans les deux sens, pour apprendre
 la méthode. Le but est
 pédagogique, pas l'optimalité du nombre de coups (à l'exception de la méthode
-**Optimale** du 2x2, du 1x2x3, du Floppy et du Floppy Ghost, qui exploite leurs espaces
+**Optimale** du 2x2, du 1x2x3, du Floppy, du Floppy Ghost et du Violet, qui exploite leurs espaces
 d'états réduits).
 
 Application **100% front-end**, sans backend. Interface **français par défaut**
@@ -101,7 +101,7 @@ src/
 │   ├── morph.ts          # Pyramorphinx : un 2x2 taillé en tétraèdre (coins à 3 stickers, milieux de face à 1)
 │   ├── oct4.ts           # 4-Trajber's Octahedron : un 4x4x4 sans cubies internes, un sticker par pièce (face de son octant)
 │   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
-│   ├── violetStates.ts   # Ses états vus (gros cubes pareils) : atteignables (validation), mélange sans retour
+│   ├── violetStates.ts   # Ses états vus (gros cubes pareils) : arbre des plus courts chemins (solutions), mélange sans retour
 │   ├── rainbow.ts        # Rainbow : cuboctaèdre, 12 pièces aux milieux des arêtes du cube, triangles en tiers de tour, notation
 │   ├── cycleLibrary.ts   # 3-cycles purs des grands cubes (commutateurs [A, X Y X'] conjugués), findCycle, placeAll, borrow
 │   ├── ghost.ts          # Floppy Ghost : 10 emplacements autour du centre, demi-tours = réflexions entières, notation fan2cube
@@ -145,7 +145,8 @@ src/
 │   │   ├── slimTower.ts  #   Slim Tower 2x2x3 : équateur puis coins (formules du Domino, fan2cube.fr)
 │   │   ├── domino.ts     #   Domino 3x3x2 : coins puis arêtes (formules de fan2cube.fr, reprises élargies par la tour)
 │   │   ├── floppy.ts     #   Floppy 3x3x1 : coins puis arêtes retournées deux par deux (fan2cube.fr)
-│   │   └── ghost.ts      #   Floppy Ghost : sommets placés, orientés, puis arêtes (formules de fan2cube, des 5 côtés)
+│   │   ├── ghost.ts      #   Floppy Ghost : sommets placés, orientés, puis arêtes (formules de fan2cube, des 5 côtés)
+│   │   └── violet.ts     #   Violet : forme puis couleurs, et optimale (arbre de recherche de violetStates.ts)
 │   ├── solver4/          # Solveur 4x4 par réduction :
 │   │   ├── centers.ts    #   centres par comptage (D, U, puis ceinture), recherches bornées sans régression
 │   │   ├── edges.ts      #   appariement des ailes (échanges nets FR-bas <-> BR/FL-haut, goal-checkés), flip L2E
@@ -197,6 +198,8 @@ src/
 │   ├── morphGeometry.ts  # Pièces du Pyramorphinx : case du 2x2 coupée par le tétraèdre (polyèdre convexe)
 │   ├── octGeometry.ts    # Pièces du 4-Trajber : case du 4x4x4 coupée par l'octaèdre (polyhedron.ts, partagé avec le Pyramorphinx)
 │   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
+│   ├── violetLogo.ts     # Son logo (Pyraminx jaune, M rouge), dessiné sur un canvas
+│   ├── Decal.tsx         # Une image posée sur la face d'une pièce, qui tourne avec elle (PolyDrawing.decal)
 │   ├── rainbowGeometry.ts # Pièces du Rainbow : cellule de chaque pièce dans le cuboctaèdre (polyhedron.ts)
 │   ├── ghostGeometry.ts  # Pièces du Floppy Ghost : régions du carré coupé par le pentagramme, extrudées, posées par réflexions
 │   ├── jingGeometry.ts   # Géométrie courbe du Jing : surface arrondie maillée fin, découpée le long des coupes
@@ -313,9 +316,11 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
   droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL
   - 5 étapes.
-- **Optimale** (`optimal`, 2x2, 1x2x3, Floppy et Floppy Ghost) : recherche exhaustive,
+- **Optimale** (`optimal`, 2x2, 1x2x3, Floppy, Floppy Ghost et Violet) : recherche exhaustive,
   solution la plus courte possible (11 coups max sur 2x2, 6 sur 1x2x3, 8 sur
-  Floppy, 15 sur Floppy Ghost), une seule étape.
+  Floppy, 15 sur Floppy Ghost, 30 sur Violet), une seule étape.
+- **Forme puis couleurs** (`shapeFirst`, Violet) : redevenir un cube, puis
+  les couleurs du coin composé - voir « Le Violet ».
 - **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
   Pocket extérieur - voir « La tour 2x2x4 ».
 - **Équateur puis coins** (`equatorFirst`, Slim Tower 2x2x3) : les arêtes de
@@ -884,9 +889,23 @@ au-delà de sa longueur tant que A n'est pas disloqué.
 **Rendu** (`three/violetGeometry.ts`) : chaque pièce est une boîte, violette
 sur toutes ses faces (comme le vrai puzzle, aussi celles qu'un coup fait
 apparaître) sauf les stickers de A ; `PolyDrawing.offset` recentre la boîte, décalée du cœur autour
-duquel tout tourne. **Pas encore de méthode** : le panneau de résolution
-est grisé avec un message (`noMethodYet`), et la suite de conformance saute
-ce test (`methodless`).
+duquel tout tourne.
+
+**Logo** (décoratif, `violetLogo.ts`, `Decal.tsx`) : un petit Pyraminx
+jaune et un M rouge sur la face avant du gros cube du bas, à gauche, devant.
+Les gros cubes étant pareils dans le modèle, il suit la pièce qui part de là
+(sa place dans la liste ne change jamais, son troisième sticker est sa face
+avant) ; il ne compte ni pour « résolu » ni pour les solveurs.
+
+**Résolution** (`methods/violet.ts`), aucune méthode humaine n'étant
+connue : tout vient d'un parcours de ses 41 760 états depuis le résolu
+(`violetStates.ts`, une fois, environ une seconde, dans le worker), un arbre
+des chemins les plus courts. **Forme puis couleurs** (`shapeFirst`) : (1)
+le moins de coups pour redevenir un cube (`violetToCube`), (2) depuis ce
+cube (un des 35 cas), la suite la plus courte vers le résolu (`solveViolet`,
+le chemin de l'arbre défait : un coup qui est passé repasse dans l'autre
+sens) ; **Optimale** : la plus courte d'un coup. Le test vérifie sur tout
+l'espace que chaque solution a exactement la longueur de sa distance.
 
 **Saisie** : comme la tour, par sa forme (388, les rotations du puzzle
 entier fusionnées), puis ses couleurs. Les gros cubes arrivent déjà
@@ -894,8 +913,8 @@ violets : `emptyEdit` remplit tout sticker que toutes les pièces qui
 tiennent dans son emplacement montrent d'une seule couleur (dans la boîte,
 les trois mini-cubes de A à un sticker aussi : ils n'y sont jamais
 ailleurs). Une face sans sticker à saisir garde sa couleur dans la vue.
-Sans méthode, la validation vérifie que l'état est parmi les 41 760
-atteignables (`violetReachable`, calculés une fois, environ une seconde).
+La validation demande une solution, comme partout : un état hors de
+l'arbre lève une exception.
 
 ### Le Professor Pyraminx (`pyra5`)
 

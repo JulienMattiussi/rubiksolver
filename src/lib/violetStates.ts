@@ -1,11 +1,12 @@
 import { solvedCube } from './cube'
 import { applyMove } from './turn'
 import { SHAPE_DIMS, type Cube, type Face, type Move } from './types'
-import { violetTurns } from './violet'
+import { violetBoxed, violetTurns } from './violet'
 
 /**
- * The Violet's states as one sees them (its big cubes alike): which are
- * reachable, for the editor's check, and its scramble.
+ * The Violet's states as one sees them (its big cubes alike): few enough
+ * (41760) to search whole, for its solutions, the editor's check, and its
+ * scramble.
  *
  * The scramble. Random turns undo each other: most of its turns
  * jam, so a random walk keeps folding back into the cube, A whole. This one
@@ -48,33 +49,69 @@ function lookOf(cube: Cube): string {
 export const aBroken = (cube: Cube) =>
   cube.some((c) => c.position.every((v) => v % 2 === 0) && c.position.some((v) => v < 0))
 
-/** Every state reachable from the solved puzzle, by its look (41760),
- *  found once by a breadth-first search (about a second). */
-let reachable: Set<string> | null = null
+/** Each reachable state (41760, by its look) and the turn that first
+ *  reached it from the solved puzzle, with the look it came from: a tree of
+ *  shortest paths, found once by a breadth-first search (about a second). */
+let tree: Map<string, { readonly from: string; readonly move: Move } | null> | null = null
 
-/** Whether a state can be reached by turns: a real one, for the editor. */
-export function violetReachable(cube: Cube): boolean {
-  if (!reachable) {
-    const solved = solvedCube('violet')
-    reachable = new Set([lookOf(solved)])
-    let frontier = [solved]
-    while (frontier.length) {
-      const next: Cube[] = []
-      for (const state of frontier) {
-        for (const move of TURNS) {
-          // Its own jam test and mechanism: no need to tell its shape again.
-          if (!violetTurns(state, move.face)) continue
-          const after = applyMove(state, move, SHAPE_DIMS.violet)
-          const look = lookOf(after)
-          if (reachable.has(look)) continue
-          reachable.add(look)
-          next.push(after)
-        }
+function searchTree() {
+  if (tree) return tree
+  const solved = solvedCube('violet')
+  tree = new Map([[lookOf(solved), null]])
+  let frontier = [{ state: solved, look: lookOf(solved) }]
+  while (frontier.length) {
+    const next: typeof frontier = []
+    for (const { state, look: from } of frontier) {
+      for (const move of TURNS) {
+        // Its own jam test and mechanism: no need to tell its shape again.
+        if (!violetTurns(state, move.face)) continue
+        const after = applyMove(state, move, SHAPE_DIMS.violet)
+        const look = lookOf(after)
+        if (tree.has(look)) continue
+        tree.set(look, { from, move })
+        next.push({ state: after, look })
       }
-      frontier = next
     }
+    frontier = next
   }
-  return reachable.has(lookOf(cube))
+  return tree
+}
+
+/** A shortest solution: the tree's path to the state, undone (a turn that
+ *  went still goes back: the pieces it moved stay clear of every cut).
+ *  Throws on a state no turns reach. */
+export function solveViolet(cube: Cube): Move[] {
+  const paths = searchTree()
+  const moves: Move[] = []
+  let look = lookOf(cube)
+  if (!paths.has(look)) throw new Error('solveViolet: no turns reach this state')
+  for (let at = paths.get(look); at; at = paths.get(look)) {
+    moves.push({ face: at.move.face, amount: (4 - at.move.amount) as 1 | 2 | 3 })
+    look = at.from
+  }
+  return moves
+}
+
+/** The fewest turns that make the Violet a cube again, whatever A's colors. */
+export function violetToCube(cube: Cube): Move[] {
+  const seen = new Set([lookOf(cube)])
+  let frontier = [{ state: cube, moves: [] as Move[] }]
+  while (frontier.length) {
+    const next: typeof frontier = []
+    for (const { state, moves } of frontier) {
+      if (violetBoxed(state)) return moves
+      for (const move of TURNS) {
+        if (!violetTurns(state, move.face)) continue
+        const after = applyMove(state, move, SHAPE_DIMS.violet)
+        const look = lookOf(after)
+        if (seen.has(look)) continue
+        seen.add(look)
+        next.push({ state: after, moves: [...moves, move] })
+      }
+    }
+    frontier = next
+  }
+  throw new Error('violetToCube: no turns make it a cube')
 }
 
 /** Turns past `length` before giving up on breaking A (never reached in

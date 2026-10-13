@@ -1,7 +1,5 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Square } from 'lucide-react'
-import { cubeShape } from '@/lib/cube'
 import { stepEnd } from '@/lib/progress'
-import { methodsFor } from '@/lib/solver'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
 import { Button } from '@/components/ui/Button'
@@ -16,17 +14,13 @@ import { StepList } from './StepList'
  *  both ways a step or a move at a time (the most didactic; within a step,
  *  undo or finish it), and the steps: the method's plan, then its real
  *  moves as soon as they are computed (ahead, see useAutoPlan). On the home
- *  page, no puzzle yet: a hint, and its buttons grayed; so on a puzzle with
- *  no method yet (the Violet). */
+ *  page, no puzzle yet: a hint, and its buttons grayed. */
 /** A move is a smaller stride than a step: its buttons are a size down. */
 const MOVE_BUTTON = 'py-1.5 text-xs'
 
 export function SolvePanel({ home = false }: { home?: boolean }) {
   const t = useI18n((s) => s.t)
-  const methodless = useCube((s) => methodsFor(cubeShape(s.cube)).length === 0)
-  // Nothing to solve with: on the home page, or a puzzle with no method yet.
-  const idle = home || methodless
-  useAutoPlan(!idle)
+  useAutoPlan(!home)
   const solveAll = useCube((s) => s.solveAll)
   const pause = useCube((s) => s.pause)
   const solving = useCube((s) => s.solving)
@@ -43,19 +37,17 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
   // Within a step (some of its moves played): its buttons undo or finish it.
   const midStep =
     dispatched > 0 && dispatched < total && stepEnd(lengths, dispatched - 1) !== dispatched
-  // With nothing to solve with, every button shows, grayed.
-  const back = idle || busy || dispatched === 0
-  const ahead = idle || busy || solved || (dispatched > 0 && dispatched >= total)
+  // On the home page every button shows, grayed: no puzzle to solve yet.
+  const back = home || busy || dispatched === 0
+  const ahead = home || busy || solved || (dispatched > 0 && dispatched >= total)
 
   return (
     // Free to shrink, so that only the step list scrolls when room is short.
     <section aria-label={t.sectionSolve} className={`${SECTION_BOX} min-h-0`}>
-      {idle ? (
+      {home ? (
         <div>
           <h2 className={SECTION_LABEL}>{t.methodLabel}</h2>
-          <p className="mt-2 text-xs leading-relaxed text-slate-400">
-            {home ? t.solveHint : t.noMethodYet}
-          </p>
+          <p className="mt-2 text-xs leading-relaxed text-slate-400">{t.solveHint}</p>
         </div>
       ) : (
         <MethodSelect disabled={busy} />
@@ -72,7 +64,7 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
           <Button
             variant="solve"
             onClick={solveAll}
-            disabled={idle || busy || solved}
+            disabled={home || busy || solved}
             className="col-span-2"
           >
             <FEATURE_ICON.solve className="size-4" aria-hidden />
@@ -97,7 +89,7 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
         </Button>
       </div>
 
-      {idle ? null : steps && steps.length > 0 ? (
+      {home ? null : steps && steps.length > 0 ? (
         <StepList steps={steps} />
       ) : (
         !steps && <PlanOutline />

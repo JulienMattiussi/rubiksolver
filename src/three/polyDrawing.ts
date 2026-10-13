@@ -1,3 +1,4 @@
+import type * as THREE from 'three'
 import { isStar, type CubeShape, type Cubie } from '@/lib/types'
 import { GHOST_STICKER } from './colors'
 import { GHOST_YAW, ghostPolygons } from './ghostGeometry'
@@ -5,7 +6,8 @@ import { jingCut, jingPolygons, jingThumbnail } from './jingGeometry'
 import { MORPH_ORIENT, morphPolygons } from './morphGeometry'
 import { OCT_YAW, octPolygons } from './octGeometry'
 import { RAINBOW_ORIENT, RAINBOW_YAW, rainbowPolygons } from './rainbowGeometry'
-import { VIOLET_OFFSET, violetPolygons } from './violetGeometry'
+import { violetLogo, VIOLET_OFFSET, violetPolygons, type DecalPlace } from './violetGeometry'
+import { violetLogoPicture } from './violetLogo'
 import type { PiecePolygon } from './polygons'
 import { PYRA_YAW, pyraPolygons } from './pyraGeometry'
 import { STAR_YAW, starPolygons } from './starGeometry'
@@ -26,6 +28,13 @@ export interface PolyDrawing {
   /** Where the model's origin stands in its frame, when its turns are about
    *  a point off its middle (the Violet's core). */
   readonly offset?: readonly [number, number, number]
+  /** A picture on one piece (the Violet's logo): the piece, by its index,
+   *  where on it, and the picture, drawn once. */
+  readonly decal?: {
+    readonly index: number
+    readonly place: (cubie: Cubie) => DecalPlace
+    readonly picture: () => THREE.Texture
+  }
   /** The one color of every sticker, when the puzzle wears a single one
    *  (the Floppy Ghost's silver): its pieces are told apart by shape. */
   readonly skin?: string
@@ -52,7 +61,12 @@ const RAINBOW: PolyDrawing = {
   orient: RAINBOW_ORIENT,
 }
 
-const VIOLET: PolyDrawing = { polygons: violetPolygons, yaw: 0, offset: VIOLET_OFFSET }
+const VIOLET: PolyDrawing = {
+  polygons: violetPolygons,
+  yaw: 0,
+  offset: VIOLET_OFFSET,
+  decal: { index: 1, place: violetLogo, picture: violetLogoPicture },
+}
 
 const GHOST: PolyDrawing = { polygons: ghostPolygons, yaw: GHOST_YAW, skin: GHOST_STICKER }
 

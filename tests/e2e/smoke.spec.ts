@@ -242,6 +242,7 @@ const ENTERED: [string, string, string][] = [
   ['Pyramides', 'Pyramorphinx', '16 / 16 stickers'],
   ['Octaèdres', "4-Trajber's Octahedron", '56 / 56 stickers'],
   ['Octaèdres', 'Rainbow', '56 / 56 stickers'],
+  ['Bizarre', 'Violet', '33 / 33 stickers'],
   // Entered piece by piece: its ten pieces counted.
   ['Plats', 'Floppy Ghost', '10 / 10 pièces'],
   // Only the stickers one sees count: the inner points' flat faces fill in.

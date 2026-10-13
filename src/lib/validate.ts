@@ -3,7 +3,6 @@ import { countColors, cubeShape, stickersOfColor } from './cube'
 import { usesRealPieces } from './editor'
 import { solveOptimal2 } from './methods/cube2'
 import { solve } from './solver'
-import { violetReachable } from './violetStates'
 
 export type ValidationError = 'counts' | 'impossible'
 export type ValidationResult = { ok: true } | { ok: false; error: ValidationError }
@@ -28,7 +27,6 @@ function cornersAsTwoByTwo(cube: Cube): Cube {
  *    - every other shape: we ask the solver for a solution; on an unsolvable cube (bad
  *      permutation or orientation parity, duplicated/missing piece) it
  *      exhausts its bounded search and throws, which we catch.
- *    - the Violet: among its states reachable from solved (no method yet).
  *    - 4x4: solvability has an exact piece-level characterization (its
  *      indistinguishable centers absorb every permutation-parity constraint,
  *      which is also why the OLL/PLL parities are legal states): every slot
@@ -46,10 +44,7 @@ export function validateCube(cube: Cube): ValidationResult {
   if (wrongCount) return { ok: false, error: 'counts' }
 
   try {
-    // The Violet has no method yet: its few states are checked directly.
-    if (shape === 'violet') {
-      if (!violetReachable(cube)) return { ok: false, error: 'impossible' }
-    } else if (shape === '4') {
+    if (shape === '4') {
       if (!usesRealPieces(cube)) return { ok: false, error: 'impossible' }
       solveOptimal2(cornersAsTwoByTwo(cube))
     } else {

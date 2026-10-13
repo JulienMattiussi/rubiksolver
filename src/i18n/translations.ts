@@ -154,7 +154,6 @@ const fr = {
   chooseModel: 'Choisissez un modèle',
   homeLink: 'Revenir à l’accueil',
   solveHint: 'Choisissez un modèle pour voir les choix de solution.',
-  noMethodYet: 'Pas encore de méthode de résolution pour ce puzzle.',
   // Around the number of models, shown apart (emphasized).
   homeTitle: { before: 'Choisissez votre modèle dans la galerie, parmi les', after: 'disponibles' },
   homeFeatures: {
@@ -285,9 +284,13 @@ const fr = {
       name: 'Coins puis arêtes',
       desc: 'Les coins d’abord, puis les arêtes, chaque fois avec une formule qui ne touche que ce qui reste à faire (Domino : bas puis haut ; Floppy : les coins placés, puis les arêtes retournées deux par deux ; Floppy Ghost : les sommets placés puis orientés, puis les arêtes retournées deux par deux).',
     },
+    shapeFirst: {
+      name: 'Forme puis couleurs',
+      desc: 'D’abord le moins de coups possible pour qu’il redevienne un cube, quelles que soient les couleurs du coin composé ; puis, depuis ce cube (35 cas possibles), la suite la plus courte qui remet ses couleurs : un algorithme par cas. Trouvé par une recherche sur tous ses états.',
+    },
     optimal: {
       name: 'Optimale',
-      desc: 'Recherche exhaustive de la solution la plus courte possible (2x2, 1x2x3, Floppy et Floppy Ghost, dont les espaces d’états sont assez petits).',
+      desc: 'Recherche exhaustive de la solution la plus courte possible (2x2, 1x2x3, Floppy, Floppy Ghost et Violet, dont les espaces d’états sont assez petits).',
     },
   },
   stepsLabel: 'Étapes',
@@ -312,6 +315,8 @@ const fr = {
     stepOLL: 'OLL (orienter la dernière face)',
     stepPLL: 'PLL (permuter la dernière couche)',
     stepOptimal: 'Solution optimale',
+    stepVioletCube: 'Redevenir un cube',
+    stepVioletColors: 'Les couleurs du coin composé',
     stepCenters: 'Centres',
     stepPairEdges: 'Appariement des arêtes',
     stepParity: 'Correction de parité',
@@ -504,7 +509,6 @@ const en: Translations = {
   chooseModel: 'Choose a model',
   homeLink: 'Back to the home page',
   solveHint: 'Choose a model to see its solving methods.',
-  noMethodYet: 'No solving method for this puzzle yet.',
   homeTitle: { before: 'Choose your model in the gallery, among the', after: 'available' },
   homeFeatures: {
     edit: {
@@ -635,9 +639,13 @@ const en: Translations = {
       name: 'Corners then edges',
       desc: 'Corners first, then edges, each time with a formula that only touches what is left to do (Domino: bottom then top; Floppy: corners placed, then edges flipped two at a time; Floppy Ghost: corners placed then turned over, then edges flipped two at a time).',
     },
+    shapeFirst: {
+      name: 'Shape then colors',
+      desc: 'First the fewest turns to make it a cube again, whatever the split corner’s colors; then, from that cube (35 possible cases), the shortest sequence putting its colors back: one algorithm per case. Found by a search over all its states.',
+    },
     optimal: {
       name: 'Optimal',
-      desc: 'Exhaustive search for the shortest possible solution (2x2, 1x2x3, Floppy and Floppy Ghost, whose state spaces are small enough).',
+      desc: 'Exhaustive search for the shortest possible solution (2x2, 1x2x3, Floppy, Floppy Ghost and Violet, whose state spaces are small enough).',
     },
   },
   stepsLabel: 'Steps',
@@ -662,6 +670,8 @@ const en: Translations = {
     stepOLL: 'OLL (orient last face)',
     stepPLL: 'PLL (permute last layer)',
     stepOptimal: 'Optimal solution',
+    stepVioletCube: 'Back to a cube',
+    stepVioletColors: 'The split corner’s colors',
     stepCenters: 'Centers',
     stepPairEdges: 'Edge pairing',
     stepParity: 'Parity fix',

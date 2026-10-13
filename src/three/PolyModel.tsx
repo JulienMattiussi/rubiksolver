@@ -3,6 +3,7 @@ import { cubeShape } from '@/lib/cube'
 import type { Cubie } from '@/lib/types'
 import type { ModelProps } from './CubeModel'
 import { NO_PIECES } from './noPieces'
+import { Decal } from './Decal'
 import { PolyPiece } from './PolyPiece'
 import { polyDrawing, type PolyDrawing } from './polyDrawing'
 
@@ -36,10 +37,16 @@ export function PolyModel({ cube, groupRef, isTurning, highlighted = NO_PIECES }
             <PolyPiece key={i} cubie={c} drawing={drawing} highlighted={highlighted(i)} />
           ),
         )}
+        {drawing.decal && !isTurning(drawing.decal.index) && (
+          <Decal cubie={cube[drawing.decal.index]!} decal={drawing.decal} />
+        )}
         {inside && <PolyPiece cubie={INSIDE} drawing={inside} />}
         <group ref={groupRef}>
           {cube.map((c, i) =>
             isTurning(i) ? <PolyPiece key={i} cubie={c} drawing={drawing} /> : null,
+          )}
+          {drawing.decal && isTurning(drawing.decal.index) && (
+            <Decal cubie={cube[drawing.decal.index]!} decal={drawing.decal} />
           )}
         </group>
       </group>

@@ -7,7 +7,7 @@ la **Slim Tower 2x2x3**, le **Domino 3x3x2** et le **Floppy 3x3x1**), le
 puzzles non cubiques : le **Pyraminx**, le **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le
 **Pyraminx Jing**, le **Pyramorphinx**, le **4-Trajber's Octahedron** (un 4x4x4 en octaèdre),
 le **Rainbow** (un cuboctaèdre aux triangles qui tournent),
-le **Violet** (un 2x2x2 à pivot excentré qui se déforme, sans méthode pour l'instant)
+le **Violet** (un 2x2x2 à pivot excentré qui se déforme)
 et les **Star Prism** à 2 et 4 étages.
 On manipule le puzzle, on le mélange **ou on saisit sa propre
 configuration** en peignant les stickers en 3D, puis on le résout selon
@@ -46,6 +46,7 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   - Pyramorphinx : **comme un Pocket** ;
   - 4-Trajber's Octahedron : **sommets d'abord** ;
   - Rainbow : **triangle prolongé** ;
+  - Violet : **forme puis couleurs** ;
   - Star Prism : **isoler puis permuter** ;
   - 4-Star Prism : **deux étoiles** (l'interne puis l'externe).
 - **Solution pas à pas** : le plan de la méthode dès son choix, puis la vraie

@@ -13,6 +13,7 @@ import { JING_PLAN } from './methods/jing'
 import { MORPH_PLAN } from './methods/morph'
 import { OCT4_PLAN } from './methods/oct4'
 import { RAINBOW_PLAN } from './methods/rainbow'
+import { VIOLET_OPTIMAL_PLAN, VIOLET_SHAPE_FIRST_PLAN } from './methods/violet'
 import { withCentersHome } from './methods/recenter'
 import { ROUX_PLAN } from './methods/roux'
 import { SLIM_TOWER_PLAN } from './methods/slimTower'
@@ -64,6 +65,7 @@ const SOLVE_METHODS = [
   { id: 'asPocket', plans: { morph: MORPH_PLAN } },
   { id: 'octCornersFirst', plans: { oct4: OCT4_PLAN } },
   { id: 'extendedTriangle', plans: { rainbow: RAINBOW_PLAN } },
+  { id: 'shapeFirst', plans: { violet: VIOLET_SHAPE_FIRST_PLAN } },
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },
   { id: 'twoStars', plans: { star4: STAR4_PLAN } },
   { id: 'cornersFirst', plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN, ghost: GHOST_PLAN } },
@@ -74,6 +76,7 @@ const SOLVE_METHODS = [
       '123': optimalPlan('123'),
       '331': optimalPlan('331'),
       ghost: optimalPlan('ghost'),
+      violet: VIOLET_OPTIMAL_PLAN,
     },
   },
 ] as const satisfies ReadonlyArray<{
