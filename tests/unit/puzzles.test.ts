@@ -53,6 +53,7 @@ const PUZZLES: ReadonlyArray<{
   { shape: '3', pieces: 27, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
   { shape: '4', pieces: 64, stickers: 96, orientations: 24, painted: 96, scramble: 40 },
   { shape: '5', pieces: 125, stickers: 150, orientations: 24, painted: 150, scramble: 60 },
+  { shape: '6', pieces: 216, stickers: 216, orientations: 24, painted: 216, scramble: 80 },
   { shape: '123', pieces: 6, stickers: 22, orientations: 4, painted: 22, scramble: 10 },
   { shape: '223', pieces: 12, stickers: 32, orientations: 8, painted: 32, scramble: 20 },
   { shape: '224', pieces: 16, stickers: 40, orientations: 8, painted: 40, scramble: 25 },

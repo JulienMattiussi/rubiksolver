@@ -9,6 +9,7 @@ export type CubeShape =
   | '3'
   | '4'
   | '5'
+  | '6'
   | '123'
   | '224'
   | '223'
@@ -52,6 +53,7 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   '3': [3, 3, 3],
   '4': [4, 4, 4],
   '5': [5, 5, 5],
+  '6': [6, 6, 6],
   '123': [3, 2, 1],
   '224': [2, 4, 2],
   '223': [2, 3, 2],
@@ -167,6 +169,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '3': false,
   '4': false,
   '5': false,
+  '6': false,
   '123': false,
   '223': false,
   '224': true,
@@ -203,11 +206,16 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
  * there turns four whole faces: the puzzle stays solved). Like
  * SHAPE_SHIFTS, a property of the real puzzle.
  */
-export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]> = {
+/** An inner layer kind: the slice next to the face (2R), the third layer in
+ *  (3R, a 6x6's), the face with the next one (Rw) or the next two (3Rw). */
+export type InnerTurn = 'slice' | 'wide' | 'slice3' | 'wide3'
+
+export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   '2': [],
   '3': [],
   '4': ['slice', 'wide'],
   '5': ['slice', 'wide'],
+  '6': ['slice', 'slice3', 'wide', 'wide3'],
   '123': [],
   '224': ['wide'],
   '223': ['wide'],
@@ -245,6 +253,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   '3': ['slice', 'wide'],
   '4': [],
   '5': [],
+  '6': [],
   '123': [],
   '224': [],
   '223': [],
@@ -278,6 +287,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '3': '3x3',
   '4': '4x4',
   '5': '5x5',
+  '6': '6x6',
   '123': '1x2x3',
   '224': '2x2x4',
   '223': '2x2x3 (Slim Tower)',
@@ -312,6 +322,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   '3': '3x3',
   '4': '4x4',
   '5': '5x5',
+  '6': '6x6',
   '123': '1x2x3',
   '224': '2x2x4',
   '223': 'slim-tower',
@@ -360,6 +371,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   '3': true,
   '4': true,
   '5': false,
+  '6': false,
   '123': false,
   '223': false,
   '224': false,
@@ -504,7 +516,7 @@ export interface Cubie {
 export type Cube = readonly Cubie[]
 
 /**
- * A quarter-or-half turn of one or two layers, e.g. `U`, `R'`, `F2`, `2R`, `Rw`.
+ * A quarter-or-half turn of one or more layers, e.g. `U`, `R'`, `F2`, `2R`, `Rw`.
  * `amount` is the number of clockwise quarter turns (1, 2, or 3 = counter-clockwise).
  *
  * Moves have a single canonical shape so structural comparison works:
@@ -513,14 +525,15 @@ export type Cube = readonly Cubie[]
  *   (SiGN notation `2R`): the middle slice M/E/S of a 3x3, an inner slice of
  *   a 4x4;
  * - `{ face, amount, depth: 2, wide: true }`: wide turn, outer + inner layers
- *   together (`Rw`). `wide` never appears without `depth`, and `depth: 1` /
- *   `wide: false` are never used.
+ *   together (`Rw`); with `depth: 3`, three layers (a 6x6's `3Rw`). `wide`
+ *   never appears without `depth`, and `depth: 1` / `wide: false` are never
+ *   used.
  */
 export interface Move {
   readonly face: Face
   readonly amount: 1 | 2 | 3
   /** Inner layer selector: 2 = second layer in from `face`, 3 = the third
-   *  (a 5x5's middle slice). Absent = outer. */
+   *  (a 5x5's middle slice, a 6x6's inner one). Absent = outer. */
   readonly depth?: 2 | 3
   /** Wide turn: layers 1..depth turn together. Requires `depth`. */
   readonly wide?: true

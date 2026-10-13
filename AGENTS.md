@@ -3,7 +3,7 @@
 ## Description du projet
 
 POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3,
-4x4 ou 5x5**, **classique ou miroir** (sauf le 5x5), plus cinq cuboïdes : le **1x2x3**, la
+4x4, 5x5 ou 6x6**, **classique ou miroir** (sauf le 5x5 et le 6x6), plus cinq cuboïdes : le **1x2x3**, la
 **tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**
 et le **Floppy 3x3x1**, le **Floppy Ghost** (un Floppy Megaminx découpé en
 pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (un Pyraminx sans pointes), le
@@ -26,7 +26,7 @@ on saisit sa propre configuration** en peignant les stickers directement en
 3D (sur tous les puzzles, Pyraminx et étoiles compris ; un puzzle déformable
 dans la forme où il se trouve, le Floppy Ghost et le Z-Twist pièce par pièce), on peut **mémoriser un état**
 pour y revenir, puis on le résout selon **plusieurs vraies méthodes** (par
-couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4 et du 5x5, méthodes de la tour, du
+couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4, du 5x5 et du 6x6, méthodes de la tour, du
 Domino, du Pyraminx et des étoiles...). La solution, affichée dès que le cube
 est au repos, est découpée en **étapes nommées** qu'on joue d'un coup,
 **étape par étape** ou **coup par coup**, dans les deux sens, pour apprendre
@@ -84,7 +84,7 @@ voisins (ex : `big-bang-clicker`).
 > cube** : une forme n'est qu'un triplet de nombres de couches (`SHAPE_DIMS`),
 > une grille par axe, ce qui donne le 1x2x3 (`{-1,0,1} x {-1,1} x {0}`, 6
 > pièces), la tour et le Domino. Un `Move` désigne une face + éventuellement
-> `depth: 2` (tranche interne ; `3` : la tranche du milieu d'un 5x5) et `wide` (couches 1+2) ; `moveSlab` en déduit
+> `depth: 2` (tranche interne ; `3` : la troisième couche, tranche du milieu d'un 5x5) et `wide` (couches 1 à `depth`) ; `moveSlab` en déduit
 > la tranche tournée (l'intervalle entre deux plans de coupe), source unique
 > partagée par `applyMove`, l'animation et l'aperçu (`turnedBy`). Les coups
 > agissent sur le **mécanisme** (`turnDims`) : le puzzle lui-même, sauf la tour,
@@ -174,6 +174,9 @@ src/
 │   │   ├── edges.ts      #   ailes amenées sur leur milieu par 3-cycles d'ailes, parité d'arête (algo OLL du 4x4)
 │   │   ├── project.ts    #   projection du 5x5 réduit vers un 3x3 (coins, milieux d'arêtes, centres fixes)
 │   │   └── steps.ts      #   reduction5Plan(plan 3x3)
+│   ├── solver6/          # Solveur 6x6 par réduction : kinds, centers, edges (choix des arêtes, parités d'orbite), project, steps
+│   ├── centerCycles.ts   # Centres des grands cubes face par face (deux coups, sinon un 3-cycle), partagé 5x5 / 6x6
+│   ├── wingPairing.ts    # Ailes amenées où on les veut par 3-cycles purs, partagé 5x5 / 6x6
 │   ├── editorTables.ts   # Tables de saisie par forme : slots, placements valides étiquetés par pièce physique, budgets,
 │   │                     #   pièces fixes pré-remplies (centres du 3x3, demi-vis gauche des étoiles), stickers cachés (4-Star)
 │   ├── gearEditor.ts     # Saisie des Gear Cubes à agrafes colorées (Ultimate, Extreme) : engrenages peints à part de leurs agrafes, retournés ou non
@@ -271,7 +274,7 @@ tests/
 ├── setup.ts              # Configuration de Vitest (jest-dom)
 ├── helpers.ts            # RNG déterministe (seededRng), coin vrillé (twistedCorner)
 ├── unit/                 # Vitest : puzzles (conformance : une ligne par forme, voir plus bas), cube (coups, tour),
-│                         #   moves, solver + solver4,
+│                         #   moves, solver + solver4 + solver6,
 │                         #   methods (Roux/Petrus/ZZ : objectifs et jeux de coups), algs, tower, domino (effet de chaque
 │                         #   formule), floppy, slimTower, pieceSearch, flat123 (espaces d'états entiers), editor, validate, shape, snapshot,
 │                         #   star (modèle, formules fan2cube, méthodes des deux étoiles), starEditor (saisie des étoiles),
@@ -332,10 +335,10 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   permutation du haut - 3 étapes.
 - **Fridrich / CFOP** (`cfop`, 3x3 et Z-Twist) : Croix, puis **F2L** (paires coin+arête
   par colonne), puis **OLL**, puis **PLL** - 4 étapes.
-- **Réduction** (`reduction` et `reductionCfop`, 4x4 et 5x5) : Centres,
+- **Réduction** (`reduction` et `reductionCfop`, 4x4, 5x5 et 6x6) : Centres,
   Appariement des arêtes, Correction de parité (étape émise seulement si
   nécessaire), puis la phase 3x3 de la méthode choisie (par couches ou CFOP)
-  - voir plus bas, et « Le 5x5 par réduction ».
+  - voir plus bas, « Le 5x5 par réduction » et « Le 6x6 par réduction ».
 - **Roux** (`roux`, 3x3) : premier bloc 1x2x3 à gauche (arête DL, paire
   avant, paire arrière), second bloc à droite en `<U, R, M, r>` seulement,
   CMLL en 2 temps (orienter avec Sune/Antisune, permuter), puis les six
@@ -1335,6 +1338,39 @@ emplacement qu'ils touchent.
 Résolution en environ 500 coups (dont 200 de centres et 150 d'arêtes),
 calculée en un peu plus d'une seconde (bibliothèques comprises).
 
+### Le 6x6 par réduction (`src/lib/solver6/`)
+
+Le moteur le fait tourner tel quel (grille `{-5, -3, -1, 1, 3, 5}`) ; ses
+coups ont une couche de plus : la troisième (`3R`) et le coup large de trois
+couches (`3Rw`, la moitié du cube), que `SHAPE_INNER_TURNS` déclare
+(`slice3`, `wide3`). Avec cinq sortes de couches, le pad écrit ses onglets
+en notation (`R 2R 3R Rw 3Rw`, le nom en infobulle). Aucun centre fixe :
+repère absolu comme le 4x4. Quatre sortes de centres par face (« x »
+intérieurs et extérieurs, obliques des deux mains, que la saisie distingue
+par leur chiralité : `handOf` dans `editorTables.ts`), et deux orbites
+d'ailes (externes, près des coins ; internes, au milieu).
+
+1. **Centres** (`centerCycles.ts`, partagé avec le 5x5) : face par face,
+   deux coups ou un 3-cycle de la sorte du centre (commutateurs de la
+   deuxième couche pour les « x » extérieurs, de la troisième pour les
+   intérieurs, des deux pour les obliques).
+2. **Arêtes** (`edges.ts`) : sans milieu d'arête, l'appariement choisit
+   quelle arête va où (pour chaque emplacement, celle que montrent déjà le
+   plus de ses ailes), puis corrige ce choix pour que la phase 3x3 tombe sur
+   un vrai 3x3 : deux arêtes échangées si leur ordre et celui des coins ne
+   s'accordent pas, une arête retournée si un nombre impair le sont. Plus de
+   parité OLL ni PLL. Les ailes arrivent par 3-cycles purs, orbite par
+   orbite (`wingPairing.ts`, partagé avec le 5x5).
+3. **Parité** : une orbite dont l'arrangement voulu est une permutation
+   impaire a sa paire d'UF visée croisée ; l'algorithme de parité OLL du
+   4x4 joué sur les tranches de l'orbite (`2R` pour les ailes externes,
+   `3R` pour les internes) l'échange, rien d'autre (testé).
+4. **Phase 3x3** par projection (`projectPlan`) : coins, une aile externe
+   par arête, un centre par face.
+
+Environ 770 coups (400 de centres, 230 d'arêtes), en moins d'une seconde
+(trois la première fois, le temps des bibliothèques).
+
 ### Le Floppy Ghost (`ghost`)
 
 Le Floppy Ghost (fan2cube.fr/floppyghost1, le Floppy Megaminx Ghost) est
@@ -1465,7 +1501,7 @@ mobile et en saisie, une seule carte) :
   sélecteur en modale, d'abord les **catégories** en vignettes, puis les
   **puzzles** de la catégorie choisie (toujours ouvert sur les catégories ; le
   puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`), dans
-  l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4/5x5, Miroirs 2x2/3x3/4x4, Tours 2x2x4/2x2x3
+  l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4/5x5/6x6, Miroirs 2x2/3x3/4x4, Tours 2x2x4/2x2x3
   (Slim)/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres

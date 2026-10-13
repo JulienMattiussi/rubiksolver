@@ -43,6 +43,7 @@ import {
   SHAPE_ADVANCED_TURNS,
   SHAPE_INNER_TURNS,
   SHAPE_SHIFTS,
+  type InnerTurn,
 } from './types'
 import type {
   Cube,
@@ -76,11 +77,23 @@ export function amountsFor(shape: CubeShape, face: Face): readonly (1 | 2 | 3)[]
   return quarterTurnFits(dims, faceAxis(face)) ? [1, 2, 3] : [2]
 }
 
-/** What a turn turns: the outer face, the inner slice (2R) or both (Rw). */
-export type LayerKind = 'outer' | 'slice' | 'wide'
+/** What a turn turns: the outer face, an inner slice (2R, a 6x6's 3R) or
+ *  the face with the layers behind it (Rw, a 6x6's 3Rw). */
+export type LayerKind = 'outer' | InnerTurn
 
 export function layerKindOf(move: Move): LayerKind {
-  return move.wide ? 'wide' : move.depth ? 'slice' : 'outer'
+  const third = move.depth === 3
+  if (move.wide) return third ? 'wide3' : 'wide'
+  return move.depth ? (third ? 'slice3' : 'slice') : 'outer'
+}
+
+/** The turn of `face` taking the layers `kind` names. */
+export function layerMove(face: Face, amount: 1 | 2 | 3, kind: LayerKind): Move {
+  const depth = kind === 'slice3' || kind === 'wide3' ? 3 : 2
+  if (kind === 'outer') return { face, amount }
+  return kind === 'wide' || kind === 'wide3'
+    ? { face, amount, depth, wide: true }
+    : { face, amount, depth }
 }
 
 type LayerVariant = Pick<Move, 'depth' | 'wide'>
@@ -92,9 +105,10 @@ function layerVariants(shape: CubeShape, face: Face): readonly LayerVariant[] {
   if (faceLayers(turnDims(shape), face) < 3) return [{}]
   return [
     {},
-    ...SHAPE_INNER_TURNS[shape].map((kind): LayerVariant =>
-      kind === 'wide' ? { depth: 2, wide: true } : { depth: 2 },
-    ),
+    ...SHAPE_INNER_TURNS[shape].map((kind): LayerVariant => {
+      const { depth, wide } = layerMove('U', 1, kind)
+      return wide ? { depth, wide } : { depth }
+    }),
   ]
 }
 
@@ -163,7 +177,8 @@ export function formatMove(move: Turn, labels: FaceLabels = NOTATION_US, dims?: 
     return slice.letter + AMOUNT_SUFFIX[amount]
   }
   const suffix = AMOUNT_SUFFIX[move.amount]
-  const slice = move.depth && !move.wide ? String(move.depth) : ''
+  // A wide turn of three layers is written 3Rw (a 6x6's), of two Rw.
+  const slice = move.depth && (!move.wide || move.depth === 3) ? String(move.depth) : ''
   const wide = move.wide ? 'w' : ''
   return slice + labels[move.face] + wide + suffix
 }
@@ -191,7 +206,7 @@ function faceOfLabel(labels: FaceLabels, label: string): Face | undefined {
 /**
  * Parse a single token like `R`, `R2`, `2R'`, `Rw2`, `M'` into a Move
  * (undefined if invalid). Only the canonical spellings are accepted: a wide
- * turn is `Rw`, never `2Rw`. M, E and S are the middle slices of a 3x3.
+ * turn is `Rw`, never `2Rw` (`3Rw` takes three layers). M, E and S are the middle slices of a 3x3.
  */
 export function parseMove(token: string, labels: FaceLabels = NOTATION_US): Move | undefined {
   let t = token.trim()
@@ -217,8 +232,8 @@ export function parseMove(token: string, labels: FaceLabels = NOTATION_US): Move
   const middle = SLICES.find((s) => s.letter === t)
   if (middle) return slice || wide ? undefined : { face: middle.face, amount, depth: 2 }
   const face = faceOfLabel(labels, t)
-  if (!face || (slice && wide)) return undefined
-  if (wide) return { face, amount, depth: 2, wide: true }
+  if (!face || (wide && depth === 2)) return undefined
+  if (wide) return { face, amount, depth: depth ?? 2, wide: true }
   if (depth) return { face, amount, depth }
   return { face, amount }
 }

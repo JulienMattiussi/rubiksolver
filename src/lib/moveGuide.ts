@@ -79,8 +79,10 @@ export type MoveDescription =
       readonly kind: 'face' | 'middle' | 'slice' | 'wide'
       readonly face: Face
       readonly turn: 'cw' | 'ccw' | 'half'
-      /** A wide turn taking half the mechanism (a 4x4's Rw, a tower's). */
+      /** A wide turn taking half the mechanism (a 4x4's Rw, a 6x6's 3Rw). */
       readonly halfPuzzle?: true
+      /** The third layer in (a 6x6's 3R), or three layers wide (3Rw). */
+      readonly third?: true
     }
   | {
       readonly kind: 'ring'
@@ -279,7 +281,14 @@ export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
   }
   const direction = turn.amount === 2 ? 'half' : turn.amount === 1 ? 'cw' : 'ccw'
   const kind = kindOf(turn, SHAPE_DIMS[shape])
-  // Two layers out of the mechanism's four: half of it.
-  const halfPuzzle = kind === 'wide' && faceLayers(turnDims(shape), turn.face) === 4
-  return { kind, face: turn.face, turn: direction, ...(halfPuzzle ? { halfPuzzle } : {}) }
+  // Two layers out of the mechanism's four (three of six): half of it.
+  const depth = turn.depth ?? 1
+  const halfPuzzle = kind === 'wide' && 2 * depth === faceLayers(turnDims(shape), turn.face)
+  const third = (kind === 'slice' || kind === 'wide') && depth === 3
+  return {
+    kind,
+    face: turn.face,
+    turn: direction,
+    ...(halfPuzzle ? { halfPuzzle } : third ? { third } : {}),
+  }
 }

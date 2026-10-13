@@ -3,7 +3,7 @@ import { applyMoves } from './turn'
 import type { Cube, Cubie, Dims, Move, Vec3 } from './types'
 
 /**
- * 3-cycle libraries of the big cubes' pieces (the 5x5's centers and wings,
+ * 3-cycle libraries of the big cubes' pieces (the 5x5's and 6x6's centers and wings,
  * the 4-Trajber's Octahedron's pieces), the brick of their steps.
  * A commutator [A, X Y X'] (A a slice, X and Y single turns) is found
  * pure when it moves exactly three pieces of one kind and nothing else that
@@ -37,7 +37,9 @@ const turns = (depth?: 2 | 3): Move[] =>
   )
 export const OUTER = turns()
 export const SLICES = turns(2)
-export const MIDDLES = turns(3).filter((m) => ['R', 'U', 'F'].includes(m.face))
+/** The third layer in from each face (a 6x6's 3R). */
+export const DEEP = turns(3)
+export const MIDDLES = DEEP.filter((m) => ['R', 'U', 'F'].includes(m.face))
 
 /** Where each piece of `pieces` lands under `moves`, by slot. */
 function slotMap(moves: readonly Move[], pieces: Cube, mechanism: Dims): Map<string, string> {

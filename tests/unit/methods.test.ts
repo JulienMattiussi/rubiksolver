@@ -151,7 +151,7 @@ describe('cube picker', () => {
       ]),
     )
     expect(groups).toEqual({
-      standard: ['2', '3', '4', '5'],
+      standard: ['2', '3', '4', '5', '6'],
       mirror: ['2m', '3m', '4m'],
       tower: ['223', '224', '332'],
       flat: ['123', '331', 'ghost'],

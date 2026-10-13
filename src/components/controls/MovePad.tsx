@@ -7,6 +7,7 @@ import {
   formatMove,
   FACES,
   layerKindOf,
+  layerMove,
   movesFor,
   sameLayer,
   type LayerKind,
@@ -28,7 +29,8 @@ type PadTab = LayerKind | 'advanced'
  * button where the puzzle has no quarter turn (every face of a 1x2x3), and
  * nothing for a face whose axis has a single layer. When the shape has other
  * layer kinds, a selector picks what the buttons turn: the outer face, the
- * inner slice (2R) or both layers together (Rw), as SHAPE_INNER_TURNS
+ * inner slice (2R, a 6x6's 3R too) or the face with the layers behind it
+ * (Rw, 3Rw), as SHAPE_INNER_TURNS
  * offers them, plus an "advanced" tab for the turns kept apart
  * (`advancedMovesFor`: the 3x3's M, E, S and wide turns). A face without
  * that kind of layer (a slim tower's side) or a turn the state jams (a
@@ -47,19 +49,14 @@ export function MovePad({ disabled }: { disabled: boolean }) {
   // The VTO turns its corners wide, its tips alone outer: corners first.
   const vto = shape === 'vto'
   const tabs: PadTab[] = [
-    ...((vto ? ['wide', 'outer'] : ['outer', 'slice', 'wide']) as LayerKind[]).filter((k) =>
-      moves.some((m) => layerKindOf(m) === k),
-    ),
+    ...(
+      (vto ? ['wide', 'outer'] : ['outer', 'slice', 'slice3', 'wide', 'wide3']) as LayerKind[]
+    ).filter((k) => moves.some((m) => layerKindOf(m) === k)),
     ...(advanced.length ? (['advanced'] as const) : []),
   ]
   const current = tab && tabs.includes(tab) ? tab : tabs[0]!
   const kind: LayerKind = current === 'advanced' ? 'outer' : current
-  const turn = (face: Face, amount: 1 | 2 | 3): Move =>
-    kind === 'slice'
-      ? { face, amount, depth: 2 }
-      : kind === 'wide'
-        ? { face, amount, depth: 2, wide: true }
-        : { face, amount }
+  const turn = (face: Face, amount: 1 | 2 | 3): Move => layerMove(face, amount, kind)
   /** The face has the selected kind of layer (the slim tower's sides have
    *  no wide turn: their axis is two layers deep). */
   const offered = (face: Face) => moves.some((m) => m.face === face && layerKindOf(m) === kind)
@@ -121,11 +118,19 @@ export function MovePad({ disabled }: { disabled: boolean }) {
             ariaLabel={t.layerLabel}
             value={current}
             onChange={setTab}
-            options={tabs.map((k) => ({
-              value: k,
-              label:
-                vto && k !== 'advanced' && k !== 'slice' ? t.vtoLayerKinds[k] : t.layerKinds[k],
-            }))}
+            options={tabs.map((k) => {
+              const name =
+                vto && (k === 'outer' || k === 'wide') ? t.vtoLayerKinds[k] : t.layerKinds[k]
+              // Five kinds (a 6x6's) only fit written as turns: R, 2R, 3R, Rw, 3Rw.
+              return tabs.length > 4 && k !== 'advanced'
+                ? {
+                    value: k,
+                    label: formatMove(layerMove('R', 1, k), labels),
+                    title: name,
+                    literal: true,
+                  }
+                : { value: k, label: name }
+            })}
           />
         </div>
       )}

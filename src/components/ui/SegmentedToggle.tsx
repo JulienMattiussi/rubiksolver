@@ -3,6 +3,8 @@ interface SegmentedOption<T extends string> {
   label: string
   /** Optional tooltip for the option. */
   title?: string
+  /** Shown as written, not in capitals (a turn: Rw). */
+  literal?: boolean
 }
 
 interface SegmentedToggleProps<T extends string> {
@@ -38,7 +40,7 @@ export function SegmentedToggle<T extends string>({
           onClick={() => onChange(option.value)}
           aria-pressed={value === option.value}
           title={option.title}
-          className={`rounded font-semibold whitespace-nowrap uppercase transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 ${SIZE[size]} ${
+          className={`rounded font-semibold whitespace-nowrap ${option.literal ? '' : 'uppercase'} transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 ${SIZE[size]} ${
             value === option.value ? 'bg-sky-500 text-white' : 'text-slate-400 hover:text-slate-200'
           }`}
         >

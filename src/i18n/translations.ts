@@ -48,9 +48,13 @@ const fr = {
     const target =
       kind === 'slice'
         ? `la tranche interne de la ${faceName}`
-        : kind === 'wide'
-          ? `les deux couches de la ${faceName}`
-          : `la ${faceName}`
+        : kind === 'slice3'
+          ? `la troisième couche depuis la ${faceName}`
+          : kind === 'wide'
+            ? `les deux couches de la ${faceName}`
+            : kind === 'wide3'
+              ? `les trois couches de la ${faceName}`
+              : `la ${faceName}`
     return `Tourner ${target} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`
   },
   moveTitleHalf: (faceName: string) => `Retourner la ${faceName} (demi-tour)`,
@@ -95,12 +99,19 @@ const fr = {
     deep: 'Sommets',
   },
   noSuchLayer: (faceName: string, kind: LayerKind) =>
-    `Pas de ${kind === 'wide' ? 'coup large' : 'tranche interne'} pour la ${faceName} sur ce puzzle`,
+    `Pas de ${kind === 'wide' || kind === 'wide3' ? 'coup large' : 'tranche interne'} pour la ${faceName} sur ce puzzle`,
   jammedTurn: (faceName: string) =>
     `Bloqué : la ${faceName} ne peut pas tourner dans cette position`,
   layerLabel: 'Couche tournée',
   vtoLayerKinds: { wide: 'Sommets', outer: 'Pointes' },
-  layerKinds: { outer: 'Externe', slice: 'Tranche', wide: 'Large', advanced: 'Avancé' },
+  layerKinds: {
+    outer: 'Externe',
+    slice: 'Tranche',
+    slice3: 'Tranche 3',
+    wide: 'Large',
+    wide3: 'Large 3',
+    advanced: 'Avancé',
+  },
   editCube: 'Saisir un cube',
   editTitle: 'Saisie du cube',
   editHint:
@@ -489,9 +500,13 @@ const en: Translations = {
     const target =
       kind === 'slice'
         ? `the inner slice of the ${faceName}`
-        : kind === 'wide'
-          ? `both layers of the ${faceName}`
-          : `the ${faceName}`
+        : kind === 'slice3'
+          ? `the third layer from the ${faceName}`
+          : kind === 'wide'
+            ? `both layers of the ${faceName}`
+            : kind === 'wide3'
+              ? `the three layers of the ${faceName}`
+              : `the ${faceName}`
     return `Turn ${target} ${clockwise ? 'clockwise' : 'counter-clockwise'}`
   },
   moveTitleHalf: (faceName: string) => `Turn the ${faceName} a half turn`,
@@ -535,11 +550,18 @@ const en: Translations = {
     deep: 'Corners',
   },
   noSuchLayer: (faceName: string, kind: LayerKind) =>
-    `No ${kind === 'wide' ? 'wide turn' : 'inner slice'} for the ${faceName} on this puzzle`,
+    `No ${kind === 'wide' || kind === 'wide3' ? 'wide turn' : 'inner slice'} for the ${faceName} on this puzzle`,
   jammedTurn: (faceName: string) => `Jammed: the ${faceName} cannot turn in this position`,
   layerLabel: 'Turned layer',
   vtoLayerKinds: { wide: 'Corners', outer: 'Tips' },
-  layerKinds: { outer: 'Outer', slice: 'Slice', wide: 'Wide', advanced: 'Advanced' },
+  layerKinds: {
+    outer: 'Outer',
+    slice: 'Slice',
+    slice3: 'Slice 3',
+    wide: 'Wide',
+    wide3: 'Wide 3',
+    advanced: 'Advanced',
+  },
   editCube: 'Enter a cube',
   editTitle: 'Cube input',
   editHint:

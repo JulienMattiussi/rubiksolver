@@ -192,7 +192,9 @@ export function describeFr(d: MoveDescription): string {
   const target = {
     face: `la ${face}`,
     middle: `la tranche du milieu, parallèle à la ${face},`,
-    slice: `la tranche interne voisine de la ${face}`,
+    slice: d.third
+      ? `la troisième couche depuis la ${face}`
+      : `la tranche interne voisine de la ${face}`,
     wide: d.halfPuzzle
       ? `toute ${HALF_NAMES_FR[d.face]} du puzzle`
       : `la ${face} et la tranche interne voisine ensemble`,
@@ -257,7 +259,7 @@ export function describeEn(d: MoveDescription): string {
   const target = {
     face: `the ${face}`,
     middle: `the middle slice, parallel to the ${face},`,
-    slice: `the inner slice next to the ${face}`,
+    slice: d.third ? `the third layer from the ${face}` : `the inner slice next to the ${face}`,
     wide: d.halfPuzzle
       ? `${HALF_NAMES_EN[d.face]} of the puzzle`
       : `the ${face} and the inner slice next to it together`,

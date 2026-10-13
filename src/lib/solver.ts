@@ -29,6 +29,7 @@ import { TOWER_PLAN } from './methods/tower'
 import { ZZ_PLAN } from './methods/zz'
 import { reductionPlan } from './solver4/steps'
 import { reduction5Plan } from './solver5/steps'
+import { reduction6Plan } from './solver6/steps'
 import { buildSteps, planOutline, type MethodPlan, type SolveStep } from './solverKit'
 import type { Cube, CubeShape, Turn } from './types'
 
@@ -64,11 +65,19 @@ const SOLVE_METHODS = [
   { id: 'zz', plans: { '3': withCentersHome(ZZ_PLAN), twist: twistPlan(ZZ_PLAN) } },
   {
     id: 'reduction',
-    plans: { '4': reductionPlan(BEGINNER_PLAN), '5': reduction5Plan(BEGINNER_PLAN) },
+    plans: {
+      '4': reductionPlan(BEGINNER_PLAN),
+      '5': reduction5Plan(BEGINNER_PLAN),
+      '6': reduction6Plan(BEGINNER_PLAN),
+    },
   },
   {
     id: 'reductionCfop',
-    plans: { '4': reductionPlan(CFOP_PLAN), '5': reduction5Plan(CFOP_PLAN) },
+    plans: {
+      '4': reductionPlan(CFOP_PLAN),
+      '5': reduction5Plan(CFOP_PLAN),
+      '6': reduction6Plan(CFOP_PLAN),
+    },
   },
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
   { id: 'equatorFirst', plans: { '223': SLIM_TOWER_PLAN } },

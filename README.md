@@ -1,7 +1,7 @@
 # Rubik Solver
 
 Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2
-(Pocket), 3x3, 4x4 ou 5x5**, plus cinq cuboïdes (le **1x2x3**, la **tour 2x2x4**,
+(Pocket), 3x3, 4x4, 5x5 ou 6x6**, plus cinq cuboïdes (le **1x2x3**, la **tour 2x2x4**,
 la **Slim Tower 2x2x3**, le **Domino 3x3x2** et le **Floppy 3x3x1**), le
 **Floppy Ghost** (un Floppy Megaminx découpé en pentagramme, argenté) et des
 puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (sans pointes), le **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le
@@ -34,7 +34,7 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   - Z-Twist : par couches, CFOP, Petrus, ZZ, puis les centres tordus ;
   - 2x2 : par couches, et **optimale** (11 coups maximum) ;
   - 4x4 : **réduction** (centres, arêtes, parités) puis par couches ou CFOP ;
-  - 5x5 : **réduction** aussi, centres et arêtes par commutateurs (3-cycles),
+  - 5x5 et 6x6 : **réduction** aussi, centres et arêtes par commutateurs (3-cycles),
     parité d'arête, puis par couches ou CFOP ;
   - 1x2x3 : optimale ;
   - Floppy : **coins puis arêtes**, et optimale ;
