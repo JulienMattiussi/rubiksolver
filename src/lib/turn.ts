@@ -164,8 +164,12 @@ export function applyMove(
   const times = spec.sign * move.amount
   return cube.map((cubie) => {
     if (!turns(cubie.position)) return cubie
+    // A Z-Twist side center a quarter turn further (twist.ts); a gear keeps
+    // its spin (a top or bottom turn of the Gear Cube Extreme).
+    const twisted = cubie.spin !== undefined && cubie.stickers.length === 1 && times % 2 !== 0
     return {
-      ...cubie, // a gear's spin (a top or bottom turn of the Gear Cube Extreme)
+      ...cubie,
+      ...(twisted && { spin: 1 - cubie.spin! }),
       position: rotateN(cubie.position, spec.axis, times),
       stickers: cubie.stickers.map((s) => ({
         normal: rotateN(s.normal, spec.axis, times),

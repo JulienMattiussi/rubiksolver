@@ -30,6 +30,7 @@ export type CubeShape =
   | 'gearU'
   | 'gearX'
   | 'violet'
+  | 'twist'
   | 'ghost'
   | 'star'
   | 'star4'
@@ -84,6 +85,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   // The Violet (violet.ts) turns on a 5x5's outer slabs: its pieces sit
   // within +-3, in half mini cubes about its off-center core.
   violet: [5, 5, 5],
+  // The Z-Twist (twist.ts): a 3x3x3, shaped otherwise.
+  twist: [3, 3, 3],
   // The Floppy Ghost (ghost.ts) is no grid: its slots sit within +-3 in its
   // plane, all at z = 0.
   ghost: [7, 7, 1],
@@ -144,7 +147,8 @@ export const isPolyDrawn = (shape: CubeShape): boolean =>
   shape === 'oct4' ||
   shape === 'vto' ||
   shape === 'gem' ||
-  shape === 'violet'
+  shape === 'violet' ||
+  shape === 'twist'
 
 /**
  * Shapes that leave their box: their mechanism is a bigger cube with pieces
@@ -183,6 +187,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   gearU: false,
   gearX: false,
   violet: true,
+  twist: false,
   ghost: false,
   star: false,
   star4: false,
@@ -223,6 +228,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   gearU: [],
   gearX: [],
   violet: [],
+  twist: [],
   ghost: [],
   star: [],
   star4: [],
@@ -259,6 +265,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   gearU: [],
   gearX: [],
   violet: [],
+  twist: [],
   ghost: [],
   star: [],
   star4: [],
@@ -291,6 +298,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   gearU: 'Gear Cube Ultimate',
   gearX: 'Gear Cube Extreme',
   violet: 'Violet',
+  twist: 'Z-Twist',
   ghost: 'Floppy Ghost',
   star: '2-Star Prism (UFO)',
   star4: '4-Star Prism',
@@ -324,6 +332,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   gearU: 'gear-cube-ultimate',
   gearX: 'gear-cube-extreme',
   violet: 'violet',
+  twist: 'z-twist',
   ghost: 'floppy-ghost',
   star: '2-star',
   star4: '4-star',
@@ -371,6 +380,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   gearU: false,
   gearX: false,
   violet: false,
+  twist: false,
   ghost: false,
   star: false,
   star4: false,
@@ -413,7 +423,7 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   }
   if (isGear(shape)) return 'gear'
   if (shape === 'dino' || shape === 'rex') return 'diagonal'
-  if (shape === 'violet') return 'odd'
+  if (shape === 'violet' || shape === 'twist') return 'odd'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
   // One layer thick: the 1x2x3 and the Floppy.
@@ -475,7 +485,9 @@ export interface Cubie {
   readonly position: Vec3
   readonly stickers: readonly Sticker[]
   /** A gear edge's turn about its own axis, in sixths of a turn (0 to 5),
-   *  which no cube rotation says (the Gear Cubes, gear.ts). */
+   *  which no cube rotation says (the Gear Cubes, gear.ts); a Z-Twist side
+   *  center's, in quarters modulo 2 (its shape shows a quarter turn, not a
+   *  half: twist.ts). */
   readonly spin?: number
   /** A gear edge whose clips bear no color (the plain Gear Cube): only its
    *  gear shows, so a half turn of it on them is no state (gear.ts). */

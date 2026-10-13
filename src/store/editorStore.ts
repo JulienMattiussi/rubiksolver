@@ -45,6 +45,8 @@ interface EditorStore {
   edit: EditStickers
   /** A Gear Cube's gears, painted apart from their clips (gearEditor.ts). */
   gear: GearColors
+  /** A Z-Twist's side centers a quarter turn off, by slot (twist.ts). */
+  twisted: readonly string[]
   /** Reason the last apply was rejected (`gears`: a gear not its clips'
    *  colors), or null. */
   error: ValidationError | 'gears' | null
@@ -61,6 +63,8 @@ interface EditorStore {
   paintAt: (slotKey: string, ni: number) => void
   /** Paint a face of a Gear Cube's gear (see gearEditor.ts). */
   paintGearAt: (slotKey: string, ni: number) => void
+  /** Turn a Z-Twist side center a quarter, or back. */
+  twistAt: (slotKey: string) => void
   /** Put the next piece that fits in a slot (a puzzle entered piece by
    *  piece, see pieceEditor.ts). */
   cycleAt: (slotKey: string) => void
@@ -77,6 +81,7 @@ export const useEditor = create<EditorStore>((set, get) => ({
   selectedColor: 'W',
   edit: emptyEdit('3'),
   gear: {},
+  twisted: [],
   error: null,
   failedStep: null,
 
@@ -90,6 +95,7 @@ export const useEditor = create<EditorStore>((set, get) => ({
       preview: undefined,
       edit: emptyEdit(shape),
       gear: {},
+      twisted: [],
       selectedColor: pickable(get().selectedColor),
       error: null,
     })
@@ -105,6 +111,9 @@ export const useEditor = create<EditorStore>((set, get) => ({
       form,
       edit: cubeToEdit(cube),
       gear: gearColorsOf(cube),
+      twisted: cube
+        .filter((c) => c.spin === 1 && c.stickers.length === 1)
+        .map((c) => c.position.join(',')),
       selectedColor: pickable(get().selectedColor, form),
       error: null,
     })
@@ -118,6 +127,7 @@ export const useEditor = create<EditorStore>((set, get) => ({
           preview: undefined,
           edit: emptyEdit(currentShape(), form),
           gear: {},
+          twisted: [],
           selectedColor: pickable(get().selectedColor, form),
           error: null,
         })
@@ -141,6 +151,14 @@ export const useEditor = create<EditorStore>((set, get) => ({
       }
     }),
 
+  twistAt: (slotKey) =>
+    set((s) => ({
+      twisted: s.twisted.includes(slotKey)
+        ? s.twisted.filter((k) => k !== slotKey)
+        : [...s.twisted, slotKey],
+      error: null,
+    })),
+
   paintGearAt: (slotKey, ni) =>
     set((s) => ({
       gear: paintGear(s.gear, s.edit, currentShape(), slotKey, ni, s.selectedColor),
@@ -150,7 +168,8 @@ export const useEditor = create<EditorStore>((set, get) => ({
   cycleAt: (slotKey) =>
     set((s) => ({ edit: nextPiece(s.edit, currentShape(), slotKey), error: null })),
 
-  clearAll: () => set((s) => ({ edit: emptyEdit(currentShape(), s.form), gear: {}, error: null })),
+  clearAll: () =>
+    set((s) => ({ edit: emptyEdit(currentShape(), s.form), gear: {}, twisted: [], error: null })),
 
   apply: () => {
     const { edit, form, gear } = get()
@@ -158,7 +177,7 @@ export const useEditor = create<EditorStore>((set, get) => ({
     if (!isComplete(edit, shape, form)) return false
     const gears = hasColoredClips(shape)
     if (gears && gearsPainted(gear, shape).painted < gearsPainted(gear, shape).total) return false
-    const turned = gears ? turnedOf(gear, edit, shape) : []
+    const turned = gears ? turnedOf(gear, edit, shape) : shape === 'twist' ? get().twisted : []
     if (!turned) {
       set({ error: 'gears' })
       return false

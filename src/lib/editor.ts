@@ -17,6 +17,7 @@ import {
 } from './editorTables'
 import { entersByPieces, piecesCube } from './pieceEditor'
 import { withGears, withTurnedGears } from './gear'
+import { withTwistedCenters } from './twist'
 import { hasColoredClips, isGear, type Color, type Cube, type CubeShape } from './types'
 
 /**
@@ -266,18 +267,25 @@ export function usesRealPieces(cube: Cube): boolean {
   return true
 }
 
+/** A Z-Twist with these side centers a quarter turn off (twist.ts). */
+const withTurnedCenters = (cube: Cube, turned: readonly string[]): Cube =>
+  withTwistedCenters(cube).map((c) =>
+    c.spin === undefined ? c : { ...c, spin: turned.includes(c.position.join(',')) ? 1 : 0 },
+  )
+
 /** Build a full Cube from a complete edit state (throws if incomplete). */
 export function buildCube(
   edit: EditStickers,
   shape: CubeShape,
   form?: Cube,
-  /** A Gear Cube's edges whose gear is turned over on its clips. */
+  /** A Gear Cube's edges whose gear is turned over on its clips; a
+   *  Z-Twist's side centers a quarter turn off (by slot). */
   turned: readonly string[] = [],
 ): Cube {
   if (entersByPieces(shape)) {
     const cube = piecesCube(edit, shape)
     if (!cube) throw new Error('buildCube: a slot holds no piece')
-    return cube
+    return shape === 'twist' ? withTurnedCenters(cube, turned) : cube
   }
   const cube = slotsFor(shape, form).map((slot) => ({
     position: slot.position,

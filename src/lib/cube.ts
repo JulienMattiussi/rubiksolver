@@ -16,6 +16,7 @@ import { solvedGem, solvedVto } from './vto'
 import { solvedDino, solvedRainbow, solvedRex } from './rainbow'
 import { solvedViolet, turnAboutA, violetBoxed, violetSolved } from './violet'
 import { withGears } from './gear'
+import { withTwistedCenters } from './twist'
 import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
 import {
@@ -121,6 +122,7 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
     )
   }
   if (shape === 'violet') return solvedViolet()
+  if (shape === 'twist') return withTwistedCenters(solvedCube('3'))
   if (shape === 'ghost') return solvedGhost()
   const dims = SHAPE_DIMS[shape]
   const colors = faceColorsOf(shape)

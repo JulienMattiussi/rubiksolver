@@ -13,7 +13,7 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 (un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
 (un cuboctaèdre dont les triangles tournent), le **Dino Cube** et le **Rex Cube** (leurs sommets
 tournent), le **Violet** (un 2x2x2 à
-pivot excentré, qui se déforme), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages)
+pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages)
 et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
@@ -106,6 +106,7 @@ src/
 │   ├── vto.ts            # Octahedron VTO et GEM-0 : un 3x3x3 taillé en octaèdre (pointes à part sur le VTO, carrés sur le GEM-0)
 │   ├── gear.ts           # Gear Cubes : coups d'engrenage (demi-tour de face, quart de tranche), pivot des arêtes (Cubie.spin), réalignement
 │   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
+│   ├── twist.ts          # Z-Twist : un 3x3 dont les centres de côté gardent leur quart de tour (Cubie.spin)
 │   ├── violetStates.ts   # Ses états vus (gros cubes pareils) : arbre des plus courts chemins (solutions), mélange sans retour
 │   ├── rainbow.ts        # Rainbow : cuboctaèdre, 12 pièces aux milieux des arêtes du cube, triangles en tiers de tour, notation ;
 │   │                     #   le Dino Cube, même mécanique (ses arêtes seules, notation de fan2cube) ; le Rex Cube, coupé plus profond
@@ -157,6 +158,7 @@ src/
 │   │   ├── ghost.ts      #   Floppy Ghost : sommets placés, orientés, puis arêtes (formules de fan2cube, des 5 côtés)
 │   │   ├── gear.ts       #   Gear Cube : coins, arêtes placées, agrafes, engrenages (formules de fan2cube.fr)
 │   │   ├── gearExtreme.ts #  Gear Cube Extreme : équateur, coins, arêtes, agrafes, engrenages (fan2cube.fr)
+│   │   ├── twist.ts      #   Z-Twist : une méthode 3x3 sur les couleurs, puis les centres de côté remis
 │   │   └── violet.ts     #   Violet : forme puis couleurs, et optimale (arbre de recherche de violetStates.ts)
 │   ├── solver4/          # Solveur 4x4 par réduction :
 │   │   ├── centers.ts    #   centres par comptage (D, U, puis ceinture), recherches bornées sans régression
@@ -215,6 +217,7 @@ src/
 │   ├── GearPlate.tsx     # Une plaque d'une pièce du Gear Cube, découpée par son masque
 │   ├── GearEdge.tsx      # Une arête du Gear Cube : deux agrafes, l'engrenage (deux plaques et son corps à sa forme) qui pivote
 │   ├── GearCorner.tsx    # Un coin ou un centre du Gear Cube : plaques sur des corps à leur forme
+│   ├── twistGeometry.ts  # Pièces du Z-Twist : la case du 3x3 dans le solide tordu, portée par la pièce
 │   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
 │   ├── Decal.tsx         # Une image posée sur la face de pièces choisies, qui tourne avec elles (PolyDrawing.decal)
 │   ├── rainbowGeometry.ts # Pièces du Rainbow : cellule de chaque pièce dans le cuboctaèdre (polyhedron.ts)
@@ -312,12 +315,12 @@ Toutes les méthodes 3x3 commencent par **Remettre les centres**
 (`withCentersHome`, voir « Coups avancés du 3x3 »), étape retirée quand elle
 est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 
-- **Par couches** (`beginner`, 3x3 et 2x2) : sur 3x3, 1re couche entière
+- **Par couches** (`beginner`, 3x3, Z-Twist et 2x2) : sur 3x3, 1re couche entière
   (croix + coins), puis arêtes du milieu, puis dernière couche (croix,
   orientation coins, permutation coins, permutation arêtes) - 7 étapes. Sur
   2x2 (pas d'arêtes ni de centres) : coins du bas, orientation du haut,
   permutation du haut - 3 étapes.
-- **Fridrich / CFOP** (`cfop`, 3x3) : Croix, puis **F2L** (paires coin+arête
+- **Fridrich / CFOP** (`cfop`, 3x3 et Z-Twist) : Croix, puis **F2L** (paires coin+arête
   par colonne), puis **OLL**, puis **PLL** - 4 étapes.
 - **Réduction** (`reduction` et `reductionCfop`, 4x4 et 5x5) : Centres,
   Appariement des arêtes, Correction de parité (étape émise seulement si
@@ -1156,6 +1159,32 @@ ailleurs). Une face sans sticker à saisir garde sa couleur dans la vue.
 La validation demande une solution, comme partout : un état hors de
 l'arbre lève une exception.
 
+### Le Z-Twist (`twist`)
+
+Un 3x3x3 de forme tordue, _shape mod_ comme le cube miroir : mêmes pièces,
+couleurs et coups qu'un 3x3, chaque pièce taillée dans sa case du solide
+résolu. Ce solide a le carré du haut en place, celui du bas tourné d'un quart, et
+ses arêtes verticales droites entre eux (un peu arrondies, `ROUND`) : chaque
+section est un carré, tourné et réduit (un losange par le milieu des faces
+à mi-hauteur), jamais hors du cube. Le mécanisme reste celui d'un 3x3, aux
+coupes planes : une pièce est sa case du 3x3 découpée dans ce solide
+(`three/twistGeometry.ts` : sa part des côtés tordus, colorée comme chaque
+côté, si bien qu'une face du cube peut montrer deux couleurs, ses coupes en
+plastique), puis portée par la rotation qui l'amène où elle est (lue sur
+ses couleurs). Arêtes et coins se reconnaissent à leurs couleurs, mais un
+centre de côté montre par sa forme s'il est tourné d'un quart (un demi-tour
+ne se voit pas) : `Cubie.spin` (0 ou 1, `lib/twist.ts`), changé par chaque
+quart de tour de sa face (`applyMove`) ; résolu, tous à 0.
+
+**Résolution** (`methods/twist.ts`) : les méthodes du 3x3, par couches et
+CFOP, jouées sur ses couleurs (`twistPlan` : les centres mis de côté), puis
+**Les centres tordus** : des suites qui ne déplacent aucune pièce (un
+mélange fixe puis sa résolution 3x3) retournent chacune certains centres ;
+assemblées (sur GF(2)), elles en retournent n'importe quel ensemble.
+Plusieurs centaines de coups pour cette étape. **Saisie** pièce par pièce, comme le Floppy Ghost (`entersByPieces` : ses
+pièces montrent les couleurs des côtés tordus, pas des stickers de 3x3) ;
+un clic sur un centre de côté le tourne d'un quart (`twisted` de l'éditeur).
+
 ### Le Professor Pyraminx (`pyra5`)
 
 Le Pyraminx 5x5x5 (fan2cube.fr/profpyraminx1 et 2, Timur Evbatyrov, 2011) :
@@ -1423,7 +1452,7 @@ mobile et en saisie, une seule carte) :
   (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube, Bizarres Violet.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube, Bizarres Violet/Z-Twist.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

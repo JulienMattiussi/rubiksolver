@@ -56,15 +56,17 @@ export function EditPanel() {
   return (
     <div className="flex flex-col gap-5">
       <p className="text-xs leading-relaxed text-slate-400">
-        {byPieces
-          ? t.editHintPieces
-          : mirror
-            ? t.editHintMirror
-            : hasColoredClips(shape)
-              ? t.editHintGear
-              : isGear(shape)
-                ? t.editHintGearPlain
-                : t.editHint}
+        {shape === 'twist'
+          ? t.editHintTwist
+          : byPieces
+            ? t.editHintPieces
+            : mirror
+              ? t.editHintMirror
+              : hasColoredClips(shape)
+                ? t.editHintGear
+                : isGear(shape)
+                  ? t.editHintGearPlain
+                  : t.editHint}
       </p>
 
       {!byPieces && <ColorPalette />}

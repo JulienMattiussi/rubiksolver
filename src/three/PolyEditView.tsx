@@ -23,6 +23,8 @@ export function PolyEditView() {
   const edit = useEditor((s) => s.edit)
   const paintAt = useEditor((s) => s.paintAt)
   const cycleAt = useEditor((s) => s.cycleAt)
+  const twistAt = useEditor((s) => s.twistAt)
+  const twisted = useEditor((s) => s.twisted)
   // While a form is being chosen, the one hovered (the original otherwise).
   const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
   const drawing = polyDrawing(shape)
@@ -41,9 +43,13 @@ export function PolyEditView() {
         {slotsFor(shape, form).map((slot) => {
           const byNi = new Map(slot.stickers.map((s) => [s.ni, s.id]))
           // The slot's piece as solved: its geometry lists every sticker.
+          // A Z-Twist side center: a click turns it a quarter, or back.
+          const twistCenter =
+            shape === 'twist' && slot.stickers.length === 1 && slot.position[1] === 0
           const solved = {
             position: slot.position,
             stickers: slot.stickers.map((s) => ({ normal: s.normal, color: s.solvedColor })),
+            ...(twistCenter && { spin: twisted.includes(slot.key) ? 1 : 0 }),
           }
           if (pieces && slot.paintable) {
             // Entered piece by piece: the piece placed, or the slot's own in
@@ -62,8 +68,10 @@ export function PolyEditView() {
             )
           }
           const hex = (ni: number) => {
-            // A face with no sticker to enter keeps its own (the Violet's).
-            if (!byNi.has(ni)) return undefined
+            // A face with no sticker to enter keeps its own (the Violet's),
+            // as does a piece that never moves, entered piece by piece (the
+            // Z-Twist's centers).
+            if (!byNi.has(ni) || (pieces && !slot.paintable)) return undefined
             const color = edit[byNi.get(ni)!]
             return color ? (drawing.skin ?? COLOR_HEX[color]) : EMPTY_COLOR
           }
@@ -73,7 +81,13 @@ export function PolyEditView() {
               cubie={solved}
               drawing={drawing}
               stickerHex={hex}
-              onSelect={canPaint(shape, slot.key, form) ? (ni) => paintAt(slot.key, ni) : undefined}
+              onSelect={
+                twistCenter
+                  ? () => twistAt(slot.key)
+                  : canPaint(shape, slot.key, form)
+                    ? (ni) => paintAt(slot.key, ni)
+                    : undefined
+              }
               onHover={hover(slot.key)}
               lit={litIn(slot.key)}
             />

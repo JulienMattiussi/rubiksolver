@@ -5,6 +5,7 @@ import { optimalPlan } from './methods/exhaustive'
 import { FLOPPY_PLAN } from './methods/floppy'
 import { GHOST_PLAN } from './methods/ghost'
 import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
+import { twistPlan } from './methods/twist'
 import { PETRUS_PLAN } from './methods/petrus'
 import { PYRAMINX_PLAN, TETRAMINX_PLAN } from './methods/pyraminx'
 import { PYRAMINX4_PLAN } from './methods/pyraminx4'
@@ -49,8 +50,15 @@ export type { SolveStep } from './solverKit'
  * test solves scrambles with every entry, so nothing else needs touching.
  */
 const SOLVE_METHODS = [
-  { id: 'beginner', plans: { '2': BEGINNER_2_PLAN, '3': withCentersHome(BEGINNER_PLAN) } },
-  { id: 'cfop', plans: { '3': withCentersHome(CFOP_PLAN) } },
+  {
+    id: 'beginner',
+    plans: {
+      '2': BEGINNER_2_PLAN,
+      '3': withCentersHome(BEGINNER_PLAN),
+      twist: twistPlan(BEGINNER_PLAN),
+    },
+  },
+  { id: 'cfop', plans: { '3': withCentersHome(CFOP_PLAN), twist: twistPlan(CFOP_PLAN) } },
   { id: 'roux', plans: { '3': withCentersHome(ROUX_PLAN) } },
   { id: 'petrus', plans: { '3': withCentersHome(PETRUS_PLAN) } },
   { id: 'zz', plans: { '3': withCentersHome(ZZ_PLAN) } },

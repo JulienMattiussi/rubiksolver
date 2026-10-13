@@ -8,7 +8,8 @@ import type { Color, Cube, CubeShape, Cubie } from './types'
 /**
  * Piece-by-piece entry, for a puzzle whose pieces are told apart by their
  * shape alone: the Floppy Ghost, all silver, whose thousands of forms could
- * never be offered to pick from (forms.ts). Instead of painting stickers,
+ * never be offered to pick from (forms.ts); the Z-Twist, whose pieces show
+ * the colors of its twisted sides, not a 3x3's stickers. Instead of painting stickers,
  * one puts a piece in each slot: a click on a slot moves on to the next
  * pose that fits there (another piece, or the same one lying the other way),
  * skipping pieces already placed elsewhere.
@@ -20,7 +21,7 @@ import type { Color, Cube, CubeShape, Cubie } from './types'
  */
 
 /** Whether a shape is entered piece by piece rather than painted. */
-export const entersByPieces = (shape: CubeShape): boolean => shape === 'ghost'
+export const entersByPieces = (shape: CubeShape): boolean => shape === 'ghost' || shape === 'twist'
 
 interface Pose {
   /** The piece's index in the solved puzzle: its identity. */

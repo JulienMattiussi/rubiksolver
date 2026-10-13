@@ -80,6 +80,7 @@ const PUZZLES: ReadonlyArray<{
   },
   { shape: 'dino', pieces: 12, stickers: 24, orientations: 24, painted: 24, scramble: 20 },
   { shape: 'rex', pieces: 42, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
+  { shape: 'twist', pieces: 27, stickers: 54, orientations: 24, painted: 54, scramble: 20 },
   { shape: 'ghost', pieces: 11, stickers: 36, orientations: 1, painted: 36, scramble: 15 },
   {
     shape: 'gearCube',
@@ -236,7 +237,11 @@ describe.each(PUZZLES)('$shape', ({ shape, pieces, stickers, orientations, paint
       const edit = cubeToEdit(cube)
       expect(isComplete(edit, shape, form)).toBe(true)
       // A Gear Cube's gears, painted apart: some turned over on their clips.
-      const turned = hasColoredClips(shape) ? turnedOf(gearColorsOf(cube), edit, shape)! : []
+      const turned = hasColoredClips(shape)
+        ? turnedOf(gearColorsOf(cube), edit, shape)!
+        : cube
+            .filter((c) => c.spin === 1 && c.stickers.length === 1)
+            .map((c) => c.position.join(','))
       const built = buildCube(edit, shape, form, turned)
       expect(cubeToEdit(built)).toEqual(edit)
       expect(validateCube(built)).toEqual({ ok: true })

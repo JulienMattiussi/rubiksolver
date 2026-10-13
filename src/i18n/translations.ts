@@ -108,7 +108,9 @@ const fr = {
   editHintGearPlain:
     'Remettez d’abord votre Gear Cube en forme de cube, engrenages réalignés (tournez une face jusqu’à ce que sa tranche reprenne sa place). Puis choisissez une couleur et cliquez les pièces : coins et engrenages, les agrafes sont noires. Tournez la vue pour atteindre les autres faces.',
   editHintGear:
-    'Remettez d’abord votre Gear Cube en forme de cube, engrenages réalignés (tournez une face jusqu’à ce que sa tranche reprenne sa place). Puis choisissez une couleur et cliquez les pièces : les agrafes et les engrenages se peignent à part. Un engrenage porte les couleurs de ses agrafes, dans un sens ou dans l’autre : une fois les agrafes peintes, une face de l’engrenage suffit. Tournez la vue pour atteindre les autres faces.',
+    'Remettez d’abord votre Gear Cube en forme de cube, engrenages réalignés (tournez une face jusqu’à ce que sa tranche reprenne sa place). Puis choisissez une couleur et cliquez les pièces : les agrafes et les engrenages se peignent à part. Tournez la vue pour atteindre les autres faces.',
+  editHintTwist:
+    'Cliquez un coin ou une arête pour y poser une pièce qui peut s’y loger : chaque clic passe à la suivante (autre pièce, ou la même tournée). Un clic sur un centre de côté le tourne d’un quart de tour, pour lui donner la forme du vôtre.',
   editHintMirror:
     'Choisissez une épaisseur puis cliquez les faces : la pièce prend sa forme au fur et à mesure. Tournez la vue pour atteindre les autres faces. Les pièces se complètent toutes seules et aucune combinaison impossible n’est acceptée.',
   palette: 'Couleurs',
@@ -391,6 +393,7 @@ const fr = {
     stepRexEdges: 'Les arêtes',
     stepRexCenters: 'Les centres',
     stepRexPetals: 'Les pétales',
+    stepTwistCenters: 'Les centres tordus',
     stepGearSpins: 'Les engrenages',
     stepVtoCenters: 'Les centres',
     stepVtoEdges: 'Les arêtes placées',
@@ -544,7 +547,9 @@ const en: Translations = {
   editHintGearPlain:
     'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: corners and gears, the clips are black. Rotate the view to reach the other faces.',
   editHintGear:
-    'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: clips and gears are painted apart. A gear carries its clips’ colors, one way or the other: once the clips are painted, one face of the gear is enough. Rotate the view to reach the other faces.',
+    'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: clips and gears are painted apart. Rotate the view to reach the other faces.',
+  editHintTwist:
+    'Click a corner or an edge to put a piece there that fits: each click moves on to the next (another piece, or the same one turned). A click on a side center turns it a quarter turn, to match the shape of yours.',
   editHintMirror:
     'Pick a thickness, then click faces: the piece takes its shape as you go. Orbit the view to reach the other faces. Pieces auto-complete and no impossible combination is accepted.',
   palette: 'Colors',
@@ -823,6 +828,7 @@ const en: Translations = {
     stepRexEdges: 'The edges',
     stepRexCenters: 'The centers',
     stepRexPetals: 'The petals',
+    stepTwistCenters: 'The twisted centers',
     stepGearSpins: 'The gears',
     stepVtoCenters: 'The centers',
     stepVtoEdges: 'The edges placed',
