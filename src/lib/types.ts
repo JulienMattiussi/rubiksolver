@@ -15,6 +15,7 @@ export type CubeShape =
   | '332'
   | '331'
   | 'pyra'
+  | 'tetra'
   | 'pyra4'
   | 'pyra5'
   | 'jing'
@@ -55,6 +56,7 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   // The Pyraminx and the Master Pyraminx (pyraminx.ts) are no grid either:
   // their pieces sit within +-2 and +-3 on every axis (see `pyraSize`).
   pyra: [5, 5, 5],
+  tetra: [5, 5, 5],
   pyra4: [7, 7, 7],
   pyra5: [9, 9, 9],
   // The Pyraminx Jing's pieces sit within +-1 (see pyraminx.ts).
@@ -97,11 +99,15 @@ export const isStar = (shape: CubeShape): shape is StarShape =>
 
 /** The Pyraminx, the Master Pyraminx (its 4x4 version) and the Pyraminx
  *  Jing (its deep-cut cousin). */
-export type PyraShape = 'pyra' | 'pyra4' | 'pyra5' | 'jing'
+export type PyraShape = 'pyra' | 'tetra' | 'pyra4' | 'pyra5' | 'jing'
 
 /** Whether a shape is a Pyraminx, which turns about its corners (pyraminx.ts). */
 export const isPyraminx = (shape: CubeShape): shape is PyraShape =>
-  shape === 'pyra' || shape === 'pyra4' || shape === 'pyra5' || shape === 'jing'
+  shape === 'pyra' ||
+  shape === 'tetra' ||
+  shape === 'pyra4' ||
+  shape === 'pyra5' ||
+  shape === 'jing'
 
 /** The Gear Cubes (gear.ts): a 3x3x3's cubies, turned by gear moves. */
 export const isGear = (shape: CubeShape): boolean =>
@@ -152,6 +158,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '332': false,
   '331': false,
   pyra: false,
+  tetra: false,
   pyra4: false,
   pyra5: false,
   jing: false,
@@ -189,6 +196,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   '332': [],
   '331': [],
   pyra: [],
+  tetra: [],
   pyra4: [],
   pyra5: [],
   jing: [],
@@ -222,6 +230,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   '332': [],
   '331': [],
   pyra: [],
+  tetra: [],
   pyra4: [],
   pyra5: [],
   jing: [],
@@ -251,6 +260,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '332': '3x3x2 (Domino)',
   '331': '3x3x1 (Floppy)',
   pyra: 'Pyraminx',
+  tetra: 'Tetraminx',
   pyra4: 'Master Pyraminx (4x4)',
   pyra5: 'Professor Pyraminx (5x5)',
   jing: 'Pyraminx Jing',
@@ -281,6 +291,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   '332': 'domino',
   '331': 'floppy',
   pyra: 'pyraminx',
+  tetra: 'tetraminx',
   pyra4: 'master-pyraminx',
   pyra5: 'professor-pyraminx',
   jing: 'pyraminx-jing',
@@ -325,6 +336,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   '332': false,
   '331': false,
   pyra: false,
+  tetra: false,
   pyra4: false,
   pyra5: false,
   jing: false,

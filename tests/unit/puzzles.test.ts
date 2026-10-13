@@ -59,6 +59,8 @@ const PUZZLES: ReadonlyArray<{
   { shape: '331', pieces: 9, stickers: 30, orientations: 8, painted: 30, scramble: 12 },
   { shape: '332', pieces: 18, stickers: 42, orientations: 8, painted: 42, scramble: 20 },
   { shape: 'pyra', pieces: 15, stickers: 36, orientations: 12, painted: 36, scramble: 11 },
+  // The Pyraminx without its tips.
+  { shape: 'tetra', pieces: 11, stickers: 24, orientations: 12, painted: 24, scramble: 11 },
   { shape: 'pyra4', pieces: 30, stickers: 64, orientations: 12, painted: 64, scramble: 30 },
   { shape: 'pyra5', pieces: 54, stickers: 100, orientations: 12, painted: 100, scramble: 40 },
   { shape: 'jing', pieces: 15, stickers: 28, orientations: 12, painted: 28, scramble: 15 },

@@ -145,9 +145,12 @@ function solvedJing(): Cube {
   ]
 }
 
-/** A solved Pyraminx of any kind. */
+/** A solved Pyraminx of any kind; the Tetraminx is the Pyraminx without
+ *  its tips (the first four pieces). */
 export function solvedPyra(shape: PyraShape): Cube {
-  return shape === 'jing' ? solvedJing() : solvedPyraminx(PYRA_SIZE[shape])
+  if (shape === 'jing') return solvedJing()
+  if (shape === 'tetra') return solvedPyraminx(3).slice(PYRA_VERTICES.length)
+  return solvedPyraminx(PYRA_SIZE[shape])
 }
 
 /** The slices a turn takes, counted from its corner: the tip alone (0), one
@@ -202,7 +205,7 @@ export const PYRA_SYMMETRIES: readonly ((cube: Cube) => Cube)[] = (['U', 'L'] as
 
 /** Layers per corner of each Pyraminx (the Jing counts 2: its pieces sit
  *  within +-1, and its deep turns need no slice planes). */
-const PYRA_SIZE: Record<PyraShape, number> = { pyra: 3, pyra4: 4, pyra5: 5, jing: 2 }
+const PYRA_SIZE: Record<PyraShape, number> = { pyra: 3, tetra: 3, pyra4: 4, pyra5: 5, jing: 2 }
 
 /** What a turn takes under its corner: the Pyraminx's layer (`corners`), a
  *  tip, one of the Master's or the Professor's slices (the last one is the
@@ -212,6 +215,7 @@ export type PyraLayer = 'corners' | 'tips' | 'slice1' | 'slice2' | 'slice3' | 's
 /** The layers each Pyraminx turns, in the pad's and the guide's order. */
 export const PYRA_LAYERS: Record<PyraShape, readonly PyraLayer[]> = {
   pyra: ['corners', 'tips'],
+  tetra: ['corners'],
   pyra4: ['tips', 'slice1', 'slice2', 'slice3'],
   pyra5: ['tips', 'slice1', 'slice2', 'slice3', 'slice4'],
   jing: ['deep'],

@@ -6,7 +6,7 @@ POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3,
 4x4 ou 5x5**, **classique ou miroir** (sauf le 5x5), plus cinq cuboïdes : le **1x2x3**, la
 **tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**
 et le **Floppy 3x3x1**, le **Floppy Ghost** (un Floppy Megaminx découpé en
-pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le **Pyraminx**, le
+pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (un Pyraminx sans pointes), le
 **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le **Pyraminx Jing** (pièces courbes), le
 **Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme), le
 **4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), l'**Octahedron VTO**
@@ -350,8 +350,8 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   puis le bas et le haut avec la formule `K` - voir « Le Star Prism ».
 - **Deux étoiles** (`twoStars`, 4-Star Prism) : l'étoile interne puis
   l'externe, chacune par « isoler puis permuter », puis alignement.
-- **Centres d'abord** (`centersFirst`, Pyraminx) : centres, pointes, arêtes
-  du bas, arêtes du haut placées, puis retournées - voir « Le Pyraminx ».
+- **Centres d'abord** (`centersFirst`, Pyraminx et Tetraminx) : centres, pointes
+  (Pyraminx), arêtes du bas, arêtes du haut placées, puis retournées - voir « Le Pyraminx ».
 - **Sommets d'abord** (`jingCornersFirst`, Pyraminx Jing) : sommets, arêtes
   placées, retournées, centres - voir « Le Pyraminx Jing ».
 - **Comme un Pocket** (`asPocket`, Pyramorphinx) : une étape, la solution
@@ -763,6 +763,14 @@ octaèdre) ramenée à l'écran par `pyraToCartesian`. Pad dédié (`PyraPad` :
 couches ou pointes), saisie des 36 stickers (aucune pièce fixe), guide
 (couches puis pointes).
 
+**Le Tetraminx** (`tetra`, fan2cube.fr/tetraminx1) : « exactement un
+Pyraminx sans sommets ». Ses pièces sont celles du Pyraminx moins les quatre
+pointes (`solvedPyra`), ses coups ses couches seules (`PYRA_LAYERS`), et
+sa méthode celle du Pyraminx sans l'étape des pointes (`centersFirst`,
+`TETRAMINX_PLAN`). Le dessin reprend les mêmes cellules ; chaque pointe tronquée y porte une
+couleur voisine, chacune la sienne (celle de la face opposée au sommet
+suivant, U L R B ; `pyraPolygons(3, true)`). 933 120 positions (6!·2⁶·3⁴/4), selon la page.
+
 ### Le Master Pyraminx (`pyra4`)
 
 Le Pyraminx 4x4 (fan2cube.fr/pyraminx41) : quatre tranches par sommet, qui
@@ -1027,7 +1035,7 @@ engrenages, (D²H)².D⁸.(H'D'²)². Chaque formule vue de chaque côté (et à
 l'envers), préparée par des tours du haut et du bas défaits ensuite, sur
 les seules pièces de l'étape, une pièce à la fois ; l'effet de chacune est
 testé (`parseGearFormula` lit la notation de la page). Quelques secondes
-de calcul, parfois plus (dans le worker). **Saisie** comme l'Ultimate, en
+de calcul, parfois plus (dans le worker ; pistes dans `AMELIORATIONS.md`). **Saisie** comme l'Ultimate, en
 forme de cube (engrenages réalignés), ses blocs peints comme des stickers ;
 ses centres se peignent (les tranches les sortent du haut et du bas, que sa
 couche du milieu, immobile, tient en place).
@@ -1355,7 +1363,7 @@ mobile et en saisie, une seule carte) :
   puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`), dans
   l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4/5x5, Miroirs 2x2/3x3/4x4, Tours 2x2x3
   (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
-  seule couche d'épaisseur étant plat), Pyramides Pyraminx/Master Pyraminx
+  seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
   4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Bizarres Violet.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
@@ -1509,6 +1517,8 @@ tout texte passe par `t`. Le recentrage caméra transite par `viewStore`
   décoratives en `aria-hidden`, `lang` du document = langue courante.
 - **Commits** : pas de trailer `Co-Authored-By`.
 - **Typographie** : ne jamais introduire de tiret long (`—` / `–`).
+
+Les limites connues et leurs pistes sont notées dans `AMELIORATIONS.md`.
 
 Avant de considérer une tâche terminée : `make check` doit passer (build +
 lint + formatage + typecheck, tests compris + knip + tests unitaires).

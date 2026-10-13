@@ -6,7 +6,7 @@ import { FLOPPY_PLAN } from './methods/floppy'
 import { GHOST_PLAN } from './methods/ghost'
 import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { PETRUS_PLAN } from './methods/petrus'
-import { PYRAMINX_PLAN } from './methods/pyraminx'
+import { PYRAMINX_PLAN, TETRAMINX_PLAN } from './methods/pyraminx'
 import { PYRAMINX4_PLAN } from './methods/pyraminx4'
 import { PYRAMINX5_PLAN } from './methods/pyraminx5'
 import { JING_PLAN } from './methods/jing'
@@ -62,7 +62,7 @@ const SOLVE_METHODS = [
   },
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
   { id: 'equatorFirst', plans: { '223': SLIM_TOWER_PLAN } },
-  { id: 'centersFirst', plans: { pyra: PYRAMINX_PLAN } },
+  { id: 'centersFirst', plans: { pyra: PYRAMINX_PLAN, tetra: TETRAMINX_PLAN } },
   { id: 'wingsFirst', plans: { pyra4: PYRAMINX4_PLAN, pyra5: PYRAMINX5_PLAN } },
   { id: 'jingCornersFirst', plans: { jing: JING_PLAN } },
   { id: 'asPocket', plans: { morph: MORPH_PLAN } },

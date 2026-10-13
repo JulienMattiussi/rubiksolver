@@ -1,5 +1,5 @@
 import { normalIndex, TET_NORMALS } from '@/lib/geometry'
-import { PYRA_CORNERS, PYRA_VERTICES, pyraToCartesian } from '@/lib/pyraminx'
+import { PYRA_CORNERS, PYRA_FACE_COLOR, PYRA_VERTICES, pyraToCartesian } from '@/lib/pyraminx'
 import type { Cubie, Vec3 } from '@/lib/types'
 import { face, type P3, type PiecePolygon } from './polygons'
 
@@ -32,18 +32,42 @@ const unit = (v: Vec3): P3 => {
 /** The normal index of a model normal when it is one of the puzzle's faces. */
 const TET_INDEX = new Map(TET_NORMALS.map((n) => [n.join(), normalIndex(n)]))
 
-function polygonsOf(
-  cubie: Cubie,
-  size: number,
-  faces: { corners: Vec3[]; normal: Vec3 }[],
-): PiecePolygon[] {
+interface CellFace {
+  corners: Vec3[]
+  normal: Vec3
+  /** The Tetraminx's cut tip, an octahedron's face toward its corner, in
+   *  the color of a face beside it. */
+  split?: true
+}
+
+function polygonsOf(cubie: Cubie, size: number, faces: CellFace[]): PiecePolygon[] {
   const toScene = (p: readonly number[]): P3 =>
     pyraToCartesian(p as unknown as Vec3).map((v) => (v * SCALE) / size) as P3
   const center = cubie.position
   const shrink = (p: Vec3) => toScene(p.map((v, a) => center[a]! + (v - center[a]!) * SHRINK))
-  return faces.flatMap(({ corners, normal }) =>
-    face(corners.map(shrink), unit(normal), cubie, TET_INDEX.get(normal.join()), STICKER_SCALE),
-  )
+  return faces.flatMap(({ corners, normal, split }) => {
+    if (!split) {
+      return face(
+        corners.map(shrink),
+        unit(normal),
+        cubie,
+        TET_INDEX.get(normal.join()),
+        STICKER_SCALE,
+      )
+    }
+    // One color, a face beside it: its center piece's home corner (the one
+    // opposite the face whose color it lacks) takes the color of the face
+    // opposite the next corner, each tip its own (a fixed sticker, nothing
+    // to paint: not clickable).
+    const home = PYRA_VERTICES.findIndex(
+      (v) => !cubie.stickers.some((st) => st.color === PYRA_FACE_COLOR[v]),
+    )
+    const color = PYRA_FACE_COLOR[PYRA_VERTICES[(home + 1) % PYRA_VERTICES.length]!]
+    const tip: Cubie = { position: cubie.position, stickers: [{ normal, color }] }
+    return face(corners.map(shrink), unit(normal), tip, normalIndex(normal), STICKER_SCALE).map(
+      (polygon) => ({ ...polygon, ni: undefined }),
+    )
+  })
 }
 
 /** A small tetrahedron: the face opposite each of its corners looks the
@@ -60,8 +84,10 @@ function tetrahedron(cubie: Cubie, size: number): PiecePolygon[] {
   )
 }
 
-/** An octahedron: one face per octant, its corners two steps along each axis. */
-function octahedron(cubie: Cubie, size: number): PiecePolygon[] {
+/** An octahedron: one face per octant, its corners two steps along each
+ *  axis; with `truncated` (the Tetraminx), its face toward its corner
+ *  colored too. */
+function octahedron(cubie: Cubie, size: number, truncated: boolean): PiecePolygon[] {
   const signs = [-1, 1]
   const octants = signs.flatMap((x) => signs.flatMap((y) => signs.map((z): Vec3 => [x, y, z])))
   return polygonsOf(
@@ -72,6 +98,8 @@ function octahedron(cubie: Cubie, size: number): PiecePolygon[] {
         (a) => cubie.position.map((x, b) => (b === a ? x + 2 * s[a]! : x)) as unknown as Vec3,
       ),
       normal: s,
+      ...(truncated &&
+        s.every((x, a) => x === Math.sign(cubie.position[a]!)) && { split: true as const }),
     })),
   )
 }
@@ -81,11 +109,11 @@ function octahedron(cubie: Cubie, size: number): PiecePolygon[] {
  *  the size (the Pyraminx's center pieces at v, the Master's co-tips at 2v
  *  and midges at v + w), its small tetrahedra elsewhere. */
 export const pyraPolygons =
-  (size: number) =>
+  (size: number, truncated = false) =>
   (cubie: Cubie): PiecePolygon[] => {
     if (cubie.stickers.length === 0) return []
     return Math.abs(cubie.position[0]) % 2 === size % 2
-      ? octahedron(cubie, size)
+      ? octahedron(cubie, size, truncated)
       : tetrahedron(cubie, size)
   }
 

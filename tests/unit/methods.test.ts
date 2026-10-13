@@ -155,7 +155,7 @@ describe('cube picker', () => {
       mirror: ['2m', '3m', '4m'],
       tower: ['223', '224', '332'],
       flat: ['123', '331', 'ghost'],
-      pyramid: ['pyra', 'pyra4', 'pyra5', 'jing', 'morph'],
+      pyramid: ['pyra', 'tetra', 'pyra4', 'pyra5', 'jing', 'morph'],
       octahedron: ['oct4', 'vto', 'gem', 'rainbow'],
       star: ['star', 'star4'],
       gear: ['gearCube', 'gearU', 'gearX'],

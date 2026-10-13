@@ -29,6 +29,8 @@ import {
  *                      (AG)->(AD)->(GD) of the top
  *   5. Edges flipped   two at a time, with [gd'][h'd]: (AG)° (AD)°
  *
+ * The Tetraminx is a Pyraminx without its tips: the same, step 2 gone.
+ *
  * The center pieces and tips never leave their corner, so they say which
  * color each face takes: the face opposite a corner wears the one color its
  * center piece lacks. Every formula leaves them be (each layer turns back as
@@ -85,34 +87,43 @@ const solveEdges = (macros: PyraMove[][], top: 'any' | 'placed' | 'home') => (cu
     maxDepth: 8,
   })
 
-const edgesGoal = (top: 'any' | 'placed' | 'home') => (cube: Cube) =>
-  cornersDone(cube, true) &&
+const edgesGoal = (top: 'any' | 'placed' | 'home', tips: boolean) => (cube: Cube) =>
+  cornersDone(cube, tips) &&
   edgesDone(faceColors(cube), top)(cube.filter((c) => c.stickers.length === 2))
 
-export const PYRAMINX_PLAN: MethodPlan = [
+/** The plan, with its tips step on the Pyraminx (the Tetraminx has none). */
+const centersFirst = (tips: boolean): MethodPlan => [
   {
     key: 'stepPyraCenters',
     goal: (c) => cornersDone(c, false),
     moves: LAYERS,
     phases: [alignCorners(3, false, (vertex) => ({ vertex }))],
   },
-  {
-    key: 'stepPyraTips',
-    goal: (c) => cornersDone(c, true),
-    moves: TIPS,
-    phases: [alignCorners(3, true, (vertex) => ({ vertex, tip: true }))],
-  },
+  ...(tips
+    ? [
+        {
+          key: 'stepPyraTips',
+          goal: (c: Cube) => cornersDone(c, true),
+          moves: TIPS,
+          phases: [alignCorners(3, true, (vertex) => ({ vertex, tip: true }))],
+        },
+      ]
+    : []),
   {
     key: 'stepBottomEdges',
-    goal: edgesGoal('any'),
+    goal: edgesGoal('any', tips),
     moves: LAYERS,
     phases: [solveEdges(DOWN_SET_UP, 'any')],
   },
   {
     key: 'stepPyraTopEdges',
-    goal: edgesGoal('placed'),
+    goal: edgesGoal('placed', tips),
     moves: LAYERS,
     phases: [solveEdges(TOP_CYCLE, 'placed')],
   },
   { key: 'stepFlipEdges', goal: isSolved, moves: LAYERS, phases: [solveEdges(FLIP_TWO, 'home')] },
 ]
+
+export const PYRAMINX_PLAN = centersFirst(true)
+/** The Tetraminx (fan2cube.fr/tetraminx1): solved as the Pyraminx is. */
+export const TETRAMINX_PLAN = centersFirst(false)

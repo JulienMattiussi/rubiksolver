@@ -293,7 +293,7 @@ const fr = {
     },
     centersFirst: {
       name: 'Centres d’abord',
-      desc: 'Les centres et les pointes d’abord, chacun d’un simple tour de son sommet, puis les arêtes avec trois formules : un crochet qui descend une arête du haut pour finir le bas, une permutation circulaire des trois arêtes du haut, puis une formule qui retourne deux arêtes à la fois.',
+      desc: 'Les centres d’abord (et les pointes, sur le Pyraminx), chacun d’un simple tour de son sommet, puis les arêtes avec trois formules : un crochet qui descend une arête du haut pour finir le bas, une permutation circulaire des trois arêtes du haut, puis une formule qui retourne deux arêtes à la fois.',
     },
     isolateFirst: {
       name: 'Isoler puis permuter',
@@ -705,7 +705,7 @@ const en: Translations = {
     },
     centersFirst: {
       name: 'Centers first',
-      desc: 'Centers and tips first, each with a single turn of its corner, then the edges with three formulas: a hook bringing a top edge down to finish the bottom, a cycle of the three top edges, then a formula flipping two edges at a time.',
+      desc: 'Centers first (and tips, on the Pyraminx), each with a single turn of its corner, then the edges with three formulas: a hook bringing a top edge down to finish the bottom, a cycle of the three top edges, then a formula flipping two edges at a time.',
     },
     isolateFirst: {
       name: 'Isolate then permute',

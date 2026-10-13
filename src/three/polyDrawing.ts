@@ -53,6 +53,8 @@ export interface PolyDrawing {
 const STAR: PolyDrawing = { polygons: (c) => starPolygons(c, false), yaw: STAR_YAW }
 const STAR4: PolyDrawing = { polygons: (c) => starPolygons(c, true), yaw: STAR_YAW }
 const PYRAMINX: PolyDrawing = { polygons: pyraPolygons(3), yaw: PYRA_YAW }
+/** The Tetraminx: the Pyraminx's cells, its cut tips colored. */
+const TETRAMINX: PolyDrawing = { polygons: pyraPolygons(3, true), yaw: PYRA_YAW }
 const MASTER: PolyDrawing = { polygons: pyraPolygons(4), yaw: PYRA_YAW }
 const PROFESSOR: PolyDrawing = { polygons: pyraPolygons(5), yaw: PYRA_YAW }
 const JING: PolyDrawing = {
@@ -98,7 +100,13 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'rainbow') return RAINBOW
   if (shape === 'violet') return VIOLET
   if (shape === 'pyra5') return PROFESSOR
-  return shape === 'pyra4' ? MASTER : shape === 'jing' ? JING : PYRAMINX
+  return shape === 'pyra4'
+    ? MASTER
+    : shape === 'jing'
+      ? JING
+      : shape === 'tetra'
+        ? TETRAMINX
+        : PYRAMINX
 }
 
 /** A vector of a drawing's polygons as it stands in the scene: turned by
