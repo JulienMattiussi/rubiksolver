@@ -12,7 +12,9 @@ import type { Cube, Cubie } from './types'
  * Its four middle-layer edges, thin, show one color only: their way round
  * never shows, so it counts for nothing (`asSeenTwist`, `withRealThinEdges`).
  */
-export function withTwistedCenters(cube: Cube): Cube {
+
+/** A 3x3 as a Z-Twist: its side centers keep their quarter turn, all home. */
+export function withCenterSpins(cube: Cube): Cube {
   return cube.map((c) => (c.stickers.length === 1 && c.position[1] === 0 ? { ...c, spin: 0 } : c))
 }
 
@@ -28,11 +30,13 @@ const isFront = (color: string) => color === 'G' || color === 'B'
 export const isThinEdge = (c: Cubie): boolean =>
   c.stickers.length === 2 && c.stickers.every((s) => SIDE_COLORS.includes(s.color))
 
-/** A thin edge's way round on the F/B axis (as a 3x3's edge orientation):
- *  its F/B color on the slot's reference side (U/D in the top and bottom
- *  layers, F/B in the middle one). Solved, every edge is so. */
+/** An edge's way round on the F/B axis (as a 3x3's edge orientation): its
+ *  U/D color, or else its F/B one, on the slot's reference side (U/D in the
+ *  top and bottom layers, F/B in the middle one). Solved, every edge is so. */
 const good = (c: Cubie): boolean => {
-  const ref = c.stickers.find((s) => isFront(s.color))!
+  const ref =
+    c.stickers.find((s) => s.color === 'W' || s.color === 'Y') ??
+    c.stickers.find((s) => isFront(s.color))!
   return ref.normal[c.position[1] !== 0 ? 1 : 2] !== 0
 }
 
@@ -49,13 +53,7 @@ export const asSeenTwist = (cube: Cube): Cube =>
 /** Whether the edges' ways round (on the F/B axis) add up to a real
  *  puzzle: an even number of them the other way. */
 function evenEdges(cube: Cube): boolean {
-  const edgeGood = (c: Cubie) => {
-    const ref =
-      c.stickers.find((s) => s.color === 'W' || s.color === 'Y') ??
-      c.stickers.find((s) => isFront(s.color))!
-    return ref.normal[c.position[1] !== 0 ? 1 : 2] !== 0
-  }
-  return cube.filter((c) => c.stickers.length === 2).filter((c) => !edgeGood(c)).length % 2 === 0
+  return cube.filter((c) => c.stickers.length === 2).filter((c) => !good(c)).length % 2 === 0
 }
 
 /** An entered Z-Twist made real: its thin edges' ways round unseen, one
@@ -93,3 +91,12 @@ export function twistSolved(cube: Cube): boolean {
     )
   })
 }
+
+/** A Z-Twist with these side centers (by slot) a quarter turn off, its thin
+ *  edges set the way that makes it real. */
+export const withTurnedCenters = (cube: Cube, turned: readonly string[]): Cube =>
+  withRealThinEdges(
+    withCenterSpins(cube).map((c) =>
+      c.spin === undefined ? c : { ...c, spin: turned.includes(c.position.join(',')) ? 1 : 0 },
+    ),
+  )

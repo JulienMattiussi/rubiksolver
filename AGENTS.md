@@ -24,9 +24,9 @@ tourner au survol d'un bouton ; sur 3x3, un onglet « Avancé » pour `M`, `E`,
 animé sur l'état actuel, avec sa notation et une phrase), on le mélange **ou
 on saisit sa propre configuration** en peignant les stickers directement en
 3D (sur tous les puzzles, Pyraminx et étoiles compris ; un puzzle déformable
-dans la forme où il se trouve, le Floppy Ghost pièce par pièce), on peut **mémoriser un état**
+dans la forme où il se trouve, le Floppy Ghost et le Z-Twist pièce par pièce), on peut **mémoriser un état**
 pour y revenir, puis on le résout selon **plusieurs vraies méthodes** (par
-couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4, méthodes de la tour, du
+couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4 et du 5x5, méthodes de la tour, du
 Domino, du Pyraminx et des étoiles...). La solution, affichée dès que le cube
 est au repos, est découpée en **étapes nommées** qu'on joue d'un coup,
 **étape par étape** ou **coup par coup**, dans les deux sens, pour apprendre
@@ -41,9 +41,11 @@ mouvements internationale (U D L R F B) par défaut, ou française
 (H B G D F Ar)**, avec la même convention dans les deux pour les autres
 coups : préfixe `2` pour la tranche interne du 4x4 (`2R` / `2D`), suffixe `w`
 pour le coup large (`Rw` / `Dw`), et `M`, `E`, `S` pour les tranches du
-milieu du 3x3. Exceptions : le Pyraminx, où chaque notation garde son
-propre usage (voir « Le Pyraminx »), et le Floppy Ghost (lettres de
-fan2cube, voir « Le Floppy Ghost »).
+milieu du 3x3. Exceptions : les puzzles qui ne tournent pas comme un cube
+ont leur propre notation, le plus souvent celle de fan2cube : le Pyraminx,
+où chaque notation garde son propre usage (voir « Le Pyraminx »), les
+étoiles (`3`, `/`), le Floppy Ghost, le Rainbow, le Dino et le Rex (lettres
+de fan2cube) et les Gear Cubes (`D²`).
 
 ---
 
@@ -112,7 +114,7 @@ src/
 │   │                     #   le Dino Cube, même mécanique (ses arêtes seules, notation de fan2cube) ; le Rex Cube, coupé plus profond
 │   ├── cycleLibrary.ts   # 3-cycles purs des grands cubes (commutateurs [A, X Y X'] conjugués), findCycle, placeAll, borrow
 │   ├── ghost.ts          # Floppy Ghost : 10 emplacements autour du centre, demi-tours = réflexions entières, notation fan2cube
-│   ├── pyraminx.ts       # Pyraminx, Master et Jing : modèle tétraédrique entier (couches, pointes, tranches, moitiés), mélange
+│   ├── pyraminx.ts       # Pyraminx, Tetraminx, Master, Professor et Jing : modèle tétraédrique entier (couches, pointes, tranches, moitiés), mélange
 │   ├── pyraNotation.ts   # Leur notation hybride (FR fan2cube / US WCA), lecture des formules de fan2cube
 │   ├── star.ts           # Star Prism 2 et 4 étages : modèle hexagonal entier (anneaux + slash), notation fan2cube, mélange
 │   ├── turn.ts           # Les coups : moveSlab/inSlab, applyMove(s), turnAllowed (tour), turnedBy, turnRotation (animation)
@@ -139,7 +141,7 @@ src/
 │   │   ├── exhaustive.ts #   optimal des petits puzzles (1x2x3, Floppy, Floppy Ghost) : BFS exhaustive via solvePieces
 │   │   ├── tower.ts      #   tour 2x2x4 : Deux Pockets (forme, Pocket intérieur, Pocket extérieur)
 │   │   ├── pyraKit.ts    #   briques des Pyraminx : couleurs des faces, coins tournés en place, formules vues de chaque côté
-│   │   ├── pyraminx.ts   #   Pyraminx : centres d'abord (formules de fan2cube.fr)
+│   │   ├── pyraminx.ts   #   Pyraminx et Tetraminx : centres d'abord (formules de fan2cube.fr)
 │   │   ├── pyraminx4.ts  #   Master Pyraminx : ailes puis co-ailes (3-cycles d'ailes, formules de fan2cube.fr)
 │   │   ├── pyraminx5.ts  #   Professor Pyraminx : ailes, co-ailes, arêtes, co-centres, centres (fan2cube.fr)
 │   │   ├── oct4.ts       #   4-Trajber's Octahedron : parité, sommets, arêtes, centres (3-cycles, fan2cube.fr)
@@ -163,7 +165,7 @@ src/
 │   ├── solver4/          # Solveur 4x4 par réduction :
 │   │   ├── centers.ts    #   centres par comptage (D, U, puis ceinture), recherches bornées sans régression
 │   │   ├── edges.ts      #   appariement des ailes (échanges nets FR-bas <-> BR/FL-haut, goal-checkés), flip L2E
-│   │   ├── project.ts    #   projection homomorphe du 4x4 réduit vers un 3x3 virtuel (via3x3)
+│   │   ├── project.ts    #   projection homomorphe du 4x4 réduit vers un 3x3 virtuel (to3x3)
 │   │   ├── parity.ts     #   détecteurs (flip, signes de permutation, vrille) + algos de parité OLL/PLL
 │   │   └── steps.ts      #   reductionPlan(plan 3x3) : préfixe centres/arêtes/parité + étapes 3x3 projetées (projectPlan, partagé)
 │   ├── solver5/          # Solveur 5x5 par réduction :
@@ -174,10 +176,10 @@ src/
 │   │   └── steps.ts      #   reduction5Plan(plan 3x3)
 │   ├── editorTables.ts   # Tables de saisie par forme : slots, placements valides étiquetés par pièce physique, budgets,
 │   │                     #   pièces fixes pré-remplies (centres du 3x3, demi-vis gauche des étoiles), stickers cachés (4-Star)
-│   ├── gearEditor.ts     # Saisie du Gear Cube : engrenages peints à part de leurs agrafes, retournés ou non
+│   ├── gearEditor.ts     # Saisie des Gear Cubes à agrafes colorées (Ultimate, Extreme) : engrenages peints à part de leurs agrafes, retournés ou non
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
-│   ├── forms.ts          # Formes d'un puzzle déformable (tour) pour la saisie : formsOf, lookOf
-│   ├── pieceEditor.ts    # Saisie pièce par pièce (Floppy Ghost) : poses par emplacement, nextPiece, piecesIn
+│   ├── forms.ts          # Formes d'un puzzle déformable (tour, Violet, Pyramorphinx) pour la saisie : formsOf, lookOf
+│   ├── pieceEditor.ts    # Saisie pièce par pièce (Floppy Ghost, Z-Twist) : poses par emplacement, nextPiece, piecesIn
 │   ├── validate.ts       # validateCube : comptage par couleur (déduit du puzzle résolu) + solubilité (résolution bornée ; invariants de pièces + vrille sur 4x4)
 │   ├── shape.ts          # Cube miroir : épaisseur de couche par couleur, boîte d'un cubie (cubieBox) déduite de ses stickers
 │   ├── moveGuide.ts      # Guide des mouvements : lignes par forme (coup + opposé, puis quantifié), describeMove
@@ -187,6 +189,7 @@ src/
 │   ├── speed.ts          # Curseur 0..100 <-> secondes par rotation (exponentiel, de 2,5 s à 0,06 s)
 │   └── progress.ts       # solveProgress : avancement par étape d'une solution (pour l'UI)
 ├── hooks/
+│   ├── useAutoPlan.ts    # Solution calculée d'avance dans le worker dès que le cube est au repos (prête ou non)
 │   ├── useIsDesktop.ts   # Breakpoint `sm` via matchMedia (bascule panneau unique / deux panneaux)
 │   └── useSolveShortcuts.ts # Clavier de la solution : ← → un coup, Pg↑ Pg↓ une étape, Espace pause, Entrée tout
 ├── store/
@@ -211,6 +214,7 @@ src/
 │   ├── starGeometry.ts   # Géométrie des pièces de l'étoile (cerfs-volants extrudés), partagée vue 3D / vignette
 │   ├── pyraGeometry.ts   # Géométrie des pièces du Pyraminx (petits tétraèdres et octaèdres des cellules du modèle)
 │   ├── morphGeometry.ts  # Pièces du Pyramorphinx : case du 2x2 coupée par le tétraèdre (polyèdre convexe)
+│   ├── polyhedron.ts     # Polyèdre convexe depuis ses plans (Pyramorphinx, octaèdres, Rainbow, Dino)
 │   ├── octGeometry.ts    # Pièces des octaèdres (4-Trajber, VTO, GEM-0) : case du cube coupée par l'octaèdre (polyhedron.ts)
 │   ├── gemEmblem.ts      # L'emblème rond des carrés dorés du GEM-0, dessiné sur un canvas
 │   ├── gearFace.ts       # La face du Gear Cube convenue : masques des 4 sortes de pièce (src/assets/gear), plaques tournées en place
@@ -227,15 +231,15 @@ src/
 │   ├── jingGeometry.ts   # Géométrie courbe du Jing : surface arrondie maillée fin, découpée le long des coupes
 │   ├── polyDrawing.ts    # Dessin d'un puzzle sans grille : ses polygones, son lacet à l'écran, sa teinte unique (argent du Ghost)
 │   ├── CubeModel.tsx     # Rendu d'un puzzle à grille depuis un état (couche qui tourne dans son groupe), partagé scène / guide
-│   ├── PolyModel.tsx     # Idem pour les puzzles sans grille (étoiles, Pyraminx)
+│   ├── PolyModel.tsx     # Idem pour les puzzles sans grille (étoiles, Pyraminx, octaèdres...)
 │   ├── PolyPiece.tsx     # Une de leurs pièces (corps + stickers), partagée vue / saisie / guide
 │   ├── noPieces.ts       # NO_PIECES : l'ensemble vide de pièces (rien ne tourne, rien en surbrillance)
 │   ├── PolyView.tsx      # Vue 3D d'un puzzle sans grille (PolyModel), animée comme les cubes
-│   ├── PolyEditView.tsx  # Saisie d'un puzzle sans grille : stickers cliquables, gris tant que vides, survolé éclairci (pièces au clic sur le Ghost)
+│   ├── PolyEditView.tsx  # Saisie d'un puzzle sans grille : stickers cliquables, gris tant que vides, survolé éclairci (pièces au clic sur le Ghost et le Z-Twist)
 │   ├── GuideCanvas.tsx   # Guide des mouvements : un seul canvas WebGL sous la liste, chaque vignette y dessine sa scène
 │   ├── GuideTile.tsx     #   une vignette : scène + caméra propres, scissor sur sa boîte DOM, coup joué en boucle
 │   ├── guideCamera.ts    #   point de vue d'une vignette (la couche qui tourne face à la caméra)
-│   ├── usePreviewed.ts   # Pièces que le coup survolé ferait tourner (surbrillance, cubes et étoile)
+│   ├── usePreviewed.ts   # Pièces que le coup survolé ferait tourner (surbrillance, tous les puzzles ; demi-tours du Gear Cube)
 │   ├── isometric.ts      # Vignette d'un puzzle résolu en vue isométrique (polygones SVG), déduite du même layout
 │   ├── paintable.ts      # Props de clic d'un mesh peignable en saisie (curseur, clic pour lui seul, survol)
 │   ├── Sticker.tsx       # Sticker orienté à sa normale et dimensionné à sa face, mutualisé play/édition (onSelect = cliquable)
@@ -256,12 +260,15 @@ src/
 │   ├── guide/            # Guide des mouvements : MoveGuideButton (dans PadHeader), MoveGuideDialog
 │   ├── celebration/      # Fireworks : petit feu d'artifice (canvas 2D monté le temps du spectacle) quand un coup résout
 │   ├── home/             # Accueil : HomeGallery (galerie de 7 modèles, dont le Gear Cube Ultimate, + ce que fait l'app)
-│   ├── solve/            # Résolution : SolvePanel, MethodSelect, StepList
+│   ├── solve/            # Résolution : SolvePanel, MethodSelect, PlanOutline, StepList
 │   └── edit/             # Saisie : EditPanel, FormPicker (forme d'un puzzle déformable), ColorPalette
 ├── assets/gear/          # Masques et contours des pièces du Gear Cube (générés par scripts/gear_face.py)
+├── workers/
+│   └── solveWorker.ts    # Calcul de la solution hors du fil de l'interface (useAutoPlan)
 ├── App.tsx               # Coquille : scène 3D plein écran + panneau en overlay (empilé sur mobile en saisie)
 └── main.tsx
 tests/
+├── setup.ts              # Configuration de Vitest (jest-dom)
 ├── helpers.ts            # RNG déterministe (seededRng), coin vrillé (twistedCorner)
 ├── unit/                 # Vitest : puzzles (conformance : une ligne par forme, voir plus bas), cube (coups, tour),
 │                         #   moves, solver + solver4,
@@ -269,10 +276,12 @@ tests/
 │                         #   formule), floppy, slimTower, pieceSearch, flat123 (espaces d'états entiers), editor, validate, shape, snapshot,
 │                         #   star (modèle, formules fan2cube, méthodes des deux étoiles), starEditor (saisie des étoiles),
 │                         #   pyraminx, pyraminx4, pyraminx5, jing (notation, formules fan2cube, états impossibles),
-│                         #   moveGuide, isometric, layout, stores, easing, speed, progress
-├── component/            # Vitest + Testing Library (Controls, SegmentedToggle)
+│                         #   tetra/oct4/vto/rainbow/gear/ghost/ghostGeometry/morph/violet/twist (un fichier par puzzle),
+│                         #   solver5, forms, route, moveGuide, isometric, layout, stores, easing, speed, progress
+├── component/            # Vitest + Testing Library (Controls, SegmentedToggle, raccourcis de la solution)
 └── e2e/                  # Playwright (smoke : montage 3D, mélange puis résolution (3x3, 2x2, 1x2x3, 4x4), saisie
-                          #   depuis un mélange puis résolution (liste ENTERED), miroir, guide sur chaque puzzle)
+                          #   depuis un mélange puis résolution (liste ENTERED : un modèle par sorte), miroir, guide sur chaque puzzle,
+                          #   accueil, adresse et retour arrière, saisie de la tour par sa forme, éditeurs 3x3 et 4x4)
 ```
 
 **Tests d'un puzzle** : ce que tout puzzle doit vérifier est écrit une fois,
@@ -283,7 +292,8 @@ défait par son inverse, orientations, mélange défait et snapshot, chaque
 méthode résout un mélange (tenu aussi autrement, quand l'éditeur le permet),
 étapes et méthodes nommées dans les deux langues, saisie aller-retour validée,
 guide complet et décrit. Un nouveau puzzle y ajoute une ligne (et une ligne
-dans la liste `ENTERED` de l'e2e) ; son propre fichier ne garde que ce qui
+dans la liste `ENTERED` de l'e2e s'il est d'une sorte nouvelle : l'e2e
+saisit un exemplaire de chaque sorte de modèle, pas chaque puzzle) ; son propre fichier ne garde que ce qui
 lui est propre : notation, effet de chaque formule de fan2cube, jeux de coups
 de sa méthode, états impossibles, particularités de saisie. Inutile d'y
 re-tester « chaque étape atteint son but » : `buildSteps` le vérifie déjà à
@@ -417,7 +427,7 @@ corrigent AVANT la phase 3x3. Une vrille de coin (somme des twists non nulle
 mod 3) fait lever une exception : cube réellement impossible. (4) **Phase
 3x3** : le 4x4 réduit restreint aux coups externes est isomorphe à un 3x3
 (`to3x3` est un homomorphisme) ; les phases 3x3 existantes s'exécutent sur la
-projection (`via3x3`) et leurs coups se rejouent tels quels : zéro duplication
+projection (`projectPlan`) et leurs coups se rejouent tels quels : zéro duplication
 des étapes.
 
 Les briques de résolution sont partagées et **correctes par construction** :
@@ -496,7 +506,7 @@ les stickers directement sur le rendu 3D (mode édition), en couleurs ou en
   (`usesRealPieces`), et la vrille des coins est vérifiée en résolvant les 8
   coins renormalisés comme un 2x2 (`solveOptimal2`), rapide et borné.
 
-**Puzzles déformables (la tour)** : on saisit le puzzle dans la forme où il
+**Puzzles déformables (tour, Violet, Pyramorphinx)** : on saisit le puzzle dans la forme où il
 se trouve physiquement. La saisie commence par **choisir sa forme**
 (`FormPicker`) parmi celles qu'il peut prendre (`lib/forms.ts`) : un
 parcours en largeur sur l'état sans ses couleurs (où sont les pièces, quelles
@@ -526,7 +536,7 @@ prennent la forme avec l'état. Une saisie est complète quand chaque emplacemen
 est peint (`isComplete`), ceux de sa forme pour un puzzle déformable. Sans centres fixes, la saisie 2x2 part
 entièrement vide (24 stickers), et le 4x4 aussi (96 stickers, centres
 peignables car mobiles). Un centre posé sur l'axe de sa face ne bouge jamais :
-il reste pré-rempli (`Slot.paintable` : aucun coup ne le déplace ni ne le retourne), les 6 du 3x3 comme ceux du Domino et du Floppy, et la demi-vis gauche des étoiles.
+il reste pré-rempli (`Slot.paintable` : aucun coup ne le déplace ni ne le retourne), les 6 du 3x3 comme ceux du Domino, du Floppy et du milieu du 5x5, et la demi-vis gauche des étoiles ; les centres du Gear Cube aussi, qui ne bougent qu'ensemble (`fixedPieces`).
 Les comptes de couleurs se déduisent du puzzle résolu (`stickersOfColor`,
 `shapeColors`), pas des faces d'un cube : la saisie marche sur toutes les
 formes, étoiles comprises (voir « Le Star Prism »).
@@ -561,7 +571,7 @@ Comme son axe fin expose ses deux côtés, les pièces d'extrémité du 1x2x3 po
 saisie, c'est-à-dire des pièces uniques et orientées.
 
 **Résolution** : 96 états seulement, diamètre 6, donc une BFS exhaustive
-(`solveExhaustively`, `methods/exhaustive.ts`, partagé avec le Floppy) rend
+(`solveExhaustively`, `methods/exhaustive.ts`, partagé avec le Floppy et le Floppy Ghost) rend
 la solution la plus courte, exposée par la méthode **Optimale**. La borne de recherche vaut 7 : un état
 solvable est toujours trouvé avant, donc l'échec prouve un puzzle impossible,
 ce dont la validation se sert. Le test parcourt **tout l'espace d'états** et
@@ -673,7 +683,7 @@ cube), partagée par les deux faces qui le forment : « résolu » reste « chaq
 direction d'une seule couleur » (`isSolved` inchangé). Couleurs : vert dessus,
 bleu dessous, et sur les côtés orange, blanc, jaune, rouge, violet, rose (les
 deux dernières sont propres à l'étoile : `Color` = `CubeColor` + `P`, `V`,
-plus les six du Rainbow).
+plus les six du Rainbow et le doré du GEM-0, `C`).
 
 Intégration : un coup est un `Turn` = `Move` (cubes) | `StarMove` (`RingMove` |
 slash) dans le code générique (file d'animation, rendu, notation) ; les
@@ -721,7 +731,7 @@ une pièce externe un cran plus bas : `isSolved` reste juste. Notation : les
 internes en minuscules (`2h`, `-b` ; `2u`, `-d` en US).
 
 **Résolution** (`methods/starPrism4.ts`, méthode **Deux étoiles**, sans
-nouvelle machinerie) : le plan du 2-Star est **projeté** (comme `via3x3` sur
+nouvelle machinerie) : le plan du 2-Star est **projeté** (comme `projectPlan` sur
 le 4x4) sur l'étoile interne (ses pièces ramenées à ±2, ses tours joués sur
 `u`/`d`), qui remet aussi la vis, puis sur l'externe. Celle-ci part et finit
 vis en place, donc slashe un nombre pair de fois sans tourner l'interne
@@ -836,7 +846,7 @@ Catégorie à part, « Octaèdres ».
 **Rendu** (`three/octGeometry.ts`) : chaque pièce est sa case du 4x4x4
 (ouverte vers l'extérieur sur les couches externes) coupée par l'octaèdre
 `|x| + |y| + |z| <= 8`, un polyèdre convexe calculé depuis ses plans
-(`polyhedron.ts`, partagé avec le Pyramorphinx) ; une forme ne dépend que de
+(`polyhedron.ts`, partagé avec le Pyramorphinx, le Rainbow et le Dino) ; une forme ne dépend que de
 l'emplacement, donc la pièce est dessinée où elle est.
 
 **Résolution** (`methods/oct4.ts`, méthode **Sommets d'abord**) : rien n'est
@@ -1455,8 +1465,8 @@ mobile et en saisie, une seule carte) :
   sélecteur en modale, d'abord les **catégories** en vignettes, puis les
   **puzzles** de la catégorie choisie (toujours ouvert sur les catégories ; le
   puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`), dans
-  l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4/5x5, Miroirs 2x2/3x3/4x4, Tours 2x2x3
-  (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
+  l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4/5x5, Miroirs 2x2/3x3/4x4, Tours 2x2x4/2x2x3
+  (Slim)/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
   4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube, Bizarres Violet/Z-Twist.
@@ -1535,9 +1545,10 @@ que la couche qui tourne soit face à elle (dessous pour `D`, derrière pour
 
 **Aperçu d'un coup** : survoler (ou focaliser au clavier) un bouton du pad met
 en surbrillance les pièces que ce coup tournerait (corps bleu ciel, stickers
-éclaircis) : `MovePad` écrit le coup dans `viewStore.preview`, `CubeView` lit
-les pièces concernées avec `turnedBy` (la même fonction que l'animation), sauf
-pendant une animation ou si le coup est bloqué.
+éclaircis) : `PadButton` (sur tous les pads) écrit le coup dans
+`viewStore.preview`, `usePreviewed` (lu par `CubeView` et `PolyView`) en
+déduit les pièces avec `turnedBy` et `halfTurnedBy` (les mêmes fonctions que
+l'animation), sauf pendant une animation ou si le coup est bloqué.
 
 **Feu d'artifice** (`components/celebration/Fireworks.tsx`) : quand un coup
 amène le puzzle résolu (`solvedByTurn` du store : le coup qui finit, depuis
@@ -1583,7 +1594,8 @@ tout texte passe par `t`. Le recentrage caméra transite par `viewStore`
 - **`src/lib/` est pur** : aucun import React ni three.js. Le rendu et le store
   dépendent de `lib`, jamais l'inverse.
 - **État entier, sans flottants** : les normales restent unitaires et les
-  positions sur la grille entière du mécanisme (`{-3,-1,1,3}` au plus). Ne
+  positions sur la grille entière du mécanisme (bornée par son `SHAPE_DIMS` :
+  `{-3,-1,1,3}` sur le 4x4, jusqu'à ±4 sur le Professor et le Rex). Ne
   pas introduire de trigonométrie dans la logique du cube ; l'angle visuel est
   calculé par `turnRotation` uniquement pour l'animation.
 - **Tailwind v4** : `@import 'tailwindcss'`, pas de `tailwind.config.js`.

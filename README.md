@@ -4,10 +4,13 @@ Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2
 (Pocket), 3x3, 4x4 ou 5x5**, plus cinq cuboïdes (le **1x2x3**, la **tour 2x2x4**,
 la **Slim Tower 2x2x3**, le **Domino 3x3x2** et le **Floppy 3x3x1**), le
 **Floppy Ghost** (un Floppy Megaminx découpé en pentagramme, argenté) et des
-puzzles non cubiques : le **Pyraminx**, le **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le
+puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (sans pointes), le **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le
 **Pyraminx Jing**, le **Pyramorphinx**, le **4-Trajber's Octahedron** (un 4x4x4 en octaèdre), l'**Octahedron VTO** (un 3x3x3 en octaèdre), le **GEM-0** (le VTO sans pointes),
-le **Rainbow** (un cuboctaèdre aux triangles qui tournent),
-le **Violet** (un 2x2x2 à pivot excentré qui se déforme), le **Gear Cube Ultimate** (un 3x3x3 à engrenages)
+le **Rainbow** (un cuboctaèdre aux triangles qui tournent), le **Dino Cube** et le
+**Rex Cube** (leurs sommets tournent),
+le **Violet** (un 2x2x2 à pivot excentré qui se déforme), le **Z-Twist** (un 3x3x3
+à la forme tordue), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube
+Extreme** (des 3x3x3 à engrenages)
 et les **Star Prism** à 2 et 4 étages.
 On manipule le puzzle, on le mélange **ou on saisit sa propre
 configuration** en peignant les stickers en 3D, puis on le résout selon
@@ -28,6 +31,7 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
 - **Méthodes de résolution**, chacune avec ses étapes, ses objectifs et ses
   coups autorisés (vérifiés par le moteur) :
   - 3x3 : par couches, Fridrich (CFOP), **Roux**, **Petrus**, **ZZ** ;
+  - Z-Twist : par couches, CFOP, Petrus, ZZ, puis les centres tordus ;
   - 2x2 : par couches, et **optimale** (11 coups maximum) ;
   - 4x4 : **réduction** (centres, arêtes, parités) puis par couches ou CFOP ;
   - 5x5 : **réduction** aussi, centres et arêtes par commutateurs (3-cycles),
@@ -40,15 +44,18 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
     extérieur) ;
   - Slim Tower : **équateur puis coins** ;
   - Domino : **coins puis arêtes** ;
-  - Pyraminx : **centres d'abord** ;
+  - Pyraminx et Tetraminx : **centres d'abord** ;
   - Master et Professor Pyraminx : **ailes puis co-ailes** ;
   - Pyraminx Jing : **sommets d'abord** ;
   - Pyramorphinx : **comme un Pocket** ;
   - 4-Trajber's Octahedron : **sommets d'abord** ;
   - Octahedron VTO et GEM-0 : **centres puis arêtes** ;
   - Rainbow : **triangle prolongé** ;
+  - Dino Cube : **étage par étage** ;
+  - Rex Cube : **arêtes, centres, pétales** ;
   - Violet : **forme puis couleurs** ;
-  - Gear Cube Ultimate : **coins d'abord** ;
+  - Gear Cube et Gear Cube Ultimate : **coins d'abord** ;
+  - Gear Cube Extreme : **équateur puis coins** ;
   - Star Prism : **isoler puis permuter** ;
   - 4-Star Prism : **deux étoiles** (l'interne puis l'externe).
 - **Solution pas à pas** : le plan de la méthode dès son choix, puis la vraie
@@ -62,14 +69,17 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   retourne et se couche de travers ; tout argenté, on le lit par la forme),
   les Pyraminx (sommets, tranches,
   pointes ; le Jing aux pièces courbes), le Pyramorphinx (un 2x2 taillé en
-  tétraèdre, qui se déforme) et les Star Prism (tours d'étages et slash).
+  tétraèdre, qui se déforme), les octaèdres et le Rainbow, le Dino et le Rex
+  (sommets en tiers de tour), les Gear Cubes (demi-tours de face qui font
+  tourner la tranche d'un quart), le Violet, le Z-Twist (centres orientés) et
+  les Star Prism (tours d'étages et slash).
 - **Version miroir** du 2x2, du 3x3 et du 4x4 (Mirror Blocks) : couches
   d'épaisseurs différentes et facettes toutes dorées, à résoudre par la forme.
 - Mélange aléatoire, ou **saisie guidée** de son propre puzzle (tous) en
   peignant les stickers (aucune configuration incohérente possible,
   validation de solubilité) ; un puzzle déformable se saisit dans la forme où
-  il se trouve, choisie parmi des vignettes ; le Floppy Ghost pièce par pièce
-  (un clic pose la pièce suivante qui s'y loge).
+  il se trouve, choisie parmi des vignettes ; le Floppy Ghost et le Z-Twist
+  pièce par pièce (un clic pose la pièce suivante qui s'y loge).
 - Un petit **feu d'artifice** quand le puzzle arrive résolu.
 - **Page d'accueil** : une galerie de modèles à choisir, et ce qu'on peut
   faire avec (saisie, guide, résolution).

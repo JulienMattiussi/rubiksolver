@@ -1,11 +1,11 @@
-import { AXIS_ROTATIONS } from '../geometry'
 import { isSolved, solvedCube } from '../cube'
 import { allTurnsOf } from '../moveSet'
 import { colorsOf } from '../pieces'
-import { parseDinoMoves, RAINBOW_CORNERS, RAINBOW_TRIANGLES } from '../rainbow'
+import { parseDinoMoves } from '../rainbow'
 import type { MethodPlan } from '../solverKit'
-import type { Color, Cube, RainbowMove, Vec3 } from '../types'
+import type { Cube, RainbowMove, Vec3 } from '../types'
 import { cycleTable, placeByCycles } from './pyraCycles'
+import { fromEverySide, heldTargets, isEven } from './rainbowKit'
 
 /**
  * Dino Cube, "layer by layer", as taught on fan2cube.fr (dinocube2), with
@@ -30,17 +30,6 @@ const key = (p: Vec3) => p.join()
 /** The page's formula, as it writes it. */
 const DINO_CYCLE = parseDinoMoves("[GA']")
 
-/** A formula as seen holding the puzzle each way (also the Rex Cube's). */
-export function fromEverySide(moves: readonly RainbowMove[]): RainbowMove[][] {
-  return AXIS_ROTATIONS.map((turn) =>
-    moves.map((m) => {
-      const d = turn(RAINBOW_CORNERS[m.triangle])
-      const triangle = RAINBOW_TRIANGLES.find((t) => key(RAINBOW_CORNERS[t]) === key(d))!
-      return { ...m, triangle }
-    }),
-  )
-}
-
 let table: Map<string, RainbowMove[]> | undefined
 const cycles = () =>
   (table ??= cycleTable(
@@ -50,43 +39,11 @@ const cycles = () =>
     TURNS.turns as RainbowMove[],
   ))
 
-/** The other solution: left and right swapped (orange and red). */
-const swap = (c: Color): Color => (c === 'O' ? 'R' : c === 'R' ? 'O' : c)
-const MIRROR: Cube = SOLVED.map((c) => ({
-  ...c,
-  stickers: c.stickers.map((s) => ({ ...s, color: swap(s.color) })),
-}))
-
 /** Every solved puzzle: both solutions, each held every way. */
-const TARGETS: Cube[] = [SOLVED, MIRROR].flatMap((solved) =>
-  AXIS_ROTATIONS.map((turn) =>
-    solved.map((c) => ({
-      position: turn(c.position),
-      stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
-    })),
-  ),
-)
+const TARGETS = heldTargets(SOLVED)
 
 /** Where each piece belongs in a target: the slot of its colors. */
 const homeIn = (target: Cube) => new Map(target.map((c) => [colorsOf(c), key(c.position)]))
-
-/** Whether moving every piece to its home is an even permutation. */
-function even(state: Cube, home: Map<string, string>): boolean {
-  const to = new Map(state.map((c) => [key(c.position), home.get(colorsOf(c))!]))
-  const seen = new Set<string>()
-  let swaps = 0
-  for (const start of to.keys()) {
-    let at = start
-    let length = 0
-    while (!seen.has(at)) {
-      seen.add(at)
-      at = to.get(at)!
-      length++
-    }
-    if (length > 0) swaps += length - 1
-  }
-  return swaps % 2 === 0
-}
 
 /** The target the state is nearest (most pieces home), among those a
  *  3-cycle can reach. */
@@ -95,7 +52,7 @@ function targetOf(state: Cube): Map<string, string> {
   let most = -1
   for (const target of TARGETS) {
     const home = homeIn(target)
-    if (!even(state, home)) continue
+    if (!isEven(state, home)) continue
     const right = state.filter((c) => home.get(colorsOf(c)) === key(c.position)).length
     if (right > most) [best, most] = [home, right]
   }

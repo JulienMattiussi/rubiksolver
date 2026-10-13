@@ -14,7 +14,7 @@ import { FormPicker } from './FormPicker'
 
 /** Cube-entry panel: the form first on a shape-shifting puzzle (FormPicker),
  *  then hint, color palette, progress, validation error, actions. A puzzle
- *  entered piece by piece (the Floppy Ghost) has no palette: it counts its
+ *  entered piece by piece (Floppy Ghost, Z-Twist) has no palette: it counts its
  *  pieces placed. */
 export function EditPanel() {
   const t = useI18n((s) => s.t)

@@ -1,13 +1,12 @@
-import { AXIS_ROTATIONS } from '../geometry'
 import { isSolved, solvedCube } from '../cube'
 import { allTurnsOf } from '../moveSet'
 import { invertMoves } from '../moves'
 import { colorsOf } from '../pieces'
 import { parseDinoMoves } from '../rainbow'
 import type { MethodPlan } from '../solverKit'
-import type { Color, Cube, Cubie, RainbowMove, Vec3 } from '../types'
-import { fromEverySide } from './dino'
+import type { Cube, Cubie, RainbowMove, Vec3 } from '../types'
 import { cycleTable, placeByCycles } from './pyraCycles'
+import { fromEverySide, heldTargets, isEven } from './rainbowKit'
 
 /**
  * Rex Cube, "edges, centers, petals", as taught on fan2cube.fr (rexcube2):
@@ -62,37 +61,8 @@ const petalCycles = () => {
   return (petalTable = cycleTable(SOLVED, isPetal, formulas, SETUPS))
 }
 
-const swap = (c: Color): Color => (c === 'O' ? 'R' : c === 'R' ? 'O' : c)
-const MIRROR: Cube = SOLVED.map((c) => ({
-  ...c,
-  stickers: c.stickers.map((s) => ({ ...s, color: swap(s.color) })),
-}))
-const TARGETS: Cube[] = [SOLVED, MIRROR].flatMap((solved) =>
-  AXIS_ROTATIONS.map((turn) =>
-    solved.map((c) => ({
-      position: turn(c.position),
-      stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
-    })),
-  ),
-)
-
-/** Whether sending each piece of a kind to its home is an even permutation. */
-function even(pieces: Cube, home: Map<string, string>): boolean {
-  const to = new Map(pieces.map((c) => [key(c.position), home.get(colorsOf(c))!]))
-  const seen = new Set<string>()
-  let swaps = 0
-  for (const start of to.keys()) {
-    let at = start
-    let length = 0
-    while (!seen.has(at)) {
-      seen.add(at)
-      at = to.get(at)!
-      length++
-    }
-    swaps += Math.max(0, length - 1)
-  }
-  return swaps % 2 === 0
-}
+/** Every solved puzzle: both solutions, each held every way. */
+const TARGETS = heldTargets(SOLVED)
 
 /** A target's homes: the slot of each edge's and center's colors, and each
  *  petal slot's color. */
@@ -109,7 +79,7 @@ function targetOf(state: Cube) {
   let most = -1
   for (const target of TARGETS) {
     const homes = homesOf(target)
-    if (!even(state.filter(isEdge), homes.home) || !even(state.filter(isCenter), homes.home))
+    if (!isEven(state.filter(isEdge), homes.home) || !isEven(state.filter(isCenter), homes.home))
       continue
     const right =
       state.filter((c) => !isPetal(c) && homes.home.get(colorsOf(c)) === key(c.position)).length *

@@ -17,7 +17,7 @@ import {
 } from './editorTables'
 import { entersByPieces, piecesCube } from './pieceEditor'
 import { withGears, withTurnedGears } from './gear'
-import { asSeenTwist, withRealThinEdges, withTwistedCenters } from './twist'
+import { asSeenTwist, withTurnedCenters } from './twist'
 import { hasColoredClips, isGear, type Color, type Cube, type CubeShape } from './types'
 
 /**
@@ -44,7 +44,8 @@ import { hasColoredClips, isGear, type Color, type Cube, type CubeShape } from '
  *
  * A shape-shifting puzzle is entered in the form it stands in: every function
  * here takes that `form` (a state of it, see forms.ts), the box by default.
- * The Floppy Ghost is entered piece by piece instead (pieceEditor.ts), into
+ * The Floppy Ghost and the Z-Twist are entered piece by piece instead
+ * (`entersByPieces`, pieceEditor.ts), into
  * the same map of stickers.
  */
 
@@ -80,7 +81,7 @@ export function emptyEdit(shape: CubeShape, form?: Cube): EditStickers {
       for (const s of slot.stickers) edit[s.id] = s.solvedColor
       continue
     }
-    // Entered piece by piece (the Floppy Ghost): each piece is put whole.
+    // Entered piece by piece (Floppy Ghost, Z-Twist): each piece is put whole.
     if (entersByPieces(shape)) continue
     const options = tables.placements.get(slot.key) ?? []
     for (const s of slot.stickers) {
@@ -268,14 +269,6 @@ export function usesRealPieces(cube: Cube): boolean {
   }
   return true
 }
-
-/** A Z-Twist with these side centers a quarter turn off (twist.ts). */
-const withTurnedCenters = (cube: Cube, turned: readonly string[]): Cube =>
-  withRealThinEdges(
-    withTwistedCenters(cube).map((c) =>
-      c.spin === undefined ? c : { ...c, spin: turned.includes(c.position.join(',')) ? 1 : 0 },
-    ),
-  )
 
 /** Build a full Cube from a complete edit state (throws if incomplete). */
 export function buildCube(

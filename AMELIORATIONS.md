@@ -18,7 +18,8 @@ haut et du bas × 2 sens) et rejoue chacune coup par coup.
 
 **Déjà essayé, sans succès :**
 
-- traiter les arêtes une à une (`oneAtATime`) : pas plus rapide ;
+- traiter les arêtes une à une (`oneAtATime`) : gardé (les étapes restent
+  lisibles), mais pas plus rapide ;
 - combiner `(BA)+` et `(BA)-` en une paire qui ne tourne que deux engrenages :
   la résolution échouait sur plus de la moitié des mélanges.
 

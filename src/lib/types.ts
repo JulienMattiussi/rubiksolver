@@ -40,7 +40,8 @@ export type CubeShape =
  * tall, 1 thick, so the rectangle you face is its 3x2 side), the 2x2x4
  * tower (4 layers on a square 2x2 section), its slim 2x2x3 cousin, the Domino (a 3x3 two layers
  * tall: U and D turn freely, its sides only take half turns) and the Floppy
- * (a 3x3 one layer tall: half turns of its sides only).
+ * (a 3x3 one layer tall: half turns of its sides only). The other puzzles
+ * follow, each with the box its pieces sit in (see their comments).
  *
  * A one-layer axis has no move of its own: turning its only layer just turns
  * the whole puzzle. Which turns exist beyond that follows from these counts,
@@ -56,8 +57,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   '223': [2, 3, 2],
   '332': [3, 2, 3],
   '331': [3, 1, 3],
-  // The Pyraminx and the Master Pyraminx (pyraminx.ts) are no grid either:
-  // their pieces sit within +-2 and +-3 on every axis (see `pyraSize`).
+  // The Pyraminx family (pyraminx.ts) is no grid either: its pieces sit
+  // within +-2, +-3 and +-4 on every axis by size (see `pyraSize`).
   pyra: [5, 5, 5],
   tetra: [5, 5, 5],
   pyra4: [7, 7, 7],
@@ -397,8 +398,9 @@ export interface CubeKind {
 }
 
 /** Groups of the cube picker, in display order: the classic NxNxN cubes, their
- *  mirror versions, the other cuboids (tower, Domino), the flat puzzles (one
- *  layer thick: 1x2x3, Floppy), the pyramids, then the star prisms. */
+ *  mirror versions, the other cuboids (towers, Domino), the flat puzzles (one
+ *  layer thick: 1x2x3, Floppy, Floppy Ghost), the pyramids, the octahedra,
+ *  the star prisms, the gear cubes, the diagonal cuts, then the odd ones. */
 export const CUBE_CATEGORIES = [
   'standard',
   'mirror',

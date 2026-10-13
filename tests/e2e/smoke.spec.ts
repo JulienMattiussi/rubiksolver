@@ -235,21 +235,28 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
 /** Puzzles entered from a scrambled state, then solved: their category, name,
  *  and the stickers the editor counts. */
 const ENTERED: [string, string, string][] = [
+  // One of each kind of model (the others of a kind enter the same way, see
+  // the conformance suite in tests/unit/puzzles.test.ts). Not the Gear
+  // Cubes: a scramble leaves their gears askew, which they are not entered in.
   ['Standards', '2x2 (Pocket)', '24 / 24 stickers'],
   // Most often out of its box once scrambled: entered in the form it stands in.
   ['Tours', '2x2x4', '40 / 40 stickers'],
   ['Pyramides', 'Pyraminx', '36 / 36 stickers'],
-  ['Pyramides', 'Master Pyraminx (4x4)', '64 / 64 stickers'],
-  ['Pyramides', 'Professor Pyraminx (5x5)', '100 / 100 stickers'],
+  // Curved pieces.
   ['Pyramides', 'Pyraminx Jing', '28 / 28 stickers'],
+  // A 2x2 cut to a tetrahedron, entered by its form.
   ['Pyramides', 'Pyramorphinx', '16 / 16 stickers'],
+  // A 4x4x4 cut to an octahedron, one sticker a piece.
   ['Octaèdres', "4-Trajber's Octahedron", '56 / 56 stickers'],
+  // Its tips turn on their own.
   ['Octaèdres', 'Octahedron VTO', '72 / 72 stickers'],
-  ['Octaèdres', 'GEM-0 (Jewel)', '54 / 54 stickers'],
-  ['Octaèdres', 'Rainbow', '56 / 56 stickers'],
+  // Corners turning: edges, centers and petals.
+  ['Coupes diagonales', 'Rex Cube', '54 / 54 stickers'],
+  // Out of its box, its big cubes pre-filled.
   ['Bizarres', 'Violet', '33 / 33 stickers'],
-  // Entered piece by piece: its ten pieces counted.
+  // Entered piece by piece: its pieces counted.
   ['Plats', 'Floppy Ghost', '10 / 10 pièces'],
+  ['Bizarres', 'Z-Twist', '20 / 20 pièces'],
   // Only the stickers one sees count: the inner points' flat faces fill in.
   ['Étoiles', '4-Star Prism', '64 / 64 stickers'],
 ]

@@ -15,8 +15,9 @@ import { polyDrawing } from './polyDrawing'
  * star prism, all but the left screw half, which never moves). An inner
  * point of the 4-star shows its two sides only: once both are painted, their
  * order tells which way up it sits, and the editor completes its hidden face.
- * The Floppy Ghost is entered piece by piece: each slot shows the piece put
- * there, and a click puts the next one (pieceEditor.ts).
+ * The Floppy Ghost and the Z-Twist are entered piece by piece: each slot
+ * shows the piece put there, and a click puts the next one (pieceEditor.ts);
+ * a click on a Z-Twist side center turns it a quarter.
  */
 export function PolyEditView() {
   const shape = useCube((s) => cubeShape(s.cube))

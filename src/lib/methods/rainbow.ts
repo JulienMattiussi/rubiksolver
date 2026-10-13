@@ -1,12 +1,12 @@
-import { AXIS_ROTATIONS } from '../geometry'
 import { isSolved, solvedCube } from '../cube'
 import { allTurnsOf } from '../moveSet'
 import { colorsOf, homesOf } from '../pieces'
 import { solvePieces } from '../pieceSearch'
-import { parseRainbowMoves, RAINBOW_CORNERS, RAINBOW_TRIANGLES } from '../rainbow'
+import { parseRainbowMoves, RAINBOW_CORNERS } from '../rainbow'
 import type { MethodPlan } from '../solverKit'
 import type { Cube, Cubie, RainbowMove, Vec3 } from '../types'
 import { cycleTable, placeByCycles } from './pyraCycles'
+import { fromEverySide } from './rainbowKit'
 
 /**
  * Rainbow, "extended triangle", as taught on fan2cube.fr (rainbow2):
@@ -44,18 +44,6 @@ const topDone = (cube: Cube) =>
     const piece = cube.find((c) => key(c.position) === key(p))!
     return HOME_OF.get(colorsOf(piece)) === key(p)
   })
-
-/** A formula as seen from each way of holding the puzzle: its triangles
- *  carried by the whole-puzzle turn. */
-function fromEverySide(moves: readonly RainbowMove[]): RainbowMove[][] {
-  return AXIS_ROTATIONS.map((turn) =>
-    moves.map((m) => {
-      const d = turn(RAINBOW_CORNERS[m.triangle])
-      const triangle = RAINBOW_TRIANGLES.find((t) => key(RAINBOW_CORNERS[t]) === key(d))!
-      return { ...m, triangle }
-    }),
-  )
-}
 
 /** fan2cube's two formulas, as the page writes them. */
 export const PLACE_LEFT = parseRainbowMoves("[H' G']")
