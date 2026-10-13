@@ -104,7 +104,7 @@ export function GuideTile({ track, cube, variant, turn, playing }: GuideTileProp
     gl.render(scene, camera)
   }, 2)
 
-  const turnSpin = isGearMove(turn) ? (turn.amount === 1 ? 1 : -1) : 0
+  const turnSpin = isGearMove(turn) ? (turn.amount === 1 ? 1 : -1) * (turn.times ?? 1) : 0
   const model = { cube, groupRef, isTurning, halfRef, isHalfTurning, turnSpin, progress }
   return createPortal(
     <>

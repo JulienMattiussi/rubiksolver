@@ -26,7 +26,7 @@ function changes(cube: Cube) {
 }
 
 describe('Gear Cube model', () => {
-  it('turns a face half and the slice beside it a quarter, its gears a sixth', () => {
+  it('turns a face half and the slice beside it a quarter, its gears a third', () => {
     const after = play('R')
     const slice = changes(after).filter((c) => c.at.startsWith('0,'))
     // The slice's centers and edges all moved a quarter; its 4 gears spun.
@@ -39,13 +39,14 @@ describe('Gear Cube model', () => {
   it('pivots the 4 gears of a slice with D⁸, nothing else (fan2cube)', () => {
     const c = changes(play('R R R R'))
     expect(c.map((p) => p.at).sort()).toEqual(['0,-1,-1', '0,-1,1', '0,1,-1', '0,1,1'])
-    expect(c.every((p) => p.to === p.at && !p.turned && p.spin === 4)).toBe(true)
+    expect(c.every((p) => p.to === p.at && !p.turned && p.spin === 1)).toBe(true)
   })
 
-  it('turns over the 8 edges of the top and bottom with (A² D²)³ (fan2cube)', () => {
+  it('swaps the clips of the 8 edges of the top and bottom with (A² D²)³ (fan2cube)', () => {
     const c = changes(play('F R F R F R'))
     expect(c).toHaveLength(8)
-    expect(c.every((p) => p.to === p.at && p.turned && p.spin === 3)).toBe(true)
+    // Each base turned over in place, its gear back home (three moves: a turn).
+    expect(c.every((p) => p.to === p.at && p.turned && p.spin === 0)).toBe(true)
     expect(c.every((p) => p.at.split(',')[1] !== '0')).toBe(true)
   })
 
@@ -60,7 +61,7 @@ describe('Gear Cube model', () => {
     ).toBe(true)
   })
 
-  it('comes back after twelve turns of a face (two full turns of its gears)', () => {
+  it('comes back after twelve turns of a face (four full turns of its gears)', () => {
     const twelve = Array.from({ length: 12 }, () => 'R').join(' ')
     expect(changes(play(twelve))).toEqual([])
   })

@@ -63,6 +63,7 @@ type GuideSection =
   | 'sides'
   | 'triangles'
   | 'gears'
+  | 'gearsThrice'
   | PyraLayer
 
 export interface GuideGroup {
@@ -106,6 +107,8 @@ export type MoveDescription =
       readonly kind: 'gear'
       readonly face: Face
       readonly clockwise: boolean
+      /** Three in a row. */
+      readonly thrice?: true
     }
   | {
       /** A Rainbow triangle turned a third. */
@@ -195,7 +198,11 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
   if (shape === 'ghost') return [{ section: 'sides', rows: GHOST_TURNS.map((turn) => [turn]) }]
   if (isGear(shape)) {
     const row = (gear: Face) => ([1, 3] as const).map((amount): GearMove => ({ gear, amount }))
-    return [{ section: 'gears', rows: FACES.map(row) }]
+    // Then each three times in a row: the gears go round, the cube is back.
+    return [
+      { section: 'gears', rows: FACES.map(row) },
+      { section: 'gearsThrice', rows: FACES.map((gear) => [{ gear, amount: 1, times: 3 }]) },
+    ]
   }
   if (shape === 'rainbow') {
     const row = (triangle: RainbowCorner) =>
@@ -208,7 +215,10 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
 /** What a turn does on a shape. */
 export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
   if (isGhostMove(turn)) return { kind: 'side', side: turn.side }
-  if (isGearMove(turn)) return { kind: 'gear', face: turn.gear, clockwise: turn.amount === 1 }
+  if (isGearMove(turn)) {
+    const base = { kind: 'gear', face: turn.gear, clockwise: turn.amount === 1 } as const
+    return turn.times ? { ...base, thrice: true } : base
+  }
   if (isRainbowMove(turn)) {
     return { kind: 'triangle', triangle: turn.triangle, clockwise: turn.amount === 1 }
   }

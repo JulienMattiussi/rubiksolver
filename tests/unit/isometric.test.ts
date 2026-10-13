@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { FACE_COLOR, stickersOfColor } from '@/lib/cube'
-import { isPolyDrawn, SHAPE_DIMS, type CubeShape, type CubeVariant } from '@/lib/types'
+import { isGear, isPolyDrawn, SHAPE_DIMS, type CubeShape, type CubeVariant } from '@/lib/types'
 import { isometricDrawing } from '@/three/isometric'
 
 // Grid puzzles; the gridless ones have their own drawing (tested below).
-const SHAPES = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter((shape) => !isPolyDrawn(shape))
+// The Gear Cube draws its own face (tested below).
+const SHAPES = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter(
+  (shape) => !isPolyDrawn(shape) && !isGear(shape),
+)
 
 describe('isometric thumbnails', () => {
   it.each(SHAPES)('%s: draws every facelet of its U, F and R faces, body then sticker', (shape) => {
@@ -18,6 +21,13 @@ describe('isometric thumbnails', () => {
       expect(polygons.filter((p) => p.paint === 'body')).toHaveLength(visible)
       expect(viewBox.split(' ').map(Number).every(Number.isFinite)).toBe(true)
     }
+  })
+
+  it('draws the Gear Cube its agreed face, on U, F and R, on the black', () => {
+    const { polygons } = isometricDrawing('gearU', 'classic')
+    expect(polygons.filter((p) => p.paint === 'body')).toHaveLength(3)
+    const colors = new Set(polygons.filter((p) => p.paint !== 'body').map((p) => p.paint))
+    expect([...colors].sort()).toEqual([FACE_COLOR.F, FACE_COLOR.R, FACE_COLOR.U].sort())
   })
 
   it('shades the sides darker than the top', () => {

@@ -4,6 +4,7 @@ import centerUrl from '@/assets/gear/center.png'
 import clipUrl from '@/assets/gear/clip.png'
 import cornerUrl from '@/assets/gear/corner.png'
 import gearUrl from '@/assets/gear/gear.png'
+import OUTLINES from '@/assets/gear/outlines.json'
 
 /**
  * The Gear Cube's face, as agreed on a flat drawing: 13 pieces, each a mask
@@ -55,6 +56,30 @@ const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 /** A quarter turn clockwise on the drawing (y down): top goes right. */
 const turn = ([x, y]: readonly [number, number]): [number, number] => [-y, x]
 
+/**
+ * Where a point of a kind's drawing (centered, in a 3x3x3's units: -1.5 to
+ * 1.5, x right, y down) lands for the piece at `position` on the face of
+ * normal `normal`, `height` above the face (in the cubie's frame): the
+ * drawing turned the quarters that bring its own cell to the piece's.
+ */
+function placer(kind: GearPiece, position: Vec3, normal: Vec3) {
+  const [ux, uy] = faceAxes(normal)
+  const cell: [number, number] = [dot(position, ux), dot(position, uy)]
+  let k = 0
+  let at: [number, number] = [...HOME[kind]]
+  while (at[0] !== cell[0] || at[1] !== cell[1]) {
+    at = turn(at)
+    if (++k > 3) throw new Error(`gearFace: no ${kind} at ${cell.join()}`)
+  }
+  return (x: number, y: number, height: number): number[] => {
+    let p: [number, number] = [x, y]
+    for (let i = 0; i < k; i++) p = turn(p)
+    return [0, 1, 2].map(
+      (i) => normal[i]! * (1.5 + height) + p[0] * ux[i]! + p[1] * uy[i]! - position[i]!,
+    )
+  }
+}
+
 const GEOMETRIES = new Map<string, THREE.BufferGeometry>()
 
 /**
@@ -71,28 +96,9 @@ export function gearPlate(
   const id = [kind, position.join(), normal.join(), lift].join('|')
   let geometry = GEOMETRIES.get(id)
   if (geometry) return geometry
-  const [ux, uy] = faceAxes(normal)
-  const cell: [number, number] = [dot(position, ux), dot(position, uy)]
-  // The quarter turns bringing the mask's own cell to this one.
-  let k = 0
-  let at: [number, number] = [...HOME[kind]]
-  while (at[0] !== cell[0] || at[1] !== cell[1]) {
-    at = turn(at)
-    if (++k > 3) throw new Error(`gearPlate: no ${kind} at ${cell.join()}`)
-  }
-  // Each corner of the quad, and where it reads the mask: its spot turned
-  // back k quarters.
+  const place = placer(kind, position, normal)
   const positions: number[] = []
   const uvs: number[] = []
-  const corner = (x: number, y: number) => {
-    const p = [0, 1, 2].map(
-      (i) => normal[i]! * (1.5 + lift) + x * ux[i]! + y * uy[i]! - position[i]!,
-    )
-    positions.push(...p)
-    let back: [number, number] = [x, y]
-    for (let i = 0; i < (4 - k) % 4; i++) back = turn(back)
-    uvs.push(back[0] / 3 + 0.5, 0.5 - back[1] / 3)
-  }
   for (const [x, y] of [
     [-1.5, -1.5],
     [1.5, -1.5],
@@ -100,11 +106,61 @@ export function gearPlate(
     [-1.5, -1.5],
     [1.5, 1.5],
     [-1.5, 1.5],
-  ] as const)
-    corner(x, y)
+  ] as const) {
+    positions.push(...place(x, y, lift))
+    uvs.push(x / 3 + 0.5, 0.5 - y / 3)
+  }
   geometry = new THREE.BufferGeometry()
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
   geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
+  geometry.computeVertexNormals()
+  GEOMETRIES.set(id, geometry)
+  return geometry
+}
+
+/** How deep each kind's body goes under its face. */
+const DEPTH: Record<GearPiece, number> = { corner: 0.45, gear: 0.42, center: 0.45, clip: 0.2 }
+/** How much an outline is drawn in: its plate's corners are rounded, the
+ *  body's are not. */
+const SHRINK = 0.015
+
+/**
+ * A piece's body under one of its faces: its kind's outline
+ * (outlines.json: its polygons, as drawn) drawn in a hair and pushed down
+ * into the cube, so its black sides follow its shape (a box would hide the
+ * gears' teeth as they swing out).
+ */
+export function pieceBody(kind: GearPiece, position: Vec3, normal: Vec3): THREE.BufferGeometry {
+  const id = ['body', kind, position.join(), normal.join()].join('|')
+  let geometry = GEOMETRIES.get(id)
+  if (geometry) return geometry
+  const place = placer(kind, position, normal)
+  const positions: number[] = []
+  const triangle = (a: number[], b: number[], c: number[]) => positions.push(...a, ...b, ...c)
+  for (const outline of OUTLINES[kind] as [number, number][][]) {
+    const points = outline.map(([x, y]) => [x / 100 - 1.5, y / 100 - 1.5] as const)
+    const cx = points.reduce((s, p) => s + p[0], 0) / points.length
+    const cy = points.reduce((s, p) => s + p[1], 0) / points.length
+    const inward = points.map(([x, y]) => {
+      const d = Math.hypot(x - cx, y - cy) || 1
+      return [x - ((x - cx) / d) * SHRINK, y - ((y - cy) / d) * SHRINK] as const
+    })
+    const top = inward.map(([x, y]) => place(x, y, -0.002))
+    const bottom = inward.map(([x, y]) => place(x, y, -DEPTH[kind]))
+    for (let i = 0; i < inward.length; i++) {
+      const j = (i + 1) % inward.length
+      triangle(top[i]!, top[j]!, bottom[j]!)
+      triangle(top[i]!, bottom[j]!, bottom[i]!)
+    }
+    // Its two caps (the outline need not be convex: a corner's is not).
+    const flat = inward.map(([x, y]) => new THREE.Vector2(x, y))
+    for (const [a, b, c] of THREE.ShapeUtils.triangulateShape(flat, [])) {
+      triangle(top[a!]!, top[b!]!, top[c!]!)
+      triangle(bottom[a!]!, bottom[c!]!, bottom[b!]!)
+    }
+  }
+  geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
   geometry.computeVertexNormals()
   GEOMETRIES.set(id, geometry)
   return geometry

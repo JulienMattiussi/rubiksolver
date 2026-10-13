@@ -13,7 +13,7 @@ const SHOWCASE: readonly CubeKind[] = [
   { shape: '4', variant: 'mirror' },
   { shape: '224', variant: 'classic' },
   { shape: 'star', variant: 'classic' },
-  { shape: 'jing', variant: 'classic' },
+  { shape: 'gearU', variant: 'classic' },
 ]
 
 const FEATURES: readonly Feature[] = ['edit', 'guide', 'solve']

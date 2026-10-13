@@ -416,7 +416,7 @@ export interface Sticker {
 export interface Cubie {
   readonly position: Vec3
   readonly stickers: readonly Sticker[]
-  /** A gear edge's turn about its own axis, in sixths of a turn (0 to 5),
+  /** A gear edge's turn about its own axis, in thirds of a turn (0 to 2),
    *  which no cube rotation says (the Gear Cubes, gear.ts). */
   readonly spin?: number
 }
@@ -513,10 +513,13 @@ export interface RainbowMove {
  *  moves, keep `Move`. */
 /** A Gear Cube move (gear.ts): a half turn of a face, clockwise seen from
  *  it (1) or back (3), its opposite face held, the slice between a quarter
- *  along, its gears a sixth of a turn. */
+ *  along, its gears a third of a turn. */
 export interface GearMove {
   readonly gear: Face
   readonly amount: 1 | 3
+  /** Played three times in a row (the guide's 3U2: the gears go round once
+   *  and the cube is a cube again). */
+  readonly times?: 3
 }
 
 export type Turn = Move | StarMove | PyraMove | GhostMove | RainbowMove | GearMove

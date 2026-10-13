@@ -15,7 +15,7 @@ interface TurnAnimation {
   /** The pieces turning half as far (a Gear Cube's slice), and their group. */
   halfRef: RefObject<THREE.Group | null>
   isHalfTurning: (index: number) => boolean
-  /** The sixths a Gear Cube's turning gears spin, and the turn's progress. */
+  /** The thirds a Gear Cube's turning gears spin, and the turn's progress. */
   turnSpin: number
   progress: RefObject<number>
 }
@@ -72,7 +72,8 @@ export function useTurnAnimation(): TurnAnimation {
   const isTurning = active ? turnedBy(cube, active) : NO_PIECES
   const isHalfTurning = active ? halfTurnedBy(cube, active) : NO_PIECES
 
-  const turnSpin = active && isGearMove(active) ? (active.amount === 1 ? 1 : -1) : 0
+  const turnSpin =
+    active && isGearMove(active) ? (active.amount === 1 ? 1 : -1) * (active.times ?? 1) : 0
 
   return { groupRef, isTurning, halfRef, isHalfTurning, turnSpin, progress }
 }

@@ -10,14 +10,13 @@ import type { Cube, Cubie, Face, GearMove, Vec3 } from './types'
  * the only move (fan2cube's D², Jaap's R): a face's quarter turn would leave
  * the slice at 45 degrees, where nothing else can turn.
  *
- * The slice's four gears spin while it turns, a sixth of a turn (60
- * degrees) each move (Jaap: "six 180 turns to complete one rotation"): the
- * same way for a clockwise turn of either face (the two suns turn opposite
- * ways around their carrier), counted here seen from outside the gear. They
- * all share that spin, which no cube rotation can say: each edge keeps it
- * (`Cubie.spin`, in sixths). A gear's colors show it every third of a turn
- * (Gear Cube), or only every full turn on the Ultimate, whose gears jut out
- * of the cube until then.
+ * The slice's four gears spin while it turns, a third of a turn (120
+ * degrees) each move: the same way for a clockwise turn of either face (the
+ * two suns turn opposite ways around their carrier), counted here seen from
+ * outside the gear. They all share that spin, which no cube rotation can
+ * say: each edge keeps it (`Cubie.spin`, in thirds). The Ultimate's gears,
+ * not round, fit the cube again every three moves (six quarter turns of a
+ * face: what the real puzzle shows).
  */
 
 /** A Gear Cube from a 3x3x3 (its solved one): every edge a gear, at rest. */
@@ -31,17 +30,21 @@ function turned(c: Cubie, axis: 'x' | 'y' | 'z', times: number, spin = 0): Cubie
     ...c,
     position: rotateN(c.position, axis, times),
     stickers: c.stickers.map((s) => ({ normal: rotateN(s.normal, axis, times), color: s.color })),
-    ...(c.spin !== undefined && { spin: (((c.spin + spin) % 6) + 6) % 6 }),
+    ...(c.spin !== undefined && { spin: (((c.spin + spin) % 3) + 3) % 3 }),
   }
 }
 
 export function applyGearMove(cube: Cube, move: GearMove): Cube {
+  if (move.times) {
+    const once = { gear: move.gear, amount: move.amount }
+    return applyGearMove(applyGearMove(applyGearMove(cube, once), once), once)
+  }
   const { axis, coordIndex, dir, sign } = FACE_SPEC[move.gear]
   const way = move.amount === 1 ? 1 : -1
   return cube.map((c) => {
     const at = c.position[coordIndex]!
     if (at === dir) return turned(c, axis, 2) // the face: a half turn
-    // The slice: a quarter, the face's way; its gears spin a sixth.
+    // The slice: a quarter, the face's way; its gears spin a third.
     if (at === 0) return turned(c, axis, sign * way, c.spin === undefined ? 0 : way)
     return c // the opposite face, held
   })
@@ -69,7 +72,7 @@ export function gearSliceTurns(move: GearMove, position: Vec3): boolean {
 export function gearRotation(move: GearMove) {
   const { axis, sign } = FACE_SPEC[move.gear]
   const unit = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1] }[axis] as [number, number, number]
-  return { axis: unit, angle: sign * (move.amount === 1 ? 1 : -1) * Math.PI }
+  return { axis: unit, angle: sign * (move.amount === 1 ? 1 : -1) * Math.PI * (move.times ?? 1) }
 }
 
 export const invertGearMove = (move: GearMove): GearMove => ({
@@ -78,7 +81,7 @@ export const invertGearMove = (move: GearMove): GearMove => ({
 })
 
 /** A move and its inverse in a row cancel; two the same way stay (they
- *  are not one: the slice turned a half, its gears two sixths). */
+ *  are not one: the slice turned a half, its gears two thirds). */
 export function simplifyGearMoves(moves: readonly GearMove[]): GearMove[] {
   const out: GearMove[] = []
   for (const move of moves) {
@@ -101,7 +104,8 @@ export function scrambleGear(length: number, rng: () => number): GearMove[] {
   return moves
 }
 
-/** fan2cube's D² (a half turn), written R2 here, R2' the other way. */
+/** fan2cube's D² (a half turn), written R2 here, R2' the other way; 3R2
+ *  three in a row. */
 export function formatGearMove(move: GearMove, labels: Record<Face, string>): string {
-  return labels[move.gear] + '2' + (move.amount === 3 ? "'" : '')
+  return (move.times ? '3' : '') + labels[move.gear] + '2' + (move.amount === 3 ? "'" : '')
 }

@@ -1,8 +1,9 @@
-import { cubeDims, solvedCube } from '@/lib/cube'
+import { cubeDims, FACE_COLOR, solvedCube } from '@/lib/cube'
 import { normalIndex } from '@/lib/geometry'
 import { cubieBox, LAYER_THICKNESS } from '@/lib/shape'
 import { lookOf } from '@/lib/forms'
 import {
+  isGear,
   isPolyDrawn,
   isStar,
   type Color,
@@ -11,6 +12,7 @@ import {
   type CubeVariant,
 } from '@/lib/types'
 import { visualPosition } from './layout'
+import OUTLINES from '@/assets/gear/outlines.json'
 import { inScene, polyDrawing } from './polyDrawing'
 
 /**
@@ -96,6 +98,7 @@ export function isometricDrawing(shape: CubeShape, variant: CubeVariant): IsoDra
 
 function drawPuzzle(shape: CubeShape, variant: CubeVariant): IsoDrawing {
   if (isPolyDrawn(shape)) return drawPoly(shape)
+  if (isGear(shape)) return drawGear()
   return drawCubies(solvedCube(shape), variant)
 }
 
@@ -173,6 +176,45 @@ function finish(faces: IsoFace[]): IsoDrawing {
   const [x0, y0] = [Math.min(...xs) - pad, Math.min(...ys) - pad]
   const [w, h] = [Math.max(...xs) - x0 + pad, Math.max(...ys) - y0 + pad]
   return { polygons, viewBox: `${x0.toFixed(3)} ${y0.toFixed(3)} ${w.toFixed(3)} ${h.toFixed(3)}` }
+}
+
+/** A drawing's quarter turn about its center (face units, 0 to 300). */
+const quarter = ([x, y]: readonly number[]): [number, number] => [300 - y!, x!]
+
+/** The Gear Cube: each visible face as agreed (gearFace.ts's shapes, from
+ *  outlines.json), every piece turned to its four places, on the black. */
+function drawGear(): IsoDrawing {
+  const faces: IsoFace[] = VISIBLE.map(({ axis, shade }) => {
+    const face = (['R', 'U', 'F'] as const)[axis]
+    const [u, v] = [(axis + 1) % 3, (axis + 2) % 3]
+    const at = ([x, y]: readonly number[]): Point => {
+      const p = [0, 0, 0]
+      p[axis] = 1.5
+      p[u] = x! / 100 - 1.5
+      p[v] = y! / 100 - 1.5
+      return p as unknown as Point
+    }
+    const square = faceCorners([-1.5, -1.5, -1.5], [1.5, 1.5, 1.5], axis as 0 | 1 | 2)
+    const pieces = Object.entries(OUTLINES).flatMap(([kind, polygons]) =>
+      (kind === 'center' ? [0] : [0, 1, 2, 3]).flatMap((k) =>
+        (polygons as number[][][]).map((poly) =>
+          poly.map((point) => {
+            let p = point as readonly number[]
+            for (let i = 0; i < k; i++) p = quarter(p)
+            return at(p)
+          }),
+        ),
+      ),
+    )
+    return {
+      depth: 0,
+      polygons: [
+        { points: toSvg(square), paint: 'body' as const, shade },
+        ...pieces.map((poly) => ({ points: toSvg(poly), paint: FACE_COLOR[face], shade })),
+      ],
+    }
+  })
+  return finish(faces)
 }
 
 /** Painter's depth bonus of the star's screw half discs, over every point. */

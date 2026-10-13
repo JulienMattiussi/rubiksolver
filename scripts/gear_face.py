@@ -2,11 +2,11 @@
 (argv[1], a PNG to look at) and, given a folder (argv[2]), the mask of one
 piece of each kind at its set place (src/assets/gear: a corner top right, a
 gear and a clip at the top, the center), which src/three/gearFace.ts turns
-into place. Units: a cell is 100, the face 300 x 300, drawn at SCALE.
+into place, and their outlines (outlines.json) for their volumes. Units: a cell is 100, the face 300 x 300, drawn at SCALE.
 
     python3 scripts/gear_face.py /tmp/face.png src/assets/gear
 """
-import math, sys
+import json, math, sys
 from PIL import Image, ImageChops, ImageDraw
 
 SCALE = 2
@@ -65,10 +65,14 @@ class Piece:
     def __init__(self):
         self.mask = Image.new('L', img.size, 0)
         self.draw = ImageDraw.Draw(self.mask)
+        self.outline = []
     def polygon(self, pts, fill=None):
         self.draw.polygon(pts, fill=255)
+        self.outline.append([(x / SCALE, y / SCALE) for x, y in pts])
     def rectangle(self, box, fill=None):
         self.draw.rectangle(box, fill=255)
+        x0, y0, x1, y1 = (v / SCALE for v in box)
+        self.outline.append([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
 
 def disc(r):
     r = int(round(r))
@@ -179,4 +183,10 @@ for p in pieces:
     img.paste(GREEN, mask=m)
     if p.kind and len(sys.argv) > 2:
         m.save(f'{sys.argv[2]}/{p.kind}.png', optimize=True)
+if len(sys.argv) > 2:
+    # Each kind's outline (its polygons, in face units), for its pieces'
+    # volumes in 3D (src/three/gearFace.ts).
+    with open(f'{sys.argv[2]}/outlines.json', 'w') as f:
+        json.dump({p.kind: [[[round(x, 2), round(y, 2)] for x, y in poly] for poly in p.outline]
+                   for p in pieces if p.kind}, f)
 img.save(sys.argv[1])

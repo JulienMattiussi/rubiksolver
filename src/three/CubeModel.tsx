@@ -16,7 +16,7 @@ export interface ModelProps {
    *  which they are; none on other puzzles. */
   halfRef?: RefObject<THREE.Group | null>
   isHalfTurning?: (index: number) => boolean
-  /** The sixths a Gear Cube's turning gears spin (+-1), and how far along
+  /** The thirds a Gear Cube's turning gears spin (+-1), and how far along
    *  the turn is (0 to 1), for them to spin along. */
   turnSpin?: number
   progress?: RefObject<number>

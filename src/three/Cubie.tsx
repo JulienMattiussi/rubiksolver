@@ -7,6 +7,9 @@ import { GearCorner } from './GearCorner'
 import { GearEdge } from './GearEdge'
 import { Sticker } from './Sticker'
 
+/** A Gear Cube's core block: up to the pieces' bodies, which go 0.45 deep. */
+const GEAR_CORE = 2 * (1.5 - 0.47)
+
 /** One small cube: a dark body plus a sticker on each exterior face. Its box
  *  comes from the variant's thickness table (a mirror cubie is not a cube, see
  *  lib/shape.ts); `dims` maps logical coordinates to visual positions. */
@@ -24,7 +27,7 @@ export function Cubie({
   variant: CubeVariant
   /** Part of the turn a hovered pad button would make. */
   highlighted?: boolean
-  /** A Gear Cube's gear in a turning slice: the sixths it spins, and how far
+  /** A Gear Cube's gear in a turning slice: the thirds it spins, and how far
    *  along the turn is. */
   spinning?: number
   progress?: RefObject<number>
@@ -32,6 +35,16 @@ export function Cubie({
    *  corners notched by the gears. */
   smallCenter?: boolean
 }) {
+  // A Gear Cube's core: a black block filling the middle, so the gaps
+  // between the pieces' shaped bodies show no hole.
+  if (smallCenter && cubie.stickers.length === 0) {
+    return (
+      <mesh>
+        <boxGeometry args={[GEAR_CORE, GEAR_CORE, GEAR_CORE]} />
+        <meshStandardMaterial color={PLASTIC} roughness={0.65} metalness={0.1} />
+      </mesh>
+    )
+  }
   // A Gear Cube's corner or center: plates cut to the agreed shape.
   if (smallCenter && (cubie.stickers.length === 3 || cubie.stickers.length === 1)) {
     return (

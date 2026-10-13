@@ -116,9 +116,12 @@ export const FACE_NAMES_EN: Record<Face, string> = {
 
 /** The move guide's sentence for a turn. */
 export function describeFr(d: MoveDescription): string {
+  if (d.kind === 'gear' && d.thrice) {
+    return `Trois demi-tours de la ${FACE_NAMES_FR[d.face]} de suite : la tranche du milieu fait trois quarts de tour, ses engrenages un tour complet, et le cube reprend sa forme.`
+  }
   if (d.kind === 'gear') {
     const sense = d.clockwise ? 'des aiguilles' : 'inverse des aiguilles'
-    return `On tourne la ${FACE_NAMES_FR[d.face]} d’un demi-tour dans le sens ${sense} d’une montre, la face opposée tenue : les engrenages entraînent la tranche du milieu d’un quart de tour, dans le même sens, et ses quatre arêtes pivotent d’un sixième de tour.`
+    return `On tourne la ${FACE_NAMES_FR[d.face]} d’un demi-tour dans le sens ${sense} d’une montre, la face opposée tenue : les engrenages entraînent la tranche du milieu d’un quart de tour, dans le même sens, et ses quatre arêtes pivotent d’un tiers de tour.`
   }
   if (d.kind === 'slash') {
     return 'Le slash : toute la moitié droite fait un demi-tour, ses pièces du haut passent en bas et celles du bas en haut.'
@@ -175,9 +178,12 @@ export function describeFr(d: MoveDescription): string {
 }
 
 export function describeEn(d: MoveDescription): string {
+  if (d.kind === 'gear' && d.thrice) {
+    return `Three half turns of the ${FACE_NAMES_EN[d.face]} in a row: the middle slice goes three quarters round, its gears a full turn, and the cube is back in shape.`
+  }
   if (d.kind === 'gear') {
     const sense = d.clockwise ? 'clockwise' : 'counter-clockwise'
-    return `Turn the ${FACE_NAMES_EN[d.face]} a half turn ${sense}, the opposite face held: the gears drive the middle slice a quarter turn the same way, and its four edges spin a sixth of a turn.`
+    return `Turn the ${FACE_NAMES_EN[d.face]} a half turn ${sense}, the opposite face held: the gears drive the middle slice a quarter turn the same way, and its four edges spin a third of a turn.`
   }
   if (d.kind === 'slash') {
     return 'The slash: the whole right half makes a half turn, its top pieces going down and its bottom ones up.'

@@ -206,8 +206,8 @@ src/
 │   ├── gemEmblem.ts      # L'emblème rond des carrés dorés du GEM-0, dessiné sur un canvas
 │   ├── gearFace.ts       # La face du Gear Cube convenue : masques des 4 sortes de pièce (src/assets/gear), plaques tournées en place
 │   ├── GearPlate.tsx     # Une plaque d'une pièce du Gear Cube, découpée par son masque
-│   ├── GearEdge.tsx      # Une arête du Gear Cube : deux agrafes, l'engrenage (deux plaques et son corps) qui pivote
-│   ├── GearCorner.tsx    # Un coin ou un centre du Gear Cube : corps noir et plaques
+│   ├── GearEdge.tsx      # Une arête du Gear Cube : deux agrafes, l'engrenage (deux plaques et son corps à sa forme) qui pivote
+│   ├── GearCorner.tsx    # Un coin ou un centre du Gear Cube : plaques sur des corps à leur forme
 │   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
 │   ├── Decal.tsx         # Une image posée sur la face de pièces choisies, qui tourne avec elles (PolyDrawing.decal)
 │   ├── rainbowGeometry.ts # Pièces du Rainbow : cellule de chaque pièce dans le cuboctaèdre (polyhedron.ts)
@@ -245,7 +245,7 @@ src/
 │   ├── home/             # Accueil : HomeGallery (galerie de 7 modèles + ce que fait l'app, à la place de la scène)
 │   ├── solve/            # Résolution : SolvePanel, MethodSelect, StepList
 │   └── edit/             # Saisie : EditPanel, FormPicker (forme d'un puzzle déformable), ColorPalette
-├── assets/gear/          # Masques des pièces du Gear Cube (générés par scripts/gear_face.py)
+├── assets/gear/          # Masques et contours des pièces du Gear Cube (générés par scripts/gear_face.py)
 ├── App.tsx               # Coquille : scène 3D plein écran + panneau en overlay (empilé sur mobile en saisie)
 └── main.tsx
 tests/
@@ -922,19 +922,20 @@ fan2cube, le R de Jaap) : un quart de tour de face laisserait la tranche à
 45°, où plus rien ne tourne. L'**Ultimate** (le vrai, à 12 engrenages ; la
 page « Ultimate » de fan2cube montre en fait l'Extreme, à 8) a la mécanique
 du Gear Cube, mais ses engrenages ne retrouvent la forme du cube que tous
-les six coups.
+les trois coups (six quarts de tour de face).
 
 **Modèle** (`lib/gear.ts`) : un 3x3x3, chaque arête un engrenage. Les quatre
-engrenages de la tranche pivotent d'un sixième de tour par coup, dans le
+engrenages de la tranche pivotent d'un tiers de tour par coup (120°, deux
+dents : observé sur le vrai puzzle), dans le
 même sens pour un coup horaire de l'une ou l'autre face : ce pivot, qu'aucune
-rotation du cube ne dit, est `Cubie.spin` (en sixièmes), gardé par la clé
+rotation du cube ne dit, est `Cubie.spin` (en tiers), gardé par la clé
 d'état, le mémorisé (`@n`) et les rotations du puzzle entier ; « résolu »
 l'exige à zéro. Les stickers des arêtes sont leur base (les « agrafes »). Le
 modèle est vérifié contre Jaap : 4 × 41 472 et 4 × 165 888 positions (le
 facteur 4 : les tenues que les coups atteignent, la « téléportation » de
-fan2cube), et les formules de la page (D⁸ pivote les 4 arêtes d'une
-tranche, (A²D²)³ retourne sur place les 8 arêtes du haut et du bas,
-G'²D² retourne le cube). Le pivot vu sur 6 au lieu de 3 n'ajoute aucun état.
+fan2cube), et les formules de la page (D⁸ pivote d'un cran les 4 arêtes
+d'une tranche, (A²D²)³ échange les agrafes des 8 arêtes du haut et du bas,
+engrenages revenus, G'²D² retourne le cube).
 
 **Animation à deux vitesses** : `halfTurnedBy` donne les pièces qui tournent
 à moitié (la tranche), dans leur propre groupe (`halfRef`) ; leurs
@@ -947,10 +948,16 @@ bord, une dent fine au milieu et deux dents évasées à 60°), le petit carré
 central et ses 4 agrafes en U (pattes penchées, barre creusée en arc) ; tout
 angle saillant arrondi. En 3D (`gearFace.ts`, `GearPlate.tsx`), chaque pièce
 est une plaque sur sa face, découpée par le masque de sa sorte tourné à sa
-place (alpha test), sur un corps noir. L'engrenage d'une arête (ses deux
-plaques et son corps noir) pivote autour de l'axe de l'arête (du centre du cube à travers
-elle) : hors de sa place il sort du cube en biais, se réemboîte tous les
-demi-tours (couleurs échangées) et revient tous les six crans ; ses agrafes
+place (alpha test), sur un corps noir à sa forme (`pieceBody` : le contour
+de sa sorte, `outlines.json` produit par le même script, enfoncé dans le
+cube sous chacune de ses faces : un bloc cacherait les dents des engrenages
+qui sortent), un noyau noir comblant le milieu. La vignette du sélecteur
+dessine la même face (`drawGear`, depuis `outlines.json`). Le guide montre
+aussi chaque coup trois fois de suite (`3U2`, `GearMove.times`) : les
+engrenages font un tour et le cube reprend sa forme. L'engrenage d'une arête
+(ses deux plaques et son corps) pivote autour de l'axe de l'arête (du centre du cube à travers
+elle) : hors de sa place il sort du cube en biais, et ne s'y réemboîte
+qu'au bout de trois crans (un tour) ; ses agrafes
 suivent la pièce, pas l'engrenage.
 
 **Résolution** (`methods/gear.ts`, méthode **Coins d'abord**, d'après
