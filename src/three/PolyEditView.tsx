@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { cubeShape } from '@/lib/cube'
 import { canPaint, slotsFor } from '@/lib/editor'
 import { entersByPieces, piecesIn } from '@/lib/pieceEditor'
@@ -26,6 +27,14 @@ export function PolyEditView() {
   const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
   const drawing = polyDrawing(shape)
   const pieces = entersByPieces(shape) ? piecesIn(edit, shape) : undefined
+  // The sticker under the pointer (its slot's key, then its normal index).
+  const [hovered, setHovered] = useState<string | null>(null)
+  const hover = (slotKey: string) => (ni: number, on: boolean) => {
+    const key = `${slotKey}|${ni}`
+    setHovered((current) => (on ? key : current === key ? null : current))
+  }
+  const litIn = (slotKey: string) =>
+    hovered?.startsWith(`${slotKey}|`) ? Number(hovered.slice(slotKey.length + 1)) : null
   return (
     <group rotation={[0, drawing.yaw, 0]}>
       <group quaternion={drawing.orient ?? [0, 0, 0, 1]} position={drawing.offset ?? [0, 0, 0]}>
@@ -47,6 +56,8 @@ export function PolyEditView() {
                 drawing={drawing}
                 stickerHex={placed ? undefined : () => EMPTY_COLOR}
                 onSelect={() => cycleAt(slot.key)}
+                onHover={hover(slot.key)}
+                lit={litIn(slot.key)}
               />
             )
           }
@@ -63,6 +74,8 @@ export function PolyEditView() {
               drawing={drawing}
               stickerHex={hex}
               onSelect={canPaint(shape, slot.key, form) ? (ni) => paintAt(slot.key, ni) : undefined}
+              onHover={hover(slot.key)}
+              lit={litIn(slot.key)}
             />
           )
         })}

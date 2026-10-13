@@ -75,7 +75,8 @@ export function GearEdge({
           kind="clip"
           position={cubie.position}
           normal={s.normal}
-          color={color(i)}
+          // Plain clips (the plain Gear Cube) bear no color.
+          color={cubie.plainClips ? PLASTIC : color(i)}
           lit={lit === `${i}`}
         />
       ))}

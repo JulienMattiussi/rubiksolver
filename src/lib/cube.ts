@@ -18,7 +18,15 @@ import { solvedViolet, turnAboutA, violetBoxed, violetSolved } from './violet'
 import { withGears } from './gear'
 import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
-import { ALL_COLORS, isGear, isPyraminx, isStar, SHAPE_DIMS, SHAPE_SHIFTS } from './types'
+import {
+  ALL_COLORS,
+  hasColoredClips,
+  isGear,
+  isPyraminx,
+  isStar,
+  SHAPE_DIMS,
+  SHAPE_SHIFTS,
+} from './types'
 import type {
   Axis,
   Color,
@@ -106,6 +114,7 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
         ...c,
         stickers: c.stickers.map((s) => ({ ...s, color: colors[faceOfNormal(s.normal)] })),
       })),
+      !hasColoredClips(shape),
     )
   }
   if (shape === 'violet') return solvedViolet()
@@ -135,9 +144,13 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
 }
 
 /** Stickers a puzzle wears in all: kept by every turn. Gears count apart
- *  (a Gear Cube has a 3x3's cubies and stickers). */
+ *  (a Gear Cube has a 3x3's cubies and stickers), and gears on plain clips
+ *  (the plain Gear Cube has the Ultimate's). */
 const stickerCount = (cube: Cube): number =>
-  cube.reduce((n, c) => n + c.stickers.length + (c.spin === undefined ? 0 : 1000), 0)
+  cube.reduce(
+    (n, c) => n + c.stickers.length + (c.spin === undefined ? 0 : 1000) + (c.plainClips ? 1000 : 0),
+    0,
+  )
 
 /**
  * The shapes by cubie count, the signature `cubeShape` recognizes: a count

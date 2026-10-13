@@ -20,7 +20,7 @@ import {
 } from '@/lib/gearEditor'
 import { nextPiece } from '@/lib/pieceEditor'
 import { validateCube, type ValidationError } from '@/lib/validate'
-import { isGear, type Color, type Cube, type CubeShape } from '@/lib/types'
+import { hasColoredClips, type Color, type Cube, type CubeShape } from '@/lib/types'
 import { useCube } from './cubeStore'
 
 /** Shape of the cube being edited (the game's cube). */
@@ -134,7 +134,7 @@ export const useEditor = create<EditorStore>((set, get) => ({
       const edit = paint(s.edit, currentShape(), slotKey, ni, s.selectedColor, s.form)
       return {
         edit,
-        gear: isGear(currentShape()) ? completeGears(s.gear, edit) : s.gear,
+        gear: hasColoredClips(currentShape()) ? completeGears(s.gear, edit) : s.gear,
         error: null,
       }
     }),
@@ -154,7 +154,7 @@ export const useEditor = create<EditorStore>((set, get) => ({
     const { edit, form, gear } = get()
     const shape = currentShape()
     if (!isComplete(edit, shape, form)) return false
-    const gears = isGear(shape)
+    const gears = hasColoredClips(shape)
     if (gears && gearsPainted(gear).painted < gearsPainted(gear).total) return false
     const turned = gears ? turnedOf(gear, edit) : []
     if (!turned) {

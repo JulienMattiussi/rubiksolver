@@ -14,7 +14,7 @@ import { MORPH_PLAN } from './methods/morph'
 import { OCT4_PLAN } from './methods/oct4'
 import { GEM_PLAN, VTO_PLAN } from './methods/vto'
 import { RAINBOW_PLAN } from './methods/rainbow'
-import { GEAR_ULTIMATE_PLAN } from './methods/gear'
+import { GEAR_PLAN, GEAR_ULTIMATE_PLAN } from './methods/gear'
 import { VIOLET_OPTIMAL_PLAN, VIOLET_SHAPE_FIRST_PLAN } from './methods/violet'
 import { withCentersHome } from './methods/recenter'
 import { ROUX_PLAN } from './methods/roux'
@@ -69,7 +69,7 @@ const SOLVE_METHODS = [
   { id: 'vtoCentersFirst', plans: { vto: VTO_PLAN } },
   { id: 'gemCentersFirst', plans: { gem: GEM_PLAN } },
   { id: 'extendedTriangle', plans: { rainbow: RAINBOW_PLAN } },
-  { id: 'gearCornersFirst', plans: { gearU: GEAR_ULTIMATE_PLAN } },
+  { id: 'gearCornersFirst', plans: { gearCube: GEAR_PLAN, gearU: GEAR_ULTIMATE_PLAN } },
   { id: 'shapeFirst', plans: { violet: VIOLET_SHAPE_FIRST_PLAN } },
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },
   { id: 'twoStars', plans: { star4: STAR4_PLAN } },

@@ -12,7 +12,7 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 **4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), l'**Octahedron VTO**
 (un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
 (un cuboctaèdre dont les triangles tournent), le **Violet** (un 2x2x2 à
-pivot excentré, qui se déforme), le **Gear Cube Ultimate** (un 3x3x3 à engrenages)
+pivot excentré, qui se déforme), le **Gear Cube** et le **Gear Cube Ultimate** (des 3x3x3 à engrenages)
 et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
@@ -221,7 +221,7 @@ src/
 │   ├── PolyPiece.tsx     # Une de leurs pièces (corps + stickers), partagée vue / saisie / guide
 │   ├── noPieces.ts       # NO_PIECES : l'ensemble vide de pièces (rien ne tourne, rien en surbrillance)
 │   ├── PolyView.tsx      # Vue 3D d'un puzzle sans grille (PolyModel), animée comme les cubes
-│   ├── PolyEditView.tsx  # Saisie d'un puzzle sans grille : stickers cliquables, gris tant que vides (pièces au clic sur le Ghost)
+│   ├── PolyEditView.tsx  # Saisie d'un puzzle sans grille : stickers cliquables, gris tant que vides, survolé éclairci (pièces au clic sur le Ghost)
 │   ├── GuideCanvas.tsx   # Guide des mouvements : un seul canvas WebGL sous la liste, chaque vignette y dessine sa scène
 │   ├── GuideTile.tsx     #   une vignette : scène + caméra propres, scissor sur sa boîte DOM, coup joué en boucle
 │   ├── guideCamera.ts    #   point de vue d'une vignette (la couche qui tourne face à la caméra)
@@ -333,8 +333,8 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 - **Optimale** (`optimal`, 2x2, 1x2x3, Floppy, Floppy Ghost et Violet) : recherche exhaustive,
   solution la plus courte possible (11 coups max sur 2x2, 6 sur 1x2x3, 8 sur
   Floppy, 15 sur Floppy Ghost, 30 sur Violet), une seule étape.
-- **Coins d'abord** (`gearCornersFirst`, Gear Cube Ultimate) : coins, arêtes
-  placées, agrafes, engrenages - voir « Le Gear Cube Ultimate ».
+- **Coins d'abord** (`gearCornersFirst`, Gear Cube et Ultimate) : coins, arêtes
+  placées, agrafes (Ultimate), engrenages - voir « Le Gear Cube Ultimate ».
 - **Forme puis couleurs** (`shapeFirst`, Violet) : redevenir un cube, puis
   les couleurs du coin composé - voir « Le Violet ».
 - **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
@@ -943,7 +943,9 @@ modèle est vérifié contre Jaap : 4 × 41 472 et 4 × 165 888 positions (le
 facteur 4 : les tenues que les coups atteignent, la « téléportation » de
 fan2cube), et les formules de la page (D⁸ pivote d'un cran, un tiers, les 4
 engrenages d'une tranche, (A²D²)³ échange les agrafes des 8 arêtes du haut
-et du bas, engrenages revenus tels quels, G'²D² retourne le cube).
+et du bas, engrenages revenus tels quels, G'²D² retourne le cube). Deux
+effets vérifiés sur le vrai puzzle : `R2 R2 R2` laisse les 4 engrenages de la
+tranche retournés sur leurs agrafes, `(F2 R2)³` n'échange que les agrafes.
 
 **Animation à deux vitesses** : `halfTurnedBy` donne les pièces qui tournent
 à moitié (la tranche), dans leur propre groupe (`halfRef`) ; leurs
@@ -992,6 +994,18 @@ coin vrillé ou arête retournée seule sont refusés, et le message dit à
 quelle étape la résolution bloque (`StepFailure` de `buildSteps`, lu par
 `validateCube`). Le décompte et la palette comptent aussi les faces des
 engrenages (`gearFaces`).
+
+**Le Gear Cube** (`gearCube`) : la même mécanique, agrafes sans couleur
+(noires) et couleurs standard. Seul l'engrenage se voit : des agrafes
+retournées d'un demi-tour, l'engrenage d'un demi-tour en arrière dessus,
+c'est la même arête. Ses arêtes portent `Cubie.plainClips` (ce qui le
+distingue de l'Ultimate pour `cubeShape`, et `*` dans le mémorisé), et
+`applyGearMove` les écrit toujours pivot sous 3 (`asSeen` : la pièce
+retournée sur son axe, le pivot moins 3). 4 × 41 472 positions, comme Jaap
+(testé). La méthode perd l'étape des agrafes ((A²D²)³ n'y change rien de
+visible) ; ses arêtes se placent dans le bon sens avec D⁴ et D⁸. Saisie :
+les engrenages sont les stickers (`hasColoredClips` décide de la saisie à
+part de l'Ultimate).
 
 ### Le Violet (`violet`)
 
@@ -1318,7 +1332,7 @@ mobile et en saisie, une seule carte) :
   (Slim)/2x2x4/3x3x2 (Domino), Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube Ultimate, Bizarres Violet.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Étoiles 2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate, Bizarres Violet.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

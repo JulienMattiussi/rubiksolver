@@ -30,9 +30,30 @@ const GEAR_SPIN = 5
 export const gearSpinOf = (move: GearMove): number =>
   (move.amount === 1 ? 1 : -1) * (move.times ?? 1) * GEAR_SPIN
 
-/** A Gear Cube from a 3x3x3 (its solved one): every edge a gear, at rest. */
-export function withGears(cube: Cube): Cube {
-  return cube.map((c) => (c.position.filter((v) => v !== 0).length === 2 ? { ...c, spin: 0 } : c))
+/** A Gear Cube from a 3x3x3 (its solved one): every edge a gear, at rest;
+ *  with `plainClips`, clips that bear no color (the plain Gear Cube). */
+export function withGears(cube: Cube, plainClips = false): Cube {
+  return cube.map((c) =>
+    c.position.filter((v) => v !== 0).length === 2
+      ? { ...c, spin: 0, ...(plainClips && { plainClips: true as const }) }
+      : c,
+  )
+}
+
+/**
+ * A plain Gear Cube's edge as its gear shows: its clips bear no color, so
+ * clips half a turn round, the gear on them half a turn back, is the same
+ * edge. A gear half a turn round or more on its clips (spin 3 or more) is
+ * written so: the piece a half turn about its axis (its stickers' two faces
+ * swapped), its spin under 3, the gear standing as it did.
+ */
+function asSeen(c: Cubie): Cubie {
+  if (!c.plainClips || c.spin === undefined || c.spin < 3) return c
+  return {
+    ...c,
+    stickers: c.stickers.map((s, i) => ({ ...s, normal: c.stickers[1 - i]!.normal })),
+    spin: c.spin - 3,
+  }
 }
 
 /** A cubie turned by quarter turns about an axis, its spin kept. */
@@ -56,7 +77,9 @@ export function applyGearMove(cube: Cube, move: GearMove): Cube {
     const at = c.position[coordIndex]!
     if (at === dir) return turned(c, axis, 2) // the face: a half turn
     // The slice: a quarter, the face's way; its gears spin five sixths.
-    if (at === 0) return turned(c, axis, sign * way, c.spin === undefined ? 0 : way * GEAR_SPIN)
+    if (at === 0) {
+      return asSeen(turned(c, axis, sign * way, c.spin === undefined ? 0 : way * GEAR_SPIN))
+    }
     return c // the opposite face, held
   })
 }

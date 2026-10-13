@@ -3,7 +3,7 @@ import { cubeShape } from '@/lib/cube'
 import { isComplete, progress } from '@/lib/editor'
 import { formsOf } from '@/lib/forms'
 import { gearFaces, gearsPainted } from '@/lib/gearEditor'
-import { isGear } from '@/lib/types'
+import { hasColoredClips, isGear } from '@/lib/types'
 import { entersByPieces, placedCount } from '@/lib/pieceEditor'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
@@ -47,10 +47,10 @@ export function EditPanel() {
   const { filled, total } = progress(edit, shape, form)
   const { placed, total: slots } = byPieces ? placedCount(edit, shape) : { placed: 0, total: 0 }
   // A Gear Cube's gears are painted apart from their clips.
-  const gears = isGear(shape) ? gearsPainted(gear) : null
+  const gears = hasColoredClips(shape) ? gearsPainted(gear) : null
   const complete = isComplete(edit, shape, form) && (!gears || gears.painted === gears.total)
   // Counted with the stickers: every face to paint, clips and gears alike.
-  const faces = isGear(shape) ? gearFaces(gear) : null
+  const faces = hasColoredClips(shape) ? gearFaces(gear) : null
   const shifts = formsOf(shape).length > 1
 
   return (
@@ -60,9 +60,11 @@ export function EditPanel() {
           ? t.editHintPieces
           : mirror
             ? t.editHintMirror
-            : isGear(shape)
+            : hasColoredClips(shape)
               ? t.editHintGear
-              : t.editHint}
+              : isGear(shape)
+                ? t.editHintGearPlain
+                : t.editHint}
       </p>
 
       {!byPieces && <ColorPalette />}

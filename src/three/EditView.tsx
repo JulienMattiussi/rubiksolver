@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { cubeDims, cubeShape } from '@/lib/cube'
 import { canPaint, slotsFor } from '@/lib/editor'
 import { centeringOffset, cubieBox, LAYER_THICKNESS } from '@/lib/shape'
-import { isGear } from '@/lib/types'
+import { hasColoredClips, isGear } from '@/lib/types'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { COLOR_HEX, MIRROR_STICKER, PLASTIC } from './colors'
@@ -42,35 +42,47 @@ export function EditView() {
   const litIn = (slotKey: string) =>
     hovered?.startsWith(`${slotKey}|`) ? hovered.slice(slotKey.length + 1) : null
   if (isGear(shape)) {
-    // A Gear Cube's own pieces, painted face by face (gears aligned).
+    // A Gear Cube's own pieces, painted face by face (gears aligned). The
+    // Ultimate's gears are painted apart from their clips; the plain one's
+    // clips bear no color: its gears are the stickers.
+    const clips = hasColoredClips(shape)
     return (
       <group scale={cubeScale(dims)}>
         {slotsFor(shape, form).map((slot) => {
           const paintable = canPaint(shape, slot.key, form)
+          const edge = slot.stickers.length === 2
+          const colors = slot.stickers.map((s) => {
+            const color = edit[s.id]
+            return color ? COLOR_HEX[color] : EMPTY_COLOR
+          })
+          const paintSticker = (i: number) => paintAt(slot.key, slot.stickers[i]!.ni)
           return (
             <Cubie
               key={slot.key}
               cubie={{
                 position: slot.position,
                 stickers: slot.stickers.map((s) => ({ normal: s.normal, color: s.solvedColor })),
-                ...(slot.stickers.length === 2 && { spin: 0 }),
+                ...(edge && { spin: 0, ...(!clips && { plainClips: true as const }) }),
               }}
               dims={dims}
               variant="classic"
               smallCenter
               onHover={(face, on) => hover(`${slot.key}|${face}`)(on)}
               lit={litIn(slot.key)}
-              colors={slot.stickers.map((s) => {
-                const color = edit[s.id]
-                return color ? COLOR_HEX[color] : EMPTY_COLOR
-              })}
-              onSelect={paintable ? (i) => paintAt(slot.key, slot.stickers[i]!.ni) : undefined}
-              onSelectGear={(i) => paintGearAt(slot.key, slot.stickers[i]!.ni)}
+              colors={colors}
+              onSelect={paintable && (clips || !edge) ? paintSticker : undefined}
+              onSelectGear={
+                clips ? (i) => paintGearAt(slot.key, slot.stickers[i]!.ni) : paintSticker
+              }
               // Its gear's own colors, gray until painted.
-              gearColors={slot.stickers.map((s) => {
-                const color = gear[s.id]
-                return color ? COLOR_HEX[color] : EMPTY_COLOR
-              })}
+              gearColors={
+                clips
+                  ? slot.stickers.map((s) => {
+                      const color = gear[s.id]
+                      return color ? COLOR_HEX[color] : EMPTY_COLOR
+                    })
+                  : colors
+              }
             />
           )
         })}

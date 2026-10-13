@@ -3,6 +3,7 @@ import { normalIndex } from '@/lib/geometry'
 import { cubieBox, LAYER_THICKNESS } from '@/lib/shape'
 import { lookOf } from '@/lib/forms'
 import {
+  hasColoredClips,
   isGear,
   isPolyDrawn,
   isStar,
@@ -98,7 +99,7 @@ export function isometricDrawing(shape: CubeShape, variant: CubeVariant): IsoDra
 
 function drawPuzzle(shape: CubeShape, variant: CubeVariant): IsoDrawing {
   if (isPolyDrawn(shape)) return drawPoly(shape)
-  if (isGear(shape)) return drawGear()
+  if (isGear(shape)) return drawGear(shape)
   return drawCubies(solvedCube(shape), variant)
 }
 
@@ -183,7 +184,7 @@ const quarter = ([x, y]: readonly number[]): [number, number] => [300 - y!, x!]
 
 /** The Gear Cube: each visible face as agreed (gearFace.ts's shapes, from
  *  outlines.json), every piece turned to its four places, on the black. */
-function drawGear(): IsoDrawing {
+function drawGear(shape: CubeShape): IsoDrawing {
   const faces: IsoFace[] = VISIBLE.map(({ axis, shade }) => {
     const face = (['R', 'U', 'F'] as const)[axis]
     const [u, v] = [(axis + 1) % 3, (axis + 2) % 3]
@@ -195,7 +196,11 @@ function drawGear(): IsoDrawing {
       return p as unknown as Point
     }
     const square = faceCorners([-1.5, -1.5, -1.5], [1.5, 1.5, 1.5], axis as 0 | 1 | 2)
-    const pieces = Object.entries(OUTLINES).flatMap(([kind, polygons]) =>
+    // Plain clips (the plain Gear Cube) bear no color: left black.
+    const kinds = Object.entries(OUTLINES).filter(
+      ([kind]) => kind !== 'clip' || hasColoredClips(shape),
+    )
+    const pieces = kinds.flatMap(([kind, polygons]) =>
       (kind === 'center' ? [0] : [0, 1, 2, 3]).flatMap((k) =>
         (polygons as number[][][]).map((poly) =>
           poly.map((point) => {
@@ -212,7 +217,7 @@ function drawGear(): IsoDrawing {
         { points: toSvg(square), paint: 'body' as const, shade },
         ...pieces.map((poly) => ({
           points: toSvg(poly),
-          paint: faceColorsOf('gearU')[face],
+          paint: faceColorsOf(shape)[face],
           shade,
         })),
       ],

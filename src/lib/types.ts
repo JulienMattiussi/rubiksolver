@@ -23,6 +23,7 @@ export type CubeShape =
   | 'vto'
   | 'gem'
   | 'rainbow'
+  | 'gearCube'
   | 'gearU'
   | 'violet'
   | 'ghost'
@@ -68,7 +69,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   gem: [3, 3, 3],
   // The Rainbow (rainbow.ts) is no grid: its pieces sit within +-1.
   rainbow: [3, 3, 3],
-  // The Gear Cube Ultimate (gear.ts): a 3x3x3 whose edges are gears.
+  // The Gear Cubes (gear.ts): a 3x3x3 whose edges are gears.
+  gearCube: [3, 3, 3],
   gearU: [3, 3, 3],
   // The Violet (violet.ts) turns on a 5x5's outer slabs: its pieces sit
   // within +-3, in half mini cubes about its off-center core.
@@ -100,7 +102,11 @@ export const isPyraminx = (shape: CubeShape): shape is PyraShape =>
   shape === 'pyra' || shape === 'pyra4' || shape === 'pyra5' || shape === 'jing'
 
 /** The Gear Cubes (gear.ts): a 3x3x3's cubies, turned by gear moves. */
-export const isGear = (shape: CubeShape): boolean => shape === 'gearU'
+export const isGear = (shape: CubeShape): boolean => shape === 'gearCube' || shape === 'gearU'
+
+/** Whether a Gear Cube's clips bear colors (the Ultimate): then they turn
+ *  over apart from their gears, which the plain Gear Cube does not show. */
+export const hasColoredClips = (shape: CubeShape): boolean => shape === 'gearU'
 
 /** Whether a shape builds and turns in its own module rather than on a grid
  *  of layers (the star prisms, the Pyraminx, the Floppy Ghost): drawn from
@@ -150,6 +156,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   vto: false,
   gem: false,
   rainbow: false,
+  gearCube: false,
   gearU: false,
   violet: true,
   ghost: false,
@@ -185,6 +192,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly ('slice' | 'wide')[]>
   vto: ['wide'],
   gem: [],
   rainbow: [],
+  gearCube: [],
   gearU: [],
   violet: [],
   ghost: [],
@@ -216,6 +224,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   vto: [],
   gem: [],
   rainbow: [],
+  gearCube: [],
   gearU: [],
   violet: [],
   ghost: [],
@@ -243,6 +252,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   vto: 'Octahedron VTO',
   gem: 'GEM-0 (Jewel)',
   rainbow: 'Rainbow',
+  gearCube: 'Gear Cube',
   gearU: 'Gear Cube Ultimate',
   violet: 'Violet',
   ghost: 'Floppy Ghost',
@@ -271,6 +281,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   vto: 'vto',
   gem: 'gem-0',
   rainbow: 'rainbow',
+  gearCube: 'gear-cube',
   gearU: 'gear-cube-ultimate',
   violet: 'violet',
   ghost: 'floppy-ghost',
@@ -313,6 +324,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   vto: false,
   gem: false,
   rainbow: false,
+  gearCube: false,
   gearU: false,
   violet: false,
   ghost: false,
@@ -354,7 +366,7 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (shape === 'oct4' || shape === 'vto' || shape === 'gem' || shape === 'rainbow') {
     return 'octahedron'
   }
-  if (shape === 'gearU') return 'gear'
+  if (isGear(shape)) return 'gear'
   if (shape === 'violet') return 'odd'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
@@ -419,6 +431,9 @@ export interface Cubie {
   /** A gear edge's turn about its own axis, in sixths of a turn (0 to 5),
    *  which no cube rotation says (the Gear Cubes, gear.ts). */
   readonly spin?: number
+  /** A gear edge whose clips bear no color (the plain Gear Cube): only its
+   *  gear shows, so a half turn of it on them is no state (gear.ts). */
+  readonly plainClips?: true
 }
 
 /**

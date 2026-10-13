@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { solvedCube } from '@/lib/cube'
+import { isSolved, solvedCube, stateKey } from '@/lib/cube'
 import { buildCube, cubeToEdit, emptyEdit, withFixedHome } from '@/lib/editor'
 import { tablesFor } from '@/lib/editorTables'
-import { applyGearMove } from '@/lib/gear'
+import { applyGearMove, GEAR_TURNS } from '@/lib/gear'
 import {
   completeGears,
   gearColorsOf,
@@ -153,4 +153,37 @@ describe('Gear Cube entry', () => {
     )
     expect(turnedOf({ ...gear, [a.id]: 'V' }, edit)).toBeNull()
   })
+})
+
+describe('plain Gear Cube', () => {
+  const PLAIN = solvedCube('gearCube')
+  const playPlain = (moves: string): Cube =>
+    moves
+      .split(' ')
+      .map((t): GearMove => ({ gear: t[0] as Face, amount: t.includes("'") ? 3 : 1 }))
+      .reduce(applyGearMove, PLAIN)
+
+  it('shows nothing of (A² D²)³, which only turns clips over', () => {
+    expect(isSolved(playPlain('F R F R F R'))).toBe(true)
+  })
+
+  it('reaches 4 x 41 472 positions, as Jaap counts (the 4: how it is held)', () => {
+    const seen = new Set([stateKey(PLAIN)])
+    let frontier = [PLAIN]
+    while (frontier.length) {
+      const next: Cube[] = []
+      for (const cube of frontier) {
+        for (const move of GEAR_TURNS) {
+          const after = applyGearMove(cube, move)
+          const key = stateKey(after)
+          if (!seen.has(key)) {
+            seen.add(key)
+            next.push(after)
+          }
+        }
+      }
+      frontier = next
+    }
+    expect(seen.size).toBe(4 * 41472)
+  }, 60000)
 })

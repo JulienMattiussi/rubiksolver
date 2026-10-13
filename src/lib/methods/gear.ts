@@ -5,7 +5,14 @@ import { allTurnsOf } from '../moveSet'
 import { invertMoves } from '../moves'
 import type { MethodPlan } from '../solverKit'
 import { applyMoves } from '../turn'
-import type { Cube, Cubie, CubeShape, Face, GearMove } from '../types'
+import {
+  hasColoredClips,
+  type Cube,
+  type Cubie,
+  type CubeShape,
+  type Face,
+  type GearMove,
+} from '../types'
 
 /**
  * Gear Cube, "corners first", as taught on fan2cube.fr (gearcube2): each
@@ -25,6 +32,10 @@ import type { Cube, Cubie, CubeShape, Face, GearMove } from '../types'
  *
  * The centers then stand right (the page: they follow the edges). In the
  * page's letters, D² is our R2: a gear move is a half turn of a face.
+ *
+ * The plain Gear Cube shows no clips: step 3 goes, and step 2 places each
+ * edge's gear its colors' way round, D⁸ helping (a gear a half turn round
+ * reads as its colors swapped, see gear.ts).
  */
 
 const isCorner = (c: Cubie) => c.position.every((v) => v !== 0)
@@ -97,6 +108,7 @@ function gearPlan(shape: CubeShape): MethodPlan {
     const h = held(cube)
     return cube.filter(isEdge).every((c) => colors(h.get(key(c))!) === colors(c))
   }
+  const clips = hasColoredClips(shape)
   const clipsDone = (cube: Cube) => {
     if (!edgesPlaced(cube)) return false
     const h = held(cube)
@@ -116,7 +128,7 @@ function gearPlan(shape: CubeShape): MethodPlan {
     ...twoHalves,
     ...GEAR_TURNS.flatMap((y) => twoHalves.map((xx) => [y, ...xx, ...invertMoves([y])])),
   ]
-  const clips = [
+  const clipFormulas = [
     ...fromEverySide([g('F'), g('R'), g('F'), g('R'), g('F'), g('R')]),
     ...fromEverySide([g('F', 3), g('R', 3), g('F', 3), g('R', 3), g('F', 3), g('R', 3)]),
   ]
@@ -137,18 +149,37 @@ function gearPlan(shape: CubeShape): MethodPlan {
           ),
       ],
     },
-    {
-      key: 'stepGearEdges',
-      goal: edgesPlaced,
-      moves: all,
-      phases: [(cube) => search(cube, swaps, edgesPlaced, lookOf(isEdge, colors))],
-    },
-    {
-      key: 'stepGearClips',
-      goal: clipsDone,
-      moves: all,
-      phases: [(cube) => search(cube, clips, clipsDone, lookOf(isEdge, pose))],
-    },
+    clips
+      ? {
+          key: 'stepGearEdges',
+          goal: edgesPlaced,
+          moves: all,
+          phases: [(cube) => search(cube, swaps, edgesPlaced, lookOf(isEdge, colors))],
+        }
+      : {
+          key: 'stepGearEdges',
+          goal: clipsDone,
+          moves: all,
+          phases: [
+            (cube) =>
+              search(
+                cube,
+                [...swaps, ...spins],
+                clipsDone,
+                lookOf(isEdge, (c) => pose(c) + c.spin),
+              ),
+          ],
+        },
+    ...(clips
+      ? [
+          {
+            key: 'stepGearClips',
+            goal: clipsDone,
+            moves: all,
+            phases: [(cube: Cube) => search(cube, clipFormulas, clipsDone, lookOf(isEdge, pose))],
+          },
+        ]
+      : []),
     {
       key: 'stepGearSpins',
       goal: isSolved,
@@ -166,4 +197,5 @@ function gearPlan(shape: CubeShape): MethodPlan {
   ]
 }
 
+export const GEAR_PLAN = gearPlan('gearCube')
 export const GEAR_ULTIMATE_PLAN = gearPlan('gearU')

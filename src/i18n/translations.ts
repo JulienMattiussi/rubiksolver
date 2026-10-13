@@ -98,6 +98,8 @@ const fr = {
   editTitle: 'Saisie du cube',
   editHint:
     'Choisissez une couleur puis cliquez les stickers. Tournez la vue pour atteindre les autres faces. Les pièces se complètent toutes seules et aucune combinaison impossible n’est acceptée.',
+  editHintGearPlain:
+    'Remettez d’abord votre Gear Cube en forme de cube, engrenages réalignés (tournez une face jusqu’à ce que sa tranche reprenne sa place). Puis choisissez une couleur et cliquez les pièces : coins et engrenages, les agrafes sont noires. Tournez la vue pour atteindre les autres faces.',
   editHintGear:
     'Remettez d’abord votre Gear Cube en forme de cube, engrenages réalignés (tournez une face jusqu’à ce que sa tranche reprenne sa place). Puis choisissez une couleur et cliquez les pièces : les agrafes et les engrenages se peignent à part. Un engrenage porte les couleurs de ses agrafes, dans un sens ou dans l’autre : une fois les agrafes peintes, une face de l’engrenage suffit. Tournez la vue pour atteindre les autres faces.',
   editHintMirror:
@@ -232,6 +234,8 @@ const fr = {
   sectionSolve: 'Résolution',
   collapse: 'Replier le menu',
   expand: 'Déplier le menu',
+  showMore: 'Lire la suite',
+  showLess: 'Réduire',
   methodLabel: 'Méthode de résolution',
   methods: {
     beginner: {
@@ -316,7 +320,7 @@ const fr = {
     },
     gearCornersFirst: {
       name: 'Coins d’abord',
-      desc: 'Les coins d’abord, intuitivement, puis les arêtes placées par paires échangées (D⁴ : deux demi-tours d’une face), les agrafes remises à l’endroit ((A² D²)³, qui retourne sur place les arêtes de deux étages) et enfin les engrenages remis en place, ceux d’une tranche d’un tiers de tour à la fois (D⁸). Les centres suivent tout seuls.',
+      desc: 'Les coins d’abord, intuitivement, puis les arêtes placées par paires échangées (D⁴ : deux demi-tours d’une face), sur l’Ultimate les agrafes remises à l’endroit ((A² D²)³, qui retourne sur place les arêtes de deux étages) et enfin les engrenages remis en place, ceux d’une tranche d’un tiers de tour à la fois (D⁸). Les centres suivent tout seuls.',
     },
     shapeFirst: {
       name: 'Forme puis couleurs',
@@ -498,6 +502,8 @@ const en: Translations = {
   editTitle: 'Cube input',
   editHint:
     'Pick a color, then click stickers. Orbit the view to reach the other faces. Pieces auto-complete and no impossible combination is accepted.',
+  editHintGearPlain:
+    'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: corners and gears, the clips are black. Rotate the view to reach the other faces.',
   editHintGear:
     'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: clips and gears are painted apart. A gear carries its clips’ colors, one way or the other: once the clips are painted, one face of the gear is enough. Rotate the view to reach the other faces.',
   editHintMirror:
@@ -628,6 +634,8 @@ const en: Translations = {
   sectionSolve: 'Solve',
   collapse: 'Collapse menu',
   expand: 'Expand menu',
+  showMore: 'Read more',
+  showLess: 'Show less',
   methodLabel: 'Solving method',
   methods: {
     beginner: {
@@ -712,7 +720,7 @@ const en: Translations = {
     },
     gearCornersFirst: {
       name: 'Corners first',
-      desc: 'The corners first, intuitively, then the edges placed by pairs swapped (R⁴: two half turns of a face), the clips turned right way round ((F² R²)³, which turns over in place the edges of two layers) and last the gears spun home, a slice’s a third of a turn at a time (R⁸). The centers follow on their own.',
+      desc: 'The corners first, intuitively, then the edges placed by pairs swapped (R⁴: two half turns of a face), on the Ultimate the clips turned right way round ((F² R²)³, which turns over in place the edges of two layers) and last the gears spun home, a slice’s a third of a turn at a time (R⁸). The centers follow on their own.',
     },
     shapeFirst: {
       name: 'Shape then colors',

@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
-import type { ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 import type { Cubie } from '@/lib/types'
 import { COLOR_HEX, HIGHLIGHT, PLASTIC } from './colors'
+import { paintable } from './paintable'
 import type { PolyDrawing } from './polyDrawing'
 import type { PiecePolygon } from './polygons'
 
@@ -50,11 +50,10 @@ interface PolyPieceProps {
    *  while unpainted; none: its own color), and what a click on it does. */
   stickerHex?: (ni: number) => string | undefined
   onSelect?: (ni: number) => void
-}
-
-const setCursor = (value: string) => (e: ThreeEvent<PointerEvent>) => {
-  e.stopPropagation()
-  document.body.style.cursor = value
+  /** Edit mode: told when the pointer comes onto a sticker and leaves, and
+   *  the sticker to light up (its normal index). */
+  onHover?: (ni: number, on: boolean) => void
+  lit?: number | null
 }
 
 /** One piece of a gridless puzzle (a star point, a screw half, a Pyraminx
@@ -66,6 +65,8 @@ export function PolyPiece({
   highlighted = false,
   stickerHex,
   onSelect,
+  onHover,
+  lit = null,
 }: PolyPieceProps) {
   const polygons = useMemo(() => merged(drawing.polygons(cubie)), [cubie, drawing])
   return (
@@ -78,20 +79,16 @@ export function PolyPiece({
               drawing.skin ??
               COLOR_HEX[paint])
         const clickable = onSelect && ni !== undefined
+        // The sticker under the pointer, lit up in its own color.
+        const on = paint !== 'body' && ni !== undefined && ni === lit
         return (
           <mesh
             key={i}
             geometry={geometry}
-            onClick={
-              clickable
-                ? (e: ThreeEvent<MouseEvent>) => {
-                    e.stopPropagation()
-                    onSelect(ni)
-                  }
-                : undefined
-            }
-            onPointerOver={clickable ? setCursor('pointer') : undefined}
-            onPointerOut={clickable ? setCursor('default') : undefined}
+            {...paintable(
+              clickable ? () => onSelect(ni) : undefined,
+              onHover && ni !== undefined ? (over: boolean) => onHover(ni, over) : undefined,
+            )}
           >
             <meshStandardMaterial
               color={hex}
@@ -99,7 +96,7 @@ export function PolyPiece({
               metalness={paint === 'body' ? 0.1 : 0.05}
               side={THREE.DoubleSide}
               emissive={paint === 'body' ? HIGHLIGHT : hex}
-              emissiveIntensity={highlighted ? (paint === 'body' ? 0.7 : 0.25) : 0}
+              emissiveIntensity={on ? 0.5 : highlighted ? (paint === 'body' ? 0.7 : 0.25) : 0}
               polygonOffset={paint !== 'body'}
               polygonOffsetFactor={-1}
             />

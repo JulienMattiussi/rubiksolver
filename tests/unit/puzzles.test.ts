@@ -24,7 +24,7 @@ import {
 import { methodsFor } from '@/lib/solver'
 import { decodeCube, encodeCube } from '@/lib/snapshot'
 import { applyMoves, turnAllowed } from '@/lib/turn'
-import { isGear, type Cube, type CubeShape, type Turn } from '@/lib/types'
+import { hasColoredClips, isGear, type Cube, type CubeShape, type Turn } from '@/lib/types'
 import { alignGears } from '@/lib/gear'
 import { gearColorsOf, turnedOf } from '@/lib/gearEditor'
 import { validateCube } from '@/lib/validate'
@@ -77,6 +77,14 @@ const PUZZLES: ReadonlyArray<{
     scramble: 25,
   },
   { shape: 'ghost', pieces: 11, stickers: 36, orientations: 1, painted: 36, scramble: 15 },
+  {
+    shape: 'gearCube',
+    pieces: 27,
+    stickers: 54,
+    orientations: 24,
+    painted: 54,
+    scramble: 20,
+  },
   {
     shape: 'gearU',
     pieces: 27,
@@ -194,7 +202,7 @@ describe.each(PUZZLES)('$shape', ({ shape, pieces, stickers, orientations, paint
       const edit = cubeToEdit(cube)
       expect(isComplete(edit, shape, form)).toBe(true)
       // A Gear Cube's gears, painted apart: some turned over on their clips.
-      const turned = isGear(shape) ? turnedOf(gearColorsOf(cube), edit)! : []
+      const turned = hasColoredClips(shape) ? turnedOf(gearColorsOf(cube), edit)! : []
       const built = buildCube(edit, shape, form, turned)
       expect(cubeToEdit(built)).toEqual(edit)
       expect(validateCube(built)).toEqual({ ok: true })

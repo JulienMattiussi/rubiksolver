@@ -2,7 +2,7 @@ import { cubeShape } from '@/lib/cube'
 import { gearFaces } from '@/lib/gearEditor'
 import { paletteColors, progress } from '@/lib/editor'
 import { byThickness, LAYER_THICKNESS } from '@/lib/shape'
-import { isGear, type CubeColor } from '@/lib/types'
+import { hasColoredClips, type CubeColor } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -34,7 +34,7 @@ export function ColorPalette() {
   const { remaining } = progress(edit, shape, form)
   // A Gear Cube's gears take these colors too, painted apart.
   const gear = useEditor((s) => s.gear)
-  const gearLeft = isGear(shape) ? gearFaces(gear).remaining : {}
+  const gearLeft = hasColoredClips(shape) ? gearFaces(gear).remaining : {}
   // Thinnest first, so the swatches read as a scale.
   const colors = paletteColors(shape, form)
   const palette = mirror ? byThickness(MIRROR_THICKNESS).filter((c) => colors.includes(c)) : colors

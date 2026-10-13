@@ -16,8 +16,8 @@ import {
   type SlotTables,
 } from './editorTables'
 import { entersByPieces, piecesCube } from './pieceEditor'
-import { withTurnedGears } from './gear'
-import { isGear, type Color, type Cube, type CubeShape } from './types'
+import { withGears, withTurnedGears } from './gear'
+import { hasColoredClips, isGear, type Color, type Cube, type CubeShape } from './types'
 
 /**
  * Constraint-guided cube editor logic (pure, no React / three.js).
@@ -289,5 +289,6 @@ export function buildCube(
   }))
   // A Gear Cube is entered in the cube's shape: its gears at rest, some
   // maybe turned over on their clips.
-  return isGear(shape) ? withTurnedGears(cube, turned) : cube
+  if (!isGear(shape)) return cube
+  return hasColoredClips(shape) ? withTurnedGears(cube, turned) : withGears(cube, true)
 }
