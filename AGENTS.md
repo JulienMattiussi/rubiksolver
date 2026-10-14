@@ -3,16 +3,17 @@
 ## Description du projet
 
 POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3,
-4x4, 5x5 ou 6x6**, **classique ou miroir** (sauf le 5x5 et le 6x6), plus six cuboïdes : le **1x2x3**, la
+4x4, 5x5 ou 6x6**, **classique ou miroir** (sauf le 5x5 et le 6x6), le **Super Revenge** et le
+**Super Professor** (leurs centres chacun à sa place), plus six cuboïdes : le **1x2x3**, la
 **tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**, le **Camouflage 4x4x2** (un 4x4x4 bandé, qui se déforme)
 et le **Floppy 3x3x1**, le **Floppy Ghost** (un Floppy Megaminx découpé en
 pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (un Pyraminx sans pointes), le
 **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le **Pyraminx Jing** (pièces courbes), le
 **Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme), le **Master Morphinx** (un 3x3x3 taillé en tétraèdre), le
 **4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), l'**Octahedron VTO**
-(un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
+(un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **FTO** (un octaèdre dont les faces tournent), le **Rainbow**
 (un cuboctaèdre dont les triangles tournent), le **Megaminx** (un dodécaèdre), le **Holey Megaminx** (sans ses centres), le **Pyraminx Crystal** (un Megaminx coupé plus profond), le **Dino Cube** et le **Rex Cube** (leurs sommets
-tournent), le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième, qui se déforme), le **Skewb Ultimate** (un Skewb taillé en dodécaèdre), le **Violet** (un 2x2x2 à
+tournent), le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième, qui se déforme), le **Windmill** (son jumeau, tourné moins), le **Skewb Ultimate** (un Skewb taillé en dodécaèdre), le **Violet** (un 2x2x2 à
 pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Quarter Cube** (des faces qui ne font qu'aller et revenir d'un quart), l'**AI Cube** (un 4x4x4 dont quatre octants sont soudés), le **RoadBlock-I** (un 5x5x5 aux centres soudés en barres), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages),
 le **Hockey Puck** (deux disques de 12 pièces, de la famille des étoiles), le **Barrel** (un 3x3x3 aux arêtes verticales tronquées, qui se déforme) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
@@ -24,7 +25,7 @@ tourner au survol d'un bouton ; sur 3x3, un onglet « Avancé » pour `M`, `E`,
 animé sur l'état actuel, avec sa notation et une phrase), on le mélange **ou
 on saisit sa propre configuration** en peignant les stickers directement en
 3D (sur tous les puzzles, Pyraminx et étoiles compris ; un puzzle déformable
-dans la forme où il se trouve, le Floppy Ghost, le Z-Twist, le Hockey Puck, le Barrel et le Fisher Cube pièce par pièce), on peut **mémoriser un état**
+dans la forme où il se trouve, le Floppy Ghost, le Z-Twist, le Hockey Puck, le Barrel, le Fisher Cube et le Windmill pièce par pièce), on peut **mémoriser un état**
 pour y revenir, puis on le résout selon **plusieurs vraies méthodes** (par
 couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4, du 5x5 et du 6x6, méthodes de la tour, du
 Domino, du Pyraminx et des étoiles...). La solution, affichée dès que le cube
@@ -106,16 +107,18 @@ src/
 │   ├── morph.ts          # Pyramorphinx : un 2x2 taillé en tétraèdre (coins à 3 stickers, milieux de face à 1)
 │   ├── oct4.ts           # 4-Trajber's Octahedron : un 4x4x4 sans cubies internes, un sticker par pièce (face de son octant)
 │   ├── vto.ts            # Octahedron VTO et GEM-0 : un 3x3x3 taillé en octaèdre (pointes à part sur le VTO, carrés sur le GEM-0)
+│   ├── fto.ts            # FTO : l'octaèdre aux faces qui tournent (modèle du Rainbow), tours, mélange, lecture des formules
 │   ├── gear.ts           # Gear Cubes : coups d'engrenage (demi-tour de face, quart de tranche), pivot des arêtes (Cubie.spin), réalignement
 │   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
 │   ├── camo.ts           # Camouflage 4x4x2 : boîte de chaque pièce (épaisse ou fine, tournée avec elle), coups bloqués
 │   ├── camoShape.ts      # Sa forme seule (axe haut de chaque pièce) : retour dans la boîte par les deux bouts, formules qui y reviennent
 │   ├── ai.ts             # AI Cube : 4x4x4 aux quatre octants soudés en gros blocs, coups qui n'en coupent aucun, mélange
+│   ├── superCube.ts      # Super Revenge et Super Professor : les bordures des centres en stickers de côté, identité d'un centre
 │   ├── roadblock.ts      # RoadBlock-I : 5x5x5 aux centres soudés en barres (marque cachée), tranches permises, START, mélange
 │   ├── roadblockEditor.ts # Sa saisie : une barre peinte d'un clic, une face aux barres tournées d'un quart (couleurs comprises)
 │   ├── quarter.ts        # Quarter Cube : l'état de chaque face (Cubie.spin des centres), coups permis
 │   ├── mmorph.ts         # Master Morphinx : un 3x3 aux centres marqués (sticker caché), petits sommets sans sens visible, résolu
-│   ├── fisher.ts         # Fisher Cube : un 3x3 dont les centres de côté portent un repère caché (leur sens), résolu
+│   ├── fisher.ts         # Fisher Cube et Windmill : un 3x3 dont les centres de côté portent un repère caché (leur sens), résolu
 │   ├── megaminx.ts       # Megaminx, Holey et Pyraminx Crystal : modèle combinatoire (emplacements = faces touchées), coups par permutations, notation
 │   ├── twist.ts          # Z-Twist : un 3x3 dont les centres de côté gardent leur quart de tour (Cubie.spin)
 │   ├── violetStates.ts   # Ses états vus (gros cubes pareils) : arbre des plus courts chemins (solutions), mélange sans retour
@@ -156,6 +159,7 @@ src/
 │   │   ├── pyraminx5.ts  #   Professor Pyraminx : ailes, co-ailes, arêtes, co-centres, centres (fan2cube.fr)
 │   │   ├── oct4.ts       #   4-Trajber's Octahedron : parité, sommets, arêtes, centres (3-cycles, fan2cube.fr)
 │   │   ├── vto.ts        #   VTO et GEM-0 : centres, arêtes placées (3-cycles), retournées par paires, pointes (fan2cube.fr)
+│   │   ├── fto.ts        #   FTO : sommets, centres (O4), arêtes (O3), 3-cycles purs de fan2cube.fr
 │   │   ├── rainbow.ts    #   Rainbow : triangle du haut, puis les autres par 3-cycles ([H' G'], [H D], fan2cube.fr)
 │   │   ├── dino.ts       #   Dino Cube : étage par étage, par le 3-cycle [GA'] (fan2cube.fr)
 │   │   ├── rex.ts        #   Rex Cube : arêtes, centres, pétales, par 3-cycles (fan2cube.fr)
@@ -174,12 +178,13 @@ src/
 │   │   ├── twist.ts      #   Z-Twist : une méthode 3x3 sur les couleurs, puis les centres de côté remis
 │   │   ├── camo.ts       #   Camouflage : forme (et parité des ailes), centres, arêtes, puis la méthode du Domino
 │   │   ├── ai.ts         #   AI Cube : position standard, octants reconstitués (arêtes, centres), puis comme un Pocket
+│   │   ├── superCube.ts  #   Super cubes : la méthode du 4x4 ou du 5x5 sur les couleurs, puis centres du milieu tournés, centres rangés (3-cycles)
 │   │   ├── roadblock.ts  #   RoadBlock-I : barres du milieu, parité, barres, arêtes (3-cycles de START à START), puis comme un 3x3
 │   │   ├── quarter.ts    #   Quarter Cube : les arêtes d'abord (4 formules alternées de fan2cube.fr)
 │   │   ├── tori.ts       #   Tori : croix prolongée (formules de fan2cube.fr)
 │   │   ├── barrel.ts     #   Barrel : par couches, arêtes du milieu sans sens (formules de fan2cube.fr)
 │   │   ├── mmorph.ts     #   Master Morphinx : une méthode 3x3 sur les couleurs, puis les centres tournés ((H)+(G)-, (H)2+)
-│   │   ├── fisher.ts     #   Fisher Cube : une méthode 3x3 sur les couleurs, puis les centres tournés ((H)+(G)-)
+│   │   ├── fisher.ts     #   Fisher Cube et Windmill : une méthode 3x3 sur les couleurs, puis les centres tournés ((H)+(G)-)
 │   │   ├── megaminx.ts   #   Megaminx (l'étoile prolongée) et Crystal (les sommets d'abord) : formules de toutes les tenues, pièce par pièce
 │   │   ├── skewbU.ts     #   Skewb Ultimate : le haut d'abord, les seuls sommets du bas (formules de fan2cube.fr)
 │   │   ├── edgeOnly.ts   #   Edge Only : lu comme le Tori de la tenue la plus proche, résolu par sa méthode
@@ -242,6 +247,7 @@ src/
 │   ├── morphGeometry.ts  # Pièces du Pyramorphinx : case du 2x2 coupée par le tétraèdre (polyèdre convexe)
 │   ├── polyhedron.ts     # Polyèdre convexe depuis ses plans (Pyramorphinx, octaèdres, Rainbow, Dino)
 │   ├── octGeometry.ts    # Pièces des octaèdres (4-Trajber, VTO, GEM-0) : case du cube coupée par l'octaèdre (polyhedron.ts)
+│   ├── ftoGeometry.ts    # Pièces du FTO : l'octaèdre coupé par ses quatre paires de plans (polyhedron.ts)
 │   ├── gemEmblem.ts      # L'emblème rond des carrés dorés du GEM-0, dessiné sur un canvas
 │   ├── gearFace.ts       # La face du Gear Cube convenue : masques des 4 sortes de pièce (src/assets/gear), plaques tournées en place
 │   ├── GearPlate.tsx     # Une plaque d'une pièce du Gear Cube, découpée par son masque
@@ -249,6 +255,7 @@ src/
 │   ├── GearCorner.tsx    # Un coin ou un centre du Gear Cube : plaques sur des corps à leur forme
 │   ├── camoGeometry.ts   # Pièces du Camouflage : leur boîte telle qu'elle se tient
 │   ├── aiGeometry.ts     # Pièces de l'AI Cube : boîtes d'une case ou de deux
+│   ├── superGeometry.ts  # Pièces des super cubes : cubies d'un 4x4 ou d'un 5x5, centres bordés de la couleur des faces voisines
 │   ├── roadblockGeometry.ts # Pièces du RoadBlock-I : couches externes épaisses, barres d'un seul sticker
 │   ├── quarterGeometry.ts # Pièces du Quarter Cube : cubies et repère tourné de chaque centre
 │   ├── toriGeometry.ts   # Pièces du Tori : cube arrondi coupé par les plans du 3x3, faces percées en anneaux
@@ -257,6 +264,7 @@ src/
 │   ├── barrelGeometry.ts # Le solide du Barrel (prisme octogonal) et la couleur de ses coupes
 │   ├── mmorphGeometry.ts # Le solide du Master Morphinx (tétraèdre), à facettes planes
 │   ├── fisherGeometry.ts # Le solide du Fisher Cube (cube tourné d'un huitième) et ses couleurs
+│   ├── windmillGeometry.ts # Le solide du Windmill (cube tourné d'environ 31°, ses arêtes sur les coupes)
 │   ├── megaGeometry.ts   # Pièces du Megaminx (et du Crystal, coupé plus profond) : dodécaèdre coupé par les plans de ses couches
 │   ├── skewbUGeometry.ts # Pièces du Skewb Ultimate : dodécaèdre coupé par les quatre plans du Skewb
 │   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
@@ -289,7 +297,7 @@ src/
 │   │                     #   + styles.ts : classes partagées (SECTION_BOX, SECTION_LABEL, TURN_PAIR)
 │   │                     #   + features.ts : icône et couleur des 3 fonctionnalités (saisie bleu ciel, guide violet,
 │   │                     #     résolution ambre), partagées par les cartes de l'accueil et les boutons (variantes de Button)
-│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad / GhostPad / PuckPad / RainbowPad / GearPad / MegaPad (+ PadHeader,
+│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad / GhostPad / PuckPad / RainbowPad / FtoPad / GearPad / MegaPad (+ PadHeader,
 │   │                     #   PadButton : un coup, sa surbrillance au survol), LanguageToggle, NotationToggle,
 │   │                     #   RecenterButton, CollapseButton, SpeedSlider, Credit (« Fait avec ❤️ par YavaDeus », lien vers yavadeus.dev)
 │   ├── picker/           # Choix du cube : CubePicker (bouton + modale), PickerTile, PuzzleIcon (vignette SVG),
@@ -362,28 +370,30 @@ Toutes les méthodes 3x3 commencent par **Remettre les centres**
 (`withCentersHome`, voir « Coups avancés du 3x3 »), étape retirée quand elle
 est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 
-- **Par couches** (`beginner`, 3x3, Z-Twist, Fisher Cube, Master Morphinx et 2x2) : sur 3x3, 1re couche entière
+- **Par couches** (`beginner`, 3x3, Z-Twist, Fisher Cube, Windmill, Master Morphinx et 2x2) : sur 3x3, 1re couche entière
   (croix + coins), puis arêtes du milieu, puis dernière couche (croix,
   orientation coins, permutation coins, permutation arêtes) - 7 étapes. Sur
   2x2 (pas d'arêtes ni de centres) : coins du bas, orientation du haut,
   permutation du haut - 3 étapes.
-- **Fridrich / CFOP** (`cfop`, 3x3, Z-Twist, Barrel, Fisher Cube et Master Morphinx) : Croix, puis **F2L** (paires coin+arête
+- **Fridrich / CFOP** (`cfop`, 3x3, Z-Twist, Barrel, Fisher Cube, Windmill et Master Morphinx) : Croix, puis **F2L** (paires coin+arête
   par colonne), puis **OLL**, puis **PLL** - 4 étapes.
 - **Réduction** (`reduction` et `reductionCfop`, 4x4, 5x5 et 6x6) : Centres,
   Appariement des arêtes, Correction de parité (étape émise seulement si
   nécessaire), puis la phase 3x3 de la méthode choisie (par couches ou CFOP)
-  - voir plus bas, « Le 5x5 par réduction » et « Le 6x6 par réduction ».
+  - voir plus bas, « Le 5x5 par réduction » et « Le 6x6 par réduction ». Sur
+    le Super Revenge et le Super Professor, la même sur leurs couleurs, puis
+    leurs centres - voir « Les super cubes ».
 - **Roux** (`roux`, 3x3) : premier bloc 1x2x3 à gauche (arête DL, paire
   avant, paire arrière), second bloc à droite en `<U, R, M, r>` seulement,
   CMLL en 2 temps (orienter avec Sune/Antisune, permuter), puis les six
   dernières arêtes en `<M, U>` : orientation, UL/UR, tranche M en `<M, U2>`
   - 6 étapes.
-- **Petrus** (`petrus`, 3x3, Z-Twist, Barrel, Fisher Cube et Master Morphinx), les 7 étapes de Lars Petrus : bloc 2x2x2 (DBL),
+- **Petrus** (`petrus`, 3x3, Z-Twist, Barrel, Fisher Cube, Windmill et Master Morphinx), les 7 étapes de Lars Petrus : bloc 2x2x2 (DBL),
   extension en 2x2x3 en `<U, R, F>` (ne touchent pas le 2x2x2), arêtes
   orientées (F et B n'apparaissent que dans `F' U F` / `B U B'`, qui
   préservent le bloc), fin du F2L en `<R, U>` seulement, puis coins placés
   (Niklas), coins tournés (Sune/Antisune), arêtes placées (Ua).
-- **ZZ** (`zz`, 3x3, Z-Twist, Barrel, Fisher Cube et Master Morphinx) : EOLine (les 12 arêtes orientées, puis DF/DB en coups
+- **ZZ** (`zz`, 3x3, Z-Twist, Barrel, Fisher Cube, Windmill et Master Morphinx) : EOLine (les 12 arêtes orientées, puis DF/DB en coups
   qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
   droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL
   - 5 étapes.
@@ -441,6 +451,8 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 - **Le haut d'abord** (`skewbTopFirst`, Skewb Ultimate) : sommets du haut
   placés puis tournés, centres placés puis retournés, sommets du bas tournés -
   voir « Le Skewb Ultimate ».
+- **Sommets, centres, arêtes** (`ftoCornersFirst`, FTO) : sommets placés et
+  tournés, centres par 3-cycles purs, arêtes de même - voir « Le FTO ».
 - **Méthode des blocs** (`aiBlocks`, AI Cube) : position standard, arêtes et
   centres des petits octants, puis comme un Pocket - voir « L'AI Cube ».
 - **Méthode des centres** (`rbCenters`, RoadBlock-I) : barres du milieu,
@@ -555,8 +567,12 @@ les stickers directement sur le rendu 3D (mode édition), en couleurs ou en
   **budget 4**). Un clic n'est accepté que s'il reste compatible avec un
   placement dont la pièce a encore du budget ; dès qu'une pièce est déterminée
   (2 stickers d'un coin), les stickers restants se complètent automatiquement.
-  Impossible donc de créer une pièce, un doublon ou un compte de couleurs
-  incohérent pendant la saisie.
+  Le dernier clic l'emporte : une pièce (ou une couleur) déjà toute utilisée
+  ailleurs y est reprise, son emplacement vidé, à repeindre (`takeBack`) ;
+  la palette reste donc toujours cliquable (une couleur épuisée est juste
+  atténuée), ce qui permet de corriger une saisie complète, « depuis l'état
+  actuel » compris. Impossible donc de créer une pièce, un doublon ou un
+  compte de couleurs incohérent pendant la saisie.
 - **Validation finale** : `validateCube` vérifie le comptage des couleurs puis
   la solubilité. Sur toutes les formes sauf le 4x4, en demandant une
   résolution bornée (`solve`) : sur un cube
@@ -1056,6 +1072,40 @@ au GEM-0 `[H D]` ((HP) -> (HD) -> (AD)), de chaque côté puis conjugués ;
 en permutation paire (un quart de tour est un 4-cycle d'arêtes et un quart
 de sommet) : les 3-cycles suffisent. Effet de chaque formule testé.
 
+### Le FTO (`fto`)
+
+Le FTO, Face Turning Octahedron (fan2cube.fr/FTO1 et 2, Jürgen Brandt, 2009) : un octaèdre comme le VTO, mais ce sont ses huit faces qui tournent,
+par tiers de tour. Chaque face est découpée en 9 triangles par les coupes
+des faces voisines, au tiers de la profondeur : 6 sommets (quatre
+triangles), 12 arêtes (deux, sans sens) et 24 centres (un, en deux
+familles que rien ne mélange), et entre chaque face et son opposée une
+tranche qui tourne aussi. **Modèle** (`lib/fto.ts`) : celui du Rainbow
+(`RainbowMove.fto`, `slice` pour une tranche), les faces regardant les
+diagonales du cube ; l'octaèdre |x| + |y| + |z| <= 6, coupé à 2 le long de
+chaque diagonale ; une pièce tient en un point de sa case (sommets en
+(3, 0, 0), arêtes en (2, 2, 0), centres en (2, 1, 1)...), une face prend ce
+qui est à au moins 2 le long de sa diagonale, sa tranche ce qui est à moins
+de 2 du milieu (`rainbowTurns`). Couleurs du 4-Trajber, 24 tenues (les
+rotations du cube). **Notation** de la page : H, A, G, D, P, B et les
+faces opposées à G et D, soulignées ; tranches h, a, g, d ; en anglais
+celle de la WCA (U, F, L, R, B, D, BR, BL ; u, f, l, r). Une tranche
+nommée par la face opposée est la même, à l'envers (`namedSlice`). Pad
+dédié (`FtoPad` : faces du haut, du bas, tranches). **Rendu**
+(`three/ftoGeometry.ts`) : chaque pièce est l'octaèdre coupé par ses
+couches le long des quatre axes, posé sur sa face du bas (`FTO_ORIENT`),
+comme la page le tient. **Saisie** des couleurs, comme le Rainbow.
+
+**Résolution** (`methods/fto.ts`, méthode **Sommets, centres, arêtes**, la
+méthode 2 de la page) : (1) les sommets placés et tournés, le moins de
+coups sur les seuls sommets (la page joue O1 = [D A'] et O2 = HD'H'.AHD) ;
+leur tenue dit celle du puzzle résolu ; (2) les centres par O4 =
+AhA'.B.Ah'A'.B', un 3-cycle de centres qui ne touche rien d'autre, une
+famille après l'autre, ceux d'une couleur pareils (`placeByCycles`, comme
+les pétales du Rex) ; (3) les arêtes par O3 = dHd'h.dH'd'h', un 3-cycle
+d'arêtes pur. Chaque formule vue de chaque côté, préparée par un coup
+défait ensuite. Environ 150 coups, moins d'une seconde ; effet de chaque
+formule testé.
+
 ### Le Rainbow (`rainbow`)
 
 Le Rainbow (fan2cube.fr/rainbow1 et 2) est un **cuboctaèdre** : 6 carrés et
@@ -1355,7 +1405,7 @@ un clic sur un centre de côté le tourne d'un quart (`twisted` de l'éditeur).
 Le Tori (fan2cube.fr/tori1 et 2, QiYi, 2023) est « un Rubik's Cube sans
 sommets » : 6 centres fixes et 12 arêtes, soit 12!·2¹²/2 positions. Le
 modèle est celui du 3x3 sans ses coins (`solvedCube`), coups compris : rien
-d'autre à lui apprendre. Catégorie « Bizarres ».
+d'autre à lui apprendre. Catégorie « Troués ».
 
 **Rendu** (`three/toriGeometry.ts`) : le solide est un cube arrondi
 (|x|³ + |y|³ + |z|³ <= R³), coupé par les plans du 3x3 assez loin du
@@ -1480,6 +1530,22 @@ les centres** avec la formule de la page (H)+(G)- = Hd'h'd.H'd'hd : elle
 tourne le centre de gauche et celui du haut, un carré qui n'en montre rien,
 donc un centre de côté seul ; vue de chaque côté et à l'envers, elle tourne
 n'importe lequel dans un sens ou l'autre. Effet testé.
+
+Le **Windmill** (`windmill`, fan2cube.fr/windmill1 et 2, Hidetoshi Takeji,
+2006), « pratiquement le frère jumeau du Fisher's Cube » : le même
+mécanisme, son cube tourné seulement de l'angle qui pose chacune de ses
+arêtes verticales sur une coupe (cos − sin = 1/3, environ 31,4°,
+`three/windmillGeometry.ts`). Chaque côté montre deux colonnes du
+mécanisme : celle d'un coin (ses sommets, qui n'y montrent que deux
+couleurs, et son arête du milieu, une seule) et celle d'un centre (son
+centre, un rectangle, et ses deux arêtes). Les centres de côté portent deux
+repères, vers le haut et vers le bas : un demi-tour d'un rectangle ne se
+voit pas, un quart si (ce qui le distingue aussi du Fisher Cube, 62
+stickers) ; ses arêtes du milieu montrent leur sens, sa géométrie suivant
+la pièce (`cutSolid.ts` retrouve la rotation d'une pièce sticker par
+sticker, ses deux repères ayant la même couleur). Mêmes méthodes, même
+saisie que le Fisher Cube ; la page tourne aussi les centres par
+(H)+(G)-, l'« état singulier » d'un centre seul tourné d'un quart compris.
 
 ### Le Megaminx (`megaminx`)
 
@@ -1784,6 +1850,9 @@ chargement (ceux qui ne bougent que trois pièces d'une sorte), conjugués par
 un tour, indexés par le déplacement qu'ils font (`a>b`) avec le troisième
 emplacement qu'ils touchent.
 
+0. **Remettre les centres** (`stepRecenter`, si nécessaire) : tenu autrement,
+   ses centres du milieu ramenés au repère absolu par les tranches du milieu
+   (le `M`, `E`, `S` du 3x3), que la phase 3x3 suppose.
 1. **Centres** (`centers.ts`) : face par face (D, U, F, R, B ; L forcée),
    deux coups (une tranche, un tour) quand ça suffit, sinon un 3-cycle :
    `[2R, X 2L X']` pour les diagonaux, `[3R, X 2L X']` pour ceux en croix,
@@ -1804,6 +1873,41 @@ emplacement qu'ils touchent.
 
 Résolution en environ 500 coups (dont 200 de centres et 150 d'arêtes),
 calculée en un peu plus d'une seconde (bibliothèques comprises).
+
+### Les super cubes (`super4`, `super5`)
+
+Le Super Revenge et le Super Professor (fan2cube.fr/superrevenge1 et 2,
+superprofessor1 et 2) : un 4x4x4 et un 5x5x5 dont chaque centre est une
+pièce à lui, qui doit reprendre sa place (un centre n'atteint chaque
+emplacement que dans un sens, sauf ceux du milieu du 5x5, qui tournent sur
+place). Chaque centre le montre par des bordures sur ses côtés tournés
+vers les bords de sa face (deux pour un centre du 4x4 ou un « x » du 5x5,
+une pour un « + », quatre pour celui du milieu), chacune de la couleur de
+la face au-delà. **Modèle** (`lib/superCube.ts`) : une bordure est un
+sticker sur ce côté du centre (sa normale en travers de la face), de cette
+couleur : résolu, elle regarde comme la face de sa couleur, donc « chaque
+direction d'une seule couleur » dit toujours résolu, et un centre se
+reconnaît à ses couleurs, la sienne d'abord (`centerKey`) ; leurs 144 et
+246 stickers les distinguent pour `cubeShape`. Mêmes coups, guide et
+mélange que leurs homologues. **Rendu** (`three/superGeometry.ts`) : les
+cubies du 4x4 ou du 5x5, chaque centre bordé de bandes de couleur.
+**Saisie** pièce par pièce (comme le Floppy Ghost) : les centres n'ont que
+leurs bordures pour se distinguer.
+
+**Résolution** (`methods/superCube.ts`, la « méthode des centres » de la
+page, prise à l'envers) : la méthode du Revenge ou du Professor (réduction,
+par couches ou CFOP) sur leurs couleurs, les bordures mises de côté, puis
+leurs « états singuliers » : sur le Professor, les centres du milieu
+tournés par (H)+(G)- = Hd*'h*'d*.H'd*'h*d* (d* et h* les trois couches
+intérieures : tout le bloc des centres de deux faces tourne) et (H)2+ =
+(HDGH²D'G')², vus de chaque tenue (recherche sur leurs tours, 4⁶ états) ;
+puis chaque centre à sa place par 3-cycles purs, O = g'HdH'.gHd'H' de la
+page (les « x » ; les « + » avec la tranche du milieu), préparés par un
+coup (`cycleTable`, `placeByCycles`). Les couleurs faites, coins et ailes
+sont à leur place : les centres ne sont qu'à une permutation paire de la
+leur. Environ 350 coups sur le Super Revenge, 800 sur le Super Professor ;
+effet de chaque formule testé (sur le 4x4, la page tourne les centres
+avec d* et h* les deux couches intérieures).
 
 ### Le 6x6 par réduction (`src/lib/solver6/`)
 
@@ -1969,11 +2073,11 @@ mobile et en saisie, une seule carte) :
   **puzzles** de la catégorie choisie (toujours ouvert sur les catégories ; le
   puzzle courant et sa catégorie sont mis en évidence ; la vignette d'une catégorie montre trois
   de ses puzzles, devant le 3x3, le 4-Star Prism ou le Megaminx s'il en est, `COVERS`). Catégories (`cubeCategory`), dans
-  l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4 (Revenge)/5x5 (Professor)/6x6, Miroirs 2x2/3x3/4x4, Tours 2x2x3
+  l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4 (Revenge)/Super Revenge/5x5 (Professor)/Super Professor/6x6, Miroirs 2x2/3x3/4x4, Tours 2x2x3
   (Slim)/2x2x4/3x3x2 (Domino)/Camouflage 4x4x2, Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx/Master Morphinx, Polyèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow/Megaminx/Pyraminx Crystal/Skewb Ultimate, Cylindriques Hockey Puck/Barrel/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube/Fisher Cube, Troués Holey Megaminx/Tori/Edge Only, Bizarres Violet/Z-Twist/Quarter Cube/AI Cube/RoadBlock-I.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/FTO/Rainbow/Megaminx/Pyraminx Crystal/Skewb Ultimate, Cylindriques Hockey Puck/Barrel/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube/Fisher Cube/Windmill, Troués Holey Megaminx/Tori/Edge Only, Torturés Violet/Z-Twist/Quarter Cube/AI Cube/RoadBlock-I.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

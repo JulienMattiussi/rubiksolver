@@ -83,8 +83,13 @@ export function solvedRainbow(): Cube {
  *  fixed center, which only spins); on the Rex Cube, cut deeper, its three
  *  edges, three centers and nine petals (see `solvedRex`); on the Skewb
  *  Ultimate, cut through the middle, its whole half (`solvedSkewbU`). */
-export const rainbowTurns = (move: RainbowMove, position: Vec3): boolean =>
-  dot(position, RAINBOW_CORNERS[move.triangle]) >= (move.skewb ? 1 : move.rex ? 4 : 2)
+export const rainbowTurns = (move: RainbowMove, position: Vec3): boolean => {
+  const along = dot(position, RAINBOW_CORNERS[move.triangle])
+  // The FTO's face takes what is beyond its cut, its slice what is between
+  // its two cuts (see `solvedFto`).
+  if (move.fto) return move.slice ? Math.abs(along) < 2 : along >= 2
+  return along >= (move.skewb ? 1 : move.rex ? 4 : 2)
+}
 
 /** A third of a turn about a diagonal, clockwise seen from it. About
  *  (1, 1, 1) it is (x, y, z) -> (y, z, x); about another diagonal the same
@@ -138,7 +143,7 @@ export function simplifyRainbowMoves(moves: readonly RainbowMove[]): RainbowMove
   const out: RainbowMove[] = []
   for (const move of moves) {
     const last = out[out.length - 1]
-    if (last?.triangle === move.triangle) {
+    if (last?.triangle === move.triangle && !last.slice === !move.slice) {
       out.pop()
       const total = (last.amount + move.amount) % 3
       if (total !== 0) out.push({ ...move, amount: total as 1 | 2 })
@@ -166,8 +171,31 @@ const LETTERS: Record<'us' | 'fr', Record<RainbowCorner, string>> = {
 }
 
 export function formatRainbowMove(move: RainbowMove, labels: FaceLabels): string {
-  const letter = (move.dino ? DINO_LETTERS : LETTERS)[labels.U === 'U' ? 'us' : 'fr'][move.triangle]
+  const notation = labels.U === 'U' ? 'us' : 'fr'
+  const letter = move.fto
+    ? (move.slice ? FTO_SLICE_LETTERS : FTO_LETTERS)[notation][move.triangle]
+    : (move.dino ? DINO_LETTERS : LETTERS)[notation][move.triangle]
   return letter + (move.amount === 2 ? "'" : '')
+}
+
+/** The underline that marks a face opposite another (fan2cube's FTO). */
+const UNDER = '\u0332'
+
+/**
+ * The FTO's faces, as fan2cube names them (FTO1): H(aut) on top, A(vant)
+ * in front, G(auche) and D(roite) beside it, P(ostérieur) and B(as) below,
+ * and the faces opposite G and D, underlined; in English, the WCA's (U, F,
+ * L, R; D, B, BR opposite L, BL opposite R).
+ */
+export const FTO_LETTERS: Record<'us' | 'fr', Record<RainbowCorner, string>> = {
+  us: { U: 'U', u: 'F', r: 'L', l: 'R', d: 'D', D: 'B', L: 'BR', R: 'BL' },
+  fr: { U: 'H', u: 'A', r: 'G', l: 'D', d: 'B', D: 'P', L: `G${UNDER}`, R: `D${UNDER}` },
+}
+
+/** Its slices, one per axis, named by the face they turn with. */
+export const FTO_SLICE_LETTERS: Record<'us' | 'fr', Partial<Record<RainbowCorner, string>>> = {
+  us: { U: 'u', u: 'f', r: 'l', l: 'r' },
+  fr: { U: 'h', u: 'a', r: 'g', l: 'd' },
 }
 
 /** Read fan2cube's formulas (`[H' G']`, `HDH'D'`): a letter a triangle,

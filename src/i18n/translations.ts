@@ -17,6 +17,8 @@ import {
   SIDE_NAMES_FR,
   DINO_CORNER_NAMES_EN,
   DINO_CORNER_NAMES_FR,
+  FTO_FACE_NAMES_EN,
+  FTO_FACE_NAMES_FR,
   TRIANGLE_NAMES_EN,
   TRIANGLE_NAMES_FR,
   STAR_LAYER_EN,
@@ -78,6 +80,11 @@ const fr = {
     `Tourner ${TRIANGLE_NAMES_FR[triangle]} d’un tiers dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
   dinoTurnTitle: (corner: RainbowCorner, clockwise: boolean) =>
     `Tourner ${DINO_CORNER_NAMES_FR[corner]} d’un tiers dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
+  ftoTurnTitle: (face: RainbowCorner, clockwise: boolean, slice: boolean) =>
+    `Tourner ${slice ? `la tranche de ${FTO_FACE_NAMES_FR[face]}` : FTO_FACE_NAMES_FR[face]} d’un tiers dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
+  ftoTop: 'Faces du haut',
+  ftoBottom: 'Faces du bas',
+  ftoSlices: 'Tranches',
   dinoTop: 'Haut',
   dinoBottom: 'Bas',
   rainbowFront: 'Devant',
@@ -274,7 +281,7 @@ const fr = {
     gear: 'Engrenages',
     diagonal: 'Coupes diagonales',
     holey: 'Troués',
-    odd: 'Bizarres',
+    odd: 'Torturés',
   },
   sectionSetup: 'Initialisation',
   sectionSolve: 'Résolution',
@@ -319,6 +326,10 @@ const fr = {
     megaStar: {
       name: 'L’étoile prolongée',
       desc: 'Le Rubik’s Cube par couches, une face de plus à chaque tour : l’étoile de la face du dessous (A², A.H’DH), ses sommets (D’B’D, tournés par D’BD.ABA’), les arêtes autour ([H’A’][HD], [HD][H’A’]), les cinq faces voisines finies (H’A’²HA², HD²H’D’², HDH’D’…), les arêtes de l’équateur haut, puis la face du haut : arêtes placées (A[HD]A’) et retournées (A[HD]HA’HA.H³A’), sommets placés ([HA].P’[AH]P) et tournés ((D’BDABA’).H’(AB’A’D’B’D)H).',
+    },
+    ftoCornersFirst: {
+      name: 'Sommets, centres, arêtes',
+      desc: 'La méthode 2 de fan2cube.fr, en quatre formules : les sommets placés et tournés (où la page joue O1 = [D A’] et O2 = HD’H’.AHD), puis les centres par O4 = AhA’.B.Ah’A’.B’, un 3-cycle de centres qui ne touche à rien d’autre, et enfin les arêtes par O3 = dHd’h.dH’d’h’, un 3-cycle d’arêtes qui ne touche à rien d’autre. Chaque formule vue de chaque côté, préparée par un coup défait ensuite.',
     },
     skewbTopFirst: {
       name: 'Le haut d’abord',
@@ -513,6 +524,11 @@ const fr = {
     stepMegaTopFlip: 'Retourner les arêtes du haut',
     stepMegaTopCorners: 'Placer les sommets du haut',
     stepMegaTopTwist: 'Tourner les sommets du haut',
+    stepSuperMiddles: 'Tourner les centres du milieu',
+    stepSuperCenters: 'Ranger les centres (chacun à sa place)',
+    stepFtoCorners: 'Placer et tourner les sommets',
+    stepFtoCenters: 'Placer les centres',
+    stepFtoEdges: 'Placer les arêtes',
     stepSkewbTopPlaced: 'Placer les sommets du haut',
     stepSkewbTopTwist: 'Tourner les sommets du haut',
     stepSkewbCenters: 'Placer les centres',
@@ -635,6 +651,11 @@ const en: Translations = {
     `Turn ${TRIANGLE_NAMES_EN[triangle]} a third ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
   dinoTurnTitle: (corner: RainbowCorner, clockwise: boolean) =>
     `Turn ${DINO_CORNER_NAMES_EN[corner]} a third ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
+  ftoTurnTitle: (face: RainbowCorner, clockwise: boolean, slice: boolean) =>
+    `Turn ${slice ? `the slice of ${FTO_FACE_NAMES_EN[face]}` : FTO_FACE_NAMES_EN[face]} a third ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
+  ftoTop: 'Top faces',
+  ftoBottom: 'Bottom faces',
+  ftoSlices: 'Slices',
   dinoTop: 'Top',
   dinoBottom: 'Bottom',
   rainbowFront: 'Front',
@@ -825,7 +846,7 @@ const en: Translations = {
     gear: 'Gears',
     diagonal: 'Diagonal cuts',
     holey: 'Holey',
-    odd: 'Oddities',
+    odd: 'Twisted',
   },
   sectionSetup: 'Setup',
   sectionSolve: 'Solve',
@@ -870,6 +891,10 @@ const en: Translations = {
     megaStar: {
       name: 'Extended star',
       desc: 'The Rubik’s Cube layer by layer, one more face each time: the bottom face’s star (F², F.U’RU), its corners (R’D’R, twisted by R’DR.FDF’), the edges around it ([U’F’][UR], [UR][U’F’]), the five faces next to it finished (U’F’²UF², UR²U’R’², URU’R’…), the high equator’s edges, then the top: edges placed (F[UR]F’) and flipped (F[UR]UF’UF.U³F’), corners placed ([UF].B’[FU]B) and twisted ((R’DRFDF’).U’(FD’F’R’D’R)U), the letters of fan2cube’s page (H A D B P G) read as U F R D B L.',
+    },
+    ftoCornersFirst: {
+      name: 'Corners, centers, edges',
+      desc: 'Method 2 of fan2cube.fr, with four formulas: the corners placed and twisted (where the page plays O1 = [D A’] and O2 = HD’H’.AHD), then the centers by O4 = AhA’.B.Ah’A’.B’, a 3-cycle of centers touching nothing else, and last the edges by O3 = dHd’h.dH’d’h’, a 3-cycle of edges touching nothing else (fan2cube’s letters). Each formula from every side, set up by a turn undone after.',
     },
     skewbTopFirst: {
       name: 'Top first',
@@ -1064,6 +1089,11 @@ const en: Translations = {
     stepMegaTopFlip: 'Flip the top edges',
     stepMegaTopCorners: 'Place the top corners',
     stepMegaTopTwist: 'Twist the top corners',
+    stepSuperMiddles: 'Turn the middle centers',
+    stepSuperCenters: 'Sort the centers (each to its own place)',
+    stepFtoCorners: 'Place and twist the corners',
+    stepFtoCenters: 'Place the centers',
+    stepFtoEdges: 'Place the edges',
     stepSkewbTopPlaced: 'Place the top corners',
     stepSkewbTopTwist: 'Twist the top corners',
     stepSkewbCenters: 'Place the centers',

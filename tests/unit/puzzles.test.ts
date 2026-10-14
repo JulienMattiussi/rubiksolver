@@ -53,7 +53,9 @@ const PUZZLES: ReadonlyArray<{
   { shape: '2', pieces: 8, stickers: 24, orientations: 24, painted: 24, scramble: 11 },
   { shape: '3', pieces: 27, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
   { shape: '4', pieces: 64, stickers: 96, orientations: 24, painted: 96, scramble: 40 },
+  { shape: 'super4', pieces: 64, stickers: 144, orientations: 24, painted: 144, scramble: 40 },
   { shape: '5', pieces: 125, stickers: 150, orientations: 24, painted: 150, scramble: 60 },
+  { shape: 'super5', pieces: 125, stickers: 246, orientations: 24, painted: 246, scramble: 60 },
   { shape: '6', pieces: 216, stickers: 216, orientations: 24, painted: 216, scramble: 80 },
   { shape: '123', pieces: 6, stickers: 22, orientations: 4, painted: 22, scramble: 10 },
   { shape: '223', pieces: 12, stickers: 32, orientations: 8, painted: 32, scramble: 20 },
@@ -93,6 +95,7 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'dino', pieces: 12, stickers: 24, orientations: 24, painted: 24, scramble: 20 },
   // A 3x3 cut to a cube turned an eighth, its side centers marked.
   { shape: 'fisher', pieces: 27, stickers: 58, orientations: 24, painted: 58, scramble: 20 },
+  { shape: 'windmill', pieces: 27, stickers: 62, orientations: 24, painted: 62, scramble: 20 },
   // A Skewb cut out of a dodecahedron.
   { shape: 'skewbU', pieces: 14, stickers: 48, orientations: 12, painted: 48, scramble: 25 },
   { shape: 'rex', pieces: 42, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
@@ -103,6 +106,7 @@ const PUZZLES: ReadonlyArray<{
   // A 3x3 whose faces turn by alternate quarters.
   // A 4x4x4, four of its octants fused in quincunx.
   { shape: 'ai', pieces: 32, stickers: 60, orientations: 24, painted: 60, scramble: 30 },
+  { shape: 'fto', pieces: 42, stickers: 72, orientations: 24, painted: 72, scramble: 30 },
   {
     shape: 'roadblock',
     pieces: 125,

@@ -29,6 +29,7 @@ import { CRYSTAL_PLAN, MEGAMINX_PLAN } from './methods/megaminx'
 import { GEAR_PLAN, GEAR_ULTIMATE_PLAN } from './methods/gear'
 import { DINO_PLAN } from './methods/dino'
 import { REX_PLAN } from './methods/rex'
+import { FTO_PLAN } from './methods/fto'
 import { SKEWB_U_PLAN } from './methods/skewbU'
 import { GEAR_EXTREME_PLAN } from './methods/gearExtreme'
 import { VIOLET_OPTIMAL_PLAN, VIOLET_SHAPE_FIRST_PLAN } from './methods/violet'
@@ -41,6 +42,7 @@ import { TOWER_PLAN } from './methods/tower'
 import { ZZ_PLAN } from './methods/zz'
 import { reductionPlan } from './solver4/steps'
 import { reduction5Plan } from './solver5/steps'
+import { super4Plan, super5Plan } from './methods/superCube'
 import { reduction6Plan } from './solver6/steps'
 import { buildSteps, planOutline, type MethodPlan, type SolveStep } from './solverKit'
 import type { Cube, CubeShape, Turn } from './types'
@@ -72,6 +74,7 @@ const SOLVE_METHODS = [
       '3': withCentersHome(BEGINNER_PLAN),
       twist: twistPlan(BEGINNER_PLAN),
       fisher: fisherPlan(withCentersHome(BEGINNER_PLAN)),
+      windmill: fisherPlan(withCentersHome(BEGINNER_PLAN)),
       mmorph: mmorphPlan(withCentersHome(BEGINNER_PLAN)),
     },
   },
@@ -82,6 +85,7 @@ const SOLVE_METHODS = [
       twist: twistPlan(CFOP_PLAN),
       barrel: CFOP_PLAN,
       fisher: fisherPlan(withCentersHome(CFOP_PLAN)),
+      windmill: fisherPlan(withCentersHome(CFOP_PLAN)),
       mmorph: mmorphPlan(withCentersHome(CFOP_PLAN)),
     },
   },
@@ -93,6 +97,7 @@ const SOLVE_METHODS = [
       twist: twistPlan(PETRUS_PLAN),
       barrel: PETRUS_PLAN,
       fisher: fisherPlan(withCentersHome(PETRUS_PLAN)),
+      windmill: fisherPlan(withCentersHome(PETRUS_PLAN)),
       mmorph: mmorphPlan(withCentersHome(PETRUS_PLAN)),
     },
   },
@@ -103,6 +108,7 @@ const SOLVE_METHODS = [
       twist: twistPlan(ZZ_PLAN),
       barrel: ZZ_PLAN,
       fisher: fisherPlan(withCentersHome(ZZ_PLAN)),
+      windmill: fisherPlan(withCentersHome(ZZ_PLAN)),
       mmorph: mmorphPlan(withCentersHome(ZZ_PLAN)),
     },
   },
@@ -110,7 +116,9 @@ const SOLVE_METHODS = [
     id: 'reduction',
     plans: {
       '4': reductionPlan(BEGINNER_PLAN),
+      super4: super4Plan(reductionPlan(BEGINNER_PLAN)),
       '5': reduction5Plan(BEGINNER_PLAN),
+      super5: super5Plan(reduction5Plan(BEGINNER_PLAN)),
       '6': reduction6Plan(BEGINNER_PLAN),
     },
   },
@@ -118,7 +126,9 @@ const SOLVE_METHODS = [
     id: 'reductionCfop',
     plans: {
       '4': reductionPlan(CFOP_PLAN),
+      super4: super4Plan(reductionPlan(CFOP_PLAN)),
       '5': reduction5Plan(CFOP_PLAN),
+      super5: super5Plan(reduction5Plan(CFOP_PLAN)),
       '6': reduction6Plan(CFOP_PLAN),
     },
   },
@@ -141,6 +151,7 @@ const SOLVE_METHODS = [
   { id: 'dinoLayers', plans: { dino: DINO_PLAN } },
   { id: 'rexEdgesFirst', plans: { rex: REX_PLAN } },
   { id: 'skewbTopFirst', plans: { skewbU: SKEWB_U_PLAN } },
+  { id: 'ftoCornersFirst', plans: { fto: FTO_PLAN } },
   { id: 'gearCornersFirst', plans: { gearCube: GEAR_PLAN, gearU: GEAR_ULTIMATE_PLAN } },
   { id: 'gearEquatorFirst', plans: { gearX: GEAR_EXTREME_PLAN } },
   { id: 'shapeFirst', plans: { violet: VIOLET_SHAPE_FIRST_PLAN } },

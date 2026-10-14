@@ -43,6 +43,7 @@ import {
   DINO_TURNS,
   simplifyRainbowMoves,
 } from './rainbow'
+import { FTO_TURNS, scrambleFto } from './fto'
 import { formatStarMove, invertStarMove, scrambleStar, simplifyStarMoves, STAR_RINGS } from './star'
 import {
   type InnerTurn,
@@ -284,7 +285,9 @@ export function sameLayer(a: Turn, b: Turn): boolean {
     return 'flip' in a ? 'flip' in b : 'layer' in b && a.layer === b.layer
   }
   if (isRainbowMove(a) || isRainbowMove(b)) {
-    return isRainbowMove(a) && isRainbowMove(b) && a.triangle === b.triangle
+    return (
+      isRainbowMove(a) && isRainbowMove(b) && a.triangle === b.triangle && !a.slice === !b.slice
+    )
   }
   if (isGearMove(a) || isGearMove(b)) return isGearMove(a) && isGearMove(b) && a.gear === b.gear
   if (isMegaMove(a) || isMegaMove(b)) {
@@ -430,6 +433,7 @@ export function scrambleTurns(
   if (shape === 'dino') return scrambleDino(length, rng)
   if (shape === 'rex') return scrambleRex(length, rng)
   if (shape === 'skewbU') return scrambleSkewbU(length, rng)
+  if (shape === 'fto') return scrambleFto(length, rng)
   if (isGear(shape)) return scrambleGear(shape, length, rng)
   if (shape === 'violet') return scrambleViolet(length, rng, start)
   if (shape === 'quarter') return scrambleQuarter(length, rng, start)
@@ -466,6 +470,7 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
   if (shape === 'dino') return DINO_TURNS
   if (shape === 'rex') return REX_TURNS
   if (shape === 'skewbU') return SKEWB_TURNS
+  if (shape === 'fto') return FTO_TURNS
   if (isGear(shape)) return gearTurnsOf(shape)
   return movesFor(shape)
 }

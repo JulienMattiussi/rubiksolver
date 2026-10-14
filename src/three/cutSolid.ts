@@ -30,11 +30,12 @@ export interface CutSolid {
 /** The whole-puzzle turn taking a piece from its solved place to where it
  *  stands (any that does, for a piece that looks the same either way). */
 function turnOf(cubie: Cubie, home: Cubie): (v: Vec3) => Vec3 {
-  const at = (color: string) => cubie.stickers.find((s) => s.color === color)!.normal.join()
+  // Sticker by sticker (turns keep their order; a Windmill's two marks
+  // share a color).
   return AXIS_ROTATIONS.find(
     (turn) =>
       turn(home.position).join() === cubie.position.join() &&
-      home.stickers.every((s) => turn(s.normal).join() === at(s.color)),
+      home.stickers.every((s, k) => turn(s.normal).join() === cubie.stickers[k]!.normal.join()),
   )!
 }
 

@@ -19,11 +19,14 @@ import { rexCut, rexPolygons } from './rexGeometry'
 import { barrelPolygons, barrelThumbnail } from './barrelGeometry'
 import { aiPolygons } from './aiGeometry'
 import { roadblockPolygons } from './roadblockGeometry'
+import { superPolygons } from './superGeometry'
 import { camoPolygons } from './camoGeometry'
 import { mmorphPolygons, mmorphThumbnail } from './mmorphGeometry'
 import { skewbUPolygons, skewbUThumbnail } from './skewbUGeometry'
+import { FTO_ORIENT, ftoPolygons, ftoThumbnail } from './ftoGeometry'
 import { crystalPolygons, crystalThumbnail, megaPolygons, megaThumbnail } from './megaGeometry'
 import { fisherPolygons, fisherThumbnail } from './fisherGeometry'
+import { windmillPolygons, windmillThumbnail } from './windmillGeometry'
 import { quarterPolygons } from './quarterGeometry'
 import {
   numbered,
@@ -134,10 +137,23 @@ const FISHER: PolyDrawing = {
   yaw: Math.PI / 8,
   thumbnail: fisherThumbnail,
 }
+
+const WINDMILL: PolyDrawing = {
+  polygons: windmillPolygons,
+  yaw: 0,
+  thumbnail: windmillThumbnail,
+}
 /** The Megaminx, its top up, a face in front. */
 const MEGAMINX: PolyDrawing = { polygons: megaPolygons, yaw: 0, thumbnail: megaThumbnail }
 /** The Skewb Ultimate, held as the Dino. */
 const SKEWB_U: PolyDrawing = { polygons: skewbUPolygons, yaw: 0, thumbnail: skewbUThumbnail }
+
+const FTO: PolyDrawing = {
+  polygons: ftoPolygons,
+  yaw: Math.PI / 4,
+  thumbnail: ftoThumbnail,
+  orient: FTO_ORIENT,
+}
 /** The Pyraminx Crystal, held as the Megaminx. */
 const CRYSTAL: PolyDrawing = { polygons: crystalPolygons, yaw: 0, thumbnail: crystalThumbnail }
 /** The Master Morphinx, on a face as the Pyramorphinx. */
@@ -151,6 +167,9 @@ const MMORPH: PolyDrawing = {
 const AI: PolyDrawing = { polygons: aiPolygons, yaw: 0 }
 /** The RoadBlock-I, upright as the cubes. */
 const ROADBLOCK: PolyDrawing = { polygons: roadblockPolygons, yaw: 0 }
+
+const SUPER4: PolyDrawing = { polygons: superPolygons(3), yaw: 0 }
+const SUPER5: PolyDrawing = { polygons: superPolygons(2), yaw: 0 }
 /** The Rex Cube, held as the Dino. */
 const REX: PolyDrawing = { polygons: rexPolygons, yaw: 0, cut: rexCut }
 
@@ -178,14 +197,18 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'rainbow') return RAINBOW
   if (shape === 'dino') return DINO
   if (shape === 'skewbU') return SKEWB_U
+  if (shape === 'fto') return FTO
   if (shape === 'rex') return REX
   if (shape === 'twist') return TWIST
   if (shape === 'tori') return TORI
   if (shape === 'quarter') return QUARTER
   if (shape === 'ai') return AI
   if (shape === 'roadblock') return ROADBLOCK
+  if (shape === 'super4') return SUPER4
+  if (shape === 'super5') return SUPER5
   if (shape === 'barrel') return BARREL
   if (shape === 'fisher') return FISHER
+  if (shape === 'windmill') return WINDMILL
   if (shape === 'edge') return EDGE
   if (shape === 'camo') return CAMO
   if (shape === 'violet') return VIOLET

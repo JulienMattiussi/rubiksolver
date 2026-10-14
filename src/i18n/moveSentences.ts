@@ -77,6 +77,30 @@ export const TRIANGLE_NAMES_EN: Record<RainbowCorner, string> = {
   r: 'the right triangle, behind',
 }
 
+/** The FTO's faces (rainbow.ts, `FTO_LETTERS`): held on its bottom face,
+ *  the front one toward us. */
+export const FTO_FACE_NAMES_FR: Record<RainbowCorner, string> = {
+  U: 'la face du haut',
+  u: 'la face avant',
+  r: 'la face gauche',
+  l: 'la face droite',
+  d: 'la face du bas',
+  D: 'la face arrière',
+  L: 'la face opposée à la gauche',
+  R: 'la face opposée à la droite',
+}
+
+export const FTO_FACE_NAMES_EN: Record<RainbowCorner, string> = {
+  U: 'the top face',
+  u: 'the front face',
+  r: 'the left face',
+  l: 'the right face',
+  d: 'the bottom face',
+  D: 'the back face',
+  L: 'the face opposite the left one',
+  R: 'the face opposite the right one',
+}
+
 /** The Dino Cube's corners (the Rainbow's triangles' directions). */
 export const DINO_CORNER_NAMES_FR: Record<RainbowCorner, string> = {
   U: 'le sommet du haut, devant à droite',
@@ -189,6 +213,12 @@ export function describeFr(d: MoveDescription): string {
     const sense = d.fifths > 0 ? 'des aiguilles' : 'inverse des aiguilles'
     return `On tourne ${MEGA_FACE_NAMES_FR[d.face]} ${n === 1 ? 'd’un cinquième de tour (72°)' : 'de deux cinquièmes de tour (144°)'} dans le sens ${sense} d’une montre, vu de face : ${d.crystal ? 'ses cinq sommets, ses cinq arêtes et les cinq arêtes qui partent de ses sommets tournent avec elle' : 'son centre ne bouge pas, ses cinq arêtes et ses cinq sommets tournent autour'}.`
   }
+  if (d.kind === 'ftoFace') {
+    const sense = d.clockwise ? 'des aiguilles' : 'inverse des aiguilles'
+    return d.slice
+      ? `On tourne la tranche entre ${FTO_FACE_NAMES_FR[d.triangle]} et sa face opposée d’un tiers de tour (120°) dans le sens ${sense} d’une montre, vu depuis ${FTO_FACE_NAMES_FR[d.triangle]} : ses six arêtes et six centres tournent.`
+      : `On tourne ${FTO_FACE_NAMES_FR[d.triangle]} d’un tiers de tour (120°) dans le sens ${sense} d’une montre, vu de face : ses neuf triangles tournent, avec trois sommets, trois arêtes et six centres des faces voisines.`
+  }
   if (d.kind === 'triangle') {
     const sense = d.clockwise ? 'des aiguilles' : 'inverse des aiguilles'
     return `On tourne ${TRIANGLE_NAMES_FR[d.triangle]} d’un tiers de tour (120°) dans le sens ${sense} d’une montre, vu de face : ses trois pièces tournent autour de son centre, qui ne bouge pas.`
@@ -270,6 +300,12 @@ export function describeEn(d: MoveDescription): string {
     const n = Math.abs(d.fifths)
     const sense = d.fifths > 0 ? 'clockwise' : 'counterclockwise'
     return `Turn ${MEGA_FACE_NAMES_EN[d.face]} ${n === 1 ? 'a fifth of a turn (72°)' : 'two fifths of a turn (144°)'} ${sense}, as seen from it: ${d.crystal ? 'its five corners, its five edges and the five edges leaving its corners go round with it' : 'its center stays put, its five edges and five corners go round it'}.`
+  }
+  if (d.kind === 'ftoFace') {
+    const sense = d.clockwise ? 'clockwise' : 'counterclockwise'
+    return d.slice
+      ? `Turn the slice between ${FTO_FACE_NAMES_EN[d.triangle]} and its opposite a third of a turn (120°) ${sense}, as seen from ${FTO_FACE_NAMES_EN[d.triangle]}: its six edges and six centers go round.`
+      : `Turn ${FTO_FACE_NAMES_EN[d.triangle]} a third of a turn (120°) ${sense}, as seen from it: its nine triangles go round, with three corners, three edges and six centers of the faces beside it.`
   }
   if (d.kind === 'triangle') {
     const sense = d.clockwise ? 'clockwise' : 'counterclockwise'

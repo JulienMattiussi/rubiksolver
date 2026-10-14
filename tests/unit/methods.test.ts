@@ -151,15 +151,15 @@ describe('cube picker', () => {
       ]),
     )
     expect(groups).toEqual({
-      standard: ['2', '3', '4', '5', '6'],
+      standard: ['2', '3', '4', '5', '6', 'super4', 'super5'],
       mirror: ['2m', '3m', '4m'],
       tower: ['223', '224', '332', 'camo'],
       flat: ['123', '331', 'ghost'],
       pyramid: ['pyra', 'tetra', 'pyra4', 'pyra5', 'jing', 'morph', 'mmorph'],
-      octahedron: ['oct4', 'vto', 'gem', 'rainbow', 'megaminx', 'crystal', 'skewbU'],
+      octahedron: ['oct4', 'vto', 'gem', 'fto', 'rainbow', 'megaminx', 'crystal', 'skewbU'],
       star: ['puck', 'barrel', 'star', 'star4'],
       gear: ['gearCube', 'gearU', 'gearX'],
-      diagonal: ['dino', 'rex', 'fisher'],
+      diagonal: ['dino', 'rex', 'fisher', 'windmill'],
       holey: ['holey', 'tori', 'edge'],
       odd: ['violet', 'twist', 'quarter', 'ai', 'roadblock'],
     })

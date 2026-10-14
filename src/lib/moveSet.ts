@@ -3,6 +3,7 @@ import { PUCK_TURNS } from './puck'
 import { gearTurnsOf } from './gear'
 import { CRYSTAL_TURNS, MEGA_TURNS } from './megaminx'
 import { DINO_TURNS, RAINBOW_TURNS, REX_TURNS, SKEWB_TURNS } from './rainbow'
+import { FTO_TURNS } from './fto'
 import { movesFor, parseMoves, sameLayer } from './moves'
 import { isGear, isMegaminx } from './types'
 import type { CubeShape, Move, Turn } from './types'
@@ -57,9 +58,11 @@ export function allTurnsOf(shape: CubeShape): MoveSet {
                 ? REX_TURNS
                 : shape === 'skewbU'
                   ? SKEWB_TURNS
-                  : isGear(shape)
-                    ? gearTurnsOf(shape)
-                    : movesFor(shape)
+                  : shape === 'fto'
+                    ? FTO_TURNS
+                    : isGear(shape)
+                      ? gearTurnsOf(shape)
+                      : movesFor(shape)
   return { generators: turns, turns }
 }
 

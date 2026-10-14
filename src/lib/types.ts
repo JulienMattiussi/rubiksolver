@@ -8,7 +8,9 @@ export type CubeShape =
   | '2'
   | '3'
   | '4'
+  | 'super4'
   | '5'
+  | 'super5'
   | '6'
   | '123'
   | '224'
@@ -26,10 +28,12 @@ export type CubeShape =
   | 'oct4'
   | 'vto'
   | 'gem'
+  | 'fto'
   | 'rainbow'
   | 'dino'
   | 'rex'
   | 'fisher'
+  | 'windmill'
   | 'skewbU'
   | 'gearCube'
   | 'gearU'
@@ -66,7 +70,11 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   '2': [2, 2, 2],
   '3': [3, 3, 3],
   '4': [4, 4, 4],
+  // The Super Revenge and Super Professor (superCube.ts): their centers each
+  // their own, bordered with the colors around their home.
+  super4: [4, 4, 4],
   '5': [5, 5, 5],
+  super5: [5, 5, 5],
   '6': [6, 6, 6],
   '123': [3, 2, 1],
   '224': [2, 4, 2],
@@ -94,6 +102,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   vto: [5, 5, 5],
   // The GEM-0 is the VTO with its tips cut flat (vto.ts).
   gem: [3, 3, 3],
+  // The FTO (rainbow.ts, `solvedFto`): its pieces within +-3.
+  fto: [7, 7, 7],
   // The Rainbow (rainbow.ts) is no grid: its pieces sit within +-1.
   rainbow: [3, 3, 3],
   // The Megaminx (megaminx.ts) is no grid: its slots are numbered within
@@ -108,6 +118,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   rex: [9, 9, 9],
   // The Fisher Cube (fisher.ts): a 3x3x3 cut to a cube turned an eighth.
   fisher: [3, 3, 3],
+  // The Windmill (fisher.ts): the same, its solid turned less.
+  windmill: [3, 3, 3],
   // The Skewb Ultimate (rainbow.ts): its pieces sit within +-1.
   skewbU: [3, 3, 3],
   // The Gear Cubes (gear.ts): a 3x3x3 whose edges are gears.
@@ -173,10 +185,15 @@ export const isGear = (shape: CubeShape): boolean =>
  *  does not show. */
 export const hasColoredClips = (shape: CubeShape): boolean => shape === 'gearU' || shape === 'gearX'
 
-/** The Rainbow, the Dino Cube and the Rex Cube: the same mechanism
- *  (rainbow.ts), its corners turning by thirds. */
+/** The Rainbow, the Dino Cube, the Rex Cube, the Skewb Ultimate and the
+ *  FTO: the same mechanism (rainbow.ts), turning by thirds about the cube's
+ *  diagonals. */
 const isRainbowLike = (shape: CubeShape): boolean =>
-  shape === 'rainbow' || shape === 'dino' || shape === 'rex' || shape === 'skewbU'
+  shape === 'rainbow' ||
+  shape === 'dino' ||
+  shape === 'rex' ||
+  shape === 'skewbU' ||
+  shape === 'fto'
 
 /** The Megaminx and its holey cousin (megaminx.ts). */
 export const isMegaminx = (shape: CubeShape): boolean =>
@@ -211,6 +228,9 @@ export const isPolyDrawn = (shape: CubeShape): boolean =>
   shape === 'quarter' ||
   shape === 'barrel' ||
   shape === 'fisher' ||
+  shape === 'windmill' ||
+  shape === 'super4' ||
+  shape === 'super5' ||
   shape === 'mmorph' ||
   shape === 'ai' ||
   shape === 'roadblock' ||
@@ -231,7 +251,9 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '2': false,
   '3': false,
   '4': false,
+  super4: false,
   '5': false,
+  super5: false,
   '6': false,
   '123': false,
   '223': false,
@@ -249,6 +271,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   oct4: false,
   vto: false,
   gem: false,
+  fto: false,
   rainbow: false,
   megaminx: false,
   crystal: false,
@@ -256,6 +279,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   dino: false,
   rex: false,
   fisher: false,
+  windmill: false,
   skewbU: false,
   gearCube: false,
   gearU: false,
@@ -291,7 +315,9 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   '2': [],
   '3': [],
   '4': ['slice', 'wide'],
+  super4: ['slice', 'wide'],
   '5': ['slice', 'wide'],
+  super5: ['slice', 'wide'],
   '6': ['slice', 'slice3', 'wide', 'wide3'],
   '123': [],
   '224': ['wide'],
@@ -309,6 +335,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   oct4: ['slice'],
   vto: ['wide'],
   gem: [],
+  fto: [],
   rainbow: [],
   megaminx: [],
   crystal: [],
@@ -316,6 +343,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   dino: [],
   rex: [],
   fisher: [],
+  windmill: [],
   skewbU: [],
   gearCube: [],
   gearU: [],
@@ -343,7 +371,9 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   '2': [],
   '3': ['slice', 'wide'],
   '4': [],
+  super4: [],
   '5': [],
+  super5: [],
   '6': [],
   '123': [],
   '224': [],
@@ -361,6 +391,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   oct4: [],
   vto: [],
   gem: [],
+  fto: [],
   rainbow: [],
   megaminx: [],
   crystal: [],
@@ -368,6 +399,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   dino: [],
   rex: [],
   fisher: [],
+  windmill: [],
   skewbU: [],
   gearCube: [],
   gearU: [],
@@ -391,7 +423,9 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '2': '2x2 (Pocket)',
   '3': '3x3',
   '4': '4x4 (Revenge)',
+  super4: 'Super Revenge',
   '5': '5x5 (Professor)',
+  super5: 'Super Professor',
   '6': '6x6',
   '123': '1x2x3',
   '224': '2x2x4',
@@ -409,6 +443,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   oct4: "4-Trajber's Octahedron",
   vto: 'Octahedron VTO',
   gem: 'GEM-0 (Jewel)',
+  fto: 'FTO',
   rainbow: 'Rainbow',
   megaminx: 'Megaminx',
   crystal: 'Pyraminx Crystal',
@@ -416,6 +451,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   dino: 'Dino Cube',
   rex: 'Rex Cube',
   fisher: 'Fisher Cube',
+  windmill: 'Windmill',
   skewbU: 'Skewb Ultimate',
   gearCube: 'Gear Cube',
   gearU: 'Gear Cube Ultimate',
@@ -440,7 +476,9 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   '2': '2x2',
   '3': '3x3',
   '4': '4x4',
+  super4: 'super-revenge',
   '5': '5x5',
+  super5: 'super-professor',
   '6': '6x6',
   '123': '1x2x3',
   '224': '2x2x4',
@@ -458,6 +496,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   oct4: '4-trajber',
   vto: 'vto',
   gem: 'gem-0',
+  fto: 'fto',
   rainbow: 'rainbow',
   megaminx: 'megaminx',
   crystal: 'pyraminx-crystal',
@@ -465,6 +504,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   dino: 'dino-cube',
   rex: 'rex-cube',
   fisher: 'fisher-cube',
+  windmill: 'windmill',
   skewbU: 'skewb-ultimate',
   gearCube: 'gear-cube',
   gearU: 'gear-cube-ultimate',
@@ -503,7 +543,9 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   '2': true,
   '3': true,
   '4': true,
+  super4: false,
   '5': false,
+  super5: false,
   '6': false,
   '123': false,
   '223': false,
@@ -521,6 +563,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   oct4: false,
   vto: false,
   gem: false,
+  fto: false,
   rainbow: false,
   megaminx: false,
   crystal: false,
@@ -528,6 +571,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   dino: false,
   rex: false,
   fisher: false,
+  windmill: false,
   skewbU: false,
   gearCube: false,
   gearU: false,
@@ -585,6 +629,7 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
     shape === 'oct4' ||
     shape === 'vto' ||
     shape === 'gem' ||
+    shape === 'fto' ||
     shape === 'rainbow' ||
     shape === 'megaminx' ||
     shape === 'crystal' ||
@@ -595,7 +640,9 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (isGear(shape)) return 'gear'
   // Holes where the centers would be.
   if (shape === 'holey' || shape === 'tori' || shape === 'edge') return 'holey'
-  if (shape === 'dino' || shape === 'rex' || shape === 'fisher') return 'diagonal'
+  if (shape === 'dino' || shape === 'rex' || shape === 'fisher' || shape === 'windmill') {
+    return 'diagonal'
+  }
   if (
     shape === 'violet' ||
     shape === 'twist' ||
@@ -783,6 +830,10 @@ export interface RainbowMove {
   readonly rex?: true
   /** The Skewb Ultimate's: the Dino's, cut through the middle. */
   readonly skewb?: true
+  /** The FTO's: a face (a third of the octahedron), or with `slice` the
+   *  layer between it and its opposite (rainbow.ts, `solvedFto`). */
+  readonly fto?: true
+  readonly slice?: true
 }
 
 /** Any turn of any puzzle: a face-layer move, a star prism's, the

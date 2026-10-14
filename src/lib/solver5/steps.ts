@@ -1,4 +1,9 @@
+import { FACE_COLOR } from '../cube'
+import { faceOfNormal } from '../geometry'
 import { allTurnsOf, type MoveSet } from '../moveSet'
+import { applyMoves } from '../turn'
+import type { Cube, Move } from '../types'
+import { isFixedCenter } from './kinds'
 import { projectPlan } from '../solver4/steps'
 import type { MethodPlan } from '../solverKit'
 import { centersDone, solveCenters } from './centers'
@@ -22,8 +27,44 @@ const WITH_MIDDLES: MoveSet = {
   turns: [...ALL_5.turns, ...MIDDLES],
 }
 
+/** The middle centers where the absolute frame wants them (the 3x3 plans
+ *  take it: yellow down, white up). */
+const middlesHome = (cube: Cube) =>
+  cube
+    .filter(isFixedCenter)
+    .every((c) => c.stickers[0]!.color === FACE_COLOR[faceOfNormal(c.stickers[0]!.normal)])
+
+/** The fewest middle slices putting them there (the puzzle held another
+ *  way: the 3x3's M, E, S; 24 ways at most). */
+function recenter(cube: Cube): Move[] {
+  let frontier: { cube: Cube; moves: Move[] }[] = [{ cube: cube.filter(isFixedCenter), moves: [] }]
+  const seen = new Set<string>()
+  for (let depth = 0; depth < 4; depth++) {
+    for (const node of frontier) if (middlesHome(node.cube)) return node.moves
+    const next: typeof frontier = []
+    for (const node of frontier) {
+      for (const move of MIDDLES) {
+        const moved = applyMoves(node.cube, [move], [5, 5, 5])
+        const id = moved.map((c) => c.position.join() + c.stickers[0]!.color).join('|')
+        if (seen.has(id)) continue
+        seen.add(id)
+        next.push({ cube: moved, moves: [...node.moves, move] })
+      }
+    }
+    frontier = next
+  }
+  throw new Error('reduction5: the middle centers cannot go home')
+}
+
 export function reduction5Plan(plan3x3: MethodPlan): MethodPlan {
   return [
+    {
+      key: 'stepRecenter',
+      goal: middlesHome,
+      moves: WITH_MIDDLES,
+      phases: [recenter],
+      optional: true,
+    },
     { key: 'stepCenters', goal: centersDone, moves: WITH_MIDDLES, phases: [solveCenters] },
     { key: 'stepPairEdges', goal: pairedOrParity, moves: ALL_5, phases: [pairEdges] },
     {

@@ -14,6 +14,7 @@ import { puckSolved, solvedPuck } from './puck'
 import { solvedMorph } from './morph'
 import { solvedOct4 } from './oct4'
 import { solvedGem, solvedVto } from './vto'
+import { solvedFto } from './fto'
 import { SKEWB_SYMMETRIES, solvedDino, solvedRainbow, solvedRex, solvedSkewbU } from './rainbow'
 import { solvedViolet, turnAboutA, violetBoxed, violetSolved } from './violet'
 import { withGears } from './gear'
@@ -21,7 +22,8 @@ import { camoBoxed } from './camo'
 import { withFaceMarks } from './quarter'
 import { solvedAi } from './ai'
 import { withBars, withoutBars } from './roadblock'
-import { fisherSolved, withMarks } from './fisher'
+import { withBorders } from './superCube'
+import { fisherSolved, windmillSolved, withMarks } from './fisher'
 import { mmorphSolved, withCenterMarks } from './mmorph'
 import { MEGA_SYMMETRIES, solvedCrystal, solvedMegaminx } from './megaminx'
 import { twistSolved, withCenterSpins } from './twist'
@@ -120,6 +122,7 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (shape === 'dino') return solvedDino()
   if (shape === 'rex') return solvedRex()
   if (shape === 'skewbU') return solvedSkewbU()
+  if (shape === 'fto') return solvedFto()
   if (isGear(shape)) {
     const colors = faceColorsOf(shape)
     return withGears(
@@ -144,6 +147,9 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   // it from the 3x3).
   if (shape === 'barrel') return solvedCube('3').filter((c) => c.stickers.length > 0)
   if (shape === 'fisher') return withMarks(solvedCube('3'))
+  if (shape === 'super4') return withBorders(solvedCube('4'))
+  if (shape === 'super5') return withBorders(solvedCube('5'))
+  if (shape === 'windmill') return withMarks(solvedCube('3'), true)
   if (shape === 'ai') return solvedAi(solvedCube('4'))
   if (shape === 'roadblock') return withBars(solvedCube('5'))
   if (shape === 'mmorph') return withCenterMarks(solvedCube('3'))
@@ -322,6 +328,7 @@ export function isSolved(cube: Cube): boolean {
   // their way round does not count.
   if (cubeShape(cube) === 'twist' || cubeShape(cube) === 'barrel') return twistSolved(cube)
   if (cubeShape(cube) === 'fisher') return fisherSolved(cube)
+  if (cubeShape(cube) === 'windmill') return windmillSolved(cube, isSolved)
   // Its small corners' twist never shows; held any way.
   // Its colors only: its bars may lie either way.
   if (cubeShape(cube) === 'roadblock') return isSolved(withoutBars(cube))

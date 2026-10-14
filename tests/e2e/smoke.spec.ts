@@ -220,7 +220,7 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
     ['Cylindriques', '2-Star Prism (UFO)'],
     ['Cylindriques', '4-Star Prism'],
     ['Engrenages', 'Gear Cube Ultimate'],
-    ['Bizarres', 'Violet'],
+    ['Torturés', 'Violet'],
   ]
   for (const [category, name] of puzzles) {
     await pickCube(page, category, name)
@@ -253,10 +253,10 @@ const ENTERED: [string, string, string][] = [
   // Corners turning: edges, centers and petals.
   ['Coupes diagonales', 'Rex Cube', '54 / 54 stickers'],
   // Out of its box, its big cubes pre-filled.
-  ['Bizarres', 'Violet', '33 / 33 stickers'],
+  ['Torturés', 'Violet', '33 / 33 stickers'],
   // Entered piece by piece: its pieces counted.
   ['Plats', 'Floppy Ghost', '10 / 10 pièces'],
-  ['Bizarres', 'Z-Twist', '20 / 20 pièces'],
+  ['Torturés', 'Z-Twist', '20 / 20 pièces'],
   // Only the stickers one sees count: the inner points' flat faces fill in.
   ['Cylindriques', '4-Star Prism', '64 / 64 stickers'],
 ]

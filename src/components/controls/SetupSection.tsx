@@ -18,6 +18,7 @@ import { GhostPad } from './GhostPad'
 import { MegaPad } from './MegaPad'
 import { PuckPad } from './PuckPad'
 import { GearPad } from './GearPad'
+import { FtoPad } from './FtoPad'
 import { RainbowPad } from './RainbowPad'
 import { PyraPad } from './PyraPad'
 import { StarPad } from './StarPad'
@@ -133,6 +134,8 @@ export function SetupSection() {
         <PuckPad disabled={busy} />
       ) : isMegaminx(shape) ? (
         <MegaPad disabled={busy} crystal={shape === 'crystal'} />
+      ) : shape === 'fto' ? (
+        <FtoPad disabled={busy} />
       ) : shape === 'rainbow' || shape === 'dino' || shape === 'rex' || shape === 'skewbU' ? (
         <RainbowPad
           disabled={busy}

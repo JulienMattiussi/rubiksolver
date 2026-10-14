@@ -12,6 +12,7 @@ import {
 } from './pyraminx'
 import { GHOST_TURNS } from './ghost'
 import { MEGA_FACES } from './megaminx'
+import { FTO_TURNS } from './fto'
 import { RAINBOW_TRIANGLES } from './rainbow'
 import { signedPieces, STAR_RINGS } from './star'
 import {
@@ -144,6 +145,13 @@ export type MoveDescription =
       readonly kind: 'triangle'
       readonly triangle: RainbowCorner
       readonly clockwise: boolean
+    }
+  | {
+      /** An FTO face turned a third, or its slice. */
+      readonly kind: 'ftoFace'
+      readonly triangle: RainbowCorner
+      readonly clockwise: boolean
+      readonly slice?: true
     }
   | {
       /** A Dino Cube corner turned a third (or a Rex Cube's). */
@@ -284,6 +292,17 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
       ([1, 2] as const).map((amount): RainbowMove => ({ triangle, amount }))
     return [{ section: 'triangles', rows: RAINBOW_TRIANGLES.map(row) }]
   }
+  if (shape === 'fto') {
+    const row = (turn: RainbowMove) =>
+      ([1, 2] as const).map((amount): RainbowMove => ({ ...turn, amount }))
+    // As the pad: the top face and the three beside it, the bottom's.
+    const faces: RainbowCorner[] = ['U', 'u', 'R', 'L', 'd', 'D', 'r', 'l']
+    const slices = FTO_TURNS.filter((m) => m.amount === 1 && m.slice)
+    return [
+      { section: 'faces', rows: faces.map((triangle) => row({ triangle, amount: 1, fto: true })) },
+      { section: 'middle', rows: slices.map(row) },
+    ]
+  }
   if (shape === 'dino' || shape === 'rex' || shape === 'skewbU') {
     const rex =
       shape === 'rex' ? { rex: true as const } : shape === 'skewbU' ? { skewb: true as const } : {}
@@ -307,6 +326,14 @@ export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
     return turn.times ? { ...base, thrice: true } : base
   }
   if (isRainbowMove(turn)) {
+    if (turn.fto) {
+      const base = {
+        kind: 'ftoFace',
+        triangle: turn.triangle,
+        clockwise: turn.amount === 1,
+      } as const
+      return turn.slice ? { ...base, slice: true } : base
+    }
     return turn.dino
       ? {
           kind: 'dinoCorner',
