@@ -4,12 +4,15 @@ import { DOMINO_PLAN } from './methods/domino'
 import { optimalPlan } from './methods/exhaustive'
 import { FLOPPY_PLAN } from './methods/floppy'
 import { GHOST_PLAN } from './methods/ghost'
+import { BARREL_PLAN } from './methods/barrel'
 import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { twistPlan } from './methods/twist'
+import { fisherPlan } from './methods/fisher'
 import { TORI_PLAN } from './methods/tori'
 import { PUCK_PLAN } from './methods/puck'
 import { EDGE_ONLY_PLAN } from './methods/edgeOnly'
 import { CAMO_PLAN } from './methods/camo'
+import { QUARTER_PLAN } from './methods/quarter'
 import { PETRUS_PLAN } from './methods/petrus'
 import { PYRAMINX_PLAN, TETRAMINX_PLAN } from './methods/pyraminx'
 import { PYRAMINX4_PLAN } from './methods/pyraminx4'
@@ -19,6 +22,7 @@ import { MORPH_PLAN } from './methods/morph'
 import { OCT4_PLAN } from './methods/oct4'
 import { GEM_PLAN, VTO_PLAN } from './methods/vto'
 import { RAINBOW_PLAN } from './methods/rainbow'
+import { MEGAMINX_PLAN } from './methods/megaminx'
 import { GEAR_PLAN, GEAR_ULTIMATE_PLAN } from './methods/gear'
 import { DINO_PLAN } from './methods/dino'
 import { REX_PLAN } from './methods/rex'
@@ -55,18 +59,40 @@ export type { SolveStep } from './solverKit'
  * test solves scrambles with every entry, so nothing else needs touching.
  */
 const SOLVE_METHODS = [
+  // The Barrel's layer by layer, its middle edges' way round unseen.
+  { id: 'barrelLayers', plans: { barrel: BARREL_PLAN } },
   {
     id: 'beginner',
     plans: {
       '2': BEGINNER_2_PLAN,
       '3': withCentersHome(BEGINNER_PLAN),
       twist: twistPlan(BEGINNER_PLAN),
+      fisher: fisherPlan(withCentersHome(BEGINNER_PLAN)),
     },
   },
-  { id: 'cfop', plans: { '3': withCentersHome(CFOP_PLAN), twist: twistPlan(CFOP_PLAN) } },
+  {
+    id: 'cfop',
+    plans: {
+      '3': withCentersHome(CFOP_PLAN),
+      twist: twistPlan(CFOP_PLAN),
+      barrel: CFOP_PLAN,
+      fisher: fisherPlan(withCentersHome(CFOP_PLAN)),
+    },
+  },
   { id: 'roux', plans: { '3': withCentersHome(ROUX_PLAN) } },
-  { id: 'petrus', plans: { '3': withCentersHome(PETRUS_PLAN), twist: twistPlan(PETRUS_PLAN) } },
-  { id: 'zz', plans: { '3': withCentersHome(ZZ_PLAN), twist: twistPlan(ZZ_PLAN) } },
+  {
+    id: 'petrus',
+    plans: {
+      '3': withCentersHome(PETRUS_PLAN),
+      twist: twistPlan(PETRUS_PLAN),
+      barrel: PETRUS_PLAN,
+      fisher: fisherPlan(withCentersHome(PETRUS_PLAN)),
+    },
+  },
+  {
+    id: 'zz',
+    plans: { '3': withCentersHome(ZZ_PLAN), twist: twistPlan(ZZ_PLAN), barrel: ZZ_PLAN },
+  },
   {
     id: 'reduction',
     plans: {
@@ -85,6 +111,7 @@ const SOLVE_METHODS = [
   },
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
   { id: 'camoReduction', plans: { camo: CAMO_PLAN } },
+  { id: 'quarterEdgesFirst', plans: { quarter: QUARTER_PLAN } },
   { id: 'equatorFirst', plans: { '223': SLIM_TOWER_PLAN } },
   { id: 'centersFirst', plans: { pyra: PYRAMINX_PLAN, tetra: TETRAMINX_PLAN } },
   { id: 'wingsFirst', plans: { pyra4: PYRAMINX4_PLAN, pyra5: PYRAMINX5_PLAN } },
@@ -94,6 +121,7 @@ const SOLVE_METHODS = [
   { id: 'vtoCentersFirst', plans: { vto: VTO_PLAN } },
   { id: 'gemCentersFirst', plans: { gem: GEM_PLAN } },
   { id: 'extendedTriangle', plans: { rainbow: RAINBOW_PLAN } },
+  { id: 'megaStar', plans: { megaminx: MEGAMINX_PLAN } },
   { id: 'dinoLayers', plans: { dino: DINO_PLAN } },
   { id: 'rexEdgesFirst', plans: { rex: REX_PLAN } },
   { id: 'gearCornersFirst', plans: { gearCube: GEAR_PLAN, gearU: GEAR_ULTIMATE_PLAN } },

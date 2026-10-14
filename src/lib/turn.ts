@@ -3,9 +3,11 @@ import { FACE_SPEC, layerCoords, rotateN } from './geometry'
 import { applyGhostMove, ghostAxis, ghostTurns } from './ghost'
 import { applyPuckMove, puckRotation, puckTurns } from './puck'
 import { applyGearMove, gearFaceTurns, gearRotation, gearSliceTurns } from './gear'
+import { applyMegaMove, megaRotation, megaTurns } from './megaminx'
 import { applyRainbowMove, rainbowRotation, rainbowTurns } from './rainbow'
 import { violetTurns } from './violet'
 import { camoTurns } from './camo'
+import { quarterTurns } from './quarter'
 import { applyPyraMove, pyraRotation, pyraSize, pyraTurns } from './pyraminx'
 import { applyStarMove, starRotation, starTurns } from './star'
 import {
@@ -13,6 +15,7 @@ import {
   isPuckMove,
   isPyraMove,
   isGearMove,
+  isMegaMove,
   isRainbowMove,
   isStarMove,
   SHAPE_DIMS,
@@ -84,6 +87,7 @@ export function turnedBy(cube: Cube, move: Turn): (index: number) => boolean {
   if (isGhostMove(move)) return (index) => ghostTurns(move, cube[index]!.position)
   if (isPuckMove(move)) return (index) => puckTurns(move, cube[index]!.position)
   if (isRainbowMove(move)) return (index) => rainbowTurns(move, cube[index]!.position)
+  if (isMegaMove(move)) return (index) => megaTurns(move, cube[index]!.position)
   if (isGearMove(move)) return (index) => gearFaceTurns(move, cube[index]!.position)
   if (isPyraMove(move)) {
     const size = pyraSize(turnDims(cubeShape(cube)))
@@ -113,8 +117,10 @@ export function halfTurnedBy(cube: Cube, move: Turn): (index: number) => boolean
 export function turnAllowed(cube: Cube, move: Turn): boolean {
   if (isStarMove(move)) return true // pieces are whole 60 degree sectors
   if (isPyraMove(move) || isGhostMove(move) || isPuckMove(move)) return true
-  if (isRainbowMove(move) || isGearMove(move)) return true
+  if (isRainbowMove(move) || isGearMove(move) || isMegaMove(move)) return true
   const shape = cubeShape(cube)
+  // The Quarter Cube's faces turn by turns (quarter.ts).
+  if (shape === 'quarter') return quarterTurns(cube, move)
   if (!SHAPE_SHIFTS[shape]) return true
   if (shape === 'violet') return violetTurns(cube, move.face)
   if (shape === 'camo') {
@@ -148,6 +154,7 @@ export function turnRotation(move: Turn): TurnRotation {
   if (isGhostMove(move)) return { axis: ghostAxis(move.side), angle: Math.PI }
   if (isPuckMove(move)) return puckRotation(move)
   if (isRainbowMove(move)) return rainbowRotation(move)
+  if (isMegaMove(move)) return megaRotation(move)
   if (isGearMove(move)) return gearRotation(move)
   const spec = FACE_SPEC[move.face]
   const t = (((spec.sign * move.amount) % 4) + 4) % 4 // 1, 2 or 3 quarter turns
@@ -169,6 +176,7 @@ export function applyMove(
   if (isGhostMove(move)) return applyGhostMove(cube, move)
   if (isPuckMove(move)) return applyPuckMove(cube, move)
   if (isRainbowMove(move)) return applyRainbowMove(cube, move)
+  if (isMegaMove(move)) return applyMegaMove(cube, move)
   if (isGearMove(move)) return applyGearMove(cube, move)
   const spec = FACE_SPEC[move.face]
   const turns = turnsPosition(move, mechanism)

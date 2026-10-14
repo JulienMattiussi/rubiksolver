@@ -23,20 +23,36 @@ import type { Color, Cube, CubeShape, Cubie } from './types'
 
 /** Whether a shape is entered piece by piece rather than painted. */
 export const entersByPieces = (shape: CubeShape): boolean =>
-  shape === 'ghost' || shape === 'twist' || shape === 'puck'
+  shape === 'ghost' ||
+  shape === 'twist' ||
+  shape === 'puck' ||
+  shape === 'barrel' ||
+  shape === 'fisher' ||
+  shape === 'megaminx'
 
 interface Pose {
-  /** The piece's index in the solved puzzle: its identity. */
-  readonly piece: number
+  /** The piece's look: its colors (twins, alike, share it). */
+  readonly kind: string
   readonly cubie: Cubie
 }
 
-const POSES = new Map<CubeShape, ReadonlyMap<string, readonly Pose[]>>()
+const kindOf = (cubie: Cubie) =>
+  cubie.stickers
+    .map((s) => s.color)
+    .sort()
+    .join('')
 
-/** Every pose each slot takes, piece by piece, its home pose first. */
+const POSES = new Map<CubeShape, ReadonlyMap<string, readonly Pose[]>>()
+/** How many pieces of each kind a puzzle has (twins count twice). */
+const BUDGETS = new Map<CubeShape, Map<string, number>>()
+
+/** Every pose each slot takes, piece by piece, its home pose first. A
+ *  piece's kind is its colors and the slots it reaches: twins share it, an
+ *  edge and a corner of the same colors (the Floppy Ghost's) do not. */
 function posesBySlot(shape: CubeShape): ReadonlyMap<string, readonly Pose[]> {
   let poses = POSES.get(shape)
   if (poses) return poses
+  const budget = new Map<string, number>()
   const tables = tablesFor(shape)
   const mechanism = turnDims(shape)
   const bySlot = new Map<string, Pose[]>(tables.paintableSlots.map((s) => [s.key, []]))
@@ -44,16 +60,14 @@ function posesBySlot(shape: CubeShape): ReadonlyMap<string, readonly Pose[]> {
     position: slot.position,
     stickers: slot.stickers.map((s) => ({ normal: s.normal, color: s.solvedColor })),
   }))
+  // A pose twins share is offered once (the Hockey Puck's plain pieces).
+  const offered = new Set<string>()
   solved.forEach((home, piece) => {
     if (!tables.slots[piece]!.paintable) return
     const seen = new Set([stateKey([home])])
     const queue: Cubie[] = [home]
     for (let i = 0; i < queue.length; i++) {
       const cubie = queue[i]!
-      // A Z-Twist's thin edge only one way round: the other never shows.
-      if (shape !== 'twist' || asSeenTwist([cubie])[0] === cubie) {
-        bySlot.get(cubie.position.join(','))?.push({ piece, cubie })
-      }
       for (const turn of layerTurnsOf(shape)) {
         const [next] = applyMove([cubie], turn, mechanism)
         const key = stateKey([next!])
@@ -62,7 +76,20 @@ function posesBySlot(shape: CubeShape): ReadonlyMap<string, readonly Pose[]> {
         queue.push(next!)
       }
     }
+    const kind = `${kindOf(home)}|${[...new Set(queue.map((c) => c.position.join()))].sort()}`
+    budget.set(kind, (budget.get(kind) ?? 0) + 1)
+    for (const cubie of queue) {
+      // A Z-Twist's thin edge (a Barrel's middle one) only one way round:
+      // the other never shows.
+      const look = stateKey([cubie])
+      const oneWay = shape === 'twist' || shape === 'barrel' || shape === 'fisher'
+      if ((!oneWay || asSeenTwist([cubie])[0] === cubie) && !offered.has(look)) {
+        offered.add(look)
+        bySlot.get(cubie.position.join(','))?.push({ kind, cubie })
+      }
+    }
   })
+  BUDGETS.set(shape, budget)
   poses = bySlot
   POSES.set(shape, poses)
   return poses
@@ -91,19 +118,19 @@ function cleared(edit: Edit, slotKey: string): Edit {
 }
 
 /** Put the next pose that fits in a slot (after the one it holds), skipping
- *  the pieces placed elsewhere; the same edit when none is left. */
+ *  the pieces all placed elsewhere; the same edit when none is left. */
 export function nextPiece(edit: Edit, shape: CubeShape, slotKey: string): Edit {
   const poses = posesBySlot(shape).get(slotKey) ?? []
   const current = poseIn(edit, shape, slotKey)
-  const used = new Set(
-    [...posesBySlot(shape).keys()]
-      .filter((key) => key !== slotKey)
-      .flatMap((key) => poseIn(edit, shape, key)?.piece ?? []),
-  )
+  const used = new Map<string, number>()
+  for (const key of posesBySlot(shape).keys()) {
+    const kind = key === slotKey ? undefined : poseIn(edit, shape, key)?.kind
+    if (kind) used.set(kind, (used.get(kind) ?? 0) + 1)
+  }
   const start = current ? poses.indexOf(current) + 1 : 0
   for (let n = 0; n < poses.length; n++) {
     const pose = poses[(start + n) % poses.length]!
-    if (used.has(pose.piece)) continue
+    if ((used.get(pose.kind) ?? 0) >= (BUDGETS.get(shape)!.get(pose.kind) ?? 0)) continue
     const next = cleared(edit, slotKey)
     idsOf(pose.cubie).forEach((id, i) => (next[id] = pose.cubie.stickers[i]!.color))
     return next

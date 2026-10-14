@@ -15,6 +15,7 @@ import { SECTION_BOX } from '@/components/ui/styles'
 import { FEATURE_ICON } from '@/components/ui/features'
 import { MovePad } from './MovePad'
 import { GhostPad } from './GhostPad'
+import { MegaPad } from './MegaPad'
 import { PuckPad } from './PuckPad'
 import { GearPad } from './GearPad'
 import { RainbowPad } from './RainbowPad'
@@ -130,6 +131,8 @@ export function SetupSection() {
         <GhostPad disabled={busy} />
       ) : shape === 'puck' ? (
         <PuckPad disabled={busy} />
+      ) : shape === 'megaminx' ? (
+        <MegaPad disabled={busy} />
       ) : shape === 'rainbow' || shape === 'dino' || shape === 'rex' ? (
         <RainbowPad disabled={busy} dino={shape === 'dino'} rex={shape === 'rex'} />
       ) : isGear(shape) ? (

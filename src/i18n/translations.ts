@@ -3,7 +3,7 @@
 
 import type { LayerKind } from '@/lib/moves'
 import type { PyraLayer } from '@/lib/pyraminx'
-import type { GhostSide, PyraVertex, RainbowCorner } from '@/lib/types'
+import type { GhostSide, MegaFace, PyraVertex, RainbowCorner } from '@/lib/types'
 import {
   CORNER_NAMES_EN,
   CORNER_NAMES_FR,
@@ -11,6 +11,8 @@ import {
   describeFr,
   FACE_NAMES_EN,
   FACE_NAMES_FR,
+  MEGA_FACE_NAMES_EN,
+  MEGA_FACE_NAMES_FR,
   SIDE_NAMES_EN,
   SIDE_NAMES_FR,
   DINO_CORNER_NAMES_EN,
@@ -24,6 +26,7 @@ import {
 
 const fr = {
   title: 'Rubik Solver',
+  madeWith: { before: 'Fait avec', love: 'amour', by: 'par' },
   moves: 'Rotations',
   scramble: 'Mélanger',
   solve: 'Résoudre',
@@ -63,6 +66,10 @@ const fr = {
   slashTitle: 'Slash : retourner la moitié droite',
   gearTurnTitle: (faceName: string, clockwise: boolean) =>
     `Demi-tour de la ${faceName} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'} (la tranche suit d’un quart)`,
+  megaTurnTitle: (face: MegaFace, clockwise: boolean) =>
+    `Tourner ${MEGA_FACE_NAMES_FR[face]} d’un cinquième dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
+  megaUpper: 'Moitié haute',
+  megaLower: 'Moitié basse',
   ghostTurnTitle: (side: GhostSide) => `Retourner ${SIDE_NAMES_FR[side]} (demi-tour)`,
   puckTurnTitle: (layer: 'U' | 'D', clockwise: boolean) =>
     `Tourner le disque ${layer === 'U' ? 'du haut' : 'du bas'} d’un cran dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
@@ -123,6 +130,8 @@ const fr = {
     'Remettez d’abord votre Gear Cube en forme de cube, engrenages réalignés (tournez une face jusqu’à ce que sa tranche reprenne sa place). Puis choisissez une couleur et cliquez les pièces : coins et engrenages, les agrafes sont noires. Tournez la vue pour atteindre les autres faces.',
   editHintGear:
     'Remettez d’abord votre Gear Cube en forme de cube, engrenages réalignés (tournez une face jusqu’à ce que sa tranche reprenne sa place). Puis choisissez une couleur et cliquez les pièces : les agrafes et les engrenages se peignent à part. Tournez la vue pour atteindre les autres faces.',
+  editHintQuarter:
+    'Choisissez une couleur puis cliquez les stickers ; les centres sont déjà là. Un clic sur un centre tourne son repère d’un quart : donnez à chacun la position du vôtre (il dit dans quel sens sa face peut tourner).',
   editHintCamo:
     'Remettez d’abord votre Camouflage en forme de pavé, chaque pièce à plat, avant de le saisir. Déformé, il peut prendre des centaines de milliers de formes : bien trop pour vous les proposer, et pas moyen de deviner la vôtre. Une fois en forme, choisissez une couleur et cliquez les stickers ; tournez la vue pour atteindre les autres faces.',
   editHintTwist:
@@ -254,7 +263,7 @@ const fr = {
     tower: 'Tours',
     flat: 'Plats',
     pyramid: 'Pyramides',
-    octahedron: 'Octaèdres',
+    octahedron: 'Polyèdres',
     star: 'Cylindriques',
     gear: 'Engrenages',
     diagonal: 'Coupes diagonales',
@@ -295,6 +304,18 @@ const fr = {
     reductionCfop: {
       name: 'Réduction CFOP',
       desc: 'Centres, appariement des arêtes, puis Croix, F2L, OLL et PLL comme un 3x3.',
+    },
+    barrelLayers: {
+      name: 'Par couches',
+      desc: 'Comme un Rubik’s Cube, à un détail près : les quatre arêtes du milieu ne montrent qu’une couleur, leur sens ne compte pas. La couche du bas, puis les arêtes du milieu placées avec [HD].[H’A’], les coins du haut tournés puis placés, les arêtes du haut placées par le 3-cycle D².HAP’.D².PA’H.D², puis retournées deux par deux (DPGAH.A’HG’P’D’.A’H’AH’) ou une seule, avec une arête du milieu dont le sens ne se voit pas (HGBDA.D’AB’G’H’.D’A’DA’).',
+    },
+    megaStar: {
+      name: 'L’étoile prolongée',
+      desc: 'Le Rubik’s Cube par couches, une face de plus à chaque tour : l’étoile de la face du dessous (A², A.H’DH), ses sommets (D’B’D, tournés par D’BD.ABA’), les arêtes autour ([H’A’][HD], [HD][H’A’]), les cinq faces voisines finies (H’A’²HA², HD²H’D’², HDH’D’…), les arêtes de l’équateur haut, puis la face du haut : arêtes placées (A[HD]A’) et retournées (A[HD]HA’HA.H³A’), sommets placés ([HA].P’[AH]P) et tournés ((D’BDABA’).H’(AB’A’D’B’D)H).',
+    },
+    quarterEdgesFirst: {
+      name: 'Les arêtes d’abord',
+      desc: 'Chaque face ne fait qu’un quart de tour puis revient : toutes les formules alternent. On ramène d’abord chaque face au départ (START), puis on place les arêtes (A[DH]A’), on les retourne deux par deux (A[DH]A’.G[HA]G’.D[HP]D’), on place les coins ([[DH], G]) et on les tourne ([[DH]², G]).',
     },
     camoReduction: {
       name: 'Réduction en Domino',
@@ -454,6 +475,25 @@ const fr = {
     stepPuckTop: 'Ranger les numéros du haut',
     stepPuckAlign: 'Aligner le haut sur le bas',
     stepCamoShape: 'Remettre en forme',
+    stepFisherCenters: 'Tourner les centres',
+    stepBarrelEquator: 'Arêtes du milieu',
+    stepBarrelCorners: 'Coins du haut',
+    stepBarrelEdges: 'Placer les arêtes du haut',
+    stepBarrelFlip: 'Retourner les arêtes du haut',
+    stepMegaStar: 'L’étoile du dessous',
+    stepMegaCorners: 'Les sommets du dessous',
+    stepMegaLowEdges: 'L’équateur bas',
+    stepMegaSides: 'Les cinq faces voisines',
+    stepMegaHighEdges: 'L’équateur haut',
+    stepMegaTopEdges: 'Placer les arêtes du haut',
+    stepMegaTopFlip: 'Retourner les arêtes du haut',
+    stepMegaTopCorners: 'Placer les sommets du haut',
+    stepMegaTopTwist: 'Tourner les sommets du haut',
+    stepQuarterStart: 'Faces au départ (START)',
+    stepQuarterEdges: 'Placer les arêtes',
+    stepQuarterFlip: 'Retourner les arêtes',
+    stepQuarterCorners: 'Placer les coins',
+    stepQuarterTwist: 'Tourner les coins',
     stepTopCorners: 'Coins du haut',
     stepBottomEdges: 'Arêtes du bas',
     stepTopEdges: 'Arêtes du haut',
@@ -501,6 +541,7 @@ export type Translations = typeof fr
 
 const en: Translations = {
   title: 'Rubik Solver',
+  madeWith: { before: 'Made with', love: 'love', by: 'by' },
   moves: 'Turns',
   scramble: 'Scramble',
   solve: 'Solve',
@@ -540,6 +581,10 @@ const en: Translations = {
   slashTitle: 'Slash: flip the right half',
   gearTurnTitle: (faceName: string, clockwise: boolean) =>
     `Half turn of the ${faceName} ${clockwise ? 'clockwise' : 'counter-clockwise'} (the slice follows a quarter)`,
+  megaTurnTitle: (face: MegaFace, clockwise: boolean) =>
+    `Turn ${MEGA_FACE_NAMES_EN[face]} a fifth ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
+  megaUpper: 'Upper half',
+  megaLower: 'Lower half',
   ghostTurnTitle: (side: GhostSide) => `Flip ${SIDE_NAMES_EN[side]} over (half turn)`,
   puckTurnTitle: (layer: 'U' | 'D', clockwise: boolean) =>
     `Turn the ${layer === 'U' ? 'top' : 'bottom'} disc one notch ${clockwise ? 'clockwise' : 'counterclockwise'}`,
@@ -598,6 +643,8 @@ const en: Translations = {
     'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: corners and gears, the clips are black. Rotate the view to reach the other faces.',
   editHintGear:
     'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: clips and gears are painted apart. Rotate the view to reach the other faces.',
+  editHintQuarter:
+    'Pick a color and click the stickers; the centers are there already. A click on a center turns its mark a quarter: give each the position of yours (it says which way its face can turn).',
   editHintCamo:
     'First put your Camouflage back into its brick shape, every piece lying flat, before entering it. Deformed, it can take hundreds of thousands of shapes: far too many to offer you, and no way to guess yours. Once in shape, pick a color and click the stickers; turn the view to reach the other faces.',
   editHintTwist:
@@ -725,7 +772,7 @@ const en: Translations = {
     tower: 'Towers',
     flat: 'Flats',
     pyramid: 'Pyramids',
-    octahedron: 'Octahedra',
+    octahedron: 'Polyhedra',
     star: 'Cylinders',
     gear: 'Gears',
     diagonal: 'Diagonal cuts',
@@ -766,6 +813,18 @@ const en: Translations = {
     reductionCfop: {
       name: 'Reduction (CFOP)',
       desc: 'Centers, edge pairing, then Cross, F2L, OLL and PLL like a 3x3.',
+    },
+    barrelLayers: {
+      name: 'Layer by layer',
+      desc: 'As a Rubik’s Cube, but for one thing: the four middle edges show one color only, so their way round does not count. The bottom layer, then the middle edges placed with [UR].[U’F’], the top corners twisted then placed, the top edges placed by the 3-cycle R².UFB’.R².BF’U.R², then flipped two at a time (RBLFU.F’UL’B’R’.F’U’FU’) or one alone, with a middle edge whose way round never shows (ULDRF.R’FD’L’U’.R’F’RF’).',
+    },
+    megaStar: {
+      name: 'Extended star',
+      desc: 'The Rubik’s Cube layer by layer, one more face each time: the bottom face’s star (F², F.U’RU), its corners (R’D’R, twisted by R’DR.FDF’), the edges around it ([U’F’][UR], [UR][U’F’]), the five faces next to it finished (U’F’²UF², UR²U’R’², URU’R’…), the high equator’s edges, then the top: edges placed (F[UR]F’) and flipped (F[UR]UF’UF.U³F’), corners placed ([UF].B’[FU]B) and twisted ((R’DRFDF’).U’(FD’F’R’D’R)U), the letters of fan2cube’s page (H A D B P G) read as U F R D B L.',
+    },
+    quarterEdgesFirst: {
+      name: 'Edges first',
+      desc: 'Each face only goes a quarter and back: every formula alternates. Every face is first brought back to START, then the edges placed (F[RU]F’), turned two at a time (F[RU]F’.L[UF]L’.R[UB]R’), the corners placed ([[RU], L]) and twisted ([[RU]², L]).',
     },
     camoReduction: {
       name: 'Reduction to a Domino',
@@ -925,6 +984,25 @@ const en: Translations = {
     stepPuckTop: 'Order the top numbers',
     stepPuckAlign: 'Align the top on the bottom',
     stepCamoShape: 'Back in shape',
+    stepFisherCenters: 'Turn the centers',
+    stepBarrelEquator: 'Middle edges',
+    stepBarrelCorners: 'Top corners',
+    stepBarrelEdges: 'Place the top edges',
+    stepBarrelFlip: 'Flip the top edges',
+    stepMegaStar: 'The bottom star',
+    stepMegaCorners: 'The bottom corners',
+    stepMegaLowEdges: 'The low equator',
+    stepMegaSides: 'The five faces around',
+    stepMegaHighEdges: 'The high equator',
+    stepMegaTopEdges: 'Place the top edges',
+    stepMegaTopFlip: 'Flip the top edges',
+    stepMegaTopCorners: 'Place the top corners',
+    stepMegaTopTwist: 'Twist the top corners',
+    stepQuarterStart: 'Faces to START',
+    stepQuarterEdges: 'Place the edges',
+    stepQuarterFlip: 'Flip the edges',
+    stepQuarterCorners: 'Place the corners',
+    stepQuarterTwist: 'Twist the corners',
     stepTopCorners: 'Top corners',
     stepBottomEdges: 'Bottom edges',
     stepTopEdges: 'Top edges',

@@ -17,7 +17,8 @@ import {
 } from './editorTables'
 import { entersByPieces, piecesCube } from './pieceEditor'
 import { withGears, withTurnedGears } from './gear'
-import { asSeenTwist, withTurnedCenters } from './twist'
+import { asSeenTwist, withRealThinEdges, withTurnedCenters } from './twist'
+import { withTurnedFaces } from './quarter'
 import { hasColoredClips, isGear, type Color, type Cube, type CubeShape } from './types'
 
 /**
@@ -96,9 +97,12 @@ export function emptyEdit(shape: CubeShape, form?: Cube): EditStickers {
 /** Extract a paintable state from an existing cube (e.g. the current one). */
 export function cubeToEdit(cube: Cube): EditStickers {
   const edit: EditStickers = {}
-  // A Z-Twist's thin edges entered the way round the editor offers.
+  // A Z-Twist's thin edges (a Barrel's middle ones) entered the way round
+  // the editor offers.
   const held = withFixedHome(cube)
-  for (const cubie of cubeShape(cube) === 'twist' ? asSeenTwist(held) : held) {
+  const shape = cubeShape(cube)
+  const thin = shape === 'twist' || shape === 'barrel' || shape === 'fisher'
+  for (const cubie of thin ? asSeenTwist(held) : held) {
     for (const s of cubie.stickers) edit[stickerId(cubie.position, normalIndex(s.normal))] = s.color
   }
   return edit
@@ -276,12 +280,14 @@ export function buildCube(
   shape: CubeShape,
   form?: Cube,
   /** A Gear Cube's edges whose gear is turned over on its clips; a
-   *  Z-Twist's side centers a quarter turn off (by slot). */
+   *  Z-Twist's side centers a quarter turn off, a Quarter Cube's faces a
+   *  quarter on (by slot). */
   turned: readonly string[] = [],
 ): Cube {
   if (entersByPieces(shape)) {
     const cube = piecesCube(edit, shape)
     if (!cube) throw new Error('buildCube: a slot holds no piece')
+    if (shape === 'barrel' || shape === 'fisher') return withRealThinEdges(cube)
     return shape === 'twist' ? withTurnedCenters(cube, turned) : cube
   }
   const cube = slotsFor(shape, form).map((slot) => ({
@@ -292,6 +298,8 @@ export function buildCube(
       return { normal: s.normal, color }
     }),
   }))
+  // A Quarter Cube's faces stand where their marks say.
+  if (shape === 'quarter') return withTurnedFaces(cube, turned)
   // A Gear Cube is entered in the cube's shape: its gears at rest, some
   // maybe turned over on their clips.
   if (!isGear(shape)) return cube

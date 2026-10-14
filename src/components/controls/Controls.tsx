@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { EditPanel } from '@/components/edit/EditPanel'
 import { SolvePanel } from '@/components/solve/SolvePanel'
 import { CollapseButton } from './CollapseButton'
+import { Credit } from './Credit'
 import { LanguageToggle } from './LanguageToggle'
 import { SetupSection } from './SetupSection'
 import { CubePicker } from '@/components/picker/CubePicker'
@@ -74,6 +75,7 @@ export function Controls() {
         <section aria-label={t.title} className={CARD}>
           <header>{title}</header>
           {setup}
+          <Credit />
         </section>
         <div className={CARD}>
           <header className="flex justify-end">
@@ -122,6 +124,7 @@ export function Controls() {
             <div className={collapsed ? 'hidden flex-col gap-5 sm:flex' : 'flex flex-col gap-5'}>
               {setup}
               <SolvePanel home={home} />
+              <Credit />
             </div>
           </>
         )}

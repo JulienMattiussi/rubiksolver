@@ -28,6 +28,7 @@ export type CubeShape =
   | 'rainbow'
   | 'dino'
   | 'rex'
+  | 'fisher'
   | 'gearCube'
   | 'gearU'
   | 'gearX'
@@ -35,8 +36,11 @@ export type CubeShape =
   | 'twist'
   | 'tori'
   | 'edge'
+  | 'quarter'
+  | 'megaminx'
   | 'ghost'
   | 'puck'
+  | 'barrel'
   | 'star'
   | 'star4'
 
@@ -84,9 +88,14 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   gem: [3, 3, 3],
   // The Rainbow (rainbow.ts) is no grid: its pieces sit within +-1.
   rainbow: [3, 3, 3],
+  // The Megaminx (megaminx.ts) is no grid: its slots are numbered within
+  // +-4, which says nothing of where they are.
+  megaminx: [9, 9, 9],
   dino: [3, 3, 3],
   // The Rex Cube's pieces sit within +-4 (rainbow.ts), its box says so.
   rex: [9, 9, 9],
+  // The Fisher Cube (fisher.ts): a 3x3x3 cut to a cube turned an eighth.
+  fisher: [3, 3, 3],
   // The Gear Cubes (gear.ts): a 3x3x3 whose edges are gears.
   gearCube: [3, 3, 3],
   gearU: [3, 3, 3],
@@ -100,12 +109,16 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   tori: [3, 3, 3],
   // The Edge Only (methods/edgeOnly.ts): a 3x3x3's twelve edges alone.
   edge: [3, 3, 3],
+  // The Quarter Cube (quarter.ts): a 3x3x3, its faces turning by turns.
+  quarter: [3, 3, 3],
   // The Floppy Ghost (ghost.ts) is no grid: its slots sit within +-3 in its
   // plane, all at z = 0.
   ghost: [7, 7, 1],
   // The Hockey Puck (puck.ts) is no grid: its slots sit within +-6 in its
   // plane, one layer thick.
   puck: [13, 13, 1],
+  // The Barrel (barrel.ts): a 3x3x3, its upright edges cut off.
+  barrel: [3, 3, 3],
   // The star prisms (star.ts) are no grid: their own module builds and turns
   // them. These only bound their hexagonal model (q and r within +-1, the
   // layers at y = +-1 and +-2).
@@ -155,6 +168,7 @@ export const isGridless = (shape: CubeShape): boolean =>
   isPyraminx(shape) ||
   shape === 'ghost' ||
   shape === 'puck' ||
+  shape === 'megaminx' ||
   isRainbowLike(shape) ||
   isGear(shape)
 
@@ -172,6 +186,9 @@ export const isPolyDrawn = (shape: CubeShape): boolean =>
   shape === 'twist' ||
   shape === 'tori' ||
   shape === 'edge' ||
+  shape === 'quarter' ||
+  shape === 'barrel' ||
+  shape === 'fisher' ||
   shape === 'camo'
 
 /**
@@ -207,8 +224,10 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   vto: false,
   gem: false,
   rainbow: false,
+  megaminx: false,
   dino: false,
   rex: false,
+  fisher: false,
   gearCube: false,
   gearU: false,
   gearX: false,
@@ -216,8 +235,10 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   twist: false,
   tori: false,
   edge: false,
+  quarter: false,
   ghost: false,
   puck: false,
+  barrel: false,
   star: false,
   star4: false,
 }
@@ -257,8 +278,10 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   vto: ['wide'],
   gem: [],
   rainbow: [],
+  megaminx: [],
   dino: [],
   rex: [],
+  fisher: [],
   gearCube: [],
   gearU: [],
   gearX: [],
@@ -266,8 +289,10 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   twist: [],
   tori: [],
   edge: [],
+  quarter: [],
   ghost: [],
   puck: [],
+  barrel: [],
   star: [],
   star4: [],
 }
@@ -299,8 +324,10 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   vto: [],
   gem: [],
   rainbow: [],
+  megaminx: [],
   dino: [],
   rex: [],
+  fisher: [],
   gearCube: [],
   gearU: [],
   gearX: [],
@@ -308,8 +335,10 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   twist: [],
   tori: [],
   edge: [],
+  quarter: [],
   ghost: [],
   puck: [],
+  barrel: [],
   star: [],
   star4: [],
 }
@@ -337,8 +366,10 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   vto: 'Octahedron VTO',
   gem: 'GEM-0 (Jewel)',
   rainbow: 'Rainbow',
+  megaminx: 'Megaminx',
   dino: 'Dino Cube',
   rex: 'Rex Cube',
+  fisher: 'Fisher Cube',
   gearCube: 'Gear Cube',
   gearU: 'Gear Cube Ultimate',
   gearX: 'Gear Cube Extreme',
@@ -346,8 +377,10 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   twist: 'Z-Twist',
   tori: 'Tori',
   edge: 'Edge Only',
+  quarter: 'Quarter Cube',
   ghost: 'Floppy Ghost',
   puck: 'Hockey Puck',
+  barrel: 'Barrel',
   star: '2-Star Prism (UFO)',
   star4: '4-Star Prism',
 }
@@ -376,8 +409,10 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   vto: 'vto',
   gem: 'gem-0',
   rainbow: 'rainbow',
+  megaminx: 'megaminx',
   dino: 'dino-cube',
   rex: 'rex-cube',
+  fisher: 'fisher-cube',
   gearCube: 'gear-cube',
   gearU: 'gear-cube-ultimate',
   gearX: 'gear-cube-extreme',
@@ -385,8 +420,10 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   twist: 'z-twist',
   tori: 'tori',
   edge: 'edge-only',
+  quarter: 'quarter-cube',
   ghost: 'floppy-ghost',
   puck: 'hockey-puck',
+  barrel: 'barrel',
   star: '2-star',
   star4: '4-star',
 }
@@ -429,8 +466,10 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   vto: false,
   gem: false,
   rainbow: false,
+  megaminx: false,
   dino: false,
   rex: false,
+  fisher: false,
   gearCube: false,
   gearU: false,
   gearX: false,
@@ -438,8 +477,10 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   twist: false,
   tori: false,
   edge: false,
+  quarter: false,
   ghost: false,
   puck: false,
+  barrel: false,
   star: false,
   star4: false,
 }
@@ -475,15 +516,28 @@ export type CubeCategory = (typeof CUBE_CATEGORIES)[number]
 /** Picker group of a cube choice, derived from its variant and dimensions. */
 export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (variant === 'mirror') return 'mirror'
-  // Round, turning by halves: the star prisms, the Hockey Puck.
-  if (isStar(shape) || shape === 'puck') return 'star'
+  // Round: the star prisms, the Hockey Puck, the Barrel.
+  if (isStar(shape) || shape === 'puck' || shape === 'barrel') return 'star'
   if (isPyraminx(shape) || shape === 'morph') return 'pyramid'
-  if (shape === 'oct4' || shape === 'vto' || shape === 'gem' || shape === 'rainbow') {
+  if (
+    shape === 'oct4' ||
+    shape === 'vto' ||
+    shape === 'gem' ||
+    shape === 'rainbow' ||
+    shape === 'megaminx'
+  ) {
     return 'octahedron'
   }
   if (isGear(shape)) return 'gear'
-  if (shape === 'dino' || shape === 'rex') return 'diagonal'
-  if (shape === 'violet' || shape === 'twist' || shape === 'tori' || shape === 'edge') return 'odd'
+  if (shape === 'dino' || shape === 'rex' || shape === 'fisher') return 'diagonal'
+  if (
+    shape === 'violet' ||
+    shape === 'twist' ||
+    shape === 'tori' ||
+    shape === 'edge' ||
+    shape === 'quarter'
+  )
+    return 'odd'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
   // One layer thick: the 1x2x3 and the Floppy.
@@ -678,7 +732,19 @@ export interface GearMove {
   readonly times?: 3
 }
 
-export type Turn = Move | StarMove | PyraMove | GhostMove | PuckMove | RainbowMove | GearMove
+/** A face of the Megaminx (megaminx.ts), as it is held: the top (U), the
+ *  five around it clockwise seen from above (F in front, L, BL, BR, R), the
+ *  five of the lower ring (DR under F and R, DBR, B, DBL, DL), the bottom. */
+export type MegaFace = 'U' | 'F' | 'R' | 'BR' | 'BL' | 'L' | 'DR' | 'DBR' | 'B' | 'DBL' | 'DL' | 'D'
+
+/** A Megaminx turn: a face turned some fifths, clockwise seen from it. */
+export interface MegaMove {
+  readonly megaFace: MegaFace
+  readonly amount: 1 | 2 | 3 | 4
+}
+
+export type Turn =
+  Move | StarMove | PyraMove | GhostMove | PuckMove | RainbowMove | GearMove | MegaMove
 
 /** Whether a turn is a star prism's. */
 export const isStarMove = (turn: Turn): turn is StarMove => 'ring' in turn || 'slash' in turn
@@ -691,6 +757,9 @@ export const isGhostMove = (turn: Turn): turn is GhostMove => 'side' in turn
 
 /** Whether a turn is the Hockey Puck's. */
 export const isPuckMove = (turn: Turn): turn is PuckMove => 'layer' in turn || 'flip' in turn
+
+/** Whether a turn is the Megaminx's. */
+export const isMegaMove = (turn: Turn): turn is MegaMove => 'megaFace' in turn
 
 /** Whether a turn is the Rainbow's. */
 export const isRainbowMove = (turn: Turn): turn is RainbowMove => 'triangle' in turn

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { cubeShape } from '@/lib/cube'
 import { canPaint, slotsFor } from '@/lib/editor'
 import { entersByPieces, piecesIn } from '@/lib/pieceEditor'
@@ -6,6 +6,7 @@ import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { COLOR_HEX } from './colors'
 import { EMPTY_COLOR } from './EditView'
+import { Decal } from './Decal'
 import { PolyPiece } from './PolyPiece'
 import { polyDrawing } from './polyDrawing'
 
@@ -44,9 +45,11 @@ export function PolyEditView() {
         {slotsFor(shape, form).map((slot) => {
           const byNi = new Map(slot.stickers.map((s) => [s.ni, s.id]))
           // The slot's piece as solved: its geometry lists every sticker.
-          // A Z-Twist side center: a click turns it a quarter, or back.
+          // A Z-Twist side center, a Quarter Cube's: a click turns it a
+          // quarter, or back.
           const twistCenter =
-            shape === 'twist' && slot.stickers.length === 1 && slot.position[1] === 0
+            slot.stickers.length === 1 &&
+            ((shape === 'twist' && slot.position[1] === 0) || shape === 'quarter')
           const solved = {
             position: slot.position,
             stickers: slot.stickers.map((s) => ({ normal: s.normal, color: s.solvedColor })),
@@ -57,15 +60,20 @@ export function PolyEditView() {
             // gray while empty; a click puts the next one.
             const placed = pieces.get(slot.key)
             return (
-              <PolyPiece
-                key={slot.key}
-                cubie={placed ?? solved}
-                drawing={drawing}
-                stickerHex={placed ? undefined : () => EMPTY_COLOR}
-                onSelect={() => cycleAt(slot.key)}
-                onHover={hover(slot.key)}
-                lit={litIn(slot.key)}
-              />
+              <Fragment key={slot.key}>
+                <PolyPiece
+                  cubie={placed ?? solved}
+                  drawing={drawing}
+                  stickerHex={placed ? undefined : () => EMPTY_COLOR}
+                  onSelect={() => cycleAt(slot.key)}
+                  onHover={hover(slot.key)}
+                  lit={litIn(slot.key)}
+                />
+                {/* Its picture too (the Hockey Puck's numbers tell its pairs apart). */}
+                {placed && drawing.decal?.on(0, placed) && (
+                  <Decal cubie={placed} decal={drawing.decal} />
+                )}
+              </Fragment>
             )
           }
           const hex = (ni: number) => {

@@ -60,15 +60,17 @@ export function EditPanel() {
           ? t.editHintTwist
           : shape === 'camo'
             ? t.editHintCamo
-            : byPieces
-              ? t.editHintPieces
-              : mirror
-                ? t.editHintMirror
-                : hasColoredClips(shape)
-                  ? t.editHintGear
-                  : isGear(shape)
-                    ? t.editHintGearPlain
-                    : t.editHint}
+            : shape === 'quarter'
+              ? t.editHintQuarter
+              : byPieces
+                ? t.editHintPieces
+                : mirror
+                  ? t.editHintMirror
+                  : hasColoredClips(shape)
+                    ? t.editHintGear
+                    : isGear(shape)
+                      ? t.editHintGearPlain
+                      : t.editHint}
       </p>
 
       {!byPieces && <ColorPalette />}

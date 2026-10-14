@@ -6,6 +6,7 @@ import {
   gearMovesCancel as cancels,
 } from './gear'
 import { scrambleViolet } from './violetStates'
+import { quarterMove } from './quarter'
 import { solvedCube, turnDims } from './cube'
 import { faceAxis, faceLayers, quarterTurnFits } from './geometry'
 import { applyMove, turnAllowed } from './turn'
@@ -18,6 +19,13 @@ import {
 } from './pyraminx'
 import { formatPyraMove } from './pyraNotation'
 import { formatGhostMove, GHOST_TURNS, scrambleGhost, simplifyGhostMoves } from './ghost'
+import {
+  formatMegaMove,
+  invertMegaMove,
+  MEGA_TURNS,
+  scrambleMegaminx,
+  simplifyMegaMoves,
+} from './megaminx'
 import { formatPuckMove, invertPuckMove, PUCK_TURNS, scramblePuck, simplifyPuckMoves } from './puck'
 import {
   formatRainbowMove,
@@ -33,6 +41,7 @@ import {
 import { formatStarMove, invertStarMove, scrambleStar, simplifyStarMoves, STAR_RINGS } from './star'
 import {
   isGhostMove,
+  isMegaMove,
   isPuckMove,
   isGridless,
   isRainbowMove,
@@ -53,6 +62,7 @@ import type {
   Dims,
   Face,
   GhostMove,
+  MegaMove,
   PuckMove,
   Move,
   PyraMove,
@@ -174,6 +184,7 @@ export function formatMove(move: Turn, labels: FaceLabels = NOTATION_US, dims?: 
   if (isGhostMove(move)) return formatGhostMove(move, labels)
   if (isPuckMove(move)) return formatPuckMove(move, labels)
   if (isRainbowMove(move)) return formatRainbowMove(move, labels)
+  if (isMegaMove(move)) return formatMegaMove(move, labels)
   if (isGearMove(move)) return formatGearMove(move, labels)
   if (dims && move.depth && !move.wide && faceLayers(dims, move.face) === 3) {
     const slice = SLICES.find((s) => s.face === move.face || s.opposite === move.face)!
@@ -270,6 +281,9 @@ export function sameLayer(a: Turn, b: Turn): boolean {
     return isRainbowMove(a) && isRainbowMove(b) && a.triangle === b.triangle
   }
   if (isGearMove(a) || isGearMove(b)) return isGearMove(a) && isGearMove(b) && a.gear === b.gear
+  if (isMegaMove(a) || isMegaMove(b)) {
+    return isMegaMove(a) && isMegaMove(b) && a.megaFace === b.megaFace
+  }
   return a.face === b.face && a.depth === b.depth && a.wide === b.wide
 }
 
@@ -295,7 +309,9 @@ export function invertMoves<T extends Turn>(moves: readonly T[]): T[] {
                 ? invertRainbowMove(m)
                 : isGearMove(m)
                   ? invertGearMove(m)
-                  : invertMove(m)) as T,
+                  : isMegaMove(m)
+                    ? invertMegaMove(m)
+                    : invertMove(m)) as T,
   )
 }
 
@@ -313,6 +329,7 @@ export function simplifyMoves<T extends Turn>(moves: readonly T[]): T[] {
   if (moves.some(isRainbowMove)) {
     return simplifyRainbowMoves(moves as readonly RainbowMove[]) as T[]
   }
+  if (moves.some(isMegaMove)) return simplifyMegaMoves(moves as readonly MegaMove[]) as T[]
   // Gear moves (and the Extreme's plain top and bottom turns among them).
   const out: (Move | GearMove)[] = []
   for (const move of moves as readonly (Move | GearMove)[]) {
@@ -403,11 +420,27 @@ export function scrambleTurns(
   if (shape === 'ghost') return scrambleGhost(length, rng)
   if (shape === 'puck') return scramblePuck(length, rng)
   if (shape === 'rainbow') return scrambleRainbow(length, rng)
+  if (shape === 'megaminx') return scrambleMegaminx(length, rng)
   if (shape === 'dino') return scrambleDino(length, rng)
   if (shape === 'rex') return scrambleRex(length, rng)
   if (isGear(shape)) return scrambleGear(shape, length, rng)
   if (shape === 'violet') return scrambleViolet(length, rng, start)
+  if (shape === 'quarter') return scrambleQuarter(length, rng, start)
   return scramble(shape, length, rng, start)
+}
+
+/** A Quarter Cube's scramble: faces at random, never the same twice in a
+ *  row, each the way its mark allows (quarter.ts), played along. */
+function scrambleQuarter(length: number, rng: () => number, start: Cube): Move[] {
+  let state = start
+  const moves: Move[] = []
+  while (moves.length < length) {
+    const choices = FACES.filter((f) => f !== moves[moves.length - 1]?.face)
+    const move = quarterMove(state, choices[Math.floor(rng() * choices.length)]!)
+    state = applyMove(state, move)
+    moves.push(move)
+  }
+  return moves
 }
 
 /** One turn of every layer a puzzle has, gridless ones included: what moves
@@ -420,6 +453,7 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
   if (shape === 'ghost') return GHOST_TURNS
   if (shape === 'puck') return PUCK_TURNS
   if (shape === 'rainbow') return RAINBOW_TURNS
+  if (shape === 'megaminx') return MEGA_TURNS
   if (shape === 'dino') return DINO_TURNS
   if (shape === 'rex') return REX_TURNS
   if (isGear(shape)) return gearTurnsOf(shape)

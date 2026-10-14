@@ -16,7 +16,11 @@ import {
 } from './octGeometry'
 import { dinoPolygons, edgeOnlyPolygons } from './dinoGeometry'
 import { rexCut, rexPolygons } from './rexGeometry'
+import { barrelPolygons, barrelThumbnail } from './barrelGeometry'
 import { camoPolygons } from './camoGeometry'
+import { megaPolygons, megaThumbnail } from './megaGeometry'
+import { fisherPolygons, fisherThumbnail } from './fisherGeometry'
+import { quarterPolygons } from './quarterGeometry'
 import {
   numbered,
   PUCK_ORIENT,
@@ -115,6 +119,19 @@ const PUCK: PolyDrawing = {
     picture: puckNumberPicture,
   },
 }
+/** The Quarter Cube, upright as the cubes. */
+const QUARTER: PolyDrawing = { polygons: quarterPolygons, yaw: 0 }
+/** The Barrel, upright as the cubes. */
+const BARREL: PolyDrawing = { polygons: barrelPolygons, yaw: 0, thumbnail: barrelThumbnail }
+/** The Fisher Cube, upright as the cubes, turned a sixteenth: two sides of
+ *  its solid show. */
+const FISHER: PolyDrawing = {
+  polygons: fisherPolygons,
+  yaw: Math.PI / 8,
+  thumbnail: fisherThumbnail,
+}
+/** The Megaminx, its top up, a face in front. */
+const MEGAMINX: PolyDrawing = { polygons: megaPolygons, yaw: 0, thumbnail: megaThumbnail }
 /** The Rex Cube, held as the Dino. */
 const REX: PolyDrawing = { polygons: rexPolygons, yaw: 0, cut: rexCut }
 
@@ -133,6 +150,7 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'morph') return MORPH
   if (shape === 'ghost') return GHOST
   if (shape === 'puck') return PUCK
+  if (shape === 'megaminx') return MEGAMINX
   if (shape === 'oct4') return OCT4
   if (shape === 'vto') return VTO
   if (shape === 'gem') return GEM
@@ -141,6 +159,9 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'rex') return REX
   if (shape === 'twist') return TWIST
   if (shape === 'tori') return TORI
+  if (shape === 'quarter') return QUARTER
+  if (shape === 'barrel') return BARREL
+  if (shape === 'fisher') return FISHER
   if (shape === 'edge') return EDGE
   if (shape === 'camo') return CAMO
   if (shape === 'violet') return VIOLET

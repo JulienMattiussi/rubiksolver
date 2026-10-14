@@ -11,6 +11,7 @@ import {
   type PyraLayer,
 } from './pyraminx'
 import { GHOST_TURNS } from './ghost'
+import { MEGA_FACES } from './megaminx'
 import { RAINBOW_TRIANGLES } from './rainbow'
 import { signedPieces, STAR_RINGS } from './star'
 import {
@@ -21,6 +22,7 @@ import {
   isPuckMove,
   isPyraminx,
   isPyraMove,
+  isMegaMove,
   isRainbowMove,
   isStar,
   SHAPE_DIMS,
@@ -31,6 +33,8 @@ import type {
   Face,
   GearMove,
   GhostSide,
+  MegaFace,
+  MegaMove,
   RainbowCorner,
   RainbowMove,
   Move,
@@ -125,6 +129,13 @@ export type MoveDescription =
       readonly clockwise: boolean
       /** Three in a row. */
       readonly thrice?: true
+    }
+  | {
+      /** A Megaminx face turned some fifths (signed: clockwise when
+       *  positive). */
+      readonly kind: 'megaFace'
+      readonly face: MegaFace
+      readonly fifths: number
     }
   | {
       /** A Rainbow triangle turned a third. */
@@ -252,6 +263,15 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
       { section: 'gearsThrice', rows: gears.map((gear) => [{ gear, amount: 1, times: 3 }]) },
     ]
   }
+  if (shape === 'megaminx') {
+    // A fifth either way, then two.
+    const rows = MEGA_FACES.flatMap((megaFace) =>
+      [[1, 4] as const, [2, 3] as const].map((amounts) =>
+        amounts.map((amount): MegaMove => ({ megaFace, amount })),
+      ),
+    )
+    return [{ section: 'faces', rows }]
+  }
   if (shape === 'rainbow') {
     const row = (triangle: RainbowCorner) =>
       ([1, 2] as const).map((amount): RainbowMove => ({ triangle, amount }))
@@ -302,6 +322,10 @@ export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
               : 'slice'
     const clockwise = turn.amount === 1
     return { kind, vertex: turn.vertex, clockwise, ...(turn.slice && { slice: turn.slice }) }
+  }
+  if (isMegaMove(turn)) {
+    const fifths = turn.amount <= 2 ? turn.amount : turn.amount - 5
+    return { kind: 'megaFace', face: turn.megaFace, fifths }
   }
   if (!isFaceMove(turn)) {
     if ('slash' in turn) return { kind: 'slash' }

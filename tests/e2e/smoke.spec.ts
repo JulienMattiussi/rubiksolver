@@ -213,12 +213,12 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
     ['Pyramides', 'Professor Pyraminx (5x5)'],
     ['Pyramides', 'Pyraminx Jing'],
     ['Pyramides', 'Pyramorphinx'],
-    ['Octaèdres', "4-Trajber's Octahedron"],
-    ['Octaèdres', 'Octahedron VTO'],
-    ['Octaèdres', 'GEM-0 (Jewel)'],
-    ['Octaèdres', 'Rainbow'],
-    ['Étoiles', '2-Star Prism (UFO)'],
-    ['Étoiles', '4-Star Prism'],
+    ['Polyèdres', "4-Trajber's Octahedron"],
+    ['Polyèdres', 'Octahedron VTO'],
+    ['Polyèdres', 'GEM-0 (Jewel)'],
+    ['Polyèdres', 'Rainbow'],
+    ['Cylindriques', '2-Star Prism (UFO)'],
+    ['Cylindriques', '4-Star Prism'],
     ['Engrenages', 'Gear Cube Ultimate'],
     ['Bizarres', 'Violet'],
   ]
@@ -247,9 +247,9 @@ const ENTERED: [string, string, string][] = [
   // A 2x2 cut to a tetrahedron, entered by its form.
   ['Pyramides', 'Pyramorphinx', '16 / 16 stickers'],
   // A 4x4x4 cut to an octahedron, one sticker a piece.
-  ['Octaèdres', "4-Trajber's Octahedron", '56 / 56 stickers'],
+  ['Polyèdres', "4-Trajber's Octahedron", '56 / 56 stickers'],
   // Its tips turn on their own.
-  ['Octaèdres', 'Octahedron VTO', '72 / 72 stickers'],
+  ['Polyèdres', 'Octahedron VTO', '72 / 72 stickers'],
   // Corners turning: edges, centers and petals.
   ['Coupes diagonales', 'Rex Cube', '54 / 54 stickers'],
   // Out of its box, its big cubes pre-filled.
@@ -258,7 +258,7 @@ const ENTERED: [string, string, string][] = [
   ['Plats', 'Floppy Ghost', '10 / 10 pièces'],
   ['Bizarres', 'Z-Twist', '20 / 20 pièces'],
   // Only the stickers one sees count: the inner points' flat faces fill in.
-  ['Étoiles', '4-Star Prism', '64 / 64 stickers'],
+  ['Cylindriques', '4-Star Prism', '64 / 64 stickers'],
 ]
 
 for (const [category, name, complete] of ENTERED) {

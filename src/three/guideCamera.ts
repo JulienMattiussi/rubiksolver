@@ -1,4 +1,5 @@
 import { FACE_NORMAL, FACE_SPEC } from '@/lib/geometry'
+import { MEGA_AXES } from '@/lib/megaminx'
 import { pyraRotation } from '@/lib/pyraminx'
 import { RAINBOW_CORNERS } from '@/lib/rainbow'
 import type { Turn } from '@/lib/types'
@@ -15,13 +16,18 @@ const ZOOM = 0.78
  * behind for B). A star prism's lower layers are seen from below, a
  * Pyraminx corner from its own side, at the home view's height; on a
  * puzzle drawn in its own frame, from where its turning face looks (a
- * Rainbow's triangle too); the Floppy Ghost from the front, where its sides
+ * Rainbow's triangle, a Megaminx face too); the Floppy Ghost from the front, where its sides
  * flip over.
  */
 export function guideCameraPosition(turn: Turn, drawing?: PolyDrawing): [number, number, number] {
   const [x, y, z] = HOME_POSITION.clone().multiplyScalar(ZOOM).toArray()
   const turned = drawing?.orient && 'face' in turn ? FACE_NORMAL[turn.face] : undefined
-  const facing = 'triangle' in turn ? RAINBOW_CORNERS[turn.triangle] : turned
+  const facing =
+    'triangle' in turn
+      ? RAINBOW_CORNERS[turn.triangle]
+      : 'megaFace' in turn
+        ? MEGA_AXES[turn.megaFace]
+        : turned
   if (drawing && facing) {
     // A face of a puzzle drawn in its own frame (the Pyramorphinx), a
     // Rainbow's triangle: the home framing pulled toward where it looks.
@@ -33,7 +39,7 @@ export function guideCameraPosition(turn: Turn, drawing?: PolyDrawing): [number,
   }
   // A Floppy Ghost side flips over in front of the home framing.
   if ('side' in turn || 'triangle' in turn || 'layer' in turn || 'flip' in turn) return [x, y, z]
-  if ('slash' in turn) return [x, y, z]
+  if ('slash' in turn || 'megaFace' in turn) return [x, y, z]
   if ('ring' in turn) return turn.ring === 'D' || turn.ring === 'd' ? [x, -y, z] : [x, y, z]
   if ('vertex' in turn) {
     // The home framing swung round to the corner's side (the top one is in it).

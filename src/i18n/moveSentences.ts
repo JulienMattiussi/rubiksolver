@@ -4,7 +4,7 @@
 
 import type { MoveDescription } from '@/lib/moveGuide'
 import { fromAbove } from '@/lib/star'
-import type { Face, GhostSide, PyraVertex, RainbowCorner, RingMove } from '@/lib/types'
+import type { Face, GhostSide, MegaFace, PyraVertex, RainbowCorner, RingMove } from '@/lib/types'
 
 export type StarLayer = RingMove['ring']
 
@@ -137,6 +137,37 @@ export const FACE_NAMES_EN: Record<Face, string> = {
   B: 'back face',
 }
 
+/** The Megaminx's faces, as it is held (megaminx.ts). */
+export const MEGA_FACE_NAMES_FR: Record<MegaFace, string> = {
+  U: 'la face du haut',
+  F: 'la face avant',
+  R: 'la face de droite',
+  L: 'la face de gauche',
+  BR: 'la face arrière droite',
+  BL: 'la face arrière gauche',
+  DR: 'la face du bas à droite',
+  DL: 'la face du bas à gauche',
+  DBR: 'la face du bas arrière droite',
+  DBL: 'la face du bas arrière gauche',
+  B: 'la face arrière du bas',
+  D: 'la face du dessous',
+}
+
+export const MEGA_FACE_NAMES_EN: Record<MegaFace, string> = {
+  U: 'the top face',
+  F: 'the front face',
+  R: 'the right face',
+  L: 'the left face',
+  BR: 'the back right face',
+  BL: 'the back left face',
+  DR: 'the lower right face',
+  DL: 'the lower left face',
+  DBR: 'the lower back right face',
+  DBL: 'the lower back left face',
+  B: 'the lower back face',
+  D: 'the bottom face',
+}
+
 /** The move guide's sentence for a turn. */
 export function describeFr(d: MoveDescription): string {
   if (d.kind === 'gear' && d.thrice) {
@@ -152,6 +183,11 @@ export function describeFr(d: MoveDescription): string {
   if (d.kind === 'dinoCorner') {
     const sense = d.clockwise ? 'des aiguilles' : 'inverse des aiguilles'
     return `On tourne ${DINO_CORNER_NAMES_FR[d.corner]} d’un tiers de tour (120°) dans le sens ${sense} d’une montre, vu de face : ${d.rex ? 'ses trois arêtes, les trois centres autour et neuf pétales tournent avec lui' : 'ses trois arêtes tournent autour de lui'}.`
+  }
+  if (d.kind === 'megaFace') {
+    const n = Math.abs(d.fifths)
+    const sense = d.fifths > 0 ? 'des aiguilles' : 'inverse des aiguilles'
+    return `On tourne ${MEGA_FACE_NAMES_FR[d.face]} ${n === 1 ? 'd’un cinquième de tour (72°)' : 'de deux cinquièmes de tour (144°)'} dans le sens ${sense} d’une montre, vu de face : son centre ne bouge pas, ses cinq arêtes et ses cinq sommets tournent autour.`
   }
   if (d.kind === 'triangle') {
     const sense = d.clockwise ? 'des aiguilles' : 'inverse des aiguilles'
@@ -229,6 +265,11 @@ export function describeEn(d: MoveDescription): string {
   if (d.kind === 'dinoCorner') {
     const sense = d.clockwise ? 'clockwise' : 'counter-clockwise'
     return `Turn ${DINO_CORNER_NAMES_EN[d.corner]} a third of a turn (120°) ${sense}, as seen from it: ${d.rex ? 'its three edges, the three centers around it and nine petals go round with it' : 'its three edges go round it'}.`
+  }
+  if (d.kind === 'megaFace') {
+    const n = Math.abs(d.fifths)
+    const sense = d.fifths > 0 ? 'clockwise' : 'counterclockwise'
+    return `Turn ${MEGA_FACE_NAMES_EN[d.face]} ${n === 1 ? 'a fifth of a turn (72°)' : 'two fifths of a turn (144°)'} ${sense}, as seen from it: its center stays put, its five edges and five corners go round it.`
   }
   if (d.kind === 'triangle') {
     const sense = d.clockwise ? 'clockwise' : 'counterclockwise'

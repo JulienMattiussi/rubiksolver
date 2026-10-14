@@ -11,10 +11,10 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 **Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme), le
 **4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), l'**Octahedron VTO**
 (un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
-(un cuboctaèdre dont les triangles tournent), le **Dino Cube** et le **Rex Cube** (leurs sommets
-tournent), le **Violet** (un 2x2x2 à
-pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages),
-le **Hockey Puck** (deux disques de 12 pièces, de la famille des étoiles) et les
+(un cuboctaèdre dont les triangles tournent), le **Megaminx** (un dodécaèdre), le **Dino Cube** et le **Rex Cube** (leurs sommets
+tournent), le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième, qui se déforme), le **Violet** (un 2x2x2 à
+pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Quarter Cube** (des faces qui ne font qu'aller et revenir d'un quart), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages),
+le **Hockey Puck** (deux disques de 12 pièces, de la famille des étoiles), le **Barrel** (un 3x3x3 aux arêtes verticales tronquées, qui se déforme) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
 On manipule le cube (rotations de faces à la souris/aux boutons, tranches et
@@ -24,7 +24,7 @@ tourner au survol d'un bouton ; sur 3x3, un onglet « Avancé » pour `M`, `E`,
 animé sur l'état actuel, avec sa notation et une phrase), on le mélange **ou
 on saisit sa propre configuration** en peignant les stickers directement en
 3D (sur tous les puzzles, Pyraminx et étoiles compris ; un puzzle déformable
-dans la forme où il se trouve, le Floppy Ghost et le Z-Twist pièce par pièce), on peut **mémoriser un état**
+dans la forme où il se trouve, le Floppy Ghost, le Z-Twist, le Hockey Puck, le Barrel, le Fisher Cube et le Megaminx pièce par pièce), on peut **mémoriser un état**
 pour y revenir, puis on le résout selon **plusieurs vraies méthodes** (par
 couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4, du 5x5 et du 6x6, méthodes de la tour, du
 Domino, du Pyraminx et des étoiles...). La solution, affichée dès que le cube
@@ -45,7 +45,7 @@ milieu du 3x3. Exceptions : les puzzles qui ne tournent pas comme un cube
 ont leur propre notation, le plus souvent celle de fan2cube : le Pyraminx,
 où chaque notation garde son propre usage (voir « Le Pyraminx »), les
 étoiles (`3`, `/`), le Floppy Ghost, le Rainbow, le Dino et le Rex (lettres
-de fan2cube) et les Gear Cubes (`D²`).
+de fan2cube), le Megaminx (`U F R BR BL L` et le bas en anglais, `H A D G P B` et leurs opposées soulignées en français) et les Gear Cubes (`D²`).
 
 ---
 
@@ -110,6 +110,9 @@ src/
 │   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
 │   ├── camo.ts           # Camouflage 4x4x2 : boîte de chaque pièce (épaisse ou fine, tournée avec elle), coups bloqués
 │   ├── camoShape.ts      # Sa forme seule (axe haut de chaque pièce) : retour dans la boîte par les deux bouts, formules qui y reviennent
+│   ├── quarter.ts        # Quarter Cube : l'état de chaque face (Cubie.spin des centres), coups permis
+│   ├── fisher.ts         # Fisher Cube : un 3x3 dont les centres de côté portent un repère caché (leur sens), résolu
+│   ├── megaminx.ts       # Megaminx : modèle combinatoire (emplacements = faces touchées), coups par permutations, notation
 │   ├── twist.ts          # Z-Twist : un 3x3 dont les centres de côté gardent leur quart de tour (Cubie.spin)
 │   ├── violetStates.ts   # Ses états vus (gros cubes pareils) : arbre des plus courts chemins (solutions), mélange sans retour
 │   ├── rainbow.ts        # Rainbow : cuboctaèdre, 12 pièces aux milieux des arêtes du cube, triangles en tiers de tour, notation ;
@@ -166,7 +169,11 @@ src/
 │   │   ├── gearExtreme.ts #  Gear Cube Extreme : équateur, coins, arêtes, agrafes, engrenages (fan2cube.fr)
 │   │   ├── twist.ts      #   Z-Twist : une méthode 3x3 sur les couleurs, puis les centres de côté remis
 │   │   ├── camo.ts       #   Camouflage : forme (et parité des ailes), centres, arêtes, puis la méthode du Domino
+│   │   ├── quarter.ts    #   Quarter Cube : les arêtes d'abord (4 formules alternées de fan2cube.fr)
 │   │   ├── tori.ts       #   Tori : croix prolongée (formules de fan2cube.fr)
+│   │   ├── barrel.ts     #   Barrel : par couches, arêtes du milieu sans sens (formules de fan2cube.fr)
+│   │   ├── fisher.ts     #   Fisher Cube : une méthode 3x3 sur les couleurs, puis les centres tournés ((H)+(G)-)
+│   │   ├── megaminx.ts   #   Megaminx : l'étoile prolongée, formules de toutes les tenues, pièce par pièce
 │   │   ├── edgeOnly.ts   #   Edge Only : lu comme le Tori de la tenue la plus proche, résolu par sa méthode
 │   │   └── violet.ts     #   Violet : forme puis couleurs, et optimale (arbre de recherche de violetStates.ts)
 │   ├── solver4/          # Solveur 4x4 par réduction :
@@ -189,7 +196,7 @@ src/
 │   ├── gearEditor.ts     # Saisie des Gear Cubes à agrafes colorées (Ultimate, Extreme) : engrenages peints à part de leurs agrafes, retournés ou non
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
 │   ├── forms.ts          # Formes d'un puzzle déformable (tour, Violet, Pyramorphinx) pour la saisie : formsOf, lookOf
-│   ├── pieceEditor.ts    # Saisie pièce par pièce (Floppy Ghost, Z-Twist) : poses par emplacement, nextPiece, piecesIn
+│   ├── pieceEditor.ts    # Saisie pièce par pièce (Floppy Ghost, Z-Twist, Hockey Puck, Barrel, Fisher, Megaminx) : poses par emplacement, nextPiece, piecesIn
 │   ├── validate.ts       # validateCube : comptage par couleur (déduit du puzzle résolu) + solubilité (résolution bornée ; invariants de pièces + vrille sur 4x4)
 │   ├── shape.ts          # Cube miroir : épaisseur de couche par couleur, boîte d'un cubie (cubieBox) déduite de ses stickers
 │   ├── moveGuide.ts      # Guide des mouvements : lignes par forme (coup + opposé, puis quantifié), describeMove
@@ -233,8 +240,13 @@ src/
 │   ├── GearEdge.tsx      # Une arête du Gear Cube : deux agrafes, l'engrenage (deux plaques et son corps à sa forme) qui pivote
 │   ├── GearCorner.tsx    # Un coin ou un centre du Gear Cube : plaques sur des corps à leur forme
 │   ├── camoGeometry.ts   # Pièces du Camouflage : leur boîte telle qu'elle se tient
+│   ├── quarterGeometry.ts # Pièces du Quarter Cube : cubies et repère tourné de chaque centre
 │   ├── toriGeometry.ts   # Pièces du Tori : cube arrondi coupé par les plans du 3x3, faces percées en anneaux
 │   ├── twistGeometry.ts  # Pièces du Z-Twist : la case du 3x3 dans le solide tordu, portée par la pièce
+│   ├── cutSolid.ts       # Pièces d'un 3x3 taillé dans un solide convexe (Barrel, Fisher), portées par la pièce
+│   ├── barrelGeometry.ts # Le solide du Barrel (prisme octogonal) et la couleur de ses coupes
+│   ├── fisherGeometry.ts # Le solide du Fisher Cube (cube tourné d'un huitième) et ses couleurs
+│   ├── megaGeometry.ts   # Pièces du Megaminx : dodécaèdre coupé par les plans de ses couches
 │   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
 │   ├── Decal.tsx         # Une image posée sur la face de pièces choisies, qui tourne avec elles (PolyDrawing.decal)
 │   ├── rainbowGeometry.ts # Pièces du Rainbow : cellule de chaque pièce dans le cuboctaèdre (polyhedron.ts)
@@ -265,9 +277,9 @@ src/
 │   │                     #   + styles.ts : classes partagées (SECTION_BOX, SECTION_LABEL, TURN_PAIR)
 │   │                     #   + features.ts : icône et couleur des 3 fonctionnalités (saisie bleu ciel, guide violet,
 │   │                     #     résolution ambre), partagées par les cartes de l'accueil et les boutons (variantes de Button)
-│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad / GhostPad / PuckPad / RainbowPad / GearPad (+ PadHeader,
+│   ├── controls/         # Panneau : Controls (orchestrateur), SetupSection, StatusBadge, MovePad / StarPad / PyraPad / GhostPad / PuckPad / RainbowPad / GearPad / MegaPad (+ PadHeader,
 │   │                     #   PadButton : un coup, sa surbrillance au survol), LanguageToggle, NotationToggle,
-│   │                     #   RecenterButton, CollapseButton, SpeedSlider
+│   │                     #   RecenterButton, CollapseButton, SpeedSlider, Credit (« Fait avec ❤️ par YavaDeus », lien vers yavadeus.dev)
 │   ├── picker/           # Choix du cube : CubePicker (bouton + modale), PickerTile, PuzzleIcon (vignette SVG),
 │   │                     #   CategoryIcon (plusieurs puzzles groupés : une catégorie se distingue d'un puzzle)
 │   ├── guide/            # Guide des mouvements : MoveGuideButton (dans PadHeader), MoveGuideDialog
@@ -338,12 +350,12 @@ Toutes les méthodes 3x3 commencent par **Remettre les centres**
 (`withCentersHome`, voir « Coups avancés du 3x3 »), étape retirée quand elle
 est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 
-- **Par couches** (`beginner`, 3x3, Z-Twist et 2x2) : sur 3x3, 1re couche entière
+- **Par couches** (`beginner`, 3x3, Z-Twist, Fisher Cube et 2x2) : sur 3x3, 1re couche entière
   (croix + coins), puis arêtes du milieu, puis dernière couche (croix,
   orientation coins, permutation coins, permutation arêtes) - 7 étapes. Sur
   2x2 (pas d'arêtes ni de centres) : coins du bas, orientation du haut,
   permutation du haut - 3 étapes.
-- **Fridrich / CFOP** (`cfop`, 3x3 et Z-Twist) : Croix, puis **F2L** (paires coin+arête
+- **Fridrich / CFOP** (`cfop`, 3x3, Z-Twist, Barrel et Fisher Cube) : Croix, puis **F2L** (paires coin+arête
   par colonne), puis **OLL**, puis **PLL** - 4 étapes.
 - **Réduction** (`reduction` et `reductionCfop`, 4x4, 5x5 et 6x6) : Centres,
   Appariement des arêtes, Correction de parité (étape émise seulement si
@@ -354,12 +366,12 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   CMLL en 2 temps (orienter avec Sune/Antisune, permuter), puis les six
   dernières arêtes en `<M, U>` : orientation, UL/UR, tranche M en `<M, U2>`
   - 6 étapes.
-- **Petrus** (`petrus`, 3x3 et Z-Twist), les 7 étapes de Lars Petrus : bloc 2x2x2 (DBL),
+- **Petrus** (`petrus`, 3x3, Z-Twist, Barrel et Fisher Cube), les 7 étapes de Lars Petrus : bloc 2x2x2 (DBL),
   extension en 2x2x3 en `<U, R, F>` (ne touchent pas le 2x2x2), arêtes
   orientées (F et B n'apparaissent que dans `F' U F` / `B U B'`, qui
   préservent le bloc), fin du F2L en `<R, U>` seulement, puis coins placés
   (Niklas), coins tournés (Sune/Antisune), arêtes placées (Ua).
-- **ZZ** (`zz`, 3x3 et Z-Twist) : EOLine (les 12 arêtes orientées, puis DF/DB en coups
+- **ZZ** (`zz`, 3x3, Z-Twist, Barrel et Fisher Cube) : EOLine (les 12 arêtes orientées, puis DF/DB en coups
   qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
   droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL
   - 5 étapes.
@@ -377,6 +389,8 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   « Le Rex Cube ».
 - **Croix prolongée** (`extendedCross`, Tori et Edge Only) : croix du bas, arêtes du milieu,
   croix du haut, arêtes du haut placées - voir « Le Tori ».
+- **Les arêtes d'abord** (`quarterEdgesFirst`, Quarter Cube) : faces au départ,
+  arêtes placées, retournées, coins placés, tournés - voir « Le Quarter Cube ».
 - **Forme puis couleurs** (`shapeFirst`, Violet) : redevenir un cube, puis
   les couleurs du coin composé - voir « Le Violet ».
 - **Réduction en Domino** (`camoReduction`, Camouflage 4x4x2) : forme, centres,
@@ -403,6 +417,12 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 - **Centres puis arêtes** (`vtoCentersFirst`, Octahedron VTO ; `gemCentersFirst`,
   GEM-0) : centres, arêtes placées, retournées, pointes du VTO - voir
   « L'Octahedron VTO et le GEM-0 ».
+- **Par couches** (`barrelLayers`, Barrel) : couche du bas, arêtes du milieu
+  (dans un sens ou l'autre), coins du haut, arêtes du haut placées puis
+  retournées - voir « Le Barrel ».
+- **L'étoile prolongée** (`megaStar`, Megaminx) : étoile et sommets du
+  dessous, équateur bas, cinq faces voisines, équateur haut, puis la face du
+  haut - voir « Le Megaminx ».
 - **Triangle prolongé** (`extendedTriangle`, Rainbow) : le triangle du haut,
   puis les autres par 3-cycles - voir « Le Rainbow ».
 - **Ailes puis co-ailes** (`wingsFirst`, Master et Professor Pyraminx) :
@@ -946,7 +966,7 @@ long des arêtes (« arêtes »), ses 24 centres celles des sommets
 faces opposées par paires. Pas de coup large : il tourne quatre faces
 entières (le puzzle reste résolu, couleurs permutées), la page n'en use que
 comme raccourci (`A* = A a`) ; `SHAPE_INNER_TURNS` n'a que la tranche.
-Catégorie à part, « Octaèdres ».
+Catégorie à part, « Polyèdres ».
 
 **Rendu** (`three/octGeometry.ts`) : chaque pièce est sa case du 4x4x4
 (ouverte vers l'extérieur sur les couches externes) coupée par l'octaèdre
@@ -1353,6 +1373,129 @@ et l'Edge Only est lu comme le Tori qu'il serait avec les centres de cette
 tenue, ses couleurs renommées ; le plan du Tori le résout, mêmes coups. Une
 arête retournée seule reste impossible, quelle que soit la tenue (testé).
 
+### Le Quarter Cube (`quarter`)
+
+Le Quarter Cube (fan2cube.fr/quarter1 et 2, Katsuhiko Okamoto et Takafumi
+Haseda, 2011) : un 3x3 dont chaque face ne fait qu'aller d'un quart et
+revenir (A puis A', jamais A² ni deux A de suite). Chaque centre porte un
+repère qui dit où en est sa face : dans le modèle, son `spin` (0 où le
+quart horaire passe, le START de la page ; 1 un quart plus loin, où seul
+le retour passe), changé par chaque quart de tour de la face, comme les
+centres du Z-Twist. `turnAllowed` lit ce repère (`quarterTurns`), le
+mélange joue le seul coup permis de faces tirées au hasard, et « résolu »
+ne regarde que les couleurs (les faces peuvent rester d'un côté ou de
+l'autre). Rendu (`three/quarterGeometry.ts`) : les cubies d'un 3x3, chaque
+centre portant le repère des dessins de la page : un anneau ouvert là où
+pointe le repère (il tourne avec la face) et un quart d'anneau épais, de là
+vers le sens où la face peut aller (horaire au START, retour un quart plus
+loin). **Saisie**
+des stickers comme un 3x3, centres pré-remplis ; un clic sur un centre
+tourne son repère d'un quart (`twisted` de l'éditeur, comme le Z-Twist).
+
+**Résolution** (`methods/quarter.ts`, méthode **Les arêtes d'abord**,
+d'après la page) : (0) chaque face ramenée au START ; (1) arêtes placées
+par le 3-cycle A[DH]A' ; (2) retournées deux à deux par
+A[DH]A'.G[HA]G'.D[HP]D' ; (3) coins placés par [[DH], G] ; (4) tournés par
+[[DH]², G]. Toutes alternent sur chaque face et la laissent au START :
+chaque formule est vue de chaque tenue et préparée par un quart de face
+défait après, les variantes qui n'alternent pas écartées ; la recherche
+(`solvePieces`, ces seules formules) place une pièce après l'autre. Les
+permutations restent paires (chaque face tourne autant dans un sens que
+dans l'autre), les 3-cycles suffisent. Environ 300 coups, chacun vérifié
+jouable ; effet de chaque formule testé.
+
+### Le Barrel (`barrel`)
+
+Le Barrel (fan2cube.fr/barrel1 et 2, 1981) est un 3x3x3 dont les quatre
+arêtes verticales sont tronquées jusqu'à la colonne du milieu de chaque
+face : un prisme octogonal, dans les « Cylindriques ». Chaque coupe est une
+face de sa couleur (rose, violet, turquoise, vert citron), faite d'un coin
+du haut, d'une arête du milieu et d'un coin du bas, chacun réduit à un
+triangle : un coin ne montre que son haut (ou son bas) et sa coupe, une
+arête du milieu sa coupe seule, si bien que son sens ne se voit pas, comme
+les arêtes fines du Z-Twist (`twistSolved`, `asSeenTwist`,
+`withRealThinEdges`, partagés). Le modèle est le 3x3 aux couleurs standard,
+sans son cœur caché (ce qui le distingue du 3x3 pour `cubeShape`) ; tourné
+hors de sa colonne, un coin coupé laisse une encoche, une arête entière
+dépasse : il se déforme, sans blocage. Rendu (`three/cutSolid.ts`, partagé
+avec le Fisher Cube) : chaque pièce est sa case du 3x3 (ouverte vers
+l'extérieur) coupée par les plans du solide, portée par la rotation qui
+l'amène où elle est. **Saisie** pièce par pièce, comme le Floppy Ghost.
+
+**Résolution** (`methods/barrel.ts`, méthode **Par couches**, d'après la
+page) : la couche du bas comme un Rubik's Cube ; les arêtes du milieu
+placées par [HD].[H'A'], dans un sens ou l'autre ; les coins du haut
+tournés (Sune) puis placés (Aa) ; les arêtes du haut placées par le 3-cycle
+D².HAP'.D².PA'H.D² ; retournées deux par deux par DPGAH.A'HG'P'D'.A'H'AH',
+ou une seule par HGBDA.D'AB'G'H'.D'A'DA', qui retourne avec elle une arête
+du milieu (la singularité de la page). Les méthodes du 3x3 (CFOP, Petrus,
+ZZ) le résolvent aussi telles quelles. Effet de chaque formule testé.
+
+### Le Fisher Cube (`fisher`)
+
+Le Fisher Cube (fan2cube.fr/fishercube1 et 2, Tony Fisher, 1985) est « un
+Rubik's Cube déguisé » : le mécanisme d'un 3x3x3, taillé dans un cube tourné
+d'un huitième autour de la verticale (catégorie « Coupes diagonales »). Vu
+de dessus, son carré du haut est posé sur une pointe de la grille du
+mécanisme : le centre du haut et celui du bas sont des carrés, dont le quart
+de tour ne se voit pas ; les centres de côté sont des coins le long de ses
+arêtes verticales, qui montrent le leur (tourné, un coin se couche) ; les
+arêtes du milieu sont au milieu de ses faces, d'une seule couleur, sans sens
+visible (comme au Barrel). Il se déforme, sans blocage. Modèle
+(`lib/fisher.ts`) : le 3x3, chaque centre de côté portant un sticker caché,
+son repère (couleur `H`, jamais dessiné), pointé vers le centre blanc une
+fois résolu : tout coup le porte (une tranche aussi), rien d'autre n'a à le
+savoir ; ses 58 stickers le distinguent pour `cubeShape`. Rendu
+(`three/fisherGeometry.ts`, `cutSolid.ts`), tourné d'un seizième pour
+montrer deux faces. **Saisie** pièce par pièce (un centre de côté prend ses
+quatre sens).
+
+**Résolution** (`methods/fisher.ts`) : « exactement comme un Rubik's Cube »,
+une méthode du 3x3 (par couches, CFOP, Petrus, ZZ) jouée sur ses couleurs
+(les repères mis de côté, après « Remettre les centres »), puis **Tourner
+les centres** avec la formule de la page (H)+(G)- = Hd'h'd.H'd'hd : elle
+tourne le centre de gauche et celui du haut, un carré qui n'en montre rien,
+donc un centre de côté seul ; vue de chaque côté et à l'envers, elle tourne
+n'importe lequel dans un sens ou l'autre. Effet testé.
+
+### Le Megaminx (`megaminx`)
+
+Le Megaminx (fan2cube.fr/megaminx1 et 2) : un dodécaèdre dont les douze
+faces tournent par cinquièmes de tour, 12 centres fixes, 30 arêtes et 20
+sommets (catégorie « Polyèdres »). Aucune grille entière ne lui va : le
+modèle (`lib/megaminx.ts`) est combinatoire. Un emplacement est l'ensemble
+des faces qu'il touche, un sticker regarde une des douze faces ; le tour
+d'une face fait avancer d'un cran les faces autour d'elle (dans le sens
+horaire vu d'elle), ce qui envoie chaque emplacement et chaque sticker de sa
+couche : une permutation exacte. Pour le reste du code, un emplacement a une
+position entière (son numéro, qui ne dit rien de sa place) et une face une
+normale de la table des cubes (des étiquettes). Tenu le haut (U) en haut, F
+devant, puis L, BL, BR, R autour du haut, la couronne du bas (DR sous F et R,
+DBR, B, DBL, DL) et D ; 60 façons de le tenir (`MEGA_SYMMETRIES`). Les axes
+réels des faces ne servent qu'à l'animation et au dessin (`MEGA_AXES`).
+Notation : U F R... en anglais (`R2'` deux cinquièmes à l'envers) ; en
+français, celle de la page, A devant, H au-dessus, puis D, B, P (souligné),
+G autour de A dans le sens horaire, P derrière H et D, les faces opposées
+soulignées (un trait bas combinant). Rendu (`three/megaGeometry.ts`) :
+chaque pièce est le dodécaèdre coupé par les plans de ses couches, dessinée
+où elle est ; pad dédié (`MegaPad` : moitié haute, moitié basse). **Saisie**
+pièce par pièce.
+
+**Résolution** (`methods/megaminx.ts`, méthode **L'étoile prolongée**,
+d'après la page) : l'étoile du dessous (A², A.H'DH), ses sommets (D'B'D,
+tournés par D'BD.ABA'), l'équateur bas ([H'A'][HD], [HD][H'A']), les cinq
+faces voisines (H'A'²HA², H'A'H²A, HD²H'D'², HDH'²D', HDH'D'), l'équateur
+haut, puis le haut : arêtes placées (A[HD]A') et retournées
+(A[HD]HA'HA.H³A'), sommets placés ([HA].P'[AH]P) et tournés
+((D'BDABA').H'(AB'A'D'B'D)H). Chaque formule est vue des 60 tenues, seule ou
+préparée par un coup défait ensuite (X F X'), et son effet, qui ne dépend
+pas de l'état, est lu une fois sur le puzzle résolu sous forme de table
+(emplacement et face du premier sticker d'une pièce). Une pièce rentre par le
+plus court enchaînement de celles qui laissent en place tout ce qui est fait
+(Dijkstra sur ses places), pièce après pièce. La cible est la tenue que
+disent ses centres. Environ 400 coups, en moins d'une seconde. Effet de
+chaque formule de la page testé.
+
 ### Le Professor Pyraminx (`pyra5`)
 
 Le Pyraminx 5x5x5 (fan2cube.fr/profpyraminx1 et 2, Timur Evbatyrov, 2011) :
@@ -1648,12 +1791,13 @@ mobile et en saisie, une seule carte) :
   cube** : un bouton montre le puzzle courant (vignette + nom) et ouvre un
   sélecteur en modale, d'abord les **catégories** en vignettes, puis les
   **puzzles** de la catégorie choisie (toujours ouvert sur les catégories ; le
-  puzzle courant et sa catégorie sont mis en évidence). Catégories (`cubeCategory`), dans
+  puzzle courant et sa catégorie sont mis en évidence ; la vignette d'une catégorie montre trois
+  de ses puzzles, devant le 3x3, le 4-Star Prism ou le Megaminx s'il en est, `COVERS`). Catégories (`cubeCategory`), dans
   l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4/5x5/6x6, Miroirs 2x2/3x3/4x4, Tours 2x2x3
   (Slim)/2x2x4/3x3x2 (Domino)/Camouflage 4x4x2, Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
-  (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Octaèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow, Cylindriques Hockey Puck/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube, Bizarres Violet/Z-Twist/Tori/Edge Only.
+  (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Polyèdres
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow/Megaminx, Cylindriques Hockey Puck/Barrel/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube/Fisher Cube, Bizarres Violet/Z-Twist/Tori/Edge Only/Quarter Cube.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer
@@ -1699,6 +1843,9 @@ mobile et en saisie, une seule carte) :
   puis le dernier coup ou l'étape sont défaits), Espace met en pause ou reprend, Entrée joue tout le
   reste ; rien pendant une saisie, dans un champ ou une fenêtre ouverte, ni
   ce que le bouton correspondant ne pourrait pas faire.
+
+En bas du panneau de gauche (de l'unique carte sur mobile), « Fait avec ❤️ par
+YavaDeus », un lien vers https://yavadeus.dev (`Credit`).
 
 **Mobile** : le panneau se **replie** en une barre compacte (Mélanger +
 Résoudre) ; en mode saisie, le cube est empilé **au-dessus** du panneau pour

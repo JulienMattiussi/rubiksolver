@@ -71,6 +71,8 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'oct4', pieces: 56, stickers: 56, orientations: 24, painted: 56, scramble: 40 },
   { shape: 'vto', pieces: 24, stickers: 72, orientations: 24, painted: 72, scramble: 25 },
   { shape: 'gem', pieces: 18, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
+  // A dodecahedron: 12 fixed centers, 30 edges, 20 corners.
+  { shape: 'megaminx', pieces: 62, stickers: 132, orientations: 60, painted: 132, scramble: 40 },
   { shape: 'rainbow', pieces: 20, stickers: 56, orientations: 24, painted: 56, scramble: 20 },
   // Held three ways: about its diagonal through A, its one symmetry.
   {
@@ -82,11 +84,17 @@ const PUZZLES: ReadonlyArray<{
     scramble: 25,
   },
   { shape: 'dino', pieces: 12, stickers: 24, orientations: 24, painted: 24, scramble: 20 },
+  // A 3x3 cut to a cube turned an eighth, its side centers marked.
+  { shape: 'fisher', pieces: 27, stickers: 58, orientations: 24, painted: 58, scramble: 20 },
   { shape: 'rex', pieces: 42, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
   // A 3x3 without its corners.
   { shape: 'tori', pieces: 19, stickers: 30, orientations: 24, painted: 30, scramble: 20 },
   // A 3x3's edges alone.
   { shape: 'edge', pieces: 13, stickers: 24, orientations: 24, painted: 24, scramble: 20 },
+  // A 3x3 whose faces turn by alternate quarters.
+  { shape: 'quarter', pieces: 27, stickers: 54, orientations: 24, painted: 54, scramble: 30 },
+  // A 3x3 cut to an octagonal prism, its hidden core left out.
+  { shape: 'barrel', pieces: 26, stickers: 54, orientations: 24, painted: 54, scramble: 20 },
   { shape: 'twist', pieces: 27, stickers: 54, orientations: 24, painted: 54, scramble: 20 },
   { shape: 'ghost', pieces: 11, stickers: 36, orientations: 1, painted: 36, scramble: 15 },
   // Two layers of twelve round a center in two halves.

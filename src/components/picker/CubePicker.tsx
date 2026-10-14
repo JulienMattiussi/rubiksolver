@@ -9,6 +9,7 @@ import {
   SHAPE_LABEL,
   type CubeCategory,
   type CubeKind,
+  type CubeShape,
 } from '@/lib/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
@@ -27,9 +28,15 @@ const kindsOf = (category: CubeCategory): Kind[] =>
 
 /** A category's tile picture: its 3x3 in front if it has one (else its first
  *  puzzle), with up to two others beside it. */
+/** A tile's width: two a row, three from `sm` (gaps of 0.5rem between). */
+const TILE_WIDTH = 'flex w-[calc(50%-0.25rem)] flex-col *:flex-1 sm:w-[calc((100%-1rem)/3)]'
+
+/** The puzzles shown in front of their category, where it has one. */
+const COVERS: readonly CubeShape[] = ['3', 'star4', 'megaminx']
+
 function showcase(category: CubeCategory): { cover: Kind; others: Kind[] } {
   const kinds = kindsOf(category)
-  const cover = kinds.find((k) => k.shape === '3') ?? kinds[0]!
+  const cover = kinds.find((k) => COVERS.includes(k.shape)) ?? kinds[0]!
   return { cover, others: kinds.filter((k) => k !== cover).slice(0, 2) }
 }
 
@@ -110,28 +117,31 @@ export function CubePicker({
               <X className="size-4" aria-hidden />
             </IconButton>
           </header>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {/* Two or three a row, an incomplete last row centered. */}
+          <div className="flex flex-wrap justify-center gap-2">
             {category
               ? kindsOf(category).map((kind) => (
-                  <PickerTile
-                    key={cubeKindId(kind)}
-                    label={nameOf(kind)}
-                    current={isCurrent(kind)}
-                    onClick={() => choose(kind)}
-                  >
-                    <PuzzleIcon shape={kind.shape} variant={kind.variant} className="h-full" />
-                  </PickerTile>
+                  <div key={cubeKindId(kind)} className={TILE_WIDTH}>
+                    <PickerTile
+                      label={nameOf(kind)}
+                      current={isCurrent(kind)}
+                      onClick={() => choose(kind)}
+                    >
+                      <PuzzleIcon shape={kind.shape} variant={kind.variant} className="h-full" />
+                    </PickerTile>
+                  </div>
                 ))
               : CUBE_CATEGORIES.map((c) => (
-                  <PickerTile
-                    key={c}
-                    label={t.cubeCategories[c]}
-                    detail={t.puzzleCount(kindsOf(c).length)}
-                    current={!home && c === cubeCategory(current)}
-                    onClick={() => setCategory(c)}
-                  >
-                    <CategoryIcon {...showcase(c)} />
-                  </PickerTile>
+                  <div key={c} className={TILE_WIDTH}>
+                    <PickerTile
+                      label={t.cubeCategories[c]}
+                      detail={t.puzzleCount(kindsOf(c).length)}
+                      current={!home && c === cubeCategory(current)}
+                      onClick={() => setCategory(c)}
+                    >
+                      <CategoryIcon {...showcase(c)} />
+                    </PickerTile>
+                  </div>
                 ))}
           </div>
         </Modal>

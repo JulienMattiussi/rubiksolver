@@ -28,7 +28,7 @@ const isFront = (color: string) => color === 'G' || color === 'B'
  * leaves them one color only, so which way round they lie never shows.
  */
 export const isThinEdge = (c: Cubie): boolean =>
-  c.stickers.length === 2 && c.stickers.every((s) => SIDE_COLORS.includes(s.color))
+  isEdge(c) && c.stickers.every((s) => SIDE_COLORS.includes(s.color))
 
 /** An edge's way round on the F/B axis (as a 3x3's edge orientation): its
  *  U/D color, or else its F/B one, on the slot's reference side (U/D in the
@@ -39,6 +39,10 @@ const good = (c: Cubie): boolean => {
     c.stickers.find((s) => isFront(s.color))!
   return ref.normal[c.position[1] !== 0 ? 1 : 2] !== 0
 }
+
+/** An edge: on two faces (a Fisher Cube's marked center has two stickers
+ *  too, fisher.ts). */
+const isEdge = (c: Cubie) => c.position.filter((v) => v !== 0).length === 2
 
 /** The edge turned over in its slot: its two colors swapped. */
 const flipped = (c: Cubie): Cubie => ({
@@ -53,7 +57,7 @@ export const asSeenTwist = (cube: Cube): Cube =>
 /** Whether the edges' ways round (on the F/B axis) add up to a real
  *  puzzle: an even number of them the other way. */
 function evenEdges(cube: Cube): boolean {
-  return cube.filter((c) => c.stickers.length === 2).filter((c) => !good(c)).length % 2 === 0
+  return cube.filter(isEdge).filter((c) => !good(c)).length % 2 === 0
 }
 
 /** An entered Z-Twist made real: its thin edges' ways round unseen, one

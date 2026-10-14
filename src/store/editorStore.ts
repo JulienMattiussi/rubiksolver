@@ -177,7 +177,11 @@ export const useEditor = create<EditorStore>((set, get) => ({
     if (!isComplete(edit, shape, form)) return false
     const gears = hasColoredClips(shape)
     if (gears && gearsPainted(gear, shape).painted < gearsPainted(gear, shape).total) return false
-    const turned = gears ? turnedOf(gear, edit, shape) : shape === 'twist' ? get().twisted : []
+    const turned = gears
+      ? turnedOf(gear, edit, shape)
+      : shape === 'twist' || shape === 'quarter'
+        ? get().twisted
+        : []
     if (!turned) {
       set({ error: 'gears' })
       return false

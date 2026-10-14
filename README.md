@@ -6,12 +6,12 @@ la **Slim Tower 2x2x3**, le **Domino 3x3x2**, le **Camouflage 4x4x2** et le **Fl
 **Floppy Ghost** (un Floppy Megaminx découpé en pentagramme, argenté) et des
 puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (sans pointes), le **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le
 **Pyraminx Jing**, le **Pyramorphinx**, le **4-Trajber's Octahedron** (un 4x4x4 en octaèdre), l'**Octahedron VTO** (un 3x3x3 en octaèdre), le **GEM-0** (le VTO sans pointes),
-le **Rainbow** (un cuboctaèdre aux triangles qui tournent), le **Dino Cube** et le
-**Rex Cube** (leurs sommets tournent),
+le **Rainbow** (un cuboctaèdre aux triangles qui tournent), le **Megaminx** (un dodécaèdre), le **Dino Cube**, le
+**Rex Cube** (leurs sommets tournent) et le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième),
 le **Violet** (un 2x2x2 à pivot excentré qui se déforme), le **Z-Twist** (un 3x3x3
-à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube
+à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Quarter Cube** (des faces qui vont et reviennent d'un quart), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube
 Extreme** (des 3x3x3 à engrenages)
-le **Hockey Puck** (deux disques de 12 pièces, de la famille des étoiles) et les **Star Prism** à 2 et 4 étages.
+le **Hockey Puck** (deux disques de 12 pièces, de la famille des étoiles), le **Barrel** (un 3x3x3 aux arêtes verticales tronquées) et les **Star Prism** à 2 et 4 étages.
 On manipule le puzzle, on le mélange **ou on saisit sa propre
 configuration** en peignant les stickers en 3D, puis on le résout selon
 **plusieurs vraies méthodes**. La solution, affichée dès que le puzzle est au
@@ -32,6 +32,8 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   coups autorisés (vérifiés par le moteur) :
   - 3x3 : par couches, Fridrich (CFOP), **Roux**, **Petrus**, **ZZ** ;
   - Z-Twist : par couches, CFOP, Petrus, ZZ, puis les centres tordus ;
+  - Fisher Cube : par couches, CFOP, Petrus, ZZ, puis les centres tournés ;
+  - Barrel : **par couches** (ses arêtes du milieu n'ont pas de sens), CFOP, Petrus, ZZ ;
   - 2x2 : par couches, et **optimale** (11 coups maximum) ;
   - 4x4 : **réduction** (centres, arêtes, parités) puis par couches ou CFOP ;
   - 5x5 et 6x6 : **réduction** aussi, centres et arêtes par commutateurs (3-cycles),
@@ -52,10 +54,12 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   - 4-Trajber's Octahedron : **sommets d'abord** ;
   - Octahedron VTO et GEM-0 : **centres puis arêtes** ;
   - Rainbow : **triangle prolongé** ;
+  - Megaminx : **l'étoile prolongée** (par couches, une face de plus à chaque tour) ;
   - Dino Cube : **étage par étage** ;
   - Rex Cube : **arêtes, centres, pétales** ;
   - Violet : **forme puis couleurs** ;
   - Tori et Edge Only : **croix prolongée** ;
+  - Quarter Cube : **les arêtes d'abord** ;
   - Gear Cube et Gear Cube Ultimate : **coins d'abord** ;
   - Gear Cube Extreme : **équateur puis coins** ;
   - Star Prism : **isoler puis permuter** ;
@@ -74,15 +78,16 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   pointes ; le Jing aux pièces courbes), le Pyramorphinx (un 2x2 taillé en
   tétraèdre, qui se déforme), les octaèdres et le Rainbow, le Dino et le Rex
   (sommets en tiers de tour), les Gear Cubes (demi-tours de face qui font
-  tourner la tranche d'un quart), le Violet, le Z-Twist (centres orientés) et
-  les Star Prism (tours d'étages et slash).
+  tourner la tranche d'un quart), le Violet, le Z-Twist (centres orientés), le
+  Barrel et le Fisher Cube (des 3x3x3 qui se déforment), le Megaminx (faces en
+  cinquièmes de tour) et les Star Prism (tours d'étages et slash).
 - **Version miroir** du 2x2, du 3x3 et du 4x4 (Mirror Blocks) : couches
   d'épaisseurs différentes et facettes toutes dorées, à résoudre par la forme.
 - Mélange aléatoire, ou **saisie guidée** de son propre puzzle (tous) en
   peignant les stickers (aucune configuration incohérente possible,
   validation de solubilité) ; un puzzle déformable se saisit dans la forme où
-  il se trouve, choisie parmi des vignettes ; le Floppy Ghost et le Z-Twist
-  pièce par pièce (un clic pose la pièce suivante qui s'y loge).
+  il se trouve, choisie parmi des vignettes ; le Floppy Ghost, le Z-Twist, le Hockey Puck, le Barrel, le Fisher Cube et le
+  Megaminx pièce par pièce (un clic pose la pièce suivante qui s'y loge).
 - Un petit **feu d'artifice** quand le puzzle arrive résolu.
 - **Page d'accueil** : une galerie de modèles à choisir, et ce qu'on peut
   faire avec (saisie, guide, résolution).

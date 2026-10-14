@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { normalIndex } from '@/lib/geometry'
 import { puckNumber, puckPlace } from '@/lib/puck'
 import type { Cubie } from '@/lib/types'
 import type { DecalPlace, P3, PiecePolygon } from './polygons'
@@ -113,7 +114,12 @@ export function puckPolygons(cubie: Cubie): PiecePolygon[] {
     const heights: [number, number] = place.z > 0 ? [SEAM, LAYER] : [-LAYER, -SEAM]
     // Its colored face out of the puck, its hidden one against the other layer.
     const paints: [Paint, Paint] = outward! > 0 ? [color!, 'body'] : ['body', color!]
-    polygons = sector(span, [INNER, OUTER], heights, paints)
+    // Its colored faces answer for its colored sticker (entry: grayed while
+    // empty, clicked to place a piece).
+    const ni = normalIndex(cubie.stickers[0]!.normal)
+    polygons = sector(span, [INNER, OUTER], heights, paints).map((p) =>
+      p.paint === 'body' ? p : { ...p, ni },
+    )
   }
   SHAPES.set(id, polygons)
   return polygons

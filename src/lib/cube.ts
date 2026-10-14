@@ -18,6 +18,9 @@ import { solvedDino, solvedRainbow, solvedRex } from './rainbow'
 import { solvedViolet, turnAboutA, violetBoxed, violetSolved } from './violet'
 import { withGears } from './gear'
 import { camoBoxed } from './camo'
+import { withFaceMarks } from './quarter'
+import { fisherSolved, withMarks } from './fisher'
+import { MEGA_SYMMETRIES, solvedMegaminx } from './megaminx'
 import { twistSolved, withCenterSpins } from './twist'
 import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
@@ -129,8 +132,14 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (shape === 'tori') return solvedCube('3').filter((c) => c.stickers.length !== 3)
   // The Edge Only: its edges alone, about its hidden core (which tells it
   // from the Dino Cube, twelve such edges too).
+  if (shape === 'quarter') return withFaceMarks(solvedCube('3'))
   if (shape === 'edge')
     return solvedCube('3').filter((c) => c.stickers.length !== 1 && c.stickers.length !== 3)
+  // The Barrel: a 3x3 cut otherwise, its hidden core left out (which tells
+  // it from the 3x3).
+  if (shape === 'barrel') return solvedCube('3').filter((c) => c.stickers.length > 0)
+  if (shape === 'fisher') return withMarks(solvedCube('3'))
+  if (shape === 'megaminx') return solvedMegaminx()
   if (shape === 'ghost') return solvedGhost()
   if (shape === 'puck') return solvedPuck()
   const dims = SHAPE_DIMS[shape]
@@ -292,11 +301,14 @@ export function isBoxed(cube: Cube): boolean {
  * but A, so its faces are not one color each.
  */
 export function isSolved(cube: Cube): boolean {
-  // A Gear Cube's gears must be home too, which its stickers do not say.
-  if (cube.some((c) => c.spin)) return false
+  // A Gear Cube's gears must be home too, which its stickers do not say
+  // (a Quarter Cube's faces may stand either way: its colors are all).
+  if (cube.some((c) => c.spin) && cubeShape(cube) !== 'quarter') return false
   if (cubeShape(cube) === 'violet') return violetSolved(cube)
-  // A Z-Twist's thin edges show one color: their way round does not count.
-  if (cubeShape(cube) === 'twist') return twistSolved(cube)
+  // A Z-Twist's thin edges show one color, as the Barrel's middle edges:
+  // their way round does not count.
+  if (cubeShape(cube) === 'twist' || cubeShape(cube) === 'barrel') return twistSolved(cube)
+  if (cubeShape(cube) === 'fisher') return fisherSolved(cube)
   // Its pieces go by pairs of a color: its numbers say the order.
   if (cubeShape(cube) === 'puck') return puckSolved(cube)
   return isBoxed(cube) && uniformFaces(cube) === faceCount(cubeShape(cube))
@@ -353,13 +365,15 @@ export function cubeOrientations(cube: Cube): Cube[] {
     ? STAR_SYMMETRIES
     : isPyraminx(shape)
       ? PYRA_SYMMETRIES
-      : shape === 'ghost' || shape === 'puck'
-        ? [] // held one way only (the puck by its piece 12, which never moves)
-        : shape === 'violet'
-          ? [turnAboutA] // only about its diagonal through A
-          : (['x', 'y', 'z'] as Axis[]).map(
-              (axis) => (c: Cube) => rotateCube(c, axis, quarterTurnFits(dims, axis) ? 1 : 2),
-            )
+      : shape === 'megaminx'
+        ? MEGA_SYMMETRIES
+        : shape === 'ghost' || shape === 'puck'
+          ? [] // held one way only (the puck by its piece 12, which never moves)
+          : shape === 'violet'
+            ? [turnAboutA] // only about its diagonal through A
+            : (['x', 'y', 'z'] as Axis[]).map(
+                (axis) => (c: Cube) => rotateCube(c, axis, quarterTurnFits(dims, axis) ? 1 : 2),
+              )
   const found = new Map<string, Cube>([[stateKey(cube), cube]])
   let frontier = [cube]
   while (frontier.length) {
