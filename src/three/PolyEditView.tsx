@@ -7,6 +7,9 @@ import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { COLOR_HEX } from './colors'
 import { EMPTY_COLOR } from './EditView'
+
+/** An empty border of a super cube's center: darker than an empty sticker. */
+const EMPTY_BORDER = '#334155'
 import { Decal } from './Decal'
 import { PolyPiece } from './PolyPiece'
 import { polyDrawing } from './polyDrawing'
@@ -32,6 +35,7 @@ export function PolyEditView() {
   // While a form is being chosen, the one hovered (the original otherwise).
   const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
   const drawing = polyDrawing(shape)
+  const isSuper = shape === 'super4' || shape === 'super5'
   const pieces = entersByPieces(shape) ? piecesIn(edit, shape) : undefined
   // The sticker under the pointer (its slot's key, then its normal index).
   const [hovered, setHovered] = useState<string | null>(null)
@@ -81,13 +85,25 @@ export function PolyEditView() {
               </Fragment>
             )
           }
+          const borders = new Set(
+            slot.stickers
+              .filter(
+                (s) =>
+                  isSuper &&
+                  s.normal.reduce((sum, v, d) => sum + v * slot.position[d]!, 0) !==
+                    Math.max(...slot.position.map(Math.abs)),
+              )
+              .map((s) => s.ni),
+          )
           const hex = (ni: number) => {
             // A face with no sticker to enter keeps its own (the Violet's),
             // as does a piece that never moves, entered piece by piece (the
             // Z-Twist's centers).
             if (!byNi.has(ni) || (pieces && !slot.paintable)) return undefined
             const color = edit[byNi.get(ni)!]
-            return color ? (drawing.skin ?? COLOR_HEX[color]) : EMPTY_COLOR
+            if (color) return drawing.skin ?? COLOR_HEX[color]
+            // A super cube's border, darker while empty: it shows where to paint.
+            return borders.has(ni) ? EMPTY_BORDER : EMPTY_COLOR
           }
           return (
             <PolyPiece

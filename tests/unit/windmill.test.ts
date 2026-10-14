@@ -8,15 +8,17 @@ const SOLVED = solvedCube('windmill')
 const played = (moves: string) => applyMoves(SOLVED, parseMoves(moves))
 
 describe('Windmill', () => {
-  it('is a 3x3 of its own, its side centers marked up and down', () => {
+  it('is a 3x3 of its own, its side centers marked', () => {
     expect(cubeShape(SOLVED)).toBe('windmill')
     expect(cubeShape(solvedCube('fisher'))).toBe('fisher')
   })
 
-  it('shows a side center turned a quarter by (H)+(G)- (fan2cube.fr), not a half', () => {
+  it('shows a side center turned by (H)+(G)- (fan2cube.fr), a half turn too', () => {
+    // A rectangle cut in a slanting side: turned, even a half turn, it
+    // sticks out.
     expect(isSolved(played(CENTER_TURN))).toBe(false)
-    // A rectangle: a half turn never shows (a Fisher Cube's wedge does).
-    expect(isSolved(played(`${CENTER_TURN} ${CENTER_TURN}`))).toBe(true)
+    expect(isSolved(played(`${CENTER_TURN} ${CENTER_TURN}`))).toBe(false)
+    expect(isSolved(played(Array(4).fill(CENTER_TURN).join(' ')))).toBe(true)
   })
 
   it('shows a middle edge turned over, which a Fisher Cube hides', () => {

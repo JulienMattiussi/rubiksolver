@@ -30,8 +30,6 @@ export const entersByPieces = (shape: CubeShape): boolean =>
   shape === 'barrel' ||
   shape === 'fisher' ||
   shape === 'windmill' ||
-  shape === 'super4' ||
-  shape === 'super5' ||
   shape === 'mmorph'
 
 interface Pose {

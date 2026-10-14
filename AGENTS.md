@@ -255,7 +255,7 @@ src/
 │   ├── GearCorner.tsx    # Un coin ou un centre du Gear Cube : plaques sur des corps à leur forme
 │   ├── camoGeometry.ts   # Pièces du Camouflage : leur boîte telle qu'elle se tient
 │   ├── aiGeometry.ts     # Pièces de l'AI Cube : boîtes d'une case ou de deux
-│   ├── superGeometry.ts  # Pièces des super cubes : cubies d'un 4x4 ou d'un 5x5, centres bordés de la couleur des faces voisines
+│   ├── superGeometry.ts  # Pièces des super cubes : cubies d'un 4x4 ou d'un 5x5, centres bordés (biseautés aux coins) de la couleur des faces voisines
 │   ├── roadblockGeometry.ts # Pièces du RoadBlock-I : couches externes épaisses, barres d'un seul sticker
 │   ├── quarterGeometry.ts # Pièces du Quarter Cube : cubies et repère tourné de chaque centre
 │   ├── toriGeometry.ts   # Pièces du Tori : cube arrondi coupé par les plans du 3x3, faces percées en anneaux
@@ -1538,12 +1538,13 @@ arêtes verticales sur une coupe (cos − sin = 1/3, environ 31,4°,
 `three/windmillGeometry.ts`). Chaque côté montre deux colonnes du
 mécanisme : celle d'un coin (ses sommets, qui n'y montrent que deux
 couleurs, et son arête du milieu, une seule) et celle d'un centre (son
-centre, un rectangle, et ses deux arêtes). Les centres de côté portent deux
-repères, vers le haut et vers le bas : un demi-tour d'un rectangle ne se
-voit pas, un quart si (ce qui le distingue aussi du Fisher Cube, 62
-stickers) ; ses arêtes du milieu montrent leur sens, sa géométrie suivant
-la pièce (`cutSolid.ts` retrouve la rotation d'une pièce sticker par
-sticker, ses deux repères ayant la même couleur). Mêmes méthodes, même
+centre, un rectangle, et ses deux arêtes). Ses centres de côté sont
+taillés dans les côtés penchés : tournés, même d'un demi-tour, ils
+dépassent ; ils portent le repère du Fisher Cube, plus un second le long de
+leur face, qui le suit sans rien dire de plus mais distingue le Windmill
+(62 stickers). Ses arêtes du milieu montrent aussi leur sens, sa géométrie
+suivant la pièce (`cutSolid.ts` retrouve la rotation d'une pièce sticker
+par sticker, ses deux repères ayant la même couleur). Mêmes méthodes, même
 saisie que le Fisher Cube ; la page tourne aussi les centres par
 (H)+(G)-, l'« état singulier » d'un centre seul tourné d'un quart compris.
 
@@ -1891,8 +1892,12 @@ reconnaît à ses couleurs, la sienne d'abord (`centerKey`) ; leurs 144 et
 246 stickers les distinguent pour `cubeShape`. Mêmes coups, guide et
 mélange que leurs homologues. **Rendu** (`three/superGeometry.ts`) : les
 cubies du 4x4 ou du 5x5, chaque centre bordé de bandes de couleur.
-**Saisie** pièce par pièce (comme le Floppy Ghost) : les centres n'ont que
-leurs bordures pour se distinguer.
+**Saisie** des couleurs, comme les cubes, chaque bordure peinte à part
+(sa propre facette, plus sombre tant qu'elle est vide) : la saisie guidée
+reconnaît un centre à sa couleur et à celles de ses bordures, et complète
+le reste dès qu'il est déterminé (les rotations du cube entier suffisent à
+donner les placements : un centre n'atteint chaque emplacement que dans un
+sens).
 
 **Résolution** (`methods/superCube.ts`, la « méthode des centres » de la
 page, prise à l'envers) : la méthode du Revenge ou du Professor (réduction,
