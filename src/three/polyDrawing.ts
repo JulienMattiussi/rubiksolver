@@ -1,5 +1,5 @@
 import type * as THREE from 'three'
-import { isStar, type CubeShape, type Cubie } from '@/lib/types'
+import { type CubeShape, type Cubie, isMegaminx, isStar } from '@/lib/types'
 import { GHOST_STICKER } from './colors'
 import { GHOST_YAW, ghostPolygons } from './ghostGeometry'
 import { jingCut, jingPolygons, jingThumbnail } from './jingGeometry'
@@ -150,7 +150,7 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'morph') return MORPH
   if (shape === 'ghost') return GHOST
   if (shape === 'puck') return PUCK
-  if (shape === 'megaminx') return MEGAMINX
+  if (isMegaminx(shape)) return MEGAMINX
   if (shape === 'oct4') return OCT4
   if (shape === 'vto') return VTO
   if (shape === 'gem') return GEM

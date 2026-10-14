@@ -63,7 +63,7 @@ test('mirror cube: the variant is a skin, it keeps the state and renders', async
   await expect(page.getByRole('button', { name: 'Réinitialiser' })).toBeEnabled()
 
   // A mirror size switch mounts fine too (the 4x4 has middle layers).
-  await pickCube(page, 'Miroirs', '4x4 miroir')
+  await pickCube(page, 'Miroirs', '4x4 (Revenge) miroir')
   await expect(page.getByText('Cube résolu')).toBeVisible()
   await expect(page.locator('canvas:not([aria-hidden])')).toBeVisible()
 
@@ -127,7 +127,7 @@ test('4x4: switch size, scramble, then solve by reduction', async ({ page }) => 
   await page.goto('/#/fr/3x3')
 
   await page.getByLabel('Vitesse').fill('100')
-  await pickCube(page, 'Standards', '4x4')
+  await pickCube(page, 'Standards', '4x4 (Revenge)')
   await page.getByLabel('Méthode de résolution').selectOption('reduction')
 
   const scramble = page.getByRole('button', { name: 'Mélanger' })
@@ -144,7 +144,7 @@ test('4x4: switch size, scramble, then solve by reduction', async ({ page }) => 
 test('4x4 cube editor: movable centers count toward the 96 stickers', async ({ page }) => {
   await page.goto('/#/fr/3x3')
 
-  await pickCube(page, 'Standards', '4x4')
+  await pickCube(page, 'Standards', '4x4 (Revenge)')
   await page.getByRole('button', { name: /Depuis l.?.tat actuel/ }).click()
   await expect(page.getByText('96 / 96 stickers')).toBeVisible()
 
@@ -200,8 +200,8 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
   const puzzles: [string, string][] = [
     ['Standards', '2x2 (Pocket)'],
     ['Standards', '3x3'],
-    ['Standards', '4x4'],
-    ['Standards', '5x5'],
+    ['Standards', '4x4 (Revenge)'],
+    ['Standards', '5x5 (Professor)'],
     ['Miroirs', '3x3 miroir'],
     ['Tours', '2x2x3 (Slim Tower)'],
     ['Tours', '3x3x2 (Domino)'],

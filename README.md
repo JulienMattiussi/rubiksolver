@@ -1,12 +1,12 @@
 # Rubik Solver
 
 Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2
-(Pocket), 3x3, 4x4, 5x5 ou 6x6**, plus six cuboïdes (le **1x2x3**, la **tour 2x2x4**,
+(Pocket), 3x3, 4x4 (Revenge), 5x5 (Professor) ou 6x6**, plus six cuboïdes (le **1x2x3**, la **tour 2x2x4**,
 la **Slim Tower 2x2x3**, le **Domino 3x3x2**, le **Camouflage 4x4x2** et le **Floppy 3x3x1**), le
 **Floppy Ghost** (un Floppy Megaminx découpé en pentagramme, argenté) et des
 puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (sans pointes), le **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le
 **Pyraminx Jing**, le **Pyramorphinx**, le **4-Trajber's Octahedron** (un 4x4x4 en octaèdre), l'**Octahedron VTO** (un 3x3x3 en octaèdre), le **GEM-0** (le VTO sans pointes),
-le **Rainbow** (un cuboctaèdre aux triangles qui tournent), le **Megaminx** (un dodécaèdre), le **Dino Cube**, le
+le **Rainbow** (un cuboctaèdre aux triangles qui tournent), le **Megaminx** (un dodécaèdre) et le **Holey Megaminx** (sans centres), le **Dino Cube**, le
 **Rex Cube** (leurs sommets tournent) et le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième),
 le **Violet** (un 2x2x2 à pivot excentré qui se déforme), le **Z-Twist** (un 3x3x3
 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Quarter Cube** (des faces qui vont et reviennent d'un quart), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube
@@ -54,7 +54,7 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   - 4-Trajber's Octahedron : **sommets d'abord** ;
   - Octahedron VTO et GEM-0 : **centres puis arêtes** ;
   - Rainbow : **triangle prolongé** ;
-  - Megaminx : **l'étoile prolongée** (par couches, une face de plus à chaque tour) ;
+  - Megaminx et Holey Megaminx : **l'étoile prolongée** (par couches, une face de plus à chaque tour) ;
   - Dino Cube : **étage par étage** ;
   - Rex Cube : **arêtes, centres, pétales** ;
   - Violet : **forme puis couleurs** ;

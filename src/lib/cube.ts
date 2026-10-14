@@ -28,6 +28,7 @@ import {
   ALL_COLORS,
   hasColoredClips,
   isGear,
+  isMegaminx,
   isPyraminx,
   isStar,
   SHAPE_DIMS,
@@ -140,6 +141,8 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (shape === 'barrel') return solvedCube('3').filter((c) => c.stickers.length > 0)
   if (shape === 'fisher') return withMarks(solvedCube('3'))
   if (shape === 'megaminx') return solvedMegaminx()
+  // The Holey Megaminx: holes where the centers are.
+  if (shape === 'holey') return solvedMegaminx().filter((c) => c.stickers.length > 1)
   if (shape === 'ghost') return solvedGhost()
   if (shape === 'puck') return solvedPuck()
   const dims = SHAPE_DIMS[shape]
@@ -365,7 +368,7 @@ export function cubeOrientations(cube: Cube): Cube[] {
     ? STAR_SYMMETRIES
     : isPyraminx(shape)
       ? PYRA_SYMMETRIES
-      : shape === 'megaminx'
+      : isMegaminx(shape)
         ? MEGA_SYMMETRIES
         : shape === 'ghost' || shape === 'puck'
           ? [] // held one way only (the puck by its piece 12, which never moves)

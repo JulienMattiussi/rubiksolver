@@ -30,6 +30,7 @@ const SCRAMBLE_LENGTH: Record<CubeShape, number> = {
   gem: 25,
   rainbow: 20,
   megaminx: 40,
+  holey: 40,
   dino: 20,
   rex: 25,
   fisher: 20,

@@ -11,7 +11,7 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 **Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme), le
 **4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), l'**Octahedron VTO**
 (un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
-(un cuboctaèdre dont les triangles tournent), le **Megaminx** (un dodécaèdre), le **Dino Cube** et le **Rex Cube** (leurs sommets
+(un cuboctaèdre dont les triangles tournent), le **Megaminx** (un dodécaèdre) et le **Holey Megaminx** (sans ses centres), le **Dino Cube** et le **Rex Cube** (leurs sommets
 tournent), le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième, qui se déforme), le **Violet** (un 2x2x2 à
 pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Quarter Cube** (des faces qui ne font qu'aller et revenir d'un quart), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages),
 le **Hockey Puck** (deux disques de 12 pièces, de la famille des étoiles), le **Barrel** (un 3x3x3 aux arêtes verticales tronquées, qui se déforme) et les
@@ -45,7 +45,7 @@ milieu du 3x3. Exceptions : les puzzles qui ne tournent pas comme un cube
 ont leur propre notation, le plus souvent celle de fan2cube : le Pyraminx,
 où chaque notation garde son propre usage (voir « Le Pyraminx »), les
 étoiles (`3`, `/`), le Floppy Ghost, le Rainbow, le Dino et le Rex (lettres
-de fan2cube), le Megaminx (`U F R BR BL L` et le bas en anglais, `H A D G P B` et leurs opposées soulignées en français) et les Gear Cubes (`D²`).
+de fan2cube), le Megaminx et le Holey (`U F R BR BL L` et le bas en anglais, `H A D G P B` et leurs opposées soulignées en français) et les Gear Cubes (`D²`).
 
 ---
 
@@ -420,7 +420,7 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 - **Par couches** (`barrelLayers`, Barrel) : couche du bas, arêtes du milieu
   (dans un sens ou l'autre), coins du haut, arêtes du haut placées puis
   retournées - voir « Le Barrel ».
-- **L'étoile prolongée** (`megaStar`, Megaminx) : étoile et sommets du
+- **L'étoile prolongée** (`megaStar`, Megaminx et Holey Megaminx) : étoile et sommets du
   dessous, équateur bas, cinq faces voisines, équateur haut, puis la face du
   haut - voir « Le Megaminx ».
 - **Triangle prolongé** (`extendedTriangle`, Rainbow) : le triangle du haut,
@@ -1497,6 +1497,14 @@ plus court enchaînement de celles qui laissent en place tout ce qui est fait
 disent ses centres. Environ 400 coups, en moins d'une seconde. Effet de
 chaque formule de la page testé.
 
+Le **Holey Megaminx** (`holey`, fan2cube.fr/holeymegaminx1, Lee Tutt, 2009) est
+le Megaminx sans ses centres, des trous à leur place (catégorie « Troués »,
+avec le Tori et l'Edge Only) : 50 pièces, mêmes coups, même méthode. Sans
+centres, la cible est la tenue du puzzle résolu avec laquelle s'accordent le
+plus d'étapes, puis le plus de pièces ; ses tours étant des permutations
+paires, les 60 tenues sont atteignables (« pas de singularité », dit la
+page).
+
 ### Le Professor Pyraminx (`pyra5`)
 
 Le Pyraminx 5x5x5 (fan2cube.fr/profpyraminx1 et 2, Timur Evbatyrov, 2011) :
@@ -1794,11 +1802,11 @@ mobile et en saisie, une seule carte) :
   **puzzles** de la catégorie choisie (toujours ouvert sur les catégories ; le
   puzzle courant et sa catégorie sont mis en évidence ; la vignette d'une catégorie montre trois
   de ses puzzles, devant le 3x3, le 4-Star Prism ou le Megaminx s'il en est, `COVERS`). Catégories (`cubeCategory`), dans
-  l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4/5x5/6x6, Miroirs 2x2/3x3/4x4, Tours 2x2x3
+  l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4 (Revenge)/5x5 (Professor)/6x6, Miroirs 2x2/3x3/4x4, Tours 2x2x3
   (Slim)/2x2x4/3x3x2 (Domino)/Camouflage 4x4x2, Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Polyèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow/Megaminx, Cylindriques Hockey Puck/Barrel/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube/Fisher Cube, Bizarres Violet/Z-Twist/Tori/Edge Only/Quarter Cube.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Megaminx/Rainbow, Cylindriques Hockey Puck/Barrel/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube/Fisher Cube, Troués Holey Megaminx/Tori/Edge Only, Bizarres Violet/Z-Twist/Quarter Cube.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

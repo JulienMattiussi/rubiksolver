@@ -2,7 +2,7 @@ import { ArchiveRestore, Bookmark, RotateCcw, Shuffle, Square } from 'lucide-rea
 import { useState } from 'react'
 import { cubeShape } from '@/lib/cube'
 import { notEnterable } from '@/lib/forms'
-import { isGear, isPyraminx, isStar } from '@/lib/types'
+import { isGear, isMegaminx, isPyraminx, isStar } from '@/lib/types'
 import { encodeCube } from '@/lib/snapshot'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
@@ -131,7 +131,7 @@ export function SetupSection() {
         <GhostPad disabled={busy} />
       ) : shape === 'puck' ? (
         <PuckPad disabled={busy} />
-      ) : shape === 'megaminx' ? (
+      ) : isMegaminx(shape) ? (
         <MegaPad disabled={busy} />
       ) : shape === 'rainbow' || shape === 'dino' || shape === 'rex' ? (
         <RainbowPad disabled={busy} dino={shape === 'dino'} rex={shape === 'rex'} />

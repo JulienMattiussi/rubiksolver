@@ -38,6 +38,7 @@ export type CubeShape =
   | 'edge'
   | 'quarter'
   | 'megaminx'
+  | 'holey'
   | 'ghost'
   | 'puck'
   | 'barrel'
@@ -91,6 +92,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   // The Megaminx (megaminx.ts) is no grid: its slots are numbered within
   // +-4, which says nothing of where they are.
   megaminx: [9, 9, 9],
+  // The Holey Megaminx: the Megaminx without its centers.
+  holey: [9, 9, 9],
   dino: [3, 3, 3],
   // The Rex Cube's pieces sit within +-4 (rainbow.ts), its box says so.
   rex: [9, 9, 9],
@@ -160,6 +163,9 @@ export const hasColoredClips = (shape: CubeShape): boolean => shape === 'gearU' 
 const isRainbowLike = (shape: CubeShape): boolean =>
   shape === 'rainbow' || shape === 'dino' || shape === 'rex'
 
+/** The Megaminx and its holey cousin (megaminx.ts). */
+export const isMegaminx = (shape: CubeShape): boolean => shape === 'megaminx' || shape === 'holey'
+
 /** Whether a shape builds and turns in its own module rather than on a grid
  *  of layers (the star prisms, the Pyraminx, the Floppy Ghost): drawn from
  *  polygons, turned by its own pad. */
@@ -168,7 +174,7 @@ export const isGridless = (shape: CubeShape): boolean =>
   isPyraminx(shape) ||
   shape === 'ghost' ||
   shape === 'puck' ||
-  shape === 'megaminx' ||
+  isMegaminx(shape) ||
   isRainbowLike(shape) ||
   isGear(shape)
 
@@ -225,6 +231,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   gem: false,
   rainbow: false,
   megaminx: false,
+  holey: false,
   dino: false,
   rex: false,
   fisher: false,
@@ -279,6 +286,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   gem: [],
   rainbow: [],
   megaminx: [],
+  holey: [],
   dino: [],
   rex: [],
   fisher: [],
@@ -325,6 +333,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   gem: [],
   rainbow: [],
   megaminx: [],
+  holey: [],
   dino: [],
   rex: [],
   fisher: [],
@@ -347,8 +356,8 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
 export const SHAPE_LABEL: Record<CubeShape, string> = {
   '2': '2x2 (Pocket)',
   '3': '3x3',
-  '4': '4x4',
-  '5': '5x5',
+  '4': '4x4 (Revenge)',
+  '5': '5x5 (Professor)',
   '6': '6x6',
   '123': '1x2x3',
   '224': '2x2x4',
@@ -367,6 +376,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   gem: 'GEM-0 (Jewel)',
   rainbow: 'Rainbow',
   megaminx: 'Megaminx',
+  holey: 'Holey Megaminx',
   dino: 'Dino Cube',
   rex: 'Rex Cube',
   fisher: 'Fisher Cube',
@@ -410,6 +420,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   gem: 'gem-0',
   rainbow: 'rainbow',
   megaminx: 'megaminx',
+  holey: 'holey-megaminx',
   dino: 'dino-cube',
   rex: 'rex-cube',
   fisher: 'fisher-cube',
@@ -467,6 +478,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   gem: false,
   rainbow: false,
   megaminx: false,
+  holey: false,
   dino: false,
   rex: false,
   fisher: false,
@@ -509,6 +521,7 @@ export const CUBE_CATEGORIES = [
   'star',
   'gear',
   'diagonal',
+  'holey',
   'odd',
 ] as const
 export type CubeCategory = (typeof CUBE_CATEGORIES)[number]
@@ -529,15 +542,10 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
     return 'octahedron'
   }
   if (isGear(shape)) return 'gear'
+  // Holes where the centers would be.
+  if (shape === 'holey' || shape === 'tori' || shape === 'edge') return 'holey'
   if (shape === 'dino' || shape === 'rex' || shape === 'fisher') return 'diagonal'
-  if (
-    shape === 'violet' ||
-    shape === 'twist' ||
-    shape === 'tori' ||
-    shape === 'edge' ||
-    shape === 'quarter'
-  )
-    return 'odd'
+  if (shape === 'violet' || shape === 'twist' || shape === 'quarter') return 'odd'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
   // One layer thick: the 1x2x3 and the Floppy.

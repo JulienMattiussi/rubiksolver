@@ -73,6 +73,8 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'gem', pieces: 18, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
   // A dodecahedron: 12 fixed centers, 30 edges, 20 corners.
   { shape: 'megaminx', pieces: 62, stickers: 132, orientations: 60, painted: 132, scramble: 40 },
+  // The Megaminx without its centers.
+  { shape: 'holey', pieces: 50, stickers: 120, orientations: 60, painted: 120, scramble: 40 },
   { shape: 'rainbow', pieces: 20, stickers: 56, orientations: 24, painted: 56, scramble: 20 },
   // Held three ways: about its diagonal through A, its one symmetry.
   {

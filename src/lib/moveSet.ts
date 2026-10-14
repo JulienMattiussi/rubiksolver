@@ -4,7 +4,7 @@ import { gearTurnsOf } from './gear'
 import { MEGA_TURNS } from './megaminx'
 import { DINO_TURNS, RAINBOW_TURNS, REX_TURNS } from './rainbow'
 import { movesFor, parseMoves, sameLayer } from './moves'
-import { isGear } from './types'
+import { isGear, isMegaminx } from './types'
 import type { CubeShape, Move, Turn } from './types'
 
 /**
@@ -47,7 +47,7 @@ export function allTurnsOf(shape: CubeShape): MoveSet {
         ? PUCK_TURNS
         : shape === 'rainbow'
           ? RAINBOW_TURNS
-          : shape === 'megaminx'
+          : isMegaminx(shape)
             ? MEGA_TURNS
             : shape === 'dino'
               ? DINO_TURNS

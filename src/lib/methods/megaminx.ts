@@ -265,7 +265,9 @@ const STEPS: readonly { slots: Slots; formulas: readonly string[]; placed?: true
 ]
 
 /** The solved puzzle held every way: the one aimed at is the one whose
- *  centers (which never move) the state shows. */
+ *  centers (which never move) the state shows; without centers (the Holey
+ *  Megaminx), the one the most steps then the most pieces already agree
+ *  with. Its turns being even permutations, every holding is reachable. */
 let HELD: Cube[] | undefined
 const centers = (cube: Cube) =>
   cube
@@ -276,7 +278,14 @@ const centers = (cube: Cube) =>
 function targetOf(cube: Cube): Cube {
   HELD ??= cubeOrientations(SOLVED)
   const seen = centers(cube)
-  return HELD.find((held) => centers(held) === seen)!
+  if (seen) return HELD.find((held) => centers(held) === seen)!
+  const score = (held: Cube) => {
+    const home = (slot: readonly MegaFace[]) => isHome(cube, held, slot)
+    const steps = STEPS.findIndex(({ slots }) => !slots.every(home))
+    const pieces = MEGA_SLOTS.filter((slot) => slot.length > 1 && home(slot)).length
+    return (steps < 0 ? STEPS.length : steps) * 100 + pieces
+  }
+  return HELD.reduce((best, held) => (score(held) > score(best) ? held : best))
 }
 
 /** A slot's piece in the target, where it belongs. */
@@ -358,6 +367,7 @@ const KEYS = [
   'stepMegaTopTwist',
 ]
 
+/** The plan, on the Megaminx or the Holey Megaminx (the same turns). */
 export const MEGAMINX_PLAN: MethodPlan = STEPS.map((_, k) => ({
   key: KEYS[k]!,
   goal: doneTo(k),

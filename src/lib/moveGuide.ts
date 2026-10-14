@@ -19,10 +19,11 @@ import {
   isGear,
   isGearMove,
   isGhostMove,
+  isMegaminx,
+  isMegaMove,
   isPuckMove,
   isPyraminx,
   isPyraMove,
-  isMegaMove,
   isRainbowMove,
   isStar,
   SHAPE_DIMS,
@@ -263,7 +264,7 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
       { section: 'gearsThrice', rows: gears.map((gear) => [{ gear, amount: 1, times: 3 }]) },
     ]
   }
-  if (shape === 'megaminx') {
+  if (isMegaminx(shape)) {
     // A fifth either way, then two.
     const rows = MEGA_FACES.flatMap((megaFace) =>
       [[1, 4] as const, [2, 3] as const].map((amounts) =>

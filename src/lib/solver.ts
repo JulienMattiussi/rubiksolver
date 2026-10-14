@@ -121,7 +121,7 @@ const SOLVE_METHODS = [
   { id: 'vtoCentersFirst', plans: { vto: VTO_PLAN } },
   { id: 'gemCentersFirst', plans: { gem: GEM_PLAN } },
   { id: 'extendedTriangle', plans: { rainbow: RAINBOW_PLAN } },
-  { id: 'megaStar', plans: { megaminx: MEGAMINX_PLAN } },
+  { id: 'megaStar', plans: { megaminx: MEGAMINX_PLAN, holey: MEGAMINX_PLAN } },
   { id: 'dinoLayers', plans: { dino: DINO_PLAN } },
   { id: 'rexEdgesFirst', plans: { rex: REX_PLAN } },
   { id: 'gearCornersFirst', plans: { gearCube: GEAR_PLAN, gearU: GEAR_ULTIMATE_PLAN } },

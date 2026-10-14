@@ -80,7 +80,7 @@ describe('<Controls />', () => {
     const user = userEvent.setup()
     render(<Controls />)
 
-    await pickCube(user, 'Standards', '4x4')
+    await pickCube(user, 'Standards', '4x4 (Revenge)')
     await user.click(screen.getByRole('button', { name: 'Tranche' }))
     await user.click(
       screen.getByRole('button', {

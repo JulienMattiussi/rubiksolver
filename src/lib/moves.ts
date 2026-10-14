@@ -40,21 +40,22 @@ import {
 } from './rainbow'
 import { formatStarMove, invertStarMove, scrambleStar, simplifyStarMoves, STAR_RINGS } from './star'
 import {
+  type InnerTurn,
+  isGear,
+  isGearMove,
   isGhostMove,
+  isGridless,
+  isMegaminx,
   isMegaMove,
   isPuckMove,
-  isGridless,
-  isRainbowMove,
-  isGearMove,
-  isGear,
-  isPyraMove,
   isPyraminx,
+  isPyraMove,
+  isRainbowMove,
   isStar,
   isStarMove,
   SHAPE_ADVANCED_TURNS,
   SHAPE_INNER_TURNS,
   SHAPE_SHIFTS,
-  type InnerTurn,
 } from './types'
 import type {
   Cube,
@@ -420,7 +421,7 @@ export function scrambleTurns(
   if (shape === 'ghost') return scrambleGhost(length, rng)
   if (shape === 'puck') return scramblePuck(length, rng)
   if (shape === 'rainbow') return scrambleRainbow(length, rng)
-  if (shape === 'megaminx') return scrambleMegaminx(length, rng)
+  if (isMegaminx(shape)) return scrambleMegaminx(length, rng)
   if (shape === 'dino') return scrambleDino(length, rng)
   if (shape === 'rex') return scrambleRex(length, rng)
   if (isGear(shape)) return scrambleGear(shape, length, rng)
@@ -453,7 +454,7 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
   if (shape === 'ghost') return GHOST_TURNS
   if (shape === 'puck') return PUCK_TURNS
   if (shape === 'rainbow') return RAINBOW_TURNS
-  if (shape === 'megaminx') return MEGA_TURNS
+  if (isMegaminx(shape)) return MEGA_TURNS
   if (shape === 'dino') return DINO_TURNS
   if (shape === 'rex') return REX_TURNS
   if (isGear(shape)) return gearTurnsOf(shape)
