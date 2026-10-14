@@ -1,10 +1,17 @@
 // Names of the puzzles' layers and faces, and the move guide's sentences
-// (one per turn, built from its description, see lib/moveGuide.ts). Content
+// (one per turn, built from its description, see lib/app/moveGuide.ts). Content
 // shared by the two languages of translations.ts.
 
-import type { MoveDescription } from '@/lib/moveGuide'
-import { fromAbove } from '@/lib/star'
-import type { Face, GhostSide, MegaFace, PyraVertex, RainbowCorner, RingMove } from '@/lib/types'
+import type { MoveDescription } from '@/lib/app/moveGuide'
+import { fromAbove } from '@/lib/puzzles/round/star'
+import type {
+  Face,
+  GhostSide,
+  MegaFace,
+  PyraVertex,
+  RainbowCorner,
+  RingMove,
+} from '@/lib/core/types'
 
 export type StarLayer = RingMove['ring']
 

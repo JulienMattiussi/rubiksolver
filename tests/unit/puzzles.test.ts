@@ -6,12 +6,12 @@ import {
   solvedCube,
   stateKey,
   stickersTotal,
-} from '@/lib/cube'
-import { buildCube, cubeToEdit, emptyEdit, isComplete, progress } from '@/lib/editor'
-import { stickerId, tablesFor } from '@/lib/editorTables'
-import { formOf } from '@/lib/forms'
-import { normalIndex } from '@/lib/geometry'
-import { describeMove, moveGuide } from '@/lib/moveGuide'
+} from '@/lib/core/cube'
+import { buildCube, cubeToEdit, emptyEdit, isComplete, progress } from '@/lib/editor/editor'
+import { stickerId, tablesFor } from '@/lib/editor/editorTables'
+import { formOf } from '@/lib/editor/forms'
+import { normalIndex } from '@/lib/core/geometry'
+import { describeMove, moveGuide } from '@/lib/app/moveGuide'
 import {
   formatMove,
   invertMoves,
@@ -20,15 +20,15 @@ import {
   NOTATION_FR,
   NOTATION_US,
   scrambleTurns,
-} from '@/lib/moves'
-import { methodsFor } from '@/lib/solver'
-import { decodeCube, encodeCube } from '@/lib/snapshot'
-import { applyMoves, turnAllowed } from '@/lib/turn'
-import { hasColoredClips, isGear, type Cube, type CubeShape, type Turn } from '@/lib/types'
-import { alignGears } from '@/lib/gear'
-import { gearColorsOf, turnedOf } from '@/lib/gearEditor'
-import { validateCube } from '@/lib/validate'
-import { barsTurned } from '@/lib/roadblock'
+} from '@/lib/core/moves'
+import { methodsFor } from '@/lib/solve/solver'
+import { decodeCube, encodeCube } from '@/lib/app/snapshot'
+import { applyMoves, turnAllowed } from '@/lib/core/turn'
+import { hasColoredClips, isGear, type Cube, type CubeShape, type Turn } from '@/lib/core/types'
+import { alignGears } from '@/lib/puzzles/gear/gear'
+import { gearColorsOf, turnedOf } from '@/lib/editor/gearEditor'
+import { validateCube } from '@/lib/editor/validate'
+import { barsTurned } from '@/lib/puzzles/twisted/roadblock'
 import { LOCALES } from '@/i18n/translations'
 import { seededRng } from '../helpers'
 

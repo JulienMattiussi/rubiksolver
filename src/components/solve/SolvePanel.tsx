@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Square } from 'lucide-react'
-import { stepEnd } from '@/lib/progress'
+import { stepEnd } from '@/lib/solve/progress'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
 import { Button } from '@/components/ui/Button'

@@ -1,5 +1,5 @@
-import { cubeShape } from '@/lib/cube'
-import { methodsFor } from '@/lib/solver'
+import { cubeShape } from '@/lib/core/cube'
+import { methodsFor } from '@/lib/solve/solver'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { SECTION_LABEL } from '@/components/ui/styles'

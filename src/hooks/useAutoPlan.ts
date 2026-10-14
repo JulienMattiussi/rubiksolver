@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { isSolved } from '@/lib/cube'
+import { isSolved } from '@/lib/core/cube'
 import type { SolveRequest, SolveResponse } from '@/workers/solveWorker'
 import { planKey, selectBusy, useCube } from '@/store/cubeStore'
 

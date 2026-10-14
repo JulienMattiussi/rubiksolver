@@ -1,68 +1,17 @@
 import { create } from 'zustand'
-import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/cube'
-import { applyMove } from '@/lib/turn'
-import { invertMoves, scrambleTurns } from '@/lib/moves'
-import { stepEnd, stepStart } from '@/lib/progress'
-import { methodsFor, type MethodId, type SolveStep } from '@/lib/solver'
-import { supportsMirror, type Cube, type CubeShape, type CubeVariant, type Turn } from '@/lib/types'
-
-/** Scramble length per shape: enough to reach any state, without dragging on. */
-const SCRAMBLE_LENGTH: Record<CubeShape, number> = {
-  '2': 11,
-  '3': 20,
-  '4': 40,
-  super4: 40,
-  '5': 60,
-  super5: 60,
-  '6': 80,
-  '123': 10,
-  '224': 25,
-  '234': 25,
-  camo: 40,
-  '223': 20,
-  '332': 20,
-  '334': 30,
-  '443': 30,
-  '445': 40,
-  '554': 40,
-  '331': 12,
-  pyra: 11,
-  tetra: 11,
-  pyra4: 30,
-  pyra5: 40,
-  jing: 15,
-  morph: 11,
-  oct4: 40,
-  vto: 25,
-  gem: 25,
-  rainbow: 20,
-  megaminx: 40,
-  holey: 40,
-  crystal: 40,
-  dino: 20,
-  rex: 25,
-  skewbU: 25,
-  dinoCyl: 25,
-  fto: 30,
-  fisher: 20,
-  windmill: 20,
-  mmorph: 25,
-  gearCube: 20,
-  gearU: 20,
-  gearX: 25,
-  violet: 25,
-  twist: 20,
-  barrel: 20,
-  tori: 20,
-  edge: 20,
-  quarter: 30,
-  ai: 30,
-  roadblock: 40,
-  ghost: 15,
-  puck: 25,
-  star: 20,
-  star4: 40,
-}
+import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/core/cube'
+import { applyMove } from '@/lib/core/turn'
+import { invertMoves, scrambleTurns } from '@/lib/core/moves'
+import { stepEnd, stepStart } from '@/lib/solve/progress'
+import { methodsFor, type MethodId, type SolveStep } from '@/lib/solve/solver'
+import {
+  SHAPE_SCRAMBLE,
+  supportsMirror,
+  type Cube,
+  type CubeShape,
+  type CubeVariant,
+  type Turn,
+} from '@/lib/core/types'
 
 interface CubeStore {
   /** Logical cube state; its shape is derived via `cubeShape(cube)`. */
@@ -208,7 +157,7 @@ export const useCube = create<CubeStore>((set, get) => ({
       // From the current state: a shape-shifting puzzle's legal turns depend on it.
       queue: scrambleTurns(
         cubeShape(s.cube),
-        SCRAMBLE_LENGTH[cubeShape(s.cube)],
+        SHAPE_SCRAMBLE[cubeShape(s.cube)],
         Math.random,
         s.cube,
       ),

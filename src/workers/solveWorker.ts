@@ -1,6 +1,6 @@
-import { cubeShape } from '@/lib/cube'
-import { methodsFor, type MethodId, type SolveStep } from '@/lib/solver'
-import type { Cube } from '@/lib/types'
+import { cubeShape } from '@/lib/core/cube'
+import { methodsFor, type MethodId, type SolveStep } from '@/lib/solve/solver'
+import type { Cube } from '@/lib/core/types'
 
 /** A solution to compute: the state, its method, and the request it answers. */
 export interface SolveRequest {

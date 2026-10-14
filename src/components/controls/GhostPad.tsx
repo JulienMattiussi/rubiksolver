@@ -1,5 +1,5 @@
-import { formatMove } from '@/lib/moves'
-import { GHOST_TURNS } from '@/lib/ghost'
+import { formatMove } from '@/lib/core/moves'
+import { GHOST_TURNS } from '@/lib/puzzles/flat/ghost'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { TURN_PAIR } from '@/components/ui/styles'
 import { PadButton } from './PadButton'

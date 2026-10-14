@@ -1,6 +1,6 @@
 import { Box, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { useId, useState, type ReactNode } from 'react'
-import { cubeShape } from '@/lib/cube'
+import { cubeShape } from '@/lib/core/cube'
 import {
   CUBE_CATEGORIES,
   CUBE_KINDS,
@@ -10,7 +10,7 @@ import {
   type CubeCategory,
   type CubeKind,
   type CubeShape,
-} from '@/lib/types'
+} from '@/lib/core/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { goTo } from '@/store/router'

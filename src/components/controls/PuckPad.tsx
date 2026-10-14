@@ -1,5 +1,5 @@
-import { formatMove } from '@/lib/moves'
-import type { PuckMove } from '@/lib/types'
+import { formatMove } from '@/lib/core/moves'
+import type { PuckMove } from '@/lib/core/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { TURN_PAIR } from '@/components/ui/styles'
 import { PadButton } from './PadButton'

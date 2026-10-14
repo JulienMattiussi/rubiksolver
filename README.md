@@ -1,17 +1,11 @@
 # Rubik Solver
 
-Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2
-(Pocket), 3x3, 4x4 (Revenge), 5x5 (Professor) ou 6x6**, le **Super Revenge** et le **Super Professor** (leurs centres chacun à sa place), plus onze cuboïdes (le **1x2x3**, la **tour 2x2x4**, la **tour 2x3x4**,
-la **Slim Tower 2x2x3**, le **Domino 3x3x2**, les tours **3x3x4**, **4x4x3**, **4x4x5** et **5x5x4**, le **Camouflage 4x4x2** et le **Floppy 3x3x1**), le
-**Floppy Ghost** (un Floppy Megaminx découpé en pentagramme, argenté) et des
-puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (sans pointes), le **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le
-**Pyraminx Jing**, le **Pyramorphinx**, le **Master Morphinx** (un 3x3x3 en tétraèdre), le **4-Trajber's Octahedron** (un 4x4x4 en octaèdre), l'**Octahedron VTO** (un 3x3x3 en octaèdre), le **GEM-0** (le VTO sans pointes), le **FTO** (un octaèdre dont les faces tournent),
-le **Rainbow** (un cuboctaèdre aux triangles qui tournent), le **Megaminx** (un dodécaèdre), le **Holey Megaminx** (sans centres), le **Pyraminx Crystal** (un Megaminx coupé plus profond), le **Dino Cube**, le **Dino Cylinder** (un Dino en cylindre, aux sommets en plus), le
-**Rex Cube** (leurs sommets tournent) le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième), le **Windmill** (son jumeau, tourné moins) et le **Skewb Ultimate** (un Skewb en dodécaèdre),
-le **Violet** (un 2x2x2 à pivot excentré qui se déforme), le **Z-Twist** (un 3x3x3
-à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Quarter Cube** (des faces qui vont et reviennent d'un quart), l'**AI Cube** (un 4x4x4 bandé), le **RoadBlock-I** (un 5x5x5 aux centres en barres), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube
-Extreme** (des 3x3x3 à engrenages)
-le **Hockey Puck** (deux disques de 12 pièces, de la famille des étoiles), le **Barrel** (un 3x3x3 aux arêtes verticales tronquées) et les **Star Prism** à 2 et 4 étages.
+Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, sur plus de
+50 puzzles en 11 catégories : les cubes standards du 2x2 au 6x6 (et leurs
+versions miroir), des tours et cuboïdes (Domino, Floppy, 2x2x4...), des
+pyramides (Pyraminx et sa famille), des polyèdres (octaèdres, Megaminx,
+Rainbow...), des cylindriques (Star Prism, Hockey Puck...), des Gear Cubes,
+des coupes diagonales (Dino, Rex...), des troués et des puzzles torturés.
 On manipule le puzzle, on le mélange **ou on saisit sa propre
 configuration** en peignant les stickers en 3D, puis on le résout selon
 **plusieurs vraies méthodes**. La solution, affichée dès que le puzzle est au
@@ -21,7 +15,8 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
 ## Fonctionnalités
 
 - Puzzle 3D manipulable : rotations de faces, tranches (`M`, `E`, `S` sur 3x3,
-  dans un onglet « Avancé » avec les coups larges ; tranches internes sur 4x4)
+  dans un onglet « Avancé » avec les coups larges ; tranches internes sur les
+  grands cubes et les tours)
   et coups larges, orbite caméra, recentrage animé.
   Au survol d'un bouton, les pièces qui vont tourner s'illuminent.
 - **Guide des mouvements** : chaque coup du puzzle animé sur le puzzle dans
@@ -31,77 +26,23 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
 - **Méthodes de résolution**, chacune avec ses étapes, ses objectifs et ses
   coups autorisés (vérifiés par le moteur) :
   - 3x3 : par couches, Fridrich (CFOP), **Roux**, **Petrus**, **ZZ** ;
-  - Z-Twist : par couches, CFOP, Petrus, ZZ, puis les centres tordus ;
-  - Fisher Cube, Windmill et Master Morphinx : par couches, CFOP, Petrus, ZZ, puis les centres tournés ;
-  - Barrel : **par couches** (ses arêtes du milieu n'ont pas de sens), CFOP, Petrus, ZZ ;
-  - 2x2 : par couches, et **optimale** (11 coups maximum) ;
-  - 4x4 : **réduction** (centres, arêtes, parités) puis par couches ou CFOP ;
-  - 5x5 et 6x6 : **réduction** aussi, centres et arêtes par commutateurs (3-cycles),
-    parité d'arête, puis par couches ou CFOP ;
-  - Super Revenge et Super Professor : la même **réduction** sur leurs couleurs, puis leurs centres rangés (3-cycles) ;
-  - 1x2x3 : optimale ;
-  - Floppy : **coins puis arêtes**, et optimale ;
-  - Floppy Ghost : **coins puis arêtes** (sommets placés, orientés, puis
-    arêtes), et optimale ;
-  - tour 2x2x4 : **Deux Pockets** (remise en forme, Pocket intérieur, Pocket
-    extérieur) ;
-  - Slim Tower : **équateur puis coins** ;
-  - Domino : **coins puis arêtes** ;
-  - tour 2x3x4 : **sommets, arêtes, équateur** (forme, centres, sommets, arêtes,
-    équateur, plus une formule de parité) ;
-  - tour 3x3x4 : **double Domino** (le Domino extérieur, puis l'intérieur) ;
-  - tours 4x4x3, 4x4x5 et 5x5x4 : **réduction** (parité, centres, arêtes
-    reformées, puis les Dominos et l'équateur de la tour de 3 de large
-    qu'elles sont devenues) ;
-  - Camouflage 4x4x2 : **réduction en Domino** (forme, centres, arêtes, puis comme un Domino) ;
-  - Pyraminx et Tetraminx : **centres d'abord** ;
-  - Master et Professor Pyraminx : **ailes puis co-ailes** ;
-  - Pyraminx Jing : **sommets d'abord** ;
-  - Pyramorphinx : **comme un Pocket** ;
-  - 4-Trajber's Octahedron : **sommets d'abord** ;
-  - Octahedron VTO et GEM-0 : **centres puis arêtes** ;
-  - Rainbow : **triangle prolongé** ;
-  - Pyraminx Crystal : **les sommets d'abord** ;
-  - Skewb Ultimate : **le haut d'abord** ;
-  - Megaminx et Holey Megaminx : **l'étoile prolongée** (par couches, une face de plus à chaque tour) ;
-  - Dino Cube : **étage par étage** ;
-  - Dino Cylinder : **étage par étage**, puis les sommets pivotés ;
-  - Rex Cube : **arêtes, centres, pétales** ;
-  - Violet : **forme puis couleurs** ;
-  - Tori et Edge Only : **croix prolongée** ;
-  - Quarter Cube : **les arêtes d'abord** ;
-  - AI Cube : **méthode des blocs** (ramené à un Pocket) ;
-  - FTO : **sommets, centres, arêtes** ;
-  - RoadBlock-I : **méthode des centres** (comme un Professor) ;
-  - Gear Cube et Gear Cube Ultimate : **coins d'abord** ;
-  - Gear Cube Extreme : **équateur puis coins** ;
-  - Star Prism : **isoler puis permuter** ;
-  - 4-Star Prism : **deux étoiles** (l'interne puis l'externe) ;
-  - Hockey Puck : **isoler puis permuter**.
+  - 2x2 : par couches ; 2x2 et petits puzzles (1x2x3, Floppy, Violet...) :
+    **optimale** aussi ;
+  - 4x4, 5x5 et 6x6 : **réduction** (centres, arêtes, parité), puis par couches ou CFOP ;
+  - chaque autre puzzle : une méthode à lui, le plus souvent celle de
+    fan2cube.fr (voir [docs/methods.md](./docs/methods.md)).
 - **Solution pas à pas** : le plan de la méthode dès son choix, puis la vraie
   solution calculée d'avance (en arrière-plan) ; on la joue d'un coup, étape
   par étape ou coup par coup, et on revient en arrière de la même façon, le
   coup en cours surligné dans sa séquence.
-- **Formes non cubiques** : le 1x2x3 (demi-tours seulement), la tour 2x2x4,
-  qui se déforme comme la vraie (un coup est bloqué quand sa face n'est pas
-  complète), la tour 2x3x4 (ses colonnes de côté la déforment), la Slim Tower, le Domino et les tours 3x3x4, 4x4x3, 4x4x5 et
-  5x5x4 (côtés en demi-tours), le Floppy (une
-  seule couche, demi-tours seulement), le Floppy Ghost (chaque côté se
-  retourne et se couche de travers ; tout argenté, on le lit par la forme),
-  les Pyraminx (sommets, tranches,
-  pointes ; le Jing aux pièces courbes), le Pyramorphinx (un 2x2 taillé en
-  tétraèdre, qui se déforme), les octaèdres et le Rainbow, le Dino et le Rex
-  (sommets en tiers de tour), les Gear Cubes (demi-tours de face qui font
-  tourner la tranche d'un quart), le Violet, le Z-Twist (centres orientés), le
-  Barrel et le Fisher Cube (des 3x3x3 qui se déforment), le Megaminx (faces en
-  cinquièmes de tour) et les Star Prism (tours d'étages et slash).
+- **Puzzles qui se déforment** (tours, Violet, Pyramorphinx, Barrel...) : un
+  coup que la forme bloque est grisé.
 - **Version miroir** du 2x2, du 3x3 et du 4x4 (Mirror Blocks) : couches
   d'épaisseurs différentes et facettes toutes dorées, à résoudre par la forme.
 - Mélange aléatoire, ou **saisie guidée** de son propre puzzle (tous) en
   peignant les stickers (aucune configuration incohérente possible,
   validation de solubilité) ; un puzzle déformable se saisit dans la forme où
-  il se trouve, choisie parmi des vignettes ; le Floppy Ghost, le Z-Twist, le Hockey Puck, le Barrel, le Fisher Cube et le Windmill
-  pièce par pièce (un clic pose la pièce suivante qui s'y loge).
+  il se trouve, choisie parmi des vignettes, et certains pièce par pièce.
 - Un petit **feu d'artifice** quand le puzzle arrive résolu.
 - **Page d'accueil** : une galerie de modèles à choisir, et ce qu'on peut
   faire avec (saisie, guide, résolution).
@@ -144,5 +85,6 @@ v4, Zustand, Vitest + Testing Library, Playwright.
 
 Le moteur du cube est de la **logique pure sans flottants** (`src/lib/`,
 entièrement testée) ; le rendu 3D et les solveurs en sont des lecteurs. Voir
-[AGENTS.md](./AGENTS.md) pour la documentation détaillée (arborescence,
-solveurs, saisie, conventions).
+[AGENTS.md](./AGENTS.md) pour l'architecture (arborescence, fiche d'un puzzle,
+solveurs, saisie, conventions), et [docs/](./docs) pour le détail de chaque
+puzzle (`docs/puzzles/<catégorie>.md`), des méthodes et de l'interface.

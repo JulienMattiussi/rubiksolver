@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Turn } from '@/lib/types'
+import type { Turn } from '@/lib/core/types'
 
 /** Bridges view requests from the DOM controls to the 3D scene. */
 interface ViewStore {

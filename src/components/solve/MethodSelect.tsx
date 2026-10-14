@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import { cubeShape } from '@/lib/cube'
-import { methodsFor, type MethodId } from '@/lib/solver'
+import { cubeShape } from '@/lib/core/cube'
+import { methodsFor, type MethodId } from '@/lib/solve/solver'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { Select } from '@/components/ui/Select'

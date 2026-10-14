@@ -1,10 +1,12 @@
 import { Check, Eraser, Shapes, X } from 'lucide-react'
-import { cubeShape } from '@/lib/cube'
-import { isComplete, progress } from '@/lib/editor'
-import { formsOf } from '@/lib/forms'
-import { gearFaces, gearsPainted } from '@/lib/gearEditor'
-import { hasColoredClips, isGear } from '@/lib/types'
-import { entersByPieces, placedCount } from '@/lib/pieceEditor'
+import { cubeShape } from '@/lib/core/cube'
+import { isComplete, progress } from '@/lib/editor/editor'
+import { formsOf } from '@/lib/editor/forms'
+import { gearFaces, gearsPainted } from '@/lib/editor/gearEditor'
+import { hasColoredClips, SHAPE_EDIT_HINT } from '@/lib/core/types'
+import type { EditHint } from '@/lib/puzzles/entry'
+import type { Translations } from '@/i18n/translations'
+import { entersByPieces, placedCount } from '@/lib/editor/pieceEditor'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -12,6 +14,16 @@ import { Button } from '@/components/ui/Button'
 import { BarToggles } from './BarToggles'
 import { ColorPalette } from './ColorPalette'
 import { FormPicker } from './FormPicker'
+
+/** The editor's own hints, by kind (a puzzle's card says which). */
+const HINTS = (t: Translations): Record<EditHint, string> => ({
+  twist: t.editHintTwist,
+  camo: t.editHintCamo,
+  roadblock: t.editHintRoadblock,
+  quarter: t.editHintQuarter,
+  gear: t.editHintGear,
+  gearPlain: t.editHintGearPlain,
+})
 
 /** Cube-entry panel: the form first on a shape-shifting puzzle (FormPicker),
  *  then hint, color palette, progress, validation error, actions. A puzzle
@@ -45,6 +57,7 @@ export function EditPanel() {
   }
 
   const byPieces = entersByPieces(shape)
+  const hint = SHAPE_EDIT_HINT[shape]
   const { filled, total } = progress(edit, shape, form)
   const { placed, total: slots } = byPieces ? placedCount(edit, shape) : { placed: 0, total: 0 }
   // A Gear Cube's gears are painted apart from their clips.
@@ -57,23 +70,13 @@ export function EditPanel() {
   return (
     <div className="flex flex-col gap-5">
       <p className="text-xs leading-relaxed text-slate-400">
-        {shape === 'twist'
-          ? t.editHintTwist
-          : shape === 'camo'
-            ? t.editHintCamo
-            : shape === 'roadblock'
-              ? t.editHintRoadblock
-              : shape === 'quarter'
-                ? t.editHintQuarter
-                : byPieces
-                  ? t.editHintPieces
-                  : mirror
-                    ? t.editHintMirror
-                    : hasColoredClips(shape)
-                      ? t.editHintGear
-                      : isGear(shape)
-                        ? t.editHintGearPlain
-                        : t.editHint}
+        {hint
+          ? HINTS(t)[hint]
+          : byPieces
+            ? t.editHintPieces
+            : mirror
+              ? t.editHintMirror
+              : t.editHint}
       </p>
 
       {shape === 'roadblock' && <BarToggles />}

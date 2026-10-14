@@ -1,12 +1,12 @@
-import { cubeShape } from '@/lib/cube'
-import { gearFaces } from '@/lib/gearEditor'
-import { paletteColors, progress } from '@/lib/editor'
-import { byThickness, LAYER_THICKNESS } from '@/lib/shape'
-import { hasColoredClips, type CubeColor } from '@/lib/types'
+import { cubeShape } from '@/lib/core/cube'
+import { gearFaces } from '@/lib/editor/gearEditor'
+import { paletteColors, progress } from '@/lib/editor/editor'
+import { byThickness, LAYER_THICKNESS } from '@/lib/core/shape'
+import { hasColoredClips, type CubeColor } from '@/lib/core/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
-import { COLOR_HEX, MIRROR_STICKER } from '@/three/colors'
+import { COLOR_HEX, MIRROR_STICKER } from '@/three/core/colors'
 import { SECTION_LABEL } from '@/components/ui/styles'
 
 const MIRROR_THICKNESS = LAYER_THICKNESS.mirror

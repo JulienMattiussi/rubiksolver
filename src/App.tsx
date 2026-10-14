@@ -5,7 +5,7 @@ import { useEditor } from '@/store/editorStore'
 import { useRoute } from '@/store/router'
 import { HomeGallery } from '@/components/home/HomeGallery'
 import { Fireworks } from '@/components/celebration/Fireworks'
-import { Scene } from '@/three/Scene'
+import { Scene } from '@/three/core/Scene'
 
 export default function App() {
   const locale = useI18n((s) => s.locale)

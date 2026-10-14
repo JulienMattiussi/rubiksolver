@@ -1,14 +1,14 @@
 import { useState } from 'react'
-import { cubeShape } from '@/lib/cube'
-import { formatMove } from '@/lib/moves'
+import { cubeShape } from '@/lib/core/cube'
+import { formatMove } from '@/lib/core/moves'
 import {
   isOppositeFace,
   PYRA_LAYERS,
   PYRA_VERTICES,
   pyraTurn,
   type PyraLayer,
-} from '@/lib/pyraminx'
-import { isPyraminx, type PyraMove } from '@/lib/types'
+} from '@/lib/puzzles/pyramid/pyraminx'
+import { isPyraminx, type PyraMove } from '@/lib/core/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { SegmentedToggle } from '@/components/ui/SegmentedToggle'

@@ -1,9 +1,8 @@
 import { ArchiveRestore, Bookmark, RotateCcw, Shuffle, Square } from 'lucide-react'
 import { useState } from 'react'
-import { cubeShape } from '@/lib/cube'
-import { notEnterable } from '@/lib/forms'
-import { isGear, isMegaminx, isPyraminx, isStar } from '@/lib/types'
-import { encodeCube } from '@/lib/snapshot'
+import { cubeShape } from '@/lib/core/cube'
+import { notEnterable } from '@/lib/editor/forms'
+import { encodeCube } from '@/lib/app/snapshot'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -13,15 +12,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { CubePicker } from '@/components/picker/CubePicker'
 import { SECTION_BOX } from '@/components/ui/styles'
 import { FEATURE_ICON } from '@/components/ui/features'
-import { MovePad } from './MovePad'
-import { GhostPad } from './GhostPad'
-import { MegaPad } from './MegaPad'
-import { PuckPad } from './PuckPad'
-import { GearPad } from './GearPad'
-import { FtoPad } from './FtoPad'
-import { RainbowPad } from './RainbowPad'
-import { PyraPad } from './PyraPad'
-import { StarPad } from './StarPad'
+import { padFor } from './padFor'
 import { SpeedSlider } from './SpeedSlider'
 import { StatusBadge } from './StatusBadge'
 
@@ -124,34 +115,7 @@ export function SetupSection() {
       )}
 
       <SpeedSlider />
-      {isStar(shape) ? (
-        <StarPad disabled={busy} />
-      ) : isPyraminx(shape) ? (
-        <PyraPad disabled={busy} />
-      ) : shape === 'ghost' ? (
-        <GhostPad disabled={busy} />
-      ) : shape === 'puck' ? (
-        <PuckPad disabled={busy} />
-      ) : isMegaminx(shape) ? (
-        <MegaPad disabled={busy} crystal={shape === 'crystal'} />
-      ) : shape === 'fto' ? (
-        <FtoPad disabled={busy} />
-      ) : shape === 'rainbow' ||
-        shape === 'dino' ||
-        shape === 'dinoCyl' ||
-        shape === 'rex' ||
-        shape === 'skewbU' ? (
-        <RainbowPad
-          disabled={busy}
-          dino={shape === 'dino' || shape === 'dinoCyl'}
-          rex={shape === 'rex'}
-          skewb={shape === 'skewbU'}
-        />
-      ) : isGear(shape) ? (
-        <GearPad disabled={busy} />
-      ) : (
-        <MovePad disabled={busy} />
-      )}
+      {padFor(shape, busy)}
     </section>
   )
 }

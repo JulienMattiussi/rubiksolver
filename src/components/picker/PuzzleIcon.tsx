@@ -1,7 +1,7 @@
-import { isPolyDrawn, type Cube, type CubeShape, type CubeVariant } from '@/lib/types'
-import { COLOR_HEX, MIRROR_STICKER, PLASTIC } from '@/three/colors'
-import { formDrawing, isometricDrawing } from '@/three/isometric'
-import { polyDrawing } from '@/three/polyDrawing'
+import { type Cube, type CubeShape, type CubeVariant } from '@/lib/core/types'
+import { COLOR_HEX, MIRROR_STICKER, PLASTIC } from '@/three/core/colors'
+import { formDrawing, isometricDrawing } from '@/three/core/isometric'
+import { isPolyDrawn, polyDrawing } from '@/three/core/polyDrawing'
 
 /** A color darkened by `shade` (0 = as is, 1 = black). */
 function darkened(hex: string, shade: number): string {

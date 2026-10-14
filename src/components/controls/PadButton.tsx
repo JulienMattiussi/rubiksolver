@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import type { Turn } from '@/lib/types'
+import type { Turn } from '@/lib/core/types'
 import { useCube } from '@/store/cubeStore'
 import { useView } from '@/store/viewStore'
 import { Button } from '@/components/ui/Button'

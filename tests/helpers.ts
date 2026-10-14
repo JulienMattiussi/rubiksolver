@@ -1,5 +1,5 @@
-import { solvedCube } from '@/lib/cube'
-import type { Cube, CubeShape } from '@/lib/types'
+import { solvedCube } from '@/lib/core/cube'
+import type { Cube, CubeShape } from '@/lib/core/types'
 
 /**
  * Deterministic PRNG (mulberry32) for reproducible scramble/solve tests.

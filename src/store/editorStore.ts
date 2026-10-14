@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import { cubeShape } from '@/lib/cube'
-import { formOf, formsOf } from '@/lib/forms'
+import { cubeShape } from '@/lib/core/cube'
+import { formOf, formsOf } from '@/lib/editor/forms'
 import {
   buildCube,
   cubeToEdit,
@@ -9,7 +9,7 @@ import {
   paletteColors,
   paint,
   type EditStickers,
-} from '@/lib/editor'
+} from '@/lib/editor/editor'
 import {
   completeGears,
   gearColorsOf,
@@ -17,12 +17,12 @@ import {
   paintGear,
   turnedOf,
   type GearColors,
-} from '@/lib/gearEditor'
-import { nextPiece } from '@/lib/pieceEditor'
-import { barsTurned } from '@/lib/roadblock'
-import { paintBar, turnFace } from '@/lib/roadblockEditor'
-import { validateCube, type ValidationError } from '@/lib/validate'
-import { hasColoredClips, type Color, type Cube, type CubeShape } from '@/lib/types'
+} from '@/lib/editor/gearEditor'
+import { nextPiece } from '@/lib/editor/pieceEditor'
+import { barsTurned } from '@/lib/puzzles/twisted/roadblock'
+import { paintBar, turnFace } from '@/lib/editor/roadblockEditor'
+import { validateCube, type ValidationError } from '@/lib/editor/validate'
+import { hasColoredClips, type Color, type Cube, type CubeShape } from '@/lib/core/types'
 import { useCube } from './cubeStore'
 
 /** Shape of the cube being edited (the game's cube). */
@@ -198,11 +198,9 @@ export const useEditor = create<EditorStore>((set, get) => ({
     if (!isComplete(edit, shape, form)) return false
     const gears = hasColoredClips(shape)
     if (gears && gearsPainted(gear, shape).painted < gearsPainted(gear, shape).total) return false
-    const turned = gears
-      ? turnedOf(gear, edit, shape)
-      : shape === 'twist' || shape === 'quarter' || shape === 'roadblock'
-        ? get().twisted
-        : []
+    // Turned in the entry: gears over on their clips, or the slots a click
+    // turned (`twisted`, empty for most puzzles).
+    const turned = gears ? turnedOf(gear, edit, shape) : get().twisted
     if (!turned) {
       set({ error: 'gears' })
       return false

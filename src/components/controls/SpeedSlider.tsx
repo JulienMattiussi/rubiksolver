@@ -1,4 +1,4 @@
-import { durationFromSlider, sliderFromDuration } from '@/lib/speed'
+import { durationFromSlider, sliderFromDuration } from '@/lib/app/speed'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { SECTION_LABEL } from '@/components/ui/styles'

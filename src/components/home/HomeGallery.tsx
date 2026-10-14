@@ -1,4 +1,4 @@
-import { CUBE_KINDS, cubeCategory, SHAPE_LABEL, type CubeKind } from '@/lib/types'
+import { CUBE_KINDS, cubeCategory, SHAPE_LABEL, type CubeKind } from '@/lib/core/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { goTo } from '@/store/router'
 import { PuzzleIcon } from '@/components/picker/PuzzleIcon'
@@ -57,7 +57,8 @@ export function HomeGallery() {
                   <span className="flex h-20 w-full items-center justify-center transition duration-200 group-hover:scale-110">
                     <PuzzleIcon shape={kind.shape} variant={kind.variant} className="h-full" />
                   </span>
-                  <span className="text-sm leading-tight font-semibold text-white">
+                  {/* Two lines kept for every name: the cards all the same size. */}
+                  <span className="flex min-h-[2lh] items-center text-sm leading-tight font-semibold text-white">
                     {nameOf(kind)}
                   </span>
                   <span className="-mt-1.5 text-[11px] text-slate-400">

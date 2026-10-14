@@ -1,0 +1,41 @@
+import type { CubeShape } from '../../core/types'
+import { isSolved, solvedCube } from '../../core/cube'
+import type { PuzzleModel } from '../model'
+import {
+  DINO_TURNS,
+  REX_TURNS,
+  scrambleDino,
+  scrambleRex,
+  solvedDino,
+  solvedRex,
+} from '../shared/rainbow'
+import { asSeenThin, withRealThinEdges } from '../shared/thinEdges'
+import { fisherSolved, windmillSolved, withMarks } from './fisher'
+
+export const DIAGONAL_MODELS = {
+  dino: {
+    solved: solvedDino,
+    turns: () => DINO_TURNS,
+    scramble: (length, rng) => scrambleDino(length, rng),
+  },
+  rex: {
+    solved: solvedRex,
+    turns: () => REX_TURNS,
+    scramble: (length, rng) => scrambleRex(length, rng),
+  },
+  fisher: {
+    solved: () => withMarks(solvedCube('3')),
+    isSolved: fisherSolved,
+    // Piece by piece, its middle edges the way round the editor offers.
+    entry: {
+      byPieces: true,
+      seen: (cube, held) => asSeenThin(held(cube)),
+      built: (cube) => withRealThinEdges(cube),
+    },
+  },
+  windmill: {
+    solved: () => withMarks(solvedCube('3'), true),
+    isSolved: (cube) => windmillSolved(cube, isSolved),
+    entry: { byPieces: true },
+  },
+} satisfies Partial<Record<CubeShape, PuzzleModel>>

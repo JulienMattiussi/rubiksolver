@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { cubeDims, cubeShape } from '@/lib/cube'
-import { describeMove } from '@/lib/moveGuide'
-import { turnAllowed } from '@/lib/turn'
+import { cubeDims, cubeShape } from '@/lib/core/cube'
+import { describeMove } from '@/lib/app/moveGuide'
+import { turnAllowed } from '@/lib/core/turn'
 import {
   advancedMovesFor,
   formatMove,
@@ -11,8 +11,8 @@ import {
   movesFor,
   sameLayer,
   type LayerKind,
-} from '@/lib/moves'
-import type { Face, Move } from '@/lib/types'
+} from '@/lib/core/moves'
+import type { Face, Move } from '@/lib/core/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { SegmentedToggle } from '@/components/ui/SegmentedToggle'

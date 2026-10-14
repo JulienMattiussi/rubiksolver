@@ -1,7 +1,7 @@
 import { create } from 'zustand'
-import { cubeShape } from '@/lib/cube'
-import { decodeCube, encodeCube } from '@/lib/snapshot'
-import type { Cube, CubeShape } from '@/lib/types'
+import { cubeShape } from '@/lib/core/cube'
+import { decodeCube, encodeCube } from '@/lib/app/snapshot'
+import type { Cube, CubeShape } from '@/lib/core/types'
 import { useCube } from './cubeStore'
 
 /** A memorized cube state: its text form and when it was taken. */

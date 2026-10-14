@@ -1,13 +1,13 @@
 import { create } from 'zustand'
-import { cubeShape } from '@/lib/cube'
-import { parseRoute, routeHash, sameKind } from '@/lib/route'
-import type { CubeKind } from '@/lib/types'
+import { cubeShape } from '@/lib/core/cube'
+import { parseRoute, routeHash, sameKind } from '@/lib/app/route'
+import type { CubeKind } from '@/lib/core/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, useCube } from './cubeStore'
 import { useEditor } from './editorStore'
 
 /**
- * The hash router: the address (`#/fr/floppy-ghost`, see lib/route.ts) says
+ * The hash router: the address (`#/fr/floppy-ghost`, see lib/app/route.ts) says
  * which language and puzzle the app shows, or the home page when it names
  * no puzzle (`#/fr`). Choosing either one goes there (`goTo`), and the
  * stores follow the address, so a link opens that puzzle and the browser's

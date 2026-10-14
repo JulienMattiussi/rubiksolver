@@ -1,5 +1,5 @@
-import { cubeShape } from '@/lib/cube'
-import { formsOf, type Form } from '@/lib/forms'
+import { cubeShape } from '@/lib/core/cube'
+import { formsOf, type Form } from '@/lib/editor/forms'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'

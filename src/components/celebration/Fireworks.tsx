@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { solvedByTurn, useCube } from '@/store/cubeStore'
-import { COLOR_HEX } from '@/three/colors'
+import { COLOR_HEX } from '@/three/core/colors'
 
 /** The sparks' colors: the cube's. */
 const COLORS = ['W', 'Y', 'G', 'B', 'O', 'R'].map((c) => COLOR_HEX[c as keyof typeof COLOR_HEX])

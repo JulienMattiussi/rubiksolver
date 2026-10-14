@@ -1,4 +1,4 @@
-import type { CubeShape, CubeVariant } from '@/lib/types'
+import type { CubeShape, CubeVariant } from '@/lib/core/types'
 import { PuzzleIcon } from './PuzzleIcon'
 
 interface Puzzle {

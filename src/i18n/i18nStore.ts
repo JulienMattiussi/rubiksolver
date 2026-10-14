@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { NOTATION_FR, NOTATION_US, type FaceLabels } from '@/lib/moves'
+import { NOTATION_FR, NOTATION_US, type FaceLabels } from '@/lib/core/moves'
 import { LOCALES, type Locale, type Translations } from './translations'
 
 /** Move notation: 'us' (U R F...) or 'fr' (H D F...). Independent of locale. */

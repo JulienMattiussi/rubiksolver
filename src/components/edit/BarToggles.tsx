@@ -1,5 +1,5 @@
-import { FACES } from '@/lib/moves'
-import { barFaceKey } from '@/lib/roadblock'
+import { FACES } from '@/lib/core/moves'
+import { barFaceKey } from '@/lib/puzzles/twisted/roadblock'
 import { useI18n } from '@/i18n/i18nStore'
 import { useEditor } from '@/store/editorStore'
 import { SECTION_LABEL } from '@/components/ui/styles'
