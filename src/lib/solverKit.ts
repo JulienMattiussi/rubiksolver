@@ -167,7 +167,7 @@ export interface SolveStep {
  * the contract, so a step can neither stop short of its goal nor sneak in a
  * turn its method forbids.
  */
-interface StepSpec {
+export interface StepSpec {
   readonly key: string
   readonly goal: (c: Cube) => boolean
   readonly moves: MoveSet

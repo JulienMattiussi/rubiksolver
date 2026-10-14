@@ -120,8 +120,9 @@ export function handedHome(piece: Cubie, slots: Cube, faces: Map<number, Color>)
  * `homeOf` says, for each slot of the kind, the slot its piece belongs to
  * (itself when right). Each cycle takes a wrong slot's piece home through
  * another wrong slot, preferably the one holding the piece that belongs
- * there (two at once). Two left, swapped, which only pieces of one color
- * alike allow (the co-centers): through a right slot that ends right.
+ * there (two at once). Two left swapped, which only pieces of one color
+ * alike allow (the co-centers): through a right slot that ends them right
+ * (two such pairs apart, as the 5x5x4's side centers may: one of them).
  */
 export function placeByCycles<T extends Turn>(
   cube: Cube,
@@ -149,7 +150,10 @@ export function placeByCycles<T extends Turn>(
       [...home.keys()]
         .filter((c) => !wrong.includes(c))
         .map((c) => table.get(cycleId(a, b, c)))
-        .find((sequence) => sequence && wrongIn(homeOf(applyMoves(state, sequence))).length === 0)
+        .find(
+          (sequence) =>
+            sequence && wrongIn(homeOf(applyMoves(state, sequence))).length < wrong.length,
+        )
     if (!cycle) throw new Error('pyraminx: the pieces cannot be cycled into place')
     moves.push(...cycle)
     state = applyMoves(state, cycle)

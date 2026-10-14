@@ -32,6 +32,10 @@ import { DINO_CYL_PLAN } from './methods/dinoCyl'
 import { REX_PLAN } from './methods/rex'
 import { FTO_PLAN } from './methods/fto'
 import { SKEWB_U_PLAN } from './methods/skewbU'
+import { TOWER334_PLAN } from './methods/tower334'
+import { TOWER443_PLAN, TOWER445_PLAN } from './methods/tower44'
+import { TOWER554_PLAN } from './methods/tower554'
+import { TOWER234_PLAN } from './methods/tower234'
 import { GEAR_EXTREME_PLAN } from './methods/gearExtreme'
 import { VIOLET_OPTIMAL_PLAN, VIOLET_SHAPE_FIRST_PLAN } from './methods/violet'
 import { withCentersHome } from './methods/recenter'
@@ -134,6 +138,12 @@ const SOLVE_METHODS = [
     },
   },
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
+  { id: 'tower234Steps', plans: { '234': TOWER234_PLAN } },
+  { id: 'doubleDomino', plans: { '334': TOWER334_PLAN } },
+  {
+    id: 'towerReduction',
+    plans: { '443': TOWER443_PLAN, '445': TOWER445_PLAN, '554': TOWER554_PLAN },
+  },
   { id: 'camoReduction', plans: { camo: CAMO_PLAN } },
   { id: 'quarterEdgesFirst', plans: { quarter: QUARTER_PLAN } },
   { id: 'aiBlocks', plans: { ai: AI_PLAN } },

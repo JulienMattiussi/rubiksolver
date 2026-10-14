@@ -60,10 +60,15 @@ const PUZZLES: ReadonlyArray<{
   { shape: '123', pieces: 6, stickers: 22, orientations: 4, painted: 22, scramble: 10 },
   { shape: '223', pieces: 12, stickers: 32, orientations: 8, painted: 32, scramble: 20 },
   { shape: '224', pieces: 16, stickers: 40, orientations: 8, painted: 40, scramble: 25 },
+  { shape: '234', pieces: 24, stickers: 52, orientations: 4, painted: 52, scramble: 25 },
   // A 4x4x4 two pieces tall: shifts shape, turns by blocks out of its box.
   { shape: 'camo', pieces: 32, stickers: 64, orientations: 8, painted: 64, scramble: 40 },
   { shape: '331', pieces: 9, stickers: 30, orientations: 8, painted: 30, scramble: 12 },
   { shape: '332', pieces: 18, stickers: 42, orientations: 8, painted: 42, scramble: 20 },
+  { shape: '334', pieces: 36, stickers: 66, orientations: 8, painted: 66, scramble: 30 },
+  { shape: '443', pieces: 48, stickers: 80, orientations: 8, painted: 80, scramble: 30 },
+  { shape: '445', pieces: 80, stickers: 112, orientations: 8, painted: 112, scramble: 40 },
+  { shape: '554', pieces: 100, stickers: 130, orientations: 8, painted: 130, scramble: 40 },
   { shape: 'pyra', pieces: 15, stickers: 36, orientations: 12, painted: 36, scramble: 11 },
   // The Pyraminx without its tips.
   { shape: 'tetra', pieces: 11, stickers: 24, orientations: 12, painted: 24, scramble: 11 },

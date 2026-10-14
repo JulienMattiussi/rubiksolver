@@ -94,6 +94,8 @@ export const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
 export function amountsFor(shape: CubeShape, face: Face): readonly (1 | 2 | 3)[] {
   const dims = turnDims(shape)
   if (faceLayers(dims, face) < 2) return []
+  // The 2x3x4 tower turns its layers by quarters, its sides by halves.
+  if (shape === '234') return faceAxis(face) === 'x' ? [1, 2, 3] : [2]
   return quarterTurnFits(dims, faceAxis(face)) ? [1, 2, 3] : [2]
 }
 
@@ -122,12 +124,30 @@ type LayerVariant = Pick<Move, 'depth' | 'wide'>
  *  the shape's mechanism turns (SHAPE_INNER_TURNS) on an axis of 3 layers
  *  or more. */
 function layerVariants(shape: CubeShape, face: Face): readonly LayerVariant[] {
-  if (faceLayers(turnDims(shape), face) < 3) return [{}]
+  const n = faceLayers(turnDims(shape), face)
+  if (n < 3) return [{}]
+  // The 2x3x4: its columns alone, its layers with their slice and half,
+  // its front and back halves (tower234.ts).
+  if (shape === '234') {
+    const axis = faceAxis(face)
+    return axis === 'x'
+      ? [{}]
+      : axis === 'y'
+        ? [{}, { depth: 2 }, { depth: 2, wide: true }]
+        : [{ depth: 2, wide: true }]
+  }
+  // The 3x3x4, a double Domino: no slice between its sides.
+  if (shape === '334' && faceAxis(face) !== 'y') return [{}]
   return [
     {},
-    ...SHAPE_INNER_TURNS[shape].map((kind): LayerVariant => {
+    ...SHAPE_INNER_TURNS[shape].flatMap((kind): LayerVariant[] => {
       const { depth, wide } = layerMove('U', 1, kind)
-      return wide ? { depth, wide } : { depth }
+      if (wide) return depth! < n ? [{ depth, wide }] : []
+      // A slice past the middle is the opposite face's (a 4x4x5's 3R is its
+      // 2L); the middle one is named once, by R, U or F.
+      const middle = 2 * depth! === n + 1
+      if (2 * depth! > n + 1 || (middle && !['R', 'U', 'F'].includes(face))) return []
+      return [{ depth }]
     }),
   ]
 }

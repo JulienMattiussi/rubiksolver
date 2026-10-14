@@ -19,6 +19,7 @@ import { dinoCylPolygons, dinoCylThumbnail } from './dinoCylGeometry'
 import { rexCut, rexPolygons } from './rexGeometry'
 import { barrelPolygons, barrelThumbnail } from './barrelGeometry'
 import { aiPolygons } from './aiGeometry'
+import { tower234Polygons } from './tower234Geometry'
 import { roadblockPolygons } from './roadblockGeometry'
 import { superPolygons } from './superGeometry'
 import { camoPolygons } from './camoGeometry'
@@ -172,6 +173,8 @@ const MMORPH: PolyDrawing = {
 }
 /** The AI Cube, upright as the cubes. */
 const AI: PolyDrawing = { polygons: aiPolygons, yaw: 0 }
+
+const TOWER_234: PolyDrawing = { polygons: tower234Polygons, yaw: 0 }
 /** The RoadBlock-I, upright as the cubes. */
 const ROADBLOCK: PolyDrawing = { polygons: roadblockPolygons, yaw: 0 }
 
@@ -211,6 +214,7 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'tori') return TORI
   if (shape === 'quarter') return QUARTER
   if (shape === 'ai') return AI
+  if (shape === '234') return TOWER_234
   if (shape === 'roadblock') return ROADBLOCK
   if (shape === 'super4') return SUPER4
   if (shape === 'super5') return SUPER5

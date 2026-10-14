@@ -15,6 +15,7 @@ import { solvedMorph } from './morph'
 import { solvedOct4 } from './oct4'
 import { solvedGem, solvedVto } from './vto'
 import { solvedFto } from './fto'
+import { TOWER234_MECHANISM, tower234Boxed } from './tower234'
 import { solvedDinoCyl } from './dinoCyl'
 import { SKEWB_SYMMETRIES, solvedDino, solvedRainbow, solvedRex, solvedSkewbU } from './rainbow'
 import { solvedViolet, turnAboutA, violetBoxed, violetSolved } from './violet'
@@ -233,6 +234,8 @@ export function cubeDims(cube: Cube): Dims {
 export function turnDims(shape: CubeShape): Dims {
   const dims = SHAPE_DIMS[shape]
   if (!SHAPE_SHIFTS[shape]) return dims
+  // The 2x3x4 is cut either way its faces stand (tower234.ts).
+  if (shape === '234') return TOWER234_MECHANISM
   const n = Math.max(...dims)
   return [n, n, n]
 }
@@ -304,6 +307,7 @@ export function isBoxed(cube: Cube): boolean {
   if (cubeShape(cube) === 'violet') return violetBoxed(cube)
   // The Camouflage's pieces can stand in their cells, turned out of shape.
   if (cubeShape(cube) === 'camo') return camoBoxed(cube)
+  if (cubeShape(cube) === '234') return tower234Boxed(cube)
   const dims = cubeDims(cube)
   const max = [0, 1, 2].map((a) => outerCoord(dims[a]!, 1))
   return cube.every((c) => c.position.every((v, a) => Math.abs(v) <= max[a]!))

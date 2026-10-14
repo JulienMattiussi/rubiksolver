@@ -1,8 +1,8 @@
 # Rubik Solver
 
 Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, en **2x2
-(Pocket), 3x3, 4x4 (Revenge), 5x5 (Professor) ou 6x6**, le **Super Revenge** et le **Super Professor** (leurs centres chacun à sa place), plus six cuboïdes (le **1x2x3**, la **tour 2x2x4**,
-la **Slim Tower 2x2x3**, le **Domino 3x3x2**, le **Camouflage 4x4x2** et le **Floppy 3x3x1**), le
+(Pocket), 3x3, 4x4 (Revenge), 5x5 (Professor) ou 6x6**, le **Super Revenge** et le **Super Professor** (leurs centres chacun à sa place), plus dix cuboïdes (le **1x2x3**, la **tour 2x2x4**,
+la **Slim Tower 2x2x3**, le **Domino 3x3x2**, les tours **3x3x4**, **4x4x3**, **4x4x5** et **5x5x4**, le **Camouflage 4x4x2** et le **Floppy 3x3x1**), le
 **Floppy Ghost** (un Floppy Megaminx découpé en pentagramme, argenté) et des
 puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (sans pointes), le **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le
 **Pyraminx Jing**, le **Pyramorphinx**, le **Master Morphinx** (un 3x3x3 en tétraèdre), le **4-Trajber's Octahedron** (un 4x4x4 en octaèdre), l'**Octahedron VTO** (un 3x3x3 en octaèdre), le **GEM-0** (le VTO sans pointes), le **FTO** (un octaèdre dont les faces tournent),
@@ -47,6 +47,10 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
     extérieur) ;
   - Slim Tower : **équateur puis coins** ;
   - Domino : **coins puis arêtes** ;
+  - tour 3x3x4 : **double Domino** (le Domino extérieur, puis l'intérieur) ;
+  - tours 4x4x3, 4x4x5 et 5x5x4 : **réduction** (parité, centres, arêtes
+    reformées, puis les Dominos et l'équateur de la tour de 3 de large
+    qu'elles sont devenues) ;
   - Camouflage 4x4x2 : **réduction en Domino** (forme, centres, arêtes, puis comme un Domino) ;
   - Pyraminx et Tetraminx : **centres d'abord** ;
   - Master et Professor Pyraminx : **ailes puis co-ailes** ;
@@ -78,7 +82,8 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   coup en cours surligné dans sa séquence.
 - **Formes non cubiques** : le 1x2x3 (demi-tours seulement), la tour 2x2x4,
   qui se déforme comme la vraie (un coup est bloqué quand sa face n'est pas
-  complète), la Slim Tower et le Domino (côtés en demi-tours), le Floppy (une
+  complète), la Slim Tower, le Domino et les tours 3x3x4, 4x4x3, 4x4x5 et
+  5x5x4 (côtés en demi-tours), le Floppy (une
   seule couche, demi-tours seulement), le Floppy Ghost (chaque côté se
   retourne et se couche de travers ; tout argenté, on le lit par la forme),
   les Pyraminx (sommets, tranches,

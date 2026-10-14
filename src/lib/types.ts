@@ -14,9 +14,14 @@ export type CubeShape =
   | '6'
   | '123'
   | '224'
+  | '234'
   | 'camo'
   | '223'
   | '332'
+  | '334'
+  | '443'
+  | '445'
+  | '554'
   | '331'
   | 'pyra'
   | 'tetra'
@@ -79,10 +84,16 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   '6': [6, 6, 6],
   '123': [3, 2, 1],
   '224': [2, 4, 2],
+  // The towers (fan2cube.fr/towerXYZ1): cuboids, their sides by halves.
+  '234': [3, 4, 2],
   // The Camouflage 4x4x2 (camo.ts): a 4x4x4 two pieces tall, bandaged.
   camo: [4, 2, 4],
   '223': [2, 3, 2],
   '332': [3, 2, 3],
+  '334': [3, 4, 3],
+  '443': [4, 3, 4],
+  '445': [4, 5, 4],
+  '554': [5, 4, 5],
   '331': [3, 1, 3],
   // The Pyraminx family (pyraminx.ts) is no grid either: its pieces sit
   // within +-2, +-3 and +-4 on every axis by size (see `pyraSize`).
@@ -233,6 +244,7 @@ export const isPolyDrawn = (shape: CubeShape): boolean =>
   shape === 'barrel' ||
   shape === 'fisher' ||
   shape === 'windmill' ||
+  shape === '234' ||
   shape === 'super4' ||
   shape === 'super5' ||
   shape === 'mmorph' ||
@@ -262,8 +274,13 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   '123': false,
   '223': false,
   '224': true,
+  '234': true,
   camo: true,
   '332': false,
+  '334': false,
+  '443': false,
+  '445': false,
+  '554': false,
   '331': false,
   pyra: false,
   tetra: false,
@@ -326,9 +343,14 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   '6': ['slice', 'slice3', 'wide', 'wide3'],
   '123': [],
   '224': ['wide'],
+  '234': ['slice', 'wide'],
   camo: ['slice', 'wide'],
   '223': ['wide'],
   '332': [],
+  '334': ['slice', 'wide'],
+  '443': ['slice', 'wide'],
+  '445': ['slice', 'wide'],
+  '554': ['slice', 'wide'],
   '331': [],
   pyra: [],
   tetra: [],
@@ -383,9 +405,14 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   '6': [],
   '123': [],
   '224': [],
+  '234': [],
   camo: [],
   '223': [],
   '332': [],
+  '334': [],
+  '443': [],
+  '445': [],
+  '554': [],
   '331': [],
   pyra: [],
   tetra: [],
@@ -436,9 +463,14 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   '6': '6x6',
   '123': '1x2x3',
   '224': '2x2x4',
+  '234': '2x3x4',
   camo: 'Camouflage 4x4x2',
   '223': '2x2x3 (Slim Tower)',
   '332': '3x3x2 (Domino)',
+  '334': '3x3x4',
+  '443': '4x4x3',
+  '445': '4x4x5',
+  '554': '5x5x4',
   '331': '3x3x1 (Floppy)',
   pyra: 'Pyraminx',
   tetra: 'Tetraminx',
@@ -490,9 +522,14 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   '6': '6x6',
   '123': '1x2x3',
   '224': '2x2x4',
+  '234': 'tower-2x3x4',
   camo: 'camouflage',
   '223': 'slim-tower',
   '332': 'domino',
+  '334': 'tower-3x3x4',
+  '443': 'tower-4x4x3',
+  '445': 'tower-4x4x5',
+  '554': 'tower-5x5x4',
   '331': 'floppy',
   pyra: 'pyraminx',
   tetra: 'tetraminx',
@@ -559,8 +596,13 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   '123': false,
   '223': false,
   '224': false,
+  '234': false,
   camo: false,
   '332': false,
+  '334': false,
+  '443': false,
+  '445': false,
+  '554': false,
   '331': false,
   pyra: false,
   tetra: false,

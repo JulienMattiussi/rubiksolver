@@ -4,6 +4,7 @@ import { applyGhostMove, ghostAxis, ghostTurns } from './ghost'
 import { applyPuckMove, puckRotation, puckTurns } from './puck'
 import { applyGearMove, gearFaceTurns, gearRotation, gearSliceTurns } from './gear'
 import { applyMegaMove, megaRotation, megaTurns } from './megaminx'
+import { tower234Turns } from './tower234'
 import { applyRainbowMove, rainbowRotation, rainbowTurns } from './rainbow'
 import { violetTurns } from './violet'
 import { aiTurns } from './ai'
@@ -129,6 +130,8 @@ export function turnAllowed(cube: Cube, move: Turn): boolean {
   if (shape === 'roadblock') return roadblockTurns(cube, move)
   if (!SHAPE_SHIFTS[shape]) return true
   if (shape === 'violet') return violetTurns(cube, move.face)
+  // The 2x3x4's sides jam on a piece astride their cut (tower234.ts).
+  if (shape === '234') return tower234Turns(cube, move)
   if (shape === 'camo') {
     const slab = moveSlab(move, turnDims(shape))
     return camoTurns(cube, FACE_SPEC[move.face].coordIndex, slab)

@@ -192,10 +192,13 @@ function layerRows(shape: CubeShape, layer: Move): Move[][] {
 function cubeGuide(shape: CubeShape): GuideGroup[] {
   const dims = SHAPE_DIMS[shape]
   const layers: Move[] = []
-  for (const turn of [...movesFor(shape), ...advancedMovesFor(shape), ...methodTurns(shape)]) {
+  const pad = movesFor(shape)
+  for (const turn of [...pad, ...advancedMovesFor(shape), ...methodTurns(shape)]) {
     if (!isFaceMove(turn)) continue
-    // A middle slice is named after one face only (2R is M').
-    const face = isMES(turn, dims) ? (SLICE_FACE[turn.face] ?? turn.face) : turn.face
+    // A middle slice is named after one face only (2R is M'), unless the pad
+    // names it (the 4x4x3's middle layer, 2U).
+    const named = pad.some((m) => isFaceMove(m) && sameLayer(m, turn))
+    const face = isMES(turn, dims) && !named ? (SLICE_FACE[turn.face] ?? turn.face) : turn.face
     const layer: Move = { ...turn, face, amount: 1 }
     if (!layers.some((l) => sameLayer(l, layer))) layers.push(layer)
   }
