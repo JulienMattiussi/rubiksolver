@@ -74,11 +74,18 @@ les formules de chaque méthode avec leur effet testé, et la recherche par
 pièces (`solvePieces`) pour proposer le coup suivant. Commencer par les étapes
 intuitives (croix, premiers coins) du 3x3 et du 2x2, puis par les 3-cycles.
 
-## Vérifier les fuites mémoire
+## Fuites mémoire : ce qui a été mesuré
 
-**À faire.** Mesurer la mémoire sur une longue session (changer souvent de
-puzzle, ouvrir le guide, saisir, résoudre) : géométries et textures three.js
-non libérées (`dispose`), caches des modules (`SHAPES`, `PICTURES`, tables
-de formules, `MACROS` du Megaminx) qui grandissent sans limite, worker de
-résolution, écouteurs non retirés. Outils : l'onglet Mémoire de Chrome
-(instantanés comparés) et `renderer.info` de three.js.
+**Mesuré** (Playwright, tampons et textures WebGL comptés à leur création et
+leur destruction, tas JavaScript après ramasse-miettes forcé) : le Megaminx
+mélangé puis résolu trois fois, le 3x3 de même, le guide des mouvements
+ouvert une minute, une tournée de six puzzles répétée. Une fuite trouvée et
+corrigée : `PolyPiece` créait une géométrie neuve à chaque coup sans libérer
+l'ancienne (+62 000 tampons GPU et +35 Mo par mélange résolu sur le
+Megaminx) ; elle est maintenant libérée (`dispose`). Depuis, tout est stable :
+le tas se remplit au premier tour (caches des formes, bornés par le nombre
+de positions d'une pièce) puis ne bouge plus.
+
+**Pas mesuré** : la mémoire du worker de résolution, qui garde ses tables
+(formules du Megaminx et du Crystal : quelques dizaines de Mo, une fois par
+liste de formules, donc bornées) ; une session de plusieurs heures.

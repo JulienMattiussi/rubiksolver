@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import type { Cubie } from '@/lib/types'
 import { COLOR_HEX, HIGHLIGHT, PLASTIC } from './colors'
@@ -69,6 +69,9 @@ export function PolyPiece({
   lit = null,
 }: PolyPieceProps) {
   const polygons = useMemo(() => merged(drawing.polygons(cubie)), [cubie, drawing])
+  // Each turn hands a moved piece new geometries: the old ones freed (their
+  // GPU buffers too), else every turn would leave some behind.
+  useEffect(() => () => polygons.forEach((p) => p.geometry.dispose()), [polygons])
   return (
     <group>
       {polygons.map(({ paint, ni, geometry }, i) => {
