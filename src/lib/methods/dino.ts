@@ -3,7 +3,7 @@ import { allTurnsOf } from '../moveSet'
 import { colorsOf } from '../pieces'
 import { parseDinoMoves } from '../rainbow'
 import type { MethodPlan } from '../solverKit'
-import type { Cube, RainbowMove, Vec3 } from '../types'
+import type { Cube, Cubie, RainbowMove, Vec3 } from '../types'
 import { cycleTable, placeByCycles } from './pyraCycles'
 import { fromEverySide, heldTargets, isEven } from './rainbowKit'
 
@@ -30,14 +30,17 @@ const key = (p: Vec3) => p.join()
 /** The page's formula, as it writes it. */
 const DINO_CYCLE = parseDinoMoves("[GA']")
 
-let table: Map<string, RainbowMove[]> | undefined
-const cycles = () =>
-  (table ??= cycleTable(
-    SOLVED,
-    () => true,
-    fromEverySide(DINO_CYCLE),
-    TURNS.turns as RainbowMove[],
-  ))
+const TABLES = new Map<Cube, Map<string, RainbowMove[]>>()
+/** The 3-cycles of edges of a solved puzzle (the Dino's, the Cylinder's:
+ *  its corners never move). */
+const dinoCycles = (solved: Cube, isEdge: (c: Cubie) => boolean = () => true) => {
+  let table = TABLES.get(solved)
+  if (!table) {
+    table = cycleTable(solved, isEdge, fromEverySide(DINO_CYCLE), TURNS.turns as RainbowMove[])
+    TABLES.set(solved, table)
+  }
+  return table
+}
 
 /** Every solved puzzle: both solutions, each held every way. */
 const TARGETS = heldTargets(SOLVED)
@@ -59,41 +62,56 @@ function targetOf(state: Cube): Map<string, string> {
   return best!
 }
 
-/** The pieces whose home is in the layers `rows` (y), each mapped from where
- *  it stands to that home; the others left where they are. */
-const homesIn = (rows: readonly number[]) => (state: Cube) => {
-  const home = targetOf(state)
-  return new Map(
-    state.map((c) => {
-      const to = home.get(colorsOf(c))!
-      const y = Number(to.split(',')[1])
-      return [key(c.position), rows.includes(y) ? to : key(c.position)]
-    }),
-  )
+/**
+ * The page's three steps, its edges placed layer by layer (top, middle,
+ * bottom), toward the target `targetOf` says (where each piece belongs, by
+ * its colors); `isEdge`, the pieces placed (the Cylinder's corners left).
+ */
+export function dinoLayers(
+  solved: Cube,
+  targetOf: (state: Cube) => Map<string, string>,
+  isEdge: (c: Cubie) => boolean = () => true,
+): MethodPlan {
+  /** The edges whose home is in the layers `rows` (y), each mapped from
+   *  where it stands to that home; the others left where they are. */
+  const homesIn = (rows: readonly number[]) => (state: Cube) => {
+    const home = targetOf(state)
+    return new Map(
+      state.filter(isEdge).map((c) => {
+        const to = home.get(colorsOf(c))!
+        const y = Number(to.split(',')[1])
+        return [key(c.position), rows.includes(y) ? to : key(c.position)]
+      }),
+    )
+  }
+  const layerDone = (rows: readonly number[]) => (state: Cube) =>
+    [...homesIn(rows)(state)].every(([at, to]) => at === to)
+  const ALL = [1, 0, -1]
+  const step = (key: string, rows: number[]) => ({
+    key,
+    goal: layerDone(rows),
+    moves: TURNS,
+    phases: [
+      (cube: Cube) => {
+        const table = dinoCycles(solved, isEdge)
+        try {
+          return placeByCycles(cube, table, homesIn(rows))
+        } catch {
+          // Two of the layer's edges left swapped, which no 3-cycle among
+          // them undoes: the layer done with the edges below, not placed yet
+          // (all placed, this layer with them).
+          return placeByCycles(cube, table, homesIn(ALL))
+        }
+      },
+    ],
+  })
+  return [
+    step('stepDinoTop', [1]),
+    step('stepDinoMiddle', [1, 0]),
+    step('stepDinoBottom', [1, 0, -1]),
+  ]
 }
 
-const layerDone = (rows: readonly number[]) => (state: Cube) => {
-  const home = homesIn(rows)(state)
-  return [...home].every(([at, to]) => at === to)
-}
-
-export const DINO_PLAN: MethodPlan = [
-  {
-    key: 'stepDinoTop',
-    goal: layerDone([1]),
-    moves: TURNS,
-    phases: [(cube) => placeByCycles(cube, cycles(), homesIn([1]))],
-  },
-  {
-    key: 'stepDinoMiddle',
-    goal: layerDone([1, 0]),
-    moves: TURNS,
-    phases: [(cube) => placeByCycles(cube, cycles(), homesIn([1, 0]))],
-  },
-  {
-    key: 'stepDinoBottom',
-    goal: isSolved,
-    moves: TURNS,
-    phases: [(cube) => placeByCycles(cube, cycles(), homesIn([1, 0, -1]))],
-  },
-]
+export const DINO_PLAN: MethodPlan = dinoLayers(SOLVED, targetOf).map((spec, i) =>
+  i === 2 ? { ...spec, goal: isSolved } : spec,
+)

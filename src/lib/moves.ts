@@ -430,7 +430,7 @@ export function scrambleTurns(
   if (shape === 'puck') return scramblePuck(length, rng)
   if (shape === 'rainbow') return scrambleRainbow(length, rng)
   if (isMegaminx(shape)) return scrambleMegaminx(length, rng, shape === 'crystal')
-  if (shape === 'dino') return scrambleDino(length, rng)
+  if (shape === 'dino' || shape === 'dinoCyl') return scrambleDino(length, rng)
   if (shape === 'rex') return scrambleRex(length, rng)
   if (shape === 'skewbU') return scrambleSkewbU(length, rng)
   if (shape === 'fto') return scrambleFto(length, rng)
@@ -467,7 +467,7 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
   if (shape === 'puck') return PUCK_TURNS
   if (shape === 'rainbow') return RAINBOW_TURNS
   if (isMegaminx(shape)) return shape === 'crystal' ? CRYSTAL_TURNS : MEGA_TURNS
-  if (shape === 'dino') return DINO_TURNS
+  if (shape === 'dino' || shape === 'dinoCyl') return DINO_TURNS
   if (shape === 'rex') return REX_TURNS
   if (shape === 'skewbU') return SKEWB_TURNS
   if (shape === 'fto') return FTO_TURNS

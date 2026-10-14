@@ -13,7 +13,7 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 **4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), l'**Octahedron VTO**
 (un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **FTO** (un octaèdre dont les faces tournent), le **Rainbow**
 (un cuboctaèdre dont les triangles tournent), le **Megaminx** (un dodécaèdre), le **Holey Megaminx** (sans ses centres), le **Pyraminx Crystal** (un Megaminx coupé plus profond), le **Dino Cube** et le **Rex Cube** (leurs sommets
-tournent), le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième, qui se déforme), le **Windmill** (son jumeau, tourné moins), le **Skewb Ultimate** (un Skewb taillé en dodécaèdre), le **Violet** (un 2x2x2 à
+tournent), le **Dino Cylinder** (un Dino aux sommets en plus, taillé en cylindre, qui se déforme), le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième, qui se déforme), le **Windmill** (son jumeau, tourné moins), le **Skewb Ultimate** (un Skewb taillé en dodécaèdre), le **Violet** (un 2x2x2 à
 pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Quarter Cube** (des faces qui ne font qu'aller et revenir d'un quart), l'**AI Cube** (un 4x4x4 dont quatre octants sont soudés), le **RoadBlock-I** (un 5x5x5 aux centres soudés en barres), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages),
 le **Hockey Puck** (deux disques de 12 pièces, de la famille des étoiles), le **Barrel** (un 3x3x3 aux arêtes verticales tronquées, qui se déforme) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
@@ -25,7 +25,7 @@ tourner au survol d'un bouton ; sur 3x3, un onglet « Avancé » pour `M`, `E`,
 animé sur l'état actuel, avec sa notation et une phrase), on le mélange **ou
 on saisit sa propre configuration** en peignant les stickers directement en
 3D (sur tous les puzzles, Pyraminx et étoiles compris ; un puzzle déformable
-dans la forme où il se trouve, le Floppy Ghost, le Z-Twist, le Hockey Puck, le Barrel, le Fisher Cube et le Windmill pièce par pièce), on peut **mémoriser un état**
+dans la forme où il se trouve, le Floppy Ghost, le Z-Twist, le Hockey Puck, le Barrel, le Fisher Cube, le Windmill et le Dino Cylinder pièce par pièce), on peut **mémoriser un état**
 pour y revenir, puis on le résout selon **plusieurs vraies méthodes** (par
 couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4, du 5x5 et du 6x6, méthodes de la tour, du
 Domino, du Pyraminx et des étoiles...). La solution, affichée dès que le cube
@@ -107,6 +107,7 @@ src/
 │   ├── morph.ts          # Pyramorphinx : un 2x2 taillé en tétraèdre (coins à 3 stickers, milieux de face à 1)
 │   ├── oct4.ts           # 4-Trajber's Octahedron : un 4x4x4 sans cubies internes, un sticker par pièce (face de son octant)
 │   ├── vto.ts            # Octahedron VTO et GEM-0 : un 3x3x3 taillé en octaèdre (pointes à part sur le VTO, carrés sur le GEM-0)
+│   ├── dinoCyl.ts        # Dino Cylinder : le Dino et ses 8 sommets, qui pivotent sur place
 │   ├── fto.ts            # FTO : l'octaèdre aux faces qui tournent (modèle du Rainbow), tours, mélange, lecture des formules
 │   ├── gear.ts           # Gear Cubes : coups d'engrenage (demi-tour de face, quart de tranche), pivot des arêtes (Cubie.spin), réalignement
 │   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
@@ -161,7 +162,8 @@ src/
 │   │   ├── vto.ts        #   VTO et GEM-0 : centres, arêtes placées (3-cycles), retournées par paires, pointes (fan2cube.fr)
 │   │   ├── fto.ts        #   FTO : sommets, centres (O4), arêtes (O3), 3-cycles purs de fan2cube.fr
 │   │   ├── rainbow.ts    #   Rainbow : triangle du haut, puis les autres par 3-cycles ([H' G'], [H D], fan2cube.fr)
-│   │   ├── dino.ts       #   Dino Cube : étage par étage, par le 3-cycle [GA'] (fan2cube.fr)
+│   │   ├── dino.ts       #   Dino Cube : étage par étage, par le 3-cycle [GA'] (fan2cube.fr), partagé avec le Dino Cylinder
+│   │   ├── dinoCyl.ts    #   Dino Cylinder : les étages du Dino, puis les sommets pivotés ((A)+ = [AD]A'[DA'])
 │   │   ├── rex.ts        #   Rex Cube : arêtes, centres, pétales, par 3-cycles (fan2cube.fr)
 │   │   ├── pyraCycles.ts #   3-cycles d'une sorte de pièce par conjugaison (cycleTable), chiralité (handedHome), placement
 │   │   ├── jing.ts       #   Pyraminx Jing : sommets d'abord (crochet [DH] de fan2cube.fr)
@@ -270,6 +272,7 @@ src/
 │   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
 │   ├── Decal.tsx         # Une image posée sur la face de pièces choisies, qui tourne avec elles (PolyDrawing.decal)
 │   ├── rainbowGeometry.ts # Pièces du Rainbow : cellule de chaque pièce dans le cuboctaèdre (polyhedron.ts)
+│   ├── dinoCylGeometry.ts # Pièces du Dino Cylinder : le cylindre coupé par les plans des sommets, portées par la pièce
 │   ├── dinoGeometry.ts   # Pièces du Dino Cube : le cube coupé le long des diagonales de ses faces ; l'Edge Only, percé au milieu
 │   ├── rexGeometry.ts    # Pièces du Rex Cube : chaque face coupée par quatre cercles, régions tracées par rayons
 │   ├── ghostGeometry.ts  # Pièces du Floppy Ghost : régions du carré coupé par le pentagramme, extrudées, posées par réflexions
@@ -405,6 +408,8 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 - **Équateur puis coins** (`gearEquatorFirst`, Gear Cube Extreme) : équateur et
   centres, coins du bas puis du haut, arêtes isolées puis placées, agrafes,
   engrenages - voir « Le Gear Cube Extreme ».
+- **Étage par étage** (`dinoCylLayers`, Dino Cylinder) : les étages du Dino,
+  puis les sommets pivotés - voir « Le Dino Cylinder ».
 - **Étage par étage** (`dinoLayers`, Dino Cube) : le haut, l'équateur, le bas,
   avec le seul 3-cycle [GA'] - voir « Le Dino Cube ».
 - **Arêtes, centres, pétales** (`rexEdgesFirst`, Rex Cube) : par 3-cycles - voir
@@ -1164,6 +1169,35 @@ préparée par un tour (`cycleTable`, `placeByCycles`) : le haut, l'équateur,
 le bas. Rien n'est fixe : la cible est la tenue du puzzle résolu la plus
 proche ; et il se résout de deux façons (gauche et droite échangées, un
 miroir), dont une seule à un nombre pair d'échanges, celle qu'on vise.
+
+### Le Dino Cylinder (`dinoCyl`)
+
+Le Dino Cylinder (fan2cube.fr/dinocylinder1 et 2, Li Chung Man, 2011) est
+« comme un Dino mais il a des sommets en plus », taillé en cylindre aussi
+haut que large (catégorie « Cylindriques »). Ses sommets tournent d'un
+tiers, chacun emportant ses trois arêtes et sa pièce de sommet, qui ne
+bouge pas mais pivote. **Modèle** (`lib/dinoCyl.ts`) : celui du Dino, ses
+8 sommets ajoutés en (1, 1, 1)... aux couleurs de leurs trois faces ; les
+tours du Dino (ce qui est à au moins 2 le long de la diagonale) les font
+pivoter. **Rendu** (`three/dinoCylGeometry.ts`) : un cylindre (48 pans,
+normales lissées) coupé par les plans des sommets, x + y + z = 1... (ceux
+du Dino) ; chaque pièce dessinée chez elle puis portée par la rotation qui
+l'amène où elle est, si bien qu'il se déforme : un sommet pivoté, une
+arête changée de rangée, dépasse du cylindre. Disques du haut et du bas :
+les quarts des arêtes du haut et du bas ; sur le flanc, les petits
+triangles des sommets et les « yeux » des arêtes du milieu ; chaque pan
+de la couleur du sticker qu'il regarde le plus. Tenu un sommet devant,
+comme la page. **Saisie** pièce par pièce (ses formes, des centaines de
+milliers, ne tiendraient pas en vignettes).
+
+**Résolution** (`methods/dinoCyl.ts`, méthode **Étage par étage**, d'après
+la page) : les trois étages du Dino par [GA'] (`dinoLayers` de
+`methods/dino.ts` : deux arêtes d'un étage restées échangées, il se finit
+avec celles d'en dessous), la cible donnée par les sommets (qui ne bougent
+jamais : la page n'a qu'une solution ici, nos couleurs étant celles du
+cube) ; puis les sommets pivotés un à un par (A)+ = [AD]A'[DA'], qui ne
+tourne que le sommet A, vu de chaque côté et à l'envers. Effet des
+formules testé.
 
 ### Le Rex Cube (`rex`)
 
@@ -2082,7 +2116,7 @@ mobile et en saisie, une seule carte) :
   (Slim)/2x2x4/3x3x2 (Domino)/Camouflage 4x4x2, Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx/Master Morphinx, Polyèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/FTO/Rainbow/Megaminx/Pyraminx Crystal/Skewb Ultimate, Cylindriques Hockey Puck/Barrel/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube/Fisher Cube/Windmill, Troués Holey Megaminx/Tori/Edge Only, Torturés Violet/Z-Twist/Quarter Cube/AI Cube/RoadBlock-I.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/FTO/Rainbow/Megaminx/Pyraminx Crystal/Skewb Ultimate, Cylindriques Dino Cylinder/Hockey Puck/Barrel/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube/Fisher Cube/Windmill, Troués Holey Megaminx/Tori/Edge Only, Torturés Violet/Z-Twist/Quarter Cube/AI Cube/RoadBlock-I.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

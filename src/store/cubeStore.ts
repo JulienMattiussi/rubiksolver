@@ -37,6 +37,7 @@ const SCRAMBLE_LENGTH: Record<CubeShape, number> = {
   dino: 20,
   rex: 25,
   skewbU: 25,
+  dinoCyl: 25,
   fto: 30,
   fisher: 20,
   windmill: 20,

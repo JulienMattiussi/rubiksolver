@@ -15,6 +15,7 @@ import {
   vtoThumbnail,
 } from './octGeometry'
 import { dinoPolygons, edgeOnlyPolygons } from './dinoGeometry'
+import { dinoCylPolygons, dinoCylThumbnail } from './dinoCylGeometry'
 import { rexCut, rexPolygons } from './rexGeometry'
 import { barrelPolygons, barrelThumbnail } from './barrelGeometry'
 import { aiPolygons } from './aiGeometry'
@@ -106,6 +107,12 @@ const RAINBOW: PolyDrawing = {
 
 /** The Dino Cube, upright and square to the view, as the cubes are. */
 const DINO: PolyDrawing = { polygons: dinoPolygons, yaw: 0 }
+
+const DINO_CYL: PolyDrawing = {
+  polygons: dinoCylPolygons,
+  yaw: 0,
+  thumbnail: dinoCylThumbnail,
+}
 /** The Z-Twist, upright as the cubes. */
 const TWIST: PolyDrawing = { polygons: twistPolygons, yaw: 0, thumbnail: twistThumbnail }
 /** The Tori, upright as the cubes. */
@@ -196,6 +203,7 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'gem') return GEM
   if (shape === 'rainbow') return RAINBOW
   if (shape === 'dino') return DINO
+  if (shape === 'dinoCyl') return DINO_CYL
   if (shape === 'skewbU') return SKEWB_U
   if (shape === 'fto') return FTO
   if (shape === 'rex') return REX

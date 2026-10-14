@@ -52,7 +52,7 @@ export function allTurnsOf(shape: CubeShape): MoveSet {
             ? shape === 'crystal'
               ? CRYSTAL_TURNS
               : MEGA_TURNS
-            : shape === 'dino'
+            : shape === 'dino' || shape === 'dinoCyl'
               ? DINO_TURNS
               : shape === 'rex'
                 ? REX_TURNS

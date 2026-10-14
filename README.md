@@ -6,7 +6,7 @@ la **Slim Tower 2x2x3**, le **Domino 3x3x2**, le **Camouflage 4x4x2** et le **Fl
 **Floppy Ghost** (un Floppy Megaminx découpé en pentagramme, argenté) et des
 puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (sans pointes), le **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le
 **Pyraminx Jing**, le **Pyramorphinx**, le **Master Morphinx** (un 3x3x3 en tétraèdre), le **4-Trajber's Octahedron** (un 4x4x4 en octaèdre), l'**Octahedron VTO** (un 3x3x3 en octaèdre), le **GEM-0** (le VTO sans pointes), le **FTO** (un octaèdre dont les faces tournent),
-le **Rainbow** (un cuboctaèdre aux triangles qui tournent), le **Megaminx** (un dodécaèdre), le **Holey Megaminx** (sans centres), le **Pyraminx Crystal** (un Megaminx coupé plus profond), le **Dino Cube**, le
+le **Rainbow** (un cuboctaèdre aux triangles qui tournent), le **Megaminx** (un dodécaèdre), le **Holey Megaminx** (sans centres), le **Pyraminx Crystal** (un Megaminx coupé plus profond), le **Dino Cube**, le **Dino Cylinder** (un Dino en cylindre, aux sommets en plus), le
 **Rex Cube** (leurs sommets tournent) le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième), le **Windmill** (son jumeau, tourné moins) et le **Skewb Ultimate** (un Skewb en dodécaèdre),
 le **Violet** (un 2x2x2 à pivot excentré qui se déforme), le **Z-Twist** (un 3x3x3
 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Quarter Cube** (des faces qui vont et reviennent d'un quart), l'**AI Cube** (un 4x4x4 bandé), le **RoadBlock-I** (un 5x5x5 aux centres en barres), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube
@@ -59,6 +59,7 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   - Skewb Ultimate : **le haut d'abord** ;
   - Megaminx et Holey Megaminx : **l'étoile prolongée** (par couches, une face de plus à chaque tour) ;
   - Dino Cube : **étage par étage** ;
+  - Dino Cylinder : **étage par étage**, puis les sommets pivotés ;
   - Rex Cube : **arêtes, centres, pétales** ;
   - Violet : **forme puis couleurs** ;
   - Tori et Edge Only : **croix prolongée** ;

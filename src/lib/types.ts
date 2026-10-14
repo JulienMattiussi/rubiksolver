@@ -31,6 +31,7 @@ export type CubeShape =
   | 'fto'
   | 'rainbow'
   | 'dino'
+  | 'dinoCyl'
   | 'rex'
   | 'fisher'
   | 'windmill'
@@ -114,6 +115,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   // The Holey Megaminx: the Megaminx without its centers.
   holey: [9, 9, 9],
   dino: [3, 3, 3],
+  // The Dino Cylinder (dinoCyl.ts): the Dino's, its corners added.
+  dinoCyl: [3, 3, 3],
   // The Rex Cube's pieces sit within +-4 (rainbow.ts), its box says so.
   rex: [9, 9, 9],
   // The Fisher Cube (fisher.ts): a 3x3x3 cut to a cube turned an eighth.
@@ -191,6 +194,7 @@ export const hasColoredClips = (shape: CubeShape): boolean => shape === 'gearU' 
 const isRainbowLike = (shape: CubeShape): boolean =>
   shape === 'rainbow' ||
   shape === 'dino' ||
+  shape === 'dinoCyl' ||
   shape === 'rex' ||
   shape === 'skewbU' ||
   shape === 'fto'
@@ -277,6 +281,7 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   crystal: false,
   holey: false,
   dino: false,
+  dinoCyl: false,
   rex: false,
   fisher: false,
   windmill: false,
@@ -341,6 +346,7 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   crystal: [],
   holey: [],
   dino: [],
+  dinoCyl: [],
   rex: [],
   fisher: [],
   windmill: [],
@@ -397,6 +403,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   crystal: [],
   holey: [],
   dino: [],
+  dinoCyl: [],
   rex: [],
   fisher: [],
   windmill: [],
@@ -449,6 +456,7 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   crystal: 'Pyraminx Crystal',
   holey: 'Holey Megaminx',
   dino: 'Dino Cube',
+  dinoCyl: 'Dino Cylinder',
   rex: 'Rex Cube',
   fisher: 'Fisher Cube',
   windmill: 'Windmill',
@@ -502,6 +510,7 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   crystal: 'pyraminx-crystal',
   holey: 'holey-megaminx',
   dino: 'dino-cube',
+  dinoCyl: 'dino-cylinder',
   rex: 'rex-cube',
   fisher: 'fisher-cube',
   windmill: 'windmill',
@@ -569,6 +578,7 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   crystal: false,
   holey: false,
   dino: false,
+  dinoCyl: false,
   rex: false,
   fisher: false,
   windmill: false,
@@ -623,7 +633,9 @@ export type CubeCategory = (typeof CUBE_CATEGORIES)[number]
 export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (variant === 'mirror') return 'mirror'
   // Round: the star prisms, the Hockey Puck, the Barrel.
-  if (isStar(shape) || shape === 'puck' || shape === 'barrel') return 'star'
+  if (isStar(shape) || shape === 'puck' || shape === 'barrel' || shape === 'dinoCyl') {
+    return 'star'
+  }
   if (isPyraminx(shape) || shape === 'morph' || shape === 'mmorph') return 'pyramid'
   if (
     shape === 'oct4' ||

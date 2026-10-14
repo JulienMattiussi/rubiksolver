@@ -419,6 +419,10 @@ const fr = {
       name: 'Équateur puis coins',
       desc: 'L’équateur et les centres d’abord, intuitivement, puis les coins du bas descendus un à un ((D²H)².(D²H²)²), ceux du haut par 3-cycle et échange, les arêtes du bas isolées en bas ((BG²B’G’²)⁵), toutes les arêtes placées par paires échangées, les agrafes remises à l’endroit (D²(D²H)¹²D’²) et enfin les engrenages, un tiers de tour à la fois ((D²H)².D⁸.(H’D’²)²).',
     },
+    dinoCylLayers: {
+      name: 'Étage par étage',
+      desc: 'Comme le Dino Cube, avec deux formules : [GA’] = GA’G’A fait tourner trois arêtes en laissant le reste en place (les sommets ne bougent jamais et disent comment le tenir) : le haut, puis l’équateur, puis le bas. Les arêtes s’orientent toutes seules une fois en place ; restent les sommets, pivotés un à un par (A)+ = [AD]A’[DA’].',
+    },
     dinoLayers: {
       name: 'Étage par étage',
       desc: 'Une seule formule, [GA’] = GA’G’A, qui fait tourner trois arêtes en laissant le reste en place : le haut, puis l’équateur, puis le bas, une arête à la fois. Les arêtes s’orientent toutes seules une fois en place.',
@@ -476,6 +480,7 @@ const fr = {
     stepDinoTop: 'Le haut',
     stepDinoMiddle: 'L’équateur',
     stepDinoBottom: 'Le bas',
+    stepDinoCylCorners: 'Pivoter les sommets',
     stepRexEdges: 'Les arêtes',
     stepRexCenters: 'Les centres',
     stepRexPetals: 'Les pétales',
@@ -984,6 +989,10 @@ const en: Translations = {
       name: 'Equator then corners',
       desc: 'The equator and the centers first, intuitively, then the bottom corners lowered one at a time ((R²U)².(R²U²)²), the top ones by a 3-cycle and a swap, the bottom edges isolated at the bottom ((DL²D’L’²)⁵), every edge placed by pairs swapped, the clips turned right way round (R²(R²U)¹²R’²) and last the gears, a third of a turn at a time ((R²U)².R⁸.(U’R’²)²).',
     },
+    dinoCylLayers: {
+      name: 'Layer by layer',
+      desc: 'As the Dino Cube, with two formulas: [GA’] = GA’G’A cycles three edges and leaves the rest be (the corners never move and tell how to hold it): the top, then the equator, then the bottom. Edges turn the right way round on their own once in place; then the corners, turned one at a time by (A)+ = [AD]A’[DA’] (fan2cube’s letters).',
+    },
     dinoLayers: {
       name: 'Layer by layer',
       desc: 'One formula only, [GA’] = GA’G’A, which cycles three edges and leaves the rest be: the top, then the equator, then the bottom, an edge at a time. Edges turn the right way round on their own once in place.',
@@ -1041,6 +1050,7 @@ const en: Translations = {
     stepDinoTop: 'The top',
     stepDinoMiddle: 'The equator',
     stepDinoBottom: 'The bottom',
+    stepDinoCylCorners: 'Turn the corners',
     stepRexEdges: 'The edges',
     stepRexCenters: 'The centers',
     stepRexPetals: 'The petals',

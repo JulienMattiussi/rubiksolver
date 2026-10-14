@@ -28,6 +28,7 @@ import { RAINBOW_PLAN } from './methods/rainbow'
 import { CRYSTAL_PLAN, MEGAMINX_PLAN } from './methods/megaminx'
 import { GEAR_PLAN, GEAR_ULTIMATE_PLAN } from './methods/gear'
 import { DINO_PLAN } from './methods/dino'
+import { DINO_CYL_PLAN } from './methods/dinoCyl'
 import { REX_PLAN } from './methods/rex'
 import { FTO_PLAN } from './methods/fto'
 import { SKEWB_U_PLAN } from './methods/skewbU'
@@ -149,6 +150,7 @@ const SOLVE_METHODS = [
   { id: 'megaStar', plans: { megaminx: MEGAMINX_PLAN, holey: MEGAMINX_PLAN } },
   { id: 'crystalCornersFirst', plans: { crystal: CRYSTAL_PLAN } },
   { id: 'dinoLayers', plans: { dino: DINO_PLAN } },
+  { id: 'dinoCylLayers', plans: { dinoCyl: DINO_CYL_PLAN } },
   { id: 'rexEdgesFirst', plans: { rex: REX_PLAN } },
   { id: 'skewbTopFirst', plans: { skewbU: SKEWB_U_PLAN } },
   { id: 'ftoCornersFirst', plans: { fto: FTO_PLAN } },

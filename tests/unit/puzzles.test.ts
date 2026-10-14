@@ -93,6 +93,7 @@ const PUZZLES: ReadonlyArray<{
     scramble: 25,
   },
   { shape: 'dino', pieces: 12, stickers: 24, orientations: 24, painted: 24, scramble: 20 },
+  { shape: 'dinoCyl', pieces: 20, stickers: 48, orientations: 24, painted: 48, scramble: 25 },
   // A 3x3 cut to a cube turned an eighth, its side centers marked.
   { shape: 'fisher', pieces: 27, stickers: 58, orientations: 24, painted: 58, scramble: 20 },
   { shape: 'windmill', pieces: 27, stickers: 62, orientations: 24, painted: 62, scramble: 20 },

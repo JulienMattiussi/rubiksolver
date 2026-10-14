@@ -15,6 +15,7 @@ import { solvedMorph } from './morph'
 import { solvedOct4 } from './oct4'
 import { solvedGem, solvedVto } from './vto'
 import { solvedFto } from './fto'
+import { solvedDinoCyl } from './dinoCyl'
 import { SKEWB_SYMMETRIES, solvedDino, solvedRainbow, solvedRex, solvedSkewbU } from './rainbow'
 import { solvedViolet, turnAboutA, violetBoxed, violetSolved } from './violet'
 import { withGears } from './gear'
@@ -120,6 +121,7 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (shape === 'gem') return solvedGem()
   if (shape === 'rainbow') return solvedRainbow()
   if (shape === 'dino') return solvedDino()
+  if (shape === 'dinoCyl') return solvedDinoCyl()
   if (shape === 'rex') return solvedRex()
   if (shape === 'skewbU') return solvedSkewbU()
   if (shape === 'fto') return solvedFto()

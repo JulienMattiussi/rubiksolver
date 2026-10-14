@@ -136,10 +136,14 @@ export function SetupSection() {
         <MegaPad disabled={busy} crystal={shape === 'crystal'} />
       ) : shape === 'fto' ? (
         <FtoPad disabled={busy} />
-      ) : shape === 'rainbow' || shape === 'dino' || shape === 'rex' || shape === 'skewbU' ? (
+      ) : shape === 'rainbow' ||
+        shape === 'dino' ||
+        shape === 'dinoCyl' ||
+        shape === 'rex' ||
+        shape === 'skewbU' ? (
         <RainbowPad
           disabled={busy}
-          dino={shape === 'dino'}
+          dino={shape === 'dino' || shape === 'dinoCyl'}
           rex={shape === 'rex'}
           skewb={shape === 'skewbU'}
         />
