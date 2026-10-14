@@ -16,7 +16,8 @@ import type { Cube, Cubie, Move } from '../types'
  *   C. Corners  with P(H*D.G.H*D)3P and P(H*G'.D'.H*G')3P
  *   D. Edges    the top's and the bottom's middle edges: (D2H)3, (D2A)3,
  *               PB.(D2A)3.BP
- *   E. Equator  ((D2h)2P)2, ((G2h)2P)2, hA.(D2h)2.Ah, (HA)3
+ *   E. Equator  ((D2h)2P)2, ((G2h)2P)2, hA.(D2h)2.Ah, (HA)3, and one of
+ *               our own that leaves the box and comes back
  *
  * Only its side columns turn by quarters (the page writes X for X2 where
  * a turn only goes by halves, and D2 for a column's): H B = U2 D2, H* B* =
@@ -44,7 +45,7 @@ const formula = (text: string): Move[] => {
   }
 }
 
-const TOWER234_FORMULAS = {
+export const TOWER234_FORMULAS = {
   cornersD: formula('Bw2 (Uw2 R L Uw2 R)3 Bw2'),
   cornersG: formula("Bw2 (Uw2 L' R' Uw2 L')3 Bw2"),
   edgesTop: formula('(R2 U2)3'),
@@ -54,6 +55,10 @@ const TOWER234_FORMULAS = {
   equatorG: formula('((L2 2U2)2 Bw2)2'),
   equatorH: formula('2U2 Fw2 (R2 2U2)2 Fw2 2U2'),
   equatorA: formula('(U2 Fw2)3'),
+  // Not the page's: found from a scramble the page's formulas could not
+  // finish (the scramble and the steps before, which only left the equator
+  // wrong), the shortest of a few hundred.
+  equatorParity: formula("Bw2 Fw2 Dw2 R' Fw2 R Fw2 R2 Fw2 Bw2 L' D2 L Uw2 L Uw2 L Uw2 L2 D2"),
 }
 
 /** The box's turns, every one a half. */
@@ -166,17 +171,17 @@ const CORNER_MACROS = [F.cornersD, F.cornersG].flatMap((f) => [f, invertMoves(f)
 const EDGE_MACROS = [F.edgesTop, F.edgesFront, F.edgesBack].flatMap((f) =>
   variants(f, (c) => kindOf(c) === 'edge' || kindOf(c) === 'equator'),
 )
-// The corners' formulas twice over put the corners back: what they did to
-// the equator stays (an odd permutation the page's equator formulas, all
-// even, cannot make).
+// The page's equator formulas keep it in the box: they reach only a third
+// of what it can be once the rest is done. One that leaves the box (a
+// column a quarter out and back) takes it to the rest.
 const EQUATOR_MACROS = [
   F.equatorD,
   F.equatorG,
   F.equatorH,
   F.equatorA,
-  [...F.cornersD, ...F.cornersD],
-  [...F.cornersG, ...F.cornersG],
-].flatMap((f) => (f.length ? variants(f, (c) => kindOf(c) === 'equator') : []))
+  F.equatorParity,
+  invertMoves(F.equatorParity),
+].flatMap((f) => variants(f, (c) => kindOf(c) === 'equator'))
 
 export const TOWER234_PLAN: MethodPlan = [
   {

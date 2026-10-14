@@ -357,7 +357,7 @@ const fr = {
     },
     tower234Steps: {
       name: 'Sommets, arêtes, équateur',
-      desc: 'D’abord la forme (l’avant et l’arrière remis d’un quart), puis tout en demi-tours dans la boîte : les centres, les sommets par P(H*D.G.H*D)³P, les arêtes du haut et du bas par (D²H)³, (D²A)³ et PB.(D²A)³.BP, et enfin l’équateur par ((D²h)²P)², ((G²h)²P)², hA.(D²h)².Ah et (HA)³.',
+      desc: 'D’abord la forme (les colonnes de côté redressées), puis tout dans la boîte : les centres, les sommets par P(H*D.G.H*D)³P (où les colonnes D et G sortent d’un quart et reviennent), les arêtes du haut et du bas par (D²H)³, (D²A)³ et PB.(D²A)³.BP, et enfin l’équateur par ((D²h)²P)², ((G²h)²P)², hA.(D²h)².Ah, (HA)³, plus une formule à nous qui sort de la boîte et y revient : sans elle, une pièce de l’équateur peut rester échangée de gauche à droite.',
     },
     doubleDomino: {
       name: 'Double Domino',
@@ -953,7 +953,7 @@ const en: Translations = {
     },
     tower234Steps: {
       name: 'Corners, edges, equator',
-      desc: 'First the shape (the front and back turned back a quarter), then all by halves in the box: the centers, the corners by P(H*D.G.H*D)³P, the top and bottom edges by (D²H)³, (D²A)³ and PB.(D²A)³.BP, and last the equator by ((D²h)²P)², ((G²h)²P)², hA.(D²h)².Ah and (HA)³ (fan2cube’s letters).',
+      desc: 'First the shape (the side columns stood back up), then all in the box: the centers, the corners by P(H*D.G.H*D)³P (where the columns D and G go out a quarter and back), the top and bottom edges by (D²H)³, (D²A)³ and PB.(D²A)³.BP, and last the equator by ((D²h)²P)², ((G²h)²P)², hA.(D²h)².Ah, (HA)³ (fan2cube’s letters), plus one of our own that leaves the box and comes back: without it, an equator piece can stay swapped left to right.',
     },
     doubleDomino: {
       name: 'Double Domino',

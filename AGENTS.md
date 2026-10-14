@@ -4,8 +4,8 @@
 
 POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3,
 4x4, 5x5 ou 6x6**, **classique ou miroir** (sauf le 5x5 et le 6x6), le **Super Revenge** et le
-**Super Professor** (leurs centres chacun à sa place), plus dix cuboïdes : le **1x2x3**, la
-**tour 2x2x4** (qui se déforme), la **Slim Tower 2x2x3**, le **Domino 3x3x2**, les tours **3x3x4**, **4x4x3**, **4x4x5** et **5x5x4**, le **Camouflage 4x4x2** (un 4x4x4 bandé, qui se déforme)
+**Super Professor** (leurs centres chacun à sa place), plus onze cuboïdes : le **1x2x3**, la
+**tour 2x2x4** (qui se déforme), la **tour 2x3x4** (qui se déforme aussi), la **Slim Tower 2x2x3**, le **Domino 3x3x2**, les tours **3x3x4**, **4x4x3**, **4x4x5** et **5x5x4**, le **Camouflage 4x4x2** (un 4x4x4 bandé, qui se déforme)
 et le **Floppy 3x3x1**, le **Floppy Ghost** (un Floppy Megaminx découpé en
 pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (un Pyraminx sans pointes), le
 **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le **Pyraminx Jing** (pièces courbes), le
@@ -111,6 +111,7 @@ src/
 │   ├── fto.ts            # FTO : l'octaèdre aux faces qui tournent (modèle du Rainbow), tours, mélange, lecture des formules
 │   ├── gear.ts           # Gear Cubes : coups d'engrenage (demi-tour de face, quart de tranche), pivot des arêtes (Cubie.spin), réalignement
 │   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
+│   ├── tower234.ts       # Tour 2x3x4 : colonnes de côté en quarts (elles la déforment), couches bloquées si incomplètes, boîte
 │   ├── camo.ts           # Camouflage 4x4x2 : boîte de chaque pièce (épaisse ou fine, tournée avec elle), coups bloqués
 │   ├── camoShape.ts      # Sa forme seule (axe haut de chaque pièce) : retour dans la boîte par les deux bouts, formules qui y reviennent
 │   ├── ai.ts             # AI Cube : 4x4x4 aux quatre octants soudés en gros blocs, coups qui n'en coupent aucun, mélange
@@ -173,6 +174,7 @@ src/
 │   │   ├── starPrism4.ts #   4-Star : deux étoiles (le plan du 2-Star projeté sur l'interne puis l'externe)
 │   │   ├── slimTower.ts  #   Slim Tower 2x2x3 : équateur puis coins (formules du Domino, fan2cube.fr)
 │   │   ├── domino.ts     #   Domino 3x3x2 : coins puis arêtes (formules de fan2cube.fr, reprises élargies par la tour)
+│   │   ├── tower234.ts   #   Tour 2x3x4 : forme, centres, sommets, arêtes, équateur (formules de fan2cube.fr, plus une de parité)
 │   │   ├── towerLayers.ts #  Tours de 3 de large : Domino extérieur (lu comme un Domino), Domino intérieur (M S M S'), équateur
 │   │   ├── tower334.ts   #   Tour 3x3x4 : double Domino, l'extérieur puis l'intérieur
 │   │   ├── towerReduce.ts #  Réduction des grandes tours : 3-cycles purs trouvés au chargement, cibles par couleur, ailes, parités
@@ -260,6 +262,7 @@ src/
 │   ├── GearPlate.tsx     # Une plaque d'une pièce du Gear Cube, découpée par son masque
 │   ├── GearEdge.tsx      # Une arête du Gear Cube : deux agrafes, l'engrenage (deux plaques et son corps à sa forme) qui pivote
 │   ├── GearCorner.tsx    # Un coin ou un centre du Gear Cube : plaques sur des corps à leur forme
+│   ├── tower234Geometry.ts # Pièces de la tour 2x3x4 : boîtes (1 de large, 2 de haut et de profondeur), stickers sur leurs faces extérieures
 │   ├── camoGeometry.ts   # Pièces du Camouflage : leur boîte telle qu'elle se tient
 │   ├── aiGeometry.ts     # Pièces de l'AI Cube : boîtes d'une case ou de deux
 │   ├── superGeometry.ts  # Pièces des super cubes : cubies d'un 4x4 ou d'un 5x5, centres bordés (biseautés aux coins) de la couleur des faces voisines
@@ -429,6 +432,8 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   arêtes appariées, puis le Domino - voir « Le Camouflage 4x4x2 ».
 - **Deux Pockets** (`twoPockets`, tour 2x2x4) : remise en forme, Pocket intérieur,
   Pocket extérieur - voir « La tour 2x2x4 ».
+- **Sommets, arêtes, équateur** (`tower234Steps`, tour 2x3x4) : forme, centres,
+  sommets, arêtes, équateur - voir « La tour 2x3x4 ».
 - **Double Domino** (`doubleDomino`, tour 3x3x4) : le Domino extérieur, puis
   l'intérieur - voir « Les tours 3x3x4, 4x4x3, 4x4x5 et 5x5x4 ».
 - **Réduction** (`towerReduction`, tours 4x4x3, 4x4x5 et 5x5x4) : parité,
@@ -719,6 +724,40 @@ et III. Les deux pièces du milieu d'une colonne sont **jumelles** (mêmes
 couleurs) : objectifs et clés comparent des couleurs, pas des identités
 (`pieceSearch` sait suivre des jumelles). L'effet de chaque formule est testé
 (`tests/unit/tower.test.ts`).
+
+### La tour 2x3x4 (`234`)
+
+La tour 2x3x4 (fan2cube.fr/tower2341 et 2, MF8, 2012) : 3 de large, 4 de
+haut, 2 de profondeur. Ses colonnes de gauche et de droite tournent d'un
+quart (`R`, `L`) : debout (4 de haut, 2 de profondeur), une colonne se
+couche (2 de haut, 4 de profondeur) et dépasse devant et derrière, la tour
+se déforme. Le reste ne tourne que d'un demi-tour : les couches du haut et
+du bas et leurs voisines (`U2`, `2U2`), les moitiés (`Uw2`, `Fw2`) ; comme
+sur le 2x2x4, une couche (ou sa voisine) ne tourne que si elle est entière,
+ses six pièces debout à leur place (`tower234Turns`), les moitiés et les
+colonnes toujours. **Modèle** (`lib/tower234.ts`) : la grille du 3x4x2,
+chaque pièce large de 1 sur x et de 2 sur y et z, si bien qu'une colonne
+couchée met ses pièces en y = ±1, z de -3 à 3 ; le mécanisme
+(`TOWER234_MECHANISM`, `[3, 4, 4]`) coupe z comme y. Dans la boîte
+(`tower234Boxed`) quand toutes ses pièces sont à |z| <= 1. 22 formes, saisie
+par sa forme comme la tour 2x2x4. Rendu : `three/tower234Geometry.ts`
+(boîtes).
+
+**Résolution** (`methods/tower234.ts`, méthode **Sommets, arêtes,
+équateur**, d'après la page) : (A) la forme, le moins de coups pour revenir
+dans la boîte (recherche sur la forme seule) ; (B) les centres ; (C) les
+sommets par P(H*D.G.H*D)³P et P(H*G'.D'.H*G')³P (D et G, sans exposant, y
+sont des quarts de colonne : la page écrit D² quand c'est un demi-tour) ;
+(D) les arêtes par (D²H)³, (D²A)³, PB.(D²A)³.BP ; (E) l'équateur par
+((D²h)²P)², ((G²h)²P)², hA.(D²h)².Ah, (HA)³. Ces formules restent dans la
+boîte et n'atteignent qu'un tiers des équateurs possibles une fois le reste
+fait (96 sur 288) : une pièce peut rester échangée de gauche à droite (la
+« brick parity » des cuboïdes). Une formule à nous, qui sort de la boîte et
+y revient, les atteint tous (`equatorParity`, 20 coups, la plus courte de
+quelques centaines tirées d'un mélange suivi des étapes d'avant, qui ne
+laissaient que l'équateur faux). Chaque formule vue de chaque côté
+(conjuguée par un coup de la boîte qui ne dérange rien d'autre), effet de
+chacune testé (`tests/unit/tower234.test.ts`). Moins de 0,3 s.
 
 ### Les tours 3x3x4, 4x4x3, 4x4x5 et 5x5x4 (`334`, `443`, `445`, `554`)
 
@@ -2174,7 +2213,7 @@ mobile et en saisie, une seule carte) :
   puzzle courant et sa catégorie sont mis en évidence ; la vignette d'une catégorie montre trois
   de ses puzzles, devant le 3x3, le 4-Star Prism ou le Megaminx s'il en est, `COVERS`). Catégories (`cubeCategory`), dans
   l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4 (Revenge)/Super Revenge/5x5 (Professor)/Super Professor/6x6, Miroirs 2x2/3x3/4x4, Tours 2x2x3
-  (Slim)/2x2x4/3x3x2 (Domino)/3x3x4/4x4x3/4x4x5/5x5x4/Camouflage 4x4x2, Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
+  (Slim)/2x2x4/2x3x4/3x3x2 (Domino)/3x3x4/4x4x3/4x4x5/5x5x4/Camouflage 4x4x2, Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx/Master Morphinx, Polyèdres
   4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/FTO/Rainbow/Megaminx/Pyraminx Crystal/Skewb Ultimate, Cylindriques Dino Cylinder/Hockey Puck/Barrel/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube/Fisher Cube/Windmill, Troués Holey Megaminx/Tori/Edge Only, Torturés Violet/Z-Twist/Quarter Cube/AI Cube/RoadBlock-I.
