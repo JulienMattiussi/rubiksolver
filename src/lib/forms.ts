@@ -128,7 +128,9 @@ export function formsOf(shape: CubeShape): readonly Form[] {
 }
 
 /** The form a state stands in, for the editor: none when it is its puzzle's
- *  original one (the box). */
+ *  original one (the box), or when it never shifts (its hidden marks, the
+ *  RoadBlock-I's, turn with it). */
 export function formOf(cube: Cube): Cube | undefined {
-  return lookOf(cube) === lookOf(solvedCube(cubeShape(cube))) ? undefined : cube
+  const shape = cubeShape(cube)
+  return !SHAPE_SHIFTS[shape] || lookOf(cube) === lookOf(solvedCube(shape)) ? undefined : cube
 }

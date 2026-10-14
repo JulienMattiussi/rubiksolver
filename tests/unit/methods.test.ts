@@ -161,7 +161,7 @@ describe('cube picker', () => {
       gear: ['gearCube', 'gearU', 'gearX'],
       diagonal: ['dino', 'rex', 'fisher'],
       holey: ['holey', 'tori', 'edge'],
-      odd: ['violet', 'twist', 'quarter'],
+      odd: ['violet', 'twist', 'quarter', 'ai', 'roadblock'],
     })
   })
 })

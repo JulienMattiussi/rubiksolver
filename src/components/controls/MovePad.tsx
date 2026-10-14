@@ -34,7 +34,8 @@ type PadTab = LayerKind | 'advanced'
  * offers them, plus an "advanced" tab for the turns kept apart
  * (`advancedMovesFor`: the 3x3's M, E, S and wide turns). A face without
  * that kind of layer (a slim tower's side) or a turn the state jams (a
- * tower's incomplete end, see `turnAllowed`) stays disabled.
+ * tower's incomplete end, see `turnAllowed`) stays disabled; on a new
+ * puzzle, the pad opens on the first tab where a turn goes.
  * Hovering or focusing a button highlights the pieces it would turn.
  */
 export function MovePad({ disabled }: { disabled: boolean }) {
@@ -43,7 +44,6 @@ export function MovePad({ disabled }: { disabled: boolean }) {
   const shape = useCube((s) => cubeShape(s.cube))
   const cube = useCube((s) => s.cube)
   const dims = cubeDims(cube)
-  const [tab, setTab] = useState<PadTab | null>(null)
   const moves = movesFor(shape)
   const advanced = advancedMovesFor(shape)
   // The VTO turns its corners wide, its tips alone outer: corners first.
@@ -54,6 +54,20 @@ export function MovePad({ disabled }: { disabled: boolean }) {
     ).filter((k) => moves.some((m) => layerKindOf(m) === k)),
     ...(advanced.length ? (['advanced'] as const) : []),
   ]
+  /** A tab with a turn the state lets through. */
+  const playable = (k: PadTab) =>
+    (k === 'advanced' ? advanced : moves.filter((m) => layerKindOf(m) === k)).some((m) =>
+      turnAllowed(cube, m),
+    )
+  // On a new puzzle, the first tab where something turns (the AI Cube,
+  // solved, turns only by halves).
+  const [picked, setPicked] = useState<{ shape: string; tab: PadTab | null }>({
+    shape: '',
+    tab: null,
+  })
+  if (picked.shape !== shape) setPicked({ shape, tab: tabs.find(playable) ?? null })
+  const tab = picked.shape === shape ? picked.tab : null
+  const setTab = (next: PadTab) => setPicked({ shape, tab: next })
   const current = tab && tabs.includes(tab) ? tab : tabs[0]!
   const kind: LayerKind = current === 'advanced' ? 'outer' : current
   const turn = (face: Face, amount: 1 | 2 | 3): Move => layerMove(face, amount, kind)

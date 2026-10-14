@@ -2,6 +2,7 @@ import { Fragment, useState } from 'react'
 import { cubeShape } from '@/lib/cube'
 import { canPaint, slotsFor } from '@/lib/editor'
 import { entersByPieces, piecesIn } from '@/lib/pieceEditor'
+import { withBars } from '@/lib/roadblock'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { COLOR_HEX } from './colors'
@@ -18,7 +19,8 @@ import { polyDrawing } from './polyDrawing'
  * order tells which way up it sits, and the editor completes its hidden face.
  * The Floppy Ghost and the Z-Twist are entered piece by piece: each slot
  * shows the piece put there, and a click puts the next one (pieceEditor.ts);
- * a click on a Z-Twist side center turns it a quarter.
+ * a click on a Z-Twist side center turns it a quarter. A RoadBlock-I's
+ * centers are drawn as their bars lie.
  */
 export function PolyEditView() {
   const shape = useCube((s) => cubeShape(s.cube))
@@ -50,11 +52,14 @@ export function PolyEditView() {
           const twistCenter =
             slot.stickers.length === 1 &&
             ((shape === 'twist' && slot.position[1] === 0) || shape === 'quarter')
-          const solved = {
+          const plain = {
             position: slot.position,
             stickers: slot.stickers.map((s) => ({ normal: s.normal, color: s.solvedColor })),
             ...(twistCenter && { spin: twisted.includes(slot.key) ? 1 : 0 }),
           }
+          // A RoadBlock-I's centers drawn as their bars lie (`twisted`: its
+          // faces turned a quarter).
+          const solved = shape === 'roadblock' ? withBars([plain], twisted)[0]! : plain
           if (pieces && slot.paintable) {
             // Entered piece by piece: the piece placed, or the slot's own in
             // gray while empty; a click puts the next one.

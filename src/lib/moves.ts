@@ -6,6 +6,8 @@ import {
   gearMovesCancel as cancels,
 } from './gear'
 import { scrambleViolet } from './violetStates'
+import { scrambleAi } from './ai'
+import { scrambleRoadblock } from './roadblock'
 import { quarterMove } from './quarter'
 import { solvedCube, turnDims } from './cube'
 import { faceAxis, faceLayers, quarterTurnFits } from './geometry'
@@ -431,6 +433,8 @@ export function scrambleTurns(
   if (isGear(shape)) return scrambleGear(shape, length, rng)
   if (shape === 'violet') return scrambleViolet(length, rng, start)
   if (shape === 'quarter') return scrambleQuarter(length, rng, start)
+  if (shape === 'ai') return scrambleAi(length, rng, start)
+  if (shape === 'roadblock') return scrambleRoadblock(length, rng, start)
   return scramble(shape, length, rng, start)
 }
 

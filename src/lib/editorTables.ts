@@ -1,4 +1,5 @@
 import { cubeOrientations, solvedCube } from './cube'
+import { withoutBars } from './roadblock'
 import { lookOf } from './forms'
 import { AXIS_ROTATIONS, normalIndex } from './geometry'
 import { layerTurnsOf } from './moves'
@@ -69,6 +70,11 @@ function hiddenSticker(shape: CubeShape, position: Vec3, normal: Vec3): boolean 
   return isStar(shape) && Math.abs(position[1]) === 1 && normal[1] !== 0
 }
 
+/** The solved puzzle the editor works on: the RoadBlock-I's without its
+ *  bars' marks (it is entered at START, its bars as solved). */
+const entrySolved = (shape: CubeShape): Cube =>
+  shape === 'roadblock' ? withoutBars(solvedCube(shape)) : solvedCube(shape)
+
 /** A cubie of a solved cube as a slot (fixed position + exterior normals). */
 function toSlot(shape: CubeShape, cubie: Cubie, fixed: boolean): Slot {
   return {
@@ -107,7 +113,7 @@ export interface PlacementOption {
  * does (`withFixedHome`).
  */
 function fixedPieces(shape: CubeShape): Set<number> {
-  const solved = solvedCube(shape)
+  const solved = entrySolved(shape)
   // (Not the Extreme's: its slices move its centers off the top and bottom,
   // which its middle layer, never moving, holds where they are.)
   if (isGear(shape) && shape !== 'gearX') {
@@ -139,7 +145,7 @@ const TABLES = new Map<string, SlotTables>()
 /** Slot + placement tables of a cube shape, derived from its solved cube, or
  *  of one of its forms (a state of it: its colors are not read). */
 export function tablesFor(shape: CubeShape, form?: Cube): SlotTables {
-  const solved = solvedCube(shape)
+  const solved = entrySolved(shape)
   const look = form ? lookOf(form) : ''
   const boxed = !form || look === lookOf(solved)
   const key = boxed ? shape : `${shape}|${look}`
@@ -181,7 +187,7 @@ function turnedPlacements(
   paintableSlots: readonly Slot[],
   fixed: Set<number>,
 ): Map<string, PlacementOption[]> {
-  const solved = solvedCube(shape)
+  const solved = entrySolved(shape)
   return new Map(
     paintableSlots.map((slot) => {
       const faces = slot.stickers
@@ -268,7 +274,7 @@ function computePlacements(
   shape: CubeShape,
   paintableSlots: readonly Slot[],
 ): Map<string, PlacementOption[]> {
-  const solved = solvedCube(shape)
+  const solved = entrySolved(shape)
   const perSlot = new Map<string, Map<string, PlacementOption>>()
   for (const slot of paintableSlots) perSlot.set(slot.key, new Map())
   for (const cube of cubeOrientations(solved)) {
@@ -287,7 +293,7 @@ function computePlacements(
  *  unique piece once, centers 4 per color. */
 function computeBudgets(shape: CubeShape, fixed: Set<number>): Map<string, number> {
   const budgets = new Map<string, number>()
-  solvedCube(shape).forEach((cubie, i) => {
+  entrySolved(shape).forEach((cubie, i) => {
     if (fixed.has(i) || cubie.stickers.length === 0) return
     const key = pieceKeyOf(cubie, cubie.position)
     budgets.set(key, (budgets.get(key) ?? 0) + 1)

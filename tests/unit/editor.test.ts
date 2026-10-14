@@ -50,6 +50,16 @@ describe('cube editor', () => {
     expect(filledCount(edit)).toBe(7)
   })
 
+  it('repaints a full entry: the piece taken back from where it was', () => {
+    // From the solved cube: the white-red edge (UR) painted white-orange.
+    const full = cubeToEdit(solvedCube())
+    const edit = paint(full, '3', '1,1,0', 0, 'O')
+    expect([edit['1,1,0:2'], edit['1,1,0:0']]).toEqual(['W', 'O'])
+    // Where white-orange was (UL), nothing: to paint again.
+    expect(edit['-1,1,0:2']).toBeUndefined()
+    expect(filledCount(edit)).toBe(54 - 2)
+  })
+
   it('never lets a color exceed nine', () => {
     const cube = applyMoves(solvedCube(), scramble('3', 15, seededRng(9)))
     const { remaining, filled } = progress(cubeToEdit(cube), '3')
@@ -119,7 +129,7 @@ describe('4x4 cube editor', () => {
     expect(edit).toEqual(target)
   })
 
-  it('accepts both wings of a color pair, then refuses a third', () => {
+  it('accepts both wings of a color pair, a third taken back', () => {
     let edit = emptyEdit('4')
     // The two white-green wings, in their two chiral dispositions (same
     // visible colors on the two UF cells).
@@ -129,22 +139,35 @@ describe('4x4 cube editor', () => {
     edit = paint(edit, '4', '-1,3,3', 4, 'G')
     expect(edit['1,3,3:4']).toBe('G')
     expect(edit['-1,3,3:4']).toBe('G')
-    // A third white-green wing does not exist: the G paint restarts the piece.
+    // A third white-green wing does not exist: the last click wins, the
+    // wing of that hand is taken back from where it was.
     edit = paint(edit, '4', '3,1,3', 0, 'W')
     edit = paint(edit, '4', '3,1,3', 4, 'G')
-    expect(edit['3,1,3:0']).toBeUndefined()
+    expect(edit['3,1,3:0']).toBe('W')
     expect(edit['3,1,3:4']).toBe('G')
+    const left = ['1,3,3', '-1,3,3'].filter((key) => edit[`${key}:2`] === 'W')
+    expect(left).toHaveLength(1)
   })
 
-  it('tracks center budgets: four per color, the fifth is refused', () => {
+  it('refuses a pair no piece has, and restarts the piece', () => {
+    let edit = emptyEdit('4')
+    edit = paint(edit, '4', '3,1,3', 0, 'W')
+    edit = paint(edit, '4', '3,1,3', 4, 'Y')
+    expect(edit['3,1,3:0']).toBeUndefined()
+    expect(edit['3,1,3:4']).toBe('Y')
+  })
+
+  it('tracks center budgets: four per color, the fifth taken back', () => {
     let edit = emptyEdit('4')
     for (const key of ['1,3,1', '1,3,-1', '-1,3,1', '-1,3,-1']) {
       edit = paint(edit, '4', key, 2, 'W')
       expect(edit[`${key}:2`]).toBe('W')
     }
-    const before = edit
+    // A fifth: the last click wins, one of the four taken back.
     edit = paint(edit, '4', '3,1,1', 0, 'W')
-    expect(edit).toBe(before)
+    expect(edit['3,1,1:0']).toBe('W')
+    const white = ['1,3,1', '1,3,-1', '-1,3,1', '-1,3,-1'].filter((key) => edit[`${key}:2`] === 'W')
+    expect(white).toHaveLength(3)
   })
 
   it('keeps fixed 3x3 centers unpaintable', () => {

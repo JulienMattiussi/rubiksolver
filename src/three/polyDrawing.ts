@@ -17,6 +17,8 @@ import {
 import { dinoPolygons, edgeOnlyPolygons } from './dinoGeometry'
 import { rexCut, rexPolygons } from './rexGeometry'
 import { barrelPolygons, barrelThumbnail } from './barrelGeometry'
+import { aiPolygons } from './aiGeometry'
+import { roadblockPolygons } from './roadblockGeometry'
 import { camoPolygons } from './camoGeometry'
 import { mmorphPolygons, mmorphThumbnail } from './mmorphGeometry'
 import { skewbUPolygons, skewbUThumbnail } from './skewbUGeometry'
@@ -145,6 +147,10 @@ const MMORPH: PolyDrawing = {
   yaw: PYRA_YAW,
   orient: MORPH_ORIENT,
 }
+/** The AI Cube, upright as the cubes. */
+const AI: PolyDrawing = { polygons: aiPolygons, yaw: 0 }
+/** The RoadBlock-I, upright as the cubes. */
+const ROADBLOCK: PolyDrawing = { polygons: roadblockPolygons, yaw: 0 }
 /** The Rex Cube, held as the Dino. */
 const REX: PolyDrawing = { polygons: rexPolygons, yaw: 0, cut: rexCut }
 
@@ -176,6 +182,8 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (shape === 'twist') return TWIST
   if (shape === 'tori') return TORI
   if (shape === 'quarter') return QUARTER
+  if (shape === 'ai') return AI
+  if (shape === 'roadblock') return ROADBLOCK
   if (shape === 'barrel') return BARREL
   if (shape === 'fisher') return FISHER
   if (shape === 'edge') return EDGE

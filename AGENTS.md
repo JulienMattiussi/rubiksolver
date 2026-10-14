@@ -13,7 +13,7 @@ pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le *
 (un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
 (un cuboctaèdre dont les triangles tournent), le **Megaminx** (un dodécaèdre), le **Holey Megaminx** (sans ses centres), le **Pyraminx Crystal** (un Megaminx coupé plus profond), le **Dino Cube** et le **Rex Cube** (leurs sommets
 tournent), le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième, qui se déforme), le **Skewb Ultimate** (un Skewb taillé en dodécaèdre), le **Violet** (un 2x2x2 à
-pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Quarter Cube** (des faces qui ne font qu'aller et revenir d'un quart), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages),
+pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Quarter Cube** (des faces qui ne font qu'aller et revenir d'un quart), l'**AI Cube** (un 4x4x4 dont quatre octants sont soudés), le **RoadBlock-I** (un 5x5x5 aux centres soudés en barres), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages),
 le **Hockey Puck** (deux disques de 12 pièces, de la famille des étoiles), le **Barrel** (un 3x3x3 aux arêtes verticales tronquées, qui se déforme) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
 Square-1) (choix par vignettes).
@@ -110,6 +110,9 @@ src/
 │   ├── violet.ts         # Violet : 2x2x2 dont un coin est coupé en 8, cœur excentré ; blocages, boîte, résolu, symétrie
 │   ├── camo.ts           # Camouflage 4x4x2 : boîte de chaque pièce (épaisse ou fine, tournée avec elle), coups bloqués
 │   ├── camoShape.ts      # Sa forme seule (axe haut de chaque pièce) : retour dans la boîte par les deux bouts, formules qui y reviennent
+│   ├── ai.ts             # AI Cube : 4x4x4 aux quatre octants soudés en gros blocs, coups qui n'en coupent aucun, mélange
+│   ├── roadblock.ts      # RoadBlock-I : 5x5x5 aux centres soudés en barres (marque cachée), tranches permises, START, mélange
+│   ├── roadblockEditor.ts # Sa saisie : une barre peinte d'un clic, une face aux barres tournées d'un quart (couleurs comprises)
 │   ├── quarter.ts        # Quarter Cube : l'état de chaque face (Cubie.spin des centres), coups permis
 │   ├── mmorph.ts         # Master Morphinx : un 3x3 aux centres marqués (sticker caché), petits sommets sans sens visible, résolu
 │   ├── fisher.ts         # Fisher Cube : un 3x3 dont les centres de côté portent un repère caché (leur sens), résolu
@@ -170,6 +173,8 @@ src/
 │   │   ├── gearExtreme.ts #  Gear Cube Extreme : équateur, coins, arêtes, agrafes, engrenages (fan2cube.fr)
 │   │   ├── twist.ts      #   Z-Twist : une méthode 3x3 sur les couleurs, puis les centres de côté remis
 │   │   ├── camo.ts       #   Camouflage : forme (et parité des ailes), centres, arêtes, puis la méthode du Domino
+│   │   ├── ai.ts         #   AI Cube : position standard, octants reconstitués (arêtes, centres), puis comme un Pocket
+│   │   ├── roadblock.ts  #   RoadBlock-I : barres du milieu, parité, barres, arêtes (3-cycles de START à START), puis comme un 3x3
 │   │   ├── quarter.ts    #   Quarter Cube : les arêtes d'abord (4 formules alternées de fan2cube.fr)
 │   │   ├── tori.ts       #   Tori : croix prolongée (formules de fan2cube.fr)
 │   │   ├── barrel.ts     #   Barrel : par couches, arêtes du milieu sans sens (formules de fan2cube.fr)
@@ -243,6 +248,8 @@ src/
 │   ├── GearEdge.tsx      # Une arête du Gear Cube : deux agrafes, l'engrenage (deux plaques et son corps à sa forme) qui pivote
 │   ├── GearCorner.tsx    # Un coin ou un centre du Gear Cube : plaques sur des corps à leur forme
 │   ├── camoGeometry.ts   # Pièces du Camouflage : leur boîte telle qu'elle se tient
+│   ├── aiGeometry.ts     # Pièces de l'AI Cube : boîtes d'une case ou de deux
+│   ├── roadblockGeometry.ts # Pièces du RoadBlock-I : couches externes épaisses, barres d'un seul sticker
 │   ├── quarterGeometry.ts # Pièces du Quarter Cube : cubies et repère tourné de chaque centre
 │   ├── toriGeometry.ts   # Pièces du Tori : cube arrondi coupé par les plans du 3x3, faces percées en anneaux
 │   ├── twistGeometry.ts  # Pièces du Z-Twist : la case du 3x3 dans le solide tordu, portée par la pièce
@@ -291,7 +298,7 @@ src/
 │   ├── celebration/      # Fireworks : petit feu d'artifice (canvas 2D monté le temps du spectacle) quand un coup résout
 │   ├── home/             # Accueil : HomeGallery (galerie de 7 modèles, dont le Gear Cube Ultimate, + ce que fait l'app)
 │   ├── solve/            # Résolution : SolvePanel, MethodSelect, PlanOutline, StepList
-│   └── edit/             # Saisie : EditPanel, FormPicker (forme d'un puzzle déformable), ColorPalette
+│   └── edit/             # Saisie : EditPanel, FormPicker (forme d'un puzzle déformable), ColorPalette, BarToggles (sens des barres du RoadBlock-I)
 ├── assets/gear/          # Masques et contours des pièces du Gear Cube (générés par scripts/gear_face.py)
 ├── workers/
 │   └── solveWorker.ts    # Calcul de la solution hors du fil de l'interface (useAutoPlan)
@@ -434,6 +441,11 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 - **Le haut d'abord** (`skewbTopFirst`, Skewb Ultimate) : sommets du haut
   placés puis tournés, centres placés puis retournés, sommets du bas tournés -
   voir « Le Skewb Ultimate ».
+- **Méthode des blocs** (`aiBlocks`, AI Cube) : position standard, arêtes et
+  centres des petits octants, puis comme un Pocket - voir « L'AI Cube ».
+- **Méthode des centres** (`rbCenters`, RoadBlock-I) : barres du milieu,
+  parité, autres barres, arêtes, puis comme un 3x3 -
+  voir « Le RoadBlock-I ».
 - **Triangle prolongé** (`extendedTriangle`, Rainbow) : le triangle du haut,
   puis les autres par 3-cycles - voir « Le Rainbow ».
 - **Ailes puis co-ailes** (`wingsFirst`, Master et Professor Pyraminx) :
@@ -1560,6 +1572,82 @@ les précédentes) ; (5) sommets du bas tournés par K = [BO']⁴ et Z = [OH']�
 déjà à leur place (« les sommets libres suivent les sommets liés »). Effet de
 chaque formule testé.
 
+### L'AI Cube (`ai`)
+
+L'AI Cube (fan2cube.fr/AIcube1 et 2) est « un bandaged du Revenge 4x4x4 » :
+des huit octants du 4x4x4 (2x2x2 chacun), les quatre d'un tétraèdre sont
+soudés en gros blocs, en quinconce une fois résolu ; les quatre autres
+restent en petits cubes (un petit sommet, trois arêtes, une par arête du
+cube, et trois centres, deux par couleur). Modèle (`lib/ai.ts`) : les petits
+cubes du 4x4x4, un gros bloc étant un seul cubie au milieu de son octant
+((2, 2, 2)...) ; un coup ne passe que s'il ne coupe aucun gros bloc
+(`aiTurns`) : une moitié du cube toujours, une couche externe ou une tranche
+seulement quand aucun bloc n'est à cheval sur ses coupes. Les blocs changeant
+d'octant, les emplacements à peindre dépendent de l'état : il est déclaré
+déformable (`SHAPE_SHIFTS`), saisi en choisissant d'abord sa forme (7). Le
+mélange (`scrambleAi`) joue surtout des couches fines dès qu'il le peut, et
+libère une moitié de ses blocs quand aucune ne passe (au hasard, il ne
+tournerait presque que des moitiés), et finit les gros blocs dispersés, deux
+par moitié du cube sur chaque axe. Rendu (`three/aiGeometry.ts`) : des
+boîtes d'une case ou de deux.
+
+**Résolution** (`methods/ai.ts`, méthode **des blocs**, d'après la page) :
+(0) les quatre gros blocs en bas, par demi-cubes (la position standard de la
+page : le haut tourne alors seul, H, et sa tranche, h) ; (1) chaque petit
+octant reconstitué autour de son petit sommet, les arêtes d'abord (recherche
+par les deux bouts sur les pièces suivies, avec H, h et T = D'BD.ABA', qui
+pivote un octant, vu de chaque coin ; un h d'abord si leur permutation est
+impaire), (2) puis les centres par 3-cycles purs : C =
+Th².(Th²T'h²)².T'h².(T'h²Th²)², préparé de deux coups, et les produits de
+deux d'entre eux qui ne bougent que trois centres (tous les trios), les deux
+centres d'une couleur affectés pour une permutation paire ; (3) les huit
+octants résolus comme un Pocket (solveur optimal du 2x2), par demi-cubes.
+De 300 à 900 coups, surtout les centres (« c'est long », dit la page).
+
+### Le RoadBlock-I (`roadblock`)
+
+Le RoadBlock-I (fan2cube.fr/roadblock-I1 et 2, WitEden, 2012) est un 5x5x5
+dont les neuf centres de chaque face sont soudés trois par trois en barres
+parallèles (les « I »), ses couches externes épaisses et les trois
+internes fines. Une face tourne toujours ; une tranche seulement si elle
+ne coupe aucune barre, c'est-à-dire si aucune barre qu'elle emporte n'est
+dans l'axe du coup (`roadblockTurns`). Modèle (`lib/roadblock.ts`) : les
+cubies du 5x5x5, chaque centre portant un sticker caché (`H`, jamais
+dessiné ni peint, comme les marques du Fisher Cube) le long de sa barre.
+Le sens des barres d'une face ne change qu'avec ses quarts de tour : en
+position **START** (le résolu), les barres des côtés sont horizontales et
+les trois tranches de l'équateur tournent ; quelques quarts de tour des
+faces autour d'un autre axe y couchent leurs barres en travers, ses
+tranches tournent, et les mêmes quarts défaits ramènent START. « Résolu »
+ne regarde que les couleurs : une face unie l'est, ses barres dans un sens
+ou dans l'autre. Le mélange (`scrambleRoadblock`)
+joue surtout des tranches permises, et libère un axe quand aucune ne
+l'est. **Saisie** dans tout état (`lib/roadblockEditor.ts`) : les stickers d'un
+5x5, sans centre fixe (les tranches du milieu les déplacent) ; un clic sur
+un centre peint sa barre entière (`paintBar`, `barCells`), et six boutons
+disent quelles faces ont leurs barres tournées d'un quart par rapport à
+START (`BarToggles`, l'état `twisted` de l'éditeur ; basculer une face
+tourne ses centres d'un quart avec leurs couleurs, `turnFace`). « Depuis
+l'état actuel » les lit sur le cube (`barsTurned`), `buildCube` les pose
+(`withBars`) ; la validation refuse un sens des barres impossible. Rendu (`three/roadblockGeometry.ts`) : couches externes
+épaisses, un sticker par barre.
+
+**Résolution** (`methods/roadblock.ts`, méthode **des centres**, d'après la
+page) : chaque formule va de START à START (`legal`, qui la rejoue en
+suivant le sens des barres), jouée dans le « mode » qui couche les barres
+en travers de l'axe de sa tranche (`SETUP`). (0) START ; (1) les barres du
+milieu (le centre de chaque face), par les tranches du milieu ; (2) la
+parité : les ailes sont en permutation impaire de leur place près de leur
+milieu une fois sur deux, ce que les 3-cycles ne corrigent pas ; un quart
+de tranche de l'équateur (un 4-cycle d'ailes, START gardé) la change ; (3)
+les autres barres par 3-cycles purs (commutateurs d'une tranche et d'un
+coup de son mode) ; (4) les deux ailes de chaque arête amenées près de son
+milieu par 3-cycles d'ailes (commutateurs d'une tranche interne et d'un
+`F U F'` de son mode, leurs produits, et au besoin conjugués l'un par
+l'autre) ; (5) comme un 3x3 (`projectPlan`, la projection du 5x5), ses
+barres finissant dans un sens ou dans l'autre. Environ 400 à 700 coups, moins d'une seconde (trois la
+première fois, le temps des tables).
+
 ### Le Professor Pyraminx (`pyra5`)
 
 Le Pyraminx 5x5x5 (fan2cube.fr/profpyraminx1 et 2, Timur Evbatyrov, 2011) :
@@ -1885,7 +1973,7 @@ mobile et en saisie, une seule carte) :
   (Slim)/2x2x4/3x3x2 (Domino)/Camouflage 4x4x2, Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
   (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx/Master Morphinx, Polyèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow/Megaminx/Pyraminx Crystal/Skewb Ultimate, Cylindriques Hockey Puck/Barrel/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube/Fisher Cube, Troués Holey Megaminx/Tori/Edge Only, Bizarres Violet/Z-Twist/Quarter Cube.
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow/Megaminx/Pyraminx Crystal/Skewb Ultimate, Cylindriques Hockey Puck/Barrel/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube/Fisher Cube, Troués Holey Megaminx/Tori/Edge Only, Bizarres Violet/Z-Twist/Quarter Cube/AI Cube/RoadBlock-I.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer
@@ -1901,7 +1989,9 @@ mobile et en saisie, une seule carte) :
   Externe / Tranche / Large, limité aux sortes de coups de la forme (Externe /
   Large sur la tour), choisit la couche tournée, plus un onglet « Avancé »
   sur le 3x3 (`M`, `E`, `S`, coups larges) ; un coup bloqué par l'état de
-  la tour reste grisé) avec **recentrage caméra animé** et
+  la tour reste grisé ; en arrivant sur un puzzle, le pad s'ouvre sur le
+  premier onglet où un coup passe, « Large » sur l'AI Cube résolu) avec
+  **recentrage caméra animé** et
   **bascule de notation FR/US**.
 - **Résolution** : choix de la **méthode** (liste déroulante, filtrée par
   forme via `methodsFor`), **Résoudre**

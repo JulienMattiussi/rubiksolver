@@ -28,6 +28,7 @@ import { hasColoredClips, isGear, type Cube, type CubeShape, type Turn } from '@
 import { alignGears } from '@/lib/gear'
 import { gearColorsOf, turnedOf } from '@/lib/gearEditor'
 import { validateCube } from '@/lib/validate'
+import { barsTurned } from '@/lib/roadblock'
 import { LOCALES } from '@/i18n/translations'
 import { seededRng } from '../helpers'
 
@@ -100,6 +101,16 @@ const PUZZLES: ReadonlyArray<{
   // A 3x3's edges alone.
   { shape: 'edge', pieces: 13, stickers: 24, orientations: 24, painted: 24, scramble: 20 },
   // A 3x3 whose faces turn by alternate quarters.
+  // A 4x4x4, four of its octants fused in quincunx.
+  { shape: 'ai', pieces: 32, stickers: 60, orientations: 24, painted: 60, scramble: 30 },
+  {
+    shape: 'roadblock',
+    pieces: 125,
+    stickers: 204,
+    orientations: 24,
+    painted: 150,
+    scramble: 40,
+  },
   { shape: 'quarter', pieces: 27, stickers: 54, orientations: 24, painted: 54, scramble: 30 },
   // A 3x3 cut to an octagonal prism, its hidden core left out.
   { shape: 'barrel', pieces: 26, stickers: 54, orientations: 24, painted: 54, scramble: 20 },
@@ -264,9 +275,11 @@ describe.each(PUZZLES)('$shape', ({ shape, pieces, stickers, orientations, paint
       // A Gear Cube's gears, painted apart: some turned over on their clips.
       const turned = hasColoredClips(shape)
         ? turnedOf(gearColorsOf(cube), edit, shape)!
-        : cube
-            .filter((c) => c.spin === 1 && c.stickers.length === 1)
-            .map((c) => c.position.join(','))
+        : shape === 'roadblock'
+          ? barsTurned(cube)
+          : cube
+              .filter((c) => c.spin === 1 && c.stickers.length === 1)
+              .map((c) => c.position.join(','))
       const built = buildCube(edit, shape, form, turned)
       expect(cubeToEdit(built)).toEqual(edit)
       expect(validateCube(built)).toEqual({ ok: true })

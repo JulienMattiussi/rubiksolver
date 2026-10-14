@@ -39,6 +39,8 @@ export type CubeShape =
   | 'tori'
   | 'edge'
   | 'quarter'
+  | 'ai'
+  | 'roadblock'
   | 'megaminx'
   | 'crystal'
   | 'holey'
@@ -123,6 +125,10 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   edge: [3, 3, 3],
   // The Quarter Cube (quarter.ts): a 3x3x3, its faces turning by turns.
   quarter: [3, 3, 3],
+  // The AI Cube (ai.ts): a 4x4x4, four of its octants fused.
+  ai: [4, 4, 4],
+  // The RoadBlock-I (roadblock.ts): a 5x5x5, its centers fused in bars.
+  roadblock: [5, 5, 5],
   // The Floppy Ghost (ghost.ts) is no grid: its slots sit within +-3 in its
   // plane, all at z = 0.
   ghost: [7, 7, 1],
@@ -206,6 +212,8 @@ export const isPolyDrawn = (shape: CubeShape): boolean =>
   shape === 'barrel' ||
   shape === 'fisher' ||
   shape === 'mmorph' ||
+  shape === 'ai' ||
+  shape === 'roadblock' ||
   shape === 'camo'
 
 /**
@@ -257,6 +265,8 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   tori: false,
   edge: false,
   quarter: false,
+  ai: true,
+  roadblock: false,
   ghost: false,
   puck: false,
   barrel: false,
@@ -315,6 +325,8 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   tori: [],
   edge: [],
   quarter: [],
+  ai: ['slice', 'wide'],
+  roadblock: ['slice', 'slice3', 'wide'],
   ghost: [],
   puck: [],
   barrel: [],
@@ -365,6 +377,8 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   tori: [],
   edge: [],
   quarter: [],
+  ai: [],
+  roadblock: [],
   ghost: [],
   puck: [],
   barrel: [],
@@ -411,6 +425,8 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   tori: 'Tori',
   edge: 'Edge Only',
   quarter: 'Quarter Cube',
+  ai: 'AI Cube',
+  roadblock: 'RoadBlock-I',
   ghost: 'Floppy Ghost',
   puck: 'Hockey Puck',
   barrel: 'Barrel',
@@ -458,6 +474,8 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   tori: 'tori',
   edge: 'edge-only',
   quarter: 'quarter-cube',
+  ai: 'ai-cube',
+  roadblock: 'roadblock-i',
   ghost: 'floppy-ghost',
   puck: 'hockey-puck',
   barrel: 'barrel',
@@ -519,6 +537,8 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   tori: false,
   edge: false,
   quarter: false,
+  ai: false,
+  roadblock: false,
   ghost: false,
   puck: false,
   barrel: false,
@@ -576,7 +596,14 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   // Holes where the centers would be.
   if (shape === 'holey' || shape === 'tori' || shape === 'edge') return 'holey'
   if (shape === 'dino' || shape === 'rex' || shape === 'fisher') return 'diagonal'
-  if (shape === 'violet' || shape === 'twist' || shape === 'quarter') return 'odd'
+  if (
+    shape === 'violet' ||
+    shape === 'twist' ||
+    shape === 'quarter' ||
+    shape === 'ai' ||
+    shape === 'roadblock'
+  )
+    return 'odd'
   const [x, y, z] = SHAPE_DIMS[shape]
   if (x === y && y === z) return 'standard'
   // One layer thick: the 1x2x3 and the Floppy.

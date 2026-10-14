@@ -14,6 +14,8 @@ import { PUCK_PLAN } from './methods/puck'
 import { EDGE_ONLY_PLAN } from './methods/edgeOnly'
 import { CAMO_PLAN } from './methods/camo'
 import { QUARTER_PLAN } from './methods/quarter'
+import { AI_PLAN } from './methods/ai'
+import { ROADBLOCK_PLAN } from './methods/roadblock'
 import { PETRUS_PLAN } from './methods/petrus'
 import { PYRAMINX_PLAN, TETRAMINX_PLAN } from './methods/pyraminx'
 import { PYRAMINX4_PLAN } from './methods/pyraminx4'
@@ -123,6 +125,8 @@ const SOLVE_METHODS = [
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
   { id: 'camoReduction', plans: { camo: CAMO_PLAN } },
   { id: 'quarterEdgesFirst', plans: { quarter: QUARTER_PLAN } },
+  { id: 'aiBlocks', plans: { ai: AI_PLAN } },
+  { id: 'rbCenters', plans: { roadblock: ROADBLOCK_PLAN } },
   { id: 'equatorFirst', plans: { '223': SLIM_TOWER_PLAN } },
   { id: 'centersFirst', plans: { pyra: PYRAMINX_PLAN, tetra: TETRAMINX_PLAN } },
   { id: 'wingsFirst', plans: { pyra4: PYRAMINX4_PLAN, pyra5: PYRAMINX5_PLAN } },

@@ -147,6 +147,12 @@ const fr = {
   piecesOf: (n: number, total: number) => `${n} / ${total} pièces`,
   facesOf: (n: number, total: number) => `${n} / ${total} faces`,
   clearAll: 'Tout effacer',
+  editHintRoadblock:
+    'Ses centres sont des barres de trois : un clic peint la barre entière. Dites d’abord dans quel sens vont les barres de chaque face : en position START, celles des quatre côtés sont horizontales, celles du haut et du bas vont de gauche à droite ; choisissez ci-dessous une face tournée d’un quart. Puis choisissez une couleur et cliquez les stickers ; tournez la vue pour atteindre les autres faces.',
+  barsTurnedLabel: 'Barres tournées d’un quart',
+  barsTurnedTitle: (face: string) =>
+    `Les barres de la ${face} vont dans l’autre sens qu’en position START (ses centres tournent d’un quart)`,
+  barFaces: { U: 'Haut', D: 'Bas', L: 'Gauche', R: 'Droite', F: 'Avant', B: 'Arrière' },
   fromCurrent: 'Depuis l’état actuel',
   gearsNotAligned: 'Remettez d’abord le cube en forme : la saisie se fait engrenages réalignés',
   notInBox:
@@ -321,6 +327,14 @@ const fr = {
     crystalCornersFirst: {
       name: 'Les sommets d’abord',
       desc: 'Comme le Megaminx, mais à chaque étape les sommets avant les arêtes : la face du bas (monter un sommet D’BD, le pivoter D’BD.ABA’), les sommets de l’équateur bas (A’²HA’²) puis haut ([HD]), les arêtes des cinq faces voisines, les sommets du haut placés ([HA].P’[AH]P) et tournés (D’BDABA’.H’.AB’A’D’B’D.H), enfin les arêtes du haut placées ([G’P]) et retournées (([G’P]H’)².([PG’]H)²).',
+    },
+    aiBlocks: {
+      name: 'Méthode des blocs',
+      desc: 'Le ramener à un Pocket : les quatre gros blocs en bas (position standard), puis chaque petit octant reconstitué autour de son petit sommet, arêtes puis centres, comme s’il était soudé (T = D’BD.ABA’ pivote un bloc, X = H².GBG’.D’B’D.GBG’.H échange deux capuchons, C fait un 3-cycle de centres), et enfin les huit blocs résolus comme un 2x2x2, par demi-cubes.',
+    },
+    rbCenters: {
+      name: 'Méthode des centres',
+      desc: 'Comme un Professor (5x5x5), ramené à un 3x3x3, en s’arrangeant toujours pour pouvoir tourner les tranches voulues : les barres des faces autour d’un axe couchées en travers, ses tranches tournent. Les barres du milieu, la parité des arêtes (un quart de tranche de l’équateur), les autres barres, les arêtes regroupées trois par trois, puis comme un 3x3 (une fois les couleurs en place, il est résolu, ses barres dans un sens ou dans l’autre).',
     },
     quarterEdgesFirst: {
       name: 'Les arêtes d’abord',
@@ -508,6 +522,15 @@ const fr = {
     stepCrystalEdges: 'Les arêtes du dessous',
     stepCrystalLowCorners: 'Les sommets de l’équateur bas',
     stepCrystalHighCorners: 'Les sommets de l’équateur haut',
+    stepAiStandard: 'Position standard (gros blocs en bas)',
+    stepAiWings: 'Arêtes des petits blocs',
+    stepAiCenters: 'Centres des petits blocs',
+    stepAiPocket: 'Résoudre comme un Pocket',
+    stepRbStart: 'Position START (barres des côtés horizontales)',
+    stepRbMiddles: 'Les barres du milieu',
+    stepRbBars: 'Les autres barres',
+    stepRbEdges: 'Arêtes regroupées 3 par 3',
+    stepRbParity: 'Parité',
     stepQuarterStart: 'Faces au départ (START)',
     stepQuarterEdges: 'Placer les arêtes',
     stepQuarterFlip: 'Retourner les arêtes',
@@ -679,6 +702,12 @@ const en: Translations = {
   piecesOf: (n: number, total: number) => `${n} / ${total} pieces`,
   facesOf: (n: number, total: number) => `${n} / ${total} faces`,
   clearAll: 'Clear all',
+  editHintRoadblock:
+    'Its centers are bars of three: a click paints the whole bar. First say which way each face’s bars go: at START, the four sides’ are level, the top’s and the bottom’s go from left to right; pick below a face turned a quarter. Then pick a color and click the stickers; turn the view to reach the other faces.',
+  barsTurnedLabel: 'Bars turned a quarter',
+  barsTurnedTitle: (face: string) =>
+    `The bars of the ${face} go the other way than at START (its centers turn a quarter)`,
+  barFaces: { U: 'Up', D: 'Down', L: 'Left', R: 'Right', F: 'Front', B: 'Back' },
   fromCurrent: 'From current state',
   gearsNotAligned: 'Bring the cube back into shape first: it is entered with its gears aligned',
   notInBox:
@@ -849,6 +878,14 @@ const en: Translations = {
     crystalCornersFirst: {
       name: 'Corners first',
       desc: 'As the Megaminx, but at each step the corners before the edges: the bottom face (take a corner up R’DR, twist it R’DR.FDF’), the low equator’s corners (F’²UF’²) then the high one’s ([UR]), the edges of the five faces around, the top corners placed ([UF].B’[FU]B) and twisted (R’DRFDF’.U’.FD’F’R’D’R.U), last the top edges placed ([L’B]) and flipped (([L’B]U’)².([BL’]U)²), in fan2cube’s letters read as U F R D B L.',
+    },
+    aiBlocks: {
+      name: 'Block method',
+      desc: 'Bring it down to a Pocket: the four big blocks at the bottom (the standard position), then each small octant rebuilt around its small corner, edges then centers, as if fused (T = R’D R.F D F’ in halves pivots a block, X swaps two caps, C cycles three centers), and last the eight blocks solved as a 2x2x2, by half cubes.',
+    },
+    rbCenters: {
+      name: 'Centers method',
+      desc: 'As a Professor (5x5x5), brought down to a 3x3x3, always arranging to turn the slices wanted: the bars of the faces around an axis laid across it, its slices turn. The middle bars, the edge parity (a quarter of an equator slice), the other bars, the edges grouped three by three, then as a 3x3 (once its colors are home it is solved, its bars either way).',
     },
     quarterEdgesFirst: {
       name: 'Edges first',
@@ -1036,6 +1073,15 @@ const en: Translations = {
     stepCrystalEdges: 'The bottom edges',
     stepCrystalLowCorners: 'The low equator’s corners',
     stepCrystalHighCorners: 'The high equator’s corners',
+    stepAiStandard: 'Standard position (big blocks below)',
+    stepAiWings: 'Small blocks’ edges',
+    stepAiCenters: 'Small blocks’ centers',
+    stepAiPocket: 'Solve as a Pocket',
+    stepRbStart: 'START position (side bars level)',
+    stepRbMiddles: 'The middle bars',
+    stepRbBars: 'The other bars',
+    stepRbEdges: 'Edges grouped three by three',
+    stepRbParity: 'Parity',
     stepQuarterStart: 'Faces to START',
     stepQuarterEdges: 'Place the edges',
     stepQuarterFlip: 'Flip the edges',

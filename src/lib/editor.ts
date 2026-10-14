@@ -18,6 +18,7 @@ import {
 import { entersByPieces, piecesCube } from './pieceEditor'
 import { withGears, withTurnedGears } from './gear'
 import { asSeenMorphinx, withRealCorners } from './mmorph'
+import { withBars, withoutBars } from './roadblock'
 import { asSeenTwist, withRealThinEdges, withTurnedCenters } from './twist'
 import { withTurnedFaces } from './quarter'
 import { hasColoredClips, isGear, type Color, type Cube, type CubeShape } from './types'
@@ -100,8 +101,10 @@ export function cubeToEdit(cube: Cube): EditStickers {
   const edit: EditStickers = {}
   // A Z-Twist's thin edges (a Barrel's middle ones) entered the way round
   // the editor offers.
-  const held = withFixedHome(cube)
+  // A RoadBlock-I's bars' marks are not entered (it is, at START), and no
+  // center of it is fixed: it is not held otherwise.
   const shape = cubeShape(cube)
+  const held = shape === 'roadblock' ? withoutBars(cube) : withFixedHome(cube)
   const thin = shape === 'twist' || shape === 'barrel' || shape === 'fisher'
   const seen = thin ? asSeenTwist(held) : shape === 'mmorph' ? asSeenMorphinx(held) : held
   for (const cubie of seen) {
@@ -219,7 +222,9 @@ function candidates(
 /**
  * Paint `color` on sticker (`slotKey`, `ni`). Returns the next state, or the
  * same reference if the paint is impossible. A conflicting paint restarts the
- * piece with just this sticker; a determined piece auto-completes.
+ * piece with just this sticker; a determined piece auto-completes. The last
+ * click wins: a piece (or a color) already all used elsewhere is taken back
+ * from there, its slot left to paint again (`takeBack`).
  */
 export function paint(
   edit: EditStickers,
@@ -228,6 +233,9 @@ export function paint(
   ni: number,
   color: Color,
   form?: Cube,
+  /** Slots a piece is never taken back from (a RoadBlock-I's bar being
+   *  painted). */
+  keep: ReadonlySet<string> = new Set(),
 ): EditStickers {
   const tables = tablesFor(shape, form)
   const slot = tables.byKey.get(slotKey)
@@ -250,9 +258,51 @@ export function paint(
   const added = tryPlace(edit)
   if (added) return added
 
+  // The piece this paint makes with the slot's other stickers, all used
+  // elsewhere: taken back from the slot holding it.
+  const kept = takeBack(edit, tables, slot, { ...paintedOf(edit, slot), [ni]: color }, keep)
+  const keptPlaced = kept && tryPlace(kept)
+  if (keptPlaced) return keptPlaced
+
+  // No such piece: the slot restarts with this sticker alone (taken back too
+  // if need be).
   const cleared = { ...edit }
   for (const s of slot.stickers) delete cleared[s.id]
-  return tryPlace(cleared) ?? edit
+  const restarted = tryPlace(cleared)
+  if (restarted) return restarted
+  const freed = takeBack(cleared, tables, slot, { [ni]: color }, keep)
+  return (freed && tryPlace(freed)) ?? edit
+}
+
+/**
+ * The entry with a slot holding a piece that the stickers `wanted` on
+ * `slot` could be cleared, so that piece has budget left (the first such
+ * piece, the first slot holding it); undefined when no real piece shows
+ * `wanted` there.
+ */
+function takeBack(
+  edit: EditStickers,
+  tables: SlotTables,
+  slot: Slot,
+  wanted: Placement,
+  keep: ReadonlySet<string>,
+): EditStickers | undefined {
+  const option = (tables.placements.get(slot.key) ?? []).find((o) =>
+    Object.entries(wanted).every(([ni, color]) => o.colors[Number(ni)] === color),
+  )
+  if (!option) return undefined
+  const holder = tables.paintableSlots.find((other) => {
+    if (other.key === slot.key || keep.has(other.key)) return false
+    const painted = paintedOf(edit, other)
+    return (
+      Object.keys(painted).length === other.stickers.length &&
+      optionOf(tables, other, painted)?.pieceKey === option.pieceKey
+    )
+  })
+  if (!holder) return undefined
+  const next = { ...edit }
+  for (const s of holder.stickers) delete next[s.id]
+  return next
 }
 
 /**
@@ -283,7 +333,8 @@ export function buildCube(
   form?: Cube,
   /** A Gear Cube's edges whose gear is turned over on its clips; a
    *  Z-Twist's side centers a quarter turn off, a Quarter Cube's faces a
-   *  quarter on (by slot). */
+   *  quarter on, a RoadBlock-I's faces whose bars lie a quarter off (by
+   *  slot). */
   turned: readonly string[] = [],
 ): Cube {
   if (entersByPieces(shape)) {
@@ -303,6 +354,8 @@ export function buildCube(
   }))
   // A Quarter Cube's faces stand where their marks say.
   if (shape === 'quarter') return withTurnedFaces(cube, turned)
+  // A RoadBlock-I's bars lie as solved but on the faces turned.
+  if (shape === 'roadblock') return withBars(cube, turned)
   // A Gear Cube is entered in the cube's shape: its gears at rest, some
   // maybe turned over on their clips.
   if (!isGear(shape)) return cube

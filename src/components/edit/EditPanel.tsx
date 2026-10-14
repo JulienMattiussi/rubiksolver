@@ -9,6 +9,7 @@ import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { Button } from '@/components/ui/Button'
+import { BarToggles } from './BarToggles'
 import { ColorPalette } from './ColorPalette'
 import { FormPicker } from './FormPicker'
 
@@ -60,18 +61,22 @@ export function EditPanel() {
           ? t.editHintTwist
           : shape === 'camo'
             ? t.editHintCamo
-            : shape === 'quarter'
-              ? t.editHintQuarter
-              : byPieces
-                ? t.editHintPieces
-                : mirror
-                  ? t.editHintMirror
-                  : hasColoredClips(shape)
-                    ? t.editHintGear
-                    : isGear(shape)
-                      ? t.editHintGearPlain
-                      : t.editHint}
+            : shape === 'roadblock'
+              ? t.editHintRoadblock
+              : shape === 'quarter'
+                ? t.editHintQuarter
+                : byPieces
+                  ? t.editHintPieces
+                  : mirror
+                    ? t.editHintMirror
+                    : hasColoredClips(shape)
+                      ? t.editHintGear
+                      : isGear(shape)
+                        ? t.editHintGearPlain
+                        : t.editHint}
       </p>
+
+      {shape === 'roadblock' && <BarToggles />}
 
       {!byPieces && <ColorPalette />}
 

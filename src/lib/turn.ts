@@ -6,6 +6,8 @@ import { applyGearMove, gearFaceTurns, gearRotation, gearSliceTurns } from './ge
 import { applyMegaMove, megaRotation, megaTurns } from './megaminx'
 import { applyRainbowMove, rainbowRotation, rainbowTurns } from './rainbow'
 import { violetTurns } from './violet'
+import { aiTurns } from './ai'
+import { roadblockTurns } from './roadblock'
 import { camoTurns } from './camo'
 import { quarterTurns } from './quarter'
 import { applyPyraMove, pyraRotation, pyraSize, pyraTurns } from './pyraminx'
@@ -121,6 +123,10 @@ export function turnAllowed(cube: Cube, move: Turn): boolean {
   const shape = cubeShape(cube)
   // The Quarter Cube's faces turn by turns (quarter.ts).
   if (shape === 'quarter') return quarterTurns(cube, move)
+  // The AI Cube's big blocks jam what would cut them (ai.ts).
+  if (shape === 'ai') return aiTurns(cube, move)
+  // The RoadBlock-I's bars jam a slice along them (roadblock.ts).
+  if (shape === 'roadblock') return roadblockTurns(cube, move)
   if (!SHAPE_SHIFTS[shape]) return true
   if (shape === 'violet') return violetTurns(cube, move.face)
   if (shape === 'camo') {

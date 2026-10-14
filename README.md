@@ -9,7 +9,7 @@ puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (sans pointes), le **Ma
 le **Rainbow** (un cuboctaèdre aux triangles qui tournent), le **Megaminx** (un dodécaèdre), le **Holey Megaminx** (sans centres), le **Pyraminx Crystal** (un Megaminx coupé plus profond), le **Dino Cube**, le
 **Rex Cube** (leurs sommets tournent) le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième) et le **Skewb Ultimate** (un Skewb en dodécaèdre),
 le **Violet** (un 2x2x2 à pivot excentré qui se déforme), le **Z-Twist** (un 3x3x3
-à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Quarter Cube** (des faces qui vont et reviennent d'un quart), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube
+à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Quarter Cube** (des faces qui vont et reviennent d'un quart), l'**AI Cube** (un 4x4x4 bandé), le **RoadBlock-I** (un 5x5x5 aux centres en barres), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube
 Extreme** (des 3x3x3 à engrenages)
 le **Hockey Puck** (deux disques de 12 pièces, de la famille des étoiles), le **Barrel** (un 3x3x3 aux arêtes verticales tronquées) et les **Star Prism** à 2 et 4 étages.
 On manipule le puzzle, on le mélange **ou on saisit sa propre
@@ -62,6 +62,8 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   - Violet : **forme puis couleurs** ;
   - Tori et Edge Only : **croix prolongée** ;
   - Quarter Cube : **les arêtes d'abord** ;
+  - AI Cube : **méthode des blocs** (ramené à un Pocket) ;
+  - RoadBlock-I : **méthode des centres** (comme un Professor) ;
   - Gear Cube et Gear Cube Ultimate : **coins d'abord** ;
   - Gear Cube Extreme : **équateur puis coins** ;
   - Star Prism : **isoler puis permuter** ;
