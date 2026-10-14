@@ -22,6 +22,7 @@ export type CubeShape =
   | 'pyra5'
   | 'jing'
   | 'morph'
+  | 'mmorph'
   | 'oct4'
   | 'vto'
   | 'gem'
@@ -29,6 +30,7 @@ export type CubeShape =
   | 'dino'
   | 'rex'
   | 'fisher'
+  | 'skewbU'
   | 'gearCube'
   | 'gearU'
   | 'gearX'
@@ -38,6 +40,7 @@ export type CubeShape =
   | 'edge'
   | 'quarter'
   | 'megaminx'
+  | 'crystal'
   | 'holey'
   | 'ghost'
   | 'puck'
@@ -80,6 +83,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   jing: [3, 3, 3],
   // The Pyramorphinx is a 2x2 cut down to a tetrahedron (morph.ts).
   morph: [2, 2, 2],
+  // The Master Morphinx (mmorph.ts): a 3x3x3 cut to a tetrahedron.
+  mmorph: [3, 3, 3],
   // The 4-Trajber's Octahedron is a 4x4x4 cut to an octahedron (oct4.ts).
   oct4: [4, 4, 4],
   // The Octahedron VTO is a 3x3x3 cut to an octahedron, its tips apart: it
@@ -92,6 +97,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   // The Megaminx (megaminx.ts) is no grid: its slots are numbered within
   // +-4, which says nothing of where they are.
   megaminx: [9, 9, 9],
+  // The Pyraminx Crystal: the Megaminx cut deeper, without centers.
+  crystal: [9, 9, 9],
   // The Holey Megaminx: the Megaminx without its centers.
   holey: [9, 9, 9],
   dino: [3, 3, 3],
@@ -99,6 +106,8 @@ export const SHAPE_DIMS: Record<CubeShape, Dims> = {
   rex: [9, 9, 9],
   // The Fisher Cube (fisher.ts): a 3x3x3 cut to a cube turned an eighth.
   fisher: [3, 3, 3],
+  // The Skewb Ultimate (rainbow.ts): its pieces sit within +-1.
+  skewbU: [3, 3, 3],
   // The Gear Cubes (gear.ts): a 3x3x3 whose edges are gears.
   gearCube: [3, 3, 3],
   gearU: [3, 3, 3],
@@ -161,10 +170,11 @@ export const hasColoredClips = (shape: CubeShape): boolean => shape === 'gearU' 
 /** The Rainbow, the Dino Cube and the Rex Cube: the same mechanism
  *  (rainbow.ts), its corners turning by thirds. */
 const isRainbowLike = (shape: CubeShape): boolean =>
-  shape === 'rainbow' || shape === 'dino' || shape === 'rex'
+  shape === 'rainbow' || shape === 'dino' || shape === 'rex' || shape === 'skewbU'
 
 /** The Megaminx and its holey cousin (megaminx.ts). */
-export const isMegaminx = (shape: CubeShape): boolean => shape === 'megaminx' || shape === 'holey'
+export const isMegaminx = (shape: CubeShape): boolean =>
+  shape === 'megaminx' || shape === 'holey' || shape === 'crystal'
 
 /** Whether a shape builds and turns in its own module rather than on a grid
  *  of layers (the star prisms, the Pyraminx, the Floppy Ghost): drawn from
@@ -195,6 +205,7 @@ export const isPolyDrawn = (shape: CubeShape): boolean =>
   shape === 'quarter' ||
   shape === 'barrel' ||
   shape === 'fisher' ||
+  shape === 'mmorph' ||
   shape === 'camo'
 
 /**
@@ -226,15 +237,18 @@ export const SHAPE_SHIFTS: Record<CubeShape, boolean> = {
   pyra5: false,
   jing: false,
   morph: true,
+  mmorph: false,
   oct4: false,
   vto: false,
   gem: false,
   rainbow: false,
   megaminx: false,
+  crystal: false,
   holey: false,
   dino: false,
   rex: false,
   fisher: false,
+  skewbU: false,
   gearCube: false,
   gearU: false,
   gearX: false,
@@ -281,15 +295,18 @@ export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = {
   pyra5: [],
   jing: [],
   morph: [],
+  mmorph: [],
   oct4: ['slice'],
   vto: ['wide'],
   gem: [],
   rainbow: [],
   megaminx: [],
+  crystal: [],
   holey: [],
   dino: [],
   rex: [],
   fisher: [],
+  skewbU: [],
   gearCube: [],
   gearU: [],
   gearX: [],
@@ -328,15 +345,18 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
   pyra5: [],
   jing: [],
   morph: [],
+  mmorph: [],
   oct4: [],
   vto: [],
   gem: [],
   rainbow: [],
   megaminx: [],
+  crystal: [],
   holey: [],
   dino: [],
   rex: [],
   fisher: [],
+  skewbU: [],
   gearCube: [],
   gearU: [],
   gearX: [],
@@ -371,15 +391,18 @@ export const SHAPE_LABEL: Record<CubeShape, string> = {
   pyra5: 'Professor Pyraminx (5x5)',
   jing: 'Pyraminx Jing',
   morph: 'Pyramorphinx',
+  mmorph: 'Master Morphinx',
   oct4: "4-Trajber's Octahedron",
   vto: 'Octahedron VTO',
   gem: 'GEM-0 (Jewel)',
   rainbow: 'Rainbow',
   megaminx: 'Megaminx',
+  crystal: 'Pyraminx Crystal',
   holey: 'Holey Megaminx',
   dino: 'Dino Cube',
   rex: 'Rex Cube',
   fisher: 'Fisher Cube',
+  skewbU: 'Skewb Ultimate',
   gearCube: 'Gear Cube',
   gearU: 'Gear Cube Ultimate',
   gearX: 'Gear Cube Extreme',
@@ -415,15 +438,18 @@ export const SHAPE_SLUG: Record<CubeShape, string> = {
   pyra5: 'professor-pyraminx',
   jing: 'pyraminx-jing',
   morph: 'pyramorphinx',
+  mmorph: 'master-morphinx',
   oct4: '4-trajber',
   vto: 'vto',
   gem: 'gem-0',
   rainbow: 'rainbow',
   megaminx: 'megaminx',
+  crystal: 'pyraminx-crystal',
   holey: 'holey-megaminx',
   dino: 'dino-cube',
   rex: 'rex-cube',
   fisher: 'fisher-cube',
+  skewbU: 'skewb-ultimate',
   gearCube: 'gear-cube',
   gearU: 'gear-cube-ultimate',
   gearX: 'gear-cube-extreme',
@@ -473,15 +499,18 @@ const SHAPE_MIRROR: Record<CubeShape, boolean> = {
   pyra5: false,
   jing: false,
   morph: false,
+  mmorph: false,
   oct4: false,
   vto: false,
   gem: false,
   rainbow: false,
   megaminx: false,
+  crystal: false,
   holey: false,
   dino: false,
   rex: false,
   fisher: false,
+  skewbU: false,
   gearCube: false,
   gearU: false,
   gearX: false,
@@ -531,13 +560,15 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
   if (variant === 'mirror') return 'mirror'
   // Round: the star prisms, the Hockey Puck, the Barrel.
   if (isStar(shape) || shape === 'puck' || shape === 'barrel') return 'star'
-  if (isPyraminx(shape) || shape === 'morph') return 'pyramid'
+  if (isPyraminx(shape) || shape === 'morph' || shape === 'mmorph') return 'pyramid'
   if (
     shape === 'oct4' ||
     shape === 'vto' ||
     shape === 'gem' ||
     shape === 'rainbow' ||
-    shape === 'megaminx'
+    shape === 'megaminx' ||
+    shape === 'crystal' ||
+    shape === 'skewbU'
   ) {
     return 'octahedron'
   }
@@ -723,6 +754,8 @@ export interface RainbowMove {
   readonly dino?: true
   /** The Rex Cube's: the Dino's, cut deeper (rainbow.ts). */
   readonly rex?: true
+  /** The Skewb Ultimate's: the Dino's, cut through the middle. */
+  readonly skewb?: true
 }
 
 /** Any turn of any puzzle: a face-layer move, a star prism's, the
@@ -749,6 +782,9 @@ export type MegaFace = 'U' | 'F' | 'R' | 'BR' | 'BL' | 'L' | 'DR' | 'DBR' | 'B' 
 export interface MegaMove {
   readonly megaFace: MegaFace
   readonly amount: 1 | 2 | 3 | 4
+  /** The Pyraminx Crystal's, cut deeper: the face's layer also takes the
+   *  five edges leaving its corners. */
+  readonly crystal?: true
 }
 
 export type Turn =

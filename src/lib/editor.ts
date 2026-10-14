@@ -17,6 +17,7 @@ import {
 } from './editorTables'
 import { entersByPieces, piecesCube } from './pieceEditor'
 import { withGears, withTurnedGears } from './gear'
+import { asSeenMorphinx, withRealCorners } from './mmorph'
 import { asSeenTwist, withRealThinEdges, withTurnedCenters } from './twist'
 import { withTurnedFaces } from './quarter'
 import { hasColoredClips, isGear, type Color, type Cube, type CubeShape } from './types'
@@ -102,7 +103,8 @@ export function cubeToEdit(cube: Cube): EditStickers {
   const held = withFixedHome(cube)
   const shape = cubeShape(cube)
   const thin = shape === 'twist' || shape === 'barrel' || shape === 'fisher'
-  for (const cubie of thin ? asSeenTwist(held) : held) {
+  const seen = thin ? asSeenTwist(held) : shape === 'mmorph' ? asSeenMorphinx(held) : held
+  for (const cubie of seen) {
     for (const s of cubie.stickers) edit[stickerId(cubie.position, normalIndex(s.normal))] = s.color
   }
   return edit
@@ -288,6 +290,7 @@ export function buildCube(
     const cube = piecesCube(edit, shape)
     if (!cube) throw new Error('buildCube: a slot holds no piece')
     if (shape === 'barrel' || shape === 'fisher') return withRealThinEdges(cube)
+    if (shape === 'mmorph') return withRealCorners(cube)
     return shape === 'twist' ? withTurnedCenters(cube, turned) : cube
   }
   const cube = slotsFor(shape, form).map((slot) => ({

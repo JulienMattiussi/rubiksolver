@@ -6,7 +6,7 @@ import { ALL_COLORS, type Color, type Cube, type Cubie, type Vec3 } from './type
 /**
  * Text form of a cube state, to keep it across reloads (see savedStore).
  * One token per cubie, in array order: its position, then each sticker as
- * its normal index (one base-36 digit, see `normalIndex`) and color, e.g.
+ * its normal index (base 36, one digit or two, see `normalIndex`) and color, e.g.
  * `1,1,1:2W0R4G`, a Gear Cube's gear followed by its spin (`@3`), and `*`
  * on plain clips (the plain Gear Cube).
  * It records the cube as it is, so it fits every shape, including one whose
@@ -25,11 +25,11 @@ export function encodeCube(cube: Cube): string {
 }
 
 function decodeCubie(token: string): Cubie | null {
-  const match = /^(-?\d+),(-?\d+),(-?\d+):((?:[0-9a-z][A-Z])*)(?:@([0-5])(\*)?)?$/.exec(token)
+  const match = /^(-?\d+),(-?\d+),(-?\d+):((?:[0-9a-z]+[A-Z])*)(?:@([0-5])(\*)?)?$/.exec(token)
   if (!match) return null
-  const stickers = (match[4]!.match(/../g) ?? []).map((s) => ({
-    normal: normalOfIndex(parseInt(s[0]!, 36)),
-    color: s[1] as Color,
+  const stickers = [...match[4]!.matchAll(/([0-9a-z]+)([A-Z])/g)].map((s) => ({
+    normal: normalOfIndex(parseInt(s[1]!, 36)),
+    color: s[2] as Color,
   }))
   if (!stickers.every((s) => KNOWN_COLORS.has(s.color))) return null
   const position: Vec3 = [Number(match[1]), Number(match[2]), Number(match[3])]

@@ -182,12 +182,12 @@ export function describeFr(d: MoveDescription): string {
   }
   if (d.kind === 'dinoCorner') {
     const sense = d.clockwise ? 'des aiguilles' : 'inverse des aiguilles'
-    return `On tourne ${DINO_CORNER_NAMES_FR[d.corner]} d’un tiers de tour (120°) dans le sens ${sense} d’une montre, vu de face : ${d.rex ? 'ses trois arêtes, les trois centres autour et neuf pétales tournent avec lui' : 'ses trois arêtes tournent autour de lui'}.`
+    return `On tourne ${DINO_CORNER_NAMES_FR[d.corner]} d’un tiers de tour (120°) dans le sens ${sense} d’une montre, vu de face : ${d.skewb ? 'toute la moitié du puzzle de son côté tourne avec lui, ses trois sommets voisins et les trois centres autour' : d.rex ? 'ses trois arêtes, les trois centres autour et neuf pétales tournent avec lui' : 'ses trois arêtes tournent autour de lui'}.`
   }
   if (d.kind === 'megaFace') {
     const n = Math.abs(d.fifths)
     const sense = d.fifths > 0 ? 'des aiguilles' : 'inverse des aiguilles'
-    return `On tourne ${MEGA_FACE_NAMES_FR[d.face]} ${n === 1 ? 'd’un cinquième de tour (72°)' : 'de deux cinquièmes de tour (144°)'} dans le sens ${sense} d’une montre, vu de face : son centre ne bouge pas, ses cinq arêtes et ses cinq sommets tournent autour.`
+    return `On tourne ${MEGA_FACE_NAMES_FR[d.face]} ${n === 1 ? 'd’un cinquième de tour (72°)' : 'de deux cinquièmes de tour (144°)'} dans le sens ${sense} d’une montre, vu de face : ${d.crystal ? 'ses cinq sommets, ses cinq arêtes et les cinq arêtes qui partent de ses sommets tournent avec elle' : 'son centre ne bouge pas, ses cinq arêtes et ses cinq sommets tournent autour'}.`
   }
   if (d.kind === 'triangle') {
     const sense = d.clockwise ? 'des aiguilles' : 'inverse des aiguilles'
@@ -264,12 +264,12 @@ export function describeEn(d: MoveDescription): string {
   }
   if (d.kind === 'dinoCorner') {
     const sense = d.clockwise ? 'clockwise' : 'counter-clockwise'
-    return `Turn ${DINO_CORNER_NAMES_EN[d.corner]} a third of a turn (120°) ${sense}, as seen from it: ${d.rex ? 'its three edges, the three centers around it and nine petals go round with it' : 'its three edges go round it'}.`
+    return `Turn ${DINO_CORNER_NAMES_EN[d.corner]} a third of a turn (120°) ${sense}, as seen from it: ${d.skewb ? 'the whole half of the puzzle on its side goes round with it, its three neighboring corners and the three centers around it' : d.rex ? 'its three edges, the three centers around it and nine petals go round with it' : 'its three edges go round it'}.`
   }
   if (d.kind === 'megaFace') {
     const n = Math.abs(d.fifths)
     const sense = d.fifths > 0 ? 'clockwise' : 'counterclockwise'
-    return `Turn ${MEGA_FACE_NAMES_EN[d.face]} ${n === 1 ? 'a fifth of a turn (72°)' : 'two fifths of a turn (144°)'} ${sense}, as seen from it: its center stays put, its five edges and five corners go round it.`
+    return `Turn ${MEGA_FACE_NAMES_EN[d.face]} ${n === 1 ? 'a fifth of a turn (72°)' : 'two fifths of a turn (144°)'} ${sense}, as seen from it: ${d.crystal ? 'its five corners, its five edges and the five edges leaving its corners go round with it' : 'its center stays put, its five edges and five corners go round it'}.`
   }
   if (d.kind === 'triangle') {
     const sense = d.clockwise ? 'clockwise' : 'counterclockwise'

@@ -8,11 +8,11 @@ POC d'un **Rubik's Cube 3D interactif et pédagogique**, en **2x2 (Pocket), 3x3,
 et le **Floppy 3x3x1**, le **Floppy Ghost** (un Floppy Megaminx découpé en
 pentagramme dans un carré, qui se déforme), et des puzzles non cubiques : le **Pyraminx**, le **Tetraminx** (un Pyraminx sans pointes), le
 **Master Pyraminx** (4x4), le **Professor Pyraminx** (5x5), le **Pyraminx Jing** (pièces courbes), le
-**Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme), le
+**Pyramorphinx** (un 2x2 taillé en tétraèdre, qui se déforme), le **Master Morphinx** (un 3x3x3 taillé en tétraèdre), le
 **4-Trajber's Octahedron** (un 4x4x4 taillé en octaèdre), l'**Octahedron VTO**
 (un 3x3x3 taillé en octaèdre), le **GEM-0** (le VTO sans pointes), le **Rainbow**
-(un cuboctaèdre dont les triangles tournent), le **Megaminx** (un dodécaèdre) et le **Holey Megaminx** (sans ses centres), le **Dino Cube** et le **Rex Cube** (leurs sommets
-tournent), le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième, qui se déforme), le **Violet** (un 2x2x2 à
+(un cuboctaèdre dont les triangles tournent), le **Megaminx** (un dodécaèdre), le **Holey Megaminx** (sans ses centres), le **Pyraminx Crystal** (un Megaminx coupé plus profond), le **Dino Cube** et le **Rex Cube** (leurs sommets
+tournent), le **Fisher Cube** (un 3x3x3 taillé en cube tourné d'un huitième, qui se déforme), le **Skewb Ultimate** (un Skewb taillé en dodécaèdre), le **Violet** (un 2x2x2 à
 pivot excentré, qui se déforme), le **Z-Twist** (un 3x3x3 à la forme tordue), le **Tori** (un 3x3x3 sans coins, aux faces percées), l'**Edge Only** (ses seules arêtes), le **Quarter Cube** (des faces qui ne font qu'aller et revenir d'un quart), le **Gear Cube**, le **Gear Cube Ultimate** et le **Gear Cube Extreme** (des 3x3x3 à engrenages),
 le **Hockey Puck** (deux disques de 12 pièces, de la famille des étoiles), le **Barrel** (un 3x3x3 aux arêtes verticales tronquées, qui se déforme) et les
 **Star Prism** à 2 et 4 étages (une étoile à six branches de la famille du
@@ -111,8 +111,9 @@ src/
 │   ├── camo.ts           # Camouflage 4x4x2 : boîte de chaque pièce (épaisse ou fine, tournée avec elle), coups bloqués
 │   ├── camoShape.ts      # Sa forme seule (axe haut de chaque pièce) : retour dans la boîte par les deux bouts, formules qui y reviennent
 │   ├── quarter.ts        # Quarter Cube : l'état de chaque face (Cubie.spin des centres), coups permis
+│   ├── mmorph.ts         # Master Morphinx : un 3x3 aux centres marqués (sticker caché), petits sommets sans sens visible, résolu
 │   ├── fisher.ts         # Fisher Cube : un 3x3 dont les centres de côté portent un repère caché (leur sens), résolu
-│   ├── megaminx.ts       # Megaminx : modèle combinatoire (emplacements = faces touchées), coups par permutations, notation
+│   ├── megaminx.ts       # Megaminx, Holey et Pyraminx Crystal : modèle combinatoire (emplacements = faces touchées), coups par permutations, notation
 │   ├── twist.ts          # Z-Twist : un 3x3 dont les centres de côté gardent leur quart de tour (Cubie.spin)
 │   ├── violetStates.ts   # Ses états vus (gros cubes pareils) : arbre des plus courts chemins (solutions), mélange sans retour
 │   ├── rainbow.ts        # Rainbow : cuboctaèdre, 12 pièces aux milieux des arêtes du cube, triangles en tiers de tour, notation ;
@@ -172,8 +173,10 @@ src/
 │   │   ├── quarter.ts    #   Quarter Cube : les arêtes d'abord (4 formules alternées de fan2cube.fr)
 │   │   ├── tori.ts       #   Tori : croix prolongée (formules de fan2cube.fr)
 │   │   ├── barrel.ts     #   Barrel : par couches, arêtes du milieu sans sens (formules de fan2cube.fr)
+│   │   ├── mmorph.ts     #   Master Morphinx : une méthode 3x3 sur les couleurs, puis les centres tournés ((H)+(G)-, (H)2+)
 │   │   ├── fisher.ts     #   Fisher Cube : une méthode 3x3 sur les couleurs, puis les centres tournés ((H)+(G)-)
-│   │   ├── megaminx.ts   #   Megaminx : l'étoile prolongée, formules de toutes les tenues, pièce par pièce
+│   │   ├── megaminx.ts   #   Megaminx (l'étoile prolongée) et Crystal (les sommets d'abord) : formules de toutes les tenues, pièce par pièce
+│   │   ├── skewbU.ts     #   Skewb Ultimate : le haut d'abord, les seuls sommets du bas (formules de fan2cube.fr)
 │   │   ├── edgeOnly.ts   #   Edge Only : lu comme le Tori de la tenue la plus proche, résolu par sa méthode
 │   │   └── violet.ts     #   Violet : forme puis couleurs, et optimale (arbre de recherche de violetStates.ts)
 │   ├── solver4/          # Solveur 4x4 par réduction :
@@ -245,8 +248,10 @@ src/
 │   ├── twistGeometry.ts  # Pièces du Z-Twist : la case du 3x3 dans le solide tordu, portée par la pièce
 │   ├── cutSolid.ts       # Pièces d'un 3x3 taillé dans un solide convexe (Barrel, Fisher), portées par la pièce
 │   ├── barrelGeometry.ts # Le solide du Barrel (prisme octogonal) et la couleur de ses coupes
+│   ├── mmorphGeometry.ts # Le solide du Master Morphinx (tétraèdre), à facettes planes
 │   ├── fisherGeometry.ts # Le solide du Fisher Cube (cube tourné d'un huitième) et ses couleurs
-│   ├── megaGeometry.ts   # Pièces du Megaminx : dodécaèdre coupé par les plans de ses couches
+│   ├── megaGeometry.ts   # Pièces du Megaminx (et du Crystal, coupé plus profond) : dodécaèdre coupé par les plans de ses couches
+│   ├── skewbUGeometry.ts # Pièces du Skewb Ultimate : dodécaèdre coupé par les quatre plans du Skewb
 │   ├── violetGeometry.ts # Pièces du Violet : boîtes de deux tailles, violettes sur toutes leurs faces
 │   ├── Decal.tsx         # Une image posée sur la face de pièces choisies, qui tourne avec elles (PolyDrawing.decal)
 │   ├── rainbowGeometry.ts # Pièces du Rainbow : cellule de chaque pièce dans le cuboctaèdre (polyhedron.ts)
@@ -350,12 +355,12 @@ Toutes les méthodes 3x3 commencent par **Remettre les centres**
 (`withCentersHome`, voir « Coups avancés du 3x3 »), étape retirée quand elle
 est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 
-- **Par couches** (`beginner`, 3x3, Z-Twist, Fisher Cube et 2x2) : sur 3x3, 1re couche entière
+- **Par couches** (`beginner`, 3x3, Z-Twist, Fisher Cube, Master Morphinx et 2x2) : sur 3x3, 1re couche entière
   (croix + coins), puis arêtes du milieu, puis dernière couche (croix,
   orientation coins, permutation coins, permutation arêtes) - 7 étapes. Sur
   2x2 (pas d'arêtes ni de centres) : coins du bas, orientation du haut,
   permutation du haut - 3 étapes.
-- **Fridrich / CFOP** (`cfop`, 3x3, Z-Twist, Barrel et Fisher Cube) : Croix, puis **F2L** (paires coin+arête
+- **Fridrich / CFOP** (`cfop`, 3x3, Z-Twist, Barrel, Fisher Cube et Master Morphinx) : Croix, puis **F2L** (paires coin+arête
   par colonne), puis **OLL**, puis **PLL** - 4 étapes.
 - **Réduction** (`reduction` et `reductionCfop`, 4x4, 5x5 et 6x6) : Centres,
   Appariement des arêtes, Correction de parité (étape émise seulement si
@@ -366,12 +371,12 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
   CMLL en 2 temps (orienter avec Sune/Antisune, permuter), puis les six
   dernières arêtes en `<M, U>` : orientation, UL/UR, tranche M en `<M, U2>`
   - 6 étapes.
-- **Petrus** (`petrus`, 3x3, Z-Twist, Barrel et Fisher Cube), les 7 étapes de Lars Petrus : bloc 2x2x2 (DBL),
+- **Petrus** (`petrus`, 3x3, Z-Twist, Barrel, Fisher Cube et Master Morphinx), les 7 étapes de Lars Petrus : bloc 2x2x2 (DBL),
   extension en 2x2x3 en `<U, R, F>` (ne touchent pas le 2x2x2), arêtes
   orientées (F et B n'apparaissent que dans `F' U F` / `B U B'`, qui
   préservent le bloc), fin du F2L en `<R, U>` seulement, puis coins placés
   (Niklas), coins tournés (Sune/Antisune), arêtes placées (Ua).
-- **ZZ** (`zz`, 3x3, Z-Twist, Barrel et Fisher Cube) : EOLine (les 12 arêtes orientées, puis DF/DB en coups
+- **ZZ** (`zz`, 3x3, Z-Twist, Barrel, Fisher Cube et Master Morphinx) : EOLine (les 12 arêtes orientées, puis DF/DB en coups
   qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
   droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL
   - 5 étapes.
@@ -423,6 +428,12 @@ est vide ; les nombres d'étapes ci-dessous ne la comptent pas.
 - **L'étoile prolongée** (`megaStar`, Megaminx et Holey Megaminx) : étoile et sommets du
   dessous, équateur bas, cinq faces voisines, équateur haut, puis la face du
   haut - voir « Le Megaminx ».
+- **Les sommets d'abord** (`crystalCornersFirst`, Pyraminx Crystal) : comme le
+  Megaminx, chaque couche ses sommets avant ses arêtes - voir « Le Pyraminx
+  Crystal ».
+- **Le haut d'abord** (`skewbTopFirst`, Skewb Ultimate) : sommets du haut
+  placés puis tournés, centres placés puis retournés, sommets du bas tournés -
+  voir « Le Skewb Ultimate ».
 - **Triangle prolongé** (`extendedTriangle`, Rainbow) : le triangle du haut,
   puis les autres par 3-cycles - voir « Le Rainbow ».
 - **Ailes puis co-ailes** (`wingsFirst`, Master et Professor Pyraminx) :
@@ -1505,6 +1516,50 @@ plus d'étapes, puis le plus de pièces ; ses tours étant des permutations
 paires, les 60 tenues sont atteignables (« pas de singularité », dit la
 page).
 
+Le **Pyraminx Crystal** (`crystal`, fan2cube.fr/pyraminxcrystal1 et 2, Aleh
+Hladzilin, 2009) est le Megaminx coupé plus profond : chaque coupe passe par
+le centre des faces voisines, si bien qu'il n'a plus de centres (20 sommets,
+30 arêtes, un cœur caché qui le distingue du Holey Megaminx). Une face
+emporte ses 5 sommets, ses 5 arêtes et les 5 arêtes qui partent de ses
+sommets : les mêmes emplacements et la même notation que le Megaminx, le coup
+marqué `MegaMove.crystal` (`megaTurns`). Dessin : `megaGeometry.ts`, coupe à
+1/√5. Méthode **Les sommets d'abord** (d'après la page, « calquée sur le
+Mégaminx ») : sommets puis arêtes du dessous, sommets des équateurs bas et
+haut, arêtes des cinq faces voisines, sommets du haut placés ([HA].P'[AH]P)
+et tournés (D'BDABA'.H'.AB'A'D'B'D.H), équateur haut, arêtes du haut placées
+([G'P], un 3-cycle pur de trois arêtes non voisines ; avec son inverse tourné
+d'un cran du haut, il en fait un de trois voisines) et retournées
+(([G'P]H')².([PG']H)², la formule n'étant que dans une image de la page).
+Sur les étapes du haut, seules les formules tenues le haut en haut servent
+(tout le reste est fait), ce qui garde le calcul court.
+
+### Le Skewb Ultimate (`skewbU`)
+
+Le Skewb Ultimate (fan2cube.fr/skewbultimate1 et 2, Uwe Mèffert, 1982) est un
+Skewb taillé en dodécaèdre (catégorie « Polyèdres ») : chaque sommet
+du cube (aussi sommet du dodécaèdre) tourne d'un tiers de tour toute la moitié
+du puzzle de son côté. 6 centres montrant chacun les quatre faces penchées
+vers leur axe, 8 sommets les trois faces qui s'y rejoignent. Modèle entier,
+celui du Dino (`rainbow.ts` : `solvedSkewbU`, `RainbowMove.skewb`, notation
+des sommets de fan2cube) : centres sur les axes, sommets en (1, 1, 1)..., un
+tour prend ce qui a un produit scalaire positif avec sa diagonale. Les 12
+faces ont pour normales (0, ±1, ±2) et leurs permutations circulaires (2 pour
+φ), que les tiers de tour permutent comme les vraies (`DODECA_NORMALS`,
+indices 36 à 47 : deux chiffres en base 36 dans `stateKey` et le mémorisé) ;
+12 tenues seulement (`SKEWB_SYMMETRIES` : les quarts de tour du cube ne
+gardent pas le dodécaèdre). Rendu (`three/skewbUGeometry.ts`) : le dodécaèdre
+coupé par les quatre plans du Skewb.
+
+**Résolution** (`methods/skewbU.ts`, méthode **Le haut d'abord**, d'après la
+page) : seuls les sommets du bas tournent (B, O, H, E), le centre du haut ne
+bouge jamais et dit comment le tenir (le puzzle est lu dans cette tenue, les
+coups trouvés rejoués depuis la sienne) ; (1) sommets du haut placés, (2)
+tournés par [BO], [O'B'], [OH], [B'E'] ; (3) centres placés par [OH'],
+[BO'], [B'E'][HE], [H'E'][HO] ; (4) retournés par [HE']²[EB']² (conjugué par
+les précédentes) ; (5) sommets du bas tournés par K = [BO']⁴ et Z = [OH']⁴,
+déjà à leur place (« les sommets libres suivent les sommets liés »). Effet de
+chaque formule testé.
+
 ### Le Professor Pyraminx (`pyra5`)
 
 Le Pyraminx 5x5x5 (fan2cube.fr/profpyraminx1 et 2, Timur Evbatyrov, 2011) :
@@ -1599,6 +1654,30 @@ solveur optimal du 2x2, et les mêmes coups le résolvent. Un milieu de face
 étant symétrique autour de son sticker, sa vrille ne se voit pas : on essaie
 les 81 lectures jusqu'à un 2x2 réel (vrilles des coins de somme nulle).
 D'où la « singularité » de fan2cube : un coin vrillé seul est légal.
+
+### Le Master Morphinx (`mmorph`)
+
+Le Master Morphinx (fan2cube.fr/mastermorphinx1 et 2, Aleh Hladzilin et Adam
+Cowan, 2009) est « un Super 3x3x3 déguisé » : le mécanisme d'un 3x3x3 taillé
+dans un tétraèdre (catégorie « Pyramides »), comme le Pyramorphinx l'est d'un
+2x2. Ses 4 gros sommets portent les pointes du tétraèdre (trois couleurs),
+ses 4 petits sont au milieu de ses faces (une couleur : leur rotation ne se
+voit pas), ses 6 centres sur ses arêtes (deux couleurs : chaque quart de tour
+se voit), ses 12 arêtes entre eux ; il se déforme, sans blocage. Modèle
+(`lib/mmorph.ts`) : le 3x3, chaque centre marqué d'un sticker caché (comme
+le Fisher Cube) ; « résolu » ignore la rotation des petits sommets et accepte
+toute tenue (les 24 du 3x3, le tétraèdre tournant avec). Le vrai puzzle est
+bombé : le dessin est droit, à la demande (`three/mmorphGeometry.ts`, chaque
+case du 3x3 coupée par le tétraèdre, `cutSolid.ts`), posé sur une face comme
+le Pyramorphinx. **Saisie** pièce par pièce, les petits sommets d'un seul
+sens (`asSeenMorphinx`), leur rotation choisie pour rendre la position
+atteignable (`withRealCorners`).
+
+**Résolution** (`methods/mmorph.ts`, « style Rubik's Cube », la première
+méthode de la page) : une méthode du 3x3 (par couches, CFOP, Petrus, ZZ) sur
+ses couleurs, puis **Tourner les centres** par les formules de la page,
+(H)+(G)- = Hd'h'd.H'd'hd et (H)2+ = (H.DGH²D'G')², vues de chaque tenue
+(recherche sur les seuls centres). Effet de chaque formule testé.
 
 ### Le 5x5 par réduction (`src/lib/solver5/`)
 
@@ -1805,8 +1884,8 @@ mobile et en saisie, une seule carte) :
   l'ordre, tous au pluriel : Standards 2x2 (Pocket)/3x3/4x4 (Revenge)/5x5 (Professor)/6x6, Miroirs 2x2/3x3/4x4, Tours 2x2x3
   (Slim)/2x2x4/3x3x2 (Domino)/Camouflage 4x4x2, Plats 1x2x3/3x3x1 (Floppy)/Floppy Ghost (un puzzle d'une
   seule couche d'épaisseur étant plat), Pyramides Pyraminx/Tetraminx/Master Pyraminx
-  (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx, Polyèdres
-  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Megaminx/Rainbow, Cylindriques Hockey Puck/Barrel/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube/Fisher Cube, Troués Holey Megaminx/Tori/Edge Only, Bizarres Violet/Z-Twist/Quarter Cube.
+  (4x4)/Professor Pyraminx (5x5)/Pyraminx Jing/Pyramorphinx/Master Morphinx, Polyèdres
+  4-Trajber's Octahedron/Octahedron VTO/GEM-0 (Jewel)/Rainbow/Megaminx/Pyraminx Crystal/Skewb Ultimate, Cylindriques Hockey Puck/Barrel/2-Star Prism (UFO)/4-Star Prism, Engrenages Gear Cube/Gear Cube Ultimate/Gear Cube Extreme, Coupes diagonales Dino Cube/Rex Cube/Fisher Cube, Troués Holey Megaminx/Tori/Edge Only, Bizarres Violet/Z-Twist/Quarter Cube.
   Les vignettes sont des SVG **dessinés par le code** (`three/isometric.ts`)
   depuis la forme et la variante : un nouveau puzzle a la sienne sans dessin ;
   changer de forme réinitialise le cube et rabat la méthode si besoin, changer

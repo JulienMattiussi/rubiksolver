@@ -137,6 +137,7 @@ export type MoveDescription =
       readonly kind: 'megaFace'
       readonly face: MegaFace
       readonly fifths: number
+      readonly crystal?: true
     }
   | {
       /** A Rainbow triangle turned a third. */
@@ -150,6 +151,7 @@ export type MoveDescription =
       readonly corner: RainbowCorner
       readonly clockwise: boolean
       readonly rex?: true
+      readonly skewb?: true
     }
 
 /** The face each middle slice of a 3-layer axis follows (M: L, E: D, S: F). */
@@ -268,7 +270,11 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
     // A fifth either way, then two.
     const rows = MEGA_FACES.flatMap((megaFace) =>
       [[1, 4] as const, [2, 3] as const].map((amounts) =>
-        amounts.map((amount): MegaMove => ({ megaFace, amount })),
+        amounts.map((amount): MegaMove => ({
+          megaFace,
+          amount,
+          ...(shape === 'crystal' && { crystal: true }),
+        })),
       ),
     )
     return [{ section: 'faces', rows }]
@@ -278,8 +284,9 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
       ([1, 2] as const).map((amount): RainbowMove => ({ triangle, amount }))
     return [{ section: 'triangles', rows: RAINBOW_TRIANGLES.map(row) }]
   }
-  if (shape === 'dino' || shape === 'rex') {
-    const rex = shape === 'rex' ? { rex: true as const } : {}
+  if (shape === 'dino' || shape === 'rex' || shape === 'skewbU') {
+    const rex =
+      shape === 'rex' ? { rex: true as const } : shape === 'skewbU' ? { skewb: true as const } : {}
     const row = (triangle: RainbowCorner) =>
       ([1, 2] as const).map((amount): RainbowMove => ({ triangle, amount, dino: true, ...rex }))
     return [{ section: 'dinoCorners', rows: DINO_CORNERS.map(row) }]
@@ -306,6 +313,7 @@ export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
           corner: turn.triangle,
           clockwise: turn.amount === 1,
           ...(turn.rex && { rex: true as const }),
+          ...(turn.skewb && { skewb: true as const }),
         }
       : { kind: 'triangle', triangle: turn.triangle, clockwise: turn.amount === 1 }
   }
@@ -326,7 +334,7 @@ export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
   }
   if (isMegaMove(turn)) {
     const fifths = turn.amount <= 2 ? turn.amount : turn.amount - 5
-    return { kind: 'megaFace', face: turn.megaFace, fifths }
+    return { kind: 'megaFace', face: turn.megaFace, fifths, ...(turn.crystal && { crystal: true }) }
   }
   if (!isFaceMove(turn)) {
     if ('slash' in turn) return { kind: 'slash' }

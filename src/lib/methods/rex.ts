@@ -34,9 +34,9 @@ const isCenter = (c: Cubie) =>
   c.stickers.length === 1 && c.position.filter((x) => x !== 0).length === 1
 const isPetal = (c: Cubie) => c.stickers.length === 1 && !isCenter(c)
 
-const EDGE_CYCLE = parseDinoMoves("[GA']", true)
-const CENTER_CYCLE = parseDinoMoves("[DG']", true)
-const PETAL_SWAP = parseDinoMoves("[DG'][D'B]", true)
+const EDGE_CYCLE = parseDinoMoves("[GA']", 'rex')
+const CENTER_CYCLE = parseDinoMoves("[DG']", 'rex')
+const PETAL_SWAP = parseDinoMoves("[DG'][D'B]", 'rex')
 
 let edgeTable: Map<string, RainbowMove[]> | undefined
 let centerTable: Map<string, RainbowMove[]> | undefined

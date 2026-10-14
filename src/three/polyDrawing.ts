@@ -18,7 +18,9 @@ import { dinoPolygons, edgeOnlyPolygons } from './dinoGeometry'
 import { rexCut, rexPolygons } from './rexGeometry'
 import { barrelPolygons, barrelThumbnail } from './barrelGeometry'
 import { camoPolygons } from './camoGeometry'
-import { megaPolygons, megaThumbnail } from './megaGeometry'
+import { mmorphPolygons, mmorphThumbnail } from './mmorphGeometry'
+import { skewbUPolygons, skewbUThumbnail } from './skewbUGeometry'
+import { crystalPolygons, crystalThumbnail, megaPolygons, megaThumbnail } from './megaGeometry'
 import { fisherPolygons, fisherThumbnail } from './fisherGeometry'
 import { quarterPolygons } from './quarterGeometry'
 import {
@@ -132,6 +134,17 @@ const FISHER: PolyDrawing = {
 }
 /** The Megaminx, its top up, a face in front. */
 const MEGAMINX: PolyDrawing = { polygons: megaPolygons, yaw: 0, thumbnail: megaThumbnail }
+/** The Skewb Ultimate, held as the Dino. */
+const SKEWB_U: PolyDrawing = { polygons: skewbUPolygons, yaw: 0, thumbnail: skewbUThumbnail }
+/** The Pyraminx Crystal, held as the Megaminx. */
+const CRYSTAL: PolyDrawing = { polygons: crystalPolygons, yaw: 0, thumbnail: crystalThumbnail }
+/** The Master Morphinx, on a face as the Pyramorphinx. */
+const MMORPH: PolyDrawing = {
+  polygons: mmorphPolygons,
+  thumbnail: mmorphThumbnail,
+  yaw: PYRA_YAW,
+  orient: MORPH_ORIENT,
+}
 /** The Rex Cube, held as the Dino. */
 const REX: PolyDrawing = { polygons: rexPolygons, yaw: 0, cut: rexCut }
 
@@ -148,14 +161,17 @@ const GHOST: PolyDrawing = { polygons: ghostPolygons, yaw: GHOST_YAW, skin: GHOS
 export function polyDrawing(shape: CubeShape): PolyDrawing {
   if (isStar(shape)) return shape === 'star4' ? STAR4 : STAR
   if (shape === 'morph') return MORPH
+  if (shape === 'mmorph') return MMORPH
   if (shape === 'ghost') return GHOST
   if (shape === 'puck') return PUCK
+  if (shape === 'crystal') return CRYSTAL
   if (isMegaminx(shape)) return MEGAMINX
   if (shape === 'oct4') return OCT4
   if (shape === 'vto') return VTO
   if (shape === 'gem') return GEM
   if (shape === 'rainbow') return RAINBOW
   if (shape === 'dino') return DINO
+  if (shape === 'skewbU') return SKEWB_U
   if (shape === 'rex') return REX
   if (shape === 'twist') return TWIST
   if (shape === 'tori') return TORI

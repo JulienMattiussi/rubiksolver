@@ -67,12 +67,16 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'pyra4', pieces: 30, stickers: 64, orientations: 12, painted: 64, scramble: 30 },
   { shape: 'pyra5', pieces: 54, stickers: 100, orientations: 12, painted: 100, scramble: 40 },
   { shape: 'jing', pieces: 15, stickers: 28, orientations: 12, painted: 28, scramble: 15 },
+  // A 3x3x3 cut to a tetrahedron, its centers marked.
+  { shape: 'mmorph', pieces: 27, stickers: 60, orientations: 24, painted: 60, scramble: 25 },
   { shape: 'morph', pieces: 8, stickers: 16, orientations: 24, painted: 16, scramble: 11 },
   { shape: 'oct4', pieces: 56, stickers: 56, orientations: 24, painted: 56, scramble: 40 },
   { shape: 'vto', pieces: 24, stickers: 72, orientations: 24, painted: 72, scramble: 25 },
   { shape: 'gem', pieces: 18, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
   // A dodecahedron: 12 fixed centers, 30 edges, 20 corners.
   { shape: 'megaminx', pieces: 62, stickers: 132, orientations: 60, painted: 132, scramble: 40 },
+  // The Megaminx cut deeper: no centers, a hidden core.
+  { shape: 'crystal', pieces: 51, stickers: 120, orientations: 60, painted: 120, scramble: 40 },
   // The Megaminx without its centers.
   { shape: 'holey', pieces: 50, stickers: 120, orientations: 60, painted: 120, scramble: 40 },
   { shape: 'rainbow', pieces: 20, stickers: 56, orientations: 24, painted: 56, scramble: 20 },
@@ -88,6 +92,8 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'dino', pieces: 12, stickers: 24, orientations: 24, painted: 24, scramble: 20 },
   // A 3x3 cut to a cube turned an eighth, its side centers marked.
   { shape: 'fisher', pieces: 27, stickers: 58, orientations: 24, painted: 58, scramble: 20 },
+  // A Skewb cut out of a dodecahedron.
+  { shape: 'skewbU', pieces: 14, stickers: 48, orientations: 12, painted: 48, scramble: 25 },
   { shape: 'rex', pieces: 42, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
   // A 3x3 without its corners.
   { shape: 'tori', pieces: 19, stickers: 30, orientations: 24, painted: 30, scramble: 20 },

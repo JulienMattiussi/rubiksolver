@@ -135,16 +135,25 @@ function carried(move: MegaMove): (face: MegaFace) => MegaFace {
   }
 }
 
-/** Whether a turn moves the piece at a position: its slot touches the face. */
-export const megaTurns = (move: MegaMove, position: Vec3): boolean =>
-  megaSlotAt(position).includes(move.megaFace)
+/** Whether a turn moves the piece at a position: its slot touches the face
+ *  (on the Pyraminx Crystal, an edge also when it leaves one of the face's
+ *  corners: its two faces are next to each other around it). */
+export function megaTurns(move: MegaMove, position: Vec3): boolean {
+  const slot = SLOT_AT.get(position.join())
+  if (!slot) return false // the Crystal's core
+  if (slot.includes(move.megaFace)) return true
+  if (!move.crystal || slot.length !== 2) return false
+  const around = AROUND[move.megaFace]
+  const [i, j] = slot.map((f) => around.indexOf(f))
+  return i! >= 0 && j! >= 0 && ((i! - j! + 5) % 5 === 1 || (j! - i! + 5) % 5 === 1)
+}
 
 /** A face turned: every piece of its layer one step on per fifth. */
 export function applyMegaMove(cube: Cube, move: MegaMove): Cube {
   const to = carried(move)
   return cube.map((c): Cubie => {
+    if (!megaTurns(move, c.position)) return c
     const slot = megaSlotAt(c.position)
-    if (!slot.includes(move.megaFace)) return c
     return {
       position: megaPosition(slot.map(to)),
       stickers: c.stickers.map((s) => ({
@@ -219,13 +228,18 @@ export const MEGA_SYMMETRIES: readonly ((cube: Cube) => Cube)[] = (['U', 'F'] as
   (about) => {
     const to = wholeTurn(about)
     return (cube: Cube) =>
-      cube.map((c) => ({
-        position: megaPosition(megaSlotAt(c.position).map(to)),
-        stickers: c.stickers.map((s) => ({
-          normal: LABEL[to(megaFaceOf(s.normal))],
-          color: s.color,
-        })),
-      }))
+      cube.map((c) =>
+        // The Crystal's core stays where it is.
+        !SLOT_AT.has(c.position.join())
+          ? c
+          : {
+              position: megaPosition(megaSlotAt(c.position).map(to)),
+              stickers: c.stickers.map((s) => ({
+                normal: LABEL[to(megaFaceOf(s.normal))],
+                color: s.color,
+              })),
+            },
+      )
   },
 )
 
@@ -252,11 +266,22 @@ export function simplifyMegaMoves(moves: readonly MegaMove[]): MegaMove[] {
   return out
 }
 
+/** Every Pyraminx Crystal turn. */
+export const CRYSTAL_TURNS: readonly MegaMove[] = MEGA_TURNS.map((m) => ({ ...m, crystal: true }))
+
+/** The Pyraminx Crystal: the Megaminx's edges and corners, about a hidden
+ *  core (which tells it from the Holey Megaminx). */
+export const solvedCrystal = (): Cube => [
+  ...solvedMegaminx().filter((c) => c.stickers.length > 1),
+  { position: positionOf(MEGA_SLOTS.length), stickers: [] },
+]
+
 /** Random turns, never the same face twice in a row. */
-export function scrambleMegaminx(length: number, rng: () => number): MegaMove[] {
+export function scrambleMegaminx(length: number, rng: () => number, crystal = false): MegaMove[] {
+  const turns = crystal ? CRYSTAL_TURNS : MEGA_TURNS
   const out: MegaMove[] = []
   while (out.length < length) {
-    const move = MEGA_TURNS[Math.floor(rng() * MEGA_TURNS.length)]!
+    const move = turns[Math.floor(rng() * turns.length)]!
     if (move.megaFace !== out[out.length - 1]?.megaFace) out.push(move)
   }
   return out

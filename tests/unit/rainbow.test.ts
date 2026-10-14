@@ -86,7 +86,7 @@ describe('Rex Cube (fan2cube.fr/rexcube1 and 2)', () => {
         : 'petal'
   /** How many of each kind a formula moves. */
   const moves = (formula: string) => {
-    const after = applyMoves(REX, parseDinoMoves(formula, true))
+    const after = applyMoves(REX, parseDinoMoves(formula, 'rex'))
     const count: Record<string, number> = {}
     REX.forEach((c, i) => {
       if (after[i]!.position.join() !== c.position.join())

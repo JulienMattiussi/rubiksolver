@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { solvedCube, stateKey } from '@/lib/cube'
 import { applyMoves } from '@/lib/turn'
+import { DODECA_NORMALS, HEX_NORMALS, normalIndex, normalOfIndex } from '@/lib/geometry'
 import { parseMoves } from '@/lib/moves'
 import { decodeCube, encodeCube } from '@/lib/snapshot'
 
@@ -21,5 +22,12 @@ describe('cube snapshots of a shifted tower', () => {
   it('round-trip pieces standing out of the box', () => {
     const cube = applyMoves(solvedCube('224'), parseMoves('Rw Dw2 Rw2'))
     expect(stateKey(decodeCube(encodeCube(cube))!)).toBe(stateKey(cube))
+  })
+})
+
+describe('normal indices', () => {
+  it("keep the star's when the dodecahedron shares its normals", () => {
+    HEX_NORMALS.forEach((n, i) => expect(normalIndex(n)).toBe(6 + i))
+    for (const n of DODECA_NORMALS) expect(normalOfIndex(normalIndex(n))).toEqual(n)
   })
 })

@@ -14,13 +14,14 @@ import { puckSolved, solvedPuck } from './puck'
 import { solvedMorph } from './morph'
 import { solvedOct4 } from './oct4'
 import { solvedGem, solvedVto } from './vto'
-import { solvedDino, solvedRainbow, solvedRex } from './rainbow'
+import { SKEWB_SYMMETRIES, solvedDino, solvedRainbow, solvedRex, solvedSkewbU } from './rainbow'
 import { solvedViolet, turnAboutA, violetBoxed, violetSolved } from './violet'
 import { withGears } from './gear'
 import { camoBoxed } from './camo'
 import { withFaceMarks } from './quarter'
 import { fisherSolved, withMarks } from './fisher'
-import { MEGA_SYMMETRIES, solvedMegaminx } from './megaminx'
+import { mmorphSolved, withCenterMarks } from './mmorph'
+import { MEGA_SYMMETRIES, solvedCrystal, solvedMegaminx } from './megaminx'
 import { twistSolved, withCenterSpins } from './twist'
 import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
 import { solvedStar, STAR_SYMMETRIES } from './star'
@@ -116,6 +117,7 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   if (shape === 'rainbow') return solvedRainbow()
   if (shape === 'dino') return solvedDino()
   if (shape === 'rex') return solvedRex()
+  if (shape === 'skewbU') return solvedSkewbU()
   if (isGear(shape)) {
     const colors = faceColorsOf(shape)
     return withGears(
@@ -140,7 +142,9 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
   // it from the 3x3).
   if (shape === 'barrel') return solvedCube('3').filter((c) => c.stickers.length > 0)
   if (shape === 'fisher') return withMarks(solvedCube('3'))
+  if (shape === 'mmorph') return withCenterMarks(solvedCube('3'))
   if (shape === 'megaminx') return solvedMegaminx()
+  if (shape === 'crystal') return solvedCrystal()
   // The Holey Megaminx: holes where the centers are.
   if (shape === 'holey') return solvedMegaminx().filter((c) => c.stickers.length > 1)
   if (shape === 'ghost') return solvedGhost()
@@ -303,6 +307,8 @@ export function isBoxed(cube: Cube): boolean {
  * in its form. The Violet has its own test (violet.ts): violet all over
  * but A, so its faces are not one color each.
  */
+let MMORPH_HELD: Cube[] | undefined
+
 export function isSolved(cube: Cube): boolean {
   // A Gear Cube's gears must be home too, which its stickers do not say
   // (a Quarter Cube's faces may stand either way: its colors are all).
@@ -312,6 +318,10 @@ export function isSolved(cube: Cube): boolean {
   // their way round does not count.
   if (cubeShape(cube) === 'twist' || cubeShape(cube) === 'barrel') return twistSolved(cube)
   if (cubeShape(cube) === 'fisher') return fisherSolved(cube)
+  // Its small corners' twist never shows; held any way.
+  if (cubeShape(cube) === 'mmorph') {
+    return mmorphSolved(cube, (MMORPH_HELD ??= cubeOrientations(solvedCube('mmorph'))))
+  }
   // Its pieces go by pairs of a color: its numbers say the order.
   if (cubeShape(cube) === 'puck') return puckSolved(cube)
   return isBoxed(cube) && uniformFaces(cube) === faceCount(cubeShape(cube))
@@ -370,13 +380,15 @@ export function cubeOrientations(cube: Cube): Cube[] {
       ? PYRA_SYMMETRIES
       : isMegaminx(shape)
         ? MEGA_SYMMETRIES
-        : shape === 'ghost' || shape === 'puck'
-          ? [] // held one way only (the puck by its piece 12, which never moves)
-          : shape === 'violet'
-            ? [turnAboutA] // only about its diagonal through A
-            : (['x', 'y', 'z'] as Axis[]).map(
-                (axis) => (c: Cube) => rotateCube(c, axis, quarterTurnFits(dims, axis) ? 1 : 2),
-              )
+        : shape === 'skewbU'
+          ? SKEWB_SYMMETRIES
+          : shape === 'ghost' || shape === 'puck'
+            ? [] // held one way only (the puck by its piece 12, which never moves)
+            : shape === 'violet'
+              ? [turnAboutA] // only about its diagonal through A
+              : (['x', 'y', 'z'] as Axis[]).map(
+                  (axis) => (c: Cube) => rotateCube(c, axis, quarterTurnFits(dims, axis) ? 1 : 2),
+                )
   const found = new Map<string, Cube>([[stateKey(cube), cube]])
   let frontier = [cube]
   while (frontier.length) {

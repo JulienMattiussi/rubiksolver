@@ -3,6 +3,7 @@ import { stickerId, tablesFor } from './editorTables'
 import { normalIndex } from './geometry'
 import { layerTurnsOf } from './moves'
 import { applyMove } from './turn'
+import { asSeenMorphinx } from './mmorph'
 import { asSeenTwist } from './twist'
 import type { Color, Cube, CubeShape, Cubie } from './types'
 
@@ -27,7 +28,8 @@ export const entersByPieces = (shape: CubeShape): boolean =>
   shape === 'twist' ||
   shape === 'puck' ||
   shape === 'barrel' ||
-  shape === 'fisher'
+  shape === 'fisher' ||
+  shape === 'mmorph'
 
 interface Pose {
   /** The piece's look: its colors (twins, alike, share it). */
@@ -82,7 +84,11 @@ function posesBySlot(shape: CubeShape): ReadonlyMap<string, readonly Pose[]> {
       // the other never shows.
       const look = stateKey([cubie])
       const oneWay = shape === 'twist' || shape === 'barrel' || shape === 'fisher'
-      if ((!oneWay || asSeenTwist([cubie])[0] === cubie) && !offered.has(look)) {
+      // A Master Morphinx's small corner only upright: its twist never shows.
+      const seen = oneWay
+        ? asSeenTwist([cubie])[0] === cubie
+        : shape !== 'mmorph' || asSeenMorphinx([cubie])[0] === cubie
+      if (seen && !offered.has(look)) {
         offered.add(look)
         bySlot.get(cubie.position.join(','))?.push({ kind, cubie })
       }

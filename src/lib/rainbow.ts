@@ -1,4 +1,4 @@
-import { FACE_NORMAL } from './geometry'
+import { DODECA_NORMALS, FACE_NORMAL } from './geometry'
 import type { FaceLabels } from './moves'
 import type { Color, Cube, Cubie, Face, RainbowCorner, RainbowMove, Vec3 } from './types'
 
@@ -81,9 +81,10 @@ export function solvedRainbow(): Cube {
 
 /** Whether a triangle's turn takes a piece: its three corners (and its
  *  fixed center, which only spins); on the Rex Cube, cut deeper, its three
- *  edges, three centers and nine petals (see `solvedRex`). */
+ *  edges, three centers and nine petals (see `solvedRex`); on the Skewb
+ *  Ultimate, cut through the middle, its whole half (`solvedSkewbU`). */
 export const rainbowTurns = (move: RainbowMove, position: Vec3): boolean =>
-  dot(position, RAINBOW_CORNERS[move.triangle]) >= (move.rex ? 4 : 2)
+  dot(position, RAINBOW_CORNERS[move.triangle]) >= (move.skewb ? 1 : move.rex ? 4 : 2)
 
 /** A third of a turn about a diagonal, clockwise seen from it. About
  *  (1, 1, 1) it is (x, y, z) -> (y, z, x); about another diagonal the same
@@ -218,10 +219,10 @@ const DINO_LETTERS: Record<'us' | 'fr', Record<RainbowCorner, string>> = {
 /** Read fan2cube's Dino formulas (`[GA']`, `DAD'.GAE'`): a letter a
  *  corner, `'` back, `²` twice, `[a b]` the commutator a b a' b' (`rex`:
  *  the Rex Cube's turns). */
-export function parseDinoMoves(text: string, rex = false): RainbowMove[] {
+export function parseDinoMoves(text: string, kind?: 'rex' | 'skewb'): RainbowMove[] {
   const out: RainbowMove[] = []
   let group: RainbowMove[] | null = null
-  const flag = rex ? { dino: true as const, rex: true as const } : { dino: true as const }
+  const flag = { dino: true as const, ...(kind && { [kind]: true as const }) }
   for (const m of text.matchAll(/(\[)|(\])|([ADPGBEHO])(')?(²)?/g)) {
     if (m[1]) group = []
     else if (m[2]) {
@@ -289,3 +290,57 @@ export const REX_TURNS: readonly RainbowMove[] = DINO_TURNS.map((m) => ({ ...m, 
 /** A Rex scramble: the Dino's, in the Rex's turns. */
 export const scrambleRex = (length: number, rng: () => number): RainbowMove[] =>
   scrambleRainbow(length, rng).map((m) => ({ ...m, dino: true, rex: true }))
+
+/**
+ * The Skewb Ultimate (fan2cube.fr/skewbultimate1, Uwe Mèffert, 1982): a
+ * Skewb cut out of a dodecahedron. Each corner of the cube turns by thirds
+ * the whole half of the puzzle on its side (the Dino's turn, cut through
+ * the center): itself, its three neighbors and the three centers around
+ * it. Its 6 centers each show the four faces leaning toward their axis,
+ * its 8 corners the three faces meeting at them (the cube's corners are
+ * corners of the dodecahedron). Centers on the axes, corners at
+ * (1, 1, 1)...; the faces' normals are DODECA_NORMALS, (0, 1, 2) and the
+ * like, which the turns permute as they do the real ones.
+ */
+const SKEWB_COLOR: ReadonlyMap<string, Color> = new Map(
+  DODECA_NORMALS.map((n, i): [string, Color] => [
+    n.join(),
+    (['W', 'G', 'R', 'B', 'O', 'V', 'Y', 'P', 'T', 'L', 'M', 'N'] as const)[i]!,
+  ]),
+)
+
+export function solvedSkewbU(): Cube {
+  const faces = (toward: (n: Vec3) => boolean) =>
+    DODECA_NORMALS.filter(toward).map((n) => ({ normal: n, color: SKEWB_COLOR.get(n.join())! }))
+  const centers = (Object.keys(FACE_NORMAL) as Face[]).map((f): Cubie => {
+    const axis = FACE_NORMAL[f]
+    return { position: axis, stickers: faces((n) => dot(n, axis) > 0) }
+  })
+  const corners = Object.values(RAINBOW_CORNERS).map((d): Cubie => ({
+    position: d,
+    stickers: faces((n) => n.every((v, a) => v === 0 || Math.sign(v) === d[a])),
+  }))
+  return [...centers, ...corners]
+}
+
+/** Every Skewb Ultimate turn, both ways. */
+export const SKEWB_TURNS: readonly RainbowMove[] = DINO_TURNS.map((m) => ({ ...m, skewb: true }))
+
+/** A Skewb Ultimate scramble: the Dino's, in its turns. */
+export const scrambleSkewbU = (length: number, rng: () => number): RainbowMove[] =>
+  scrambleRainbow(length, rng).map((m) => ({ ...m, dino: true, skewb: true }))
+
+/** The Skewb Ultimate turned as a whole: the turns that keep its
+ *  dodecahedron, a third about a diagonal and a half about an axis (the
+ *  cube's quarter turns would not). */
+export const SKEWB_SYMMETRIES: readonly ((cube: Cube) => Cube)[] = [
+  ([x, y, z]: Vec3): Vec3 => [y, z, x],
+  ([x, y, z]: Vec3): Vec3 => [-x + 0, y, -z + 0],
+].map(
+  (turn) => (cube: Cube) =>
+    cube.map((c) => ({
+      ...c,
+      position: turn(c.position),
+      stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
+    })),
+)

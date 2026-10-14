@@ -22,6 +22,7 @@ import { formatGhostMove, GHOST_TURNS, scrambleGhost, simplifyGhostMoves } from 
 import {
   formatMegaMove,
   invertMegaMove,
+  CRYSTAL_TURNS,
   MEGA_TURNS,
   scrambleMegaminx,
   simplifyMegaMoves,
@@ -33,6 +34,8 @@ import {
   RAINBOW_TURNS,
   scrambleDino,
   scrambleRex,
+  scrambleSkewbU,
+  SKEWB_TURNS,
   REX_TURNS,
   scrambleRainbow,
   DINO_TURNS,
@@ -421,9 +424,10 @@ export function scrambleTurns(
   if (shape === 'ghost') return scrambleGhost(length, rng)
   if (shape === 'puck') return scramblePuck(length, rng)
   if (shape === 'rainbow') return scrambleRainbow(length, rng)
-  if (isMegaminx(shape)) return scrambleMegaminx(length, rng)
+  if (isMegaminx(shape)) return scrambleMegaminx(length, rng, shape === 'crystal')
   if (shape === 'dino') return scrambleDino(length, rng)
   if (shape === 'rex') return scrambleRex(length, rng)
+  if (shape === 'skewbU') return scrambleSkewbU(length, rng)
   if (isGear(shape)) return scrambleGear(shape, length, rng)
   if (shape === 'violet') return scrambleViolet(length, rng, start)
   if (shape === 'quarter') return scrambleQuarter(length, rng, start)
@@ -454,9 +458,10 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
   if (shape === 'ghost') return GHOST_TURNS
   if (shape === 'puck') return PUCK_TURNS
   if (shape === 'rainbow') return RAINBOW_TURNS
-  if (isMegaminx(shape)) return MEGA_TURNS
+  if (isMegaminx(shape)) return shape === 'crystal' ? CRYSTAL_TURNS : MEGA_TURNS
   if (shape === 'dino') return DINO_TURNS
   if (shape === 'rex') return REX_TURNS
+  if (shape === 'skewbU') return SKEWB_TURNS
   if (isGear(shape)) return gearTurnsOf(shape)
   return movesFor(shape)
 }

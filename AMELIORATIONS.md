@@ -60,3 +60,25 @@ forme réelle est presque toujours trop loin de la boîte pour être listée.
 au plus), ou reconstruire la forme case par case depuis ce que l'utilisateur
 voit de chaque face (chaque pièce n'étant haute que sur un axe, la vue de
 deux faces opposées dit peut-être assez), sans rien énumérer.
+
+## Tutoriel : apprendre à déplacer une pièce
+
+**Idée.** Sur un modèle donné, un mode d'apprentissage guidé : l'app désigne
+une pièce et l'endroit où l'amener (ou la façon de la tourner), l'utilisateur
+cherche les coups lui-même, avec des indices gradués (la couche à tourner, puis
+le coup, puis la formule et son effet expliqué), et l'app vérifie à chaque coup
+qu'il ne défait pas ce qui est déjà en place.
+
+**Pistes.** Les briques existent : les objectifs des étapes (`StepSpec.goal`),
+les formules de chaque méthode avec leur effet testé, et la recherche par
+pièces (`solvePieces`) pour proposer le coup suivant. Commencer par les étapes
+intuitives (croix, premiers coins) du 3x3 et du 2x2, puis par les 3-cycles.
+
+## Vérifier les fuites mémoire
+
+**À faire.** Mesurer la mémoire sur une longue session (changer souvent de
+puzzle, ouvrir le guide, saisir, résoudre) : géométries et textures three.js
+non libérées (`dispose`), caches des modules (`SHAPES`, `PICTURES`, tables
+de formules, `MACROS` du Megaminx) qui grandissent sans limite, worker de
+résolution, écouteurs non retirés. Outils : l'onglet Mémoire de Chrome
+(instantanés comparés) et `renderer.info` de three.js.

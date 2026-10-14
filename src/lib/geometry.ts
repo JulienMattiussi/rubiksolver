@@ -78,7 +78,21 @@ export const PLANE_NORMALS: readonly Vec3[] = Array.from({ length: 20 }, (_, j):
 /** The plane directions that are no cube face. */
 const SLANTED_NORMALS = PLANE_NORMALS.filter((_, j) => j % 5 !== 0)
 
+/** The dodecahedron's faces (the Skewb Ultimate's), (0, 1, phi) and its
+ *  kin with 2 standing for phi: a third of a turn about a diagonal of the
+ *  cube permutes them as it does the real ones. */
+export const DODECA_NORMALS: readonly Vec3[] = [1, -1].flatMap((s) =>
+  [1, -1].flatMap((t): Vec3[] => [
+    [0, s, 2 * t],
+    [s, 2 * t, 0],
+    [2 * t, 0, s],
+  ]),
+)
+
 const HEX_INDEX = new Map([
+  // First, so that a dodecahedron normal some other puzzle already has
+  // ((2, 0, -1), (-2, 0, 1): the star's) keeps that one's index.
+  ...DODECA_NORMALS.map((n, i): [string, number] => [n.join(), 36 + i]),
   ...HEX_NORMALS.map((n, i): [string, number] => [n.join(), 6 + i]),
   ...TET_NORMALS.map((n, i): [string, number] => [n.join(), 12 + i]),
   ...DUAL_NORMALS.map((n, i): [string, number] => [n.join(), 16 + i]),
@@ -88,7 +102,8 @@ const HEX_INDEX = new Map([
 /** Index of a sticker normal, for compact hashing and sticker ids: 0..5 for
  *  the cube faces (R L U D F B), 6..11 for the hexagonal side faces, 12..15
  *  for the Pyraminx's, 16..19 for the diagonals opposite them, 20..35 for
- *  the Floppy Ghost's slanted sides (one base-36 digit each). */
+ *  the Floppy Ghost's slanted sides (one base-36 digit each), 36..47 for
+ *  the dodecahedron's (two). */
 export function normalIndex(n: Vec3): number {
   const zeros = (n[0] === 0 ? 1 : 0) + (n[1] === 0 ? 1 : 0) + (n[2] === 0 ? 1 : 0)
   if (zeros === 2) {
@@ -112,7 +127,9 @@ export function normalOfIndex(index: number): Vec3 {
         ? TET_NORMALS[index - 12]
         : index < 20
           ? DUAL_NORMALS[index - 16]
-          : SLANTED_NORMALS[index - 20]
+          : index < 36
+            ? SLANTED_NORMALS[index - 20]
+            : DODECA_NORMALS[index - 36]
   if (!normal) throw new Error(`normalOfIndex: no normal ${index}`)
   return normal
 }

@@ -12,7 +12,7 @@ const GROUPS: readonly { key: 'megaUpper' | 'megaLower'; faces: MegaFace[] }[] =
 
 /** Rotation pad of the Megaminx: each face a fifth either way (see
  *  PadButton), the top and the five around it, then the lower half. */
-export function MegaPad({ disabled }: { disabled: boolean }) {
+export function MegaPad({ disabled, crystal = false }: { disabled: boolean; crystal?: boolean }) {
   const t = useI18n((s) => s.t)
   const labels = useI18n(selectMoveLabels)
   const button = (move: MegaMove, ghost: boolean) => (
@@ -33,8 +33,8 @@ export function MegaPad({ disabled }: { disabled: boolean }) {
           <div className="grid grid-cols-2 gap-2">
             {faces.map((megaFace) => (
               <div key={megaFace} className={TURN_PAIR}>
-                {button({ megaFace, amount: 1 }, false)}
-                {button({ megaFace, amount: 4 }, true)}
+                {button({ megaFace, amount: 1, ...(crystal && { crystal: true }) }, false)}
+                {button({ megaFace, amount: 4, ...(crystal && { crystal: true }) }, true)}
               </div>
             ))}
           </div>

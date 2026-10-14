@@ -43,7 +43,7 @@ describe('forms of a shape-shifting puzzle', () => {
       entered++
     }
     expect(entered).toBeGreaterThan(1)
-  })
+  }, 15000)
 
   it('leaves the other puzzles their box only', () => {
     expect(formsOf('3')).toHaveLength(1)

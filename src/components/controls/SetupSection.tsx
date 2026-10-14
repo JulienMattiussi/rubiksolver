@@ -132,9 +132,14 @@ export function SetupSection() {
       ) : shape === 'puck' ? (
         <PuckPad disabled={busy} />
       ) : isMegaminx(shape) ? (
-        <MegaPad disabled={busy} />
-      ) : shape === 'rainbow' || shape === 'dino' || shape === 'rex' ? (
-        <RainbowPad disabled={busy} dino={shape === 'dino'} rex={shape === 'rex'} />
+        <MegaPad disabled={busy} crystal={shape === 'crystal'} />
+      ) : shape === 'rainbow' || shape === 'dino' || shape === 'rex' || shape === 'skewbU' ? (
+        <RainbowPad
+          disabled={busy}
+          dino={shape === 'dino'}
+          rex={shape === 'rex'}
+          skewb={shape === 'skewbU'}
+        />
       ) : isGear(shape) ? (
         <GearPad disabled={busy} />
       ) : (

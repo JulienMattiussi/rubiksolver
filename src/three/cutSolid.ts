@@ -22,6 +22,9 @@ export interface CutSolid {
   readonly planes: readonly Plane[]
   /** The color of the solid's face of this normal, if it is not a cube's. */
   readonly cutColor: (normal: Vec3) => Color | undefined
+  /** Model units to scene units, when the solid reaches farther than a
+   *  3x3 (1 otherwise). */
+  readonly scale?: number
 }
 
 /** The whole-puzzle turn taking a piece from its solved place to where it
@@ -67,7 +70,9 @@ export function cutSolidPolygons(solid: CutSolid, solved: Cube) {
     const middle = [0, 1, 2].map((d) => all.reduce((s, p) => s + p[d]!, 0) / all.length)
     const carry = (p: readonly number[]): P3 =>
       turn(
-        p.map((v, d) => middle[d]! + (v - middle[d]!) * SHRINK) as unknown as Vec3,
+        p.map(
+          (v, d) => (middle[d]! + (v - middle[d]!) * SHRINK) * (solid.scale ?? 1),
+        ) as unknown as Vec3,
       ) as unknown as P3
     const polygons = faces.flatMap(({ corners, normal }) => {
       const points = corners.map(carry)

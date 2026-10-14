@@ -8,6 +8,7 @@ import { BARREL_PLAN } from './methods/barrel'
 import { BEGINNER_PLAN, CFOP_PLAN } from './methods/layers3'
 import { twistPlan } from './methods/twist'
 import { fisherPlan } from './methods/fisher'
+import { mmorphPlan } from './methods/mmorph'
 import { TORI_PLAN } from './methods/tori'
 import { PUCK_PLAN } from './methods/puck'
 import { EDGE_ONLY_PLAN } from './methods/edgeOnly'
@@ -22,10 +23,11 @@ import { MORPH_PLAN } from './methods/morph'
 import { OCT4_PLAN } from './methods/oct4'
 import { GEM_PLAN, VTO_PLAN } from './methods/vto'
 import { RAINBOW_PLAN } from './methods/rainbow'
-import { MEGAMINX_PLAN } from './methods/megaminx'
+import { CRYSTAL_PLAN, MEGAMINX_PLAN } from './methods/megaminx'
 import { GEAR_PLAN, GEAR_ULTIMATE_PLAN } from './methods/gear'
 import { DINO_PLAN } from './methods/dino'
 import { REX_PLAN } from './methods/rex'
+import { SKEWB_U_PLAN } from './methods/skewbU'
 import { GEAR_EXTREME_PLAN } from './methods/gearExtreme'
 import { VIOLET_OPTIMAL_PLAN, VIOLET_SHAPE_FIRST_PLAN } from './methods/violet'
 import { withCentersHome } from './methods/recenter'
@@ -68,6 +70,7 @@ const SOLVE_METHODS = [
       '3': withCentersHome(BEGINNER_PLAN),
       twist: twistPlan(BEGINNER_PLAN),
       fisher: fisherPlan(withCentersHome(BEGINNER_PLAN)),
+      mmorph: mmorphPlan(withCentersHome(BEGINNER_PLAN)),
     },
   },
   {
@@ -77,6 +80,7 @@ const SOLVE_METHODS = [
       twist: twistPlan(CFOP_PLAN),
       barrel: CFOP_PLAN,
       fisher: fisherPlan(withCentersHome(CFOP_PLAN)),
+      mmorph: mmorphPlan(withCentersHome(CFOP_PLAN)),
     },
   },
   { id: 'roux', plans: { '3': withCentersHome(ROUX_PLAN) } },
@@ -87,11 +91,18 @@ const SOLVE_METHODS = [
       twist: twistPlan(PETRUS_PLAN),
       barrel: PETRUS_PLAN,
       fisher: fisherPlan(withCentersHome(PETRUS_PLAN)),
+      mmorph: mmorphPlan(withCentersHome(PETRUS_PLAN)),
     },
   },
   {
     id: 'zz',
-    plans: { '3': withCentersHome(ZZ_PLAN), twist: twistPlan(ZZ_PLAN), barrel: ZZ_PLAN },
+    plans: {
+      '3': withCentersHome(ZZ_PLAN),
+      twist: twistPlan(ZZ_PLAN),
+      barrel: ZZ_PLAN,
+      fisher: fisherPlan(withCentersHome(ZZ_PLAN)),
+      mmorph: mmorphPlan(withCentersHome(ZZ_PLAN)),
+    },
   },
   {
     id: 'reduction',
@@ -122,8 +133,10 @@ const SOLVE_METHODS = [
   { id: 'gemCentersFirst', plans: { gem: GEM_PLAN } },
   { id: 'extendedTriangle', plans: { rainbow: RAINBOW_PLAN } },
   { id: 'megaStar', plans: { megaminx: MEGAMINX_PLAN, holey: MEGAMINX_PLAN } },
+  { id: 'crystalCornersFirst', plans: { crystal: CRYSTAL_PLAN } },
   { id: 'dinoLayers', plans: { dino: DINO_PLAN } },
   { id: 'rexEdgesFirst', plans: { rex: REX_PLAN } },
+  { id: 'skewbTopFirst', plans: { skewbU: SKEWB_U_PLAN } },
   { id: 'gearCornersFirst', plans: { gearCube: GEAR_PLAN, gearU: GEAR_ULTIMATE_PLAN } },
   { id: 'gearEquatorFirst', plans: { gearX: GEAR_EXTREME_PLAN } },
   { id: 'shapeFirst', plans: { violet: VIOLET_SHAPE_FIRST_PLAN } },

@@ -26,17 +26,22 @@ export function RainbowPad({
   disabled,
   dino = false,
   rex = false,
+  skewb = false,
 }: {
   disabled: boolean
   dino?: boolean
   /** The Rex Cube's turns (the Dino's pad). */
   rex?: boolean
+  /** The Skewb Ultimate's turns (the Dino's pad). */
+  skewb?: boolean
 }) {
-  const flags = rex
-    ? { dino: true as const, rex: true as const }
-    : dino
-      ? { dino: true as const }
-      : {}
+  const flags = skewb
+    ? { dino: true as const, skewb: true as const }
+    : rex
+      ? { dino: true as const, rex: true as const }
+      : dino
+        ? { dino: true as const }
+        : {}
   const t = useI18n((s) => s.t)
   const labels = useI18n(selectMoveLabels)
   const button = (move: RainbowMove, ghost: boolean) => (
@@ -45,7 +50,7 @@ export function RainbowPad({
       move={move}
       label={formatMove(move, labels)}
       title={
-        dino || rex
+        dino || rex || skewb
           ? t.dinoTurnTitle(move.triangle, move.amount === 1)
           : t.rainbowTurnTitle(move.triangle, move.amount === 1)
       }
@@ -56,7 +61,7 @@ export function RainbowPad({
   return (
     <div>
       <PadHeader />
-      {(dino || rex ? DINO_GROUPS : GROUPS).map(({ key, triangles }) => (
+      {(dino || rex || skewb ? DINO_GROUPS : GROUPS).map(({ key, triangles }) => (
         <div key={key} className="mb-2">
           <p className={`${SECTION_LABEL} mb-1`}>{t[key]}</p>
           <div className="grid grid-cols-2 gap-2">
