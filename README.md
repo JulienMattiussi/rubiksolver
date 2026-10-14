@@ -86,8 +86,8 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
 - Mélange aléatoire, ou **saisie guidée** de son propre puzzle (tous) en
   peignant les stickers (aucune configuration incohérente possible,
   validation de solubilité) ; un puzzle déformable se saisit dans la forme où
-  il se trouve, choisie parmi des vignettes ; le Floppy Ghost, le Z-Twist, le Hockey Puck, le Barrel, le Fisher Cube et le
-  Megaminx pièce par pièce (un clic pose la pièce suivante qui s'y loge).
+  il se trouve, choisie parmi des vignettes ; le Floppy Ghost, le Z-Twist, le Hockey Puck, le Barrel et le Fisher Cube
+  pièce par pièce (un clic pose la pièce suivante qui s'y loge).
 - Un petit **feu d'artifice** quand le puzzle arrive résolu.
 - **Page d'accueil** : une galerie de modèles à choisir, et ce qu'on peut
   faire avec (saisie, guide, résolution).

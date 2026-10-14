@@ -1,0 +1,17 @@
+import { test } from '@playwright/test'
+test('quarter + mega entry', async ({ page }) => {
+  await page.setViewportSize({ width: 1200, height: 800 })
+  await page.goto('/#/fr/quarter-cube')
+  await page.getByLabel('Vitesse').fill('100')
+  await page.waitForTimeout(1200)
+  const canvas = page.locator('canvas:not([aria-hidden])')
+  await canvas.screenshot({ path: '/tmp/claude-1000/-home-julien-Documents-MyRepos-rubiksolver/f7edbf10-715a-4abd-be6a-2786e6913f26/scratchpad/q1.png' })
+  await page.getByRole('button', { name: /^Tourner la face avant dans le sens horaire/ }).click()
+  await page.waitForTimeout(1200)
+  await canvas.screenshot({ path: '/tmp/claude-1000/-home-julien-Documents-MyRepos-rubiksolver/f7edbf10-715a-4abd-be6a-2786e6913f26/scratchpad/q2.png' })
+  await page.goto('/#/fr/megaminx')
+  await page.waitForTimeout(800)
+  await page.getByRole('button', { name: 'Saisir un cube' }).click()
+  await page.waitForTimeout(1200)
+  await page.screenshot({ path: '/tmp/claude-1000/-home-julien-Documents-MyRepos-rubiksolver/f7edbf10-715a-4abd-be6a-2786e6913f26/scratchpad/me.png' })
+})

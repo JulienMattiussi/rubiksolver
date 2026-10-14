@@ -24,7 +24,7 @@ tourner au survol d'un bouton ; sur 3x3, un onglet « Avancé » pour `M`, `E`,
 animé sur l'état actuel, avec sa notation et une phrase), on le mélange **ou
 on saisit sa propre configuration** en peignant les stickers directement en
 3D (sur tous les puzzles, Pyraminx et étoiles compris ; un puzzle déformable
-dans la forme où il se trouve, le Floppy Ghost, le Z-Twist, le Hockey Puck, le Barrel, le Fisher Cube et le Megaminx pièce par pièce), on peut **mémoriser un état**
+dans la forme où il se trouve, le Floppy Ghost, le Z-Twist, le Hockey Puck, le Barrel et le Fisher Cube pièce par pièce), on peut **mémoriser un état**
 pour y revenir, puis on le résout selon **plusieurs vraies méthodes** (par
 couches, CFOP, Roux, Petrus, ZZ, réduction du 4x4, du 5x5 et du 6x6, méthodes de la tour, du
 Domino, du Pyraminx et des étoiles...). La solution, affichée dès que le cube
@@ -196,7 +196,7 @@ src/
 │   ├── gearEditor.ts     # Saisie des Gear Cubes à agrafes colorées (Ultimate, Extreme) : engrenages peints à part de leurs agrafes, retournés ou non
 │   ├── editor.ts         # Saisie guidée : peinture contrainte par placements + budgets, auto-complétion, buildCube/cubeToEdit
 │   ├── forms.ts          # Formes d'un puzzle déformable (tour, Violet, Pyramorphinx) pour la saisie : formsOf, lookOf
-│   ├── pieceEditor.ts    # Saisie pièce par pièce (Floppy Ghost, Z-Twist, Hockey Puck, Barrel, Fisher, Megaminx) : poses par emplacement, nextPiece, piecesIn
+│   ├── pieceEditor.ts    # Saisie pièce par pièce (Floppy Ghost, Z-Twist, Hockey Puck, Barrel, Fisher) : poses par emplacement, nextPiece, piecesIn
 │   ├── validate.ts       # validateCube : comptage par couleur (déduit du puzzle résolu) + solubilité (résolution bornée ; invariants de pièces + vrille sur 4x4)
 │   ├── shape.ts          # Cube miroir : épaisseur de couche par couleur, boîte d'un cubie (cubieBox) déduite de ses stickers
 │   ├── moveGuide.ts      # Guide des mouvements : lignes par forme (coup + opposé, puis quantifié), describeMove
@@ -1479,7 +1479,8 @@ G autour de A dans le sens horaire, P derrière H et D, les faces opposées
 soulignées (un trait bas combinant). Rendu (`three/megaGeometry.ts`) :
 chaque pièce est le dodécaèdre coupé par les plans de ses couches, dessinée
 où elle est ; pad dédié (`MegaPad` : moitié haute, moitié basse). **Saisie**
-pièce par pièce.
+des couleurs, comme les cubes : ses 60 tenues donnent les placements
+valides, ses centres restent pré-remplis.
 
 **Résolution** (`methods/megaminx.ts`, méthode **L'étoile prolongée**,
 d'après la page) : l'étoile du dessous (A², A.H'DH), ses sommets (D'B'D,

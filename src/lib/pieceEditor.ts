@@ -27,8 +27,7 @@ export const entersByPieces = (shape: CubeShape): boolean =>
   shape === 'twist' ||
   shape === 'puck' ||
   shape === 'barrel' ||
-  shape === 'fisher' ||
-  shape === 'megaminx'
+  shape === 'fisher'
 
 interface Pose {
   /** The piece's look: its colors (twins, alike, share it). */

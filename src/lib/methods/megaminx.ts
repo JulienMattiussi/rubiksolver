@@ -1,4 +1,4 @@
-import { cubeOrientations, solvedCube, stateKey } from '../cube'
+import { cubeOrientations, solvedCube } from '../cube'
 import {
   applyMegaMove,
   MEGA_FACES,
@@ -296,7 +296,7 @@ const pieceOf = (cube: Cube, target: Cube, slot: readonly MegaFace[]) => {
 }
 
 const isHome = (cube: Cube, target: Cube, slot: readonly MegaFace[]) =>
-  stateKey([pieceOf(cube, target, slot)]) === stateKey([homeIn(target, slot)])
+  placeOf(pieceOf(cube, target, slot)) === placeOf(homeIn(target, slot))
 const isPlaced = (cube: Cube, target: Cube, slot: readonly MegaFace[]) =>
   pieceOf(cube, target, slot).position.join() === megaPosition(slot).join()
 
