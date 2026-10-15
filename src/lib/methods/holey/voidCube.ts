@@ -8,6 +8,7 @@ import { solvePieces } from '../../solve/pieceSearch'
 import type { Color, Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
 import { frame2 } from '../standard/cube2'
 import { BEGINNER_PLAN, secondLayerDone } from '../standard/layers3'
+import { regular } from './voidFrames'
 
 /**
  * Void Cube, as taught on fan2cube.fr (voidcube2): "comme un Rubik's Cube",
@@ -105,36 +106,6 @@ function oneByOne(
     return all
   }
 }
-
-/** Whether a permutation of pieces of a kind is odd: its slots, each
- *  piece's home found by its colors. */
-function oddly(cube: Cube, kind: (c: Cubie) => boolean): boolean {
-  const solved = solvedCube('3').filter(kind)
-  const colorsOf = (c: Cubie) =>
-    c.stickers
-      .map((s) => s.color)
-      .sort()
-      .join()
-  const slot = new Map(solved.map((c, i) => [colorsOf(c), i]))
-  const at = new Map(solved.map((c, i) => [c.position.join(), i]))
-  const to = cube.filter(kind).map((c) => [at.get(c.position.join())!, slot.get(colorsOf(c))!])
-  const next = new Map(to.map(([from, home]) => [from!, home!]))
-  const seen = new Set<number>()
-  let odd = false
-  for (const start of next.keys()) {
-    if (seen.has(start)) continue
-    let length = 0
-    for (let i = start; !seen.has(i); i = next.get(i)!) {
-      seen.add(i)
-      length++
-    }
-    if (length % 2 === 0) odd = !odd
-  }
-  return odd
-}
-
-/** No singularity: its edges and corners permuted alike, as a 3x3's. */
-const regular = (cube: Cube) => oddly(cube, isEdge) === oddly(cube, isCorner)
 
 /** The plan, worked out on the 3x3 the Void Cube is (`asCube`). */
 const OWN: MethodPlan = [

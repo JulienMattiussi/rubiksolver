@@ -10,30 +10,30 @@ centres** (`withCentersHome`, voir « Coups avancés du 3x3 »,
 [standard](puzzles/standard.md)), étape retirée quand elle est vide ; les
 nombres d'étapes ci-dessous ne la comptent pas.
 
-- **Par couches** (`beginner`, 3x3, Z-Twist, Fisher Cube, Windmill, Master Morphinx et 2x2 ; aussi
+- **Par couches** (`beginner`, 3x3, Void Cube, Z-Twist, Fisher Cube, Windmill, Master Morphinx et 2x2 ; aussi
   le Fused et le Squarebik, voir [bandaged](puzzles/bandaged.md)) : sur 3x3, 1re couche entière
   (croix + coins), puis arêtes du milieu, puis dernière couche (croix,
   orientation coins, permutation coins, permutation arêtes) - 7 étapes. Sur
   2x2 (pas d'arêtes ni de centres) : coins du bas, orientation du haut,
   permutation du haut - 3 étapes.
-- **Fridrich / CFOP** (`cfop`, 3x3, Z-Twist, Barrel, Fisher Cube, Windmill et Master Morphinx) : Croix, puis **F2L** (paires coin+arête
+- **Fridrich / CFOP** (`cfop`, 3x3, Void Cube, Z-Twist, Barrel, Fisher Cube, Windmill et Master Morphinx) : Croix, puis **F2L** (paires coin+arête
   par colonne), puis **OLL**, puis **PLL** - 4 étapes.
 - **Réduction** (`reduction` et `reductionCfop`, 4x4, 5x5 et 6x6, Super
   Revenge et Super Professor) : Centres, Appariement des arêtes, Correction
   de parité (étape émise seulement si nécessaire), puis la phase 3x3 de la
   méthode choisie (par couches ou CFOP) ; sur les super cubes, leurs centres
   ensuite ([standard](puzzles/standard.md)).
-- **Roux** (`roux`, 3x3) : premier bloc 1x2x3 à gauche (arête DL, paire
+- **Roux** (`roux`, 3x3, Void Cube) : premier bloc 1x2x3 à gauche (arête DL, paire
   avant, paire arrière), second bloc à droite en `<U, R, M, r>` seulement,
   CMLL en 2 temps (orienter avec Sune/Antisune, permuter), puis les six
   dernières arêtes en `<M, U>` : orientation, UL/UR, tranche M en `<M, U2>` -
   6 étapes.
-- **Petrus** (`petrus`, 3x3, Z-Twist, Barrel, Fisher Cube, Windmill et Master Morphinx), les 7 étapes de Lars Petrus : bloc 2x2x2 (DBL),
+- **Petrus** (`petrus`, 3x3, Void Cube, Z-Twist, Barrel, Fisher Cube, Windmill et Master Morphinx), les 7 étapes de Lars Petrus : bloc 2x2x2 (DBL),
   extension en 2x2x3 en `<U, R, F>` (ne touchent pas le 2x2x2), arêtes
   orientées (F et B n'apparaissent que dans `F' U F` / `B U B'`, qui
   préservent le bloc), fin du F2L en `<R, U>` seulement, puis coins placés
   (Niklas), coins tournés (Sune/Antisune), arêtes placées (Ua).
-- **ZZ** (`zz`, 3x3, Z-Twist, Barrel, Fisher Cube, Windmill et Master Morphinx) : EOLine (les 12 arêtes orientées, puis DF/DB en coups
+- **ZZ** (`zz`, 3x3, Void Cube, Z-Twist, Barrel, Fisher Cube, Windmill et Master Morphinx) : EOLine (les 12 arêtes orientées, puis DF/DB en coups
   qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
   droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL -
   5 étapes.

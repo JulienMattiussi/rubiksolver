@@ -13,6 +13,7 @@ import { TORI_PLAN } from '../methods/holey/tori'
 import { PUCK_PLAN } from '../methods/round/puck'
 import { EDGE_ONLY_PLAN } from '../methods/holey/edgeOnly'
 import { VOID_CUBE_PLAN } from '../methods/holey/voidCube'
+import { voidPlan } from '../methods/holey/voidFrames'
 import { CAMO_PLAN } from '../methods/tower/camo'
 import { QUARTER_PLAN } from '../methods/twisted/quarter'
 import { AI_PLAN } from '../methods/bandaged/ai'
@@ -91,6 +92,7 @@ const SOLVE_METHODS = [
     plans: {
       '2': BEGINNER_2_PLAN,
       '3': withCentersHome(BEGINNER_PLAN),
+      void: voidPlan(BEGINNER_PLAN),
       twist: twistPlan(BEGINNER_PLAN),
       fisher: fisherPlan(withCentersHome(BEGINNER_PLAN)),
       windmill: fisherPlan(withCentersHome(BEGINNER_PLAN)),
@@ -103,6 +105,7 @@ const SOLVE_METHODS = [
     id: 'cfop',
     plans: {
       '3': withCentersHome(CFOP_PLAN),
+      void: voidPlan(CFOP_PLAN),
       twist: twistPlan(CFOP_PLAN),
       barrel: CFOP_PLAN,
       fisher: fisherPlan(withCentersHome(CFOP_PLAN)),
@@ -110,11 +113,12 @@ const SOLVE_METHODS = [
       mmorph: mmorphPlan(withCentersHome(CFOP_PLAN)),
     },
   },
-  { id: 'roux', plans: { '3': withCentersHome(ROUX_PLAN) } },
+  { id: 'roux', plans: { '3': withCentersHome(ROUX_PLAN), void: voidPlan(ROUX_PLAN) } },
   {
     id: 'petrus',
     plans: {
       '3': withCentersHome(PETRUS_PLAN),
+      void: voidPlan(PETRUS_PLAN),
       twist: twistPlan(PETRUS_PLAN),
       barrel: PETRUS_PLAN,
       fisher: fisherPlan(withCentersHome(PETRUS_PLAN)),
@@ -126,6 +130,7 @@ const SOLVE_METHODS = [
     id: 'zz',
     plans: {
       '3': withCentersHome(ZZ_PLAN),
+      void: voidPlan(ZZ_PLAN),
       twist: twistPlan(ZZ_PLAN),
       barrel: ZZ_PLAN,
       fisher: fisherPlan(withCentersHome(ZZ_PLAN)),

@@ -38,6 +38,19 @@ comme sur un 3x3 (débutant). La singularité est levée avant le haut, et non
 échanger deux arêtes seules. La formule Y (une singularité de sommets
 changée en singularité d'arêtes) n'est donc pas reprise.
 
+**Les méthodes du 3x3** (`methods/holey/voidFrames.ts`, `voidPlan`) : par
+couches, CFOP, Roux, Petrus et ZZ, telles quelles. Sans centres, on choisit
+leurs couleurs : chaque étape lit le Void Cube comme l'un des 3x3 qu'il
+pourrait être (24 façons de nommer ses couleurs), sans singularité, et où
+l'étape d'avant tient (ses phases sur la même lecture). Un quart de tour des
+couleurs fait trois 4-cycles d'arêtes et deux de sommets : la moitié des
+lectures n'ont pas de singularité, c'est « la signature des centres = la
+signature des arêtes ». Une tranche (le M de Roux) tourne quatre arêtes
+sans sommet : sur un 3x3 elle tourne aussi quatre centres, alors les
+centres lus peuvent être là où les tranches de la méthode les laissent
+(`centerSets`), la parité d'un 3x3 (arêtes et sommets ensemble comme les
+centres) en tenant compte.
+
 ## Le Tori (`tori`)
 
 Le Tori (fan2cube.fr/tori1 et 2) est « un Rubik's Cube sans
