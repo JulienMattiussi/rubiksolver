@@ -130,6 +130,14 @@ export type MoveDescription =
       readonly side: GhostSide
     }
   | {
+      /** A Fashion-V's turn: a side's block, a half (H*), a thin layer (H)
+       *  or the one under it (h). */
+      readonly kind: 'fashion'
+      readonly face: Face
+      readonly layer: 'block' | 'half' | 'thin' | 'inner'
+      readonly turn: 'cw' | 'ccw' | 'half'
+    }
+  | {
       /** A Curvy Copter edge's half turn (`iii`: the Curvy Copter III's,
        *  centers and petals too). */
       readonly kind: 'copterEdge'
@@ -359,6 +367,12 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
 /** What a turn does on a shape. */
 export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
   if (isGhostMove(turn)) return { kind: 'side', side: turn.side }
+  if (shape === 'fashion' && isFaceMove(turn)) {
+    const vertical = turn.face === 'U' || turn.face === 'D'
+    const layer = turn.wide ? (vertical ? 'half' : 'block') : turn.depth ? 'inner' : 'thin'
+    const way = turn.amount === 2 ? 'half' : turn.amount === 1 ? 'cw' : 'ccw'
+    return { kind: 'fashion', face: turn.face, layer, turn: way }
+  }
   if (isCopterMove(turn)) {
     return {
       kind: 'copterEdge',

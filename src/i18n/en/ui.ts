@@ -122,6 +122,7 @@ export const UI_EN: typeof UI_FR = {
   editCube: 'Enter',
   editHintCuts:
     'First place the halves as they stand: click a cell to go through their ways (lying, standing one way or the other, or a whole equator edge, four in all). Accept, then paint the colors.',
+  fashionGroups: { blocks: 'Blocks', thin: 'Thin layers' },
   acceptCuts: 'Accept the halves',
   changeCuts: 'Change the halves',
   wholeEdgesOf: (n: number) => `${n} / 4 whole edges`,

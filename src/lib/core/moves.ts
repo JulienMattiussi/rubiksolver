@@ -175,9 +175,15 @@ const AMOUNT_SUFFIX = { 1: '', 2: '2', 3: "'" } as const
 /**
  * Human-readable notation for a move: `U`, `U2`, `U'`, `2U`, `Uw2`... Given
  * the puzzle's `dims`, the inner slice of a 3-layer axis reads as M, E or S
- * (`2L` is M, `2R` is M', which turns the same slice the other way).
+ * (`2L` is M, `2R` is M', which turns the same slice the other way); given
+ * its shape, as its model writes it, if it does (the Fashion-V).
  */
-export function formatMove(move: Turn, labels: FaceLabels = NOTATION_US, dims?: Dims): string {
+export function formatMove(
+  move: Turn,
+  labels: FaceLabels = NOTATION_US,
+  dims?: Dims,
+  shape?: CubeShape,
+): string {
   if (isStarMove(move)) return formatStarMove(move, labels)
   if (isPyraMove(move)) return formatPyraMove(move, labels)
   if (isGhostMove(move)) return formatGhostMove(move, labels)
@@ -186,6 +192,8 @@ export function formatMove(move: Turn, labels: FaceLabels = NOTATION_US, dims?: 
   if (isRainbowMove(move)) return formatRainbowMove(move, labels)
   if (isMegaMove(move)) return formatMegaMove(move, labels)
   if (isGearMove(move)) return formatGearMove(move, labels)
+  const own = shape && MODELS[shape]?.format
+  if (own) return own(move, labels)
   if (dims && move.depth && !move.wide && faceLayers(dims, move.face) === 3) {
     const slice = SLICES.find((s) => s.face === move.face || s.opposite === move.face)!
     const amount = slice.face === move.face ? move.amount : invertMove(move).amount

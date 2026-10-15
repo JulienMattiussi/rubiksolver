@@ -27,5 +27,6 @@ export const TWISTED = {
     scramble: 30,
     shifts: true,
     inner: ['slice', 'wide'],
+    pad: 'fashion',
   },
 } satisfies Record<string, PuzzleEntry>

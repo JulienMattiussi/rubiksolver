@@ -112,7 +112,7 @@ export function MoveGuideDialog({ onClose }: { onClose: () => void }) {
                         className="relative h-32 overflow-hidden rounded-md sm:h-40"
                       >
                         <span className="absolute top-1 left-1 z-10 rounded bg-slate-900/70 px-1.5 font-mono text-base font-semibold text-white">
-                          {formatMove(turn, labels, dims)}
+                          {formatMove(turn, labels, dims, shape)}
                         </span>
                         {blocked && (
                           <p className="absolute inset-0 flex items-center justify-center bg-slate-900/70 p-3 text-center text-xs font-medium text-amber-200">

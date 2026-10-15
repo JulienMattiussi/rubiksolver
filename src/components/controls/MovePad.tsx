@@ -118,7 +118,7 @@ export function MovePad({ disabled }: { disabled: boolean }) {
         <PadButton
           key={formatMove(move)}
           move={exists ? move : null}
-          label={formatMove(move, labels, dims)}
+          label={formatMove(move, labels, dims, shape)}
           title={title}
           disabled={disabled || jammed}
           ghost={ghost}

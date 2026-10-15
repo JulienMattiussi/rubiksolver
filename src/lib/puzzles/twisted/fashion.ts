@@ -1,5 +1,6 @@
 import { FACE_SPEC } from '../../core/geometry'
 import { applyMove } from '../../core/turn'
+import type { FaceLabels } from '../../core/moves'
 import type { Cube, Face, Move } from '../../core/types'
 
 /**
@@ -75,4 +76,22 @@ export function scrambleFashion(length: number, rng: () => number, start: Cube):
     moves.push(move)
   }
   return moves
+}
+
+const SUFFIX = { 1: '', 2: '2', 3: "'" } as const
+
+/** A turn as fan2cube writes the Fashion-V's: a side's block by its face
+ *  (D for Rw), a half by its face and a star (H* for Uw), a thin layer by
+ *  its face (H), the one under it in lowercase (h). */
+export function formatFashionMove(move: Move, labels: FaceLabels): string {
+  const letter = labels[move.face]
+  const vertical = move.face === 'U' || move.face === 'D'
+  const name = move.wide
+    ? vertical
+      ? `${letter}*`
+      : letter
+    : move.depth
+      ? letter.toLowerCase()
+      : letter
+  return name + SUFFIX[move.amount]
 }

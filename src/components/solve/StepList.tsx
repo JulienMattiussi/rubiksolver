@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef } from 'react'
 import { Check } from 'lucide-react'
-import { cubeDims } from '@/lib/core/cube'
+import { cubeDims, cubeShape } from '@/lib/core/cube'
 import { formatMove } from '@/lib/core/moves'
 import { solveProgress, walkFocus } from '@/lib/solve/progress'
 import type { SolveStep } from '@/lib/solve/solver'
@@ -20,6 +20,7 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
   const queue = useCube((s) => s.queue)
   const rewinding = useCube((s) => s.rewinding)
   const dims = useCube((s) => cubeDims(s.cube))
+  const shape = useCube((s) => cubeShape(s.cube))
 
   const stepName = (key: string) => (t.steps as Record<string, string>)[key] ?? key
   const pending = queue.length + (active ? 1 : 0)
@@ -107,7 +108,7 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
                         className={tone}
                         aria-current={at === focus ? 'step' : undefined}
                       >
-                        {formatMove(move, labels, dims)}
+                        {formatMove(move, labels, dims, shape)}
                       </span>
                     </Fragment>
                   )

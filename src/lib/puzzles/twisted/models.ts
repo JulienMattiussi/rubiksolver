@@ -1,4 +1,4 @@
-import { fashionTurns, scrambleFashion } from './fashion'
+import { fashionTurns, formatFashionMove, scrambleFashion } from './fashion'
 import { latchTurns, scrambleLatch, withLatchMark, withoutLatchMark } from './latch'
 import type { CubeShape } from '../../core/types'
 import { colorsSolved, solvedCube } from '../../core/cube'
@@ -57,5 +57,12 @@ export const TWISTED_MODELS = {
   fashion: {
     turnAllowed: fashionTurns,
     scramble: (length, rng, start) => scrambleFashion(length, rng, start),
+    format: (move, labels) => formatFashionMove(move, labels),
+    // Its top and bottom: the thin layer, the one under it, the half; its
+    // sides: the block.
+    layers: (face) =>
+      face === 'U' || face === 'D'
+        ? [{}, { depth: 2 }, { depth: 2, wide: true }]
+        : [{ depth: 2, wide: true }],
   },
 } satisfies Partial<Record<CubeShape, PuzzleModel>>

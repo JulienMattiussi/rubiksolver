@@ -273,6 +273,19 @@ export function describeFr(d: MoveDescription): string {
     const sense = d.twelfths > 0 ? 'des aiguilles' : 'inverse des aiguilles'
     return `On tourne le disque ${d.layer === 'U' ? 'du haut' : 'du bas'} ${notches} (${30 * n}°) dans le sens ${sense} d’une montre, vu de dessus.`
   }
+  if (d.kind === 'fashion') {
+    const sense =
+      d.turn === 'half'
+        ? 'd’un demi-tour'
+        : `d’un quart de tour dans le sens ${d.turn === 'cw' ? 'des aiguilles' : 'inverse des aiguilles'} d’une montre, vu de face`
+    const what = {
+      block: `le bloc de la ${FACE_NAMES_FR[d.face]} (toute sa colonne, ses paires debout ou couchées avec lui)`,
+      half: `${HALF_NAMES_FR[d.face]} (ses deux couches fines ensemble)`,
+      thin: `la couche fine de la ${FACE_NAMES_FR[d.face]} seule (quand sa moitié est couchée)`,
+      inner: `la couche fine sous la ${FACE_NAMES_FR[d.face]} seule (quand sa moitié est couchée)`,
+    }[d.layer]
+    return `On tourne ${what} ${sense}.`
+  }
   if (d.kind === 'copterEdge') {
     return `On tourne l’arête ${COPTER_EDGE_FR[d.edge]} d’un demi-tour autour de son axe : elle pivote sur place, ses deux sommets s’échangent${d.iii ? ', avec les deux centres, six pétales et quatre feuilles autour' : ', avec les quatre feuilles autour'}.`
   }
@@ -366,6 +379,19 @@ export function describeEn(d: MoveDescription): string {
     const notches = n === 1 ? 'one notch' : `${n} notches`
     const sense = d.twelfths > 0 ? 'clockwise' : 'counterclockwise'
     return `Turn the ${d.layer === 'U' ? 'top' : 'bottom'} disc ${notches} (${30 * n}°) ${sense}, as seen from above.`
+  }
+  if (d.kind === 'fashion') {
+    const sense =
+      d.turn === 'half'
+        ? 'a half turn'
+        : `a quarter turn ${d.turn === 'cw' ? 'clockwise' : 'counterclockwise'}, as seen from that side`
+    const what = {
+      block: `the block of the ${FACE_NAMES_EN[d.face]} (its whole column, its pairs standing or lying with it)`,
+      half: `${HALF_NAMES_EN[d.face]} (its two thin layers together)`,
+      thin: `the thin layer of the ${FACE_NAMES_EN[d.face]} alone (when its half is laid)`,
+      inner: `the thin layer under the ${FACE_NAMES_EN[d.face]} alone (when its half is laid)`,
+    }[d.layer]
+    return `Turn ${what} ${sense}.`
   }
   if (d.kind === 'copterEdge') {
     return `Turn the ${COPTER_EDGE_EN[d.edge]} edge a half turn about its axis: it pivots in place, its two corners swap${d.iii ? ', with the two centers, six petals and four leaves around' : ', with the four leaves around'}.`

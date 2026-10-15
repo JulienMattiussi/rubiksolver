@@ -1,3 +1,4 @@
+import type { FaceLabels } from '../core/moves'
 import type { Cube, Dims, Face, Move, Turn } from '../core/types'
 
 /**
@@ -31,6 +32,8 @@ export interface PuzzleModel {
   readonly amounts?: (face: Face) => readonly (1 | 2 | 3)[]
   /** The layers a face turn can take, when its inner turns do not say. */
   readonly layers?: (face: Face) => readonly Pick<Move, 'depth' | 'wide'>[]
+  /** How a turn is written, when not as a cube's (the Fashion-V's blocks). */
+  readonly format?: (move: Move, labels: FaceLabels) => string
   /** How it is entered, when not by painting its stickers (editor.ts). */
   readonly entry?: {
     /** Piece by piece, a click on a slot putting the next piece that fits

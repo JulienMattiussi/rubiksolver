@@ -28,8 +28,11 @@ const kindsOf = (category: CubeCategory): Kind[] =>
 
 /** A category's tile picture: its 3x3 in front if it has one (else its first
  *  puzzle), with up to two others beside it. */
-/** A tile's width: two a row, three from `sm` (gaps of 0.5rem between). */
+/** A tile's width: two a row, three from `sm` (gaps of 0.5rem between);
+ *  four past twelve tiles, in a wider dialog. */
 const TILE_WIDTH = 'flex w-[calc(50%-0.25rem)] flex-col *:flex-1 sm:w-[calc((100%-1rem)/3)]'
+const TILE_WIDTH_4 = 'flex w-[calc(50%-0.25rem)] flex-col *:flex-1 sm:w-[calc((100%-1.5rem)/4)]'
+const MANY = 12
 
 /** The puzzles shown in front of their category, where it has one. */
 const COVERS: readonly CubeShape[] = ['3', 'star4', 'megaminx']
@@ -67,6 +70,9 @@ export function CubePicker({
   const isCurrent = (kind: Kind) => !home && cubeKindId(kind) === cubeKindId(current)
   const shown = home ? t.chooseModel : nameOf(current)
 
+  const tiles = category ? kindsOf(category).length : CUBE_CATEGORIES.length
+  const tileWidth = tiles > MANY ? TILE_WIDTH_4 : TILE_WIDTH
+
   const openPicker = () => {
     setCategory(null)
     setOpen(true)
@@ -103,7 +109,11 @@ export function CubePicker({
       </button>
 
       {open && (
-        <Modal labelledBy={titleId} onClose={() => setOpen(false)} width="max-w-lg">
+        <Modal
+          labelledBy={titleId}
+          onClose={() => setOpen(false)}
+          width={tiles > MANY ? 'max-w-2xl' : 'max-w-lg'}
+        >
           <header className="mb-3 flex items-center gap-2">
             {category && (
               <button
@@ -124,11 +134,11 @@ export function CubePicker({
               <X className="size-4" aria-hidden />
             </IconButton>
           </header>
-          {/* Two or three a row, an incomplete last row centered. */}
+          {/* Two or three a row (four past twelve), an incomplete last row centered. */}
           <div className="flex flex-wrap justify-center gap-2">
             {category
               ? kindsOf(category).map((kind) => (
-                  <div key={cubeKindId(kind)} className={TILE_WIDTH}>
+                  <div key={cubeKindId(kind)} className={tileWidth}>
                     <PickerTile
                       label={nameOf(kind)}
                       current={isCurrent(kind)}
@@ -139,7 +149,7 @@ export function CubePicker({
                   </div>
                 ))
               : CUBE_CATEGORIES.map((c) => (
-                  <div key={c} className={TILE_WIDTH}>
+                  <div key={c} className={tileWidth}>
                     <PickerTile
                       label={t.cubeCategories[c]}
                       detail={t.puzzleCount(kindsOf(c).length)}
