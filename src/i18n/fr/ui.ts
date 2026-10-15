@@ -266,6 +266,7 @@ export const UI_FR = {
     slice4: 'Quatrièmes tranches',
     deep: 'Sommets (chacun sa moitié du puzzle)',
     sides: 'Côtés (demi-tours)',
+    edges: 'Arêtes (demi-tours)',
     gears: 'Faces (demi-tours, la tranche suit d’un quart)',
     gearsThrice: 'Trois de suite (le cube reprend sa forme)',
     triangles: 'Triangles (le centre ne bouge pas)',

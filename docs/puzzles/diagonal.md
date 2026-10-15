@@ -74,6 +74,52 @@ place veut la couleur de sa face). Chaque formule vue de chaque côté du haut
 et préparée par un coup de couche ou de tranche (`cycleTable`), jusqu'à
 couvrir tous les 3-cycles, comme sur le Rex.
 
+## Les Curvy Copters (`copter`, `copter3`)
+
+fan2cube.fr/curvycopter1 et 2 (Tom van der Zanden, 2010) et curvycopterIII1
+et 2 (Fok, 2013) : le mécanisme de l'Helicopter Cube, chaque arête tournant
+d'un demi-tour autour de l'axe par son milieu (`lib/puzzles/diagonal/copter.ts`,
+`CopterMove`). Un coup emporte les pièces dans un cône autour de son axe
+(cos² de leur angle à lui d'au moins 0,4) ; son demi-tour v -> (v.e) e - v
+est entier. Les coups à 60° (« jumbling »), qui sortent du cube, ne sont pas
+repris : la page conseille des mélanges cubiques, et sans eux aucune parité.
+
+- **Curvy Copter** (échelle 4) : 8 sommets, 12 arêtes qui ne font que
+  pivoter, 24 feuilles (quatre par face, vers ses coins), en 4 orbites de 6
+  (une feuille de chaque couleur). Un coup : 2 sommets, son arête, 4 feuilles.
+- **Curvy Copter III** (échelle 6) : en plus 6 centres et 24 pétales (quatre
+  par face, vers ses arêtes, une seule orbite). Un coup emporte aussi 2
+  centres et 6 pétales, ce que dessinent les coupes de la page (des cercles
+  autour de chaque arête, qui passent le milieu de la face).
+
+Notation : la lettre de fan2cube de l'arête (A, P, G, D en haut ; O, E, N, S
+au milieu ; B, H, C, T en bas), ou ses deux faces en notation internationale
+(UF...). Mélange : des arêtes au hasard, jamais deux fois la même de suite.
+
+**Rendu** (`three/puzzles/diagonal/copterGeometry.ts`) : sur chaque face,
+quatre cercles autour des milieux de ses arêtes (rayon 1 sur le Curvy
+Copter, où ils se rejoignent au milieu ; un peu plus sur le III) et un quart
+de disque à chaque coin. Un point appartient à la pièce que disent les
+cercles où il est (un : une arête ; deux voisins : une feuille ; trois : un
+pétale ; quatre : le centre). Chaque région est tracée rayon par rayon
+depuis un point intérieur et dessinée en éventail de triangles, son corps
+noir un peu plus large juste sous la face (l'intérieur ne se voit pas par
+les coupes).
+
+**Résolution** (`methods/diagonal/copter.ts`, méthode **Les arêtes
+d'abord**) : les arêtes ne quittent pas leur place et disent comment le
+puzzle est tenu (ses couleurs renommées d'après elles). (1) chaque arête à
+l'endroit, par son propre coup ; (2) les centres du III, (DA)² ; (3) les
+sommets placés, (DA)², ou (DADP)² et Q = (PGPD)²(PDPG)², puis tournés,
+(DA)².G(DP)²G ou (DADP)²(ADAG)² ; (4) les feuilles, (DEAE)², ou (AEDE)² et
+V = ((AD)²E)4, chacune dans son orbite ; (5) les pétales du III, T = (DG)²
+PAP (GD)² PAP et son miroir X. Chaque formule vue de chaque côté et
+préparée par un coup (`cycleTable`). Toutes tournent chaque arête un nombre
+pair de fois. Un coup échange deux sommets et retourne une arête («
+dir(arêtes) = sig(sommets) ») : les arêtes à l'endroit, sommets et centres
+sont permutés pairement, ce que placent des 3-cycles. Les formules de
+parité de la page (après des coups à 60°) ne servent donc pas.
+
 ## Le Rex Cube (`rex`)
 
 Le Rex Cube (fan2cube.fr/rexcube1 et 2) est le Dino

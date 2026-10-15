@@ -252,6 +252,8 @@ const ENTERED: [string, string, string][] = [
   ['Polyèdres', 'Octahedron VTO', '72 / 72 stickers'],
   // Corners turning: edges, centers and petals.
   ['Coupes diagonales', 'Rex Cube', '54 / 54 stickers'],
+  // Edges turning: curved pieces drawn ray by ray.
+  ['Coupes diagonales', 'Curvy Copter III', '102 / 102 stickers'],
   // Out of its box, its big cubes pre-filled.
   ['Torturés', 'Purple', '33 / 33 stickers'],
   // Entered piece by piece: its pieces counted.

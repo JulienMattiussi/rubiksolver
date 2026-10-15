@@ -100,6 +100,8 @@ const PUZZLES: ReadonlyArray<{
   },
   { shape: 'dino', pieces: 12, stickers: 24, orientations: 24, painted: 24, scramble: 20 },
   // Its corners turn half the cube: 6 centers, 8 corners.
+  { shape: 'copter', pieces: 44, stickers: 72, orientations: 24, painted: 72, scramble: 30 },
+  { shape: 'copter3', pieces: 74, stickers: 102, orientations: 24, painted: 102, scramble: 30 },
   { shape: 'skewb', pieces: 14, stickers: 30, orientations: 24, painted: 30, scramble: 15 },
   {
     shape: 'masterSkewb',

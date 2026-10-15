@@ -84,6 +84,10 @@ export const METHODS_FR = {
     name: 'Comme un Pocket',
     desc: 'Le Pyramorphinx n’est qu’un Pocket (2x2) déguisé : ses 8 pièces sont les 8 coins d’un 2x2 et ses mouvements ceux d’un 2x2. On le lit comme tel et on le résout comme un Pocket, en un minimum de mouvements, sans se laisser troubler par les formes qu’il prend.',
   },
+  copterEdgesFirst: {
+    name: 'Les arêtes d’abord',
+    desc: 'Les arêtes, qui ne quittent jamais leur place, donnent les couleurs des faces : on les remet à l’endroit, puis on place les centres (Curvy Copter III), les sommets et on les tourne, puis les feuilles, enfin les pétales (Curvy Copter III), chaque fois par les 3-cycles de la page vus de chaque côté.',
+  },
   voidCornersFirst: {
     name: 'Les sommets du bas d’abord',
     desc: 'Comme un Rubik’s Cube, la couleur des centres absents donnée par les sommets : les sommets du bas d’abord, comme sur le Pocket, puis les arêtes du bas (avec les tranches), les arêtes du milieu, la singularité s’il y en a une (deux arêtes à échanger, ce qu’un Rubik’s Cube ne demande jamais), puis le haut comme sur un Rubik’s Cube.',

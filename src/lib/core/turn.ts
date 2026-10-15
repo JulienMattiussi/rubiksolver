@@ -2,6 +2,7 @@ import { cubeShape, turnDims } from './cube'
 import { MODELS } from '../puzzles/models'
 import { FACE_SPEC, layerCoords, rotateN } from './geometry'
 import { applyGhostMove, ghostAxis, ghostTurns } from '../puzzles/flat/ghost'
+import { applyCopterMove, copterAxis, copterTurns } from '../puzzles/diagonal/copter'
 import { applyPuckMove, puckRotation, puckTurns } from '../puzzles/round/puck'
 import { applyGearMove, gearFaceTurns, gearRotation, gearSliceTurns } from '../puzzles/gear/gear'
 import { applyMegaMove, megaRotation, megaTurns } from '../puzzles/polyhedron/megaminx'
@@ -9,6 +10,7 @@ import { applyRainbowMove, rainbowRotation, rainbowTurns } from '../puzzles/shar
 import { applyPyraMove, pyraRotation, pyraSize, pyraTurns } from '../puzzles/pyramid/pyraminx'
 import { applyStarMove, starRotation, starTurns } from '../puzzles/round/star'
 import {
+  isCopterMove,
   isGhostMove,
   isPuckMove,
   isPyraMove,
@@ -83,6 +85,7 @@ function turnsPosition(move: Move, mechanism: Dims): (position: readonly number[
 export function turnedBy(cube: Cube, move: Turn): (index: number) => boolean {
   if (isStarMove(move)) return (index) => starTurns(move, cube[index]!.position)
   if (isGhostMove(move)) return (index) => ghostTurns(move, cube[index]!.position)
+  if (isCopterMove(move)) return (index) => copterTurns(move, cube[index]!.position)
   if (isPuckMove(move)) return (index) => puckTurns(move, cube[index]!.position)
   if (isRainbowMove(move)) return (index) => rainbowTurns(move, cube[index]!.position)
   if (isMegaMove(move)) return (index) => megaTurns(move, cube[index]!.position)
@@ -116,6 +119,7 @@ export function turnAllowed(cube: Cube, move: Turn): boolean {
   if (isStarMove(move)) return true // pieces are whole 60 degree sectors
   if (isPyraMove(move) || isGhostMove(move) || isPuckMove(move)) return true
   if (isRainbowMove(move) || isGearMove(move) || isMegaMove(move)) return true
+  if (isCopterMove(move)) return true
   const shape = cubeShape(cube)
   const own = MODELS[shape]?.turnAllowed
   if (own) return own(cube, move)
@@ -145,6 +149,7 @@ export function turnRotation(move: Turn): TurnRotation {
   if (isStarMove(move)) return starRotation(move)
   if (isPyraMove(move)) return pyraRotation(move)
   if (isGhostMove(move)) return { axis: ghostAxis(move.side), angle: Math.PI }
+  if (isCopterMove(move)) return { axis: copterAxis(move.edge), angle: Math.PI }
   if (isPuckMove(move)) return puckRotation(move)
   if (isRainbowMove(move)) return rainbowRotation(move)
   if (isMegaMove(move)) return megaRotation(move)
@@ -167,6 +172,7 @@ export function applyMove(
   if (isStarMove(move)) return applyStarMove(cube, move)
   if (isPyraMove(move)) return applyPyraMove(cube, move, pyraSize(mechanism))
   if (isGhostMove(move)) return applyGhostMove(cube, move)
+  if (isCopterMove(move)) return applyCopterMove(cube, move)
   if (isPuckMove(move)) return applyPuckMove(cube, move)
   if (isRainbowMove(move)) return applyRainbowMove(cube, move)
   if (isMegaMove(move)) return applyMegaMove(cube, move)

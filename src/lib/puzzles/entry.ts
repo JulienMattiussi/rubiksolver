@@ -7,6 +7,7 @@ export type PadKind =
   | 'star'
   | 'pyra'
   | 'ghost'
+  | 'copter'
   | 'puck'
   | 'mega'
   | 'crystal'

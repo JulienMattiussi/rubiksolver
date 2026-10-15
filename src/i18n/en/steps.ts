@@ -176,4 +176,10 @@ export const STEPS_EN: typeof STEPS_FR = {
   stepMasterEdges: 'The edges',
   stepMasterPetals: 'The petals',
   stepVoidSingularity: 'The singularity',
+  stepCopterEdges: 'The edges right way up',
+  stepCopterCenters: 'The centers',
+  stepCopterCorners: 'Place the corners',
+  stepCopterTwist: 'Turn the corners',
+  stepCopterLeaves: 'The leaves',
+  stepCopterPetals: 'The petals',
 }

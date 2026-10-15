@@ -1,3 +1,9 @@
+import {
+  COPTER_TURNS,
+  scrambleCopter,
+  solvedCurvyCopter,
+  solvedCurvyCopter3,
+} from './copter'
 import type { CubeShape } from '../../core/types'
 import { isSolved, solvedCube } from '../../core/cube'
 import type { PuzzleModel } from '../model'
@@ -31,6 +37,19 @@ export const DIAGONAL_MODELS = {
     symmetries: SKEWB_CUBE_SYMMETRIES,
     turns: () => SKEWB_TURNS,
     scramble: (length, rng) => scrambleSkewbU(length, rng),
+  },
+  // The Curvy Copters: a cube, as the Skewb, held 24 ways.
+  copter: {
+    solved: solvedCurvyCopter,
+    symmetries: SKEWB_CUBE_SYMMETRIES,
+    turns: () => COPTER_TURNS,
+    scramble: (length, rng) => scrambleCopter(length, rng),
+  },
+  copter3: {
+    solved: solvedCurvyCopter3,
+    symmetries: SKEWB_CUBE_SYMMETRIES,
+    turns: () => COPTER_TURNS,
+    scramble: (length, rng) => scrambleCopter(length, rng),
   },
   // A cube, as the Skewb: its 24 holdings.
   masterSkewb: {

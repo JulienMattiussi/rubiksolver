@@ -72,6 +72,9 @@ const isRainbowLike = (shape: CubeShape): boolean =>
   shape === 'skewbU' ||
   shape === 'fto'
 
+/** The Curvy Copters (copter.ts): half turns about the cube's edges. */
+export const isCopter = (shape: CubeShape): boolean => shape === 'copter' || shape === 'copter3'
+
 /** The Megaminx and its holey cousin (megaminx.ts). */
 export const isMegaminx = (shape: CubeShape): boolean =>
   shape === 'megaminx' || shape === 'holey' || shape === 'crystal'
@@ -86,7 +89,8 @@ export const isGridless = (shape: CubeShape): boolean =>
   shape === 'puck' ||
   isMegaminx(shape) ||
   isRainbowLike(shape) ||
-  isGear(shape)
+  isGear(shape) ||
+  isCopter(shape)
 
 /**
  * Shapes that leave their box: their mechanism is a bigger cube with pieces
@@ -412,8 +416,16 @@ export interface MegaMove {
   readonly crystal?: true
 }
 
+/** An edge of the Curvy Copters (copter.ts), by fan2cube's letter. */
+export type CopterEdge = 'A' | 'P' | 'G' | 'D' | 'O' | 'E' | 'N' | 'S' | 'B' | 'H' | 'C' | 'T'
+
+/** A Curvy Copter turn: the half turn of an edge (copter.ts). */
+export interface CopterMove {
+  readonly edge: CopterEdge
+}
+
 export type Turn =
-  Move | StarMove | PyraMove | GhostMove | PuckMove | RainbowMove | GearMove | MegaMove
+  Move | StarMove | PyraMove | GhostMove | PuckMove | RainbowMove | GearMove | MegaMove | CopterMove
 
 /** Whether a turn is a star prism's. */
 export const isStarMove = (turn: Turn): turn is StarMove => 'ring' in turn || 'slash' in turn
@@ -423,6 +435,9 @@ export const isPyraMove = (turn: Turn): turn is PyraMove => 'vertex' in turn
 
 /** Whether a turn is the Floppy Ghost's. */
 export const isGhostMove = (turn: Turn): turn is GhostMove => 'side' in turn
+
+/** Whether a turn is a Curvy Copter's. */
+export const isCopterMove = (turn: Turn): turn is CopterMove => 'edge' in turn
 
 /** Whether a turn is the Hockey Puck's. */
 export const isPuckMove = (turn: Turn): turn is PuckMove => 'layer' in turn || 'flip' in turn

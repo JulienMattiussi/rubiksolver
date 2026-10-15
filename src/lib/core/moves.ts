@@ -12,6 +12,7 @@ import {
 } from '../puzzles/pyramid/pyraminx'
 import { formatPyraMove } from '../puzzles/pyramid/pyraNotation'
 import { formatGhostMove, simplifyGhostMoves } from '../puzzles/flat/ghost'
+import { formatCopterMove, simplifyCopterMoves } from '../puzzles/diagonal/copter'
 import { formatMegaMove, invertMegaMove, simplifyMegaMoves } from '../puzzles/polyhedron/megaminx'
 import { formatPuckMove, invertPuckMove, simplifyPuckMoves } from '../puzzles/round/puck'
 import {
@@ -29,6 +30,7 @@ import {
 import {
   type InnerTurn,
   isGearMove,
+  isCopterMove,
   isGhostMove,
   isGridless,
   isMegaMove,
@@ -47,6 +49,7 @@ import type {
   CubeShape,
   Dims,
   Face,
+  CopterMove,
   GhostMove,
   MegaMove,
   PuckMove,
@@ -178,6 +181,7 @@ export function formatMove(move: Turn, labels: FaceLabels = NOTATION_US, dims?: 
   if (isStarMove(move)) return formatStarMove(move, labels)
   if (isPyraMove(move)) return formatPyraMove(move, labels)
   if (isGhostMove(move)) return formatGhostMove(move, labels)
+  if (isCopterMove(move)) return formatCopterMove(move, labels)
   if (isPuckMove(move)) return formatPuckMove(move, labels)
   if (isRainbowMove(move)) return formatRainbowMove(move, labels)
   if (isMegaMove(move)) return formatMegaMove(move, labels)
@@ -269,6 +273,8 @@ export function sameLayer(a: Turn, b: Turn): boolean {
   }
   if (isPyraMove(a) || isPyraMove(b)) return isPyraMove(a) && isPyraMove(b) && samePyraLayer(a, b)
   if (isGhostMove(a) || isGhostMove(b)) return isGhostMove(a) && isGhostMove(b) && a.side === b.side
+  if (isCopterMove(a) || isCopterMove(b))
+    return isCopterMove(a) && isCopterMove(b) && a.edge === b.edge
   if (isPuckMove(a) || isPuckMove(b)) {
     if (!isPuckMove(a) || !isPuckMove(b)) return false
     return 'flip' in a ? 'flip' in b : 'layer' in b && a.layer === b.layer
@@ -299,7 +305,7 @@ export function invertMoves<T extends Turn>(moves: readonly T[]): T[] {
         ? invertStarMove(m)
         : isPyraMove(m)
           ? invertPyraMove(m)
-          : isGhostMove(m)
+          : isGhostMove(m) || isCopterMove(m)
             ? m // a half turn
             : isPuckMove(m)
               ? invertPuckMove(m)
@@ -323,6 +329,7 @@ export function simplifyMoves<T extends Turn>(moves: readonly T[]): T[] {
   if (moves.some(isStarMove)) return simplifyStarMoves(moves as readonly StarMove[]) as T[]
   if (moves.some(isPyraMove)) return simplifyPyraMoves(moves as readonly PyraMove[]) as T[]
   if (moves.some(isGhostMove)) return simplifyGhostMoves(moves as readonly GhostMove[]) as T[]
+  if (moves.some(isCopterMove)) return simplifyCopterMoves(moves as readonly CopterMove[]) as T[]
   if (moves.some(isPuckMove)) return simplifyPuckMoves(moves as readonly PuckMove[]) as T[]
   if (moves.some(isRainbowMove)) {
     return simplifyRainbowMoves(moves as readonly RainbowMove[]) as T[]

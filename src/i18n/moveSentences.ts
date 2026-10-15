@@ -5,6 +5,7 @@
 import type { MoveDescription } from '@/lib/app/moveGuide'
 import { fromAbove } from '@/lib/puzzles/round/star'
 import type {
+  CopterEdge,
   Face,
   GhostSide,
   MegaFace,
@@ -59,6 +60,36 @@ export const SIDE_NAMES_EN: Record<GhostSide, string> = {
   D: 'the bottom right side',
   B: 'the bottom left side',
   L: 'the left side',
+}
+
+/** The Curvy Copters' edges, by their two faces. */
+const COPTER_EDGE_FR: Record<CopterEdge, string> = {
+  A: 'haut-avant',
+  P: 'haut-arrière',
+  G: 'haut-gauche',
+  D: 'haut-droite',
+  O: 'avant-gauche',
+  E: 'avant-droite',
+  N: 'arrière-gauche',
+  S: 'arrière-droite',
+  B: 'bas-avant',
+  H: 'bas-arrière',
+  C: 'bas-gauche',
+  T: 'bas-droite',
+}
+const COPTER_EDGE_EN: Record<CopterEdge, string> = {
+  A: 'top front',
+  P: 'top back',
+  G: 'top left',
+  D: 'top right',
+  O: 'front left',
+  E: 'front right',
+  N: 'back left',
+  S: 'back right',
+  B: 'bottom front',
+  H: 'bottom back',
+  C: 'bottom left',
+  T: 'bottom right',
 }
 
 /** The Rainbow's triangles, as the puzzle is held (a square in front). */
@@ -242,6 +273,9 @@ export function describeFr(d: MoveDescription): string {
     const sense = d.twelfths > 0 ? 'des aiguilles' : 'inverse des aiguilles'
     return `On tourne le disque ${d.layer === 'U' ? 'du haut' : 'du bas'} ${notches} (${30 * n}°) dans le sens ${sense} d’une montre, vu de dessus.`
   }
+  if (d.kind === 'copterEdge') {
+    return `On tourne l’arête ${COPTER_EDGE_FR[d.edge]} d’un demi-tour autour de son axe : elle pivote sur place, ses deux sommets s’échangent${d.iii ? ', avec les deux centres, six pétales et quatre feuilles autour' : ', avec les quatre feuilles autour'}.`
+  }
   if (d.kind === 'side') {
     return `On retourne ${SIDE_NAMES_FR[d.side]} d’un demi-tour, autour de l’axe perpendiculaire à sa coupe : son arête se retourne, ses deux sommets s’échangent.`
   }
@@ -332,6 +366,9 @@ export function describeEn(d: MoveDescription): string {
     const notches = n === 1 ? 'one notch' : `${n} notches`
     const sense = d.twelfths > 0 ? 'clockwise' : 'counterclockwise'
     return `Turn the ${d.layer === 'U' ? 'top' : 'bottom'} disc ${notches} (${30 * n}°) ${sense}, as seen from above.`
+  }
+  if (d.kind === 'copterEdge') {
+    return `Turn the ${COPTER_EDGE_EN[d.edge]} edge a half turn about its axis: it pivots in place, its two corners swap${d.iii ? ', with the two centers, six petals and four leaves around' : ', with the four leaves around'}.`
   }
   if (d.kind === 'side') {
     return `Flip ${SIDE_NAMES_EN[d.side]} over with a half turn, about the axis across its cut: its edge turns over, its two corners swap.`

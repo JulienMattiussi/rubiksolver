@@ -159,7 +159,7 @@ describe('cube picker', () => {
       polyhedron: ['oct4', 'vto', 'gem', 'fto', 'rainbow', 'megaminx', 'crystal', 'skewbU'],
       round: ['dinoCyl', 'puck', 'barrel', 'star', 'star4'],
       gear: ['gearCube', 'gearU', 'gearX'],
-      diagonal: ['dino', 'skewb', 'masterSkewb', 'rex', 'fisher', 'windmill'],
+      diagonal: ['dino', 'skewb', 'masterSkewb', 'copter', 'copter3', 'rex', 'fisher', 'windmill'],
       holey: ['holey', 'void', 'tori', 'edge'],
       twisted: ['purple', 'twist', 'quarter'],
       bandaged: [

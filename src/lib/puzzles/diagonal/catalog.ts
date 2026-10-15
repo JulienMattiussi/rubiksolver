@@ -14,6 +14,21 @@ export const DIAGONAL = {
     scramble: 30,
     pad: 'masterSkewb',
   },
+  // The Curvy Copters (copter.ts): half turns about the cube's edges.
+  copter: {
+    label: 'Curvy Copter',
+    slug: 'curvy-copter',
+    dims: [9, 9, 9],
+    scramble: 30,
+    pad: 'copter',
+  },
+  copter3: {
+    label: 'Curvy Copter III',
+    slug: 'curvy-copter-iii',
+    dims: [13, 13, 13],
+    scramble: 30,
+    pad: 'copter',
+  },
   // The Rex Cube's pieces sit within +-4 (shared/rainbow.ts), its box says so.
   rex: { label: 'Rex Cube', slug: 'rex-cube', dims: [9, 9, 9], scramble: 25, pad: 'rex' },
   // The Fisher Cube (fisher.ts): a 3x3x3 cut to a cube turned an eighth.

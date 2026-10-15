@@ -1,3 +1,4 @@
+import { copterAxis } from '@/lib/puzzles/diagonal/copter'
 import { FACE_NORMAL, FACE_SPEC } from '@/lib/core/geometry'
 import { MEGA_AXES } from '@/lib/puzzles/polyhedron/megaminx'
 import { pyraRotation } from '@/lib/puzzles/pyramid/pyraminx'
@@ -40,6 +41,12 @@ export function guideCameraPosition(turn: Turn, drawing?: PolyDrawing): [number,
   // A Floppy Ghost side flips over in front of the home framing.
   if ('side' in turn || 'triangle' in turn || 'layer' in turn || 'flip' in turn) return [x, y, z]
   if ('slash' in turn || 'megaFace' in turn) return [x, y, z]
+  if ('edge' in turn) {
+    // Seen from the edge's side, a little above it.
+    const [a, b, c] = copterAxis(turn.edge)
+    const length = Math.hypot(x, y, z) / Math.hypot(a, b + 0.4, c)
+    return [a * length, (b + 0.4) * length, c * length]
+  }
   if ('ring' in turn) return turn.ring === 'D' || turn.ring === 'd' ? [x, -y, z] : [x, y, z]
   if ('vertex' in turn) {
     // The home framing swung round to the corner's side (the top one is in it).

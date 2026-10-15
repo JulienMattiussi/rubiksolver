@@ -11,6 +11,7 @@ import {
   type PyraLayer,
 } from '../puzzles/pyramid/pyraminx'
 import { GHOST_TURNS } from '../puzzles/flat/ghost'
+import { COPTER_TURNS } from '../puzzles/diagonal/copter'
 import { MEGA_FACES } from '../puzzles/polyhedron/megaminx'
 import { FTO_TURNS } from '../puzzles/polyhedron/fto'
 import { RAINBOW_TRIANGLES } from '../puzzles/shared/rainbow'
@@ -19,6 +20,8 @@ import {
   isFaceMove,
   isGear,
   isGearMove,
+  isCopter,
+  isCopterMove,
   isGhostMove,
   isMegaminx,
   isMegaMove,
@@ -30,6 +33,7 @@ import {
   SHAPE_DIMS,
 } from '../core/types'
 import type {
+  CopterEdge,
   CubeShape,
   Dims,
   Face,
@@ -70,6 +74,7 @@ type GuideSection =
   | 'rings'
   | 'slash'
   | 'sides'
+  | 'edges'
   | 'triangles'
   | 'gears'
   | 'gearsThrice'
@@ -123,6 +128,13 @@ export type MoveDescription =
       /** A Floppy Ghost side flipped over. */
       readonly kind: 'side'
       readonly side: GhostSide
+    }
+  | {
+      /** A Curvy Copter edge's half turn (`iii`: the Curvy Copter III's,
+       *  centers and petals too). */
+      readonly kind: 'copterEdge'
+      readonly edge: CopterEdge
+      readonly iii?: true
     }
   | {
       /** A Gear Cube face's half turn, the slice beside it a quarter. */
@@ -250,6 +262,7 @@ const DINO_CORNERS: readonly RainbowCorner[] = ['U', 'u', 'l', 'L', 'R', 'r', 'd
 export function moveGuide(shape: CubeShape): GuideGroup[] {
   if (isStar(shape)) return starGuide(shape)
   if (shape === 'ghost') return [{ section: 'sides', rows: GHOST_TURNS.map((turn) => [turn]) }]
+  if (isCopter(shape)) return [{ section: 'edges', rows: COPTER_TURNS.map((turn) => [turn]) }]
   if (shape === 'puck') {
     const layer = (layer: 'U' | 'D'): PuckMove[][] =>
       [1, 2, 3].map((k): PuckMove[] => [
@@ -346,6 +359,13 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
 /** What a turn does on a shape. */
 export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
   if (isGhostMove(turn)) return { kind: 'side', side: turn.side }
+  if (isCopterMove(turn)) {
+    return {
+      kind: 'copterEdge',
+      edge: turn.edge,
+      ...(shape === 'copter3' && { iii: true as const }),
+    }
+  }
   if (isPuckMove(turn)) {
     if ('flip' in turn) return { kind: 'puckSlash' }
     const twelfths = turn.steps > 6 ? turn.steps - 12 : turn.steps

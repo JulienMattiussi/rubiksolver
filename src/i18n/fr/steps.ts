@@ -175,4 +175,10 @@ export const STEPS_FR = {
   stepMasterEdges: 'Les arêtes',
   stepMasterPetals: 'Les pétales',
   stepVoidSingularity: 'La singularité',
+  stepCopterEdges: 'Les arêtes à l’endroit',
+  stepCopterCenters: 'Les centres',
+  stepCopterCorners: 'Placer les sommets',
+  stepCopterTwist: 'Tourner les sommets',
+  stepCopterLeaves: 'Les feuilles',
+  stepCopterPetals: 'Les pétales',
 }

@@ -260,6 +260,7 @@ export const UI_EN: typeof UI_FR = {
     slice4: 'Fourth slices',
     deep: 'Corners (each its half of the puzzle)',
     sides: 'Sides (half turns)',
+    edges: 'Edges (half turns)',
     gears: 'Faces (half turns, the slice follows a quarter)',
     gearsThrice: 'Three in a row (the cube is back in shape)',
     triangles: 'Triangles (the center stays put)',
