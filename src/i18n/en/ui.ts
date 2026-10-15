@@ -17,6 +17,8 @@ import type { UI_FR } from '../fr/ui'
 
 export const UI_EN: typeof UI_FR = {
   title: 'Rubik Solver',
+  metaDescription:
+    'Dozens of interactive 3D twisty puzzles, from the Rubik’s Cube to the Megaminx: turn, scramble or enter your own, then learn to solve it step by step.',
   madeWith: { before: 'Made with', love: 'love', by: 'by' },
   moves: 'Turns',
   scramble: 'Scramble',
@@ -49,16 +51,16 @@ export const UI_EN: typeof UI_FR = {
             : kind === 'wide3'
               ? `the three layers of the ${faceName}`
               : `the ${faceName}`
-    return `Turn ${target} ${clockwise ? 'clockwise' : 'counter-clockwise'}`
+    return `Turn ${target} ${clockwise ? 'clockwise' : 'counterclockwise'}`
   },
   moveTitleHalf: (faceName: string) => `Turn the ${faceName} a half turn`,
   starTurnTitle: (layer: StarLayer, clockwise: boolean) =>
     `Turn the ${STAR_LAYER_EN[layer]} layer one piece ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   slashTitle: 'Slash: flip the right half',
   gearTurnTitle: (faceName: string, clockwise: boolean) =>
-    `Half turn of the ${faceName} ${clockwise ? 'clockwise' : 'counter-clockwise'} (the slice follows a quarter)`,
+    `Half turn of the ${faceName} ${clockwise ? 'clockwise' : 'counterclockwise'} (the slice follows a quarter)`,
   megaTurnTitle: (face: MegaFace, clockwise: boolean) =>
-    `Turn ${MEGA_FACE_NAMES_EN[face]} a fifth ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
+    `Turn ${MEGA_FACE_NAMES_EN[face]} a fifth ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   megaUpper: 'Upper half',
   megaLower: 'Lower half',
   ghostTurnTitle: (side: GhostSide) => `Flip ${SIDE_NAMES_EN[side]} over (half turn)`,
@@ -66,16 +68,16 @@ export const UI_EN: typeof UI_FR = {
     `Turn the ${layer === 'U' ? 'top' : 'bottom'} disc one notch ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   puckSlashTitle: 'Pivot: flip the right half over',
   rainbowTurnTitle: (triangle: RainbowCorner, clockwise: boolean) =>
-    `Turn ${TRIANGLE_NAMES_EN[triangle]} a third ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
+    `Turn ${TRIANGLE_NAMES_EN[triangle]} a third ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   dinoTurnTitle: (corner: RainbowCorner, clockwise: boolean) =>
-    `Turn ${DINO_CORNER_NAMES_EN[corner]} a third ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
+    `Turn ${DINO_CORNER_NAMES_EN[corner]} a third ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   ftoTurnTitle: (face: RainbowCorner, clockwise: boolean, slice: boolean) =>
-    `Turn ${slice ? `the slice of ${FTO_FACE_NAMES_EN[face]}` : FTO_FACE_NAMES_EN[face]} a third ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
+    `Turn ${slice ? `the slice of ${FTO_FACE_NAMES_EN[face]}` : FTO_FACE_NAMES_EN[face]} a third ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   ftoTop: 'Top faces',
   ftoBottom: 'Bottom faces',
   ftoSlices: 'Slices',
   masterSliceTitle: (corner: RainbowCorner, clockwise: boolean) =>
-    `Turn the inner slice of ${DINO_CORNER_NAMES_EN[corner]} a third ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
+    `Turn the inner slice of ${DINO_CORNER_NAMES_EN[corner]} a third ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   masterSlices: 'Inner slices',
   dinoTop: 'Top',
   dinoBottom: 'Bottom',
@@ -121,29 +123,29 @@ export const UI_EN: typeof UI_FR = {
   },
   editCube: 'Enter',
   editHintCuts:
-    'First place the halves as they stand: click a cell to go through their ways (lying, standing one way or the other, or a whole equator edge, four in all). Accept, then paint the colors.',
+    'First place the halves as they stand: click a cell to cycle through their positions (lying, standing one way or the other, or a whole equator edge, four in all). Accept, then paint the colors.',
   fashionGroups: { blocks: 'Blocks', thin: 'Thin layers' },
   acceptCuts: 'Accept the halves',
   changeCuts: 'Change the halves',
   wholeEdgesOf: (n: number) => `${n} / 4 whole edges`,
-  errorCuts: 'The halves cannot stand so: check each cell (four whole edges).',
+  errorCuts: 'The halves cannot be placed like this: check each cell (four whole edges).',
   editHintJoints:
-    'Its joints first: a click on a blue joint fuses two pieces, into a 2x1 then a 2x2; a click on a fused piece takes it apart. Make your puzzle’s blocks (turn the view to reach the other faces), then accept the form.',
+    'Its joints first: a click on a blue joint fuses two pieces, into a 2x1 then a 2x2; a click on a fused piece takes it apart. Make your puzzle’s blocks (turn the view to reach the other faces), then accept the shape.',
   acceptJoints: 'Accept the joints',
   changeJoints: 'Change the joints',
   piecesLeft: (n: number) => `${n} left`,
   piecesLeftLabel: (kind: string, n: number) => `${kind} pieces to fuse: ${n}`,
-  errorJoints: 'These joints make no form of this puzzle: check each block.',
+  errorJoints: 'These joints make no shape of this puzzle: check each block.',
   errorJointsColors:
     'The colors do not go with the joints: a fused piece is not next to its block’s neighbor.',
   editCubeTitle: 'Enter a cube: paint its colors',
   editTitle: 'Cube input',
   editHint:
-    'Pick a color, then click stickers. Orbit the view to reach the other faces. Pieces auto-complete and no impossible combination is accepted.',
+    'Pick a color, then click stickers. Turn the view to reach the other faces. Pieces auto-complete and no impossible combination is accepted.',
   editHintGearPlain:
-    'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: corners and gears, the clips are black. Rotate the view to reach the other faces.',
+    'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: corners and gears, the clips are black. Turn the view to reach the other faces.',
   editHintGear:
-    'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: clips and gears are painted apart. Rotate the view to reach the other faces.',
+    'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: clips and gears are painted apart. Turn the view to reach the other faces.',
   editHintQuarter:
     'Pick a color and click the stickers; the centers are there already. A click on a center turns its mark a quarter: give each the position of yours (it says which way its face can turn).',
   editHintCamo:
@@ -151,13 +153,13 @@ export const UI_EN: typeof UI_FR = {
   editHintTwist:
     'Click a corner or an edge to put a piece there that fits: each click moves on to the next (another piece, or the same one turned). A click on a side center turns it a quarter turn, to match the shape of yours.',
   editHintMirror:
-    'Pick a thickness, then click faces: the piece takes its shape as you go. Orbit the view to reach the other faces. Pieces auto-complete and no impossible combination is accepted.',
+    'Pick a thickness, then click faces: the piece takes its shape as you go. Turn the view to reach the other faces. Pieces auto-complete and no impossible combination is accepted.',
   palette: 'Colors',
   paletteMirror: 'Thicknesses',
   thickness: (rank: number) => `Thickness ${rank}`,
   filledOf: (n: number, total: number) => `${n} / ${total} stickers`,
   editHintPieces:
-    'Click a slot to put a piece that fits there: each click moves on to the next one (another piece, or the same one flipped). Orbit the view to see the back. A piece already placed elsewhere is not offered.',
+    'Click a slot to put a piece that fits there: each click moves on to the next one (another piece, or the same one flipped). Turn the view to see the back. A piece already placed elsewhere is not offered.',
   piecesOf: (n: number, total: number) => `${n} / ${total} pieces`,
   facesOf: (n: number, total: number) => `${n} / ${total} faces`,
   clearAll: 'Clear all',

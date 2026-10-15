@@ -17,6 +17,9 @@ import {
 /** The interface's texts and move titles (the source; English mirrors it). */
 export const UI_FR = {
   title: 'Rubik Solver',
+  /** The page's meta description (index.html has both languages). */
+  metaDescription:
+    'Des dizaines de casse-tête 3D interactifs, du Rubik’s Cube au Megaminx : manipulez, mélangez ou saisissez le vôtre, puis apprenez à le résoudre étape par étape.',
   madeWith: { before: 'Fait avec', love: 'amour', by: 'par' },
   moves: 'Rotations',
   scramble: 'Mélanger',

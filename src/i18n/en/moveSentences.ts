@@ -132,14 +132,14 @@ export function describeEn(d: MoveDescription): string {
     return `Three half turns of the ${FACE_NAMES_EN[d.face]} in a row: the middle slice goes three quarters round, its gears two and a half turns, and the cube is back in shape, its gears turned over.`
   }
   if (d.kind === 'gear') {
-    const sense = d.clockwise ? 'clockwise' : 'counter-clockwise'
+    const sense = d.clockwise ? 'clockwise' : 'counterclockwise'
     return `Turn the ${FACE_NAMES_EN[d.face]} a half turn ${sense}, the opposite face held: the gears drive the middle slice a quarter turn the same way, and its four gears spin five sixths of a turn.`
   }
   if (d.kind === 'slash') {
     return 'The slash: the whole right half makes a half turn, its top pieces going down and its bottom ones up.'
   }
   if (d.kind === 'dinoCorner') {
-    const sense = d.clockwise ? 'clockwise' : 'counter-clockwise'
+    const sense = d.clockwise ? 'clockwise' : 'counterclockwise'
     if (d.slice) {
       return `Turn the inner slice of ${DINO_CORNER_NAMES_EN[d.corner]} a third of a turn (120°) ${sense}, as seen from it: six edges and six petals go round, between the two cuts of its diagonal.`
     }

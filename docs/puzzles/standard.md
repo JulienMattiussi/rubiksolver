@@ -42,7 +42,7 @@ des étapes.
 `E`, `S` et les coups larges, jouables depuis l'onglet « Avancé » du pad,
 jamais mélangés (`movesFor`, donc le mélange et les tables de saisie, ne les
 voient pas). Ils déplacent les centres, qui servent de repère à toutes les
-méthodes 3x3 : chacune commence donc par **Remettre les centres**
+méthodes 3x3 : chacune commence donc par **Centres remis en place**
 (`withCentersHome`, recherche en `<M, E, S>` sur les 6 centres), étape vide
 et retirée quand ils n'ont pas bougé. La saisie « depuis l'état actuel »
 tourne d'abord le cube entier pour que ses centres (pré-remplis, fixes)
@@ -67,7 +67,7 @@ tranche y déplace trois centres d'un coup, et la dernière pièce d'une face
 demande un commutateur. La méthode est donc celle des cubeurs, par
 **3-cycles purs** (`cycleLibrary`, voir AGENTS.md).
 
-0. **Remettre les centres** (`stepRecenter`, si nécessaire) : tenu autrement,
+0. **Centres remis en place** (`stepRecenter`, si nécessaire) : tenu autrement,
    ses centres du milieu ramenés au repère absolu par les tranches du milieu
    (le `M`, `E`, `S` du 3x3), que la phase 3x3 suppose.
 1. **Centres** (`centers.ts`) : face par face (D, U, F, R, B ; L forcée),

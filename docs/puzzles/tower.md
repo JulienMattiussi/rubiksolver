@@ -27,7 +27,7 @@ pièces sorties de la boîte (`visualPosition`).
 fan2cube.fr/tower2242.php et domino2.php) : la tour est deux Pockets empilés,
 un intérieur (les 8 pièces du milieu) et un extérieur (les 8 coins).
 
-1. **Remettre en forme** (`Uw Dw Rw Fw`) : vue comme un long Pocket dont les
+1. **Remise en forme** (`Uw Dw Rw Fw`) : vue comme un long Pocket dont les
    « sommets » sont des barres (un coin + la pièce du milieu voisine), on
    redresse chaque barre avec la formule de pivot de la page (deux barres à la
    fois), amenée par des coups larges. Clé de recherche : la façon dont chaque

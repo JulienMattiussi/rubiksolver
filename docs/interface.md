@@ -140,7 +140,10 @@ inconnue est complétée par celle de l'app, un puzzle inconnu mène à
 l'accueil (`replaceState`, sans entrée d'historique) ; on ne change ni de
 puzzle ni de page pendant une animation ou une saisie (l'adresse est
 remise). La notation et la vitesse restent hors de
-l'adresse.
+l'adresse. La langue donne aussi le `lang` du document et sa meta
+description (`App.tsx`) ; celle d'`index.html` est bilingue, puisqu'un
+robot qui n'exécute pas le JavaScript ne voit qu'une adresse (le `#` n'est
+pas envoyé au serveur).
 
 Le recentrage caméra transite par `viewStore` (`resetToken`) lu par
 `CameraReset` dans le `<Canvas>`.

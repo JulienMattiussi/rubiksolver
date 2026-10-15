@@ -195,6 +195,6 @@ atteignable (`withRealCorners`).
 
 **Résolution** (`methods/pyramid/mmorph.ts`, « style Rubik's Cube », la première
 méthode de la page) : une méthode du 3x3 (par couches, CFOP, Petrus, ZZ) sur
-ses couleurs, puis **Tourner les centres** par les formules de la page,
+ses couleurs, puis **Centres tournés** par les formules de la page,
 (H)+(G)- = Hd'h'd.H'd'hd et (H)2+ = (H.DGH²D'G')² (recherche sur les
 seuls centres).

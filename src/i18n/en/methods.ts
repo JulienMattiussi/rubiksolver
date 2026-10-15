@@ -15,7 +15,7 @@ export const METHODS_EN: typeof METHODS_FR = {
   },
   petrus: {
     name: 'Petrus',
-    desc: 'A block grown bigger, edges oriented early so the first two layers end with R and U only.',
+    desc: 'A block grown bigger, edges oriented early to finish both layers with R and U only.',
   },
   zz: {
     name: 'ZZ',
@@ -31,11 +31,11 @@ export const METHODS_EN: typeof METHODS_FR = {
   },
   barrelLayers: {
     name: 'Layer by layer',
-    desc: 'As a 3x3 layer by layer; its middle edges, whose way round never shows, make the end easier.',
+    desc: 'Like a 3x3 layer by layer; its middle edges, whose way round never shows, make the end easier.',
   },
   megaStar: {
     name: 'Extended star',
-    desc: 'As a Rubik’s Cube layer by layer, one more face next door each step, the top last.',
+    desc: 'Like a Rubik’s Cube layer by layer, adding one neighboring face each step, the top last.',
   },
   ftoCornersFirst: {
     name: 'Corners, centers, edges',
@@ -47,7 +47,7 @@ export const METHODS_EN: typeof METHODS_FR = {
   },
   crystalCornersFirst: {
     name: 'Corners first',
-    desc: 'As the Megaminx layer by layer, but always placing corners before edges.',
+    desc: 'Like the Megaminx layer by layer, but always placing corners before edges.',
   },
   aiBlocks: {
     name: 'Block method',
@@ -55,7 +55,7 @@ export const METHODS_EN: typeof METHODS_FR = {
   },
   rbCenters: {
     name: 'Centers method',
-    desc: 'Bring it down to a 3x3, laying its bars across so the slices wanted can turn.',
+    desc: 'Bring it down to a 3x3, laying its bars across so the slices it needs can turn.',
   },
   quarterEdgesFirst: {
     name: 'Edges first',
@@ -87,7 +87,7 @@ export const METHODS_EN: typeof METHODS_FR = {
   },
   fashionLaid: {
     name: 'Lay down, then two towers',
-    desc: 'Lay all its pairs down to get back a 3x3x5, then solve it as a tower.',
+    desc: 'Lay all its pairs down to get a 3x3x5 back, then solve it as a tower.',
   },
   latchEdgesFirst: {
     name: 'Edges first',
@@ -99,7 +99,7 @@ export const METHODS_EN: typeof METHODS_FR = {
   },
   voidCornersFirst: {
     name: 'Bottom corners first',
-    desc: 'A 3x3 without centers: the bottom corners set their colors, then finish as a 3x3.',
+    desc: 'A 3x3 without centers: the bottom corners set their colors, then it is finished as a 3x3.',
   },
   extendedCross: {
     name: 'Extended cross',
@@ -175,7 +175,7 @@ export const METHODS_EN: typeof METHODS_FR = {
   },
   shapeFirst: {
     name: 'Shape then colors',
-    desc: 'Become a cube again first, then put the colors back by the shortest algorithm.',
+    desc: 'Back to a cube first, then the colors put back by the shortest algorithm.',
   },
   optimal: {
     name: 'Optimal',

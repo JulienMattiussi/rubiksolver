@@ -167,8 +167,8 @@ quatre sens).
 
 **Résolution** (`methods/diagonal/fisher.ts`) : « exactement comme un Rubik's Cube »,
 une méthode du 3x3 (par couches, CFOP, Petrus, ZZ) jouée sur ses couleurs
-(les repères mis de côté, après « Remettre les centres »), puis **Tourner
-les centres** avec la formule de la page (H)+(G)- = Hd'h'd.H'd'hd : elle
+(les repères mis de côté, après « Centres remis en place »), puis **Centres
+tournés** avec la formule de la page (H)+(G)- = Hd'h'd.H'd'hd : elle
 tourne le centre de gauche et celui du haut, un carré qui n'en montre rien,
 donc un centre de côté seul ; jouée aussi à l'envers, elle tourne
 n'importe lequel dans un sens ou l'autre.

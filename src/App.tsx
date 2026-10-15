@@ -19,7 +19,8 @@ export default function App() {
   const mirror = useCube((s) => s.variant === 'mirror')
   useEffect(() => {
     document.documentElement.lang = locale
-  }, [locale])
+    document.querySelector('meta[name="description"]')?.setAttribute('content', t.metaDescription)
+  }, [locale, t])
   // The page's title names the puzzle shown.
   useEffect(() => {
     document.title = home
