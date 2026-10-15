@@ -26,7 +26,7 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
 - **Méthodes de résolution**, chacune avec ses étapes, ses objectifs et ses
   coups autorisés (vérifiés par le moteur) :
   - 3x3 : par couches, Fridrich (CFOP), **Roux**, **Petrus**, **ZZ** ;
-  - 2x2 : par couches ; 2x2 et petits puzzles (1x2x3, Floppy, Violet...) :
+  - 2x2 : par couches ; 2x2 et petits puzzles (1x2x3, Floppy, Purple...) :
     **optimale** aussi ;
   - 4x4, 5x5 et 6x6 : **réduction** (centres, arêtes, parité), puis par couches ou CFOP ;
   - chaque autre puzzle : une méthode à lui, le plus souvent celle de
@@ -35,7 +35,7 @@ repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
   solution calculée d'avance (en arrière-plan) ; on la joue d'un coup, étape
   par étape ou coup par coup, et on revient en arrière de la même façon, le
   coup en cours surligné dans sa séquence.
-- **Puzzles qui se déforment** (tours, Violet, Pyramorphinx, Barrel...) : un
+- **Puzzles qui se déforment** (tours, Purple, Pyramorphinx, Barrel...) : un
   coup que la forme bloque est grisé.
 - **Version miroir** du 2x2, du 3x3 et du 4x4 (Mirror Blocks) : couches
   d'épaisseurs différentes et facettes toutes dorées, à résoudre par la forme.

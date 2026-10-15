@@ -1,7 +1,8 @@
-import { Check, Eraser, Shapes, X } from 'lucide-react'
+import { Check, Eraser, Link2, Shapes, X } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
 import { isComplete, progress } from '@/lib/editor/editor'
 import { formsOf } from '@/lib/editor/forms'
+import { entersJoints, fixedJoints } from '@/lib/editor/jointsEditor'
 import { gearFaces, gearsPainted } from '@/lib/editor/gearEditor'
 import { hasColoredClips, SHAPE_EDIT_HINT } from '@/lib/core/types'
 import type { EditHint } from '@/lib/puzzles/entry'
@@ -26,6 +27,7 @@ const HINTS = (t: Translations): Record<EditHint, string> => ({
 })
 
 /** Cube-entry panel: the form first on a shape-shifting puzzle (FormPicker),
+ *  the joints first on a bandaged one whose blocks move (JointHandles),
  *  then hint, color palette, progress, validation error, actions. A puzzle
  *  entered piece by piece (Floppy Ghost, Z-Twist) has no palette: it counts its
  *  pieces placed. */
@@ -43,6 +45,9 @@ export function EditPanel() {
   const phase = useEditor((s) => s.phase)
   const form = useEditor((s) => s.form)
   const pickForm = useEditor((s) => s.pickForm)
+  const joints = useEditor((s) => s.joints)
+  const acceptJoints = useEditor((s) => s.acceptJoints)
+  const editJoints = useEditor((s) => s.editJoints)
 
   if (phase === 'form') {
     return (
@@ -52,6 +57,32 @@ export function EditPanel() {
           <X className="size-4" aria-hidden />
           {t.cancel}
         </Button>
+      </div>
+    )
+  }
+
+  if (phase === 'joints') {
+    // The joints every form has (a 2x2x2's) are not the user's to click.
+    const clicked = joints.length - fixedJoints(shape).length
+    return (
+      <div className="flex flex-col gap-5">
+        <p className="text-xs leading-relaxed text-slate-400">{t.editHintJoints}</p>
+        <p className="text-sm font-medium text-slate-200">{t.jointsCount(clicked)}</p>
+        {error === 'joints' && (
+          <p role="alert" className="rounded-lg bg-red-500/15 px-3 py-2 text-xs text-red-300">
+            {t.errorJoints}
+          </p>
+        )}
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant="primary" onClick={acceptJoints} className="col-span-2">
+            <Check className="size-4" aria-hidden />
+            {t.acceptJoints}
+          </Button>
+          <Button onClick={cancel} className="col-span-2">
+            <X className="size-4" aria-hidden />
+            {t.cancel}
+          </Button>
+        </div>
       </div>
     )
   }
@@ -98,13 +129,15 @@ export function EditPanel() {
         <p role="alert" className="rounded-lg bg-red-500/15 px-3 py-2 text-xs text-red-300">
           {error === 'gears'
             ? t.errorGears
-            : error !== 'counts'
-              ? failedStep && failedStep in t.steps
-                ? t.errorImpossibleAt((t.steps as Record<string, string>)[failedStep]!)
-                : t.errorImpossible
-              : mirror
-                ? t.errorCountsMirror
-                : t.errorCounts}
+            : error === 'jointsColors'
+              ? t.errorJointsColors
+              : error !== 'counts'
+                ? failedStep && failedStep in t.steps
+                  ? t.errorImpossibleAt((t.steps as Record<string, string>)[failedStep]!)
+                  : t.errorImpossible
+                : mirror
+                  ? t.errorCountsMirror
+                  : t.errorCounts}
         </p>
       )}
 
@@ -121,6 +154,12 @@ export function EditPanel() {
           <X className="size-4" aria-hidden />
           {t.cancel}
         </Button>
+        {entersJoints(shape) && (
+          <Button onClick={editJoints} variant="ghost" className="col-span-2">
+            <Link2 className="size-4" aria-hidden />
+            {t.changeJoints}
+          </Button>
+        )}
         {shifts && (
           <Button onClick={() => pickForm(null)} variant="ghost" className="col-span-2">
             <Shapes className="size-4" aria-hidden />

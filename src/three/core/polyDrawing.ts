@@ -1,6 +1,7 @@
 import type * as THREE from 'three'
 import type { CubeShape, Cubie } from '@/lib/core/types'
 import type { DecalPlace, PiecePolygon } from './polygons'
+import { BANDAGED_DRAWINGS } from '../puzzles/bandaged/drawings'
 import { DIAGONAL_DRAWINGS } from '../puzzles/diagonal/drawings'
 import { FLAT_DRAWINGS } from '../puzzles/flat/drawings'
 import { HOLEY_DRAWINGS } from '../puzzles/holey/drawings'
@@ -25,7 +26,7 @@ export interface PolyDrawing {
    *  polygons and turns are in it (the Pyramorphinx turns like a 2x2). */
   readonly orient?: readonly [number, number, number, number]
   /** Where the model's origin stands in its frame, when its turns are about
-   *  a point off its middle (the Violet's core). */
+   *  a point off its middle (the Purple's core). */
   readonly offset?: readonly [number, number, number]
   /** A picture on some pieces (the GEM-0's emblems):
    *  which pieces (by index, or by what they are), where on each, and the
@@ -55,6 +56,7 @@ const DRAWINGS: Partial<Record<CubeShape, PolyDrawing>> = {
   ...DIAGONAL_DRAWINGS,
   ...HOLEY_DRAWINGS,
   ...TWISTED_DRAWINGS,
+  ...BANDAGED_DRAWINGS,
 }
 
 /** Whether a shape is drawn from polygons (PolyView), not from cubies. */

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { parseMoves, scrambleTurns } from '@/lib/core/moves'
-import { barCells, barsAtStart, barsTurned } from '@/lib/puzzles/twisted/roadblock'
+import { barCells, barsAtStart, barsTurned } from '@/lib/puzzles/bandaged/roadblock'
 import { buildCube, cubeToEdit, emptyEdit } from '@/lib/editor/editor'
 import { paintBar, turnFace } from '@/lib/editor/roadblockEditor'
 import { validateCube } from '@/lib/editor/validate'

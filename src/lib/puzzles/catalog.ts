@@ -9,6 +9,7 @@ import { GEAR } from './gear/catalog'
 import { DIAGONAL } from './diagonal/catalog'
 import { HOLEY } from './holey/catalog'
 import { TWISTED } from './twisted/catalog'
+import { BANDAGED } from './bandaged/catalog'
 
 /**
  * Every puzzle the app knows, in the picker's order, each category's from
@@ -26,6 +27,7 @@ const FAMILIES = {
   diagonal: DIAGONAL,
   holey: HOLEY,
   twisted: TWISTED,
+  bandaged: BANDAGED,
 }
 
 export const CATALOG = {
@@ -39,6 +41,7 @@ export const CATALOG = {
   ...DIAGONAL,
   ...HOLEY,
   ...TWISTED,
+  ...BANDAGED,
 }
 
 /** The picker group of each puzzle: its folder's (a mirror's is 'mirror'). */

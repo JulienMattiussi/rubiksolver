@@ -210,7 +210,7 @@ describe('editing a 3x3 whose centers moved', () => {
 describe('editor palette', () => {
   it('offers the shape’s colors, but one its pre-filled stickers all take', () => {
     expect(paletteColors('3')).toHaveLength(6)
-    // The Violet's big cubes come violet: only its corner A's colors to paint.
-    expect(paletteColors('violet').sort()).toEqual(['B', 'L', 'Y'])
+    // The Purple's big cubes come violet: only its corner A's colors to paint.
+    expect(paletteColors('purple').sort()).toEqual(['B', 'L', 'Y'])
   })
 })

@@ -1,4 +1,4 @@
-import { isBlock } from '../../puzzles/twisted/ai'
+import { isBlock } from '../../puzzles/bandaged/ai'
 import { isSolved, solvedCube } from '../../core/cube'
 import { AXIS_ROTATIONS } from '../../core/geometry'
 import { invertMoves, simplifyMoves } from '../../core/moves'

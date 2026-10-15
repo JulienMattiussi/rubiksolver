@@ -126,7 +126,7 @@ export const METHODS_FR = {
   },
   cornersFirst: {
     name: 'Coins puis arêtes',
-    desc: 'Les coins d’abord, puis les arêtes, chaque fois avec une formule qui ne touche que ce qui reste à faire (Domino : bas puis haut ; Floppy : les coins placés, puis les arêtes retournées deux par deux ; Floppy Ghost : les sommets placés puis orientés, puis les arêtes retournées deux par deux).',
+    desc: 'Les coins d’abord, puis les arêtes, chaque fois avec une formule qui ne touche que ce qui reste à faire (Domino : bas puis haut ; Floppy : les coins placés, puis les arêtes retournées deux par deux ; Floppy Ghost : les sommets placés puis orientés, puis les arêtes retournées deux par deux ; BigBlock : les deux coins du bas, qui placent ceux du haut, puis les arêtes par 3-cycles du haut).',
   },
   gemCentersFirst: {
     name: 'Centres d’abord',
@@ -162,6 +162,10 @@ export const METHODS_FR = {
   },
   optimal: {
     name: 'Optimale',
-    desc: 'Recherche exhaustive de la solution la plus courte possible (2x2, 1x2x3, Floppy, Floppy Ghost et Violet, dont les espaces d’états sont assez petits).',
+    desc: 'Recherche exhaustive de la solution la plus courte possible (2x2, 1x2x3, Floppy, Floppy Ghost et Purple, dont les espaces d’états sont assez petits).',
+  },
+  fromStart: {
+    name: 'Depuis START',
+    desc: 'On met d’abord le puzzle en position START, celle d’où partent les formules de la page : ses blocs où ils doivent être (sa forme résolue, ou une autre comme ABA’ sur le Stripe). Puis on place les pièces avec ces formules, qui laissent START tel quel et passent donc toujours, et quelques coups qui y ramènent ; enfin, quand START n’est pas la forme résolue, on y revient.',
   },
 }

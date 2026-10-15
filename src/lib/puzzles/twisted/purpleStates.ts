@@ -1,10 +1,10 @@
 import { solvedCube } from '../../core/cube'
 import { applyMove } from '../../core/turn'
 import { SHAPE_DIMS, type Cube, type Face, type Move } from '../../core/types'
-import { violetBoxed, violetTurns } from './violet'
+import { purpleBoxed, purpleTurns } from './purple'
 
 /**
- * The Violet's states as one sees them (its big cubes alike): few enough
+ * The Purple's states as one sees them (its big cubes alike): few enough
  * (41760) to search whole, for its solutions, the editor's check, and its
  * scramble.
  *
@@ -56,7 +56,7 @@ let tree: Map<string, { readonly from: string; readonly move: Move } | null> | n
 
 function searchTree() {
   if (tree) return tree
-  const solved = solvedCube('violet')
+  const solved = solvedCube('purple')
   tree = new Map([[lookOf(solved), null]])
   let frontier = [{ state: solved, look: lookOf(solved) }]
   while (frontier.length) {
@@ -64,8 +64,8 @@ function searchTree() {
     for (const { state, look: from } of frontier) {
       for (const move of TURNS) {
         // Its own jam test and mechanism: no need to tell its shape again.
-        if (!violetTurns(state, move.face)) continue
-        const after = applyMove(state, move, SHAPE_DIMS.violet)
+        if (!purpleTurns(state, move.face)) continue
+        const after = applyMove(state, move, SHAPE_DIMS.purple)
         const look = lookOf(after)
         if (tree.has(look)) continue
         tree.set(look, { from, move })
@@ -80,11 +80,11 @@ function searchTree() {
 /** A shortest solution: the tree's path to the state, undone (a turn that
  *  went still goes back: the pieces it moved stay clear of every cut).
  *  Throws on a state no turns reach. */
-export function solveViolet(cube: Cube): Move[] {
+export function solvePurple(cube: Cube): Move[] {
   const paths = searchTree()
   const moves: Move[] = []
   let look = lookOf(cube)
-  if (!paths.has(look)) throw new Error('solveViolet: no turns reach this state')
+  if (!paths.has(look)) throw new Error('solvePurple: no turns reach this state')
   for (let at = paths.get(look); at; at = paths.get(look)) {
     moves.push({ face: at.move.face, amount: (4 - at.move.amount) as 1 | 2 | 3 })
     look = at.from
@@ -92,17 +92,17 @@ export function solveViolet(cube: Cube): Move[] {
   return moves
 }
 
-/** The fewest turns that make the Violet a cube again, whatever A's colors. */
-export function violetToCube(cube: Cube): Move[] {
+/** The fewest turns that make the Purple a cube again, whatever A's colors. */
+export function purpleToCube(cube: Cube): Move[] {
   const seen = new Set([lookOf(cube)])
   let frontier = [{ state: cube, moves: [] as Move[] }]
   while (frontier.length) {
     const next: typeof frontier = []
     for (const { state, moves } of frontier) {
-      if (violetBoxed(state)) return moves
+      if (purpleBoxed(state)) return moves
       for (const move of TURNS) {
-        if (!violetTurns(state, move.face)) continue
-        const after = applyMove(state, move, SHAPE_DIMS.violet)
+        if (!purpleTurns(state, move.face)) continue
+        const after = applyMove(state, move, SHAPE_DIMS.purple)
         const look = lookOf(after)
         if (seen.has(look)) continue
         seen.add(look)
@@ -111,22 +111,22 @@ export function violetToCube(cube: Cube): Move[] {
     }
     frontier = next
   }
-  throw new Error('violetToCube: no turns make it a cube')
+  throw new Error('purpleToCube: no turns make it a cube')
 }
 
 /** Turns past `length` before giving up on breaking A (never reached in
  *  practice: a few turns do). */
 const EXTRA = 30
 
-export function scrambleViolet(length: number, rng: () => number, start: Cube): Move[] {
+export function scramblePurple(length: number, rng: () => number, start: Cube): Move[] {
   const seen = new Set([lookOf(start)])
   const moves: Move[] = []
   let state = start
   while (moves.length < length || (!aBroken(state) && moves.length < length + EXTRA)) {
     const last = moves[moves.length - 1]?.face
-    const ahead = TURNS.filter((m) => violetTurns(state, m.face)).map((move) => ({
+    const ahead = TURNS.filter((m) => purpleTurns(state, m.face)).map((move) => ({
       move,
-      after: applyMove(state, move, SHAPE_DIMS.violet),
+      after: applyMove(state, move, SHAPE_DIMS.purple),
     }))
     // Somewhere new by another face than the last; else somewhere new; else
     // (a dead end of the walk, rare) anywhere.

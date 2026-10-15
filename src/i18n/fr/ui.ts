@@ -118,7 +118,16 @@ export const UI_FR = {
     wide3: 'Large 3',
     advanced: 'Avancé',
   },
-  editCube: 'Saisir un cube',
+  editCube: 'Saisir',
+  editHintJoints:
+    'D’abord les soudures : cliquez chaque joint entre deux pièces soudées ensemble (il s’allume), comme votre puzzle les montre. Tournez la vue pour atteindre les autres faces, puis validez la forme.',
+  acceptJoints: 'Valider les soudures',
+  changeJoints: 'Changer les soudures',
+  jointsCount: (n: number) => `${n} soudure${n > 1 ? 's' : ''}`,
+  errorJoints: 'Ces soudures ne donnent aucune forme de ce puzzle : vérifiez chaque bloc.',
+  errorJointsColors:
+    'Les couleurs ne vont pas avec les soudures : une pièce soudée n’est pas à côté de sa voisine de bloc.',
+  editCubeTitle: 'Saisir un cube : peindre ses couleurs',
   editTitle: 'Saisie du cube',
   editHint:
     'Choisissez une couleur puis cliquez les stickers. Tournez la vue pour atteindre les autres faces. Les pièces se complètent toutes seules et aucune combinaison impossible n’est acceptée.',
@@ -149,7 +158,8 @@ export const UI_FR = {
   barsTurnedTitle: (face: string) =>
     `Les barres de la ${face} vont dans l’autre sens qu’en position START (ses centres tournent d’un quart)`,
   barFaces: { U: 'Haut', D: 'Bas', L: 'Gauche', R: 'Droite', F: 'Avant', B: 'Arrière' },
-  fromCurrent: 'Depuis l’état actuel',
+  fromCurrent: 'Modifier',
+  fromCurrentTitle: 'Modifier le cube depuis son état actuel',
   gearsNotAligned: 'Remettez d’abord le cube en forme : la saisie se fait engrenages réalignés',
   notInBox:
     'Remettez d’abord le puzzle en forme de pavé : déformé, ses formes sont trop nombreuses pour être proposées',
@@ -271,6 +281,7 @@ export const UI_FR = {
     diagonal: 'Coupes diagonales',
     holey: 'Troués',
     twisted: 'Torturés',
+    bandaged: 'Soudés',
   },
   sectionSetup: 'Initialisation',
   sectionSolve: 'Résolution',

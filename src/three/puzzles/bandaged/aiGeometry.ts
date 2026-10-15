@@ -1,10 +1,10 @@
 import { FACE_NORMAL, normalIndex } from '@/lib/core/geometry'
-import { isBlock } from '@/lib/puzzles/twisted/ai'
+import { isBlock } from '@/lib/puzzles/bandaged/ai'
 import type { Cubie, Face } from '@/lib/core/types'
 import { face, type P3, type PiecePolygon } from '../../core/polygons'
 
 /**
- * Geometry of the AI Cube's pieces (lib/puzzles/twisted/ai.ts): boxes on the 4x4x4's grid
+ * Geometry of the AI Cube's pieces (lib/puzzles/bandaged/ai.ts): boxes on the 4x4x4's grid
  * (units of half a cubie), a small cube one cell wide, a big block two, each
  * outer face with its sticker.
  */

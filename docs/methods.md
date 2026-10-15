@@ -10,7 +10,8 @@ centres** (`withCentersHome`, voir « Coups avancés du 3x3 »,
 [standard](puzzles/standard.md)), étape retirée quand elle est vide ; les
 nombres d'étapes ci-dessous ne la comptent pas.
 
-- **Par couches** (`beginner`, 3x3, Z-Twist, Fisher Cube, Windmill, Master Morphinx et 2x2) : sur 3x3, 1re couche entière
+- **Par couches** (`beginner`, 3x3, Z-Twist, Fisher Cube, Windmill, Master Morphinx et 2x2 ; aussi
+  le Fused et le Squarebik, voir [bandaged](puzzles/bandaged.md)) : sur 3x3, 1re couche entière
   (croix + coins), puis arêtes du milieu, puis dernière couche (croix,
   orientation coins, permutation coins, permutation arêtes) - 7 étapes. Sur
   2x2 (pas d'arêtes ni de centres) : coins du bas, orientation du haut,
@@ -36,46 +37,47 @@ nombres d'étapes ci-dessous ne la comptent pas.
   qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
   droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL -
   5 étapes.
-- **Optimale** (`optimal`, 2x2, 1x2x3, Floppy, Floppy Ghost et Violet) : recherche exhaustive,
+- **Optimale** (`optimal`, 2x2, 1x2x3, Floppy, Floppy Ghost et Purple) : recherche exhaustive,
   solution la plus courte possible (11 coups max sur 2x2, 6 sur 1x2x3, 8 sur
-  Floppy, 15 sur Floppy Ghost, 30 sur Violet), une seule étape.
+  Floppy, 15 sur Floppy Ghost, 30 sur Purple), une seule étape.
 
 ## Les méthodes des autres puzzles
 
 Leurs étapes sont décrites dans la fiche de chaque puzzle (section
 « Résolution »).
 
-| Méthode (id)                                               | Puzzles                       | Fiche                                              |
-| ---------------------------------------------------------- | ----------------------------- | -------------------------------------------------- |
-| Coins d'abord (`gearCornersFirst`)                         | Gear Cube, Gear Cube Ultimate | [gear](puzzles/gear.md)                            |
-| Équateur puis coins (`gearEquatorFirst`)                   | Gear Cube Extreme             | [gear](puzzles/gear.md)                            |
-| Étage par étage (`dinoCylLayers`)                          | Dino Cylinder                 | [round](puzzles/round.md)                          |
-| Étage par étage (`dinoLayers`)                             | Dino Cube                     | [diagonal](puzzles/diagonal.md)                    |
-| Arêtes, centres, pétales (`rexEdgesFirst`)                 | Rex Cube                      | [diagonal](puzzles/diagonal.md)                    |
-| Croix prolongée (`extendedCross`)                          | Tori, Edge Only               | [holey](puzzles/holey.md)                          |
-| Les arêtes d'abord (`quarterEdgesFirst`)                   | Quarter Cube                  | [twisted](puzzles/twisted.md)                      |
-| Forme puis couleurs (`shapeFirst`)                         | Violet                        | [twisted](puzzles/twisted.md)                      |
-| Méthode des blocs (`aiBlocks`)                             | AI Cube                       | [twisted](puzzles/twisted.md)                      |
-| Méthode des centres (`rbCenters`)                          | RoadBlock-I                   | [twisted](puzzles/twisted.md)                      |
-| Réduction en Domino (`camoReduction`)                      | Camouflage 4x4x2              | [tower](puzzles/tower.md)                          |
-| Deux Pockets (`twoPockets`)                                | tour 2x2x4                    | [tower](puzzles/tower.md)                          |
-| Sommets, arêtes, équateur (`tower234Steps`)                | tour 2x3x4                    | [tower](puzzles/tower.md)                          |
-| Double Domino (`doubleDomino`)                             | tour 3x3x4                    | [tower](puzzles/tower.md)                          |
-| Réduction (`towerReduction`)                               | tours 4x4x3, 4x4x5, 5x5x4     | [tower](puzzles/tower.md)                          |
-| Équateur puis coins (`equatorFirst`)                       | Slim Tower 2x2x3              | [tower](puzzles/tower.md)                          |
-| Coins puis arêtes (`cornersFirst`)                         | Domino, Floppy, Floppy Ghost  | [tower](puzzles/tower.md), [flat](puzzles/flat.md) |
-| Isoler puis permuter (`isolateFirst`)                      | 2-Star Prism                  | [round](puzzles/round.md)                          |
-| Deux étoiles (`twoStars`)                                  | 4-Star Prism                  | [round](puzzles/round.md)                          |
-| Isoler puis permuter (`puckIsolate`)                       | Hockey Puck                   | [round](puzzles/round.md)                          |
-| Par couches (`barrelLayers`)                               | Barrel                        | [round](puzzles/round.md)                          |
-| Centres d'abord (`centersFirst`)                           | Pyraminx, Tetraminx           | [pyramid](puzzles/pyramid.md)                      |
-| Ailes puis co-ailes (`wingsFirst`)                         | Master et Professor Pyraminx  | [pyramid](puzzles/pyramid.md)                      |
-| Sommets d'abord (`jingCornersFirst`)                       | Pyraminx Jing                 | [pyramid](puzzles/pyramid.md)                      |
-| Comme un Pocket (`asPocket`)                               | Pyramorphinx                  | [pyramid](puzzles/pyramid.md)                      |
-| Sommets d'abord (`octCornersFirst`)                        | 4-Trajber's Octahedron        | [polyhedron](puzzles/polyhedron.md)                |
-| Centres puis arêtes (`vtoCentersFirst`, `gemCentersFirst`) | Octahedron VTO, GEM-0         | [polyhedron](puzzles/polyhedron.md)                |
-| Sommets, centres, arêtes (`ftoCornersFirst`)               | FTO                           | [polyhedron](puzzles/polyhedron.md)                |
-| Triangle prolongé (`extendedTriangle`)                     | Rainbow                       | [polyhedron](puzzles/polyhedron.md)                |
-| L'étoile prolongée (`megaStar`)                            | Megaminx, Holey Megaminx      | [polyhedron](puzzles/polyhedron.md)                |
-| Les sommets d'abord (`crystalCornersFirst`)                | Pyraminx Crystal              | [polyhedron](puzzles/polyhedron.md)                |
-| Le haut d'abord (`skewbTopFirst`)                          | Skewb Ultimate                | [polyhedron](puzzles/polyhedron.md)                |
+| Méthode (id)                                               | Puzzles                                                                        | Fiche                                                                               |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Coins d'abord (`gearCornersFirst`)                         | Gear Cube, Gear Cube Ultimate                                                  | [gear](puzzles/gear.md)                                                             |
+| Équateur puis coins (`gearEquatorFirst`)                   | Gear Cube Extreme                                                              | [gear](puzzles/gear.md)                                                             |
+| Étage par étage (`dinoCylLayers`)                          | Dino Cylinder                                                                  | [round](puzzles/round.md)                                                           |
+| Étage par étage (`dinoLayers`)                             | Dino Cube                                                                      | [diagonal](puzzles/diagonal.md)                                                     |
+| Arêtes, centres, pétales (`rexEdgesFirst`)                 | Rex Cube                                                                       | [diagonal](puzzles/diagonal.md)                                                     |
+| Croix prolongée (`extendedCross`)                          | Tori, Edge Only                                                                | [holey](puzzles/holey.md)                                                           |
+| Les arêtes d'abord (`quarterEdgesFirst`)                   | Quarter Cube                                                                   | [twisted](puzzles/twisted.md)                                                       |
+| Forme puis couleurs (`shapeFirst`)                         | Purple                                                                         | [twisted](puzzles/twisted.md)                                                       |
+| Méthode des blocs (`aiBlocks`)                             | AI Cube                                                                        | [bandaged](puzzles/bandaged.md)                                                     |
+| Méthode des centres (`rbCenters`)                          | RoadBlock-I                                                                    | [bandaged](puzzles/bandaged.md)                                                     |
+| Depuis START (`fromStart`)                                 | QuadStripe, Detour, Diamond, Bandage Cube, Quad, Stripe, FusedStripe, Alcatraz | [bandaged](puzzles/bandaged.md)                                                     |
+| Réduction en Domino (`camoReduction`)                      | Camouflage 4x4x2                                                               | [tower](puzzles/tower.md)                                                           |
+| Deux Pockets (`twoPockets`)                                | tour 2x2x4                                                                     | [tower](puzzles/tower.md)                                                           |
+| Sommets, arêtes, équateur (`tower234Steps`)                | tour 2x3x4                                                                     | [tower](puzzles/tower.md)                                                           |
+| Double Domino (`doubleDomino`)                             | tour 3x3x4                                                                     | [tower](puzzles/tower.md)                                                           |
+| Réduction (`towerReduction`)                               | tours 4x4x3, 4x4x5, 5x5x4                                                      | [tower](puzzles/tower.md)                                                           |
+| Équateur puis coins (`equatorFirst`)                       | Slim Tower 2x2x3                                                               | [tower](puzzles/tower.md)                                                           |
+| Coins puis arêtes (`cornersFirst`)                         | Domino, Floppy, Floppy Ghost, BigBlock                                         | [tower](puzzles/tower.md), [flat](puzzles/flat.md), [bandaged](puzzles/bandaged.md) |
+| Isoler puis permuter (`isolateFirst`)                      | 2-Star Prism                                                                   | [round](puzzles/round.md)                                                           |
+| Deux étoiles (`twoStars`)                                  | 4-Star Prism                                                                   | [round](puzzles/round.md)                                                           |
+| Isoler puis permuter (`puckIsolate`)                       | Hockey Puck                                                                    | [round](puzzles/round.md)                                                           |
+| Par couches (`barrelLayers`)                               | Barrel                                                                         | [round](puzzles/round.md)                                                           |
+| Centres d'abord (`centersFirst`)                           | Pyraminx, Tetraminx                                                            | [pyramid](puzzles/pyramid.md)                                                       |
+| Ailes puis co-ailes (`wingsFirst`)                         | Master et Professor Pyraminx                                                   | [pyramid](puzzles/pyramid.md)                                                       |
+| Sommets d'abord (`jingCornersFirst`)                       | Pyraminx Jing                                                                  | [pyramid](puzzles/pyramid.md)                                                       |
+| Comme un Pocket (`asPocket`)                               | Pyramorphinx                                                                   | [pyramid](puzzles/pyramid.md)                                                       |
+| Sommets d'abord (`octCornersFirst`)                        | 4-Trajber's Octahedron                                                         | [polyhedron](puzzles/polyhedron.md)                                                 |
+| Centres puis arêtes (`vtoCentersFirst`, `gemCentersFirst`) | Octahedron VTO, GEM-0                                                          | [polyhedron](puzzles/polyhedron.md)                                                 |
+| Sommets, centres, arêtes (`ftoCornersFirst`)               | FTO                                                                            | [polyhedron](puzzles/polyhedron.md)                                                 |
+| Triangle prolongé (`extendedTriangle`)                     | Rainbow                                                                        | [polyhedron](puzzles/polyhedron.md)                                                 |
+| L'étoile prolongée (`megaStar`)                            | Megaminx, Holey Megaminx                                                       | [polyhedron](puzzles/polyhedron.md)                                                 |
+| Les sommets d'abord (`crystalCornersFirst`)                | Pyraminx Crystal                                                               | [polyhedron](puzzles/polyhedron.md)                                                 |
+| Le haut d'abord (`skewbTopFirst`)                          | Skewb Ultimate                                                                 | [polyhedron](puzzles/polyhedron.md)                                                 |

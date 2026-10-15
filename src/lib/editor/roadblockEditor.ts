@@ -1,7 +1,7 @@
 import { paint, type EditStickers } from './editor'
 import { stickerId, tablesFor } from './editorTables'
 import { normalIndex } from '../core/geometry'
-import { barCells } from '../puzzles/twisted/roadblock'
+import { barCells } from '../puzzles/bandaged/roadblock'
 import type { Color, Vec3 } from '../core/types'
 
 /**

@@ -161,7 +161,22 @@ describe('cube picker', () => {
       gear: ['gearCube', 'gearU', 'gearX'],
       diagonal: ['dino', 'rex', 'fisher', 'windmill'],
       holey: ['holey', 'tori', 'edge'],
-      twisted: ['violet', 'twist', 'quarter', 'ai', 'roadblock'],
+      twisted: ['purple', 'twist', 'quarter'],
+      bandaged: [
+        'bigBlock',
+        'squarebik',
+        'quadStripe',
+        'detour',
+        'fused',
+        'diamond',
+        'bandage',
+        'quad',
+        'stripe',
+        'fusedStripe',
+        'alcatraz',
+        'ai',
+        'roadblock',
+      ],
     })
   })
 })

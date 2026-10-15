@@ -176,8 +176,8 @@ export interface CubeKind {
 /** Groups of the cube picker, in display order: the classic NxNxN cubes, their
  *  mirror versions, the other cuboids (towers, Domino), the flat puzzles (one
  *  layer thick: 1x2x3, Floppy, Floppy Ghost), the pyramids, the polyhedra,
- *  the round ones, the gear cubes, the diagonal cuts, the holey ones, then
- *  the twisted ones. Each but the mirrors is a folder of lib/puzzles. */
+ *  the round ones, the gear cubes, the diagonal cuts, the holey ones, the
+ *  twisted ones, then the bandaged ones. Each but the mirrors is a folder of lib/puzzles. */
 export const CUBE_CATEGORIES = [
   'standard',
   'mirror',
@@ -190,6 +190,7 @@ export const CUBE_CATEGORIES = [
   'diagonal',
   'holey',
   'twisted',
+  'bandaged',
 ] as const
 export type CubeCategory = (typeof CUBE_CATEGORIES)[number]
 

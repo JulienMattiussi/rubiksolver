@@ -1,10 +1,10 @@
 import { FACE_NORMAL, normalIndex } from '@/lib/core/geometry'
-import { barAxis } from '@/lib/puzzles/twisted/roadblock'
+import { barAxis } from '@/lib/puzzles/bandaged/roadblock'
 import type { Cubie, Face } from '@/lib/core/types'
 import { type P3, type PiecePolygon } from '../../core/polygons'
 
 /**
- * Geometry of the RoadBlock-I's pieces (lib/puzzles/twisted/roadblock.ts): a 5x5x5 whose
+ * Geometry of the RoadBlock-I's pieces (lib/puzzles/bandaged/roadblock.ts): a 5x5x5 whose
  * outer layers are thick and its three inner ones thin, its centers drawn
  * as bars: along its bar, a center (its body and its sticker) runs to its
  * cell's ends, with no gap, so a bar's three read as one piece.

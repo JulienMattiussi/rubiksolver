@@ -63,7 +63,7 @@ export function SetupSection() {
             {t.reset}
           </Button>
         )}
-        <Button onClick={enterEdit} disabled={busy} variant="edit">
+        <Button onClick={enterEdit} disabled={busy} variant="edit" title={t.editCubeTitle}>
           <FEATURE_ICON.edit className="size-4" aria-hidden />
           {t.editCube}
         </Button>
@@ -74,7 +74,11 @@ export function SetupSection() {
           disabled={busy || blocked !== null}
           variant="ghost"
           title={
-            blocked === 'gears' ? t.gearsNotAligned : blocked === 'box' ? t.notInBox : undefined
+            blocked === 'gears'
+              ? t.gearsNotAligned
+              : blocked === 'box'
+                ? t.notInBox
+                : t.fromCurrentTitle
           }
         >
           {t.fromCurrent}

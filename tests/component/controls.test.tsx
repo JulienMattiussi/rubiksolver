@@ -57,11 +57,12 @@ describe('<Controls />', () => {
     expect(screen.getByRole('button', { name: 'Scramble' })).toBeInTheDocument()
   })
 
-  it("offers the 3x3's middle slices and wide turns on an advanced tab", async () => {
+  it("offers the 3x3's middle slices and wide turns under its outer turns, no tabs", async () => {
     const user = userEvent.setup()
     render(<Controls />)
-    expect(screen.queryByRole('button', { name: 'Tranche' })).not.toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Avancé' }))
+    // Both kinds fit stacked, each under its name.
+    expect(screen.queryByRole('button', { name: 'Avancé' })).not.toBeInTheDocument()
+    expect(screen.getByText('Avancé')).toBeInTheDocument()
     expect(
       screen.getByRole('button', {
         name: /^On tourne la tranche du milieu, parallèle à la face de gauche, d’un quart de tour dans le sens des aiguilles/,
@@ -81,7 +82,8 @@ describe('<Controls />', () => {
     render(<Controls />)
 
     await pickCube(user, 'Standards', '4x4 (Revenge)')
-    await user.click(screen.getByRole('button', { name: 'Tranche' }))
+    // Outer, slice and wide stacked: six rows, no tabs.
+    expect(screen.queryByRole('button', { name: 'Tranche' })).not.toBeInTheDocument()
     await user.click(
       screen.getByRole('button', {
         name: 'Tourner la tranche interne de la face de droite dans le sens horaire',
@@ -92,7 +94,6 @@ describe('<Controls />', () => {
     // Without a 3D loop the queue never drains and keeps the pad disabled.
     useCube.getState().stop()
 
-    await user.click(screen.getByRole('button', { name: 'Large' }))
     await user.click(
       screen.getByRole('button', {
         name: 'Tourner les deux couches de la face de droite dans le sens anti-horaire',
@@ -171,7 +172,6 @@ describe('<Controls />', () => {
     useCube.getState().stop()
 
     // Wide turns always go: Rw lays the right half down.
-    await user.click(screen.getByRole('button', { name: 'Large' }))
     await user.click(
       screen.getByRole('button', {
         name: 'Tourner les deux couches de la face de droite dans le sens anti-horaire',
@@ -182,8 +182,10 @@ describe('<Controls />', () => {
 
     // Then the top end keeps two cubes only: U jams.
     useCube.getState().loadCube(applyMoves(solvedCube('224'), parseMoves('Rw')))
-    await user.click(screen.getByRole('button', { name: 'Externe' }))
-    expect(jammed('face du haut')).toBeDisabled()
+    const top = await screen.findAllByRole('button', {
+      name: 'Bloqué : la face du haut ne peut pas tourner dans cette position',
+    })
+    expect(top[0]).toBeDisabled()
   })
 
   it('previews the pieces of a turn while its button is hovered', async () => {
@@ -224,7 +226,6 @@ describe('<Controls />', () => {
     const user = userEvent.setup()
     render(<Controls />)
     await pickCube(user, 'Tours', '2x2x3 (Slim Tower)')
-    await user.click(screen.getByRole('button', { name: 'Large' }))
     // Its sides are two layers deep: no wide turn there.
     expect(
       screen.getByRole('button', {

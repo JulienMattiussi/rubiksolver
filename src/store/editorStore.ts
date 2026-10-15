@@ -19,7 +19,15 @@ import {
   type GearColors,
 } from '@/lib/editor/gearEditor'
 import { nextPiece } from '@/lib/editor/pieceEditor'
-import { barsTurned } from '@/lib/puzzles/twisted/roadblock'
+import {
+  entersJoints,
+  fixedJoints,
+  jointsFit,
+  jointsOf,
+  matchesJoints,
+  type Joint,
+} from '@/lib/editor/jointsEditor'
+import { barsTurned } from '@/lib/puzzles/bandaged/roadblock'
 import { paintBar, turnFace } from '@/lib/editor/roadblockEditor'
 import { validateCube, type ValidationError } from '@/lib/editor/validate'
 import { hasColoredClips, type Color, type Cube, type CubeShape } from '@/lib/core/types'
@@ -37,8 +45,11 @@ const pickable = (selected: Color, form?: Cube): Color => {
 interface EditorStore {
   mode: 'play' | 'edit'
   /** A shape-shifting puzzle first picks the form it stands in (`form`),
-   *  then paints its colors on it. */
-  phase: 'form' | 'paint'
+   *  then paints its colors on it; a bandaged one whose blocks move first
+   *  clicks its joints (`joints`). */
+  phase: 'form' | 'joints' | 'paint'
+  /** A bandaged puzzle's joints entered (jointsEditor.ts). */
+  joints: readonly Joint[]
   /** The form being entered (a state of it, see forms.ts); undefined: the box. */
   form: Cube | undefined
   /** The form hovered while choosing one, shown in 3D meanwhile. */
@@ -52,7 +63,7 @@ interface EditorStore {
   twisted: readonly string[]
   /** Reason the last apply was rejected (`gears`: a gear not its clips'
    *  colors), or null. */
-  error: ValidationError | 'gears' | null
+  error: ValidationError | 'gears' | 'joints' | 'jointsColors' | null
   /** The solving step that found the cube impossible, when one did. */
   failedStep: string | null
 
@@ -61,6 +72,13 @@ interface EditorStore {
   /** Paint on this form (a state of it), or go back to choosing one (null). */
   pickForm: (form: Cube | null) => void
   setPreview: (form: Cube | undefined) => void
+  /** A bandaged puzzle's joint fused, or apart. */
+  toggleJoint: (joint: Joint) => void
+  /** The joints entered kept, if a form of the puzzle has them: on to its
+   *  colors. Returns ok. */
+  acceptJoints: () => boolean
+  /** Back to the joints, the colors kept. */
+  editJoints: () => void
   cancel: () => void
   setColor: (color: Color) => void
   paintAt: (slotKey: string, ni: number) => void
@@ -81,6 +99,7 @@ interface EditorStore {
 export const useEditor = create<EditorStore>((set, get) => ({
   mode: 'play',
   phase: 'paint',
+  joints: [],
   form: undefined,
   preview: undefined,
   selectedColor: 'W',
@@ -95,7 +114,8 @@ export const useEditor = create<EditorStore>((set, get) => ({
     const choose = formsOf(shape).length > 1
     set({
       mode: 'edit',
-      phase: choose ? 'form' : 'paint',
+      phase: choose ? 'form' : entersJoints(shape) ? 'joints' : 'paint',
+      joints: entersJoints(shape) ? fixedJoints(shape) : [],
       form: undefined,
       preview: undefined,
       edit: emptyEdit(shape),
@@ -113,6 +133,7 @@ export const useEditor = create<EditorStore>((set, get) => ({
     set({
       mode: 'edit',
       phase: 'paint',
+      joints: entersJoints(cubeShape(cube)) ? jointsOf(cube) : [],
       form,
       edit: cubeToEdit(cube),
       gear: gearColorsOf(cube),
@@ -142,6 +163,23 @@ export const useEditor = create<EditorStore>((set, get) => ({
       : set({ phase: 'form', preview: undefined, error: null }),
 
   setPreview: (preview) => set({ preview }),
+
+  toggleJoint: (joint) =>
+    set((s) => ({
+      joints: s.joints.includes(joint) ? s.joints.filter((j) => j !== joint) : [...s.joints, joint],
+      error: null,
+    })),
+
+  acceptJoints: () => {
+    if (!jointsFit(currentShape(), get().joints)) {
+      set({ error: 'joints' })
+      return false
+    }
+    set({ phase: 'paint', error: null })
+    return true
+  },
+
+  editJoints: () => set({ phase: 'joints', error: null }),
 
   cancel: () => set({ mode: 'play', error: null }),
 
@@ -206,6 +244,11 @@ export const useEditor = create<EditorStore>((set, get) => ({
       return false
     }
     const cube = buildCube(edit, shape, form, turned)
+    // A bandaged puzzle's pieces must stand fused as its joints were entered.
+    if (entersJoints(shape) && !matchesJoints(cube, get().joints)) {
+      set({ error: 'jointsColors', failedStep: null })
+      return false
+    }
     const result = validateCube(cube)
     if (!result.ok) {
       set({ error: result.error, failedStep: result.step ?? null })

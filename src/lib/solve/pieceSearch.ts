@@ -43,6 +43,12 @@ export interface PieceSearch<T extends Turn = Move> {
   /** The kind of piece tracked, when pieces of another kind wear the same
    *  colors (a Master Pyraminx's wings and midges). */
   readonly among?: (cubie: Cubie) => boolean
+  /** The state to bring the tracked pieces to, when not the solved one
+   *  (a bandaged puzzle's START); `track` then names their places there. */
+  readonly target?: Cube
+  /** Whether a turn goes, read on the tracked pieces (a bandaged puzzle's
+   *  blocks, all tracked, jam some): absent, every turn does. */
+  readonly legal?: (pieces: Cube, turn: Turn) => boolean
   readonly maxDepth: number
 }
 
@@ -65,9 +71,10 @@ function trackedPieces(
   cube: Cube,
   track: readonly Vec3[],
   among: (cubie: Cubie) => boolean = () => true,
+  target?: Cube,
 ): { start: Cube; home: Cube } {
   const shape = cubeShape(cube)
-  let solved = SOLVED.get(shape)
+  let solved = target ?? SOLVED.get(shape)
   if (!solved) {
     solved = solvedCube(shape)
     SOLVED.set(shape, solved)
@@ -97,17 +104,36 @@ function sameLayerTwice(last: Turn | undefined, gen: readonly Turn[]): boolean {
   return gen.length === 1 && last !== undefined && sameLayer(last, gen[0]!)
 }
 
+/** The pieces after `gen`, or null when one of its turns is jammed. */
+function played(
+  pieces: Cube,
+  gen: readonly Turn[],
+  dims: Dims,
+  legal?: (pieces: Cube, turn: Turn) => boolean,
+): Cube | null {
+  if (!legal) return applyMoves(pieces, gen, dims)
+  let state = pieces
+  for (const turn of gen) {
+    if (!legal(state, turn)) return null
+    state = applyMoves(state, [turn], dims)
+  }
+  return state
+}
+
 /** Children of `node`; `visit` returns a solution to stop the search. */
 function expand(
   node: Node,
   generators: ReadonlyArray<readonly Turn[]>,
   dims: Dims,
   visit: (child: Node) => Turn[] | null,
+  legal?: (pieces: Cube, turn: Turn) => boolean,
 ): Turn[] | null {
   const last = node.moves[node.moves.length - 1]
   for (const gen of generators) {
     if (sameLayerTwice(last, gen)) continue
-    const child = { pieces: applyMoves(node.pieces, gen, dims), moves: [...node.moves, ...gen] }
+    const pieces = played(node.pieces, gen, dims, legal)
+    if (!pieces) continue
+    const child = { pieces, moves: [...node.moves, ...gen] }
     const solution = visit(child)
     if (solution) return solution
   }
@@ -118,7 +144,7 @@ function expand(
  *  the star prism's turns on it). Throws past `maxDepth`. */
 export function solvePieces<T extends Turn = Move>(cube: Cube, spec: PieceSearch<T>): T[] {
   const dims = turnDims(cubeShape(cube))
-  const { start, home } = trackedPieces(cube, spec.track, spec.among)
+  const { start, home } = trackedPieces(cube, spec.track, spec.among, spec.target)
   // The generators are the set's turns and `T` macros: the result holds T.
   const generic = spec as PieceSearch<Turn>
   return (
@@ -142,14 +168,20 @@ function forward(
   for (let depth = 0; depth < spec.maxDepth && frontier.length; depth++) {
     const next: Node[] = []
     for (const node of frontier) {
-      const solution = expand(node, generators, dims, (child) => {
-        const key = keyOf(child.pieces)
-        if (seen.has(key)) return null
-        if (goal(child.pieces)) return [...child.moves]
-        seen.add(key)
-        next.push(child)
-        return null
-      })
+      const solution = expand(
+        node,
+        generators,
+        dims,
+        (child) => {
+          const key = keyOf(child.pieces)
+          if (seen.has(key)) return null
+          if (goal(child.pieces)) return [...child.moves]
+          seen.add(key)
+          next.push(child)
+          return null
+        },
+        spec.legal,
+      )
       if (solution) return solution
     }
     frontier = next
@@ -185,18 +217,25 @@ function meetInTheMiddle(start: Cube, home: Cube, spec: PieceSearch<Turn>, dims:
     const other = side === fwd ? bwd : fwd
     const next: Node[] = []
     for (const node of side.frontier) {
-      const solution = expand(node, side.generators, dims, (child) => {
-        const key = stateKey(child.pieces)
-        if (side.seen.has(key)) return null
-        const met = other.seen.get(key)
-        if (met) {
-          const [f, b] = side === fwd ? [child.moves, met] : [met, child.moves]
-          return [...f, ...invertMoves(b)]
-        }
-        side.seen.set(key, child.moves)
-        next.push(child)
-        return null
-      })
+      // A turn goes one way when it goes back: `legal` holds both ways.
+      const solution = expand(
+        node,
+        side.generators,
+        dims,
+        (child) => {
+          const key = stateKey(child.pieces)
+          if (side.seen.has(key)) return null
+          const met = other.seen.get(key)
+          if (met) {
+            const [f, b] = side === fwd ? [child.moves, met] : [met, child.moves]
+            return [...f, ...invertMoves(b)]
+          }
+          side.seen.set(key, child.moves)
+          next.push(child)
+          return null
+        },
+        spec.legal,
+      )
       if (solution) return solution
     }
     side.frontier = next

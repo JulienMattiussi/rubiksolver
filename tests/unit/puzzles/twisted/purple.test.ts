@@ -7,19 +7,19 @@ import { cubeToEdit, emptyEdit, paint, progress } from '@/lib/editor/editor'
 import { formOf } from '@/lib/editor/forms'
 import { normalIndex } from '@/lib/core/geometry'
 import { validateCube } from '@/lib/editor/validate'
-import { aBroken, solveViolet } from '@/lib/puzzles/twisted/violetStates'
+import { aBroken, solvePurple } from '@/lib/puzzles/twisted/purpleStates'
 import { seededRng } from '../../../helpers'
 
-const SOLVED = solvedCube('violet')
+const SOLVED = solvedCube('purple')
 
 /** A state entered as one would: its form, then each sticker painted (the
  *  editor completing what it can). */
 function paintedIn(cube: Cube) {
   const form = formOf(cube)
-  let edit = emptyEdit('violet', form)
+  let edit = emptyEdit('purple', form)
   for (const c of cube) {
     for (const s of c.stickers) {
-      edit = paint(edit, 'violet', c.position.join(), normalIndex(s.normal), s.color, form)
+      edit = paint(edit, 'purple', c.position.join(), normalIndex(s.normal), s.color, form)
     }
   }
   return edit
@@ -33,7 +33,7 @@ const look = (cube: Cube) =>
     .sort()
     .join(' ')
 
-describe('Violet', () => {
+describe('Purple', () => {
   it('is 7 big violet cubes and the 8 minis of A, one hidden: its core', () => {
     const bigs = SOLVED.filter((c) => c.position.every((v) => Math.abs(v) % 2 === 1))
     expect(bigs).toHaveLength(7)
@@ -44,7 +44,7 @@ describe('Violet', () => {
 
   it('turns, solved, only the three faces away from A', () => {
     const faces = new Set(
-      movesFor('violet')
+      movesFor('purple')
         .filter((m) => turnAllowed(SOLVED, m))
         .map((m) => m.face),
     )
@@ -61,7 +61,7 @@ describe('Violet', () => {
   })
 
   it('takes 1160 shapes, none of them stuck, 13 turns apart at most', () => {
-    const moves = movesFor('violet')
+    const moves = movesFor('purple')
     const seen = new Set([look(SOLVED)])
     let frontier = [SOLVED]
     let depth = 0
@@ -87,7 +87,7 @@ describe('Violet', () => {
   })
 
   it('takes 41760 states with the colors of A, 35 of them a cube but unsolved', () => {
-    const moves = movesFor('violet')
+    const moves = movesFor('purple')
     // The big cubes are alike: only where they stand counts, and A's minis.
     const key = (cube: Cube) =>
       cube
@@ -114,7 +114,7 @@ describe('Violet', () => {
           if (seen.has(key(after))) continue
           seen.add(key(after))
           // Solved in as many turns as it lies from solved: the fewest.
-          const solution = solveViolet(after)
+          const solution = solvePurple(after)
           expect(solution).toHaveLength(depth + 1)
           expect(isSolved(applyMoves(after, solution))).toBe(true)
           next.push(after)
@@ -137,7 +137,7 @@ describe('Violet', () => {
   it('scrambles away from the cube, A broken up, wherever it starts', () => {
     for (let seed = 0; seed < 20; seed++) {
       for (const start of [SOLVED, applyMove(SOLVED, { face: 'L', amount: 1 })]) {
-        const moves = scrambleTurns('violet', 25, seededRng(seed), start)
+        const moves = scrambleTurns('purple', 25, seededRng(seed), start)
         expect(moves.length).toBeGreaterThanOrEqual(25)
         const after = applyMoves(start, moves)
         expect(aBroken(after)).toBe(true)
@@ -165,14 +165,14 @@ describe('Violet', () => {
 
   it('is painted in as it stands, scrambled, sticker by sticker', () => {
     for (let seed = 0; seed < 10; seed++) {
-      const cube = applyMoves(SOLVED, scrambleTurns('violet', 25, seededRng(seed), SOLVED))
+      const cube = applyMoves(SOLVED, scrambleTurns('purple', 25, seededRng(seed), SOLVED))
       expect(paintedIn(cube)).toEqual(cubeToEdit(cube))
     }
   })
 
   it('is entered with its big cubes already violet: only A to paint', () => {
     // In its box, A's three minis of one sticker can only stand home: set too.
-    expect(progress(emptyEdit('violet'), 'violet')).toMatchObject({ filled: 24, total: 33 })
+    expect(progress(emptyEdit('purple'), 'purple')).toMatchObject({ filled: 24, total: 33 })
   })
 
   it('is written like a cube', () => {

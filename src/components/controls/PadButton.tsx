@@ -36,7 +36,7 @@ export function PadButton({ move, label, title, disabled, ghost, compact }: PadB
         onBlur={hide}
         onClick={() => move && pushMove(move)}
         variant={ghost ? 'ghost' : undefined}
-        className={`flex-1 rounded-none whitespace-nowrap ${compact ? 'px-1 text-xs' : 'px-2'}`}
+        className={`flex-1 rounded-none whitespace-nowrap ${compact ? 'px-0 text-xs tracking-tight' : 'px-2'}`}
         aria-label={title}
         title={title}
       >

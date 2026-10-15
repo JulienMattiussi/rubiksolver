@@ -102,12 +102,22 @@ export function solvedCube(shape: CubeShape = '3'): Cube {
 
 /** Stickers a puzzle wears in all: kept by every turn. Gears count apart
  *  (a Gear Cube has a 3x3's cubies and stickers), and gears on plain clips
- *  (the plain Gear Cube has the Ultimate's). */
-const stickerCount = (cube: Cube): number =>
-  cube.reduce(
-    (n, c) => n + c.stickers.length + (c.spin === undefined ? 0 : 1000) + (c.plainClips ? 1000 : 0),
-    0,
-  )
+ *  (the plain Gear Cube has the Ultimate's). A hidden mark counts by the
+ *  piece it is on (its colored stickers), which no turn changes either:
+ *  bandaged 3x3x3s with as many marks differ by where their blocks are. */
+function stickerCount(cube: Cube): number {
+  // Read at every turn (turnDims): plain loops, nothing allocated.
+  let n = 0
+  for (const c of cube) {
+    let marks = 0
+    for (const s of c.stickers) if (s.color === 'H') marks++
+    const colored = c.stickers.length - marks
+    n += colored + marks * (1 + 100 * colored)
+    if (c.spin !== undefined) n += 1000
+    if (c.plainClips) n += 1000
+  }
+  return n
+}
 
 /**
  * The shapes by cubie count, the signature `cubeShape` recognizes: a count
@@ -232,7 +242,7 @@ export function isBoxed(cube: Cube): boolean {
  * cuboids) there is no fixed reference, so a solved-but-reoriented puzzle
  * must count as solved. The face count tells a Pyramorphinx half turned a
  * quarter (each half uniform, but on two tetrahedra: eight faces) from one
- * in its form. The Violet has its own test (violet.ts): violet all over
+ * in its form. The Purple has its own test (purple.ts): violet all over
  * but A, so its faces are not one color each.
  */
 export function isSolved(cube: Cube): boolean {

@@ -1,8 +1,12 @@
 import { Fragment, useState } from 'react'
-import { cubeShape } from '@/lib/core/cube'
+import { cubeShape, solvedCube } from '@/lib/core/cube'
 import { canPaint, slotsFor } from '@/lib/editor/editor'
 import { entersByPieces, piecesIn } from '@/lib/editor/pieceEditor'
-import { withBars } from '@/lib/puzzles/twisted/roadblock'
+import { CATEGORY_OF } from '@/lib/puzzles/catalog'
+import { fusedAs } from '@/lib/puzzles/bandaged/bonds'
+import { entersJoints, withJoints } from '@/lib/editor/jointsEditor'
+import { JointHandles } from './JointHandles'
+import { withBars } from '@/lib/puzzles/bandaged/roadblock'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { COLOR_HEX } from './colors'
@@ -23,7 +27,8 @@ import { polyDrawing } from './polyDrawing'
  * The Floppy Ghost and the Z-Twist are entered piece by piece: each slot
  * shows the piece put there, and a click puts the next one (pieceEditor.ts);
  * a click on a Z-Twist side center turns it a quarter. A RoadBlock-I's
- * centers are drawn as their bars lie.
+ * centers are drawn as their bars lie, a bandaged puzzle's pieces fused as
+ * solved.
  */
 export function PolyEditView() {
   const shape = useCube((s) => cubeShape(s.cube))
@@ -32,6 +37,10 @@ export function PolyEditView() {
   const cycleAt = useEditor((s) => s.cycleAt)
   const twistAt = useEditor((s) => s.twistAt)
   const twisted = useEditor((s) => s.twisted)
+  const joints = useEditor((s) => s.joints)
+  // A bandaged puzzle's joints being clicked: its pieces drawn plain.
+  const clickingJoints = useEditor((s) => s.phase === 'joints')
+  const byJoints = entersJoints(shape)
   // While a form is being chosen, the one hovered (the original otherwise).
   const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
   const drawing = polyDrawing(shape)
@@ -62,8 +71,15 @@ export function PolyEditView() {
             ...(twistCenter && { spin: twisted.includes(slot.key) ? 1 : 0 }),
           }
           // A RoadBlock-I's centers drawn as their bars lie (`twisted`: its
-          // faces turned a quarter).
-          const solved = shape === 'roadblock' ? withBars([plain], twisted)[0]! : plain
+          // faces turned a quarter); a bandaged puzzle's pieces fused as solved.
+          const solved =
+            shape === 'roadblock'
+              ? withBars([plain], twisted)[0]!
+              : byJoints
+                ? withJoints([plain], joints)[0]!
+                : CATEGORY_OF[shape] === 'bandaged'
+                  ? fusedAs(plain, solvedCube(shape))
+                  : plain
           if (pieces && slot.paintable) {
             // Entered piece by piece: the piece placed, or the slot's own in
             // gray while empty; a click puts the next one.
@@ -96,7 +112,8 @@ export function PolyEditView() {
               .map((s) => s.ni),
           )
           const hex = (ni: number) => {
-            // A face with no sticker to enter keeps its own (the Violet's),
+            if (clickingJoints) return byNi.has(ni) ? EMPTY_COLOR : undefined
+            // A face with no sticker to enter keeps its own (the Purple's),
             // as does a piece that never moves, entered piece by piece (the
             // Z-Twist's centers).
             if (!byNi.has(ni) || (pieces && !slot.paintable)) return undefined
@@ -112,17 +129,20 @@ export function PolyEditView() {
               drawing={drawing}
               stickerHex={hex}
               onSelect={
-                twistCenter
-                  ? () => twistAt(slot.key)
-                  : canPaint(shape, slot.key, form)
-                    ? (ni) => paintAt(slot.key, ni)
-                    : undefined
+                clickingJoints
+                  ? undefined
+                  : twistCenter
+                    ? () => twistAt(slot.key)
+                    : canPaint(shape, slot.key, form)
+                      ? (ni) => paintAt(slot.key, ni)
+                      : undefined
               }
               onHover={hover(slot.key)}
               lit={litIn(slot.key)}
             />
           )
         })}
+        {clickingJoints && <JointHandles shape={shape} />}
       </group>
     </group>
   )

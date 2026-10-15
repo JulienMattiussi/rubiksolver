@@ -5,7 +5,8 @@
 POC d'un **Rubik's Cube 3D interactif et pédagogique**, sur des dizaines de
 puzzles rangés en catégories, celles du sélecteur et des dossiers du code :
 standard, miroirs (une variante de rendu des standards, sans dossier à elle),
-tower, flat, pyramid, polyhedron, round, gear, diagonal, holey, twisted. La
+tower, flat, pyramid, polyhedron, round, gear, diagonal, holey, twisted,
+bandaged (les soudés). La
 liste fait foi dans les catalogues (`lib/puzzles/<catégorie>/catalog.ts`).
 
 On manipule le puzzle, on le mélange ou on saisit sa propre configuration,
@@ -99,7 +100,8 @@ src/
 │   │   ├── models.ts    #   tous les modèles (models.ts de chaque catégorie)
 │   │   ├── model.ts     #   PuzzleModel : construction, mécanisme, coups permis, boîte, résolu, symétries,
 │   │   │                #     coups et mélange (sans grille), saisie
-│   │   ├── <catégorie>/ #   standard, tower, flat, pyramid, polyhedron, round, gear, diagonal, holey, twisted :
+│   │   ├── <catégorie>/ #   standard, tower, flat, pyramid, polyhedron, round, gear, diagonal, holey, twisted,
+│   │   │                #     bandaged (blocks.ts : les blocs de chaque soudé ; bonds.ts : leur modèle commun) :
 │   │   │                #     catalog.ts, models.ts et le module de chaque puzzle qui en a un (star.ts, gear.ts...)
 │   │   └── shared/      #   ce qui sert à plusieurs catégories (rainbow : le modèle des sommets qui tournent ;
 │   │                    #     thinEdges : les arêtes sans sens visible)
@@ -294,7 +296,7 @@ code : « Le cube miroir » dans
   la résolution échoue sur une étape, le message dit laquelle (`StepFailure`
   de `buildSteps`, lu par `validateCube`).
 
-**Puzzles déformables (tours 2x2x4 et 2x3x4, Violet, Pyramorphinx, AI Cube ;
+**Puzzles déformables (tours 2x2x4 et 2x3x4, Purple, Pyramorphinx, AI Cube ;
 le Camouflage, aux formes trop nombreuses, dans sa boîte seulement)** : on saisit le puzzle dans la forme où il
 se trouve physiquement. La saisie commence par **choisir sa forme**
 (`FormPicker`) parmi celles qu'il peut prendre (`lib/editor/forms.ts`) : un
@@ -308,11 +310,11 @@ ses emplacements sont les siens, et un emplacement accepte toute pièce de
 son type tournée pour présenter ses stickers sur ses faces (aucune
 orientation du puzzle entier ne l'y met, la boîte étant rompue), pourvu
 que la parité de ses coordonnées soit celle de l'emplacement (aucun coup ne
-la change : un gros cube du Violet ne va jamais où va un mini-cube) : la
+la change : un gros cube du Purple ne va jamais où va un mini-cube) : la
 validation dit ensuite si l'état est atteignable. Il en va de même dans sa
 boîte : un puzzle déformable peut y revenir avec des pièces tournées sur
-elles-mêmes (le coin de A du Violet), que les seules rotations du puzzle
-entier n'y mettraient pas. « Depuis l'état actuel »
+elles-mêmes (le coin de A du Purple), que les seules rotations du puzzle
+entier n'y mettraient pas. « Modifier »
 saisit un puzzle déformé dans sa forme, sans passer par le choix. Un futur
 puzzle déformable n'a rien à ajouter : `formsOf` se déduit de ses coups.
 
@@ -328,6 +330,11 @@ Les comptes de couleurs se déduisent du puzzle résolu (`stickersOfColor`,
 `shapeColors`), pas des faces d'un cube : la saisie marche sur toutes les
 formes, étoiles comprises (voir « Le Star Prism » dans
 [docs/puzzles/round.md](docs/puzzles/round.md)).
+
+**Saisie par les soudures** (`lib/editor/jointsEditor.ts`), pour un soudé
+dont les blocs bougent : on clique d'abord ses joints (validés contre ses
+formes), puis on peint ses couleurs, les pièces dessinées soudées ; voir
+[docs/puzzles/bandaged.md](docs/puzzles/bandaged.md).
 
 **Saisie pièce par pièce** (`entry.byPieces` dans le modèle,
 `lib/editor/pieceEditor.ts`), pour un puzzle aux formes trop nombreuses pour

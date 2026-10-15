@@ -116,7 +116,16 @@ export const UI_EN: typeof UI_FR = {
     wide3: 'Wide 3',
     advanced: 'Advanced',
   },
-  editCube: 'Enter a cube',
+  editCube: 'Enter',
+  editHintJoints:
+    'Its joints first: click each joint between two pieces fused together (it lights up), as your puzzle shows them. Turn the view to reach the other faces, then accept the form.',
+  acceptJoints: 'Accept the joints',
+  changeJoints: 'Change the joints',
+  jointsCount: (n: number) => `${n} joint${n > 1 ? 's' : ''}`,
+  errorJoints: 'These joints make no form of this puzzle: check each block.',
+  errorJointsColors:
+    'The colors do not go with the joints: a fused piece is not next to its block’s neighbor.',
+  editCubeTitle: 'Enter a cube: paint its colors',
   editTitle: 'Cube input',
   editHint:
     'Pick a color, then click stickers. Orbit the view to reach the other faces. Pieces auto-complete and no impossible combination is accepted.',
@@ -147,7 +156,8 @@ export const UI_EN: typeof UI_FR = {
   barsTurnedTitle: (face: string) =>
     `The bars of the ${face} go the other way than at START (its centers turn a quarter)`,
   barFaces: { U: 'Up', D: 'Down', L: 'Left', R: 'Right', F: 'Front', B: 'Back' },
-  fromCurrent: 'From current state',
+  fromCurrent: 'Edit',
+  fromCurrentTitle: 'Edit the cube from its current state',
   gearsNotAligned: 'Bring the cube back into shape first: it is entered with its gears aligned',
   notInBox:
     'Bring the puzzle back into its brick shape first: deformed, its shapes are too many to offer',
@@ -265,6 +275,7 @@ export const UI_EN: typeof UI_FR = {
     diagonal: 'Diagonal cuts',
     holey: 'Holey',
     twisted: 'Twisted',
+    bandaged: 'Bandaged',
   },
   sectionSetup: 'Setup',
   sectionSolve: 'Solve',

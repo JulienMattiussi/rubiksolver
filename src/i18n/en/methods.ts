@@ -127,7 +127,7 @@ export const METHODS_EN: typeof METHODS_FR = {
   },
   cornersFirst: {
     name: 'Corners then edges',
-    desc: 'Corners first, then edges, each time with a formula that only touches what is left to do (Domino: bottom then top; Floppy: corners placed, then edges flipped two at a time; Floppy Ghost: corners placed then turned over, then edges flipped two at a time).',
+    desc: 'Corners first, then edges, each time with a formula that only touches what is left to do (Domino: bottom then top; Floppy: corners placed, then edges flipped two at a time; Floppy Ghost: corners placed then turned over, then edges flipped two at a time; BigBlock: the two bottom corners, which place the top ones, then the edges by 3-cycles of the top).',
   },
   gemCentersFirst: {
     name: 'Centers first',
@@ -163,6 +163,10 @@ export const METHODS_EN: typeof METHODS_FR = {
   },
   optimal: {
     name: 'Optimal',
-    desc: 'Exhaustive search for the shortest possible solution (2x2, 1x2x3, Floppy, Floppy Ghost and Violet, whose state spaces are small enough).',
+    desc: 'Exhaustive search for the shortest possible solution (2x2, 1x2x3, Floppy, Floppy Ghost and Purple, whose state spaces are small enough).',
+  },
+  fromStart: {
+    name: 'From START',
+    desc: 'First the puzzle goes to its START position, the one the page’s formulas start from: its blocks where they belong (its solved form, or another, as ABA’ on the Stripe). Then the pieces are placed with those formulas, which leave START as it is and so always go, and a few turns that lead back to it; last, when START is not the solved form, back to it.',
   },
 }

@@ -70,7 +70,7 @@ fois celle-ci connue, une face de l'engrenage donne l'autre et une couleur
 hors de la paire est refusée (`paintGear`, `completeGears`). À la
 validation, `turnedOf` dit quels engrenages sont retournés sur leurs
 agrafes (ou qu'un engrenage n'a pas leurs couleurs), et `buildCube` les pose
-(`withTurnedGears` ; `gearColorsOf` en sens inverse). « Depuis l'état actuel » est grisé tant qu'un engrenage est
+(`withTurnedGears` ; `gearColorsOf` en sens inverse). « Modifier » est grisé tant qu'un engrenage est
 de travers (`gearsAligned` : pivot nul ou d'un demi-tour). Le décompte et la palette comptent aussi les faces des
 engrenages (`gearFaces`).
 

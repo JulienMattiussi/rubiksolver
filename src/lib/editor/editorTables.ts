@@ -1,5 +1,5 @@
 import { cubeOrientations, solvedCube } from '../core/cube'
-import { withoutBars } from '../puzzles/twisted/roadblock'
+import { MODELS } from '../puzzles/models'
 import { lookOf } from './forms'
 import { AXIS_ROTATIONS, normalIndex } from '../core/geometry'
 import { layerTurnsOf } from '../core/moves'
@@ -70,10 +70,13 @@ function hiddenSticker(shape: CubeShape, position: Vec3, normal: Vec3): boolean 
   return isStar(shape) && Math.abs(position[1]) === 1 && normal[1] !== 0
 }
 
-/** The solved puzzle the editor works on: the RoadBlock-I's without its
- *  bars' marks (it is entered at START, its bars as solved). */
-const entrySolved = (shape: CubeShape): Cube =>
-  shape === 'roadblock' ? withoutBars(solvedCube(shape)) : solvedCube(shape)
+/** The solved puzzle the editor works on, as it shows it: without the
+ *  RoadBlock-I's bars' marks (it is entered at START, its bars as solved),
+ *  nor a bandaged puzzle's. */
+function entrySolved(shape: CubeShape): Cube {
+  const seen = MODELS[shape]?.entry?.seen
+  return seen ? seen(solvedCube(shape), (c) => c) : solvedCube(shape)
+}
 
 /** A cubie of a solved cube as a slot (fixed position + exterior normals). */
 function toSlot(shape: CubeShape, cubie: Cubie, fixed: boolean): Slot {
@@ -162,7 +165,7 @@ export function tablesFor(shape: CubeShape, form?: Cube): SlotTables {
       paintableSlots,
       byKey: new Map(slots.map((s) => [s.key, s])),
       // A puzzle that shifts can come back to its box with pieces turned in
-      // place (the Violet's minis): any turn of a piece, the check after.
+      // place (the Purple's minis): any turn of a piece, the check after.
       placements:
         boxed && !SHAPE_SHIFTS[shape]
           ? computePlacements(shape, paintableSlots)
@@ -218,7 +221,7 @@ function turnedPlacements(
 }
 
 /** The parities of a position's coordinates, in any order: no turn changes
- *  them, so a piece only ever reaches slots that share them (the Violet's
+ *  them, so a piece only ever reaches slots that share them (the Purple's
  *  big cubes, on odd coordinates, never stand where a mini does). */
 const parities = (p: readonly number[]) =>
   p

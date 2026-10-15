@@ -1,4 +1,5 @@
 import type { CubeShape } from '../core/types'
+import { BANDAGED_MODELS } from './bandaged/models'
 import { DIAGONAL_MODELS } from './diagonal/models'
 import { FLAT_MODELS } from './flat/models'
 import { GEAR_MODELS } from './gear/models'
@@ -23,4 +24,5 @@ export const MODELS: Partial<Record<CubeShape, PuzzleModel>> = {
   ...DIAGONAL_MODELS,
   ...HOLEY_MODELS,
   ...TWISTED_MODELS,
+  ...BANDAGED_MODELS,
 }

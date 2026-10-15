@@ -148,8 +148,7 @@ toujours, une couche seule (`R`, `2R`) tant qu'aucune pièce n'est debout
 sur son axe de son côté. Dans la boîte, le haut ne tourne donc qu'en bloc ;
 les côtés tournent couche par couche, et la déforment.
 
-**Saisie** dans la boîte seulement (`notEnterable`) ; « Depuis l'état
-actuel » attend qu'il y soit revenu.
+**Saisie** dans la boîte seulement (`notEnterable`) ; « Modifier » attend qu'il y soit revenu.
 
 **Résolution** (`methods/tower/camo.ts`, méthode **Réduction en Domino**,
 d'après la page) : (A) la forme (« au feeling », dit la page) : une

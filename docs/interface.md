@@ -19,7 +19,8 @@ mobile et en saisie, une seule carte) :
   Changer de forme réinitialise le cube et rabat la méthode si besoin, changer
   de variante conserve l'état.
 - **Actions** : le **statut** sur la ligne du choix du cube, mélanger /
-  réinitialiser, saisie d'un cube (vierge ou depuis l'état courant),
+  réinitialiser, saisie d'un cube (« Saisir » : vierge ; « Modifier » : depuis
+  l'état courant ; leurs infobulles le disent en entier),
   **Mémoriser / Restaurer** (un état par forme, gardé entre deux visites,
   pour comparer deux méthodes sur le même mélange ; remplacer un autre état
   mémorisé demande confirmation dans une modale), vitesse
@@ -27,13 +28,17 @@ mobile et en saisie, une seule carte) :
 - **Pad de rotations**, construit à partir des coups que la
   forme autorise, lus dans `movesFor` (une gâchette horaire + une anti-horaire
   par face ; un seul bouton de demi-tour là où la forme n'a pas de quart de
-  tour ; rien pour une face dont l'axe n'a qu'une couche ; un sélecteur
-  Externe / Tranche / Large, limité aux sortes de coups de la forme (Externe /
-  Large sur la tour 2x2x4 ; écrits en notation sur le 6x6, `R 2R 3R Rw 3Rw`),
-  choisit la couche tournée, plus un onglet « Avancé »
-  sur le 3x3 (`M`, `E`, `S`, coups larges) ; un coup que l'état bloque (tours
-  qui se déforment, Violet, AI Cube...) reste grisé ; en arrivant sur un puzzle, le pad s'ouvre sur le
-  premier onglet où un coup passe, « Large » sur l'AI Cube résolu ; un puzzle
+  tour ; rien pour une face dont l'axe n'a qu'une couche). Les sortes de
+  coups de la forme (Externe / Tranche / Large, plus « Avancé » sur le 3x3 :
+  `M`, `E`, `S`, coups larges) sont **empilées**, chacune sous son nom,
+  quand elles tiennent en six rangées au plus (`STACKED_ROWS`, autant que le
+  pad du Megaminx) : 3x3, 4x4, tours, AI Cube, Pyraminx (son pad aussi).
+  Au-delà (5x5, 6x6, Master Pyraminx...), un sélecteur à onglets choisit la
+  couche tournée (écrits en notation sur le 6x6, `R 2R 3R Rw 3Rw`), et en
+  arrivant sur un puzzle le pad s'ouvre sur le premier onglet où un coup
+  passe. Un
+  coup que l'état bloque (tours qui se déforment, Purple, soudés...) reste
+  grisé ; un puzzle
   qui ne tourne pas comme un cube a son propre pad, nommé par le `pad` de sa
   carte et construit par `padFor`).
 - **Résolution** : choix de la **méthode** (liste déroulante, filtrée par
@@ -80,7 +85,7 @@ la forme, montré **sur le cube dans son état actuel**, avec sa notation et une
 phrase qui le décrit. Une ligne par couche et par sens : le coup et son
 opposé côte à côte (`R` / `R'`, `1` / `-1`), puis le coup quantifié (`R2` ;
 `2` / `-2` puis `3` sur l'étoile, où trois crans font un demi-tour dans les
-deux sens). Les couches sont celles du pad (onglet « Avancé » compris) plus
+deux sens). Les couches sont celles du pad (« Avancé » compris) plus
 celles que tournent les méthodes de la forme (`methodTurns`), groupées par sections (faces, tranches du milieu,
 tranches internes, coups larges ; étages et slash sur l'étoile), sans
 sélecteur : tout défile verticalement. Le contenu est **pur et dérivé**

@@ -5,7 +5,7 @@ envisagées.
 
 ## Gear Cube Extreme : accélérer la résolution
 
-**Constat.** La méthode « Équateur puis coins » (`src/lib/methods/gearExtreme.ts`)
+**Constat.** La méthode « Équateur puis coins » (`src/lib/methods/gear/gearExtreme.ts`)
 résout tous les mélanges testés, mais lentement : de quelques secondes à
 environ 25 s. Presque tout le temps passe dans la dernière étape, les
 engrenages. Le calcul se fait dans le worker, donc la page ne fige pas, et
@@ -89,3 +89,27 @@ de positions d'une pièce) puis ne bouge plus.
 **Pas mesuré** : la mémoire du worker de résolution, qui garde ses tables
 (formules du Megaminx et du Crystal : quelques dizaines de Mo, une fois par
 liste de formules, donc bornées) ; une session de plusieurs heures.
+
+## Soudés : saisie guidée par les soudures
+
+**Constat.** Une fois les soudures validées, les couleurs se peignent comme
+sur un 3x3 : rien n'empêche de peindre, à la place d'une barre, un coin
+qui n'en est pas une. L'erreur n'est signalée qu'à la fin (« Les couleurs
+ne vont pas avec les soudures »).
+
+**Piste.** Filtrer les placements de chaque emplacement (`editorTables.ts`)
+selon la forme saisie : une pose n'est valable que si les marques de la
+pièce, tournées comme ses couleurs, tombent sur les soudures de
+l'emplacement.
+
+## Soudés : FusedStripe plus lent
+
+**Constat.** Sa méthode (`methods/bandaged/fusedStripe.ts`) prend jusqu'à
+3 s environ (les autres soudés moins d'une seconde) : le placement de ses
+sommets cherche avec les coups libres, les formules en START ne les
+déplaçant pas, et son orientation passe par l'état m avec beaucoup de
+formules.
+
+**Piste.** Précalculer l'effet des formules (comme pour le Gear Cube
+Extreme), ou reprendre les formules de la page qui amènent un sommet à sa
+place sans quitter START, s'il y en a.

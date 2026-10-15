@@ -14,17 +14,22 @@ describe.each([
   ['445', TOWER445_PLAN],
   ['554', TOWER554_PLAN],
 ] as [CubeShape, MethodPlan][])('%s', (shape, plan) => {
-  it.each(['2R2', 'U 2R2', '2F2 R2'])('solves %s, its parity first', (moves) => {
-    const cube = applyMoves(solvedCube(shape), parseMoves(moves))
-    const steps = buildSteps(cube, plan)
-    expect(steps[0]!.key).toBe('stepParity')
-    expect(
-      isSolved(
-        applyMoves(
-          cube,
-          steps.flatMap((s) => s.moves),
+  it.each(['2R2', 'U 2R2', '2F2 R2'])(
+    'solves %s, its parity first',
+    (moves) => {
+      const cube = applyMoves(solvedCube(shape), parseMoves(moves))
+      const steps = buildSteps(cube, plan)
+      expect(steps[0]!.key).toBe('stepParity')
+      expect(
+        isSolved(
+          applyMoves(
+            cube,
+            steps.flatMap((s) => s.moves),
+          ),
         ),
-      ),
-    ).toBe(true)
-  })
+      ).toBe(true)
+      // About 2 s alone, more under the full suite's load.
+    },
+    30000,
+  )
 })

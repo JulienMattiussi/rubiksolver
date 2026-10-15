@@ -54,7 +54,7 @@ export function slotsFor(shape: CubeShape, form?: Cube): readonly Slot[] {
 }
 
 /** The colors to pick from: the shape's, but one its pre-filled stickers
- *  all take (the Violet's violet). */
+ *  all take (the Purple's violet). */
 export function paletteColors(shape: CubeShape, form?: Cube): Color[] {
   const { remaining } = progress(emptyEdit(shape, form), shape, form)
   return shapeColors(shape).filter((c) => remaining[c] > 0)
@@ -71,7 +71,7 @@ export type EditStickers = Record<string, Color>
 
 /** A blank slate: only the fixed pieces are set (see `Slot.paintable`),
  *  and any sticker every piece that fits its slot shows in one color (the
- *  Violet's big cubes, violet all over). */
+ *  Purple's big cubes, violet all over). */
 export function emptyEdit(shape: CubeShape, form?: Cube): EditStickers {
   const tables = tablesFor(shape, form)
   const edit: EditStickers = {}

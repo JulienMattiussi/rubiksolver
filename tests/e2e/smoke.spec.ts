@@ -68,7 +68,7 @@ test('mirror cube: the variant is a skin, it keeps the state and renders', async
   await expect(page.locator('canvas:not([aria-hidden])')).toBeVisible()
 
   // The editor paints thicknesses instead of colors, and still applies.
-  await page.getByRole('button', { name: /Depuis l.?.tat actuel/ }).click()
+  await page.getByRole('button', { name: 'Modifier', exact: true }).click()
   await expect(page.getByRole('radiogroup', { name: 'Épaisseurs' })).toBeVisible()
   await expect(page.getByText('96 / 96 stickers')).toBeVisible()
   await page.getByRole('button', { name: 'Utiliser ce cube' }).click()
@@ -145,7 +145,7 @@ test('4x4 cube editor: movable centers count toward the 96 stickers', async ({ p
   await page.goto('/#/fr/3x3')
 
   await pickCube(page, 'Standards', '4x4 (Revenge)')
-  await page.getByRole('button', { name: /Depuis l.?.tat actuel/ }).click()
+  await page.getByRole('button', { name: 'Modifier', exact: true }).click()
   await expect(page.getByText('96 / 96 stickers')).toBeVisible()
 
   const use = page.getByRole('button', { name: 'Utiliser ce cube' })
@@ -158,13 +158,13 @@ test('cube editor: enter, fill from current state, apply', async ({ page }) => {
   await page.goto('/#/fr/3x3')
 
   // Blank entry shows the palette, then cancel back to play.
-  await page.getByRole('button', { name: 'Saisir un cube' }).click()
+  await page.getByRole('button', { name: 'Saisir', exact: true }).click()
   await expect(page.getByRole('radiogroup', { name: 'Couleurs' })).toBeVisible()
   await page.getByRole('button', { name: 'Annuler' }).click()
   await expect(page.getByRole('button', { name: 'Mélanger' })).toBeVisible()
 
   // Enter pre-filled from the current (solved) cube: 54/54, complete and valid.
-  await page.getByRole('button', { name: /Depuis l.?.tat actuel/ }).click()
+  await page.getByRole('button', { name: 'Modifier', exact: true }).click()
   await expect(page.getByText('54 / 54 stickers')).toBeVisible()
 
   const use = page.getByRole('button', { name: 'Utiliser ce cube' })
@@ -220,7 +220,7 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
     ['Cylindriques', '2-Star Prism (UFO)'],
     ['Cylindriques', '4-Star Prism'],
     ['Engrenages', 'Gear Cube Ultimate'],
-    ['Torturés', 'Violet'],
+    ['Torturés', 'Purple'],
   ]
   for (const [category, name] of puzzles) {
     await pickCube(page, category, name)
@@ -253,12 +253,16 @@ const ENTERED: [string, string, string][] = [
   // Corners turning: edges, centers and petals.
   ['Coupes diagonales', 'Rex Cube', '54 / 54 stickers'],
   // Out of its box, its big cubes pre-filled.
-  ['Torturés', 'Violet', '33 / 33 stickers'],
+  ['Torturés', 'Purple', '33 / 33 stickers'],
   // Entered piece by piece: its pieces counted.
   ['Plats', 'Floppy Ghost', '10 / 10 pièces'],
   ['Torturés', 'Z-Twist', '20 / 20 pièces'],
   // Only the stickers one sees count: the inner points' flat faces fill in.
   ['Cylindriques', '4-Star Prism', '64 / 64 stickers'],
+  // Its blocks' marks unseen: found again from its colors.
+  ['Soudés', 'Fused', '54 / 54 stickers'],
+  // Its joints taken from its state, then its colors.
+  ['Soudés', 'Stripe', '54 / 54 stickers'],
 ]
 
 for (const [category, name, complete] of ENTERED) {
@@ -270,7 +274,7 @@ for (const [category, name, complete] of ENTERED) {
     await page.getByLabel('Vitesse').fill('100')
     await pickCube(page, category, name)
     await page.getByRole('button', { name: 'Mélanger' }).click()
-    const fromCurrent = page.getByRole('button', { name: /Depuis l.?.tat actuel/ })
+    const fromCurrent = page.getByRole('button', { name: 'Modifier', exact: true })
     await expect(fromCurrent).toBeEnabled({ timeout: 30000 })
     await fromCurrent.click()
     await expect(page.getByText(complete)).toBeVisible()
@@ -286,7 +290,7 @@ for (const [category, name, complete] of ENTERED) {
 test('tower entry: pick the form it stands in, then paint on it', async ({ page }) => {
   await page.goto('/#/fr/3x3')
   await pickCube(page, 'Tours', '2x2x4')
-  await page.getByRole('button', { name: 'Saisir un cube' }).click()
+  await page.getByRole('button', { name: 'Saisir', exact: true }).click()
   await expect(page.getByText('Dans quelle forme est votre puzzle ?')).toBeVisible()
   await page.getByRole('button', { name: /^Forme 2,/ }).click()
   await expect(page.getByText('0 / 40 stickers')).toBeVisible()
@@ -341,5 +345,22 @@ test('home page: a gallery to choose from, the solve block grayed, the title lea
       name: /^Choisissez votre modèle dans la galerie, parmi les \d+ disponibles$/,
     }),
   ).toBeVisible()
+  expect(errors).toEqual([])
+})
+
+test('bandaged entry: its joints first, a form it cannot take refused', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/#/fr/stripe')
+  await page.getByRole('button', { name: 'Saisir', exact: true }).click()
+  await expect(page.getByText('0 soudure')).toBeVisible()
+  await page.getByRole('button', { name: 'Valider les soudures' }).click()
+  await expect(page.getByRole('alert')).toContainText('aucune forme')
+  await page.getByRole('button', { name: 'Annuler' }).click()
+  // From its state, its joints are known: straight to its colors.
+  await page.getByRole('button', { name: 'Modifier', exact: true }).click()
+  await expect(page.getByText('54 / 54 stickers')).toBeVisible()
+  await page.getByRole('button', { name: 'Changer les soudures' }).click()
+  await expect(page.getByText('3 soudures')).toBeVisible()
   expect(errors).toEqual([])
 })

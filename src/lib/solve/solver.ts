@@ -14,8 +14,19 @@ import { PUCK_PLAN } from '../methods/round/puck'
 import { EDGE_ONLY_PLAN } from '../methods/holey/edgeOnly'
 import { CAMO_PLAN } from '../methods/tower/camo'
 import { QUARTER_PLAN } from '../methods/twisted/quarter'
-import { AI_PLAN } from '../methods/twisted/ai'
-import { ROADBLOCK_PLAN } from '../methods/twisted/roadblock'
+import { AI_PLAN } from '../methods/bandaged/ai'
+import { ROADBLOCK_PLAN } from '../methods/bandaged/roadblock'
+import { BIG_BLOCK_PLAN } from '../methods/bandaged/bigBlock'
+import { FUSED_PLAN } from '../methods/bandaged/fused'
+import { SQUAREBIK_PLAN } from '../methods/bandaged/squarebik'
+import { ALCATRAZ_PLAN } from '../methods/bandaged/alcatraz'
+import { BANDAGE_PLAN } from '../methods/bandaged/bandage'
+import { DETOUR_PLAN } from '../methods/bandaged/detour'
+import { DIAMOND_PLAN } from '../methods/bandaged/diamond'
+import { FUSED_STRIPE_PLAN } from '../methods/bandaged/fusedStripe'
+import { QUAD_PLAN } from '../methods/bandaged/quad'
+import { QUAD_STRIPE_PLAN } from '../methods/bandaged/quadStripe'
+import { STRIPE_PLAN } from '../methods/bandaged/stripe'
 import { PETRUS_PLAN } from '../methods/standard/petrus'
 import { PYRAMINX_PLAN, TETRAMINX_PLAN } from '../methods/pyramid/pyraminx'
 import { PYRAMINX4_PLAN } from '../methods/pyramid/pyraminx4'
@@ -37,7 +48,7 @@ import { TOWER443_PLAN, TOWER445_PLAN } from '../methods/tower/tower44'
 import { TOWER554_PLAN } from '../methods/tower/tower554'
 import { TOWER234_PLAN } from '../methods/tower/tower234'
 import { GEAR_EXTREME_PLAN } from '../methods/gear/gearExtreme'
-import { VIOLET_OPTIMAL_PLAN, VIOLET_SHAPE_FIRST_PLAN } from '../methods/twisted/violet'
+import { PURPLE_OPTIMAL_PLAN, PURPLE_SHAPE_FIRST_PLAN } from '../methods/twisted/purple'
 import { withCentersHome } from '../methods/standard/recenter'
 import { ROUX_PLAN } from '../methods/standard/roux'
 import { SLIM_TOWER_PLAN } from '../methods/tower/slimTower'
@@ -81,6 +92,8 @@ const SOLVE_METHODS = [
       fisher: fisherPlan(withCentersHome(BEGINNER_PLAN)),
       windmill: fisherPlan(withCentersHome(BEGINNER_PLAN)),
       mmorph: mmorphPlan(withCentersHome(BEGINNER_PLAN)),
+      fused: FUSED_PLAN,
+      squarebik: SQUAREBIK_PLAN,
     },
   },
   {
@@ -148,6 +161,19 @@ const SOLVE_METHODS = [
   { id: 'quarterEdgesFirst', plans: { quarter: QUARTER_PLAN } },
   { id: 'aiBlocks', plans: { ai: AI_PLAN } },
   { id: 'rbCenters', plans: { roadblock: ROADBLOCK_PLAN } },
+  {
+    id: 'fromStart',
+    plans: {
+      quadStripe: QUAD_STRIPE_PLAN,
+      detour: DETOUR_PLAN,
+      diamond: DIAMOND_PLAN,
+      bandage: BANDAGE_PLAN,
+      quad: QUAD_PLAN,
+      stripe: STRIPE_PLAN,
+      fusedStripe: FUSED_STRIPE_PLAN,
+      alcatraz: ALCATRAZ_PLAN,
+    },
+  },
   { id: 'equatorFirst', plans: { '223': SLIM_TOWER_PLAN } },
   { id: 'centersFirst', plans: { pyra: PYRAMINX_PLAN, tetra: TETRAMINX_PLAN } },
   { id: 'wingsFirst', plans: { pyra4: PYRAMINX4_PLAN, pyra5: PYRAMINX5_PLAN } },
@@ -166,12 +192,15 @@ const SOLVE_METHODS = [
   { id: 'ftoCornersFirst', plans: { fto: FTO_PLAN } },
   { id: 'gearCornersFirst', plans: { gearCube: GEAR_PLAN, gearU: GEAR_ULTIMATE_PLAN } },
   { id: 'gearEquatorFirst', plans: { gearX: GEAR_EXTREME_PLAN } },
-  { id: 'shapeFirst', plans: { violet: VIOLET_SHAPE_FIRST_PLAN } },
+  { id: 'shapeFirst', plans: { purple: PURPLE_SHAPE_FIRST_PLAN } },
   { id: 'extendedCross', plans: { tori: TORI_PLAN, edge: EDGE_ONLY_PLAN } },
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },
   { id: 'twoStars', plans: { star4: STAR4_PLAN } },
   { id: 'puckIsolate', plans: { puck: PUCK_PLAN } },
-  { id: 'cornersFirst', plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN, ghost: GHOST_PLAN } },
+  {
+    id: 'cornersFirst',
+    plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN, ghost: GHOST_PLAN, bigBlock: BIG_BLOCK_PLAN },
+  },
   {
     id: 'optimal',
     plans: {
@@ -179,7 +208,7 @@ const SOLVE_METHODS = [
       '123': optimalPlan('123'),
       '331': optimalPlan('331'),
       ghost: optimalPlan('ghost'),
-      violet: VIOLET_OPTIMAL_PLAN,
+      purple: PURPLE_OPTIMAL_PLAN,
     },
   },
 ] as const satisfies ReadonlyArray<{

@@ -28,7 +28,7 @@ import { hasColoredClips, isGear, type Cube, type CubeShape, type Turn } from '@
 import { alignGears } from '@/lib/puzzles/gear/gear'
 import { gearColorsOf, turnedOf } from '@/lib/editor/gearEditor'
 import { validateCube } from '@/lib/editor/validate'
-import { barsTurned } from '@/lib/puzzles/twisted/roadblock'
+import { barsTurned } from '@/lib/puzzles/bandaged/roadblock'
 import { LOCALES } from '@/i18n/translations'
 import { seededRng } from '../helpers'
 
@@ -37,6 +37,7 @@ import { seededRng } from '../helpers'
  * every turn undone by its inverse, its whole-puzzle orientations, scrambles
  * solved by each of its methods (held any way up), the editor and the
  * snapshots round-tripping a scrambled state, a guide naming every turn.
+ * A solution's every turn must go where it is played.
  *
  * A new puzzle adds one row here; its own test file only keeps what is its
  * own (notation, the effect of its formulas, its method's move sets).
@@ -90,7 +91,7 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'rainbow', pieces: 20, stickers: 56, orientations: 24, painted: 56, scramble: 20 },
   // Held three ways: about its diagonal through A, its one symmetry.
   {
-    shape: 'violet',
+    shape: 'purple',
     pieces: 15,
     stickers: 33,
     orientations: 3,
@@ -153,6 +154,18 @@ const PUZZLES: ReadonlyArray<{
     scramble: 25,
   },
 
+  // Bandaged 3x3x3s: their blocks' hidden marks count among their stickers.
+  { shape: 'bigBlock', pieces: 27, stickers: 94, orientations: 24, painted: 54, scramble: 25 },
+  { shape: 'squarebik', pieces: 27, stickers: 62, orientations: 24, painted: 54, scramble: 25 },
+  { shape: 'fused', pieces: 27, stickers: 78, orientations: 24, painted: 54, scramble: 25 },
+  { shape: 'quadStripe', pieces: 27, stickers: 84, orientations: 24, painted: 54, scramble: 25 },
+  { shape: 'detour', pieces: 27, stickers: 68, orientations: 24, painted: 54, scramble: 25 },
+  { shape: 'diamond', pieces: 27, stickers: 74, orientations: 24, painted: 54, scramble: 25 },
+  { shape: 'bandage', pieces: 27, stickers: 80, orientations: 24, painted: 54, scramble: 25 },
+  { shape: 'quad', pieces: 27, stickers: 78, orientations: 24, painted: 54, scramble: 25 },
+  { shape: 'stripe', pieces: 27, stickers: 60, orientations: 24, painted: 54, scramble: 25 },
+  { shape: 'fusedStripe', pieces: 27, stickers: 84, orientations: 24, painted: 54, scramble: 25 },
+  { shape: 'alcatraz', pieces: 27, stickers: 96, orientations: 24, painted: 54, scramble: 25 },
   { shape: 'star', pieces: 14, stickers: 40, orientations: 12, painted: 40, scramble: 30 },
   // The 4-star's inner points hide a face each: 12 stickers never seen.
   { shape: 'star4', pieces: 26, stickers: 76, orientations: 12, painted: 64, scramble: 40 },
@@ -248,14 +261,13 @@ describe.each(PUZZLES)('$shape', ({ shape, pieces, stickers, orientations, paint
             expect((locale.steps as Record<string, string>)[step.key]).toBeTruthy()
           }
         }
-        expect(
-          isSolved(
-            applyMoves(
-              start,
-              steps.flatMap((s) => [...s.moves]),
-            ),
-          ),
-        ).toBe(true)
+        // Every turn goes where it is played (none a block or a bar jams).
+        let state = start
+        for (const turn of steps.flatMap((s) => [...s.moves])) {
+          expect(turnAllowed(state, turn)).toBe(true)
+          state = applyMoves(state, [turn])
+        }
+        expect(isSolved(state)).toBe(true)
       }
     }
   }, 60000)
