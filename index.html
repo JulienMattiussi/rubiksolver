@@ -3,14 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Rubik Solver</title>
+    <!-- Crawlers see only this page (the language and the puzzle are after
+         the #): French first, English after. App.tsx then sets the title
+         and the description in the visitor's language. -->
+    <title>Rubik Solver : apprendre à résoudre le Rubik’s Cube et des dizaines de casse-tête</title>
     <meta
       name="description"
       content="Des dizaines de casse-tête 3D interactifs, du Rubik’s Cube au Megaminx : manipulez, mélangez ou saisissez le vôtre, puis apprenez à le résoudre étape par étape. / Dozens of interactive 3D twisty puzzles, from the Rubik’s Cube to the Megaminx: turn, scramble or enter your own, then learn to solve it step by step."
     />
+    <link rel="canonical" href="https://rubiksolver.yavadeus.dev/" />
     <meta name="theme-color" content="#0f172a" />
+
+    <!-- Share preview (Open Graph, Twitter). -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Rubik Solver" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:url" content="https://rubiksolver.yavadeus.dev/" />
+    <meta
+      property="og:title"
+      content="Rubik Solver : apprendre à résoudre le Rubik’s Cube et des dizaines de casse-tête"
+    />
+    <meta
+      property="og:description"
+      content="Des dizaines de casse-tête 3D à manipuler, saisir et résoudre pas à pas, avec de vraies méthodes : CFOP, Roux, Petrus, ZZ, réduction..."
+    />
+    <meta property="og:image" content="https://rubiksolver.yavadeus.dev/og.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Rubik Solver : des dizaines de puzzles, du 2x2 au Gear Cube, à saisir et résoudre étape par étape."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Rubik Solver",
+        "url": "https://rubiksolver.yavadeus.dev/",
+        "image": "https://rubiksolver.yavadeus.dev/og.png",
+        "description": "Des dizaines de casse-tête 3D interactifs, du Rubik’s Cube au Megaminx : manipulez, mélangez ou saisissez le vôtre, puis apprenez à le résoudre étape par étape.",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires WebGL",
+        "inLanguage": ["fr", "en"],
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+        "author": { "@type": "Person", "name": "YavaDeus" }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

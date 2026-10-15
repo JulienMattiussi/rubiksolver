@@ -23,9 +23,7 @@ export default function App() {
   }, [locale, t])
   // The page's title names the puzzle shown.
   useEffect(() => {
-    document.title = home
-      ? 'Rubik Solver'
-      : `Rubik Solver - ${t.cubeKind(SHAPE_LABEL[shape], mirror)}`
+    document.title = home ? t.pageTitle : `Rubik Solver - ${t.cubeKind(SHAPE_LABEL[shape], mirror)}`
   }, [home, t, shape, mirror])
 
   return (

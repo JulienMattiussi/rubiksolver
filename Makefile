@@ -48,6 +48,9 @@ test-e2e: ## Run e2e tests with Playwright (installs Chromium on first run)
 test-e2e-ui: ## Run e2e tests with Playwright UI
 	npm run test:e2e:ui
 
+branding: ## Redraw the share preview (public/og.png) and the README's images (docs/images)
+	BRANDING=1 npx playwright test --project=branding --workers=1
+
 fix: format lint ## Format and lint all code
 
 check: build lint format-check typecheck knip test-unit ## Run all checks (build, lint, format, typecheck, knip, unit tests)

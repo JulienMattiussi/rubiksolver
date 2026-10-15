@@ -141,12 +141,24 @@ tests/
 │                        #   core/, solve/, editor/, app/, three/, store/, puzzles/<catégorie>/ (un fichier par
 │                        #   puzzle, modèle, méthode et dessin ensemble)
 ├── component/           # Vitest + Testing Library
-└── e2e/                 # Playwright
+├── e2e/                 # Playwright
+└── branding/            # Playwright, `make branding` seulement : aperçu de partage et images du README
 docs/
 ├── puzzles/<catégorie>.md # Le détail de chaque puzzle : modèle, rendu, méthode, saisie
 ├── methods.md           # Chaque méthode, ses puzzles et ses étapes
-└── interface.md         # Le détail de l'interface
+├── interface.md         # Le détail de l'interface
+└── images/              # Les captures du README (en anglais) et sa bannière
+public/                  # favicon, apple-touch-icon, og.png (aperçu de partage), robots.txt, sitemap.xml
 ```
+
+Le référencement et l'aperçu de partage (titre, description, Open Graph,
+JSON-LD, URL publique `https://rubiksolver.yavadeus.dev`) sont écrits dans
+`index.html`, seule page que voit un robot. L'image `public/og.png`, l'icône
+`public/apple-touch-icon.png`, la bannière et les captures de `docs/images/`
+sont redessinées par `make branding` (`tests/branding/`, un projet Playwright
+que seule cette commande lance, puisqu'il réécrit des fichiers du dépôt) : à
+relancer quand l'interface ou le nombre de puzzles change, puis relire le
+README (son tableau des puzzles et ses chiffres sont écrits à la main).
 
 ### La fiche d'un puzzle
 
@@ -429,6 +441,7 @@ Avant de considérer une tâche terminée : `make check` doit passer.
 | `make test` (= `make test-unit`)             | Tests unitaires + composants                                |
 | `make test-watch` / `make test-coverage`     | Tests en continu / avec couverture                          |
 | `make test-e2e` / `make test-e2e-ui`         | Tests Playwright (installe Chromium au 1er run) / avec l'UI |
+| `make branding`                              | Redessine `public/og.png` et les images du README           |
 | `make fix`                                   | Format + lint                                               |
 | `make check`                                 | build + lint + format-check + typecheck + knip + tests      |
 | `make clean`                                 | Supprime `dist` et `node_modules`                           |

@@ -17,6 +17,8 @@ import {
 /** The interface's texts and move titles (the source; English mirrors it). */
 export const UI_FR = {
   title: 'Rubik Solver',
+  /** The home page's title (index.html's, for crawlers). */
+  pageTitle: 'Rubik Solver : apprendre à résoudre le Rubik’s Cube et des dizaines de casse-tête',
   /** The page's meta description (index.html has both languages). */
   metaDescription:
     'Des dizaines de casse-tête 3D interactifs, du Rubik’s Cube au Megaminx : manipulez, mélangez ou saisissez le vôtre, puis apprenez à le résoudre étape par étape.',

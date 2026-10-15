@@ -1,90 +1,166 @@
+<div align="center">
+
+<img src="public/favicon.svg" width="88" alt="">
+
 # Rubik Solver
 
-Rubik's Cube 3D interactif et **pédagogique**, 100% front-end, sur plus de
-50 puzzles en 11 catégories : les cubes standards du 2x2 au 6x6 (et leurs
-versions miroir), des tours et cuboïdes (Domino, Floppy, 2x2x4...), des
-pyramides (Pyraminx et sa famille), des polyèdres (octaèdres, Megaminx,
-Rainbow...), des cylindriques (Star Prism, Hockey Puck...), des Gear Cubes,
-des coupes diagonales (Dino, Rex...), des troués et des puzzles torturés.
-On manipule le puzzle, on le mélange **ou on saisit sa propre
-configuration** en peignant les stickers en 3D, puis on le résout selon
-**plusieurs vraies méthodes**. La solution, affichée dès que le puzzle est au
-repos, est découpée en **étapes nommées** qu'on joue d'un coup, étape par
-étape ou coup par coup, dans les deux sens, pour apprendre la méthode.
+**Turn, scramble or enter 75 twisty puzzles in 3D, then learn to solve them step by
+step, with real methods.**
 
-## Fonctionnalités
+[**Try it**](https://rubiksolver.yavadeus.dev) &nbsp;·&nbsp;
+[The puzzles](#75-puzzles-12-families) &nbsp;·&nbsp;
+[How it works](#how-it-works) &nbsp;·&nbsp;
+[Technical docs](AGENTS.md)
 
-- Puzzle 3D manipulable : rotations de faces, tranches (`M`, `E`, `S` sur 3x3,
-  dans un onglet « Avancé » avec les coups larges ; tranches internes sur les
-  grands cubes et les tours)
-  et coups larges, orbite caméra, recentrage animé.
-  Au survol d'un bouton, les pièces qui vont tourner s'illuminent.
-- **Guide des mouvements** : chaque coup du puzzle animé sur le puzzle dans
-  son état actuel, avec sa notation et une phrase qui le décrit (le coup et
-  son opposé côte à côte, puis le coup quantifié) ; un coup impossible dans la
-  configuration est signalé.
-- **Méthodes de résolution**, chacune avec ses étapes, ses objectifs et ses
-  coups autorisés (vérifiés par le moteur) :
-  - 3x3 : par couches, Fridrich (CFOP), **Roux**, **Petrus**, **ZZ** ;
-  - 2x2 : par couches ; 2x2 et petits puzzles (1x2x3, Floppy, Purple...) :
-    **optimale** aussi ;
-  - 4x4, 5x5 et 6x6 : **réduction** (centres, arêtes, parité), puis par couches ou CFOP ;
-  - chaque autre puzzle : une méthode à lui, le plus souvent celle de
-    fan2cube.fr (voir [docs/methods.md](./docs/methods.md)).
-- **Solution pas à pas** : le plan de la méthode dès son choix, puis la vraie
-  solution calculée d'avance (en arrière-plan) ; on la joue d'un coup, étape
-  par étape ou coup par coup, et on revient en arrière de la même façon, le
-  coup en cours surligné dans sa séquence.
-- **Puzzles qui se déforment** (tours, Purple, Pyramorphinx, Barrel...) : un
-  coup que la forme bloque est grisé.
-- **Version miroir** du 2x2, du 3x3 et du 4x4 (Mirror Blocks) : couches
-  d'épaisseurs différentes et facettes toutes dorées, à résoudre par la forme.
-- Mélange aléatoire, ou **saisie guidée** de son propre puzzle (tous) en
-  peignant les stickers (aucune configuration incohérente possible,
-  validation de solubilité) ; un puzzle déformable se saisit dans la forme où
-  il se trouve, choisie parmi des vignettes, et certains pièce par pièce.
-- Un petit **feu d'artifice** quand le puzzle arrive résolu.
-- **Page d'accueil** : une galerie de modèles à choisir, et ce qu'on peut
-  faire avec (saisie, guide, résolution).
-- **Une adresse par puzzle et par langue** : `#/fr/floppy-ghost`,
-  `#/en/3x3-mirror`... à partager ; les boutons précédent / suivant du
-  navigateur passent d'un puzzle à l'autre.
-- **Mémoriser / Restaurer** un état, conservé entre deux visites : pratique pour
-  comparer deux méthodes sur le même mélange.
-- Choix du puzzle par **vignettes** : les catégories, puis les puzzles, chacun
-  avec son image (dessinée à partir de sa forme).
-- Bilingue **FR/EN** et notation des mouvements **internationale (U D L R F B,
-  par défaut)** ou **française (H B G D F Ar)**.
-- Responsive : panneau repliable et puzzle empilé au-dessus de la saisie sur
-  mobile.
+<a href="https://rubiksolver.yavadeus.dev">
+  <img src="docs/images/banner.png" width="820" alt="Rubik Solver: 75 puzzles, from the 2x2 to the Gear Cube, to enter and solve step by step.">
+</a>
 
-## Démarrage
+<sub>
+  100% front-end &nbsp;·&nbsp; React 19 + React Three Fiber &nbsp;·&nbsp; TypeScript strict &nbsp;·&nbsp;
+  integer-only puzzle engine &nbsp;·&nbsp; 47 solving methods &nbsp;·&nbsp; French and English &nbsp;·&nbsp; MIT license
+</sub>
 
-```bash
-make install   # dépendances
-make start     # http://localhost:6661
+</div>
+
+---
+
+## What you can do
+
+### Solve it, one named step at a time
+
+Pick a puzzle, scramble it, and choose a method. The solution is computed in the
+background as soon as the puzzle is at rest, and split into the **steps of the
+method**: play it all at once, step by step or move by move, forward and backward,
+with the current move highlighted in its sequence. Keyboard too: Enter, Space, Page
+Up / Page Down and the arrows.
+
+<img src="docs/images/solve.png" width="820" alt="A scrambled 3x3 with the layer-by-layer method: its seven named steps on the right, each with its moves.">
+
+On the 3x3 alone: **layer by layer, CFOP, Roux, Petrus and ZZ**. The 4x4, 5x5 and 6x6
+are solved by **reduction** (centers, edge pairing, parity, then as a 3x3), small
+puzzles also get an **optimal** solution, and every other puzzle has a method of its
+own.
+
+<img src="docs/images/megaminx.png" width="820" alt="A scrambled Megaminx with its Extended star method: bottom star, bottom corners, low equator, five faces around...">
+
+### Learn how it moves
+
+The **move guide** plays every move of the puzzle on the puzzle as it is now, with its
+notation and a sentence describing it. A move the current shape blocks is shown as
+such. Notation is international (U D L R F B) or French (H B G D F Ar).
+
+<img src="docs/images/guide.png" width="820" alt="The move guide of a 3x3: U, U' and U2 animated on the current cube, each with a sentence.">
+
+### Enter your own puzzle
+
+Paint the stickers of your physical puzzle on the 3D model. The input is **guided**:
+pieces complete themselves, and no impossible piece or color count can be entered;
+solvability is then checked. A puzzle that changes shape is entered in the shape it is
+in, picked among thumbnails, and a few are entered piece by piece.
+
+### And also
+
+A link per puzzle and language to share (`#/en/megaminx`), a saved state to compare
+two methods on the same scramble, mirror versions of the 2x2, 3x3 and 4x4, a mobile
+layout, and fireworks when a move solves the puzzle.
+
+## 75 puzzles, 12 families
+
+<img src="docs/images/picker.png" width="820" alt="The puzzle picker: its twelve categories, each drawn from its puzzles' shapes.">
+
+| Family            | Puzzles                                                                                                                          |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **Standard**      | 2x2 (Pocket), 3x3, 4x4 (Revenge), 5x5 (Professor), 6x6, Super Revenge, Super Professor                                           |
+| **Mirror**        | the 2x2, 3x3 and 4x4 as Mirror Blocks, solved by shape                                                                           |
+| **Towers**        | 2x2x3, 2x2x4, 2x3x4, Domino 3x3x2, 3x3x4, 4x4x3, 4x4x5, 5x5x4, Camouflage 4x4x2                                                  |
+| **Flat**          | 1x2x3, Floppy 3x3x1, Floppy Ghost                                                                                                |
+| **Pyramids**      | Pyraminx, Tetraminx, Master and Professor Pyraminx, Pyraminx Jing, Pyramorphinx, Master Morphinx                                 |
+| **Polyhedra**     | Megaminx, Pyraminx Crystal, FTO, 4-Trajber's Octahedron, Octahedron VTO, GEM-0, Rainbow, Skewb Ultimate                          |
+| **Cylinders**     | 2-Star Prism (UFO), 4-Star Prism, Hockey Puck, Barrel, Dino Cylinder                                                             |
+| **Gears**         | Gear Cube, Gear Cube Ultimate, Gear Cube Extreme                                                                                 |
+| **Diagonal cuts** | Skewb, Master Skewb, Dino Cube, Rex Cube, Curvy Copter, Curvy Copter III, Fisher Cube, Windmill                                  |
+| **Holey**         | Holey Megaminx, Void Cube, Tori, Edge Only                                                                                       |
+| **Twisted**       | Purple, Z-Twist, Quarter Cube, Latch Cube, Fashion-V                                                                             |
+| **Bandaged**      | AI Cube, RoadBlock-I, BigBlock, Squarebik, Fused, Bandage Cube, Quad, Stripe, QuadStripe, FusedStripe, Detour, Diamond, Alcatraz |
+
+Every puzzle has its sheet in [docs/puzzles/](docs/puzzles), and every method its
+steps in [docs/methods.md](docs/methods.md).
+
+## How it works
+
+### An exact engine
+
+The puzzle is **pure logic with no floating point**: pieces sit on an integer grid and
+every turn is an exact integer rotation, so the state never drifts. Nothing in the
+engine assumes a cube: a shape is three numbers of layers, and anything that does not
+turn like a cube (stars, gears, pyramids, the Megaminx...) declares its own model. The
+3D view is a pure function of that state, and the solvers read the same model.
+
+### Methods that cannot cheat
+
+A method is **declared, not hard-coded**: a list of steps, each with the goal it must
+reach and the moves it is allowed to use. Every solve checks that contract: a step that
+stops short, or slips in a forbidden move, throws. That is what keeps Roux finishing
+in `<M, U>` and Petrus's first two layers in `<R, U>`, instead of a layer-by-layer
+solve in disguise.
+
+### A few things that were not obvious
+
+- **Block building searches only the pieces it tracks.** Turning a handful of pieces
+  instead of the whole puzzle keeps the search tiny, even with a restricted move set,
+  and toward a single target it meets in the middle, halving the depth.
+- **The 4x4 is validated by invariants, not by solving it.** Its indistinguishable
+  centers absorb every permutation parity, which is why OLL and PLL parities are legal
+  states; only real pieces and the corners' twist need checking.
+- **Shape-shifting puzzles list their own shapes.** A breadth-first search over the
+  state without its colors finds every shape a puzzle can take; shapes that only differ
+  by how it is held are merged, then drawn as thumbnails to pick from.
+- **Every formula is tested before a method uses it.** Methods for the less common
+  puzzles follow the formulas of [fan2cube.fr](https://www.fan2cube.fr), each one seen
+  from every side and set up by a move undone afterwards; each formula's effect is
+  checked in a test.
+
+## Getting started
+
+```sh
+make install        # dependencies
+make start          # http://localhost:6661
 ```
 
-## Commandes utiles
+| Command         | Effect                                                       |
+| --------------- | ------------------------------------------------------------ |
+| `make check`    | build + lint + format + typecheck + dead code (knip) + tests |
+| `make test`     | unit and component tests (Vitest), over 1,000 of them        |
+| `make test-e2e` | end-to-end tests (Playwright)                                |
+| `make build`    | production build, a static site served from any path         |
+| `make branding` | redraws the share preview and this README's images           |
 
-| Commande        | Effet                                       |
-| --------------- | ------------------------------------------- |
-| `make start`    | Serveur de dev (port 6661)                  |
-| `make build`    | Build de production                         |
-| `make test`     | Tests unitaires + composants (Vitest)       |
-| `make test-e2e` | Tests end-to-end (Playwright)               |
-| `make check`    | build, lint, format, typecheck, knip, tests |
-| `make fix`      | Format (Prettier) + lint                    |
+Stack: React 19, TypeScript strict, Vite, React Three Fiber and drei (three.js),
+Tailwind CSS v4, Zustand, Vitest and Testing Library, Playwright.
 
-## Stack
+## Documentation
 
-React 19 + TypeScript, Vite, React Three Fiber + drei (three.js), Tailwind CSS
-v4, Zustand, Vitest + Testing Library, Playwright.
+| Document                               | Contents                                                              |
+| -------------------------------------- | --------------------------------------------------------------------- |
+| [AGENTS.md](AGENTS.md)                 | Architecture, file tree, how to add a puzzle or a method, conventions |
+| [docs/puzzles/](docs/puzzles)          | Each puzzle: model, rendering, method, input                          |
+| [docs/methods.md](docs/methods.md)     | Each method, its puzzles and its steps                                |
+| [docs/interface.md](docs/interface.md) | The interface in detail                                               |
+| [AMELIORATIONS.md](AMELIORATIONS.md)   | Known limits and ideas                                                |
 
-## Architecture
+The project documentation is written in French.
 
-Le moteur du cube est de la **logique pure sans flottants** (`src/lib/`,
-entièrement testée) ; le rendu 3D et les solveurs en sont des lecteurs. Voir
-[AGENTS.md](./AGENTS.md) pour l'architecture (arborescence, fiche d'un puzzle,
-solveurs, saisie, conventions), et [docs/](./docs) pour le détail de chaque
-puzzle (`docs/puzzles/<catégorie>.md`), des méthodes et de l'interface.
+## License
+
+[MIT](LICENSE). Methods and formulas for many puzzles come from
+[fan2cube.fr](https://www.fan2cube.fr).
+
+---
+
+<div align="center">
+  <sub>
+    Made with ❤️ by
+    <a href="https://yavadeus.dev"><b>YavaDeus</b></a>
+  </sub>
+</div>

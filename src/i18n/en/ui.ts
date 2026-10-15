@@ -17,6 +17,7 @@ import type { UI_FR } from '../fr/ui'
 
 export const UI_EN: typeof UI_FR = {
   title: 'Rubik Solver',
+  pageTitle: 'Rubik Solver: learn to solve the Rubik’s Cube and dozens of twisty puzzles',
   metaDescription:
     'Dozens of interactive 3D twisty puzzles, from the Rubik’s Cube to the Megaminx: turn, scramble or enter your own, then learn to solve it step by step.',
   madeWith: { before: 'Made with', love: 'love', by: 'by' },
