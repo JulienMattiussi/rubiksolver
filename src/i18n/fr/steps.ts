@@ -174,4 +174,5 @@ export const STEPS_FR = {
   stepTurnEdges: 'Pivoter les arêtes',
   stepMasterEdges: 'Les arêtes',
   stepMasterPetals: 'Les pétales',
+  stepVoidSingularity: 'La singularité',
 }

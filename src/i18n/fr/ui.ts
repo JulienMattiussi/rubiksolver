@@ -185,8 +185,8 @@ export const UI_FR = {
   restoreStateTitle: (time: string) => `Revenir à l’état mémorisé à ${time}`,
   nothingSaved: 'Aucun état mémorisé pour ce cube',
   replaceSavedTitle: 'Remplacer l’état mémorisé ?',
-  replaceSavedMessage: (time: string) =>
-    `L’état mémorisé à ${time} sera remplacé par la position actuelle, sans retour possible.`,
+  replaceSavedMessage: (puzzle: string, time: string) =>
+    `L’état mémorisé du puzzle ${puzzle} (à ${time}) sera remplacé par la position actuelle, sans retour possible.`,
   replaceSaved: 'Remplacer',
   applyCube: 'Utiliser ce cube',
   cancel: 'Annuler',
@@ -245,6 +245,8 @@ export const UI_FR = {
     },
   },
   allCategories: 'Toutes les catégories',
+  /** The picker's way back to its categories. */
+  categories: 'Catégories',
   close: 'Fermer',
   moveGuide: 'Guide des mouvements',
   moveGuideIntro:

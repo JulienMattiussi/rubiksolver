@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { cubeDims, cubeShape } from '@/lib/core/cube'
 import { describeMove } from '@/lib/app/moveGuide'
 import { turnAllowed } from '@/lib/core/turn'
+import { FACE_NORMAL, faceOfNormal } from '@/lib/core/geometry'
 import {
   advancedMovesFor,
   formatMove,
@@ -12,7 +13,7 @@ import {
   sameLayer,
   type LayerKind,
 } from '@/lib/core/moves'
-import type { Face, Move } from '@/lib/core/types'
+import type { Face, Move, Vec3 } from '@/lib/core/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { SegmentedToggle } from '@/components/ui/SegmentedToggle'
@@ -95,6 +96,11 @@ export function MovePad({ disabled }: { disabled: boolean }) {
     /** The face has this kind of layer (the slim tower's sides have no wide
      *  turn: their axis is two layers deep). */
     const offered = (face: Face) => moves.some((m) => m.face === face && layerKindOf(m) === kind)
+    /** A middle slice is shown once, under the face that names it (2U for
+     *  E, not 2D as well). */
+    const opposite = (face: Face) =>
+      faceOfNormal(FACE_NORMAL[face].map((v) => -v + 0) as unknown as Vec3)
+    const named = (face: Face) => offered(face) || !offered(opposite(face))
 
     const button = (move: Move, exists: boolean, ghost: boolean) => {
       const name = t.faceNames[move.face]
@@ -158,7 +164,7 @@ export function MovePad({ disabled }: { disabled: boolean }) {
                 true,
               ),
             )
-          : faces.map((face) =>
+          : faces.filter(named).map((face) =>
               pair(
                 face,
                 (amount) => turn(face, amount),

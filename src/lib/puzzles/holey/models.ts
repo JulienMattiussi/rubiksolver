@@ -7,6 +7,9 @@ import { MEGAMINX } from '../polyhedron/models'
 export const HOLEY_MODELS = {
   // The Megaminx, holes where its centers are.
   holey: { ...MEGAMINX, solved: () => solvedMegaminx().filter((c) => c.stickers.length > 1) },
+  // A 3x3 without its centers, about its hidden core (which tells it from
+  // the Dino Cylinder, as many pieces and stickers without it).
+  void: { solved: () => solvedCube('3').filter((c) => c.stickers.length !== 1) },
   // A 3x3 without its corners.
   tori: { solved: () => solvedCube('3').filter((c) => c.stickers.length !== 3) },
   // Its edges alone, about its hidden core (which tells it from the Dino

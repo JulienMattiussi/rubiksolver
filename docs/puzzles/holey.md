@@ -13,6 +13,31 @@ centres, la cible est la tenue du puzzle résolu avec laquelle s'accordent le
 plus d'étapes, puis le plus de pièces ; ses tours étant des permutations
 paires, les 60 tenues sont atteignables.
 
+## Le Void Cube (`void`)
+
+Le Void Cube (fan2cube.fr/voidcube1 et 2, Katsuhiko Okamoto, 2007) : un
+3x3 sans centres, 8 sommets et 12 arêtes autour d'un cœur caché (sans lui,
+rien ne le distinguerait du Dino Cylinder : autant de pièces et de
+stickers). Ses tranches tournent (`inner: ['slice', 'wide']`) et entrent
+dans le mélange : une tranche déplace quatre arêtes sans aucun sommet, d'où
+la « singularité », deux arêtes à échanger, dans à peu près un mélange sur
+deux. Résolu quand chaque face est d'une couleur, quelle que soit la tenue.
+Dessiné en cubies, le cœur caché n'est pas dessiné (`CubeModel` : un puzzle
+à grille sans centres est creux), on voit au travers.
+
+**Résolution** (`methods/holey/voidCube.ts`, méthode **Les sommets du bas
+d'abord**, la page 2) : sans centres, les couleurs viennent du sommet en DBL,
+comme sur le 2x2 (`frame2`) ; le Void Cube est lu comme le 3x3 qu'il serait
+avec ces centres, ses couleurs renommées. (1) sommets du bas « comme le
+Pocket », par [DH] ; (2) arêtes du bas par [Hd], dHd'H et [HD][H'A'] (les
+tranches gardent les sommets) ; (3) arêtes du milieu comme sur un 3x3 ; (4)
+la singularité s'il y en a une (arêtes et sommets permutés de parités
+différentes) : X = (aH)²(aH')²aH²(aH')² échange (HA) et (HD) ; (5) le haut
+comme sur un 3x3 (débutant). La singularité est levée avant le haut, et non
+à la fin comme sur la page : les étapes du haut d'un 3x3 ne savent pas
+échanger deux arêtes seules. La formule Y (une singularité de sommets
+changée en singularité d'arêtes) n'est donc pas reprise.
+
 ## Le Tori (`tori`)
 
 Le Tori (fan2cube.fr/tori1 et 2) est « un Rubik's Cube sans

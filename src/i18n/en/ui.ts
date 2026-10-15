@@ -181,8 +181,8 @@ export const UI_EN: typeof UI_FR = {
   restoreStateTitle: (time: string) => `Go back to the state saved at ${time}`,
   nothingSaved: 'No saved state for this cube',
   replaceSavedTitle: 'Replace the saved state?',
-  replaceSavedMessage: (time: string) =>
-    `The state saved at ${time} will be replaced by the current position, for good.`,
+  replaceSavedMessage: (puzzle: string, time: string) =>
+    `The ${puzzle} state saved at ${time} will be replaced by the current position, for good.`,
   replaceSaved: 'Replace',
   applyCube: 'Use this cube',
   cancel: 'Cancel',
@@ -239,6 +239,8 @@ export const UI_EN: typeof UI_FR = {
   },
   chooseCube: 'Choose a cube',
   allCategories: 'All categories',
+  /** The picker's way back to its categories. */
+  categories: 'Categories',
   close: 'Close',
   moveGuide: 'Move guide',
   moveGuideIntro:

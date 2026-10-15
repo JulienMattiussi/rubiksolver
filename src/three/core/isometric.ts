@@ -11,7 +11,7 @@ import {
   type CubeShape,
   type CubeVariant,
 } from '@/lib/core/types'
-import { visualPosition } from './layout'
+import { drawnIn, visualPosition } from './layout'
 import OUTLINES from '@/assets/gear/outlines.json'
 import { inScene, isPolyDrawn, polyDrawing } from './polyDrawing'
 
@@ -121,7 +121,7 @@ function drawCubies(cube: Cube, variant: CubeVariant, neutral?: Color): IsoDrawi
   const dims = cubeDims(cube)
   const cells = new Set(cube.map((c) => visualPosition(c.position, dims).join()))
   const faces: IsoFace[] = []
-  for (const cubie of cube) {
+  for (const cubie of cube.filter(drawnIn(cube))) {
     const { size, center } = cubieBox(cubie.stickers, LAYER_THICKNESS[variant])
     const cell = visualPosition(cubie.position, dims)
     const mid = cell.map((v, a) => v + center[a]!)
@@ -248,7 +248,7 @@ function drawPoly(shape: CubeShape, cube = solvedCube(shape), neutral?: Color): 
   const drawing = polyDrawing(shape)
   const yaw = (v: readonly number[]): Point => inScene(drawing, v)
   const faces: IsoFace[] = []
-  for (const cubie of cube) {
+  for (const cubie of cube.filter(drawnIn(cube))) {
     const polygons = (drawing.thumbnail ?? drawing.polygons)(cubie)
     for (let i = 0; i < polygons.length; i++) {
       const first = polygons[i]!

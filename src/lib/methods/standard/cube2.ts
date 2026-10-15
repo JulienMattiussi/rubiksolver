@@ -20,7 +20,7 @@ import { CORNER_TRIGGERS, cornerPlacedIn, placePieces } from './layers3'
 // exactly when it is consistent with whatever corner then anchors it.
 
 /** Reference color of each face, anchored on the corner currently at DBL. */
-function frame2(cube: Cube): Record<Face, Color> {
+export function frame2(cube: Cube): Record<Face, Color> {
   const dbl = cubieAt(cube, [-1, -1, -1])
   if (!dbl) throw new Error('frame2: no corner at DBL')
   // A 2x2 only wears cube colors.

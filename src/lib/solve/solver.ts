@@ -12,6 +12,7 @@ import { mmorphPlan } from '../methods/pyramid/mmorph'
 import { TORI_PLAN } from '../methods/holey/tori'
 import { PUCK_PLAN } from '../methods/round/puck'
 import { EDGE_ONLY_PLAN } from '../methods/holey/edgeOnly'
+import { VOID_CUBE_PLAN } from '../methods/holey/voidCube'
 import { CAMO_PLAN } from '../methods/tower/camo'
 import { QUARTER_PLAN } from '../methods/twisted/quarter'
 import { AI_PLAN } from '../methods/bandaged/ai'
@@ -197,6 +198,7 @@ const SOLVE_METHODS = [
   { id: 'gearEquatorFirst', plans: { gearX: GEAR_EXTREME_PLAN } },
   { id: 'shapeFirst', plans: { purple: PURPLE_SHAPE_FIRST_PLAN } },
   { id: 'extendedCross', plans: { tori: TORI_PLAN, edge: EDGE_ONLY_PLAN } },
+  { id: 'voidCornersFirst', plans: { void: VOID_CUBE_PLAN } },
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },
   { id: 'twoStars', plans: { star4: STAR4_PLAN } },
   { id: 'puckIsolate', plans: { puck: PUCK_PLAN } },

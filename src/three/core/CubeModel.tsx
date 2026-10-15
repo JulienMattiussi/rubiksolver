@@ -4,7 +4,7 @@ import { cubeDims } from '@/lib/core/cube'
 import { centeringOffset, LAYER_THICKNESS } from '@/lib/core/shape'
 import type { Cube, CubeVariant } from '@/lib/core/types'
 import { Cubie } from './Cubie'
-import { cubeScale } from './layout'
+import { cubeScale, drawnIn } from './layout'
 import { NO_PIECES } from './noPieces'
 
 export interface ModelProps {
@@ -40,12 +40,14 @@ export function CubeModel({
   const dims = cubeDims(cube)
   // A Gear Cube: small center squares, the edges' clips around them.
   const gear = cube.some((c) => c.spin !== undefined)
+  const drawn = drawnIn(cube)
+  const shown = (i: number) => drawn(cube[i]!)
   const [ox, oy, oz] = centeringOffset(LAYER_THICKNESS[variant])
   return (
     <group scale={cubeScale(dims)}>
       <group position={[ox, oy, oz]}>
         {cube.map((c, i) =>
-          isTurning(i) || isHalfTurning(i) ? null : (
+          isTurning(i) || isHalfTurning(i) || !shown(i) ? null : (
             <Cubie
               key={i}
               cubie={c}
@@ -58,7 +60,7 @@ export function CubeModel({
         )}
         <group ref={groupRef}>
           {cube.map((c, i) =>
-            isTurning(i) ? (
+            isTurning(i) && shown(i) ? (
               <Cubie key={i} cubie={c} dims={dims} variant={variant} smallCenter={gear} />
             ) : null,
           )}

@@ -175,4 +175,5 @@ export const STEPS_EN: typeof STEPS_FR = {
   stepTurnEdges: 'Turn the edges over',
   stepMasterEdges: 'The edges',
   stepMasterPetals: 'The petals',
+  stepVoidSingularity: 'The singularity',
 }

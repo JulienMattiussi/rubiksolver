@@ -1,6 +1,7 @@
 import { ArchiveRestore, Bookmark, RotateCcw, Shuffle, Square } from 'lucide-react'
 import { useState } from 'react'
 import { cubeShape } from '@/lib/core/cube'
+import { SHAPE_LABEL } from '@/lib/core/types'
 import { notEnterable } from '@/lib/editor/forms'
 import { encodeCube } from '@/lib/app/snapshot'
 import { useI18n } from '@/i18n/i18nStore'
@@ -23,6 +24,7 @@ export function SetupSection() {
   const cube = useCube((s) => s.cube)
   const scramble = useCube((s) => s.scramble)
   const shape = useCube((s) => cubeShape(s.cube))
+  const mirror = useCube((s) => s.variant === 'mirror')
   const reset = useCube((s) => s.reset)
   const stop = useCube((s) => s.stop)
   const enterEdit = useEditor((s) => s.enter)
@@ -107,7 +109,7 @@ export function SetupSection() {
       {confirmReplace && (
         <ConfirmDialog
           title={t.replaceSavedTitle}
-          message={t.replaceSavedMessage(savedTime)}
+          message={t.replaceSavedMessage(t.cubeKind(SHAPE_LABEL[shape], mirror), savedTime)}
           confirmLabel={t.replaceSaved}
           cancelLabel={t.cancel}
           onConfirm={() => {

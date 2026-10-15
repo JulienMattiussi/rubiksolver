@@ -85,6 +85,10 @@ export const METHODS_EN: typeof METHODS_FR = {
     name: 'As a Pocket',
     desc: 'The Pyramorphinx is a Pocket (2x2) in disguise: its 8 pieces are a 2x2’s 8 corners and its turns a 2x2’s. Read as such, it is solved like a Pocket, in as few turns as can be, whatever strange shapes it takes.',
   },
+  voidCornersFirst: {
+    name: 'Bottom corners first',
+    desc: 'As a Rubik’s Cube, the missing centers’ colors set by the corners: the bottom corners first, as on the Pocket, then the bottom edges (with the slices), the middle edges, the singularity if any (two edges to swap, which a Rubik’s Cube never asks for), then the top as on a Rubik’s Cube.',
+  },
   extendedCross: {
     name: 'Extended cross',
     desc: 'As a Rubik’s Cube whose corners are ignored: the bottom cross, the middle edges placed by a mere commutator ([U’F’] or [UR], no corner to keep), the top cross turned two edges at a time, then the top edges placed by 3-cycles.',

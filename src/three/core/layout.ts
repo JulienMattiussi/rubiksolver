@@ -1,5 +1,5 @@
 import { layerCoords } from '@/lib/core/geometry'
-import type { Dims, Vec3 } from '@/lib/core/types'
+import type { Cube, Cubie, Dims, Vec3 } from '@/lib/core/types'
 
 /**
  * Visual layout of a puzzle. Logical coordinates are spaced by their own axis
@@ -30,3 +30,10 @@ export function visualPosition(p: Vec3, dims: Dims): [number, number, number] {
 
 /** Gap between two neighboring cubies, so the pieces read as separate blocks. */
 export const CUBIE_GAP = 0.012
+
+/** Whether a cubie is drawn: a puzzle without centers (the Void Cube) is
+ *  hollow, seen through, its hidden core left out. */
+export function drawnIn(cube: Cube): (cubie: Cubie) => boolean {
+  const hollow = !cube.some((c) => c.stickers.length === 1)
+  return (cubie) => !hollow || cubie.stickers.length > 0
+}

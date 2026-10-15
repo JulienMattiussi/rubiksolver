@@ -117,6 +117,7 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'skewbU', pieces: 14, stickers: 48, orientations: 12, painted: 48, scramble: 25 },
   { shape: 'rex', pieces: 42, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
   // A 3x3 without its corners.
+  { shape: 'void', pieces: 21, stickers: 48, orientations: 24, painted: 48, scramble: 25 },
   { shape: 'tori', pieces: 19, stickers: 30, orientations: 24, painted: 30, scramble: 20 },
   // A 3x3's edges alone.
   { shape: 'edge', pieces: 13, stickers: 24, orientations: 24, painted: 24, scramble: 20 },

@@ -5,23 +5,24 @@ import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { Select } from '@/components/ui/Select'
 
-/** Method dropdown plus the selected method's description (two lines,
- *  all of it on a click of its arrow). */
+/** Method dropdown (its label says how many) plus the selected method's
+ *  description (two lines, all of it on a click of its arrow). */
 export function MethodSelect({ disabled }: { disabled: boolean }) {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
   const method = useCube((s) => s.method)
   const setMethod = useCube((s) => s.setMethod)
+  const methods = methodsFor(shape)
   return (
     <div>
       <Select
         id="method"
-        label={t.methodLabel}
+        label={`${t.methodLabel} (${methods.length})`}
         value={method}
         disabled={disabled}
         onChange={(value) => setMethod(value as MethodId)}
       >
-        {methodsFor(shape).map(({ id }) => (
+        {methods.map(({ id }) => (
           <option key={id} value={id}>
             {t.methods[id].name}
           </option>

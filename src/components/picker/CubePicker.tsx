@@ -106,9 +106,16 @@ export function CubePicker({
         <Modal labelledBy={titleId} onClose={() => setOpen(false)} width="max-w-lg">
           <header className="mb-3 flex items-center gap-2">
             {category && (
-              <IconButton label={t.allCategories} onClick={() => setCategory(null)}>
+              <button
+                type="button"
+                onClick={() => setCategory(null)}
+                title={t.allCategories}
+                aria-label={t.allCategories}
+                className="flex items-center gap-1 rounded-lg border border-slate-600 bg-slate-800 py-1 pr-2.5 pl-1.5 text-xs font-semibold text-slate-200 transition hover:border-sky-400 hover:bg-sky-500/20 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+              >
                 <ChevronLeft className="size-4" aria-hidden />
-              </IconButton>
+                {t.categories}
+              </button>
             )}
             <h2 id={titleId} className="flex-1 text-sm font-semibold text-white">
               {category ? t.cubeCategories[category] : t.chooseCube}

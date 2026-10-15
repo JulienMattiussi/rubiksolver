@@ -18,8 +18,12 @@ describe('isometric thumbnails', () => {
     )
     for (const variant of ['classic', 'mirror'] as CubeVariant[]) {
       const { polygons, viewBox } = isometricDrawing(shape, variant)
-      expect(polygons).toHaveLength(2 * visible)
-      expect(polygons.filter((p) => p.paint === 'body')).toHaveLength(visible)
+      expect(polygons.filter((p) => p.paint !== 'body')).toHaveLength(visible)
+      // Each sticker on its body; a hollow puzzle (the Void Cube) shows the
+      // walls of its holes too.
+      const bodies = polygons.filter((p) => p.paint === 'body').length
+      if (shape === 'void') expect(bodies).toBeGreaterThan(visible)
+      else expect(bodies).toBe(visible)
       expect(viewBox.split(' ').map(Number).every(Number.isFinite)).toBe(true)
     }
   })
