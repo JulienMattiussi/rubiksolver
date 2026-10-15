@@ -1,8 +1,9 @@
-import { Check, Eraser, Link2, Shapes, X } from 'lucide-react'
+import { Check, Eraser, Layers, Link2, Shapes, X } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
 import { isComplete, progress } from '@/lib/editor/editor'
 import { formsOf } from '@/lib/editor/forms'
 import { entersJoints } from '@/lib/editor/jointsEditor'
+import { entersCuts, wholeCount } from '@/lib/editor/cutsEditor'
 import { gearFaces, gearsPainted } from '@/lib/editor/gearEditor'
 import { hasColoredClips, SHAPE_EDIT_HINT } from '@/lib/core/types'
 import type { EditHint } from '@/lib/puzzles/entry'
@@ -48,6 +49,9 @@ export function EditPanel() {
   const pickForm = useEditor((s) => s.pickForm)
   const acceptJoints = useEditor((s) => s.acceptJoints)
   const editJoints = useEditor((s) => s.editJoints)
+  const cuts = useEditor((s) => s.cuts)
+  const acceptCuts = useEditor((s) => s.acceptCuts)
+  const editCuts = useEditor((s) => s.editCuts)
 
   if (phase === 'form') {
     return (
@@ -57,6 +61,32 @@ export function EditPanel() {
           <X className="size-4" aria-hidden />
           {t.cancel}
         </Button>
+      </div>
+    )
+  }
+
+  if (phase === 'cuts') {
+    return (
+      <div className="flex flex-col gap-5">
+        <p className="text-xs leading-relaxed text-slate-400">{t.editHintCuts}</p>
+        <span className="text-sm font-medium text-slate-200">
+          {t.wholeEdgesOf(wholeCount(cuts))}
+        </span>
+        {error === 'cuts' && (
+          <p role="alert" className="rounded-lg bg-red-500/15 px-3 py-2 text-xs text-red-300">
+            {t.errorCuts}
+          </p>
+        )}
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant="primary" onClick={acceptCuts} className="col-span-2">
+            <Check className="size-4" aria-hidden />
+            {t.acceptCuts}
+          </Button>
+          <Button onClick={cancel} className="col-span-2">
+            <X className="size-4" aria-hidden />
+            {t.cancel}
+          </Button>
+        </div>
       </div>
     )
   }
@@ -156,6 +186,12 @@ export function EditPanel() {
           <Button onClick={editJoints} variant="ghost" className="col-span-2">
             <Link2 className="size-4" aria-hidden />
             {t.changeJoints}
+          </Button>
+        )}
+        {entersCuts(shape) && (
+          <Button onClick={editCuts} variant="ghost" className="col-span-2">
+            <Layers className="size-4" aria-hidden />
+            {t.changeCuts}
           </Button>
         )}
         {shifts && (

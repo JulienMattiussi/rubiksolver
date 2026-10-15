@@ -122,6 +122,13 @@ export const UI_FR = {
     advanced: 'Avancé',
   },
   editCube: 'Saisir',
+  editHintCuts:
+    'Placez d’abord les demi-cubies comme ils sont : cliquez une case pour faire défiler leur position (couchés, debout d’un côté ou de l’autre, ou une arête pleine de l’équateur, quatre en tout). Validez, puis peignez les couleurs.',
+  acceptCuts: 'Valider les demi-cubies',
+  changeCuts: 'Changer les demi-cubies',
+  wholeEdgesOf: (n: number) => `${n} / 4 arêtes pleines`,
+  errorCuts:
+    'Les demi-cubies ne peuvent pas être placés ainsi : vérifiez chaque case (quatre arêtes pleines).',
   editHintJoints:
     'D’abord les soudures : un clic sur un joint bleu soude deux pièces, en 2x1 puis en 2x2 ; un clic sur une pièce soudée la défait. Formez les blocs de votre puzzle (tournez la vue pour atteindre les autres faces), puis validez la forme.',
   acceptJoints: 'Valider les soudures',

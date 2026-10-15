@@ -299,7 +299,8 @@ code : « Le cube miroir » dans
   de `buildSteps`, lu par `validateCube`).
 
 **Puzzles déformables (tours 2x2x4 et 2x3x4, Purple, Pyramorphinx, AI Cube ;
-le Camouflage, aux formes trop nombreuses, dans sa boîte seulement)** : on saisit le puzzle dans la forme où il
+le Camouflage, aux formes trop nombreuses, dans sa boîte seulement ; le
+Fashion-V par ses demi-cubies)** : on saisit le puzzle dans la forme où il
 se trouve physiquement. La saisie commence par **choisir sa forme**
 (`FormPicker`) parmi celles qu'il peut prendre (`lib/editor/forms.ts`) : un
 parcours en largeur sur l'état sans ses couleurs (où sont les pièces, quelles
@@ -332,6 +333,12 @@ Les comptes de couleurs se déduisent du puzzle résolu (`stickersOfColor`,
 `shapeColors`), pas des faces d'un cube : la saisie marche sur toutes les
 formes, étoiles comprises (voir « Le Star Prism » dans
 [docs/puzzles/round.md](docs/puzzles/round.md)).
+
+**Saisie par les demi-cubies** (`lib/editor/cutsEditor.ts`), pour le
+Fashion-V, aux formes trop nombreuses : un clic sur une case fait défiler la
+position de ses demi-cubies (couchés, debout, ou une arête pleine), puis la
+recherche de forme (`methods/twisted/fashionShape.ts`) en trouve un état,
+sur lequel on peint ; voir [docs/puzzles/twisted.md](docs/puzzles/twisted.md).
 
 **Saisie par les soudures** (`lib/editor/jointsEditor.ts`), pour un soudé
 dont les blocs bougent : on clique d'abord ses joints (validés contre ses

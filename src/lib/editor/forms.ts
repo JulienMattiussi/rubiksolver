@@ -95,7 +95,8 @@ export function formsOf(shape: CubeShape): readonly Form[] {
   let forms = FORMS.get(shape)
   if (forms) return forms
   const solved = solvedCube(shape)
-  if (!SHAPE_SHIFTS[shape] || BOX_ONLY.includes(shape)) {
+  // The Fashion-V's, millions, are entered cell by cell (cutsEditor.ts).
+  if (!SHAPE_SHIFTS[shape] || BOX_ONLY.includes(shape) || shape === 'fashion') {
     forms = [{ cube: solved, distance: 0, tips: 0 }]
   } else {
     const turns = layerTurnsOf(shape)

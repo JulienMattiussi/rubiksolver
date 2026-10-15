@@ -157,6 +157,15 @@ function circlePrint(cubie: Cubie, s: Sticker): PiecePolygon[] {
   ]
 }
 
+/** While an edge is entered, one color painted: the arrow its sticker may
+ *  wear (two of the four edges of its color wear it there), the way its
+ *  color's arrows always go. */
+function maybe(cubie: Cubie, s: Sticker): ArrowWay | undefined {
+  const edge = cubie.stickers.length === 2
+  const open = cubie.stickers.some((x) => x.color === UNPAINTED)
+  return edge && open && s.color !== UNPAINTED ? wayOf(s.color) : undefined
+}
+
 /** An arrowhead, along x: its tip, a barb, the notch, the other barb. */
 const OUTLINE: readonly (readonly [number, number])[] = [
   [1, 0],
@@ -183,7 +192,7 @@ const HEAD: readonly (readonly [number, number])[][] = [
  *  middle, on the circle, pointing the way it lets the face turn; white
  *  (clockwise) or black (counterclockwise). */
 function arrow(cubie: Cubie, s: Sticker, flat = false): PiecePolygon[] {
-  const way = arrowOn(cubie, s)
+  const way = arrowOn(cubie, s) ?? maybe(cubie, s)
   if (!way) return []
   const n = s.normal
   const [cu, cv] = faceMiddle(cubie.position, n)
@@ -206,10 +215,16 @@ function arrow(cubie: Cubie, s: Sticker, flat = false): PiecePolygon[] {
   return flat ? [shape(OUTLINE, 0.3, 0.05)] : HEAD.map((triangle) => shape(triangle, 0.2, 0.01))
 }
 
+/** The color the editor gives a sticker not painted yet (hidden: the
+ *  marks' color, which no sticker shows). */
+export const UNPAINTED: Color = 'H'
+
 /** Every polygon of a piece, as it stands (the marked core: none); for
  *  the picker's thumbnail, each print whole on its sticker. */
 function polygonsOf(cubie: Cubie, thumbnail: boolean): PiecePolygon[] {
   if (cubie.position.every((v) => v === 0)) return []
+  // Being entered: a sticker's share of the circle once it is painted, and
+  // the arrow it wears, or may wear while its edge's other color is not.
   const h = 0.5 * SHRINK
   return (Object.keys(FACE_NORMAL) as Face[]).flatMap((f) => {
     const n = FACE_NORMAL[f]
@@ -229,11 +244,12 @@ function polygonsOf(cubie: Cubie, thumbnail: boolean): PiecePolygon[] {
     })
     const s = cubie.stickers.find((x) => x.normal.join() === n.join())
     // Its sticker's prints right after it.
-    const prints = !s
-      ? []
-      : thumbnail
-        ? [...circlePrint(cubie, s), ...arrow(cubie, s, true)]
-        : [...circle(cubie, s), ...arrow(cubie, s)]
+    const prints =
+      !s || s.color === UNPAINTED
+        ? []
+        : thumbnail
+          ? [...circlePrint(cubie, s), ...arrow(cubie, s, true)]
+          : [...circle(cubie, s), ...arrow(cubie, s)]
     return [...face(corners, [...n] as P3, cubie, normalIndex(n), STICKER_SCALE), ...prints]
   })
 }

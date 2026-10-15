@@ -135,6 +135,7 @@ const PUZZLES: ReadonlyArray<{
     painted: 150,
     scramble: 40,
   },
+  { shape: 'fashion', pieces: 45, stickers: 78, orientations: 8, painted: 78, scramble: 30 },
   { shape: 'latch', pieces: 27, stickers: 55, orientations: 24, painted: 54, scramble: 30 },
   { shape: 'quarter', pieces: 27, stickers: 54, orientations: 24, painted: 54, scramble: 30 },
   // A 3x3 cut to an octagonal prism, its hidden core left out.

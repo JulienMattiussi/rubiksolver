@@ -6,7 +6,14 @@ import { atHome, homesOf } from '../../core/pieces'
 import { solvePieces } from '../../solve/pieceSearch'
 import type { MethodPlan, StepSpec } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
-import type { Cube, Cubie, CubeShape, Move, Vec3 } from '../../core/types'
+import {
+  SHAPE_SHIFTS,
+  type Cube,
+  type Cubie,
+  type CubeShape,
+  type Move,
+  type Vec3,
+} from '../../core/types'
 import {
   CYCLE_EDGES,
   DESCEND_CORNER,
@@ -66,6 +73,17 @@ const homeAll = (shape: CubeShape, keep: (c: Cubie) => boolean) => (cube: Cube) 
 
 const SIDES = 'R2 L2 F2 B2'
 
+/** A tower that turns like a bigger cube (the 3x3x5 like a 5x5x5) turns
+ *  its sides by blocks: a side's half turn is its block's, Rw2 for R2. */
+const isSide = (m: Move) => m.face !== 'U' && m.face !== 'D'
+const widen =
+  (shape: CubeShape) =>
+  (moves: readonly Move[]): Move[] =>
+    SHAPE_SHIFTS[shape]
+      ? moves.map((m) => (isSide(m) && !m.depth ? { ...m, depth: 2, wide: true } : m))
+      : [...moves]
+const sidesOf = (shape: CubeShape) => (SHAPE_SHIFTS[shape] ? 'Rw2 Lw2 Fw2 Bw2' : SIDES)
+
 // ---------------------------------------------------------------------------
 // The outer Domino
 // ---------------------------------------------------------------------------
@@ -104,11 +122,14 @@ function toDomino(shape: CubeShape): (cube: Cube) => Cube {
 /** The outer Domino's steps: its corners, then its edges. */
 export function outerDomino(shape: CubeShape): StepSpec[] {
   const project = toDomino(shape)
+  const wide = widen(shape)
   const steps = (key: string, specs: MethodPlan): StepSpec => ({
     key,
     goal: (cube) => specs[specs.length - 1]!.goal(project(cube)),
-    moves: moveSet(`U D ${SIDES}`),
-    phases: specs.flatMap((spec) => spec.phases.map((ph) => (cube: Cube) => ph(project(cube)))),
+    moves: moveSet(`U D ${sidesOf(shape)}`),
+    phases: specs.flatMap((spec) =>
+      spec.phases.map((ph) => (cube: Cube) => wide(ph(project(cube)) as Move[])),
+    ),
   })
   return [
     steps('stepOuterCorners', DOMINO_PLAN.slice(0, 2)),
@@ -126,20 +147,26 @@ const both = (formulas: readonly (readonly Move[])[]) =>
 
 /**
  * The steps of the inner Domino at height `y` (its layers turned as `depth`
- * from U and D): its corners, then its edges.
+ * from U and D): its corners, then its edges. The outer layers too, so
+ * (`y` the top), when every other layer must stay as it is.
  */
-export function innerDomino(shape: CubeShape, y: number, depth: 2 | 3): StepSpec[] {
+export function innerDomino(shape: CubeShape, y: number, depth: 1 | 2 | 3): StepSpec[] {
   const solved = solvedCube(shape)
   const inPair = (c: Cubie) => height(c) === y
-  const isCorner = (c: Cubie) => inPair(c) && c.stickers.length === 2
-  const isEdge = (c: Cubie) => inPair(c) && c.stickers.length === 1
+  // On the outer layers (the Fashion-V's, kept from its equator), a piece
+  // wears its top or bottom sticker too.
+  const extra = y === top(shape) ? 1 : 0
+  const isCorner = (c: Cubie) => inPair(c) && c.stickers.length === 2 + extra
+  const isEdge = (c: Cubie) => inPair(c) && c.stickers.length === 1 + extra
   const isBottom = (c: Cubie) => c.position[1] < 0
   const isHome = (c: Cubie) => atHome(c, shape)
-  const layer = (face: 'U' | 'D', amount: 1 | 2 | 3): Move => ({ face, amount, depth })
+  const deep = depth === 1 ? {} : { depth }
+  const prefix = depth === 1 ? '' : depth
+  const layer = (face: 'U' | 'D', amount: 1 | 2 | 3): Move => ({ face, amount, ...deep })
 
   /** A Domino formula on these layers. */
   const inner = (moves: readonly Move[]): Move[] =>
-    moves.map((m) => (m.face === 'U' || m.face === 'D' ? { ...m, depth } : m))
+    widen(shape)(moves.map((m) => (m.face === 'U' || m.face === 'D' ? { ...m, ...deep } : m)))
   /** Whether a sequence leaves every other layer as it is. */
   const othersKept = (moves: readonly Move[]) => {
     const after = applyMoves(solved, moves)
@@ -168,12 +195,18 @@ export function innerDomino(shape: CubeShape, y: number, depth: 2 | 3): StepSpec
     (track: readonly Vec3[], formulas: readonly Move[][], goalOf: readonly Vec3[]) =>
     (cube: Cube): Move[] => {
       const goal = new Set(goalOf.map(key))
+      // The outer layers' pieces are each one of a kind: those to bring
+      // home, all tracked and home, are one state, searched from both ends.
+      const single = extra === 1
       return solvePieces(cube, {
-        track,
-        moves: moveSet(`${depth}U ${depth}D`),
+        track: single ? goalOf : track,
+        moves: moveSet(`${prefix}U ${prefix}D`),
         macros: formulas,
-        goal: (p) => p.filter((c) => goal.has(key(c.position)) && isHome(c)).length === goal.size,
-        key: layoutKey,
+        ...(!single && {
+          goal: (p: readonly Cubie[]) =>
+            p.filter((c) => goal.has(key(c.position)) && isHome(c)).length === goal.size,
+          key: layoutKey,
+        }),
         among: inPair,
         maxDepth: 12,
       })
@@ -184,10 +217,10 @@ export function innerDomino(shape: CubeShape, y: number, depth: 2 | 3): StepSpec
   const edges = homesOf(shape, (c) => isCorner(c) || isEdge(c))
   const bottomEdges = homesOf(shape, (c) => isCorner(c) || (isEdge(c) && isBottom(c)))
   const above = (c: Cubie) => height(c) > y
-  const moves = moveSet(`${depth}U ${depth}D ${SIDES}`)
+  const moves = moveSet(`${prefix}U ${prefix}D ${sidesOf(shape)}`)
   return [
     {
-      key: 'stepInnerCorners',
+      key: extra ? 'stepOuterCorners' : 'stepInnerCorners',
       goal: homeAll(shape, (c) => above(c) || isCorner(c)),
       moves,
       phases: [
@@ -196,7 +229,7 @@ export function innerDomino(shape: CubeShape, y: number, depth: 2 | 3): StepSpec
       ],
     },
     {
-      key: 'stepInnerEdges',
+      key: extra ? 'stepOuterEdges' : 'stepInnerEdges',
       goal: homeAll(shape, (c) => height(c) >= y),
       moves,
       phases: [
@@ -215,7 +248,9 @@ export function innerDomino(shape: CubeShape, y: number, depth: 2 | 3): StepSpec
 
 /**
  * The middle layer's steps, its turn being `turn` (2U on a 3-high tower, 3U
- * on a 5-high one): its side edges, then its centers.
+ * on a 5-high one): its side edges, then its centers. A 3-wide tower's
+ * middle centers are one of each color and only go round together with
+ * its turn: no 3-cycle moves them, they come home with the edges.
  */
 export function middleLayer(shape: CubeShape, turn: string): StepSpec[] {
   const inMiddle = (c: Cubie) => c.position[1] === 0 && c.stickers.length > 0
@@ -225,24 +260,26 @@ export function middleLayer(shape: CubeShape, turn: string): StepSpec[] {
   const middle = parseMoves(turn)[0]!
   const amounts = ([1, 2, 3] as const).map((amount): Move => ({ ...middle, amount }))
   // Its turn set up by one or two sides, the sides undone after.
-  const sides = parseMoves(SIDES)
+  const sides = parseMoves(sidesOf(shape))
   const setups = [...sides.map((s) => [s]), ...sides.flatMap((s) => sides.map((t) => [s, t]))]
   const macros = setups.flatMap((s) => amounts.map((m) => [...s, m, ...invertMoves(s)]))
   const edges = homesOf(shape, isEdge)
+  const centerHomes = homesOf(shape, isCenter)
+  const alone = centerHomes.length === 4
   const table = once(() => towerCycles(shape, isCenter, () => false, amounts))
   const centers = homesByColor(shape, isCenter, table)
-  const moves: MoveSet = moveSet(`${turn} ${SIDES}`)
+  const moves: MoveSet = moveSet(`${turn} ${sidesOf(shape)}`)
   // Its centers' 3-cycles are set up by any turn.
   const all = [...allTurnsOf(shape).turns, ...amounts]
   return [
     {
       key: 'stepMiddleEdges',
-      goal: homeAll(shape, (c) => c.position[1] !== 0 || isEdge(c)),
+      goal: alone ? isSolved : homeAll(shape, (c) => c.position[1] !== 0 || isEdge(c)),
       moves,
       phases: [
         (cube) =>
           solvePieces(cube, {
-            track: edges,
+            track: alone ? [...edges, ...centerHomes] : edges,
             moves: moveSet(turn),
             macros,
             goal: (p) => p.every(isHome),
@@ -252,11 +289,15 @@ export function middleLayer(shape: CubeShape, turn: string): StepSpec[] {
           }),
       ],
     },
-    {
-      key: 'stepMiddleCenters',
-      goal: isSolved,
-      moves: { generators: all, turns: all },
-      phases: [byCycles(table, centers)],
-    },
+    ...(alone
+      ? []
+      : [
+          {
+            key: 'stepMiddleCenters',
+            goal: isSolved,
+            moves: { generators: all, turns: all },
+            phases: [byCycles(table, centers)],
+          },
+        ]),
   ]
 }

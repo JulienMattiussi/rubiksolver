@@ -50,6 +50,7 @@ import { SKEWB_U_PLAN } from '../methods/polyhedron/skewbU'
 import { SKEWB_PLAN } from '../methods/diagonal/skewb'
 import { MASTER_SKEWB_PLAN } from '../methods/diagonal/masterSkewb'
 import { TOWER334_PLAN } from '../methods/tower/tower334'
+import { FASHION_PLAN } from '../methods/twisted/fashion'
 import { TOWER443_PLAN, TOWER445_PLAN } from '../methods/tower/tower44'
 import { TOWER554_PLAN } from '../methods/tower/tower554'
 import { TOWER234_PLAN } from '../methods/tower/tower234'
@@ -163,6 +164,7 @@ const SOLVE_METHODS = [
   { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
   { id: 'tower234Steps', plans: { '234': TOWER234_PLAN } },
   { id: 'doubleDomino', plans: { '334': TOWER334_PLAN } },
+  { id: 'fashionLaid', plans: { fashion: FASHION_PLAN } },
   {
     id: 'towerReduction',
     plans: { '443': TOWER443_PLAN, '445': TOWER445_PLAN, '554': TOWER554_PLAN },

@@ -1,3 +1,4 @@
+import { fashionTurns, scrambleFashion } from './fashion'
 import { latchTurns, scrambleLatch, withLatchMark, withoutLatchMark } from './latch'
 import type { CubeShape } from '../../core/types'
 import { colorsSolved, solvedCube } from '../../core/cube'
@@ -51,5 +52,10 @@ export const TWISTED_MODELS = {
       seen: (cube, held) => withoutLatchMark(held(cube)),
       built: (cube) => withLatchMark(cube),
     },
+  },
+  // A thin layer alone only when its half is laid (fashion.ts).
+  fashion: {
+    turnAllowed: fashionTurns,
+    scramble: (length, rng, start) => scrambleFashion(length, rng, start),
   },
 } satisfies Partial<Record<CubeShape, PuzzleModel>>

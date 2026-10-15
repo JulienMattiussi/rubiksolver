@@ -7,6 +7,7 @@ import { entersByPieces, piecesIn } from '@/lib/editor/pieceEditor'
 import { CATEGORY_OF } from '@/lib/puzzles/catalog'
 import { fusedAs } from '@/lib/puzzles/bandaged/bonds'
 import { entersJoints, splits, tileMates, withJoints } from '@/lib/editor/jointsEditor'
+import { cutPieces } from '@/lib/editor/cutsEditor'
 import { JointHandles } from './JointHandles'
 import { withBars } from '@/lib/puzzles/bandaged/roadblock'
 import { useCube } from '@/store/cubeStore'
@@ -18,6 +19,7 @@ import { EMPTY_COLOR } from './EditView'
 const EMPTY_BORDER = '#334155'
 import { Decal } from './Decal'
 import { PolyPiece } from './PolyPiece'
+import { UNPAINTED } from '../puzzles/twisted/latchGeometry'
 import { polyDrawing } from './polyDrawing'
 
 /**
@@ -57,6 +59,40 @@ export function PolyEditView() {
   }
   const litIn = (slotKey: string) =>
     hovered?.startsWith(`${slotKey}|`) ? Number(hovered.slice(slotKey.length + 1)) : null
+  const clickingCuts = useEditor((s) => s.phase === 'cuts')
+  const cuts = useEditor((s) => s.cuts)
+  const cutAt = useEditor((s) => s.cutAt)
+  // The cell under the pointer: its halves light up together.
+  const [hoveredCell, setHoveredCell] = useState<string | null>(null)
+
+  // The Fashion-V's halves being placed: drawn as its cells say, gray but
+  // its centers (which never move); a click turns a cell's halves round.
+  if (clickingCuts) {
+    return (
+      <group rotation={[0, drawing.yaw, 0]}>
+        {cutPieces(cuts).map((c) => {
+          const cell = c.position.map(Math.sign).join()
+          const center = c.position.filter((v) => v !== 0).length === 1
+          return (
+            <PolyPiece
+              key={c.position.join()}
+              cubie={c}
+              drawing={drawing}
+              stickerHex={center ? undefined : () => EMPTY_COLOR}
+              onSelect={center ? undefined : () => cutAt(cell)}
+              onHover={
+                center
+                  ? undefined
+                  : (_, on) =>
+                      setHoveredCell((current) => (on ? cell : current === cell ? null : current))
+              }
+              highlighted={hoveredCell === cell}
+            />
+          )
+        })}
+      </group>
+    )
+  }
   return (
     <group rotation={[0, drawing.yaw, 0]}>
       <group quaternion={drawing.orient ?? [0, 0, 0, 1]} position={drawing.offset ?? [0, 0, 0]}>
@@ -75,14 +111,24 @@ export function PolyEditView() {
           }
           // A RoadBlock-I's centers drawn as their bars lie (`twisted`: its
           // faces turned a quarter); a bandaged puzzle's pieces fused as solved.
+          // A Latch Cube's piece drawn in its entered colors (its arrows and
+          // circles follow them; none until it is all painted).
           const solved =
-            shape === 'roadblock'
-              ? withBars([plain], twisted)[0]!
-              : byJoints
-                ? withJoints([plain], joints)[0]!
-                : CATEGORY_OF[shape] === 'bandaged'
-                  ? fusedAs(plain, solvedCube(shape))
-                  : plain
+            shape === 'latch'
+              ? {
+                  ...plain,
+                  stickers: plain.stickers.map((st, i) => ({
+                    ...st,
+                    color: edit[slot.stickers[i]!.id] ?? UNPAINTED,
+                  })),
+                }
+              : shape === 'roadblock'
+                ? withBars([plain], twisted)[0]!
+                : byJoints
+                  ? withJoints([plain], joints)[0]!
+                  : CATEGORY_OF[shape] === 'bandaged'
+                    ? fusedAs(plain, solvedCube(shape))
+                    : plain
           if (pieces && slot.paintable) {
             // Entered piece by piece: the piece placed, or the slot's own in
             // gray while empty; a click puts the next one.

@@ -158,3 +158,48 @@ début de chaque formule, donc les variantes qui passent (tenues de chaque
 façon, préparées par un ou deux coups) sont triées une fois. La position
 START de la page (une croix de flèches noires en bas) n'est pas reprise :
 la recherche s'en passe.
+
+## Le Fashion-V (`fashion`)
+
+Le Fashion-V (fan2cube.fr/fashioncube1 et 2, Adam Cowan et Jason Smith, 2010) : un 3x3x5 ramené à un cube, ses deux couches du haut (H, h) et du bas
+(b, B) moitié moins épaisses que l'équateur (`lib/puzzles/twisted/fashion.ts`).
+Il tourne comme un 5x5x5 dont les pièces remplissent le 3x3x5 du milieu,
+comme la 2x2x4 comme un 4x4x4 (`shifts`) : un côté par blocs (Rw : la
+colonne de cellules du bord), d'un quart de tour, ce qui passe toujours et
+met ses paires (une pièce du haut et celle sous elle) debout ; une moitié
+entière (H* : H et h) aussi. Une couche fine seule ne tourne que si sa moitié
+est couchée (ses deux couches entières, neuf pièces chacune : une arête de
+l'équateur, épaisse, n'y entre jamais). Ni l'équateur ni un côté seul ne
+tournent : ses centres ne bougent jamais, pré-remplis à la saisie. Mélange :
+d'abord dans sa boîte (couches fines, demi-tours des blocs de côté, qui
+séparent les paires et échangent haut et bas), puis tout coup qui passe.
+Saisie en deux temps, ses formes se comptant par millions
+(`lib/editor/cutsEditor.ts`) : d'abord ses demi-cubies, un clic sur une case
+faisant défiler leur position (une paire couchée, debout d'un côté ou de
+l'autre, ou une arête pleine de l'équateur, quatre en tout), puis la
+recherche de forme en trouve un état (aucun : la saisie le dit), sur lequel
+on peint les couleurs ; « Modifier » part de l'état où il se trouve.
+
+**Rendu** (`three/puzzles/twisted/fashionGeometry.ts`) : le cube qu'il reste,
+chaque demi-pièce moitié moins épaisse le long de son axe fin (la verticale
+qu'elle avait résolue, tournée avec elle : celui où regarde sa couleur du
+haut ou du bas, ou celui où aucun sticker ne regarde à travers sa cellule),
+une pièce entière (arête de l'équateur, centre de côté) remplissant sa
+cellule.
+
+**Résolution** (`methods/twisted/fashion.ts`, méthode **Coucher puis deux
+tours**) : (1) coucher toutes les paires, et tourner les arêtes de
+l'équateur dans le bon sens, par blocs seuls (`fashionShape.ts`, « passer en
+3x3x5 », « comme un Rubik's Cube » dit la page) : la forme se lit cellule
+par cellule (l'axe de coupe d'une paire, ou une pièce entière et le sens de
+son rouge ou orange) ; trois tables de distances (coupes des arêtes,
+126 720 ; arêtes entières, 7 920 ; sommets, 6 561) bornent une recherche
+IDA*, comme la première phase de Kociemba ; (2) ranger l'équateur autour de
+ses centres, par les demi-tours des blocs (« bien placé et bien orienté ») ;
+(3) le Domino du dehors (H, B), puis celui du dedans (h, b), par les
+formules du Domino (`towerLayers.ts`), jouées deux fois, les couches
+tournées entre (« par paires » : la première descente perturbe l'équateur,
+la seconde le remet), si bien qu'aucune autre couche ne les voit et que
+l'équateur reste en place. Les pièces du dehors sont uniques (une recherche
+par les deux bouts) ; celles du dedans vont par jumelles, qui absorbent
+toute parité : les deux « singularités » de la page ne servent pas.

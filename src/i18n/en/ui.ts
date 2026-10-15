@@ -120,6 +120,12 @@ export const UI_EN: typeof UI_FR = {
     advanced: 'Advanced',
   },
   editCube: 'Enter',
+  editHintCuts:
+    'First place the halves as they stand: click a cell to go through their ways (lying, standing one way or the other, or a whole equator edge, four in all). Accept, then paint the colors.',
+  acceptCuts: 'Accept the halves',
+  changeCuts: 'Change the halves',
+  wholeEdgesOf: (n: number) => `${n} / 4 whole edges`,
+  errorCuts: 'The halves cannot stand so: check each cell (four whole edges).',
   editHintJoints:
     'Its joints first: a click on a blue joint fuses two pieces, into a 2x1 then a 2x2; a click on a fused piece takes it apart. Make your puzzle’s blocks (turn the view to reach the other faces), then accept the form.',
   acceptJoints: 'Accept the joints',

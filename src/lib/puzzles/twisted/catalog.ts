@@ -18,4 +18,14 @@ export const TWISTED = {
   // The Latch Cube (latch.ts): a 3x3x3, its faces turning the way their
   // arrows say.
   latch: { label: 'Latch Cube', slug: 'latch-cube', dims: [3, 3, 3], scramble: 30 },
+  // The Fashion-V (fashion.ts): a 3x3x5 squashed to a cube, turning like a
+  // 5x5x5 (its pieces within +-2), its thin layers alone only when laid.
+  fashion: {
+    label: 'Fashion-V',
+    slug: 'fashion-v',
+    dims: [3, 5, 3],
+    scramble: 30,
+    shifts: true,
+    inner: ['slice', 'wide'],
+  },
 } satisfies Record<string, PuzzleEntry>

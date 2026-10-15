@@ -259,6 +259,8 @@ const ENTERED: [string, string, string][] = [
   // Entered piece by piece: its pieces counted.
   ['Plats', 'Floppy Ghost', '10 / 10 pièces'],
   ['Torturés', 'Z-Twist', '20 / 20 pièces'],
+  // Its halves entered cell by cell first, from where they stand.
+  ['Torturés', 'Fashion-V', '78 / 78 stickers'],
   // Only the stickers one sees count: the inner points' flat faces fill in.
   ['Cylindriques', '4-Star Prism', '64 / 64 stickers'],
   // Its blocks' marks unseen: found again from its colors.

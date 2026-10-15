@@ -75,6 +75,8 @@ export const STEPS_EN: typeof STEPS_FR = {
   stepPuckTop: 'Order the top numbers',
   stepPuckAlign: 'Align the top on the bottom',
   stepCamoShape: 'Back in shape',
+  stepFashionLay: 'Lay the pairs down (back to a 3x3x5)',
+  stepFashionEquator: 'The equator home',
   stepFisherCenters: 'Turn the centers',
   stepMorphCenters: 'Turn the centers',
   stepBarrelEquator: 'Middle edges',

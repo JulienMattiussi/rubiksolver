@@ -74,6 +74,8 @@ export const STEPS_FR = {
   stepPuckTop: 'Ranger les numéros du haut',
   stepPuckAlign: 'Aligner le haut sur le bas',
   stepCamoShape: 'Remettre en forme',
+  stepFashionLay: 'Coucher les paires (retour en 3x3x5)',
+  stepFashionEquator: 'Ranger l’équateur',
   stepFisherCenters: 'Tourner les centres',
   stepMorphCenters: 'Tourner les centres',
   stepBarrelEquator: 'Arêtes du milieu',
