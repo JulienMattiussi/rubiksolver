@@ -59,14 +59,15 @@ export const isGear = (shape: CubeShape): boolean =>
  *  does not show. */
 export const hasColoredClips = (shape: CubeShape): boolean => shape === 'gearU' || shape === 'gearX'
 
-/** The Rainbow, the Dino Cube, the Rex Cube, the Skewb Ultimate and the
- *  FTO: the same mechanism (rainbow.ts), turning by thirds about the cube's
+/** The Rainbow, the Dino Cube, the Rex Cube, the Skewb, the Skewb Ultimate
+ *  and the FTO: the same mechanism (rainbow.ts), turning by thirds about the cube's
  *  diagonals. */
 const isRainbowLike = (shape: CubeShape): boolean =>
   shape === 'rainbow' ||
   shape === 'dino' ||
   shape === 'dinoCyl' ||
   shape === 'rex' ||
+  shape === 'skewb' ||
   shape === 'skewbU' ||
   shape === 'fto'
 

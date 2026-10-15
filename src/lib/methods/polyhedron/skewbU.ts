@@ -1,11 +1,9 @@
-import { solvedCube } from '../../core/cube'
 import { allTurnsOf } from '../../core/moveSet'
 import { invertMoves } from '../../core/moves'
-import { solvePieces } from '../../solve/pieceSearch'
-import { parseDinoMoves, RAINBOW_CORNERS, RAINBOW_TRIANGLES } from '../../puzzles/shared/rainbow'
+import { RAINBOW_CORNERS } from '../../puzzles/shared/rainbow'
 import type { MethodPlan } from '../../solve/solverKit'
-import { applyMoves as applyMovesTo } from '../../core/turn'
-import type { Cube, Cubie, RainbowMove, Turn, Vec3 } from '../../core/types'
+import type { RainbowMove, Vec3 } from '../../core/types'
+import { both, parse, skewbKit } from '../shared/skewbKit'
 
 /**
  * Skewb Ultimate, "le Haut d'abord", as taught on fan2cube.fr
@@ -30,12 +28,17 @@ export const CENTER_SWAPS = ["[OH']", "[BO']", "[B'E'][HE]", "[H'E'][HO]"]
 export const CENTER_TURN = "[HE'][HE'][EB'][EB']"
 export const BOTTOM_TWISTS = ["[BO'][BO'][BO'][BO']", "[OH'][OH'][OH'][OH']"]
 
-const SOLVED = solvedCube('skewbU')
 const TURNS = allTurnsOf('skewbU')
+
+/** Held twelve ways: a third about a diagonal, a half about the vertical
+ *  (the turns that keep its dodecahedron). */
+const { SOLVED, held, home, oneByOne } = skewbKit('skewbU', [
+  ([x, y, z]: Vec3): Vec3 => [y, z, x],
+  ([x, y, z]: Vec3): Vec3 => [-x + 0, y, -z + 0],
+])
 const BOTTOM: readonly Vec3[] = SOLVED.filter(
   (c) => c.position[1] === -1 && c.stickers.length === 3,
 ).map((c) => c.position)
-const at = (p: Vec3) => (c: Cubie) => c.position.join() === p.join()
 const CENTERS = SOLVED.filter((c) => c.stickers.length === 4).map((c) => c.position)
 const TOP_CORNERS = SOLVED.filter((c) => c.position[1] === 1 && c.stickers.length === 3).map(
   (c) => c.position,
@@ -46,139 +49,6 @@ const SIDE_CENTERS = CENTERS.filter((p) => p[1] !== 1)
 const BOTTOM_TURNS: RainbowMove[] = TURNS.turns.filter(
   (t): t is RainbowMove => 'triangle' in t && RAINBOW_CORNERS[t.triangle][1] === -1,
 ) as RainbowMove[]
-
-const parse = (formula: string) => parseDinoMoves(formula, 'skewb')
-const both = (formulas: readonly string[]) =>
-  formulas.flatMap((f) => [parse(f), invertMoves(parse(f))])
-
-/** The twelve ways of holding it, each as the turn of the whole puzzle. */
-const HOLDINGS: ((v: Vec3) => Vec3)[] = (() => {
-  const [third, half] = [
-    ([x, y, z]: Vec3): Vec3 => [y, z, x],
-    ([x, y, z]: Vec3): Vec3 => [-x + 0, y, -z + 0],
-  ]
-  const found = new Map<string, (v: Vec3) => Vec3>([['1,0,0|0,1,0', (v) => v]])
-  let frontier = [...found.values()]
-  while (frontier.length) {
-    const next: ((v: Vec3) => Vec3)[] = []
-    for (const f of frontier) {
-      for (const g of [third, half]) {
-        const h = (v: Vec3) => g(f(v))
-        const key = `${h([1, 0, 0])}|${h([0, 1, 0])}`
-        if (!found.has(key)) {
-          found.set(key, h)
-          next.push(h)
-        }
-      }
-    }
-    frontier = next
-  }
-  return [...found.values()]
-})()
-
-const turned = (cube: Cube, turn: (v: Vec3) => Vec3): Cube =>
-  cube.map((c) => ({
-    ...c,
-    position: turn(c.position),
-    stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
-  }))
-
-const keyOf = (c: Cubie) =>
-  c.position.join() +
-  c.stickers
-    .map((s) => s.normal.join() + s.color)
-    .sort()
-    .join()
-const TOP_CENTER = keyOf(SOLVED.find(at([0, 1, 0]))!)
-
-/** The holding that brings the top center home, and the inverse turn. */
-function holdingOf(cube: Cube): { turn: (v: Vec3) => Vec3; back: (v: Vec3) => Vec3 } {
-  const turn = HOLDINGS.find((h) => keyOf(turned(cube, h).find(at([0, 1, 0]))!) === TOP_CENTER)!
-  const back = HOLDINGS.find((h) =>
-    (
-      [
-        [1, 0, 0],
-        [0, 1, 0],
-        [0, 0, 1],
-      ] as Vec3[]
-    ).every((v) => h(turn(v)).join() === v.join()),
-  )!
-  return { turn, back }
-}
-
-/** A phase worked out on the puzzle held as solved, played back as it
- *  stands: each corner's turn becomes the one of the corner it is. */
-function held(phase: (cube: Cube) => Turn[]) {
-  return (cube: Cube): Turn[] => {
-    const { turn, back } = holdingOf(cube)
-    return phase(turned(cube, turn)).map((t) => {
-      const m = t as RainbowMove
-      const d = back(RAINBOW_CORNERS[m.triangle])
-      const triangle = RAINBOW_TRIANGLES.find((x) => RAINBOW_CORNERS[x].join() === d.join())!
-      return { ...m, triangle }
-    })
-  }
-}
-
-/** Whether these pieces are home (or only in place) in the puzzle held as
- *  solved. */
-const home =
-  (homes: readonly Vec3[], placed = false) =>
-  (cube: Cube) => {
-    const upright = turned(cube, holdingOf(cube).turn)
-    return homes.every((p) => {
-      const want = SOLVED.find(at(p))!
-      const colors = want.stickers
-        .map((s) => s.color)
-        .sort()
-        .join()
-      const piece = upright.find(
-        (c) =>
-          c.stickers
-            .map((s) => s.color)
-            .sort()
-            .join() === colors,
-      )!
-      return placed ? piece.position.join() === p.join() : keyOf(piece) === keyOf(want)
-    })
-  }
-
-const NONE = { generators: [], turns: [] }
-
-/** Pieces placed one after another, each by the fewest generators. */
-function oneByOne(
-  homes: readonly Vec3[],
-  keep: readonly Vec3[],
-  macros: readonly (readonly Turn[])[],
-  placed: boolean,
-  maxDepth: number,
-) {
-  return (cube: Cube): Turn[] => {
-    let state = cube
-    const all: Turn[] = []
-    for (let k = 1; k <= homes.length; k++) {
-      const now = homes.slice(0, k)
-      const track = [...keep, ...now]
-      const moves = solvePieces<Turn>(state, {
-        track,
-        moves: NONE,
-        macros,
-        ...(placed && {
-          goal: (pieces: readonly Cubie[]) =>
-            pieces.every((c, i) =>
-              i < keep.length
-                ? keyOf(c) === keyOf(SOLVED.find(at(track[i]!))!)
-                : c.position.join() === track[i]!.join(),
-            ),
-        }),
-        maxDepth,
-      })
-      state = applyMovesTo(state, moves)
-      all.push(...moves)
-    }
-    return all
-  }
-}
 
 const TOP_TWIST_MACROS = both(TOP_TWISTS)
 const SWAP_MACROS = both(CENTER_SWAPS)

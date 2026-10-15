@@ -48,7 +48,7 @@ export function MovePad({ disabled }: { disabled: boolean }) {
   const advanced = advancedMovesFor(shape)
   // The VTO turns its corners wide, its tips alone outer: corners first.
   const vto = shape === 'vto'
-  const tabs: PadTab[] = [
+  const kinds: PadTab[] = [
     ...(
       (vto ? ['wide', 'outer'] : ['outer', 'slice', 'slice3', 'wide', 'wide3']) as LayerKind[]
     ).filter((k) => moves.some((m) => layerKindOf(m) === k)),
@@ -59,16 +59,6 @@ export function MovePad({ disabled }: { disabled: boolean }) {
     (k === 'advanced' ? advanced : moves.filter((m) => layerKindOf(m) === k)).some((m) =>
       turnAllowed(cube, m),
     )
-  // On a new puzzle, the first tab where something turns (a tab may hold
-  // only turns the state jams).
-  const [picked, setPicked] = useState<{ shape: string; tab: PadTab | null }>({
-    shape: '',
-    tab: null,
-  })
-  if (picked.shape !== shape) setPicked({ shape, tab: tabs.find(playable) ?? null })
-  const tab = picked.shape === shape ? picked.tab : null
-  const setTab = (next: PadTab) => setPicked({ shape, tab: next })
-  const current = tab && tabs.includes(tab) ? tab : tabs[0]!
   const faces = FACES.filter((face) => moves.some((m) => m.face === face))
   const advancedLayers = advanced.filter(
     (m, i) => !advanced.slice(0, i).some((n) => sameLayer(n, m)),
@@ -76,8 +66,25 @@ export function MovePad({ disabled }: { disabled: boolean }) {
   /** The rows of buttons a tab shows, three layers a row. */
   const rowsOf = (k: PadTab) => Math.ceil((k === 'advanced' ? advancedLayers : faces).length / 3)
   // Every kind of layer stacked, each under its name, when they all fit
-  // (as many rows as the Megaminx's pad); tabs otherwise.
-  const stacked = tabs.length > 1 && tabs.reduce((n, k) => n + rowsOf(k), 0) <= STACKED_ROWS
+  // (as many rows as the Megaminx's pad); otherwise two tabs, each stacked:
+  // the outer layers (a face, alone or with the layers behind it), then the
+  // inner ones (the slices).
+  const stacked = kinds.reduce((n, k) => n + rowsOf(k), 0) <= STACKED_ROWS
+  const groups: { key: LayerGroup; kinds: PadTab[] }[] = stacked
+    ? [{ key: 'outer', kinds }]
+    : (['outer', 'inner'] as const)
+        .map((key) => ({ key, kinds: kinds.filter((k) => isOuter(k) === (key === 'outer')) }))
+        .filter((g) => g.kinds.length > 0)
+  // On a new puzzle, the first tab where something turns (a tab may hold
+  // only turns the state jams).
+  const [picked, setPicked] = useState<{ shape: string; group: LayerGroup | null }>({
+    shape: '',
+    group: null,
+  })
+  if (picked.shape !== shape) {
+    setPicked({ shape, group: groups.find((g) => g.kinds.some(playable))?.key ?? null })
+  }
+  const current = groups.find((g) => g.key === picked.group && picked.shape === shape) ?? groups[0]!
   const nameOf = (k: PadTab) =>
     vto && (k === 'outer' || k === 'wide') ? t.vtoLayerKinds[k] : t.layerKinds[k]
 
@@ -134,7 +141,14 @@ export function MovePad({ disabled }: { disabled: boolean }) {
     )
 
     return (
-      <div className="grid grid-cols-3 gap-2">
+      // Labels of four characters (a 6x6's 3Uw') want two pairs a row.
+      <div
+        className={`grid gap-2 ${
+          faces.some((f) => formatMove(turn(f, 3), labels, dims).length > 3)
+            ? 'grid-cols-2'
+            : 'grid-cols-3'
+        }`}
+      >
         {tabShown === 'advanced'
           ? advancedLayers.map((layer) =>
               pair(
@@ -156,48 +170,38 @@ export function MovePad({ disabled }: { disabled: boolean }) {
     )
   }
 
-  if (stacked) {
-    return (
-      <div>
-        <PadHeader />
-        {tabs.map((k) => (
-          <div key={k} className="mb-2">
-            <p className={`${SECTION_LABEL} mb-1`}>{nameOf(k)}</p>
-            {grid(k)}
-          </div>
-        ))}
-      </div>
-    )
-  }
   return (
     <div>
       <PadHeader />
-      {tabs.length > 1 && (
+      {groups.length > 1 && (
         <div className="mb-2">
           <SegmentedToggle
             size="sm"
             ariaLabel={t.layerLabel}
-            value={current}
-            onChange={setTab}
-            options={tabs.map((k) => {
-              const name = nameOf(k)
-              // Five kinds (a 6x6's) only fit written as turns: R, 2R, 3R, Rw, 3Rw.
-              return tabs.length > 4 && k !== 'advanced'
-                ? {
-                    value: k,
-                    label: formatMove(layerMove('R', 1, k), labels),
-                    title: name,
-                    literal: true,
-                  }
-                : { value: k, label: name }
-            })}
+            value={current.key}
+            onChange={(group) => setPicked({ shape, group })}
+            options={groups.map((g) => ({ value: g.key, label: t.layerGroups[g.key] }))}
           />
         </div>
       )}
-      {grid(current)}
+      {current.kinds.length > 1
+        ? current.kinds.map((k) => (
+            <div key={k} className="mb-2">
+              <p className={`${SECTION_LABEL} mb-1`}>{nameOf(k)}</p>
+              {grid(k)}
+            </div>
+          ))
+        : grid(current.kinds[0]!)}
     </div>
   )
 }
+
+/** The pad's two tabs, when its kinds of layers do not fit stacked. */
+type LayerGroup = 'outer' | 'inner'
+
+/** Whether a kind of layer turns an outer face (alone or with the layers
+ *  behind it): the pad's outer tab. */
+const isOuter = (k: PadTab) => k === 'outer' || k === 'wide' || k === 'wide3'
 
 /** Rows of buttons a pad stacks at most, every kind of layer at once (as
  *  many as the Megaminx's): past them, the kinds go in tabs. */

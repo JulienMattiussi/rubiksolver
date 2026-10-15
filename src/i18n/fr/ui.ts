@@ -92,7 +92,6 @@ export const UI_FR = {
     }[layer]
     return `Tourner ${target} dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`
   },
-  sliceShort: (n: number) => `Tr. ${n}`,
   pyraKinds: {
     corners: 'Couches',
     tips: 'Pointes',
@@ -110,6 +109,7 @@ export const UI_FR = {
     `Bloqué : la ${faceName} ne peut pas tourner dans cette position`,
   layerLabel: 'Couche tournée',
   vtoLayerKinds: { wide: 'Sommets', outer: 'Pointes' },
+  layerGroups: { outer: 'Externes', inner: 'Internes' },
   layerKinds: {
     outer: 'Externe',
     slice: 'Tranche',

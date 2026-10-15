@@ -43,7 +43,7 @@ export const METHODS_EN: typeof METHODS_FR = {
   },
   skewbTopFirst: {
     name: 'Top first',
-    desc: 'Only the four bottom corners turn (B, O, H, E, fan2cube’s letters): the top center never moves. The top corners placed, then twisted ([BO], [O’B’], [OH], [B’E’]), the centers placed ([OH’], [BO’], [B’E’][HE], [H’E’][HO]) then turned ([HE’]²[EB’]²), and last the bottom corners twisted (K = [BO’]⁴, Z = [OH’]⁴): they follow the top ones, already in place.',
+    desc: 'Only the four bottom corners turn (B, O, H, E, fan2cube’s letters): the top center never moves. Skewb: the top corners placed then twisted ([B’O’]), the centers placed ([B’E’][HE], [H’E’][HO]), the bottom corners twisted ([BO’]²). Skewb Ultimate: the top corners placed, then twisted ([BO], [O’B’], [OH], [B’E’]), the centers placed ([OH’], [BO’], [B’E’][HE], [H’E’][HO]) then turned ([HE’]²[EB’]²), and last the bottom corners twisted (K = [BO’]⁴, Z = [OH’]⁴): they follow the top ones, already in place.',
   },
   crystalCornersFirst: {
     name: 'Corners first',

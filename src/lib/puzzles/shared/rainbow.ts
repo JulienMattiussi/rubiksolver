@@ -5,8 +5,8 @@ import type { Color, Cube, Cubie, Face, RainbowCorner, RainbowMove, Vec3 } from 
 /**
  * The model of the puzzles whose corners (or a cube's diagonals) turn by
  * thirds, shared by several categories: the Rainbow's, below, and on it the
- * Dino Cube, the Rex Cube, the Skewb Ultimate (diagonal, polyhedron) and the
- * FTO (fto.ts), each with its own pieces and notation.
+ * Dino Cube, the Rex Cube, the Skewb and the Skewb Ultimate (diagonal,
+ * polyhedron) and the FTO (fto.ts), each with its own pieces and notation.
  *
  * The Rainbow (fan2cube.fr/rainbow1, Bethel Japan, 1971): a
  * cuboctahedron, 6 squares and 8 triangles. Each triangle turns by thirds
@@ -359,9 +359,24 @@ export function solvedSkewbU(): Cube {
 /** Every Skewb Ultimate turn, both ways. */
 export const SKEWB_TURNS: readonly RainbowMove[] = DINO_TURNS.map((m) => ({ ...m, skewb: true }))
 
-/** A Skewb Ultimate scramble: the Dino's, in its turns. */
-export const scrambleSkewbU = (length: number, rng: () => number): RainbowMove[] =>
-  scrambleRainbow(length, rng).map((m) => ({ ...m, dino: true, skewb: true }))
+/** The corners of one set (their coordinates' signs multiplying to 1):
+ *  never two opposite, and their turns reach every state. */
+const SKEWB_SCRAMBLED: readonly RainbowCorner[] = RAINBOW_TRIANGLES.filter(
+  (t) => RAINBOW_CORNERS[t][0] * RAINBOW_CORNERS[t][1] * RAINBOW_CORNERS[t][2] > 0,
+)
+
+/** A Skewb Ultimate scramble (and a Skewb's): turns of one set of corners,
+ *  never the same twice in a row. A corner then its opposite the other way
+ *  would turn the puzzle whole: solved again, as its colors say. */
+export function scrambleSkewbU(length: number, rng: () => number): RainbowMove[] {
+  const moves: RainbowMove[] = []
+  while (moves.length < length) {
+    const triangle = SKEWB_SCRAMBLED[Math.floor(rng() * SKEWB_SCRAMBLED.length)]!
+    if (triangle === moves[moves.length - 1]?.triangle) continue
+    moves.push({ triangle, amount: rng() < 0.5 ? 1 : 2, dino: true, skewb: true })
+  }
+  return moves
+}
 
 /** The Skewb Ultimate turned as a whole: the turns that keep its
  *  dodecahedron, a third about a diagonal and a half about an axis (the
@@ -369,6 +384,43 @@ export const scrambleSkewbU = (length: number, rng: () => number): RainbowMove[]
 export const SKEWB_SYMMETRIES: readonly ((cube: Cube) => Cube)[] = [
   ([x, y, z]: Vec3): Vec3 => [y, z, x],
   ([x, y, z]: Vec3): Vec3 => [-x + 0, y, -z + 0],
+].map(
+  (turn) => (cube: Cube) =>
+    cube.map((c) => ({
+      ...c,
+      position: turn(c.position),
+      stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
+    })),
+)
+
+/**
+ * The Skewb (fan2cube.fr/skewb1, Tony Durham, 1982): the Skewb Ultimate's
+ * turns on a cube. Each corner turns by thirds the half of the cube on its
+ * side: itself, its three neighbors and the three centers around it. Its 6
+ * centers show one color, square on their face (a diamond, its corners at
+ * the face's edge middles), its 8 corners three, a triangle on each face.
+ * Centers on the axes, corners at (1, 1, 1)...: 37 791 360 states, as the
+ * page counts.
+ */
+export function solvedSkewb(): Cube {
+  const centers = (Object.keys(FACE_NORMAL) as Face[]).map((f): Cubie => ({
+    position: FACE_NORMAL[f],
+    stickers: [{ normal: FACE_NORMAL[f], color: SQUARE_COLOR[f] }],
+  }))
+  const corners = Object.values(RAINBOW_CORNERS).map((d): Cubie => ({
+    position: d,
+    stickers: (Object.keys(FACE_NORMAL) as Face[])
+      .filter((f) => dot(FACE_NORMAL[f], d) > 0)
+      .map((f) => ({ normal: FACE_NORMAL[f], color: SQUARE_COLOR[f] })),
+  }))
+  return [...centers, ...corners]
+}
+
+/** The Skewb turned as a whole: a cube's, a third about a diagonal and a
+ *  quarter about the vertical (24 holdings). */
+export const SKEWB_CUBE_SYMMETRIES: readonly ((cube: Cube) => Cube)[] = [
+  ([x, y, z]: Vec3): Vec3 => [y, z, x],
+  ([x, y, z]: Vec3): Vec3 => [z, y, -x + 0],
 ].map(
   (turn) => (cube: Cube) =>
     cube.map((c) => ({

@@ -42,7 +42,7 @@ export const METHODS_FR = {
   },
   skewbTopFirst: {
     name: 'Le haut d’abord',
-    desc: 'Seuls les quatre sommets du bas tournent (B, O, H, E) : le centre du haut ne bouge jamais. Les sommets du haut placés, puis tournés ([BO], [O’B’], [OH], [B’E’]), les centres placés ([OH’], [BO’], [B’E’][HE], [H’E’][HO]) puis retournés ([HE’]²[EB’]²), et enfin les sommets du bas tournés (K = [BO’]⁴, Z = [OH’]⁴) : ils suivent ceux du haut, déjà à leur place.',
+    desc: 'Seuls les quatre sommets du bas tournent (B, O, H, E) : le centre du haut ne bouge jamais. Skewb : les sommets du haut placés puis tournés ([B’O’]), les centres placés ([B’E’][HE], [H’E’][HO]), les sommets du bas tournés ([BO’]²). Skewb Ultimate : les sommets du haut placés, puis tournés ([BO], [O’B’], [OH], [B’E’]), les centres placés ([OH’], [BO’], [B’E’][HE], [H’E’][HO]) puis retournés ([HE’]²[EB’]²), et enfin les sommets du bas tournés (K = [BO’]⁴, Z = [OH’]⁴) : ils suivent ceux du haut, déjà à leur place.',
   },
   crystalCornersFirst: {
     name: 'Les sommets d’abord',

@@ -20,6 +20,34 @@ le bas. Rien n'est fixe : la cible est la tenue du puzzle résolu la plus
 proche ; et il se résout de deux façons (gauche et droite échangées, un
 miroir), dont une seule à un nombre pair d'échanges, celle qu'on vise.
 
+## Le Skewb (`skewb`)
+
+fan2cube.fr/skewb1 à 4 (Tony Durham, 1982) : le mécanisme du Skewb
+Ultimate (`lib/puzzles/shared/rainbow.ts`, `solvedSkewb`) sur un cube. Chaque
+sommet tourne par tiers la moitié du cube de son côté : lui-même, ses trois
+voisins et les trois centres autour. 6 centres d'une couleur, 8 sommets de
+trois ; même notation que le Dino (A, D, P, G en haut, B, E, H, O en bas).
+Ses sommets forment deux clans de quatre (le signe du produit de leurs
+coordonnées) qu'aucun coup ne mélange. 24 tenues (`SKEWB_CUBE_SYMMETRIES`).
+
+**Mélange** : des tours des quatre sommets d'un même clan (jamais deux
+opposés : un sommet puis son opposé dans l'autre sens tourneraient le cube
+entier, résolu pour ses couleurs ; partagé avec le Skewb Ultimate).
+
+**Rendu** (`three/puzzles/diagonal/skewbGeometry.ts`) : le cube coupé par
+ses quatre plans diagonaux passant par son centre ; un sommet est ce qui est
+au-delà des trois plans voisins du sien (un triangle sur chaque face), un
+centre ce qui reste autour de son axe (un losange).
+
+**Résolution** (`methods/diagonal/skewb.ts`, méthode **Le haut d'abord**,
+la page 2) : seuls les quatre sommets du bas tournent, le centre du haut ne
+bouge pas et dit comment le tenir (blanc en haut, et les sommets dans leur
+clan : `skewbKit`, partagé avec le Skewb Ultimate). (1) sommets du haut
+placés, puis tournés ([B'O'], de chaque côté : t H) ; (2) centres placés
+([B'E'][HE], [H'E'][HO]) : les sommets du bas sont alors placés ; (3)
+sommets du bas tournés ([BO']²). L'« algorithme minimal » de la page 3 (la
+seule formule [DG']) n'est pas repris.
+
 ## Le Rex Cube (`rex`)
 
 Le Rex Cube (fan2cube.fr/rexcube1 et 2) est le Dino

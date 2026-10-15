@@ -92,7 +92,6 @@ export const UI_EN: typeof UI_FR = {
     }[layer]
     return `Turn ${target} ${clockwise ? 'clockwise' : 'counterclockwise'}`
   },
-  sliceShort: (n: number) => `Sl. ${n}`,
   pyraKinds: {
     corners: 'Layers',
     tips: 'Tips',
@@ -108,6 +107,7 @@ export const UI_EN: typeof UI_FR = {
   jammedTurn: (faceName: string) => `Jammed: the ${faceName} cannot turn in this position`,
   layerLabel: 'Turned layer',
   vtoLayerKinds: { wide: 'Corners', outer: 'Tips' },
+  layerGroups: { outer: 'Outer', inner: 'Inner' },
   layerKinds: {
     outer: 'Outer',
     slice: 'Slice',

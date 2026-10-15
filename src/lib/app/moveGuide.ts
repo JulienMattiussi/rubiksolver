@@ -306,9 +306,19 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
       { section: 'middle', rows: slices.map(row) },
     ]
   }
-  if (shape === 'dino' || shape === 'dinoCyl' || shape === 'rex' || shape === 'skewbU') {
+  if (
+    shape === 'dino' ||
+    shape === 'dinoCyl' ||
+    shape === 'rex' ||
+    shape === 'skewb' ||
+    shape === 'skewbU'
+  ) {
     const rex =
-      shape === 'rex' ? { rex: true as const } : shape === 'skewbU' ? { skewb: true as const } : {}
+      shape === 'rex'
+        ? { rex: true as const }
+        : shape === 'skewb' || shape === 'skewbU'
+          ? { skewb: true as const }
+          : {}
     const row = (triangle: RainbowCorner) =>
       ([1, 2] as const).map((amount): RainbowMove => ({ triangle, amount, dino: true, ...rex }))
     return [{ section: 'dinoCorners', rows: DINO_CORNERS.map(row) }]

@@ -6,8 +6,12 @@ import {
   REX_TURNS,
   scrambleDino,
   scrambleRex,
+  scrambleSkewbU,
+  SKEWB_CUBE_SYMMETRIES,
+  SKEWB_TURNS,
   solvedDino,
   solvedRex,
+  solvedSkewb,
 } from '../shared/rainbow'
 import { asSeenThin, withRealThinEdges } from '../shared/thinEdges'
 import { fisherSolved, windmillSolved, withMarks } from './fisher'
@@ -17,6 +21,13 @@ export const DIAGONAL_MODELS = {
     solved: solvedDino,
     turns: () => DINO_TURNS,
     scramble: (length, rng) => scrambleDino(length, rng),
+  },
+  // A cube: its 24 holdings.
+  skewb: {
+    solved: solvedSkewb,
+    symmetries: SKEWB_CUBE_SYMMETRIES,
+    turns: () => SKEWB_TURNS,
+    scramble: (length, rng) => scrambleSkewbU(length, rng),
   },
   rex: {
     solved: solvedRex,

@@ -32,11 +32,13 @@ mobile et en saisie, une seule carte) :
   coups de la forme (Externe / Tranche / Large, plus « Avancé » sur le 3x3 :
   `M`, `E`, `S`, coups larges) sont **empilées**, chacune sous son nom,
   quand elles tiennent en six rangées au plus (`STACKED_ROWS`, autant que le
-  pad du Megaminx) : 3x3, 4x4, tours, AI Cube, Pyraminx (son pad aussi).
-  Au-delà (5x5, 6x6, Master Pyraminx...), un sélecteur à onglets choisit la
-  couche tournée (écrits en notation sur le 6x6, `R 2R 3R Rw 3Rw`), et en
-  arrivant sur un puzzle le pad s'ouvre sur le premier onglet où un coup
-  passe. Un
+  pad du Megaminx) : 3x3, 4x4, 5x5, tours, AI Cube, Pyraminx (son pad
+  aussi). Au-delà (6x6, RoadBlock-I, Master et Professor Pyraminx), deux
+  onglets, chacun empilé : « Externes » (la face seule ou avec les couches
+  derrière elle : externe, large ; sur le Pyraminx, les pointes et les faces
+  opposées) et « Internes » (les tranches) ; en arrivant sur un puzzle, le
+  pad s'ouvre sur le premier onglet où un coup passe. Des libellés de quatre
+  caractères (`3Uw'`) mettent deux paires par rangée au lieu de trois. Un
   coup que l'état bloque (tours qui se déforment, Purple, soudés...) reste
   grisé ; un puzzle
   qui ne tourne pas comme un cube a son propre pad, nommé par le `pad` de sa
