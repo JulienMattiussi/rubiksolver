@@ -6,6 +6,7 @@ import { parseMoves } from '@/lib/core/moves'
 import { planKey, selectBusy, solvedByTurn, useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { useSaved } from '@/store/savedStore'
+import { jointsOf } from '@/lib/editor/jointsEditor'
 
 /** Play the queue to the end, as the 3D loop does one frame at a time. */
 function drain() {
@@ -20,7 +21,7 @@ beforeEach(() => {
   useCube.getState().setShape('3')
   useCube.getState().reset()
   useCube.getState().setMethod('beginner')
-  useEditor.getState().cancel()
+  useEditor.setState({ mode: 'play', error: null })
 })
 
 describe('cube store', () => {
@@ -257,5 +258,32 @@ describe('solvedByTurn', () => {
     useCube.getState().reset()
     expect(shows).toBe(1)
     unsubscribe()
+  })
+})
+
+describe('editor store: a bandaged puzzle', () => {
+  it('enters its joints, then its colors, Cancel going back a step at a time', () => {
+    useCube.getState().setShape('stripe')
+    const editor = () => useEditor.getState()
+    editor().enter()
+    expect(editor().phase).toBe('joints')
+    // No form has these joints: refused.
+    expect(editor().acceptJoints()).toBe(false)
+    expect(editor().error).toBe('joints')
+    editor().join(jointsOf(solvedCube('stripe')))
+    expect(editor().acceptJoints()).toBe(true)
+    expect(editor().phase).toBe('paint')
+    editor().cancel()
+    expect(editor()).toMatchObject({ mode: 'edit', phase: 'joints' })
+    editor().cancel()
+    expect(editor().mode).toBe('play')
+  })
+
+  it('leaves at once when entered from the current state', () => {
+    useCube.getState().setShape('stripe')
+    useEditor.getState().enterFromCurrent()
+    expect(useEditor.getState().phase).toBe('paint')
+    useEditor.getState().cancel()
+    expect(useEditor.getState().mode).toBe('play')
   })
 })

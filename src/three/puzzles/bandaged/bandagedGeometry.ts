@@ -9,8 +9,10 @@ import type { P3, PiecePolygon } from '../../core/polygons'
  * cubies read as one piece, its stickers as one tile, as on the Z-Cube.
  */
 
-const GAP = 0.03
-const STICKER = 0.08
+/** Each side's margin, as the cubes' (layout.ts, Sticker.tsx): the body
+ *  short of its cell by half `CUBIE_GAP`, the sticker by half its inset. */
+const GAP = 0.006
+const STICKER = 0.07
 const LIFT = 0.004
 
 /** How far short of a fused neighbour a thumbnail's body stops: its

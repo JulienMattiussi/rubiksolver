@@ -36,10 +36,23 @@ peintes.
   défait sans cesse) ; la même face deux fois seulement quand elle seule
   tourne, ses coups alors fusionnés.
 - **Saisie** (`lib/editor/jointsEditor.ts`) : quand ses blocs bougent, on
-  commence par ses **soudures** : sur le puzzle dessiné en gris, une barre
-  sur chaque joint qui peut être soudé (celui de deux pièces qu'une forme
-  soude et une autre non), allumée quand on la clique ; les soudures que
-  toutes les formes ont (le 2x2x2 de l'Alcatraz) sont déjà en place.
+  commence par ses **soudures**, sur le puzzle dessiné en gris (seules les
+  pièces qui ne bougent jamais, le 2x2x2 de l'Alcatraz, le « ∟ » du Bandage
+  Cube, déjà soudées et dans leurs couleurs). Une barre bleue sur chaque
+  joint qu'on peut souder : entre deux cubes seuls (ils deviennent une pièce
+  2x1, dessinée d'un bloc), ou sur toute la longueur d'une 2x1, à côté de
+  deux cubes seuls ou d'une autre 2x1 (ils deviennent un 2x2). Une 2x1 ne
+  s'allonge pas, un 2x2 ne grandit plus ; seuls les blocs qu'une forme du
+  puzzle a sont proposés (`handlesOf`) : pas de 2x2 sur un puzzle qui n'en a
+  pas, et une 2x1 seulement si une forme l'a, ou l'a dans un de ses 2x2. Une
+  pièce qui ne bouge jamais (un centre) colore toute la tuile du bloc où on
+  la soude ; en peinture, peindre une case d'un bloc peint toute sa face
+  (`tileMates`). « Annuler » revient d'une étape (des couleurs aux
+  soudures, ou au choix de la forme d'une tour). Un clic sur une pièce soudée la
+  défait : une 2x1 en deux cubes, un 2x2 en deux 2x1, coupé le long du bord
+  de la case le plus proche du clic (`splitAt`). Le panneau décompte les
+  2x1 et les 2x2 qui restent à souder, chacune avec son image
+  (`piecesLeft`).
   « Valider les soudures » refuse celles qu'aucune forme n'a. On peint
   ensuite les couleurs comme sur un 3x3, les pièces dessinées soudées comme
   on l'a dit (« Changer les soudures » y revient) ; à la fin, les marques se

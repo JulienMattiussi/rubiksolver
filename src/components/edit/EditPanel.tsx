@@ -2,7 +2,7 @@ import { Check, Eraser, Link2, Shapes, X } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
 import { isComplete, progress } from '@/lib/editor/editor'
 import { formsOf } from '@/lib/editor/forms'
-import { entersJoints, fixedJoints } from '@/lib/editor/jointsEditor'
+import { entersJoints } from '@/lib/editor/jointsEditor'
 import { gearFaces, gearsPainted } from '@/lib/editor/gearEditor'
 import { hasColoredClips, SHAPE_EDIT_HINT } from '@/lib/core/types'
 import type { EditHint } from '@/lib/puzzles/entry'
@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button'
 import { BarToggles } from './BarToggles'
 import { ColorPalette } from './ColorPalette'
 import { FormPicker } from './FormPicker'
+import { PiecesLeft } from './PiecesLeft'
 
 /** The editor's own hints, by kind (a puzzle's card says which). */
 const HINTS = (t: Translations): Record<EditHint, string> => ({
@@ -45,7 +46,6 @@ export function EditPanel() {
   const phase = useEditor((s) => s.phase)
   const form = useEditor((s) => s.form)
   const pickForm = useEditor((s) => s.pickForm)
-  const joints = useEditor((s) => s.joints)
   const acceptJoints = useEditor((s) => s.acceptJoints)
   const editJoints = useEditor((s) => s.editJoints)
 
@@ -62,12 +62,10 @@ export function EditPanel() {
   }
 
   if (phase === 'joints') {
-    // The joints every form has (a 2x2x2's) are not the user's to click.
-    const clicked = joints.length - fixedJoints(shape).length
     return (
       <div className="flex flex-col gap-5">
         <p className="text-xs leading-relaxed text-slate-400">{t.editHintJoints}</p>
-        <p className="text-sm font-medium text-slate-200">{t.jointsCount(clicked)}</p>
+        <PiecesLeft shape={shape} />
         {error === 'joints' && (
           <p role="alert" className="rounded-lg bg-red-500/15 px-3 py-2 text-xs text-red-300">
             {t.errorJoints}

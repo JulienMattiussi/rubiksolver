@@ -25,12 +25,15 @@ import {
   jointsFit,
   jointsOf,
   matchesJoints,
+  splitAt,
+  tileMates,
   type Joint,
 } from '@/lib/editor/jointsEditor'
 import { barsTurned } from '@/lib/puzzles/bandaged/roadblock'
 import { paintBar, turnFace } from '@/lib/editor/roadblockEditor'
 import { validateCube, type ValidationError } from '@/lib/editor/validate'
-import { hasColoredClips, type Color, type Cube, type CubeShape } from '@/lib/core/types'
+import { normalOfIndex } from '@/lib/core/geometry'
+import { hasColoredClips, type Color, type Cube, type CubeShape, type Vec3 } from '@/lib/core/types'
 import { useCube } from './cubeStore'
 
 /** Shape of the cube being edited (the game's cube). */
@@ -50,6 +53,9 @@ interface EditorStore {
   phase: 'form' | 'joints' | 'paint'
   /** A bandaged puzzle's joints entered (jointsEditor.ts). */
   joints: readonly Joint[]
+  /** The step the colors were reached from (its form, its joints), which
+   *  Cancel goes back to; none when entered from the current state. */
+  before: 'form' | 'joints' | null
   /** The form being entered (a state of it, see forms.ts); undefined: the box. */
   form: Cube | undefined
   /** The form hovered while choosing one, shown in 3D meanwhile. */
@@ -72,13 +78,16 @@ interface EditorStore {
   /** Paint on this form (a state of it), or go back to choosing one (null). */
   pickForm: (form: Cube | null) => void
   setPreview: (form: Cube | undefined) => void
-  /** A bandaged puzzle's joint fused, or apart. */
-  toggleJoint: (joint: Joint) => void
+  /** A bandaged puzzle's pieces fused by these joints (jointsEditor.ts). */
+  join: (joints: readonly Joint[]) => void
+  /** The piece at a cell taken apart, cut across an axis (a 2x2's). */
+  split: (cell: Vec3, axis: number) => void
   /** The joints entered kept, if a form of the puzzle has them: on to its
    *  colors. Returns ok. */
   acceptJoints: () => boolean
   /** Back to the joints, the colors kept. */
   editJoints: () => void
+  /** Back to the step before (the form, the joints), or out of the editor. */
   cancel: () => void
   setColor: (color: Color) => void
   paintAt: (slotKey: string, ni: number) => void
@@ -100,6 +109,7 @@ export const useEditor = create<EditorStore>((set, get) => ({
   mode: 'play',
   phase: 'paint',
   joints: [],
+  before: null,
   form: undefined,
   preview: undefined,
   selectedColor: 'W',
@@ -115,6 +125,7 @@ export const useEditor = create<EditorStore>((set, get) => ({
     set({
       mode: 'edit',
       phase: choose ? 'form' : entersJoints(shape) ? 'joints' : 'paint',
+      before: choose ? 'form' : entersJoints(shape) ? 'joints' : null,
       joints: entersJoints(shape) ? fixedJoints(shape) : [],
       form: undefined,
       preview: undefined,
@@ -133,6 +144,7 @@ export const useEditor = create<EditorStore>((set, get) => ({
     set({
       mode: 'edit',
       phase: 'paint',
+      before: null,
       joints: entersJoints(cubeShape(cube)) ? jointsOf(cube) : [],
       form,
       edit: cubeToEdit(cube),
@@ -160,15 +172,14 @@ export const useEditor = create<EditorStore>((set, get) => ({
           selectedColor: pickable(get().selectedColor, form),
           error: null,
         })
-      : set({ phase: 'form', preview: undefined, error: null }),
+      : set({ phase: 'form', before: 'form', preview: undefined, error: null }),
 
   setPreview: (preview) => set({ preview }),
 
-  toggleJoint: (joint) =>
-    set((s) => ({
-      joints: s.joints.includes(joint) ? s.joints.filter((j) => j !== joint) : [...s.joints, joint],
-      error: null,
-    })),
+  join: (joints) => set((s) => ({ joints: [...s.joints, ...joints], error: null })),
+
+  split: (cell, axis) =>
+    set((s) => ({ joints: splitAt(currentShape(), s.joints, cell, axis), error: null })),
 
   acceptJoints: () => {
     if (!jointsFit(currentShape(), get().joints)) {
@@ -179,19 +190,31 @@ export const useEditor = create<EditorStore>((set, get) => ({
     return true
   },
 
-  editJoints: () => set({ phase: 'joints', error: null }),
+  editJoints: () => set({ phase: 'joints', before: 'joints', error: null }),
 
-  cancel: () => set({ mode: 'play', error: null }),
+  cancel: () => {
+    const { phase, before } = get()
+    if (phase === 'paint' && before) set({ phase: before, preview: undefined, error: null })
+    else set({ mode: 'play', error: null })
+  },
 
   setColor: (selectedColor) => set({ selectedColor }),
 
   paintAt: (slotKey, ni) =>
     set((s) => {
       // A RoadBlock-I's center: its whole bar.
-      const edit =
-        currentShape() === 'roadblock'
+      const shape = currentShape()
+      let edit =
+        shape === 'roadblock'
           ? paintBar(s.edit, slotKey, ni, s.selectedColor, s.twisted)
-          : paint(s.edit, currentShape(), slotKey, ni, s.selectedColor, s.form)
+          : paint(s.edit, shape, slotKey, ni, s.selectedColor, s.form)
+      // A bandaged puzzle's block shows one tile a face: painted whole.
+      if (entersJoints(shape) && edit !== s.edit) {
+        const cell = slotKey.split(',').map(Number) as unknown as Vec3
+        for (const mate of tileMates(s.joints, cell, normalOfIndex(ni))) {
+          edit = paint(edit, shape, mate.join(','), ni, s.selectedColor, s.form)
+        }
+      }
       return {
         edit,
         gear: hasColoredClips(currentShape())

@@ -120,10 +120,11 @@ export const UI_FR = {
   },
   editCube: 'Saisir',
   editHintJoints:
-    'D’abord les soudures : cliquez chaque joint entre deux pièces soudées ensemble (il s’allume), comme votre puzzle les montre. Tournez la vue pour atteindre les autres faces, puis validez la forme.',
+    'D’abord les soudures : un clic sur un joint bleu soude deux pièces, en 2x1 puis en 2x2 ; un clic sur une pièce soudée la défait. Formez les blocs de votre puzzle (tournez la vue pour atteindre les autres faces), puis validez la forme.',
   acceptJoints: 'Valider les soudures',
   changeJoints: 'Changer les soudures',
-  jointsCount: (n: number) => `${n} soudure${n > 1 ? 's' : ''}`,
+  piecesLeft: (n: number) => `${n} restante${n > 1 ? 's' : ''}`,
+  piecesLeftLabel: (kind: string, n: number) => `Pièces ${kind} à souder : ${n}`,
   errorJoints: 'Ces soudures ne donnent aucune forme de ce puzzle : vérifiez chaque bloc.',
   errorJointsColors:
     'Les couleurs ne vont pas avec les soudures : une pièce soudée n’est pas à côté de sa voisine de bloc.',

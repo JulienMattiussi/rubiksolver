@@ -49,7 +49,7 @@ interface PolyPieceProps {
   /** Edit mode: the hex shown by the sticker of normal index `ni` (gray
    *  while unpainted; none: its own color), and what a click on it does. */
   stickerHex?: (ni: number) => string | undefined
-  onSelect?: (ni: number) => void
+  onSelect?: (ni: number, at: readonly [number, number, number]) => void
   /** Edit mode: told when the pointer comes onto a sticker and leaves, and
    *  the sticker to light up (its normal index). */
   onHover?: (ni: number, on: boolean) => void
@@ -89,7 +89,7 @@ export function PolyPiece({
             key={i}
             geometry={geometry}
             {...paintable(
-              clickable ? () => onSelect(ni) : undefined,
+              clickable ? (at) => onSelect(ni, at) : undefined,
               onHover && ni !== undefined ? (over: boolean) => onHover(ni, over) : undefined,
             )}
           >

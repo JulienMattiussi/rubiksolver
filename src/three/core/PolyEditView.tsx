@@ -1,10 +1,12 @@
 import { Fragment, useState } from 'react'
 import { cubeShape, solvedCube } from '@/lib/core/cube'
+import { normalOfIndex } from '@/lib/core/geometry'
 import { canPaint, slotsFor } from '@/lib/editor/editor'
+import { stickerId } from '@/lib/editor/editorTables'
 import { entersByPieces, piecesIn } from '@/lib/editor/pieceEditor'
 import { CATEGORY_OF } from '@/lib/puzzles/catalog'
 import { fusedAs } from '@/lib/puzzles/bandaged/bonds'
-import { entersJoints, withJoints } from '@/lib/editor/jointsEditor'
+import { entersJoints, splits, tileMates, withJoints } from '@/lib/editor/jointsEditor'
 import { JointHandles } from './JointHandles'
 import { withBars } from '@/lib/puzzles/bandaged/roadblock'
 import { useCube } from '@/store/cubeStore'
@@ -40,6 +42,7 @@ export function PolyEditView() {
   const joints = useEditor((s) => s.joints)
   // A bandaged puzzle's joints being clicked: its pieces drawn plain.
   const clickingJoints = useEditor((s) => s.phase === 'joints')
+  const split = useEditor((s) => s.split)
   const byJoints = entersJoints(shape)
   // While a form is being chosen, the one hovered (the original otherwise).
   const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
@@ -112,7 +115,16 @@ export function PolyEditView() {
               .map((s) => s.ni),
           )
           const hex = (ni: number) => {
-            if (clickingJoints) return byNi.has(ni) ? EMPTY_COLOR : undefined
+            // While the joints are entered, only the pieces that never move
+            // show their colors (pre-filled), and the tiles they are part of.
+            if (clickingJoints && slot.paintable) {
+              if (!byNi.has(ni)) return undefined
+              const fixed = tileMates(joints, slot.position, normalOfIndex(ni)).find(
+                (mate) => !canPaint(shape, mate.join(','), form),
+              )
+              const color = fixed && edit[stickerId(fixed, ni)]
+              return color ? COLOR_HEX[color] : EMPTY_COLOR
+            }
             // A face with no sticker to enter keeps its own (the Purple's),
             // as does a piece that never moves, entered piece by piece (the
             // Z-Twist's centers).
@@ -130,7 +142,9 @@ export function PolyEditView() {
               stickerHex={hex}
               onSelect={
                 clickingJoints
-                  ? undefined
+                  ? splits(shape, joints, slot.position)
+                    ? (ni, at) => split(slot.position, splitAxis(slot.position, ni, at))
+                    : undefined
                   : twistCenter
                     ? () => twistAt(slot.key)
                     : canPaint(shape, slot.key, form)
@@ -146,4 +160,14 @@ export function PolyEditView() {
       </group>
     </group>
   )
+}
+
+/** The axis a 2x2 is cut across, from where its sticker of normal index
+ *  `ni` was clicked: the cut runs along the border of the clicked cell
+ *  nearest the click, so the cells part along the axis of the face the
+ *  click is farthest along. */
+function splitAxis(cell: readonly number[], ni: number, at: readonly number[]): number {
+  const face = normalOfIndex(ni).findIndex((v) => v !== 0)
+  const [u, v] = [0, 1, 2].filter((d) => d !== face) as [number, number]
+  return Math.abs(at[u]! - cell[u]!) >= Math.abs(at[v]! - cell[v]!) ? u : v
 }

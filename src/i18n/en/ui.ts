@@ -118,10 +118,11 @@ export const UI_EN: typeof UI_FR = {
   },
   editCube: 'Enter',
   editHintJoints:
-    'Its joints first: click each joint between two pieces fused together (it lights up), as your puzzle shows them. Turn the view to reach the other faces, then accept the form.',
+    'Its joints first: a click on a blue joint fuses two pieces, into a 2x1 then a 2x2; a click on a fused piece takes it apart. Make your puzzle’s blocks (turn the view to reach the other faces), then accept the form.',
   acceptJoints: 'Accept the joints',
   changeJoints: 'Change the joints',
-  jointsCount: (n: number) => `${n} joint${n > 1 ? 's' : ''}`,
+  piecesLeft: (n: number) => `${n} left`,
+  piecesLeftLabel: (kind: string, n: number) => `${kind} pieces to fuse: ${n}`,
   errorJoints: 'These joints make no form of this puzzle: check each block.',
   errorJointsColors:
     'The colors do not go with the joints: a fused piece is not next to its block’s neighbor.',

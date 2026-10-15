@@ -353,14 +353,21 @@ test('bandaged entry: its joints first, a form it cannot take refused', async ({
   page.on('pageerror', (e) => errors.push(e.message))
   await page.goto('/#/fr/stripe')
   await page.getByRole('button', { name: 'Saisir', exact: true }).click()
-  await expect(page.getByText('0 soudure')).toBeVisible()
+  // Its three bars left to fuse, no 2x2.
+  await expect(page.getByLabel('Pièces 2x1 à souder : 3')).toBeVisible()
+  await expect(page.getByLabel(/^Pièces 2x2/)).toHaveCount(0)
   await page.getByRole('button', { name: 'Valider les soudures' }).click()
   await expect(page.getByRole('alert')).toContainText('aucune forme')
   await page.getByRole('button', { name: 'Annuler' }).click()
+  await expect(page.getByRole('button', { name: 'Saisir', exact: true })).toBeVisible()
   // From its state, its joints are known: straight to its colors.
   await page.getByRole('button', { name: 'Modifier', exact: true }).click()
   await expect(page.getByText('54 / 54 stickers')).toBeVisible()
   await page.getByRole('button', { name: 'Changer les soudures' }).click()
-  await expect(page.getByText('3 soudures')).toBeVisible()
+  await expect(page.getByLabel('Pièces 2x1 à souder : 0')).toBeVisible()
+  // Its colors again, then Cancel: back to its joints, then out.
+  await page.getByRole('button', { name: 'Valider les soudures' }).click()
+  await page.getByRole('button', { name: 'Annuler' }).click()
+  await expect(page.getByRole('button', { name: 'Valider les soudures' })).toBeVisible()
   expect(errors).toEqual([])
 })
