@@ -8,7 +8,7 @@ Le Dino Cube (fan2cube.fr/dinocube1 et 2) a la mécanique du Rainbow : chaque so
 fait un 3-cycle des trois arêtes autour de lui. Ses 12 pièces sont ces
 arêtes, deux triangles chacune (les faces coupées le long de leurs
 diagonales), sans centre. Le modèle est celui du Rainbow
-(`lib/puzzles/shared/rainbow.ts` : `solvedDino` garde ses arêtes et leurs carrés, `RainbowMove.dino` sa
+(`lib/puzzles/shared/dinoRex.ts` : `solvedDino` garde ses arêtes et leurs carrés, `RainbowMove.dino` sa
 notation : les lettres de fan2cube, A D P G en haut, B E H O en bas ; UFR...
 en anglais). Rendu (`three/puzzles/shared/dinoGeometry.ts`) :
 chaque arête est la part du cube où ses deux coordonnées sont les plus
@@ -23,7 +23,7 @@ miroir), dont une seule à un nombre pair d'échanges, celle qu'on vise.
 ## Le Skewb (`skewb`)
 
 fan2cube.fr/skewb1 à 4 (Tony Durham, 1982) : le mécanisme du Skewb
-Ultimate (`lib/puzzles/shared/rainbow.ts`, `solvedSkewb`) sur un cube. Chaque
+Ultimate (`lib/puzzles/shared/skewbs.ts`, `solvedSkewb`) sur un cube. Chaque
 sommet tourne par tiers la moitié du cube de son côté : lui-même, ses trois
 voisins et les trois centres autour. 6 centres d'une couleur, 8 sommets de
 trois ; même notation que le Dino (A, D, P, G en haut, B, E, H, O en bas).

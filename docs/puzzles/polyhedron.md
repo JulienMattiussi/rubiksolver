@@ -209,7 +209,7 @@ Skewb taillé en dodécaèdre : chaque sommet
 du cube (aussi sommet du dodécaèdre) tourne d'un tiers de tour toute la moitié
 du puzzle de son côté. 6 centres montrant chacun les quatre faces penchées
 vers leur axe, 8 sommets les trois faces qui s'y rejoignent. Modèle entier,
-celui du Dino (`lib/puzzles/shared/rainbow.ts` : `solvedSkewbU`, `RainbowMove.skewb`, notation
+celui du Dino (`lib/puzzles/shared/skewbs.ts` : `solvedSkewbU`, `RainbowMove.skewb`, notation
 des sommets de fan2cube) : centres sur les axes, sommets en (1, 1, 1)..., un
 tour prend ce qui a un produit scalaire positif avec sa diagonale. Les 12
 faces ont pour normales (0, ±1, ±2) et leurs permutations circulaires (2 pour

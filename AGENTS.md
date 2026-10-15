@@ -103,12 +103,14 @@ src/
 │   │   ├── <catégorie>/ #   standard, tower, flat, pyramid, polyhedron, round, gear, diagonal, holey, twisted,
 │   │   │                #     bandaged (blocks.ts : les blocs de chaque soudé ; bonds.ts : leur modèle commun) :
 │   │   │                #     catalog.ts, models.ts et le module de chaque puzzle qui en a un (star.ts, gear.ts...)
-│   │   └── shared/      #   ce qui sert à plusieurs catégories (rainbow : le modèle des sommets qui tournent ;
+│   │   └── shared/      #   ce qui sert à plusieurs catégories (rainbow : le modèle des sommets qui tournent
+│   │                    #     et leur notation ; dinoRex et skewbs : les puzzles qui en dérivent ;
 │   │                    #     thinEdges : les arêtes sans sens visible)
 │   ├── methods/         # Les méthodes, un dossier par catégorie, un fichier par méthode ou famille
 │   │   ├── standard/    #   3x3 (algs, layers3, roux, petrus, zz, recenter, pieces3), 2x2 (cube2), super cubes,
 │   │   │                #     solver4/ solver5/ solver6/ (réductions des 4x4, 5x5 et 6x6)
-│   │   ├── <catégorie>/ #   les autres (towerLayers et towerReduce : briques des tours, pyraKit...)
+│   │   ├── <catégorie>/ #   les autres (towerLayers et towerReduce : briques des tours, pyraKit,
+│   │   │                #     roadblockKit / Bars / Edges : les étapes du RoadBlock...)
 │   │   └── shared/      #   ce qui sert à plusieurs catégories (rainbowKit, skewbKit)
 │   ├── solve/           # Briques des solveurs : solver (registre des méthodes, solve), solverKit (MethodPlan,
 │   │                    #   buildSteps), pieceSearch, cycleLibrary / cycleTable (3-cycles), centerCycles,

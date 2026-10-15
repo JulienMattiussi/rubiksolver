@@ -4,7 +4,7 @@ import { face, type P3, type PiecePolygon } from '../../core/polygons'
 import { polyhedron, type Plane } from '../../core/polyhedron'
 
 /**
- * Geometry of the Skewb's pieces (lib/puzzles/shared/rainbow.ts): the cube
+ * Geometry of the Skewb's pieces (lib/puzzles/shared/skewbs.ts): the cube
  * |x|, |y|, |z| <= 1 cut through its middle by the four planes square to
  * its diagonals. A corner is the part beyond the three planes square to the
  * diagonals next to its own (a triangle on each of its faces); a center
