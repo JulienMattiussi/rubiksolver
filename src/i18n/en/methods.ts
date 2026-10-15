@@ -169,4 +169,8 @@ export const METHODS_EN: typeof METHODS_FR = {
     name: 'From START',
     desc: 'First the puzzle goes to its START position, the one the page’s formulas start from: its blocks where they belong (its solved form, or another, as ABA’ on the Stripe). Then the pieces are placed with those formulas, which leave START as it is and so always go, and a few turns that lead back to it; last, when START is not the solved form, back to it.',
   },
+  skewbFirst: {
+    name: 'Skewb first',
+    desc: 'Solved first as a Skewb, its corners and centers (its outer layers turn them as a Skewb’s do: “top first”), then its edges (o’.(P’DP).o.(P’D’P) and its mirror) and last its petals (e.(D’GD).e’.(D’G’D) and its mirror), each formula also from a turned corner (conjugation).',
+  },
 }

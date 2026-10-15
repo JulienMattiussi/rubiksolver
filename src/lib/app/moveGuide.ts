@@ -160,6 +160,9 @@ export type MoveDescription =
       readonly clockwise: boolean
       readonly rex?: true
       readonly skewb?: true
+      /** A Master Skewb's outer layer, or with `slice` its inner one. */
+      readonly master?: true
+      readonly slice?: true
     }
 
 /** The face each middle slice of a 3-layer axis follows (M: L, E: D, S: F). */
@@ -306,6 +309,20 @@ export function moveGuide(shape: CubeShape): GuideGroup[] {
       { section: 'middle', rows: slices.map(row) },
     ]
   }
+  if (shape === 'masterSkewb') {
+    const row = (triangle: RainbowCorner, slice?: true) =>
+      ([1, 2] as const).map((amount): RainbowMove => ({
+        triangle,
+        amount,
+        dino: true,
+        master: true,
+        ...(slice && { slice }),
+      }))
+    return [
+      { section: 'dinoCorners', rows: DINO_CORNERS.map((c) => row(c)) },
+      { section: 'middle', rows: (['D', 'R', 'd', 'r'] as const).map((c) => row(c, true)) },
+    ]
+  }
   if (
     shape === 'dino' ||
     shape === 'dinoCyl' ||
@@ -354,6 +371,8 @@ export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
           clockwise: turn.amount === 1,
           ...(turn.rex && { rex: true as const }),
           ...(turn.skewb && { skewb: true as const }),
+          ...(turn.master && { master: true as const }),
+          ...(turn.slice && { slice: true as const }),
         }
       : { kind: 'triangle', triangle: turn.triangle, clockwise: turn.amount === 1 }
   }

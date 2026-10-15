@@ -5,6 +5,15 @@ export const DIAGONAL = {
   dino: { label: 'Dino Cube', slug: 'dino-cube', dims: [3, 3, 3], scramble: 20, pad: 'dino' },
   // The Skewb (shared/rainbow.ts): its corners turn half the cube.
   skewb: { label: 'Skewb', slug: 'skewb', dims: [3, 3, 3], scramble: 15, pad: 'skewb' },
+  // The Master Skewb (shared/rainbow.ts): the Skewb and the Rex Cube in
+  // one; its pieces within +-4, its box says so.
+  masterSkewb: {
+    label: 'Master Skewb',
+    slug: 'master-skewb',
+    dims: [9, 9, 9],
+    scramble: 30,
+    pad: 'masterSkewb',
+  },
   // The Rex Cube's pieces sit within +-4 (shared/rainbow.ts), its box says so.
   rex: { label: 'Rex Cube', slug: 'rex-cube', dims: [9, 9, 9], scramble: 25, pad: 'rex' },
   // The Fisher Cube (fisher.ts): a 3x3x3 cut to a cube turned an eighth.

@@ -1,7 +1,12 @@
 import { solvedCube } from '../../core/cube'
 import { invertMoves } from '../../core/moves'
 import { solvePieces } from '../../solve/pieceSearch'
-import { parseDinoMoves, RAINBOW_CORNERS, RAINBOW_TRIANGLES } from '../../puzzles/shared/rainbow'
+import {
+  canonicalSlice,
+  parseDinoMoves,
+  RAINBOW_CORNERS,
+  RAINBOW_TRIANGLES,
+} from '../../puzzles/shared/rainbow'
 import { applyMoves as applyMovesTo } from '../../core/turn'
 import type { Cube, CubeShape, Cubie, RainbowMove, Turn, Vec3 } from '../../core/types'
 
@@ -38,6 +43,11 @@ const turned = (cube: Cube, turn: (v: Vec3) => Vec3): Cube =>
 
 const NONE = { generators: [], turns: [] }
 
+/** Whether a piece is not a petal (the Master Skewb's, one color as a
+ *  center but off its axis): what a center is looked for among. */
+export const notPetal = (c: Cubie) =>
+  c.stickers.length > 1 || c.position.filter((v) => v !== 0).length === 1
+
 /** The bricks for a shape held by `generators` (whole-puzzle turns of its
  *  vectors: the Skewb Ultimate's twelve holdings, the Skewb's 24), among
  *  those that bring its top center home the first that `fits` (the Skewb's
@@ -70,13 +80,17 @@ export function skewbKit(
     return [...found.values()]
   })()
 
-  const TOP_CENTER = keyOf(SOLVED.find(at([0, 1, 0]))!)
+  /** The top center: on the vertical axis, above. */
+  const TOP = SOLVED.find(
+    (c) => c.position[0] === 0 && c.position[2] === 0 && c.position[1] > 0,
+  )!.position
+  const TOP_CENTER = keyOf(SOLVED.find(at(TOP))!)
 
   /** The holding that brings the top center home, and the inverse turn. */
   function holdingOf(cube: Cube): { turn: (v: Vec3) => Vec3; back: (v: Vec3) => Vec3 } {
     const turn = HOLDINGS.find((h) => {
       const upright = turned(cube, h)
-      return keyOf(upright.find(at([0, 1, 0]))!) === TOP_CENTER && fits(upright)
+      return keyOf(upright.find(at(TOP))!) === TOP_CENTER && fits(upright)
     })!
     const back = HOLDINGS.find((h) =>
       (
@@ -99,7 +113,8 @@ export function skewbKit(
         const m = t as RainbowMove
         const d = back(RAINBOW_CORNERS[m.triangle])
         const triangle = RAINBOW_TRIANGLES.find((x) => RAINBOW_CORNERS[x].join() === d.join())!
-        return { ...m, triangle }
+        // A Master Skewb's slice, named from below.
+        return canonicalSlice({ ...m, triangle })
       })
     }
   }
@@ -118,6 +133,7 @@ export function skewbKit(
           .join()
         const piece = upright.find(
           (c) =>
+            notPetal(c) &&
             c.stickers
               .map((s) => s.color)
               .sort()
@@ -145,6 +161,7 @@ export function skewbKit(
         const now = homes.slice(0, k)
         const track = [...keep, ...now]
         const moves = solvePieces<Turn>(state, {
+          among: notPetal,
           track,
           moves: NONE,
           macros,
@@ -165,7 +182,7 @@ export function skewbKit(
     }
   }
 
-  return { SOLVED, held, home, oneByOne }
+  return { SOLVED, held, home, oneByOne, keyOf }
 }
 
 /** A formula from each side of the top (fan2cube's t H): turned a quarter

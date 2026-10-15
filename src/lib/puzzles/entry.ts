@@ -15,6 +15,7 @@ export type PadKind =
   | 'dino'
   | 'rex'
   | 'skewb'
+  | 'masterSkewb'
   | 'gear'
 
 /** The hint the editor gives, when not the usual one (EditPanel.tsx). */

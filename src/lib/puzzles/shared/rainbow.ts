@@ -91,8 +91,9 @@ export function solvedRainbow(): Cube {
 export const rainbowTurns = (move: RainbowMove, position: Vec3): boolean => {
   const along = dot(position, RAINBOW_CORNERS[move.triangle])
   // The FTO's face takes what is beyond its cut, its slice what is between
-  // its two cuts (see `solvedFto`).
-  if (move.fto) return move.slice ? Math.abs(along) < 2 : along >= 2
+  // its two cuts (see `solvedFto`); the Master Skewb's corner and slice
+  // the same (`solvedMasterSkewb`).
+  if (move.fto || move.master) return move.slice ? Math.abs(along) < 2 : along >= 2
   return along >= (move.skewb ? 1 : move.rex ? 4 : 2)
 }
 
@@ -179,7 +180,9 @@ export function formatRainbowMove(move: RainbowMove, labels: FaceLabels): string
   const notation = labels.U === 'U' ? 'us' : 'fr'
   const letter = move.fto
     ? (move.slice ? FTO_SLICE_LETTERS : FTO_LETTERS)[notation][move.triangle]
-    : (move.dino ? DINO_LETTERS : LETTERS)[notation][move.triangle]
+    : move.master && move.slice
+      ? MASTER_SLICE_LETTERS[notation][move.triangle]!
+      : (move.dino ? DINO_LETTERS : LETTERS)[notation][move.triangle]
   return letter + (move.amount === 2 ? "'" : '')
 }
 
@@ -251,20 +254,27 @@ const DINO_LETTERS: Record<'us' | 'fr', Record<RainbowCorner, string>> = {
 
 /** Read fan2cube's Dino formulas (`[GA']`, `DAD'.GAE'`): a letter a
  *  corner, `'` back, `²` twice, `[a b]` the commutator a b a' b' (`rex`:
- *  the Rex Cube's turns). */
-export function parseDinoMoves(text: string, kind?: 'rex' | 'skewb'): RainbowMove[] {
+ *  the Rex Cube's turns; `master`: the Master Skewb's, a lowercase letter
+ *  an inner slice). */
+export function parseDinoMoves(text: string, kind?: 'rex' | 'skewb' | 'master'): RainbowMove[] {
   const out: RainbowMove[] = []
   let group: RainbowMove[] | null = null
   const flag = { dino: true as const, ...(kind && { [kind]: true as const }) }
-  for (const m of text.matchAll(/(\[)|(\])|([ADPGBEHO])(')?(²)?/g)) {
+  for (const m of text.matchAll(/(\[)|(\])|([ADPGBEHObeho])(')?(²)?/g)) {
     if (m[1]) group = []
     else if (m[2]) {
       // The commutator's second half: its turns undone, in the same order.
       out.push(...group!, ...group!.map(invertRainbowMove))
       group = null
     } else {
-      const triangle = RAINBOW_TRIANGLES.find((t) => DINO_LETTERS.fr[t] === m[3])!
-      const turn: RainbowMove = { triangle, amount: m[4] ? 2 : 1, ...flag }
+      const slice = m[3] === m[3]!.toLowerCase()
+      const triangle = RAINBOW_TRIANGLES.find((t) => DINO_LETTERS.fr[t] === m[3]!.toUpperCase())!
+      const turn: RainbowMove = {
+        triangle,
+        amount: m[4] ? 2 : 1,
+        ...flag,
+        ...(slice && { slice: true as const }),
+      }
       ;(group ?? out).push(...(m[5] ? [turn, turn] : [turn]))
     }
   }
@@ -429,3 +439,101 @@ export const SKEWB_CUBE_SYMMETRIES: readonly ((cube: Cube) => Cube)[] = [
       stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
     })),
 )
+
+/**
+ * The Master Skewb (fan2cube.fr/masterskewb1, Katsuhiko Okamoto, 2003): the
+ * Skewb and the Rex Cube in one. Each diagonal is cut twice, either side of
+ * the middle: a corner's outer layer (A) takes, as a Skewb's turn, the
+ * corner, its three neighbors and the three centers around it, and as a Rex
+ * Cube's three edges and nine petals; the inner layer between the two cuts
+ * (fan2cube's o = O*O') six edges and six petals. 8 corners, 12 edges (two
+ * colors, no way round), 6 centers and 24 petals (one color each).
+ *
+ * Integer model, a quarter of the cube's half side to the unit: the cuts at
+ * 2 along each diagonal, corners at (4, 4, 4), edges at (4, 4, 0), centers
+ * at 4 on an axis, petals at (2, 2, 4) (on a face, toward a corner).
+ */
+export function solvedMasterSkewb(): Cube {
+  const out: Cubie[] = []
+  const stickersAt = (p: Vec3) =>
+    (Object.keys(FACE_NORMAL) as Face[])
+      .filter((f) => dot(FACE_NORMAL[f], p) === 4)
+      .map((f) => ({ normal: FACE_NORMAL[f], color: SQUARE_COLOR[f] }))
+  const signs = [4, 0, -4]
+  for (const x of signs) {
+    for (const y of signs) {
+      for (const z of signs) {
+        const p: Vec3 = [x, y, z]
+        // Corners, edges and centers: some coordinate at 4.
+        if (p.some((v) => v !== 0)) out.push({ position: p, stickers: stickersAt(p) })
+      }
+    }
+  }
+  // Petals: on each face, toward each of its corners.
+  for (const f of Object.keys(FACE_NORMAL) as Face[]) {
+    const n = FACE_NORMAL[f]
+    const a = n.findIndex((x) => x !== 0)
+    const [u, v] = [0, 1, 2].filter((d) => d !== a) as [number, number]
+    for (const s of [2, -2]) {
+      for (const t of [2, -2]) {
+        const p = [0, 0, 0] as [number, number, number]
+        p[a] = 4 * n[a]!
+        p[u] = s
+        p[v] = t
+        out.push({ position: p, stickers: [{ normal: n, color: SQUARE_COLOR[f] }] })
+      }
+    }
+  }
+  return out
+}
+
+/** The Master Skewb's inner slices, one per diagonal, named (fan2cube's o
+ *  and e) by the bottom corner at its end. */
+const MASTER_SLICES: readonly RainbowCorner[] = RAINBOW_TRIANGLES.filter(
+  (t) => RAINBOW_CORNERS[t][1] < 0,
+)
+
+/** Its slices' letters: their bottom corner's, in lowercase. */
+const MASTER_SLICE_LETTERS: Record<'us' | 'fr', Partial<Record<RainbowCorner, string>>> = {
+  us: Object.fromEntries(MASTER_SLICES.map((t) => [t, DINO_LETTERS.us[t].toLowerCase()])),
+  fr: Object.fromEntries(MASTER_SLICES.map((t) => [t, DINO_LETTERS.fr[t].toLowerCase()])),
+}
+
+/** A Master Skewb slice as its pad and notation name it: by the bottom
+ *  corner of its diagonal (the top one's, the other way round). */
+export function canonicalSlice(move: RainbowMove): RainbowMove {
+  if (!move.master || !move.slice || RAINBOW_CORNERS[move.triangle][1] < 0) return move
+  const opposite = RAINBOW_CORNERS[move.triangle].map((v) => -v).join()
+  const triangle = RAINBOW_TRIANGLES.find((t) => RAINBOW_CORNERS[t].join() === opposite)!
+  return { ...move, triangle, amount: move.amount === 1 ? 2 : 1 }
+}
+
+/** Every Master Skewb turn, both ways: the corners' outer layers, then the
+ *  inner slices. */
+export const MASTER_TURNS: readonly RainbowMove[] = [
+  ...DINO_TURNS.map((m) => ({ ...m, master: true as const })),
+  ...MASTER_SLICES.flatMap((triangle) =>
+    ([1, 2] as const).map((amount): RainbowMove => ({
+      triangle,
+      amount,
+      dino: true,
+      master: true,
+      slice: true,
+    })),
+  ),
+]
+
+/** A Master Skewb scramble: its outer layers and slices at random, never
+ *  the same diagonal twice in a row. */
+export function scrambleMasterSkewb(length: number, rng: () => number): RainbowMove[] {
+  const axis = (m: RainbowMove) =>
+    RAINBOW_CORNERS[m.triangle].map((v) => v * RAINBOW_CORNERS[m.triangle][1]).join()
+  const moves: RainbowMove[] = []
+  while (moves.length < length) {
+    const move = MASTER_TURNS[Math.floor(rng() * MASTER_TURNS.length)]!
+    const last = moves[moves.length - 1]
+    if (last && axis(last) === axis(move)) continue
+    moves.push(move)
+  }
+  return moves
+}

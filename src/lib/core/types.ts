@@ -68,6 +68,7 @@ const isRainbowLike = (shape: CubeShape): boolean =>
   shape === 'dinoCyl' ||
   shape === 'rex' ||
   shape === 'skewb' ||
+  shape === 'masterSkewb' ||
   shape === 'skewbU' ||
   shape === 'fto'
 
@@ -373,6 +374,9 @@ export interface RainbowMove {
   readonly rex?: true
   /** The Skewb Ultimate's: the Dino's, cut through the middle. */
   readonly skewb?: true
+  /** The Master Skewb's: a corner's outer layer, or with `slice` the inner
+   *  layer along its diagonal (rainbow.ts, `solvedMasterSkewb`). */
+  readonly master?: true
   /** The FTO's: a face (a third of the octahedron), or with `slice` the
    *  layer between it and its opposite (rainbow.ts, `solvedFto`). */
   readonly fto?: true

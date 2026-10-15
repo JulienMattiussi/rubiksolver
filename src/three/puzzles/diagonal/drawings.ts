@@ -4,6 +4,7 @@ import { dinoPolygons } from '../shared/dinoGeometry'
 import { fisherPolygons, fisherThumbnail } from './fisherGeometry'
 import { rexCut, rexPolygons } from './rexGeometry'
 import { skewbPolygons } from './skewbGeometry'
+import { masterSkewbPolygons } from './masterSkewbGeometry'
 import { windmillPolygons, windmillThumbnail } from './windmillGeometry'
 
 export const DIAGONAL_DRAWINGS = {
@@ -11,6 +12,7 @@ export const DIAGONAL_DRAWINGS = {
   dino: { polygons: dinoPolygons, yaw: 0 },
   // Held as the Dino.
   skewb: { polygons: skewbPolygons, yaw: 0 },
+  masterSkewb: { polygons: masterSkewbPolygons, yaw: 0 },
   rex: { polygons: rexPolygons, yaw: 0, cut: rexCut },
   // Upright as the cubes, turned a sixteenth: two sides of its solid show.
   fisher: { polygons: fisherPolygons, yaw: Math.PI / 8, thumbnail: fisherThumbnail },

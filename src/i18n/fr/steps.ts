@@ -172,4 +172,6 @@ export const STEPS_FR = {
   stepQuadBarsTurned: 'Pivoter les barres',
   stepStripeBottom: 'Le bas',
   stepTurnEdges: 'Pivoter les arêtes',
+  stepMasterEdges: 'Les arêtes',
+  stepMasterPetals: 'Les pétales',
 }

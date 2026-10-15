@@ -4,12 +4,15 @@ import type { PuzzleModel } from '../model'
 import {
   DINO_TURNS,
   REX_TURNS,
+  MASTER_TURNS,
   scrambleDino,
+  scrambleMasterSkewb,
   scrambleRex,
   scrambleSkewbU,
   SKEWB_CUBE_SYMMETRIES,
   SKEWB_TURNS,
   solvedDino,
+  solvedMasterSkewb,
   solvedRex,
   solvedSkewb,
 } from '../shared/rainbow'
@@ -28,6 +31,13 @@ export const DIAGONAL_MODELS = {
     symmetries: SKEWB_CUBE_SYMMETRIES,
     turns: () => SKEWB_TURNS,
     scramble: (length, rng) => scrambleSkewbU(length, rng),
+  },
+  // A cube, as the Skewb: its 24 holdings.
+  masterSkewb: {
+    solved: solvedMasterSkewb,
+    symmetries: SKEWB_CUBE_SYMMETRIES,
+    turns: () => MASTER_TURNS,
+    scramble: (length, rng) => scrambleMasterSkewb(length, rng),
   },
   rex: {
     solved: solvedRex,

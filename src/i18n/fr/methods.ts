@@ -168,4 +168,8 @@ export const METHODS_FR = {
     name: 'Depuis START',
     desc: 'On met d’abord le puzzle en position START, celle d’où partent les formules de la page : ses blocs où ils doivent être (sa forme résolue, ou une autre comme ABA’ sur le Stripe). Puis on place les pièces avec ces formules, qui laissent START tel quel et passent donc toujours, et quelques coups qui y ramènent ; enfin, quand START n’est pas la forme résolue, on y revient.',
   },
+  skewbFirst: {
+    name: 'Skewb d’abord',
+    desc: 'Résolu d’abord comme un Skewb, ses sommets et ses centres (ses couches extérieures les tournent comme celles d’un Skewb : « le haut d’abord »), puis ses arêtes (o’.(P’DP).o.(P’D’P) et son reflet) et enfin ses pétales (e.(D’GD).e’.(D’G’D) et son reflet), chaque formule aussi depuis un sommet tourné (conjugaison).',
+  },
 }

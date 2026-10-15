@@ -74,6 +74,9 @@ export const UI_EN: typeof UI_FR = {
   ftoTop: 'Top faces',
   ftoBottom: 'Bottom faces',
   ftoSlices: 'Slices',
+  masterSliceTitle: (corner: RainbowCorner, clockwise: boolean) =>
+    `Turn the inner slice of ${DINO_CORNER_NAMES_EN[corner]} a third ${clockwise ? 'clockwise' : 'counter-clockwise'}`,
+  masterSlices: 'Inner slices',
   dinoTop: 'Top',
   dinoBottom: 'Bottom',
   rainbowFront: 'Front',

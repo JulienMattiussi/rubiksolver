@@ -44,6 +44,7 @@ import { REX_PLAN } from '../methods/diagonal/rex'
 import { FTO_PLAN } from '../methods/polyhedron/fto'
 import { SKEWB_U_PLAN } from '../methods/polyhedron/skewbU'
 import { SKEWB_PLAN } from '../methods/diagonal/skewb'
+import { MASTER_SKEWB_PLAN } from '../methods/diagonal/masterSkewb'
 import { TOWER334_PLAN } from '../methods/tower/tower334'
 import { TOWER443_PLAN, TOWER445_PLAN } from '../methods/tower/tower44'
 import { TOWER554_PLAN } from '../methods/tower/tower554'
@@ -190,6 +191,7 @@ const SOLVE_METHODS = [
   { id: 'dinoCylLayers', plans: { dinoCyl: DINO_CYL_PLAN } },
   { id: 'rexEdgesFirst', plans: { rex: REX_PLAN } },
   { id: 'skewbTopFirst', plans: { skewb: SKEWB_PLAN, skewbU: SKEWB_U_PLAN } },
+  { id: 'skewbFirst', plans: { masterSkewb: MASTER_SKEWB_PLAN } },
   { id: 'ftoCornersFirst', plans: { fto: FTO_PLAN } },
   { id: 'gearCornersFirst', plans: { gearCube: GEAR_PLAN, gearU: GEAR_ULTIMATE_PLAN } },
   { id: 'gearEquatorFirst', plans: { gearX: GEAR_EXTREME_PLAN } },

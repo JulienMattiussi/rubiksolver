@@ -48,6 +48,32 @@ placés, puis tournés ([B'O'], de chaque côté : t H) ; (2) centres placés
 sommets du bas tournés ([BO']²). L'« algorithme minimal » de la page 3 (la
 seule formule [DG']) n'est pas repris.
 
+## Le Master Skewb (`masterSkewb`)
+
+fan2cube.fr/masterskewb1 à 3 (Katsuhiko Okamoto, 2003) : le Skewb et le Rex
+Cube en un (`solvedMasterSkewb`, grille ×4 comme le Rex). 8 sommets, 6
+centres, 12 arêtes de deux couleurs et 24 pétales d'une couleur, en deux
+familles de douze (le signe du produit de leurs coordonnées) qu'aucun coup
+ne mélange. Chaque sommet tourne par tiers sa couche extérieure (comme un
+sommet du Skewb) ou une tranche (le triangle des pétales et arêtes voisins,
+en minuscules : `MASTER_SLICE_LETTERS`) ; une tranche du haut se nomme par
+le triangle du bas opposé, sens inversé (`canonicalSlice`). 24 tenues.
+
+**Mélange** : 30 tours de couches ou de tranches, jamais deux fois de suite
+le même axe.
+
+**Rendu** (`three/puzzles/diagonal/masterSkewbGeometry.ts`) : le cube coupé
+à ±2 sur ses quatre diagonales.
+
+**Résolution** (`methods/diagonal/masterSkewb.ts`, méthode **Le Skewb
+d'abord**, la page 3) : (1) sommets et centres comme ceux d'un Skewb, par les
+mêmes étapes (`skewbFirst`, les couches extérieures seules) ; (2) arêtes par
+o'(P'DP)o(P'D'P) et son miroir ; (3) pétales par e(D'GD)e'(D'G'D) et son
+miroir, famille par famille (deux pétales d'une couleur sont pareils, chaque
+place veut la couleur de sa face). Chaque formule vue de chaque côté du haut
+et préparée par un coup de couche ou de tranche (`cycleTable`), jusqu'à
+couvrir tous les 3-cycles, comme sur le Rex.
+
 ## Le Rex Cube (`rex`)
 
 Le Rex Cube (fan2cube.fr/rexcube1 et 2) est le Dino

@@ -173,4 +173,6 @@ export const STEPS_EN: typeof STEPS_FR = {
   stepQuadBarsTurned: 'Turn the bars',
   stepStripeBottom: 'The bottom',
   stepTurnEdges: 'Turn the edges over',
+  stepMasterEdges: 'The edges',
+  stepMasterPetals: 'The petals',
 }

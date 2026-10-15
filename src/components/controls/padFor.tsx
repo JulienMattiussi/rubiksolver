@@ -25,6 +25,7 @@ const PADS: Record<PadKind, (disabled: boolean) => ReactNode> = {
   dino: (disabled) => <RainbowPad disabled={disabled} dino />,
   rex: (disabled) => <RainbowPad disabled={disabled} rex />,
   skewb: (disabled) => <RainbowPad disabled={disabled} skewb />,
+  masterSkewb: (disabled) => <RainbowPad disabled={disabled} master />,
   gear: (disabled) => <GearPad disabled={disabled} />,
 }
 

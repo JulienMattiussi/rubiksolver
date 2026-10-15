@@ -1,6 +1,9 @@
 import { useEffect } from 'react'
 import { Controls } from '@/components/controls/Controls'
 import { useI18n } from '@/i18n/i18nStore'
+import { cubeShape } from '@/lib/core/cube'
+import { SHAPE_LABEL } from '@/lib/core/types'
+import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { useRoute } from '@/store/router'
 import { HomeGallery } from '@/components/home/HomeGallery'
@@ -11,9 +14,18 @@ export default function App() {
   const locale = useI18n((s) => s.locale)
   const editing = useEditor((s) => s.mode === 'edit')
   const home = useRoute((s) => s.home)
+  const t = useI18n((s) => s.t)
+  const shape = useCube((s) => cubeShape(s.cube))
+  const mirror = useCube((s) => s.variant === 'mirror')
   useEffect(() => {
     document.documentElement.lang = locale
   }, [locale])
+  // The page's title names the puzzle shown.
+  useEffect(() => {
+    document.title = home
+      ? 'Rubik Solver'
+      : `Rubik Solver - ${t.cubeKind(SHAPE_LABEL[shape], mirror)}`
+  }, [home, t, shape, mirror])
 
   return (
     <main className="relative h-full w-full overflow-hidden">

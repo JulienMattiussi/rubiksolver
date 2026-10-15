@@ -74,6 +74,9 @@ export const UI_FR = {
   ftoTop: 'Faces du haut',
   ftoBottom: 'Faces du bas',
   ftoSlices: 'Tranches',
+  masterSliceTitle: (corner: RainbowCorner, clockwise: boolean) =>
+    `Tourner la tranche intérieure de ${DINO_CORNER_NAMES_FR[corner]} d’un tiers dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
+  masterSlices: 'Tranches intérieures',
   dinoTop: 'Haut',
   dinoBottom: 'Bas',
   rainbowFront: 'Devant',
