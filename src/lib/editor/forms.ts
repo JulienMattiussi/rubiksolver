@@ -1,5 +1,4 @@
 import { cubeShape, isBoxed, solvedCube, turnDims } from '../core/cube'
-import { gearsAligned } from '../puzzles/gear/gear'
 import { AXIS_ROTATIONS, normalIndex } from '../core/geometry'
 import { layerTurnsOf } from '../core/moves'
 import { applyMove, turnAllowed } from '../core/turn'
@@ -83,9 +82,8 @@ const FORMS = new Map<CubeShape, readonly Form[]>()
 const BOX_ONLY: readonly CubeShape[] = ['camo']
 
 /** Why a state cannot be entered as it stands ("from the current state"),
- *  if so: a Gear Cube's gears askew, a puzzle entered in its box out of it. */
-export function notEnterable(cube: Cube): 'gears' | 'box' | null {
-  if (!gearsAligned(cube)) return 'gears'
+ *  if so: a puzzle entered in its box out of it. */
+export function notEnterable(cube: Cube): 'box' | null {
   return BOX_ONLY.includes(cubeShape(cube)) && !isBoxed(cube) ? 'box' : null
 }
 

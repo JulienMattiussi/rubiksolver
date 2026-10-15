@@ -3,6 +3,7 @@ import { cubeDims, cubeShape } from '@/lib/core/cube'
 import { canPaint, slotsFor } from '@/lib/editor/editor'
 import { centeringOffset, cubieBox, LAYER_THICKNESS } from '@/lib/core/shape'
 import { gearAt } from '@/lib/puzzles/gear/gear'
+import { setupTargets } from '@/lib/editor/setup'
 import { hasColoredClips, isGear } from '@/lib/core/types'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -34,6 +35,10 @@ export function EditView() {
   const paintAt = useEditor((s) => s.paintAt)
   const paintGearAt = useEditor((s) => s.paintGearAt)
   const gear = useEditor((s) => s.gear)
+  const spins = useEditor((s) => s.spins)
+  // A Gear Cube's gears being set: a click pivots one (its slice's with it).
+  const settingGears = useEditor((s) => s.phase === 'gears')
+  const spinAt = useEditor((s) => s.spinAt)
   const thickness = LAYER_THICKNESS[mirror ? 'mirror' : 'classic']
   const [ox, oy, oz] = centeringOffset(thickness)
   // The face under the pointer (its slot's key, then the face), lit up.
@@ -43,9 +48,12 @@ export function EditView() {
   const litIn = (slotKey: string) =>
     hovered?.startsWith(`${slotKey}|`) ? hovered.slice(slotKey.length + 1) : null
   if (isGear(shape)) {
-    // A Gear Cube's own pieces, painted face by face (gears aligned). The
-    // Ultimate's gears are painted apart from their clips; the plain one's
-    // clips bear no color: its gears are the stickers.
+    // While the gears are set, the gears a click pivots light up whole.
+    const hoveredSlot = hovered?.split('|')[0]
+    const pivoting = settingGears && hoveredSlot ? setupTargets('gears', shape, hoveredSlot) : []
+    // A Gear Cube's own pieces, its gears pivoted as set first, then painted
+    // face by face. The Ultimate's gears are painted apart from their clips;
+    // the plain one's clips bear no color: its gears are the stickers.
     const clips = hasColoredClips(shape)
     return (
       <group scale={cubeScale(dims)}>
@@ -64,17 +72,25 @@ export function EditView() {
               cubie={{
                 position: slot.position,
                 stickers: slot.stickers.map((s) => ({ normal: s.normal, color: s.solvedColor })),
-                ...(edge && { spin: 0, ...(!clips && { plainClips: true as const }) }),
+                ...(edge && {
+                  spin: spins[slot.key] ?? 0,
+                  ...(!clips && { plainClips: true as const }),
+                }),
               }}
               dims={dims}
               variant="classic"
               smallCenter
               onHover={(face, on) => hover(`${slot.key}|${face}`)(on)}
-              lit={litIn(slot.key)}
+              lit={settingGears ? null : litIn(slot.key)}
+              highlighted={edge && pivoting.includes(slot.key)}
               colors={colors}
-              onSelect={paintable && (clips || !edge) ? paintSticker : undefined}
+              onSelect={!settingGears && paintable && (clips || !edge) ? paintSticker : undefined}
               onSelectGear={
-                clips ? (i) => paintGearAt(slot.key, slot.stickers[i]!.ni) : paintSticker
+                settingGears
+                  ? () => spinAt(slot.key)
+                  : clips
+                    ? (i) => paintGearAt(slot.key, slot.stickers[i]!.ni)
+                    : paintSticker
               }
               // Its gear's own colors, gray until painted.
               gearColors={

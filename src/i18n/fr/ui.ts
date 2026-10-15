@@ -149,9 +149,13 @@ export const UI_FR = {
   editHint:
     'Choisissez une couleur puis cliquez les stickers. Tournez la vue pour atteindre les autres faces. Les pièces se complètent toutes seules et aucune combinaison impossible n’est acceptée.',
   editHintGearPlain:
-    'Remettez d’abord votre Gear Cube en forme de cube, engrenages réalignés (tournez une face jusqu’à ce que sa tranche reprenne sa place). Puis choisissez une couleur et cliquez les pièces : coins et engrenages, les agrafes sont noires. Tournez la vue pour atteindre les autres faces.',
+    'Choisissez une couleur et cliquez les pièces : coins et engrenages, les agrafes sont noires. Tournez la vue pour atteindre les autres faces.',
   editHintGear:
-    'Remettez d’abord votre Gear Cube en forme de cube, engrenages réalignés (tournez une face jusqu’à ce que sa tranche reprenne sa place). Puis choisissez une couleur et cliquez les pièces : les agrafes et les engrenages se peignent à part. Tournez la vue pour atteindre les autres faces.',
+    'Choisissez une couleur et cliquez les pièces : les agrafes et les engrenages se peignent à part. Tournez la vue pour atteindre les autres faces.',
+  editHintGears:
+    'D’abord les engrenages : un clic sur un engrenage le fait pivoter d’un sixième de tour (avec toute sa tranche, sauf sur l’Extreme). Donnez à chacun la position du vôtre, puis validez.',
+  acceptGears: 'Valider les engrenages',
+  changeGears: 'Changer les engrenages',
   editHintQuarter:
     'Choisissez une couleur puis cliquez les stickers ; les centres sont déjà là. Un clic sur un centre tourne son repère d’un quart : donnez à chacun la position du vôtre (il dit dans quel sens sa face peut tourner).',
   editHintCamo:
@@ -170,14 +174,13 @@ export const UI_FR = {
   facesOf: (n: number, total: number) => `${n} / ${total} faces`,
   clearAll: 'Tout effacer',
   editHintRoadblock:
-    'Ses centres sont des barres de trois : un clic peint la barre entière. Dites d’abord dans quel sens vont les barres de chaque face : en position START, celles des quatre côtés sont horizontales, celles du haut et du bas vont de gauche à droite ; choisissez ci-dessous une face tournée d’un quart. Puis choisissez une couleur et cliquez les stickers ; tournez la vue pour atteindre les autres faces.',
-  barsTurnedLabel: 'Barres tournées d’un quart',
-  barsTurnedTitle: (face: string) =>
-    `Les barres de la ${face} vont dans l’autre sens qu’en position START (ses centres tournent d’un quart)`,
-  barFaces: { U: 'Haut', D: 'Bas', L: 'Gauche', R: 'Droite', F: 'Avant', B: 'Arrière' },
+    'Ses centres sont des barres de trois : un clic peint la barre entière. Choisissez une couleur et cliquez les stickers ; tournez la vue pour atteindre les autres faces.',
+  editHintBars:
+    'D’abord le sens des barres : en position START, celles des quatre côtés sont horizontales, celles du haut et du bas vont de gauche à droite. Un clic sur un centre tourne les barres de sa face d’un quart. Donnez à chaque face le sens de la vôtre, puis validez.',
+  acceptBars: 'Valider les barres',
+  changeBars: 'Changer les barres',
   fromCurrent: 'Modifier',
   fromCurrentTitle: 'Modifier le cube depuis son état actuel',
-  gearsNotAligned: 'Remettez d’abord le cube en forme : la saisie se fait engrenages réalignés',
   notInBox:
     'Remettez d’abord le puzzle en forme de pavé : déformé, ses formes sont trop nombreuses pour être proposées',
   chooseForm: 'Dans quelle forme est votre puzzle ?',

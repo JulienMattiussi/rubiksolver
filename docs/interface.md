@@ -64,7 +64,12 @@ mobile et en saisie, une seule carte) :
   `workers/solveWorker.ts`) pour ne jamais figer la page ; Résoudre et Pas à
   pas la réutilisent tant qu'elle vaut pour l'état et la méthode
   (`planKey`) ; tant qu'elle n'est pas prête, Résoudre dit « Calcul de la
-  solution… » et ses boutons restent grisés (`useAutoPlan` le renvoie).
+  solution… », un rouage tournant à la place de son icône, et ses boutons
+  restent grisés (`useAutoPlan` le renvoie). Un calcul qui dure plus de 4 s
+  (le Gear Cube Extreme) fait apparaître un grand rouage tournant par-dessus
+  le plan (`SlowCog`), qui grandit en se dévoilant : la page ne semble pas
+  bloquée. Pendant un mélange, Mélanger porte lui aussi un rouage tournant
+  (`ScrambleButton`, `selectScrambling`).
   **Clavier** (`useSolveShortcuts`, rappelé dans l'infobulle de chaque bouton) :
   flèches droite / gauche un coup en avant / en arrière, Page suivante /
   précédente une étape (en arrière, une solution qui joue s'arrête d'abord,

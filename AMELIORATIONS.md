@@ -9,7 +9,8 @@ envisagées.
 résout tous les mélanges testés, mais lentement : de quelques secondes à
 environ 25 s. Presque tout le temps passe dans la dernière étape, les
 engrenages. Le calcul se fait dans le worker, donc la page ne fige pas, et
-Résoudre reste grisé (« Calcul de la solution… ») jusqu'à ce qu'il aboutisse.
+Résoudre reste grisé (« Calcul de la solution… ») jusqu'à ce qu'il aboutisse,
+et au-delà de 4 s un grand rouage tournant le dit par-dessus les étapes.
 
 **Pourquoi.** Chaque formule de fan2cube (`(D²H)².D⁸.(H'D'²)²`) tourne un
 engrenage du bas mais en dérange trois du haut. La recherche essaie toutes
@@ -27,15 +28,6 @@ haut et du bas × 2 sens) et rejoue chacune coup par coup.
 les 8 arêtes à engrenage (une permutation + des pivots), puis faire la
 recherche sur ces effets au lieu de rejouer les coups. Chaque essai devient
 quelques opérations au lieu de dizaines de coups sur 27 pièces.
-
-## Gear Cube Extreme : saisir des engrenages de travers
-
-La saisie suppose le cube en forme, tous les engrenages réalignés. Sur
-l'Extreme, chaque engrenage peut rester de travers indépendamment des autres
-(le haut et le bas les font changer de tranche), si bien qu'un cube réel
-peut ne pas pouvoir être remis en forme. Piste : un outil de la palette qui
-fait pivoter l'engrenage cliqué d'un tiers de tour, dessiné de travers comme
-en jeu.
 
 ## Camouflage 4x4x2 : saisir un puzzle déformé
 
@@ -90,26 +82,11 @@ de positions d'une pièce) puis ne bouge plus.
 (formules du Megaminx et du Crystal : quelques dizaines de Mo, une fois par
 liste de formules, donc bornées) ; une session de plusieurs heures.
 
-## Soudés : saisie guidée par les soudures
+## Mobile : reprendre l'interface
 
-**Constat.** Une fois les soudures validées, les couleurs se peignent comme
-sur un 3x3 : rien n'empêche de peindre, à la place d'une barre, un coin
-qui n'en est pas une. L'erreur n'est signalée qu'à la fin (« Les couleurs
-ne vont pas avec les soudures »).
+**Constat.** Le mode mobile (panneau repliable, puzzle empilé au-dessus de la
+saisie) marche, mais il a de nombreuses lacunes, jamais passées en revue.
 
-**Piste.** Filtrer les placements de chaque emplacement (`editorTables.ts`)
-selon la forme saisie : une pose n'est valable que si les marques de la
-pièce, tournées comme ses couleurs, tombent sur les soudures de
-l'emplacement.
-
-## Soudés : FusedStripe plus lent
-
-**Constat.** Sa méthode (`methods/bandaged/fusedStripe.ts`) prend jusqu'à
-3 s environ (les autres soudés moins d'une seconde) : le placement de ses
-sommets cherche avec les coups libres, les formules en START ne les
-déplaçant pas, et son orientation passe par l'état m avec beaucoup de
-formules.
-
-**Piste.** Précalculer l'effet des formules (comme pour le Gear Cube
-Extreme), ou reprendre les formules de la page qui amènent un sommet à sa
-place sans quitter START, s'il y en a.
+**Piste.** Faire le tour de l'app sur un petit écran (accueil, sélecteur,
+pad de coups, guide, saisie et ses phases, résolution), lister ce qui gêne,
+puis reprendre la mise en page écran par écran.

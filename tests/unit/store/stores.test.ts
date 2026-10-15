@@ -3,7 +3,7 @@ import { isSolved, solvedCube } from '@/lib/core/cube'
 import { applyMoves } from '@/lib/core/turn'
 import { cubeToEdit, emptyEdit } from '@/lib/editor/editor'
 import { parseMoves } from '@/lib/core/moves'
-import { planKey, selectBusy, solvedByTurn, useCube } from '@/store/cubeStore'
+import { planKey, selectBusy, selectScrambling, solvedByTurn, useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { useSaved } from '@/store/savedStore'
 import { jointsOf } from '@/lib/editor/jointsEditor'
@@ -143,6 +143,20 @@ describe('cube store', () => {
     expect(useCube.getState().steps).toBe(steps)
   })
 
+  it('says a scramble plays until it ends, is stopped, or a solution or a hand turn follows', () => {
+    useCube.getState().scramble()
+    expect(selectScrambling(useCube.getState())).toBe(true)
+    drain()
+    expect(selectScrambling(useCube.getState())).toBe(false)
+
+    useCube.getState().scramble()
+    useCube.getState().stop()
+    expect(selectScrambling(useCube.getState())).toBe(false)
+    useCube.getState().scramble()
+    useCube.getState().pushMove({ face: 'U', amount: 1 })
+    expect(selectScrambling(useCube.getState())).toBe(false)
+  })
+
   it('drops the solution when the cube is turned by hand', () => {
     useCube.getState().loadCube(applyMoves(solvedCube(), parseMoves('R')))
     useCube.getState().prepareSolution()
@@ -261,20 +275,48 @@ describe('solvedByTurn', () => {
   })
 })
 
+describe('editor store: setting before the colors', () => {
+  it("sets a Gear Cube's gears first, their pivots kept through the colors", () => {
+    useCube.getState().setShape('gearU')
+    const editor = () => useEditor.getState()
+    editor().enter()
+    expect(editor().phase).toBe('gears')
+    editor().spinAt('1,1,0')
+    expect(Object.keys(editor().spins)).toHaveLength(4)
+    expect(editor().acceptSetup()).toBe(true)
+    expect(editor().phase).toBe('paint')
+    editor().editSetup()
+    expect(editor().phase).toBe('gears')
+    expect(Object.keys(editor().spins)).toHaveLength(4)
+  })
+
+  it("sets a RoadBlock-I's bars first, kept when its colors are cleared", () => {
+    useCube.getState().setShape('roadblock')
+    const editor = () => useEditor.getState()
+    editor().enter()
+    expect(editor().phase).toBe('bars')
+    editor().turnBarsAt('2,0,0')
+    editor().acceptSetup()
+    editor().clearAll()
+    expect(editor().twisted).toEqual(['2,0,0'])
+  })
+})
+
 describe('editor store: a bandaged puzzle', () => {
-  it('enters its joints, then its colors, Cancel going back a step at a time', () => {
+  it('enters its joints, then its colors, back to its joints by Change, out by Cancel', () => {
     useCube.getState().setShape('stripe')
     const editor = () => useEditor.getState()
     editor().enter()
     expect(editor().phase).toBe('joints')
     // No form has these joints: refused.
-    expect(editor().acceptJoints()).toBe(false)
+    expect(editor().acceptSetup()).toBe(false)
     expect(editor().error).toBe('joints')
     editor().join(jointsOf(solvedCube('stripe')))
-    expect(editor().acceptJoints()).toBe(true)
+    expect(editor().acceptSetup()).toBe(true)
     expect(editor().phase).toBe('paint')
-    editor().cancel()
+    editor().editSetup()
     expect(editor()).toMatchObject({ mode: 'edit', phase: 'joints' })
+    editor().acceptSetup()
     editor().cancel()
     expect(editor().mode).toBe('play')
   })

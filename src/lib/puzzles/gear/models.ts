@@ -2,7 +2,7 @@ import { faceColorsOf, solvedCube } from '../../core/cube'
 import { faceOfNormal } from '../../core/geometry'
 import { hasColoredClips, type CubeShape } from '../../core/types'
 import type { PuzzleModel } from '../model'
-import { gearTurnsOf, scrambleGear, withGears, withTurnedGears } from './gear'
+import { gearTurnsOf, scrambleGear, withEnteredGears, withGears } from './gear'
 
 /** A 3x3 in its own colors, its edges gears. */
 const gears = (shape: CubeShape): PuzzleModel => ({
@@ -19,12 +19,9 @@ const gears = (shape: CubeShape): PuzzleModel => ({
   },
   turns: () => gearTurnsOf(shape),
   scramble: (length, rng) => scrambleGear(shape, length, rng),
-  // Entered in the cube's shape: its gears at rest, some maybe turned over
-  // on their clips.
-  entry: {
-    built: (cube, turned) =>
-      hasColoredClips(shape) ? withTurnedGears(cube, turned, shape) : withGears(cube, true, shape),
-  },
+  // Entered in the cube's shape: its gears pivoted as entered, some maybe
+  // turned over on their clips.
+  entry: { built: (cube, { turned, spins }) => withEnteredGears(cube, shape, turned, spins) },
 })
 
 export const GEAR_MODELS = {

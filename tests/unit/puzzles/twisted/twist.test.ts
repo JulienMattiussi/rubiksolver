@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
-import { gearsAligned } from '@/lib/puzzles/gear/gear'
+import { notEnterable } from '@/lib/editor/forms'
 import { asSeenThin, isThinEdge, withRealThinEdges } from '@/lib/puzzles/shared/thinEdges'
 import { validateCube } from '@/lib/editor/validate'
 import { parseMoves } from '@/lib/core/moves'
@@ -26,7 +26,7 @@ describe('Z-Twist', () => {
   })
 
   it('can be entered from its state whatever its centers (no gears to align)', () => {
-    expect(gearsAligned(applyMoves(TWIST, parseMoves('R U F')))).toBe(true)
+    expect(notEnterable(applyMoves(TWIST, parseMoves('R U F')))).toBeNull()
   })
 
   it('counts nothing of its thin edges’ way round, which never shows', () => {

@@ -70,7 +70,10 @@ describe('RoadBlock-I', () => {
     // A face turned a quarter: its bars across, then entered back as it is.
     const cube = applyMoves(SOLVED, parseMoves('R U'))
     expect(barsTurned(cube).sort()).toEqual(['0,2,0', '2,0,0'])
-    const built = buildCube(cubeToEdit(cube), 'roadblock', undefined, barsTurned(cube))
+    const built = buildCube(cubeToEdit(cube), 'roadblock', undefined, {
+      turned: barsTurned(cube),
+      spins: {},
+    })
     expect(validateCube(built)).toEqual({ ok: true })
     // The same position: undone, back to START.
     const undone = applyMoves(built, parseMoves("U' R'"))

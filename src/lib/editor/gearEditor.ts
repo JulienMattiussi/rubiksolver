@@ -1,7 +1,7 @@
 import { stickerId, tablesFor } from './editorTables'
 import { withFixedHome, type EditStickers } from './editor'
-import { gearAt } from '../puzzles/gear/gear'
-import { normalIndex } from '../core/geometry'
+import { gearAt, shownSpin } from '../puzzles/gear/gear'
+import { normalIndex, parseVecKey } from '../core/geometry'
 import type { Color, Cube, CubeShape } from '../core/types'
 
 /**
@@ -12,6 +12,10 @@ import type { Color, Cube, CubeShape } from '../core/types'
  * tells the other.
  */
 export type GearColors = Readonly<Record<string, Color>>
+
+/** The gears' pivots, entered before the colors: each one's as it shows
+ *  (`shownSpin`: 0, 1 or 2 sixths of a turn), by slot; none for 0. */
+export type Spins = Readonly<Record<string, number>>
 
 /** The edge slots that hold gears (not the Extreme's middle ones). */
 const edgeSlots = (shape: CubeShape) =>
@@ -105,15 +109,47 @@ export function turnedOf(gear: GearColors, edit: EditStickers, shape: CubeShape)
   return turned
 }
 
-/** The gears of a Gear Cube standing in its shape: its clips' colors, the
- *  other way round where the gear is turned over (a half-turn spin). Held
- *  as the editor holds it, its centers home (`cubeToEdit`). */
+/** The gears pivoting with a gear, by slot (itself among them): a Gear
+ *  Cube's or an Ultimate's slice turns its four gears together, so they
+ *  always share their pivot; the Extreme's gears each go on their own. */
+export function spinMates(shape: CubeShape, slotKey: string): string[] {
+  if (shape === 'gearX') return [slotKey]
+  const axis = parseVecKey(slotKey).findIndex((v) => v === 0)
+  return edgeSlots(shape)
+    .filter((s) => s.position[axis] === 0)
+    .map((s) => s.key)
+}
+
+/** A gear clicked: its pivot a sixth on, its mates' with it (`spinMates`). */
+export function nextSpin(spins: Spins, shape: CubeShape, slotKey: string): Spins {
+  const mates = spinMates(shape, slotKey)
+  const to = ((spins[slotKey] ?? 0) + 1) % 3
+  const next: Record<string, number> = { ...spins }
+  for (const key of mates) {
+    if (to) next[key] = to
+    else delete next[key]
+  }
+  return next
+}
+
+/** The gears' pivots of a state, held as the editor holds it. */
+export function spinsOf(cube: Cube): Spins {
+  const spins: Record<string, number> = {}
+  for (const c of withFixedHome(cube)) {
+    if (c.spin !== undefined && shownSpin(c.spin)) spins[c.position.join(',')] = shownSpin(c.spin)
+  }
+  return spins
+}
+
+/** The gears of a Gear Cube: its clips' colors, the other way round where
+ *  the gear is turned over (half a turn or more of spin). Held as the
+ *  editor holds it, its centers home (`cubeToEdit`). */
 export function gearColorsOf(cube: Cube): GearColors {
   const gear: Record<string, Color> = {}
   for (const c of withFixedHome(cube)) {
     if (c.spin === undefined) continue
     c.stickers.forEach((s, i) => {
-      const shown = c.spin === 3 ? c.stickers[1 - i]! : s
+      const shown = c.spin! >= 3 ? c.stickers[1 - i]! : s
       gear[stickerId(c.position, normalIndex(s.normal))] = shown.color
     })
   }

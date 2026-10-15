@@ -57,7 +57,7 @@ export const BANDAGED_MODELS = {
     // the faces turned.
     entry: {
       seen: (cube) => withoutBars(cube),
-      built: (cube, turned) => withBars(cube, turned),
+      built: (cube, { turned }) => withBars(cube, turned),
     },
   },
 } satisfies Partial<Record<CubeShape, PuzzleModel>>

@@ -236,8 +236,7 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
  *  and the stickers the editor counts. */
 const ENTERED: [string, string, string][] = [
   // One of each kind of model (the others of a kind enter the same way, see
-  // the conformance suite in tests/unit/puzzles.test.ts). Not the Gear
-  // Cubes: a scramble leaves their gears askew, which they are not entered in.
+  // the conformance suite in tests/unit/puzzles.test.ts).
   ['Standards', '2x2 (Pocket)', '24 / 24 stickers'],
   // Most often out of its box once scrambled: entered in the form it stands in.
   ['Tours', '2x2x4', '40 / 40 stickers'],
@@ -267,6 +266,8 @@ const ENTERED: [string, string, string][] = [
   ['Soudés', 'Fused', '54 / 54 stickers'],
   // Its joints taken from its state, then its colors.
   ['Soudés', 'Stripe', '54 / 54 stickers'],
+  // Its gears askew, their pivots taken from its state; gears painted apart.
+  ['Engrenages', 'Gear Cube Ultimate', '78 / 78 faces'],
 ]
 
 for (const [category, name, complete] of ENTERED) {
@@ -300,6 +301,9 @@ test('tower entry: pick the form it stands in, then paint on it', async ({ page 
   await expect(page.getByText('0 / 40 stickers')).toBeVisible()
   await page.getByRole('button', { name: 'Changer de forme' }).click()
   await expect(page.getByRole('button', { name: /^Forme 1 / })).toBeVisible()
+  // Back on the same form: its colors kept.
+  await page.getByRole('button', { name: /^Forme 2,/ }).click()
+  await expect(page.getByText('0 / 40 stickers')).toBeVisible()
 })
 
 test('address: a link opens its puzzle and language, back returns to the previous one', async ({
@@ -369,9 +373,10 @@ test('bandaged entry: its joints first, a form it cannot take refused', async ({
   await expect(page.getByText('54 / 54 stickers')).toBeVisible()
   await page.getByRole('button', { name: 'Changer les soudures' }).click()
   await expect(page.getByLabel('Pièces 2x1 à souder : 0')).toBeVisible()
-  // Its colors again, then Cancel: back to its joints, then out.
+  // Its colors again, kept; then Cancel: out of the entry, whatever the step.
   await page.getByRole('button', { name: 'Valider les soudures' }).click()
+  await expect(page.getByText('54 / 54 stickers')).toBeVisible()
   await page.getByRole('button', { name: 'Annuler' }).click()
-  await expect(page.getByRole('button', { name: 'Valider les soudures' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Saisir', exact: true })).toBeVisible()
   expect(errors).toEqual([])
 })

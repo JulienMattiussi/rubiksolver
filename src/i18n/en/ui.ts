@@ -144,9 +144,13 @@ export const UI_EN: typeof UI_FR = {
   editHint:
     'Pick a color, then click stickers. Turn the view to reach the other faces. Pieces auto-complete and no impossible combination is accepted.',
   editHintGearPlain:
-    'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: corners and gears, the clips are black. Turn the view to reach the other faces.',
+    'Pick a color and click the pieces: corners and gears, the clips are black. Turn the view to reach the other faces.',
   editHintGear:
-    'First bring your Gear Cube back into a cube, its gears aligned (turn a face until its slice is back in place). Then pick a color and click the pieces: clips and gears are painted apart. Turn the view to reach the other faces.',
+    'Pick a color and click the pieces: clips and gears are painted apart. Turn the view to reach the other faces.',
+  editHintGears:
+    'The gears first: a click on a gear pivots it a sixth of a turn (with its whole slice, but on the Extreme). Give each the position of yours, then accept.',
+  acceptGears: 'Accept the gears',
+  changeGears: 'Change the gears',
   editHintQuarter:
     'Pick a color and click the stickers; the centers are there already. A click on a center turns its mark a quarter: give each the position of yours (it says which way its face can turn).',
   editHintCamo:
@@ -165,14 +169,13 @@ export const UI_EN: typeof UI_FR = {
   facesOf: (n: number, total: number) => `${n} / ${total} faces`,
   clearAll: 'Clear all',
   editHintRoadblock:
-    'Its centers are bars of three: a click paints the whole bar. First say which way each face’s bars go: at START, the four sides’ are level, the top’s and the bottom’s go from left to right; pick below a face turned a quarter. Then pick a color and click the stickers; turn the view to reach the other faces.',
-  barsTurnedLabel: 'Bars turned a quarter',
-  barsTurnedTitle: (face: string) =>
-    `The bars of the ${face} go the other way than at START (its centers turn a quarter)`,
-  barFaces: { U: 'Up', D: 'Down', L: 'Left', R: 'Right', F: 'Front', B: 'Back' },
+    'Its centers are bars of three: a click paints the whole bar. Pick a color and click the stickers; turn the view to reach the other faces.',
+  editHintBars:
+    'Which way the bars go first: at START, the four sides’ are level, the top’s and the bottom’s go from left to right. A click on a center turns its face’s bars a quarter. Give each face the way of yours, then accept.',
+  acceptBars: 'Accept the bars',
+  changeBars: 'Change the bars',
   fromCurrent: 'Edit',
   fromCurrentTitle: 'Edit the cube from its current state',
-  gearsNotAligned: 'Bring the cube back into shape first: it is entered with its gears aligned',
   notInBox:
     'Bring the puzzle back into its brick shape first: deformed, its shapes are too many to offer',
   chooseForm: 'What shape is your puzzle in?',

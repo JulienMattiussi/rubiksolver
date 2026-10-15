@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Square } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Cog, Square } from 'lucide-react'
 import { stepEnd } from '@/lib/solve/progress'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
@@ -10,6 +10,7 @@ import { useSolveShortcuts } from '@/hooks/useSolveShortcuts'
 import { useEditor } from '@/store/editorStore'
 import { MethodSelect } from './MethodSelect'
 import { PlanOutline } from './PlanOutline'
+import { SlowCog } from './SlowCog'
 import { StepList } from './StepList'
 
 /** Solve block: method picker, solve (the rest at once), walk the solution
@@ -44,6 +45,8 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
   const back = home || busy || dispatched === 0
   const ahead = home || busy || solved || !ready || (dispatched > 0 && dispatched >= total)
   const editing = useEditor((s) => s.mode === 'edit')
+  // The solution being computed: a turning cog says so.
+  const computing = !home && !solved && !ready
   useSolveShortcuts({
     enabled: !home && !editing,
     canBack: !back,
@@ -86,12 +89,16 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
             variant="solve"
             onClick={solveAll}
             disabled={home || busy || solved || !ready}
+            aria-busy={computing}
             className="col-span-2"
             title={`${t.solve} (${t.solveKeys.solve})`}
           >
-            <FEATURE_ICON.solve className="size-4" aria-hidden />
-            {/* Said while the solution is being computed. */}
-            {!home && !solved && !ready ? t.computing : t.solve}
+            {computing ? (
+              <Cog className="size-4 motion-safe:animate-spin" aria-hidden />
+            ) : (
+              <FEATURE_ICON.solve className="size-4" aria-hidden />
+            )}
+            {computing ? t.computing : t.solve}
           </Button>
         )}
         <Button
@@ -133,7 +140,12 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
       {home ? null : steps && steps.length > 0 ? (
         <StepList steps={steps} />
       ) : (
-        !steps && <PlanOutline />
+        !steps && (
+          <div className="relative flex min-h-0 flex-col">
+            <PlanOutline />
+            <SlowCog computing={computing} />
+          </div>
+        )
       )}
     </section>
   )

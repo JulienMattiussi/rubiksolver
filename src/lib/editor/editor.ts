@@ -17,6 +17,7 @@ import {
 } from './editorTables'
 import { entersByPieces, piecesCube } from './pieceEditor'
 import { MODELS } from '../puzzles/models'
+import { NO_MARKS, type EntryMarks } from '../puzzles/model'
 import type { Color, Cube, CubeShape } from '../core/types'
 
 /**
@@ -321,14 +322,11 @@ export function buildCube(
   edit: EditStickers,
   shape: CubeShape,
   form?: Cube,
-  /** A Gear Cube's edges whose gear is turned over on its clips; a
-   *  Z-Twist's side centers a quarter turn off, a Quarter Cube's faces a
-   *  quarter on, a RoadBlock-I's faces whose bars lie a quarter off (by
-   *  slot). */
-  turned: readonly string[] = [],
+  /** What was entered besides the colors (see `EntryMarks`). */
+  marks: EntryMarks = NO_MARKS,
 ): Cube {
   const own = MODELS[shape]?.entry?.built
-  const built = (cube: Cube) => (own ? own(cube, turned) : cube)
+  const built = (cube: Cube) => (own ? own(cube, marks) : cube)
   if (entersByPieces(shape)) {
     const cube = piecesCube(edit, shape)
     if (!cube) throw new Error('buildCube: a slot holds no piece')

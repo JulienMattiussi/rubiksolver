@@ -7,6 +7,8 @@ import { stickerId, type Slot } from '@/lib/editor/editorTables'
 import { entersByPieces, piecesIn } from '@/lib/editor/pieceEditor'
 import { splits, tileMates } from '@/lib/editor/jointsEditor'
 import { cutPieces } from '@/lib/editor/cutsEditor'
+import { faceKeyAt } from '@/lib/puzzles/bandaged/roadblock'
+import { isBarCenter, setupTargets } from '@/lib/editor/setup'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { COLOR_HEX } from './colors'
@@ -28,8 +30,9 @@ const EMPTY_BORDER = '#334155'
  * The Floppy Ghost and the Z-Twist are entered piece by piece: each slot
  * shows the piece put there, and a click puts the next one (pieceEditor.ts);
  * a click on a Z-Twist side center turns it a quarter. A RoadBlock-I's
- * centers are drawn as their bars lie, a bandaged puzzle's pieces fused as
- * solved.
+ * centers are drawn as their bars lie; while its bars are set, a click on
+ * a center turns its face's a quarter. A bandaged puzzle's pieces are
+ * fused as solved.
  */
 export function PolyEditView() {
   const shape = useCube((s) => cubeShape(s.cube))
@@ -42,6 +45,9 @@ export function PolyEditView() {
   // A bandaged puzzle's joints being clicked: its pieces drawn plain.
   const clickingJoints = useEditor((s) => s.phase === 'joints')
   const split = useEditor((s) => s.split)
+  // A RoadBlock-I's bars being set: its centers turn them, by face.
+  const clickingBars = useEditor((s) => s.phase === 'bars')
+  const turnBarsAt = useEditor((s) => s.turnBarsAt)
   // While a form is being chosen, the one hovered (the original otherwise).
   const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
   const drawing = polyDrawing(shape)
@@ -59,6 +65,13 @@ export function PolyEditView() {
   const cutAt = useEditor((s) => s.cutAt)
   // The cell under the pointer: its halves light up together.
   const [hoveredCell, setHoveredCell] = useState<string | null>(null)
+
+  // While the bars are set, the face a click turns lights up whole.
+  const hoveredSlot = hovered?.split('|')[0]
+  const barsLit =
+    clickingBars && hoveredSlot && isBarCenter(hoveredSlot.split(',').map(Number))
+      ? setupTargets('bars', shape, hoveredSlot)
+      : []
 
   /** A Z-Twist side center, a Quarter Cube's: a click turns it a quarter,
    *  or back. */
@@ -79,8 +92,12 @@ export function PolyEditView() {
   }
 
   /** What a click on the slot does: split it while the joints are entered,
-   *  turn it, or paint the sticker clicked. */
+   *  turn its face's bars while they are set, turn it, or paint the sticker
+   *  clicked. */
   const onSelectFor = (slot: Slot, turns: boolean) => {
+    if (clickingBars) {
+      return isBarCenter(slot.position) ? () => turnBarsAt(faceKeyAt(slot.position)) : undefined
+    }
     if (clickingJoints) {
       if (!splits(shape, joints, slot.position)) return undefined
       return (ni: number, at: readonly number[]) =>
@@ -185,7 +202,8 @@ export function PolyEditView() {
               stickerHex={hex}
               onSelect={onSelectFor(slot, turns)}
               onHover={hover(slot.key)}
-              lit={litIn(slot.key)}
+              lit={clickingBars ? null : litIn(slot.key)}
+              highlighted={barsLit.includes(slot.key)}
             />
           )
         })}

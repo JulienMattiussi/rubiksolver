@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Shuffle } from 'lucide-react'
 import { useIsDesktop } from '@/hooks/useIsDesktop'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
@@ -10,6 +9,7 @@ import { SolvePanel } from '@/components/solve/SolvePanel'
 import { CollapseButton } from './CollapseButton'
 import { Credit } from './Credit'
 import { LanguageToggle } from './LanguageToggle'
+import { ScrambleButton } from './ScrambleButton'
 import { SetupSection } from './SetupSection'
 import { CubePicker } from '@/components/picker/CubePicker'
 import { SECTION_BOX } from '@/components/ui/styles'
@@ -29,7 +29,6 @@ export function Controls() {
   const t = useI18n((s) => s.t)
   const editing = useEditor((s) => s.mode === 'edit')
   const desktop = useIsDesktop()
-  const scramble = useCube((s) => s.scramble)
   const solveAll = useCube((s) => s.solveAll)
   const [collapsed, setCollapsed] = useState(false)
   const home = useRoute((s) => s.home)
@@ -106,10 +105,7 @@ export function Controls() {
           <>
             {collapsed && (
               <div className="flex gap-2 sm:hidden">
-                <Button onClick={scramble} disabled={busy} className="flex-1">
-                  <Shuffle className="size-4" aria-hidden />
-                  {t.scramble}
-                </Button>
+                <ScrambleButton className="flex-1" />
                 <Button
                   variant="solve"
                   onClick={solveAll}

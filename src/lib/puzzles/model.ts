@@ -1,6 +1,17 @@
 import type { FaceLabels } from '../core/moves'
 import type { Cube, Dims, Face, Move, Turn } from '../core/types'
 
+/** What an entry says of a puzzle besides its colors: the slots `turned`
+ *  (a gear over on its clips, a center a quarter off, a face's bars across)
+ *  and the gears' pivots (`spins`, by slot, as they show: see gear.ts). */
+export interface EntryMarks {
+  readonly turned: readonly string[]
+  readonly spins: Readonly<Record<string, number>>
+}
+
+/** No marks: a puzzle entered by its colors alone. */
+export const NO_MARKS: EntryMarks = { turned: [], spins: {} }
+
 /**
  * How a puzzle departs from a plain cuboid on its grid, each hook optional:
  * the core (cube.ts, turn.ts) asks its model first, and does the cuboid's
@@ -42,8 +53,7 @@ export interface PuzzleModel {
     /** What the editor shows of a state, from the state `held` as the
      *  editor holds it (what entering cannot see set aside). */
     readonly seen?: (cube: Cube, held: (cube: Cube) => Cube) => Cube
-    /** The state an entry builds, from what was entered and the slots
-     *  `turned` (a gear over, a center a quarter off...). */
-    readonly built?: (cube: Cube, turned: readonly string[]) => Cube
+    /** The state an entry builds, from what was entered and its marks. */
+    readonly built?: (cube: Cube, marks: EntryMarks) => Cube
   }
 }

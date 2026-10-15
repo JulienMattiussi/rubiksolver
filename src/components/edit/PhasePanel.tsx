@@ -5,9 +5,9 @@ import { useEditor } from '@/store/editorStore'
 import { Button } from '@/components/ui/Button'
 import { ErrorAlert } from './ErrorAlert'
 
-/** A step of the entry before its colors (a bandaged puzzle's joints, the
- *  Fashion-V's cuts): its hint, its counter, its error if refused, then the
- *  buttons to accept it or cancel the entry. */
+/** A step of the entry before its colors (a setup, see setup.ts): its
+ *  hint, its counter if it has one, its error if refused, then the buttons
+ *  to accept it or cancel the entry. */
 export function PhasePanel({
   hint,
   counter,
@@ -16,7 +16,7 @@ export function PhasePanel({
   onAccept,
 }: {
   hint: string
-  counter: ReactNode
+  counter?: ReactNode
   /** The error to show, if the step was refused. */
   error: string | null
   /** The accept button's label. */

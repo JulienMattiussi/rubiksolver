@@ -28,7 +28,7 @@ export const TWISTED_MODELS = {
     entry: {
       byPieces: true,
       seen: (cube, held) => asSeenThin(held(cube)),
-      built: (cube, turned) => withTurnedCenters(cube, turned),
+      built: (cube, { turned }) => withTurnedCenters(cube, turned),
     },
   },
   // Its faces turn by turns; they may stand either way: its colors are
@@ -40,7 +40,7 @@ export const TWISTED_MODELS = {
     // Read when called: cube.ts, which defines it, loads after this file.
     isSolved: (cube) => colorsSolved(cube),
     // Its faces stand where their marks say.
-    entry: { built: (cube, turned) => withTurnedFaces(cube, turned) },
+    entry: { built: (cube, { turned }) => withTurnedFaces(cube, turned) },
   },
   // A 3x3, its faces turning the way their arrows say; its hidden core
   // marked (which tells it from the 3x3), never drawn nor entered.

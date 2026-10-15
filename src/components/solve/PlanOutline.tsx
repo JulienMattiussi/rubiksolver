@@ -16,9 +16,10 @@ export function PlanOutline() {
   if (!method) return null
 
   return (
-    <div>
+    // Only its list scrolls when room is short, as the solution's (StepList).
+    <div className="flex min-h-0 flex-col">
       <h2 className={`${SECTION_LABEL} mb-2`}>{t.stepsLabel}</h2>
-      <ol className="flex flex-col gap-1.5">
+      <ol className="-mr-2 flex min-h-0 flex-col gap-1.5 overflow-y-auto pr-2">
         {method.outline.map((step, i) => (
           <li key={step.key} className="rounded-lg bg-slate-800/40 px-2.5 py-1.5 text-xs">
             <div className="flex items-start justify-between gap-2">

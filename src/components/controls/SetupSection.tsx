@@ -1,4 +1,4 @@
-import { ArchiveRestore, Bookmark, RotateCcw, Shuffle, Square } from 'lucide-react'
+import { ArchiveRestore, Bookmark, RotateCcw, Square } from 'lucide-react'
 import { useState } from 'react'
 import { cubeShape } from '@/lib/core/cube'
 import { SHAPE_LABEL } from '@/lib/core/types'
@@ -14,6 +14,7 @@ import { CubePicker } from '@/components/picker/CubePicker'
 import { SECTION_BOX } from '@/components/ui/styles'
 import { FEATURE_ICON } from '@/components/ui/features'
 import { padFor } from './padFor'
+import { ScrambleButton } from './ScrambleButton'
 import { SpeedSlider } from './SpeedSlider'
 import { StatusBadge } from './StatusBadge'
 
@@ -22,7 +23,6 @@ import { StatusBadge } from './StatusBadge'
 export function SetupSection() {
   const t = useI18n((s) => s.t)
   const cube = useCube((s) => s.cube)
-  const scramble = useCube((s) => s.scramble)
   const shape = useCube((s) => cubeShape(s.cube))
   const mirror = useCube((s) => s.variant === 'mirror')
   const reset = useCube((s) => s.reset)
@@ -50,10 +50,7 @@ export function SetupSection() {
       <CubePicker disabled={busy} trailing={<StatusBadge />} />
 
       <div className="grid grid-cols-2 gap-2">
-        <Button onClick={scramble} disabled={busy}>
-          <Shuffle className="size-4" aria-hidden />
-          {t.scramble}
-        </Button>
+        <ScrambleButton />
         {busy && !solving ? (
           <Button onClick={stop}>
             <Square className="size-4" aria-hidden />
@@ -69,19 +66,12 @@ export function SetupSection() {
           <FEATURE_ICON.edit className="size-4" aria-hidden />
           {t.editCube}
         </Button>
-        {/* A Gear Cube is entered in the cube's shape (its gears aligned),
-            a Camouflage in its box. */}
+        {/* A Camouflage is entered in its box. */}
         <Button
           onClick={enterFromCurrent}
           disabled={busy || blocked !== null}
           variant="ghost"
-          title={
-            blocked === 'gears'
-              ? t.gearsNotAligned
-              : blocked === 'box'
-                ? t.notInBox
-                : t.fromCurrentTitle
-          }
+          title={blocked === 'box' ? t.notInBox : t.fromCurrentTitle}
         >
           {t.fromCurrent}
         </Button>

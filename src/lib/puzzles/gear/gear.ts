@@ -1,5 +1,6 @@
 import { FACE_SPEC, rotateN } from '../../core/geometry'
 import {
+  hasColoredClips,
   isGearMove,
   type Cube,
   type CubeShape,
@@ -105,26 +106,25 @@ export function applyGearMove(cube: Cube, move: GearMove): Cube {
 
 const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
 
-/** Whether every gear is back in the cube's shape (no spin left, or half
- *  a turn: turned over on its base): the shape a Gear Cube is entered in. */
-export const gearsAligned = (cube: Cube): boolean =>
-  // Gears only (edges): a Z-Twist's centers keep a spin too (twist.ts).
-  cube.every((c) => c.stickers.length !== 2 || !c.spin || c.spin === 3)
+/** A gear's pivot as it shows, in sixths: its spin less any half turn, a
+ *  gear looking the same half a turn round (0, 1 or 2). */
+export const shownSpin = (spin: number): number => spin % 3
 
-/** A Gear Cube at rest, these edges' gears turned over on their clips. */
-export const withTurnedGears = (cube: Cube, turned: readonly string[], shape: CubeShape): Cube =>
-  withGears(cube, false, shape).map((c) =>
-    c.spin !== undefined && turned.includes(c.position.join(',')) ? { ...c, spin: 3 } : c,
-  )
-
-/** The moves that bring every gear back in the cube's shape: a slice's
- *  gears all share their spin, and only its own face's moves change it. */
-export function alignGears(cube: Cube): GearMove[] {
-  return (['R', 'U', 'F'] as const).flatMap((gear) => {
-    const { coordIndex } = FACE_SPEC[gear]
-    const spin = cube.find((c) => c.spin !== undefined && c.position[coordIndex] === 0)?.spin ?? 0
-    // A move spins them five sixths: the moves to a multiple of three.
-    return Array.from({ length: spin % 3 }, (): GearMove => ({ gear, amount: 1 }))
+/**
+ * A Gear Cube as entered: its edges gears, each pivoted as entered (`spins`,
+ * its shown pivot by slot, see `shownSpin`), the Ultimate's and the
+ * Extreme's `turned` over on their clips besides (half a turn more).
+ */
+export function withEnteredGears(
+  cube: Cube,
+  shape: CubeShape,
+  turned: readonly string[],
+  spins: Readonly<Record<string, number>>,
+): Cube {
+  return withGears(cube, !hasColoredClips(shape), shape).map((c) => {
+    if (c.spin === undefined) return c
+    const key = c.position.join(',')
+    return { ...c, spin: (spins[key] ?? 0) + (turned.includes(key) ? 3 : 0) }
   })
 }
 

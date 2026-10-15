@@ -47,8 +47,9 @@ peintes.
   pas, et une 2x1 seulement si une forme l'a, ou l'a dans un de ses 2x2. Une
   pièce qui ne bouge jamais (un centre) colore toute la tuile du bloc où on
   la soude ; en peinture, peindre une case d'un bloc peint toute sa face
-  (`tileMates`). « Annuler » revient d'une étape (des couleurs aux
-  soudures, ou au choix de la forme d'une tour). Un clic sur une pièce soudée la
+  (`tileMates`). « Changer les soudures » y revient depuis les couleurs,
+  « Annuler » quitte la saisie (voir « Réglage avant peinture » dans
+  AGENTS.md). Un clic sur une pièce soudée la
   défait : une 2x1 en deux cubes, un 2x2 en deux 2x1, coupé le long du bord
   de la case le plus proche du clic (`splitAt`). Le panneau décompte les
   2x1 et les 2x2 qui restent à souder, chacune avec son image
@@ -265,10 +266,13 @@ ou dans l'autre. Le mélange (`scrambleRoadblock`)
 joue surtout des tranches permises, et libère un axe quand aucune ne
 l'est. **Saisie** dans tout état (`lib/editor/roadblockEditor.ts`) : les stickers d'un
 5x5, sans centre fixe (les tranches du milieu les déplacent) ; un clic sur
-un centre peint sa barre entière (`paintBar`, `barCells`), et six boutons
-disent quelles faces ont leurs barres tournées d'un quart par rapport à
-START (`BarToggles`, l'état `twisted` de l'éditeur ; basculer une face
-tourne ses centres d'un quart avec leurs couleurs, `turnFace`). « Depuis
+un centre peint sa barre entière (`paintBar`, `barCells`). Avant les
+couleurs, un réglage (`lib/editor/setup.ts`) dit quelles faces ont leurs
+barres tournées d'un quart par rapport à START : un clic sur un centre
+tourne les barres de sa face (l'état `twisted` de l'éditeur, par
+`faceKeyAt` ; la face entière s'allume au survol). Revenir y changer une
+face depuis les couleurs tourne ses centres d'un quart avec leurs couleurs
+(`turnFace`). « Depuis
 l'état actuel » les lit sur le cube (`barsTurned`), `buildCube` les pose
 (`withBars`) ; la validation refuse un sens des barres impossible. Rendu (`three/puzzles/bandaged/roadblockGeometry.ts`) : couches externes
 épaisses, un sticker par barre.

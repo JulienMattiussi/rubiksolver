@@ -9,7 +9,9 @@ import {
   gearColorsOf,
   gearFaces,
   gearsPainted,
+  nextSpin,
   paintGear,
+  spinsOf,
   turnedOf,
 } from '@/lib/editor/gearEditor'
 import type { Cube, Face, GearMove } from '@/lib/core/types'
@@ -17,6 +19,18 @@ import { validateCube } from '@/lib/editor/validate'
 import { twistedCorner } from '../../../helpers'
 
 const SOLVED = solvedCube('gearU')
+
+/** A state however its pieces and their stickers are listed. */
+const look = (cube: Cube) =>
+  cube
+    .map(
+      (c) =>
+        `${c.position.join()}:${c.stickers
+          .map((s) => s.normal.join() + s.color)
+          .sort()
+          .join()}@${c.spin}`,
+    )
+    .sort()
 
 /** fan2cube's letters in the cube's (D = R, A = F, G = L...): each a half
  *  turn, so its D² is our R. */
@@ -138,21 +152,34 @@ describe('Gear Cube entry', () => {
     const gear = gearColorsOf(cube)
     expect(gearsPainted(gear, 'gearU')).toEqual({ painted: 12, total: 12 })
     expect(turnedOf(gear, edit, 'gearU')).toHaveLength(4)
-    // The same state, its pieces and their stickers listed in another order.
-    const look = (cube: Cube) =>
-      cube
-        .map(
-          (c) =>
-            `${c.position.join()}:${c.stickers
-              .map((s) => s.normal.join() + s.color)
-              .sort()
-              .join()}@${c.spin}`,
-        )
-        .sort()
-    expect(look(buildCube(edit, 'gearU', undefined, turnedOf(gear, edit, 'gearU')!))).toEqual(
+    expect(
+      look(
+        buildCube(edit, 'gearU', undefined, { turned: turnedOf(gear, edit, 'gearU')!, spins: {} }),
+      ),
+    ).toEqual(
       look(withFixedHome(cube)), // held as entered: its centers home
     )
     expect(turnedOf({ ...gear, [a.id]: 'V' }, edit, 'gearU')).toBeNull()
+  })
+
+  it("pivots a slice's four gears together, the Extreme's one at a time", () => {
+    const slice = nextSpin({}, 'gearU', '1,1,0')
+    expect(slice).toEqual({ '1,1,0': 1, '1,-1,0': 1, '-1,1,0': 1, '-1,-1,0': 1 })
+    // Three clicks: a half turn, which looks the same: back to none.
+    expect(nextSpin(nextSpin(slice, 'gearU', '-1,1,0'), 'gearU', '1,-1,0')).toEqual({})
+    expect(nextSpin({}, 'gearX', '1,1,0')).toEqual({ '1,1,0': 1 })
+  })
+
+  it('is entered with its gears askew, their pivots read from its state', () => {
+    // One move: its slice's gears five sixths round, showing two.
+    const cube = play('R')
+    const spins = spinsOf(cube)
+    expect(Object.values(spins)).toEqual([2, 2, 2, 2])
+    const edit = cubeToEdit(cube)
+    const turned = turnedOf(gearColorsOf(cube), edit, 'gearU')!
+    const built = buildCube(edit, 'gearU', undefined, { turned, spins })
+    expect(look(built)).toEqual(look(withFixedHome(cube)))
+    expect(validateCube(built)).toEqual({ ok: true })
   })
 })
 

@@ -25,6 +25,8 @@ interface CubeStore {
   /** The queue plays a solution (the status says so), not a scramble or a
    *  hand turn. */
   solving: boolean
+  /** The queue plays a scramble (its button turns a cog). */
+  scrambling: boolean
   /** Seconds a single quarter turn takes to animate. */
   turnDuration: number
 
@@ -98,12 +100,16 @@ function loadedCube(cube: Cube) {
     queue: [] as Turn[],
     active: null as Turn | null,
     solving: false,
+    scrambling: false,
     ...clearSolution(),
   }
 }
 
 /** A move is queued or animating: the controls wait. */
 export const selectBusy = (s: CubeStore): boolean => s.active !== null || s.queue.length > 0
+
+/** A scramble is playing. */
+export const selectScrambling = (s: CubeStore): boolean => s.scrambling && selectBusy(s)
 
 export const selectSolved = (s: CubeStore): boolean => isSolved(s.cube)
 
@@ -132,7 +138,13 @@ function goTo(to: (steps: readonly SolveStep[], dispatched: number) => number) {
     const turns = rewinding
       ? invertMoves(moves.slice(target, s.dispatched))
       : moves.slice(s.dispatched, target)
-    return { queue: [...s.queue, ...turns], dispatched: target, rewinding, solving: true }
+    return {
+      queue: [...s.queue, ...turns],
+      dispatched: target,
+      rewinding,
+      solving: true,
+      scrambling: false,
+    }
   })
 }
 
@@ -142,6 +154,7 @@ export const useCube = create<CubeStore>((set, get) => ({
   queue: [],
   active: null,
   solving: false,
+  scrambling: false,
   turnDuration: 0.2,
   method: 'beginner',
   steps: null,
@@ -150,7 +163,12 @@ export const useCube = create<CubeStore>((set, get) => ({
   plannedFor: null,
 
   pushMove: (move) =>
-    set((s) => ({ queue: [...s.queue, move], solving: false, ...clearSolution() })),
+    set((s) => ({
+      queue: [...s.queue, move],
+      solving: false,
+      scrambling: false,
+      ...clearSolution(),
+    })),
 
   scramble: () =>
     set((s) => ({
@@ -162,6 +180,7 @@ export const useCube = create<CubeStore>((set, get) => ({
         s.cube,
       ),
       solving: false,
+      scrambling: true,
       active: null,
       ...clearSolution(),
     })),
@@ -189,7 +208,15 @@ export const useCube = create<CubeStore>((set, get) => ({
     const method = methods.find((m) => m.id === s.method) ?? methods[0]
     if (!method) throw new Error('prepareSolution: no solving method for this shape')
     const steps = ahead ?? method.solve(s.cube)
-    set({ steps, dispatched: 0, solving: true, queue: [], active: null, plannedFor: planKey(s) })
+    set({
+      steps,
+      dispatched: 0,
+      solving: true,
+      scrambling: false,
+      queue: [],
+      active: null,
+      plannedFor: planKey(s),
+    })
     return steps
   },
 
@@ -210,7 +237,8 @@ export const useCube = create<CubeStore>((set, get) => ({
 
   loadCube: (cube) => set(loadedCube(cube)),
 
-  stop: () => set({ queue: [], active: null, solving: false, ...clearSolution() }),
+  stop: () =>
+    set({ queue: [], active: null, solving: false, scrambling: false, ...clearSolution() }),
 
   pause: () =>
     set((s) => {

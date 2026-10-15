@@ -1,4 +1,4 @@
-import { FACE_NORMAL, FACE_SPEC, mapVec } from '../../core/geometry'
+import { FACE_SPEC, mapVec } from '../../core/geometry'
 import { MARK } from '../../core/types'
 import { applyMove, moveSlab, inSlab } from '../../core/turn'
 import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
@@ -31,9 +31,6 @@ function solvedBar(face: Vec3): Vec3 {
 /** A face's key, by its normal: its middle center's place (and its slot's
  *  key in the editor). */
 const faceKey = (normal: readonly number[]) => normal.map((v) => 2 * v).join(',')
-
-/** A face's key, by its name. */
-export const barFaceKey = (face: Face): string => faceKey(FACE_NORMAL[face])
 
 /** The face a center is on: the normal of its colored sticker. */
 const faceOf = (c: Cubie) => c.stickers.find((s) => s.color !== MARK)!.normal
@@ -169,3 +166,9 @@ export const toStart = (cube: Cube): Move[] =>
 
 /** Whether every bar lies as at START. */
 export const barsAtStart = (cube: Cube): boolean => barsTurned(cube).length === 0
+
+/** The key of the face a center slot is on (`withBars`), from its place. */
+export const faceKeyAt = (position: Vec3): string => {
+  const axis = position.findIndex((v) => Math.abs(v) === 2)
+  return faceKey(mapVec(position, (v, d) => (d === axis ? Math.sign(v) : 0)))
+}

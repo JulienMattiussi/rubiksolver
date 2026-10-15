@@ -58,9 +58,11 @@ la page, qui laissent les étapes d'avant intactes : (1) coins, par tous les
 coups ; (2) arêtes placées, D⁴ et P²D⁴P'² ; (3) agrafes, (A²D²)³ (échange
 les agrafes des 8 arêtes du haut et du bas, engrenages revenus tels quels) ;
 (4) engrenages, D⁸ (pivote d'un tiers les 4 engrenages d'une tranche). Les
-centres suivent. **Saisie** en forme de cube, engrenages réalignés
-(la consigne le dit ; tourner une face jusqu'à ce que sa tranche reprenne
-sa place les remet) : les stickers comme un 3x3, centres pré-remplis
+centres suivent. **Saisie** dans tout état : d'abord le pivot des
+engrenages (`lib/editor/setup.ts`, `nextSpin` : un clic fait pivoter d'un
+sixième les quatre engrenages d'une tranche, qui le partagent toujours ; ce
+qui se voit, `shownSpin`, un engrenage étant le même un demi-tour plus
+loin), puis les stickers comme un 3x3, centres pré-remplis
 (`fixedPieces`), sur ses propres pièces (`EditView` les
 dessine comme en jeu, un clic sur le corps d'une pièce la peint). Agrafes et engrenages se peignent à
 part : les agrafes sont les stickers, les engrenages des couleurs gardées
@@ -101,7 +103,9 @@ engrenages, (D²H)².D⁸.(H'D'²)². Les formules sont aussi jouées à l'enver
 préparées par des tours du haut et du bas, sur
 les seules pièces de l'étape, une pièce à la fois (`parseGearFormula` lit
 la notation de la page). Calcul parfois long (dans le worker ; pistes dans
-`AMELIORATIONS.md`). **Saisie** comme l'Ultimate, en
-forme de cube (engrenages réalignés), ses blocs peints comme des stickers ;
+`AMELIORATIONS.md`). **Saisie** comme l'Ultimate, pivot des
+engrenages d'abord, mais chacun le sien (`spinMates` : le haut et le bas
+font passer les engrenages d'une tranche à l'autre), ses blocs peints comme
+des stickers ;
 ses centres se peignent (les tranches les sortent du haut et du bas, que sa
 couche du milieu, immobile, tient en place).

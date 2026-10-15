@@ -116,8 +116,8 @@ src/
 │   │                    #   buildSteps), pieceSearch, cycleLibrary / cycleTable (3-cycles), centerCycles,
 │   │                    #   wingPairing, exhaustive (optimal par recherche exhaustive), progress
 │   ├── editor/          # La saisie : editor, editorTables, pieceEditor, forms (formes d'un déformable),
-│   │                    #   jointsEditor (soudures), cutsEditor (demi-cubies du Fashion-V), validate,
-│   │                    #   gearEditor, roadblockEditor
+│   │                    #   setup (réglages avant peinture), jointsEditor (soudures), cutsEditor
+│   │                    #   (demi-cubies du Fashion-V), gearEditor, roadblockEditor, validate
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
 │   ├── core/            # Scene, CubeView / Cubie / Sticker (puzzles à grille), PolyView / PolyModel / PolyPiece
@@ -151,6 +151,8 @@ docs/
 public/                  # favicon, apple-touch-icon, og.png (aperçu de partage), robots.txt, sitemap.xml
 ```
 
+Le site est déployé sur Vercel (`vercel.json` : build Vite servi depuis
+`dist/`, cache d'un an sur `assets/`, dont les noms changent à chaque build).
 Le référencement et l'aperçu de partage (titre, description, Open Graph,
 JSON-LD, URL publique `https://rubiksolver.yavadeus.dev`) sont écrits dans
 `index.html`, seule page que voit un robot. L'image `public/og.png`, l'icône
@@ -349,6 +351,19 @@ Les comptes de couleurs se déduisent du puzzle résolu (`stickersOfColor`,
 `shapeColors`), pas des faces d'un cube : la saisie marche sur toutes les
 formes, étoiles comprises (voir « Le Star Prism » dans
 [docs/puzzles/round.md](docs/puzzles/round.md)).
+
+**Réglage avant peinture** (`lib/editor/setup.ts`) : quelques puzzles
+règlent quelque chose avant leurs couleurs, en cliquant le puzzle en 3D,
+puis le valident : les soudures d'un soudé, les demi-cubies du Fashion-V,
+le sens des barres du RoadBlock-I, le pivot des engrenages d'un Gear Cube.
+Une même mécanique : `setupOf` dit lequel, `settingsOf` le lit sur un état
+(« Modifier »), `setupTargets` dit ce qu'un clic fait tourner (le survol
+l'allume en entier), `acceptSetup` / `editSetup` y entrent et en sortent,
+et un même panneau (`PhasePanel`, la table `SETUPS` d'`EditPanel`). Les
+boutons sont les mêmes sur toutes les saisies : le bouton principal avance,
+« Changer... » revient d'une étape depuis la peinture (les couleurs
+gardées tant que l'étape ne change pas), « Annuler » quitte la saisie sans
+rien appliquer, quelle que soit l'étape.
 
 **Saisie par les demi-cubies** (`lib/editor/cutsEditor.ts`), pour le
 Fashion-V, aux formes trop nombreuses : un clic sur une case fait défiler la

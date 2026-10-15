@@ -1,14 +1,7 @@
 import { create } from 'zustand'
 import { cubeShape } from '@/lib/core/cube'
 import { formOf, formsOf, lookOf } from '@/lib/editor/forms'
-import {
-  boxCuts,
-  cutsOf,
-  entersCuts,
-  formOfCuts,
-  nextCut,
-  type Cuts,
-} from '@/lib/editor/cutsEditor'
+import { formOfCuts, nextCut, type Cuts } from '@/lib/editor/cutsEditor'
 import {
   buildCube,
   cubeToEdit,
@@ -22,23 +15,22 @@ import {
   completeGears,
   gearColorsOf,
   gearsPainted,
+  nextSpin,
   paintGear,
-  turnedOf,
   type GearColors,
+  type Spins,
 } from '@/lib/editor/gearEditor'
 import { nextPiece } from '@/lib/editor/pieceEditor'
 import {
   entersJoints,
-  fixedJoints,
   jointsFit,
-  jointsOf,
   matchesJoints,
   splitAt,
   tileMates,
   type Joint,
 } from '@/lib/editor/jointsEditor'
-import { barsTurned } from '@/lib/puzzles/bandaged/roadblock'
 import { paintBar, turnFace } from '@/lib/editor/roadblockEditor'
+import { marksOf, settingsOf, setupOf, startSettings, type Setup } from '@/lib/editor/setup'
 import { validateCube, type ValidationError } from '@/lib/editor/validate'
 import { normalOfIndex, parseVecKey } from '@/lib/core/geometry'
 import { hasColoredClips, type Color, type Cube, type CubeShape, type Vec3 } from '@/lib/core/types'
@@ -56,15 +48,11 @@ const pickable = (selected: Color, form?: Cube): Color => {
 interface EditorStore {
   mode: 'play' | 'edit'
   /** A shape-shifting puzzle first picks the form it stands in (`form`),
-   *  then paints its colors on it; a bandaged one whose blocks move first
-   *  clicks its joints (`joints`); the Fashion-V where its halves stand
-   *  (`cuts`). */
-  phase: 'form' | 'joints' | 'cuts' | 'paint'
+   *  then paints its colors on it; some set something first, clicking the
+   *  puzzle (a `Setup`: joints, halves, bars, gears, see setup.ts). */
+  phase: 'form' | Setup | 'paint'
   /** A bandaged puzzle's joints entered (jointsEditor.ts). */
   joints: readonly Joint[]
-  /** The step the colors were reached from (its form, its joints), which
-   *  Cancel goes back to; none when entered from the current state. */
-  before: 'form' | 'joints' | 'cuts' | null
   /** The Fashion-V's cells, how their halves stand (cutsEditor.ts). */
   cuts: Cuts
   /** The form being entered (a state of it, see forms.ts); undefined: the box. */
@@ -78,6 +66,8 @@ interface EditorStore {
   /** A Z-Twist's side centers a quarter turn off, by slot (twist.ts); a
    *  RoadBlock-I's faces whose bars lie a quarter off, by their middle's slot. */
   twisted: readonly string[]
+  /** A Gear Cube's gears' pivots (gearEditor.ts). */
+  spins: Spins
   /** Reason the last apply was rejected (`gears`: a gear not its clips'
    *  colors), or null. */
   error: ValidationError | 'gears' | 'joints' | 'jointsColors' | 'cuts' | null
@@ -93,19 +83,18 @@ interface EditorStore {
   join: (joints: readonly Joint[]) => void
   /** The piece at a cell taken apart, cut across an axis (a 2x2's). */
   split: (cell: Vec3, axis: number) => void
-  /** The joints entered kept, if a form of the puzzle has them: on to its
-   *  colors. Returns ok. */
-  acceptJoints: () => boolean
-  /** Back to the joints, the colors kept. */
-  editJoints: () => void
   /** A cell's halves the next way round (the Fashion-V). */
   cutAt: (cellKey: string) => void
-  /** On to the colors, on a state with the cuts entered, if one has them.
-   *  Returns ok. */
-  acceptCuts: () => boolean
-  /** Back to the cuts. */
-  editCuts: () => void
-  /** Back to the step before (the form, the joints), or out of the editor. */
+  /** A gear's pivot a sixth on (its slice's with it, but on the Extreme). */
+  spinAt: (slotKey: string) => void
+  /** The setup kept, if the puzzle can stand so (the joints of one of its
+   *  forms, halves a state has): on to its colors. Returns ok. */
+  acceptSetup: () => boolean
+  /** Back to the setup, the colors kept while it stays the same. */
+  editSetup: () => void
+  /** Out of the editor, nothing applied, whatever the step (going back a
+   *  step is the paint step's "Change..." buttons: `pickForm(null)`,
+   *  `editSetup`). */
   cancel: () => void
   setColor: (color: Color) => void
   paintAt: (slotKey: string, ni: number) => void
@@ -127,7 +116,6 @@ export const useEditor = create<EditorStore>((set, get) => ({
   mode: 'play',
   phase: 'paint',
   joints: [],
-  before: null,
   cuts: {},
   form: undefined,
   preview: undefined,
@@ -135,30 +123,21 @@ export const useEditor = create<EditorStore>((set, get) => ({
   edit: emptyEdit('3'),
   gear: {},
   twisted: [],
+  spins: {},
   error: null,
   failedStep: null,
 
   enter: () => {
     const shape = currentShape()
-    const choose = formsOf(shape).length > 1
-    const first = choose
-      ? 'form'
-      : entersJoints(shape)
-        ? 'joints'
-        : entersCuts(shape)
-          ? 'cuts'
-          : null
+    const first = formsOf(shape).length > 1 ? 'form' : setupOf(shape)
     set({
       mode: 'edit',
       phase: first ?? 'paint',
-      before: first,
-      joints: entersJoints(shape) ? fixedJoints(shape) : [],
-      cuts: entersCuts(shape) ? boxCuts() : {},
+      ...startSettings(shape),
       form: undefined,
       preview: undefined,
       edit: emptyEdit(shape),
       gear: {},
-      twisted: [],
       selectedColor: pickable(get().selectedColor),
       error: null,
     })
@@ -171,36 +150,32 @@ export const useEditor = create<EditorStore>((set, get) => ({
     set({
       mode: 'edit',
       phase: 'paint',
-      before: null,
-      joints: entersJoints(cubeShape(cube)) ? jointsOf(cube) : [],
-      cuts: entersCuts(cubeShape(cube)) ? cutsOf(cube) : {},
+      ...settingsOf(cube),
       form,
       edit: cubeToEdit(cube),
       gear: gearColorsOf(cube),
-      twisted:
-        cubeShape(cube) === 'roadblock'
-          ? barsTurned(cube)
-          : cube
-              .filter((c) => c.spin === 1 && c.stickers.length === 1)
-              .map((c) => c.position.join(',')),
       selectedColor: pickable(get().selectedColor, form),
       error: null,
     })
   },
 
-  pickForm: (form) =>
-    form
-      ? set({
-          phase: 'paint',
-          form,
-          preview: undefined,
-          edit: emptyEdit(currentShape(), form),
-          gear: {},
-          twisted: [],
-          selectedColor: pickable(get().selectedColor, form),
-          error: null,
-        })
-      : set({ phase: 'form', before: 'form', preview: undefined, error: null }),
+  pickForm: (form) => {
+    if (!form) {
+      set({ phase: 'form', preview: undefined, error: null })
+      return
+    }
+    // The colors kept while the form stays the same (back from "Change").
+    const was = get().form
+    const same = was !== undefined && lookOf(was) === lookOf(form)
+    set((s) => ({
+      phase: 'paint',
+      form,
+      preview: undefined,
+      ...(!same && { edit: emptyEdit(currentShape(), form), gear: {}, twisted: [] }),
+      selectedColor: pickable(s.selectedColor, form),
+      error: null,
+    }))
+  },
 
   setPreview: (preview) => set({ preview }),
 
@@ -209,47 +184,44 @@ export const useEditor = create<EditorStore>((set, get) => ({
   split: (cell, axis) =>
     set((s) => ({ joints: splitAt(currentShape(), s.joints, cell, axis), error: null })),
 
-  acceptJoints: () => {
-    if (!jointsFit(currentShape(), get().joints)) {
+  cutAt: (cellKey) => set((s) => ({ cuts: nextCut(s.cuts, cellKey), error: null })),
+
+  spinAt: (slotKey) =>
+    set((s) => ({ spins: nextSpin(s.spins, currentShape(), slotKey), error: null })),
+
+  acceptSetup: () => {
+    const shape = currentShape()
+    const { phase } = get()
+    if (phase === 'joints' && !jointsFit(shape, get().joints)) {
       set({ error: 'joints' })
       return false
+    }
+    if (phase === 'cuts') {
+      const found = formOfCuts(get().cuts)
+      if (!found) {
+        set({ error: 'cuts' })
+        return false
+      }
+      // The box is no form; the colors kept while the halves stand the same.
+      const form = formOf(found)
+      const was = get().form
+      const same = (form ? lookOf(form) : '') === (was ? lookOf(was) : '')
+      set((s) => ({
+        form,
+        edit: same ? s.edit : emptyEdit(shape, form),
+        selectedColor: pickable(s.selectedColor, form),
+      }))
     }
     set({ phase: 'paint', error: null })
     return true
   },
 
-  editJoints: () => set({ phase: 'joints', before: 'joints', error: null }),
-
-  cutAt: (cellKey) => set((s) => ({ cuts: nextCut(s.cuts, cellKey), error: null })),
-
-  acceptCuts: () => {
-    const shape = currentShape()
-    const found = formOfCuts(get().cuts)
-    if (!found) {
-      set({ error: 'cuts' })
-      return false
-    }
-    // The box is no form; the colors kept while the halves stand the same.
-    const form = formOf(found)
-    const was = get().form
-    const same = (form ? lookOf(form) : '') === (was ? lookOf(was) : '')
-    set((s) => ({
-      phase: 'paint',
-      form,
-      edit: same ? s.edit : emptyEdit(shape, form),
-      selectedColor: pickable(s.selectedColor, form),
-      error: null,
-    }))
-    return true
+  editSetup: () => {
+    const setup = setupOf(currentShape())
+    if (setup) set({ phase: setup, error: null })
   },
 
-  editCuts: () => set({ phase: 'cuts', before: 'cuts', error: null }),
-
-  cancel: () => {
-    const { phase, before } = get()
-    if (phase === 'paint' && before) set({ phase: before, preview: undefined, error: null })
-    else set({ mode: 'play', error: null })
-  },
+  cancel: () => set({ mode: 'play', preview: undefined, error: null }),
 
   setColor: (selectedColor) => set({ selectedColor }),
 
@@ -304,7 +276,13 @@ export const useEditor = create<EditorStore>((set, get) => ({
     set((s) => ({ edit: nextPiece(s.edit, currentShape(), slotKey), error: null })),
 
   clearAll: () =>
-    set((s) => ({ edit: emptyEdit(currentShape(), s.form), gear: {}, twisted: [], error: null })),
+    set((s) => ({
+      edit: emptyEdit(currentShape(), s.form),
+      gear: {},
+      // A RoadBlock-I's bars are its setup, not its colors: kept.
+      twisted: setupOf(currentShape()) === 'bars' ? s.twisted : [],
+      error: null,
+    })),
 
   apply: () => {
     const { edit, form, gear } = get()
@@ -312,14 +290,12 @@ export const useEditor = create<EditorStore>((set, get) => ({
     if (!isComplete(edit, shape, form)) return false
     const gears = hasColoredClips(shape)
     if (gears && gearsPainted(gear, shape).painted < gearsPainted(gear, shape).total) return false
-    // Turned in the entry: gears over on their clips, or the slots a click
-    // turned (`twisted`, empty for most puzzles).
-    const turned = gears ? turnedOf(gear, edit, shape) : get().twisted
-    if (!turned) {
+    const marks = marksOf(shape, get(), edit, gear)
+    if (!marks) {
       set({ error: 'gears' })
       return false
     }
-    const cube = buildCube(edit, shape, form, turned)
+    const cube = buildCube(edit, shape, form, marks)
     // A bandaged puzzle's pieces must stand fused as its joints were entered.
     if (entersJoints(shape) && !matchesJoints(cube, get().joints)) {
       set({ error: 'jointsColors', failedStep: null })

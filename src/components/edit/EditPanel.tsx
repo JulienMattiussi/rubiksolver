@@ -1,9 +1,9 @@
-import { Check, Eraser, Layers, Link2, Shapes, X } from 'lucide-react'
+import { Check, Cog, Eraser, Layers, Link2, Rows3, Shapes, X, type LucideIcon } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
 import { isComplete, progress } from '@/lib/editor/editor'
 import { formsOf } from '@/lib/editor/forms'
-import { entersJoints } from '@/lib/editor/jointsEditor'
-import { entersCuts, wholeCount } from '@/lib/editor/cutsEditor'
+import { wholeCount } from '@/lib/editor/cutsEditor'
+import { setupOf, type Setup } from '@/lib/editor/setup'
 import { gearFaces, gearsPainted } from '@/lib/editor/gearEditor'
 import { hasColoredClips, SHAPE_EDIT_HINT } from '@/lib/core/types'
 import type { EditHint } from '@/lib/puzzles/entry'
@@ -13,7 +13,6 @@ import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { Button } from '@/components/ui/Button'
-import { BarToggles } from './BarToggles'
 import { ColorPalette } from './ColorPalette'
 import { ErrorAlert } from './ErrorAlert'
 import { FormPicker } from './FormPicker'
@@ -28,6 +27,32 @@ const HINTS = (t: Translations): Record<EditHint, string> => ({
   quarter: t.editHintQuarter,
   gear: t.editHintGear,
   gearPlain: t.editHintGearPlain,
+})
+
+/** What each setup shows: its hint, its buttons' labels (accept it, come
+ *  back to it from the colors) and icon, the error if refused. */
+const SETUPS = (
+  t: Translations,
+): Record<
+  Setup,
+  { hint: string; accept: string; change: string; icon: LucideIcon; error?: string }
+> => ({
+  joints: {
+    hint: t.editHintJoints,
+    accept: t.acceptJoints,
+    change: t.changeJoints,
+    icon: Link2,
+    error: t.errorJoints,
+  },
+  cuts: {
+    hint: t.editHintCuts,
+    accept: t.acceptCuts,
+    change: t.changeCuts,
+    icon: Layers,
+    error: t.errorCuts,
+  },
+  bars: { hint: t.editHintBars, accept: t.acceptBars, change: t.changeBars, icon: Rows3 },
+  gears: { hint: t.editHintGears, accept: t.acceptGears, change: t.changeGears, icon: Cog },
 })
 
 /** Why the entry is refused: the colors counted wrong (on a mirror cube,
@@ -47,8 +72,8 @@ function errorText(
 }
 
 /** Cube-entry panel: the form first on a shape-shifting puzzle (FormPicker),
- *  the joints first on a bandaged one whose blocks move (JointHandles),
- *  then hint, color palette, progress, validation error, actions. A puzzle
+ *  a setup first on some (setup.ts: joints, halves, bars, gears, clicked in
+ *  3D), then hint, color palette, progress, validation error, actions. A puzzle
  *  entered piece by piece (Floppy Ghost, Z-Twist) has no palette: it counts its
  *  pieces placed. */
 export function EditPanel() {
@@ -65,11 +90,10 @@ export function EditPanel() {
   const phase = useEditor((s) => s.phase)
   const form = useEditor((s) => s.form)
   const pickForm = useEditor((s) => s.pickForm)
-  const acceptJoints = useEditor((s) => s.acceptJoints)
-  const editJoints = useEditor((s) => s.editJoints)
+  const acceptSetup = useEditor((s) => s.acceptSetup)
+  const editSetup = useEditor((s) => s.editSetup)
   const cuts = useEditor((s) => s.cuts)
-  const acceptCuts = useEditor((s) => s.acceptCuts)
-  const editCuts = useEditor((s) => s.editCuts)
+  const setup = setupOf(shape)
 
   if (phase === 'form') {
     return (
@@ -83,30 +107,23 @@ export function EditPanel() {
     )
   }
 
-  if (phase === 'cuts') {
+  if (phase !== 'paint') {
+    const { hint, accept, error: refused } = SETUPS(t)[phase]
     return (
       <PhasePanel
-        hint={t.editHintCuts}
+        hint={hint}
         counter={
-          <span className="text-sm font-medium text-slate-200">
-            {t.wholeEdgesOf(wholeCount(cuts))}
-          </span>
+          phase === 'joints' ? (
+            <PiecesLeft shape={shape} />
+          ) : phase === 'cuts' ? (
+            <span className="text-sm font-medium text-slate-200">
+              {t.wholeEdgesOf(wholeCount(cuts))}
+            </span>
+          ) : undefined
         }
-        error={error === 'cuts' ? t.errorCuts : null}
-        accept={t.acceptCuts}
-        onAccept={acceptCuts}
-      />
-    )
-  }
-
-  if (phase === 'joints') {
-    return (
-      <PhasePanel
-        hint={t.editHintJoints}
-        counter={<PiecesLeft shape={shape} />}
-        error={error === 'joints' ? t.errorJoints : null}
-        accept={t.acceptJoints}
-        onAccept={acceptJoints}
+        error={error === phase ? (refused ?? null) : null}
+        accept={accept}
+        onAccept={acceptSetup}
       />
     )
   }
@@ -133,8 +150,6 @@ export function EditPanel() {
               ? t.editHintMirror
               : t.editHint}
       </p>
-
-      {hint === 'roadblock' && <BarToggles />}
 
       {!byPieces && <ColorPalette />}
 
@@ -164,18 +179,7 @@ export function EditPanel() {
           <X className="size-4" aria-hidden />
           {t.cancel}
         </Button>
-        {entersJoints(shape) && (
-          <Button onClick={editJoints} variant="ghost" className="col-span-2">
-            <Link2 className="size-4" aria-hidden />
-            {t.changeJoints}
-          </Button>
-        )}
-        {entersCuts(shape) && (
-          <Button onClick={editCuts} variant="ghost" className="col-span-2">
-            <Layers className="size-4" aria-hidden />
-            {t.changeCuts}
-          </Button>
-        )}
+        {setup && <ChangeSetup setup={setup} onClick={editSetup} />}
         {shifts && (
           <Button onClick={() => pickForm(null)} variant="ghost" className="col-span-2">
             <Shapes className="size-4" aria-hidden />
@@ -184,5 +188,17 @@ export function EditPanel() {
         )}
       </div>
     </div>
+  )
+}
+
+/** Back from the colors to the setup. */
+function ChangeSetup({ setup, onClick }: { setup: Setup; onClick: () => void }) {
+  const t = useI18n((s) => s.t)
+  const { change, icon: Icon } = SETUPS(t)[setup]
+  return (
+    <Button onClick={onClick} variant="ghost" className="col-span-2">
+      <Icon className="size-4" aria-hidden />
+      {change}
+    </Button>
   )
 }

@@ -24,11 +24,10 @@ import {
 import { methodsFor } from '@/lib/solve/solver'
 import { decodeCube, encodeCube } from '@/lib/app/snapshot'
 import { applyMoves, turnAllowed } from '@/lib/core/turn'
-import { hasColoredClips, isGear, type Cube, type CubeShape, type Turn } from '@/lib/core/types'
-import { alignGears } from '@/lib/puzzles/gear/gear'
-import { gearColorsOf, turnedOf } from '@/lib/editor/gearEditor'
+import type { Cube, CubeShape, Turn } from '@/lib/core/types'
+import { gearColorsOf } from '@/lib/editor/gearEditor'
+import { marksOf, settingsOf } from '@/lib/editor/setup'
 import { validateCube } from '@/lib/editor/validate'
-import { barsTurned } from '@/lib/puzzles/bandaged/roadblock'
 import { LOCALES } from '@/i18n/translations'
 import { seededRng } from '../helpers'
 
@@ -291,33 +290,15 @@ describe.each(PUZZLES)('$shape', ({ shape, pieces, stickers, orientations, paint
     expect(progress(emptyEdit(shape), shape).total).toBe(painted)
     expect(progress(cubeToEdit(SOLVED), shape)).toMatchObject({ filled: painted, total: painted })
     for (let seed = 0; seed < 3; seed++) {
-      const mixed = scrambled(shape, scramble, seed)
-      // A Gear Cube is entered in the cube's shape, its gears aligned.
-      // (The Extreme's gears each spin on their own: its gear moves thrice.)
-      const cube =
-        shape === 'gearX'
-          ? applyMoves(
-              SOLVED,
-              scrambleTurns(shape, scramble, seededRng(seed), SOLVED).flatMap((m): Turn[] =>
-                'gear' in m ? [m, m, m] : [m],
-              ),
-            )
-          : isGear(shape)
-            ? applyMoves(mixed, alignGears(mixed))
-            : mixed
+      // Entered as it stands: a Gear Cube's gears askew, set first.
+      const cube = scrambled(shape, scramble, seed)
       // A shape-shifting puzzle is entered in the form it stands in.
       const form = formOf(cube)
       const edit = cubeToEdit(cube)
       expect(isComplete(edit, shape, form)).toBe(true)
-      // A Gear Cube's gears, painted apart: some turned over on their clips.
-      const turned = hasColoredClips(shape)
-        ? turnedOf(gearColorsOf(cube), edit, shape)!
-        : shape === 'roadblock'
-          ? barsTurned(cube)
-          : cube
-              .filter((c) => c.spin === 1 && c.stickers.length === 1)
-              .map((c) => c.position.join(','))
-      const built = buildCube(edit, shape, form, turned)
+      // What it sets besides its colors (bars, gears...), as from its state.
+      const marks = marksOf(shape, settingsOf(cube), edit, gearColorsOf(cube))!
+      const built = buildCube(edit, shape, form, marks)
       expect(cubeToEdit(built)).toEqual(edit)
       expect(validateCube(built)).toEqual({ ok: true })
     }
