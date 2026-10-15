@@ -14,6 +14,7 @@ import {
 import { drawnIn, visualPosition } from './layout'
 import OUTLINES from '@/assets/gear/outlines.json'
 import { inScene, isPolyDrawn, polyDrawing } from './polyDrawing'
+import type { PiecePolygon } from './polygons'
 
 /**
  * Flat isometric drawing of a solved puzzle, for its picker thumbnail: the
@@ -255,8 +256,13 @@ function drawPoly(shape: CubeShape, cube = solvedCube(shape), neutral?: Color): 
       // A face: its body then its sticker (a star point), or a polygon alone
       // (the Jing's surface, cut fine: plastic seams and stickers apart).
       const sticker =
-        first.paint === 'body' && polygons[i + 1]?.paint !== 'body' ? polygons[i + 1] : undefined
+        first.paint === 'body' && polygons[i + 1]?.paint !== 'body' && !polygons[i + 1]?.on
+          ? polygons[i + 1]
+          : undefined
       if (sticker) i++
+      // What is printed on it, drawn right after it.
+      const prints: PiecePolygon[] = []
+      while (polygons[i + 1]?.on) prints.push(polygons[++i]!)
       const normal = yaw(first.normal)
       if (normal[0] + normal[1] + normal[2] <= 0) continue // facing away
       // Continuous in the normal: a curved face (the Jing's) shades smoothly.
@@ -275,6 +281,7 @@ function drawPoly(shape: CubeShape, cube = solvedCube(shape), neutral?: Color): 
           ...(sticker
             ? [{ points: toSvg(sticker.points.map(yaw)), paint: neutral ?? sticker.paint, shade }]
             : []),
+          ...prints.map((p) => ({ points: toSvg(p.points.map(yaw)), paint: p.paint, shade })),
         ],
       })
     }

@@ -14,6 +14,7 @@ import { PUCK_PLAN } from '../methods/round/puck'
 import { EDGE_ONLY_PLAN } from '../methods/holey/edgeOnly'
 import { VOID_CUBE_PLAN } from '../methods/holey/voidCube'
 import { COPTER3_PLAN, COPTER_PLAN } from '../methods/diagonal/copter'
+import { LATCH_PLAN } from '../methods/twisted/latch'
 import { voidPlan } from '../methods/holey/voidFrames'
 import { CAMO_PLAN } from '../methods/tower/camo'
 import { QUARTER_PLAN } from '../methods/twisted/quarter'
@@ -206,6 +207,7 @@ const SOLVE_METHODS = [
   { id: 'extendedCross', plans: { tori: TORI_PLAN, edge: EDGE_ONLY_PLAN } },
   { id: 'voidCornersFirst', plans: { void: VOID_CUBE_PLAN } },
   { id: 'copterEdgesFirst', plans: { copter: COPTER_PLAN, copter3: COPTER3_PLAN } },
+  { id: 'latchEdgesFirst', plans: { latch: LATCH_PLAN } },
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },
   { id: 'twoStars', plans: { star4: STAR4_PLAN } },
   { id: 'puckIsolate', plans: { puck: PUCK_PLAN } },

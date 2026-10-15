@@ -1,3 +1,4 @@
+import { latchTurns, scrambleLatch, withLatchMark, withoutLatchMark } from './latch'
 import type { CubeShape } from '../../core/types'
 import { colorsSolved, solvedCube } from '../../core/cube'
 import type { PuzzleModel } from '../model'
@@ -39,5 +40,16 @@ export const TWISTED_MODELS = {
     isSolved: (cube) => colorsSolved(cube),
     // Its faces stand where their marks say.
     entry: { built: (cube, turned) => withTurnedFaces(cube, turned) },
+  },
+  // A 3x3, its faces turning the way their arrows say; its hidden core
+  // marked (which tells it from the 3x3), never drawn nor entered.
+  latch: {
+    solved: () => withLatchMark(solvedCube('3')),
+    turnAllowed: latchTurns,
+    scramble: (length, rng, start) => scrambleLatch(length, rng, start),
+    entry: {
+      seen: (cube, held) => withoutLatchMark(held(cube)),
+      built: (cube) => withLatchMark(cube),
+    },
   },
 } satisfies Partial<Record<CubeShape, PuzzleModel>>

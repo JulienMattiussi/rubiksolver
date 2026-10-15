@@ -1,5 +1,5 @@
 import { isSolved, stateKey } from '../core/cube'
-import { applyMove, applyMoves } from '../core/turn'
+import { applyMove, applyMoves, turnAllowed } from '../core/turn'
 import { formatMove, parseMoves, simplifyMoves } from '../core/moves'
 import { allows, type MoveSet } from '../core/moveSet'
 import type { Cube, Face, Move, Turn } from '../core/types'
@@ -197,11 +197,22 @@ export class StepFailure extends Error {
   }
 }
 
+/** Whether every turn goes in turn from `cube` (a blocked one does not). */
+function goesFrom(cube: Cube, moves: readonly Turn[]): boolean {
+  let state = cube
+  for (const move of moves) {
+    if (!turnAllowed(state, move)) return false
+    state = applyMove(state, move)
+  }
+  return true
+}
+
 export function buildSteps(cube: Cube, plan: MethodPlan): SolveStep[] {
   if (isSolved(cube)) return []
   let state = cube
   const steps: SolveStep[] = []
   for (const spec of plan) {
+    const start = state
     let moves: Turn[] = []
     for (const phase of spec.phases) {
       let m: Turn[]
@@ -213,7 +224,11 @@ export function buildSteps(cube: Cube, plan: MethodPlan): SolveStep[] {
       state = applyMoves(state, m)
       moves = moves.concat(m)
     }
-    moves = simplifyMoves(moves)
+    // Tidied, unless that makes a turn its puzzle blocks (the Latch Cube's
+    // X X X, played so because X' does not go).
+    const tidy = simplifyMoves(moves)
+    moves = goesFrom(start, tidy) ? tidy : moves
+    if (!goesFrom(start, moves)) throw new Error(`${spec.key}: a turn is blocked`)
     const stray = moves.find((m) => !allows(spec.moves, m))
     if (stray) throw new Error(`${spec.key}: ${formatMove(stray)} is not an allowed turn`)
     if (!spec.goal(state)) throw new Error(`${spec.key}: goal not reached`)

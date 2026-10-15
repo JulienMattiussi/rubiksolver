@@ -20,6 +20,9 @@ export interface PiecePolygon {
   readonly normals?: readonly P3[]
   /** On a sticker: the normal index of the piece's sticker it shows. */
   readonly ni?: number
+  /** Printed on the polygon before it (a mark on a sticker): the picker's
+   *  thumbnail draws it right after that one, whatever their depths. */
+  readonly on?: true
 }
 
 /** Where a decal lies on a piece: the middle of a face, lifted off it, which

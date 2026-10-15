@@ -121,3 +121,40 @@ celles qui alternent encore sont gardées ; la recherche
 permutations restent paires (chaque face tourne autant dans un sens que
 dans l'autre), les 3-cycles suffisent. Chaque coup de la solution est
 vérifié jouable.
+
+## Le Latch Cube (`latch`)
+
+Le Latch Cube (fan2cube.fr/latchcube1 et 2, Katsuhiko Okamoto, 2010) : un
+3x3 dont chaque arête porte une flèche sur un de ses deux stickers, six
+noires et six blanches (`lib/puzzles/twisted/latch.ts`). Une face tourne
+dans le sens de ses flèches : horaire avec des blanches, anti-horaire avec
+des noires, dans les deux sens sans flèche, et pas du tout avec les deux
+(elle se bloque). Les flèches étant sur les pièces, les couleurs d'une arête
+disent où est sa flèche : rien à ajouter au modèle que `turnAllowed`. Résolu,
+chaque face porte deux flèches d'une sorte sur deux arêtes opposées
+(noires en haut, devant et à gauche ; blanches en bas, derrière et à
+droite : deux faces opposées tournent dans des sens opposés). Son cœur caché porte une marque (le long
+d'une diagonale, d'aucune face) qui le distingue du 3x3, jamais dessinée
+ni saisie. Mélange : des coups au hasard parmi ceux qui passent.
+
+**Rendu** (`three/puzzles/twisted/latchGeometry.ts`) : les cubies du 3x3 en
+polygones, chaque face imprimée d'un cercle autour de son milieu passant
+par ses arêtes (sa part sur chaque sticker), et la flèche de chaque arête
+le long de lui, blanche cerclée de noir ou noire. Le pad grise les sens
+qui ne passent pas.
+
+**Résolution** (`methods/twisted/latch.ts`, méthode **Les arêtes
+d'abord**) : une face non bloquée tourne dans les deux sens (le sens
+interdit joué en trois quarts de tour dans l'autre, « D' = D3 » sur la
+page), donc une recherche ne demande que les faces bloquées, que disent les
+arêtes seules. (1) les arêtes, sommets laissés de côté : la croix du bas une
+à une (tout coup), chaque arête du milieu puis les quatre du haut par les
+formules du Tori (le 3x3 sans sommets) et H, par une recherche sur les
+douze arêtes ; tenu de la première façon où les blocages le permettent,
+tout coup en dernier recours ; (2) les sommets placés par le 3-cycle de la
+page (HGP) -> (HAG) -> (HPD) = [DH].G'[HD]G, puis tournés par
+[DH]².G'[HD]²G : les arêtes en place, leurs flèches sont celles du résolu au
+début de chaque formule, donc les variantes qui passent (tenues de chaque
+façon, préparées par un ou deux coups) sont triées une fois. La position
+START de la page (une croix de flèches noires en bas) n'est pas reprise :
+la recherche s'en passe.

@@ -84,6 +84,10 @@ export const METHODS_FR = {
     name: 'Comme un Pocket',
     desc: 'Le Pyramorphinx n’est qu’un Pocket (2x2) déguisé : ses 8 pièces sont les 8 coins d’un 2x2 et ses mouvements ceux d’un 2x2. On le lit comme tel et on le résout comme un Pocket, en un minimum de mouvements, sans se laisser troubler par les formes qu’il prend.',
   },
+  latchEdgesFirst: {
+    name: 'Les arêtes d’abord',
+    desc: 'Les flèches sont sur les arêtes : ce sont elles qui bloquent les faces. Une face non bloquée tourne dans les deux sens (le sens interdit joué en trois quarts de tour dans l’autre, « D’ = D3 »). On place d’abord les arêtes une à une, en évitant les faces bloquées, les sommets laissés de côté ; puis les sommets par le 3-cycle de la page [DH].G’[HD]G, et on les tourne par [DH]².G’[HD]²G, dans les variantes qui passent, les arêtes en place.',
+  },
   copterEdgesFirst: {
     name: 'Les arêtes d’abord',
     desc: 'Les arêtes, qui ne quittent jamais leur place, donnent les couleurs des faces : on les remet à l’endroit, puis on place les centres (Curvy Copter III), les sommets et on les tourne, puis les feuilles, enfin les pétales (Curvy Copter III), chaque fois par les 3-cycles de la page vus de chaque côté.',

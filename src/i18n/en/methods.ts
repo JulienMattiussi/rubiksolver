@@ -85,6 +85,10 @@ export const METHODS_EN: typeof METHODS_FR = {
     name: 'As a Pocket',
     desc: 'The Pyramorphinx is a Pocket (2x2) in disguise: its 8 pieces are a 2x2’s 8 corners and its turns a 2x2’s. Read as such, it is solved like a Pocket, in as few turns as can be, whatever strange shapes it takes.',
   },
+  latchEdgesFirst: {
+    name: 'Edges first',
+    desc: 'The arrows are on the edges: they lock the faces. A face that is not locked turns either way (the forbidden way played as three quarters the other way, “D’ = D3”). The edges are placed first, one at a time, around the locked faces, the corners let be; then the corners by the page’s 3-cycle [DH].G’[HD]G, and turned by [DH]².G’[HD]²G, in the variants that go, the edges home.',
+  },
   copterEdgesFirst: {
     name: 'Edges first',
     desc: 'The edges, which never leave their slots, set the faces’ colors: they are turned the right way up, then the centers are placed (Curvy Copter III), then the corners, then turned, then the leaves, last the petals (Curvy Copter III), each time by the page’s 3-cycles seen from every side.',

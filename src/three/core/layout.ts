@@ -32,8 +32,11 @@ export function visualPosition(p: Vec3, dims: Dims): [number, number, number] {
 export const CUBIE_GAP = 0.012
 
 /** Whether a cubie is drawn: a puzzle without centers (the Void Cube) is
- *  hollow, seen through, its hidden core left out. */
+ *  hollow, seen through, its hidden core left out; a piece wearing only
+ *  hidden marks (the Latch Cube's core) never shows. */
 export function drawnIn(cube: Cube): (cubie: Cubie) => boolean {
-  const hollow = !cube.some((c) => c.stickers.length === 1)
-  return (cubie) => !hollow || cubie.stickers.length > 0
+  const hollow = !cube.some((c) => c.stickers.length === 1 && c.stickers[0]!.color !== 'H')
+  return (cubie) =>
+    (!hollow || cubie.stickers.length > 0) &&
+    (cubie.stickers.length === 0 || cubie.stickers.some((s) => s.color !== 'H'))
 }

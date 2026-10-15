@@ -182,4 +182,7 @@ export const STEPS_EN: typeof STEPS_FR = {
   stepCopterTwist: 'Turn the corners',
   stepCopterLeaves: 'The leaves',
   stepCopterPetals: 'The petals',
+  stepLatchEdges: 'The edges',
+  stepLatchCorners: 'Place the corners',
+  stepLatchTwist: 'Turn the corners',
 }

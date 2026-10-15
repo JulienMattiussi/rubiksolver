@@ -1,9 +1,4 @@
-import {
-  COPTER_TURNS,
-  scrambleCopter,
-  solvedCurvyCopter,
-  solvedCurvyCopter3,
-} from './copter'
+import { COPTER_TURNS, scrambleCopter, solvedCurvyCopter, solvedCurvyCopter3 } from './copter'
 import type { CubeShape } from '../../core/types'
 import { isSolved, solvedCube } from '../../core/cube'
 import type { PuzzleModel } from '../model'

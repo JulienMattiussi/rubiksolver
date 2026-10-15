@@ -212,8 +212,10 @@ Une méthode est **déclarée, pas codée en dur** : un `MethodPlan` est une lis
 d'étapes (`StepSpec`), chacune avec sa clé i18n, **l'objectif qu'elle doit
 atteindre** (`goal`), **les coups qu'elle a le droit d'utiliser** (`moves`, un
 `MoveSet`) et ses phases (le travail). `buildSteps` vérifie ce contrat à chaque
-résolution : une étape qui s'arrête avant son objectif ou glisse un coup
-interdit lève une exception. C'est ce qui empêche une méthode de dégénérer en
+résolution : une étape qui s'arrête avant son objectif, glisse un coup
+interdit ou un coup que le puzzle bloque à ce moment (`turnAllowed` : un
+soudé, le Latch Cube) lève une exception ; la solution n'est simplifiée que
+si ses coups passent encore. C'est ce qui empêche une méthode de dégénérer en
 « par couches déguisé » : les jeux de coups (`<M, U>` pour la fin de Roux,
 `<R, U>` pour le F2L de Petrus...) sont imposés.
 

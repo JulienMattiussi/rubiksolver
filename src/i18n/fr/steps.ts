@@ -181,4 +181,7 @@ export const STEPS_FR = {
   stepCopterTwist: 'Tourner les sommets',
   stepCopterLeaves: 'Les feuilles',
   stepCopterPetals: 'Les pétales',
+  stepLatchEdges: 'Les arêtes',
+  stepLatchCorners: 'Placer les sommets',
+  stepLatchTwist: 'Tourner les sommets',
 }

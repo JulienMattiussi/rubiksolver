@@ -15,4 +15,7 @@ export const TWISTED = {
     scramble: 30,
     editHint: 'quarter',
   },
+  // The Latch Cube (latch.ts): a 3x3x3, its faces turning the way their
+  // arrows say.
+  latch: { label: 'Latch Cube', slug: 'latch-cube', dims: [3, 3, 3], scramble: 30 },
 } satisfies Record<string, PuzzleEntry>
