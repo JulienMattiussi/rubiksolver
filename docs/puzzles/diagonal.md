@@ -146,7 +146,7 @@ tour, les pétales d'une couleur étant interchangeables. Cible choisie comme
 sur le Dino (tenue, et gauche et droite échangées), à permutations paires
 d'arêtes et de centres.
 
-## Le Fisher Cube (`fisher`)
+## Le Fisher Cube et le Windmill (`fisher`, `windmill`)
 
 Le Fisher Cube (fan2cube.fr/fishercube1 et 2) est « un
 Rubik's Cube déguisé » : le mécanisme d'un 3x3x3, taillé dans un cube tourné

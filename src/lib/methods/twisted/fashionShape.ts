@@ -1,12 +1,14 @@
 import { faceColorsOf } from '../../core/cube'
-import { FACE_SPEC } from '../../core/geometry'
+import { FACE_SPEC, mapVec } from '../../core/geometry'
 import { applyMove } from '../../core/turn'
-import type { Cube, CubeShape, Face, Move, Vec3 } from '../../core/types'
+import { BLOCK_TURNS } from '../../puzzles/twisted/fashion'
+import type { Cube, CubeShape, Move, Vec3 } from '../../core/types'
+import { once } from '../../solve/once'
 
 /**
  * The Fashion-V's shape (lib/puzzles/twisted/fashion.ts), for the search
- * that lays it back in its box, the page's "passer en 3x3x5". Seen as a 3x3x3 of cells (its blocks turn them as a 3x3x3's
- * faces), each cell of an edge or a corner holds either two halves cut
+ * that lays it back in its box, the page's "passer en 3x3x5". Seen as a
+ * 3x3x3 of cells (its blocks turn them as a 3x3x3's faces), each cell of an edge or a corner holds either two halves cut
  * across one axis (a pair: a top piece and the one under it, or any two
  * once mixed) or one whole piece (an equator edge). In the box every pair
  * lies (cut across the vertical: a corner's top color is then up, its turn
@@ -44,8 +46,12 @@ const EDGE_INDEX = indexIn(EDGES)
 const CORNER_INDEX = indexIn(CORNERS)
 
 /** Per cell: the axis its halves are cut across (0, 1, 2), or for a whole
- *  piece 3 + the axis its red or orange sticker faces. */
+ *  piece 3 + the axis its red or orange sticker faces (`WHOLE` when only
+ *  that it is whole matters). */
 type Shape = number[]
+
+/** A whole edge, its way round left aside. */
+export const WHOLE = 9
 
 /** The edges' and corners' shapes of a puzzle. */
 function shapesOf(cube: Cube, shape: CubeShape): { edges: Shape; corners: Shape } {
@@ -54,7 +60,7 @@ function shapesOf(cube: Cube, shape: CubeShape): { edges: Shape; corners: Shape 
   const edges = EDGES.map(() => 3)
   const corners = CORNERS.map(() => 3)
   for (const c of cube) {
-    const cell = c.position.map(cellOf) as unknown as Vec3
+    const cell = mapVec(c.position, cellOf)
     const cut = c.position.findIndex((v) => Math.abs(v) === 2)
     const e = EDGE_INDEX.get(cell.join())
     if (e !== undefined && cut >= 0) edges[e] = cut
@@ -68,12 +74,6 @@ function shapesOf(cube: Cube, shape: CubeShape): { edges: Shape; corners: Shape 
   }
   return { edges, corners }
 }
-
-/** The blocks' turns: each side's two layers, a quarter either way or a
- *  half. */
-export const BLOCK_TURNS: Move[] = (['U', 'D', 'R', 'L', 'F', 'B'] as Face[]).flatMap((face) =>
-  ([1, 2, 3] as const).map((amount): Move => ({ face, amount, depth: 2, wide: true })),
-)
 
 /** A turn on shapes: where it sends each cell (by index), and each axis. */
 interface ShapeTurn {
@@ -94,8 +94,8 @@ const turnOf = (move: Move): ShapeTurn => {
       return index.get(moved!.position.join())!
     })
   const axes = [0, 1, 2].map((a) => {
-    const normal = [0, 1, 2].map((d) => (d === a ? 1 : 0)) as unknown as Vec3
-    const cell = [0, 0, 0].map((_, d) => (d === axis ? side : 0)) as unknown as Vec3
+    const normal = mapVec([0, 1, 2], (d) => (d === a ? 1 : 0))
+    const cell = mapVec([0, 0, 0], (_, d) => (d === axis ? side : 0))
     const [moved] = applyMove(
       [{ position: cell, stickers: [{ normal, color: 'W' }] }],
       move,
@@ -106,8 +106,7 @@ const turnOf = (move: Move): ShapeTurn => {
   return { edges: sent(EDGES, EDGE_INDEX), corners: sent(CORNERS, CORNER_INDEX), axes, inside }
 }
 
-let TURNS: ShapeTurn[] | undefined
-const shapeTurns = () => (TURNS ??= BLOCK_TURNS.map(turnOf))
+const shapeTurns = once(() => BLOCK_TURNS.map(turnOf))
 
 /** A shape turned: each cell's content where the turn sends it, its axis
  *  turned with it if it went. */
@@ -115,15 +114,16 @@ function turned(shape: Shape, cells: Vec3[], to: number[], turn: ShapeTurn): Sha
   const out = [...shape]
   shape.forEach((value, i) => {
     if (!turn.inside(cells[i]!)) return
-    out[to[i]!] = value < 3 ? turn.axes[value]! : value < 6 ? 3 + turn.axes[value - 3]! : value
+    out[to[i]!] =
+      value < 3 ? turn.axes[value]! : value === WHOLE ? value : 3 + turn.axes[value - 3]!
   })
   return out
 }
 
-/** The pairs' cuts on the edges (a whole piece seen as 9), the whole
- *  pieces' places and ways (a pair seen as 9). */
-const cutsView = (edges: Shape) => edges.map((v) => (v < 3 ? v : 9))
-const wholeView = (edges: Shape) => edges.map((v) => (v < 3 ? 9 : v))
+/** The pairs' cuts on the edges (a whole piece seen as `WHOLE`), the
+ *  whole pieces' places and ways (a pair seen as `WHOLE`). */
+const cutsView = (edges: Shape) => edges.map((v) => (v < 3 ? v : WHOLE))
+const wholeView = (edges: Shape) => edges.map((v) => (v < 3 ? WHOLE : v))
 
 /** Distances to `goal`, every view the blocks reach. */
 function distances(goal: Shape, cells: Vec3[], pick: (t: ShapeTurn) => number[]) {
@@ -155,7 +155,7 @@ const wholeDistances: (Map<string, number> | undefined)[] = [undefined, undefine
 /** The two tables every search needs, built once. */
 function baseTables() {
   cutDistances ??= distances(
-    EDGES.map((c) => (inEquator(c) ? 9 : 1)),
+    EDGES.map((c) => (inEquator(c) ? WHOLE : 1)),
     EDGES,
     (t) => t.edges,
   )
@@ -181,7 +181,7 @@ function searchBox(
     if (h > depth) return false
     const turns = shapeTurns()
     for (let t = 0; t < turns.length; t++) {
-      // Never the same side twice in a row.
+      // Never the same side twice in a row (the turns go three by face).
       if (last >= 0 && Math.floor(t / 3) === Math.floor(last / 3)) continue
       const turn = turns[t]!
       path.push(t)
@@ -221,7 +221,7 @@ export function backToBox(cube: Cube, shape: CubeShape): Move[] {
       c.stickers[0]?.color === red,
   )!
   const quarter = center.position[0] === 0 ? 1 : 0
-  const wholeGoal = EDGES.map((c) => (inEquator(c) ? 3 + (quarter ? 2 : 0) : 9))
+  const wholeGoal = EDGES.map((c) => (inEquator(c) ? 3 + (quarter ? 2 : 0) : WHOLE))
   const whole = (wholeDistances[quarter] ??= distances(wholeGoal, EDGES, (t) => t.edges))
   const start = shapesOf(cube, shape)
   const moves = searchBox(start.edges, start.corners, (e, c) =>
@@ -241,7 +241,7 @@ export const FASHION_CELLS: { readonly edges: readonly Vec3[]; readonly corners:
 
 /**
  * The blocks' turns that bring a shape given cell by cell to the box (the
- * axis each pair is cut across, 9 for a whole edge), or null if no turn
+ * axis each pair is cut across, `WHOLE` for a whole edge), or null if no turn
  * reaches it: the whole edges' ways round left aside (a form is where the
  * pieces stand, not their colors).
  */

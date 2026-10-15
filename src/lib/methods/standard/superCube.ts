@@ -1,12 +1,13 @@
 import { isSolved, solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS, FACE_NORMAL, faceOfNormal } from '../../core/geometry'
+import { AXIS_ROTATIONS, FACE_NORMAL, faceOfNormal, mapVec, vecKey } from '../../core/geometry'
 import { allTurnsOf, type MoveSet } from '../../core/moveSet'
 import { invertMoves, parseMoves } from '../../core/moves'
-import type { MethodPlan } from '../../solve/solverKit'
+import { projectPlan, type MethodPlan } from '../../solve/solverKit'
 import { centerKey, isOuter, withoutBorders } from '../../puzzles/standard/superCube'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
 import { cycleTable, placeByCycles } from '../../solve/cycleTable'
+import { once } from '../../solve/once'
 
 /**
  * Super Revenge and Super Professor (superCube.ts), "méthode des centres"
@@ -28,8 +29,6 @@ import { cycleTable, placeByCycles } from '../../solve/cycleTable'
  * stand an even permutation away, which 3-cycles undo.
  */
 
-const key = (p: Vec3) => p.join()
-
 /** A sequence held another way: its faces carried by a whole-cube turn. */
 const heldAs = (moves: readonly Move[], turn: (v: Vec3) => Vec3): Move[] =>
   moves.map((m) => ({ ...m, face: faceOfNormal(turn(FACE_NORMAL[m.face])) }))
@@ -37,12 +36,7 @@ const heldAs = (moves: readonly Move[], turn: (v: Vec3) => Vec3): Move[] =>
 const everyWay = (moves: readonly Move[]) => AXIS_ROTATIONS.map((turn) => heldAs(moves, turn))
 
 /** A big cube plan, played on its super cube: on its colors. */
-const onColors = (plan: MethodPlan): MethodPlan =>
-  plan.map((spec) => ({
-    ...spec,
-    goal: (cube: Cube) => spec.goal(withoutBorders(cube)),
-    phases: spec.phases.map((phase) => (cube: Cube) => phase(withoutBorders(cube))),
-  }))
+const onColors = (plan: MethodPlan): MethodPlan => projectPlan(plan, withoutBorders)
 
 interface Super {
   readonly solved: Cube
@@ -64,10 +58,10 @@ const offMiddle = (reach: number) => (c: Cubie) =>
 /** Each center of a kind, from where it stands to its home. */
 function homesFor(sup: Super, kind: (c: Cubie) => boolean) {
   const home = new Map(
-    sup.solved.filter(kind).map((c) => [centerKey(c, sup.reach), key(c.position)]),
+    sup.solved.filter(kind).map((c) => [centerKey(c, sup.reach), vecKey(c.position)]),
   )
   return (state: Cube) =>
-    new Map(state.filter(kind).map((c) => [key(c.position), home.get(centerKey(c, sup.reach))!]))
+    new Map(state.filter(kind).map((c) => [vecKey(c.position), home.get(centerKey(c, sup.reach))!]))
 }
 
 const TABLES = new Map<string, Map<string, Move[]>>()
@@ -108,7 +102,7 @@ const centersHome = (name: 'super4' | 'super5') => (cube: Cube) => {
 const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
 const SOLVED5 = SUPERS.super5.solved
 const middleOf = (cube: Cube, face: Face) =>
-  cube.find((c) => key(c.position) === key(FACE_NORMAL[face].map((v) => 2 * v) as unknown as Vec3))!
+  cube.find((c) => vecKey(c.position) === vecKey(mapVec(FACE_NORMAL[face], (v) => 2 * v)))!
 
 /** How far a middle center stands turned, in quarters (clockwise seen
  *  from its face): where its first border went. */
@@ -122,7 +116,7 @@ function turnOf(cube: Cube, face: Face): number {
   // A quarter clockwise seen from n: v -> n x v... (v' = v x n).
   let v = border.normal
   for (let k = 0; k < 4; k++) {
-    if (key(v) === key(now)) return k
+    if (vecKey(v) === vecKey(now)) return k
     v = [v[1] * n[2] - v[2] * n[1], v[2] * n[0] - v[0] * n[2], v[0] * n[1] - v[1] * n[0]] as Vec3
   }
   throw new Error('superCube: a middle center lies askew')
@@ -151,12 +145,12 @@ export const TURN_PAIR: Move[] = [
 ]
 const TURN_HALF = parseMoves("U R L U2 R' L' U R L U2 R' L'")
 
-let TURNERS: { moves: Move[]; effect: number[] }[] | undefined
 /** Every way of holding both, and back: what each does to the turns. */
-const turners = () =>
-  (TURNERS ??= [TURN_PAIR, invertMoves(TURN_PAIR), TURN_HALF].flatMap((base) =>
+const turners = once(() =>
+  [TURN_PAIR, invertMoves(TURN_PAIR), TURN_HALF].flatMap((base) =>
     everyWay(base).map((moves) => ({ moves, effect: turnsOf(applyMoves(SOLVED5, moves)) })),
-  ))
+  ),
+)
 
 /** The fewest of them turning the middle centers back (a search on their
  *  turns, 4^6 states). */

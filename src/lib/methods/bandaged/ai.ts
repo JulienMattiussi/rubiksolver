@@ -1,12 +1,15 @@
 import { isBlock } from '../../puzzles/bandaged/ai'
 import { isSolved, solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS } from '../../core/geometry'
+import { AXIS_ROTATIONS, mapVec } from '../../core/geometry'
 import { invertMoves, simplifyMoves } from '../../core/moves'
 import { allTurnsOf } from '../../core/moveSet'
 import type { MethodPlan } from '../../solve/solverKit'
 import { applyMove, applyMoves, turnAllowed } from '../../core/turn'
 import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
 import { solveOptimal2 } from '../standard/cube2'
+import { once } from '../../solve/once'
+import { colorsOf } from '../../core/pieces'
+import { permutationIsOdd } from '../../solve/permutation'
 
 /**
  * AI Cube, "méthode des Blocs", after fan2cube.fr (AIcube2): make it a
@@ -159,17 +162,15 @@ export const C = [
 ]
 
 type Generator = { forward: Macro; backward: Int16Array }
-let GENERATORS: Generator[] | undefined
 /** The wings' search turns: the top's two layers, T from each corner. */
-function generators(): Generator[] {
-  GENERATORS ??= [...LAYERS, ...PIVOTS].map((moves) => {
+const generators = once((): Generator[] =>
+  [...LAYERS, ...PIVOTS].map((moves) => {
     const forward = macroOf(moves)
     const backward = new Int16Array(forward.to.length)
     forward.to.forEach((j, i) => (backward[j] = i))
     return { forward, backward }
-  })
-  return GENERATORS
-}
+  }),
+)
 
 /** States a search may hold before giving up (memory). */
 const MAX_STATES = 600_000
@@ -294,11 +295,6 @@ function route(from: number, to: number, kept: ReadonlySet<string>): Move[] {
 
 const SOLVED4 = solvedCube('4')
 const sign = (p: readonly number[]) => p.map(Math.sign).join()
-const colorsOf = (c: Cubie) =>
-  c.stickers
-    .map((s) => s.color)
-    .sort()
-    .join()
 
 /** The top octants' cells where a piece is wanted: for each small corner
  *  on top, the cells of its solved octant turned as it stands. */
@@ -342,23 +338,6 @@ const wingsDone = (cube: Cube) =>
     .every((w) => atPlace(cube, w))
 const octantsDone = (cube: Cube) => standard(cube) && wanted(cube).every((w) => atPlace(cube, w))
 
-/** The sign of a permutation given as a list of images. */
-function odd(images: readonly number[]): boolean {
-  const seen = new Set<number>()
-  let parity = 0
-  images.forEach((_, i) => {
-    let j = i
-    let length = 0
-    while (!seen.has(j)) {
-      seen.add(j)
-      j = images[j]!
-      length++
-    }
-    if (length) parity += length - 1
-  })
-  return parity % 2 === 1
-}
-
 /** Pieces of one kind into their wanted places, one after another; the
  *  corners kept, and every piece placed. */
 function placeAll(kind: (c: Cubie) => boolean) {
@@ -380,7 +359,7 @@ function placeAll(kind: (c: Cubie) => boolean) {
         const piece = state.find((c) => isWing(c) && colorsOf(c) === colorsOf(w.home))!
         return cells.indexOf(piece.position.join())
       })
-      if (images.every((i) => i >= 0) && odd(images)) {
+      if (images.every((i) => i >= 0) && permutationIsOdd(images)) {
         state = applyMove(state, inner(1))
         all.push(inner(1))
       }
@@ -444,7 +423,7 @@ function evenAssignment(
       return pick
     })
     const images = choice.map((c) => cells.indexOf(c.position.join()))
-    if (images.some((i) => i < 0) || odd(images)) continue
+    if (images.some((i) => i < 0) || permutationIsOdd(images)) continue
     const home = images.filter((i, k) => i === k).length
     if (home > bestHome) [best, bestHome] = [choice.map(placeOf), home]
   }
@@ -461,7 +440,7 @@ function evenAssignment(
 const asPocket = (cube: Cube): Cube =>
   cube
     .filter((c) => c.stickers.length === 3)
-    .map((c) => ({ ...c, position: c.position.map(Math.sign) as unknown as Vec3 }))
+    .map((c) => ({ ...c, position: mapVec(c.position, Math.sign) }))
 
 function solvePocket(cube: Cube): Move[] {
   return solveOptimal2(asPocket(cube)).map((m) => {

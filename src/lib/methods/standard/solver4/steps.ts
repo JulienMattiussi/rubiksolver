@@ -1,5 +1,5 @@
 import { allTurnsOf } from '../../../core/moveSet'
-import type { MethodPlan } from '../../../solve/solverKit'
+import { projectPlan, type MethodPlan } from '../../../solve/solverKit'
 import type { Cube } from '../../../core/types'
 import { centersDone, solveCenters } from './centers'
 import { pairEdges } from './edges'
@@ -43,20 +43,16 @@ const REDUCTION_PREFIX: MethodPlan = [
  * identically on a reduced cube (a 3x3 slice M is two slices on a 4x4), so
  * a 3x3 plan using anything else is refused. Shared by the 4x4 and the 5x5.
  */
-export function projectPlan(plan3x3: MethodPlan, project: (cube: Cube) => Cube): MethodPlan {
+export function projectOuterPlan(plan3x3: MethodPlan, project: (cube: Cube) => Cube): MethodPlan {
   for (const spec of plan3x3) {
     if (spec.moves.turns.some((t) => 'depth' in t && t.depth)) {
       throw new Error(`reductionPlan: ${spec.key} turns inner layers`)
     }
   }
-  return plan3x3.map((spec) => ({
-    ...spec,
-    goal: (cube: Cube) => spec.goal(project(cube)),
-    phases: spec.phases.map((phase) => (cube: Cube) => phase(project(cube))),
-  }))
+  return projectPlan(plan3x3, project)
 }
 
 /** A 4x4 plan: the reduction prefix, then the given 3x3 plan projected. */
 export function reductionPlan(plan3x3: MethodPlan): MethodPlan {
-  return [...REDUCTION_PREFIX, ...projectPlan(plan3x3, to3x3)]
+  return [...REDUCTION_PREFIX, ...projectOuterPlan(plan3x3, to3x3)]
 }

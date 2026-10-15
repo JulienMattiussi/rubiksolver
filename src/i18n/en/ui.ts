@@ -11,8 +11,8 @@ import {
   FTO_FACE_NAMES_EN,
   TRIANGLE_NAMES_EN,
   STAR_LAYER_EN,
-  type StarLayer,
-} from '../moveSentences'
+} from './moveSentences'
+import type { StarLayer } from '../fr/moveSentences'
 import type { UI_FR } from '../fr/ui'
 
 export const UI_EN: typeof UI_FR = {
@@ -218,6 +218,7 @@ export const UI_EN: typeof UI_FR = {
     H: 'Graphite',
   },
   cubeLabel: 'Cube choice',
+  cubeLabelOf: (name: string) => `Cube choice: ${name}`,
   chooseModel: 'Choose a model',
   homeLink: 'Back to the home page',
   solveHint: 'Choose a model to see its solving methods.',

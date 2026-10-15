@@ -1,4 +1,4 @@
-import { AXIS_ROTATIONS, layerCoords } from '../../core/geometry'
+import { AXIS_ROTATIONS, layerCoords, parseVecKey } from '../../core/geometry'
 import type { Cube, Cubie, Vec3 } from '../../core/types'
 
 /**
@@ -70,9 +70,7 @@ function boxOf(at: string, normals: readonly string[]): Box {
     if (slot.normals.length !== normals.length) continue
     for (const turn of AXIS_ROTATIONS) {
       if (turn(slot.position).join() !== at) continue
-      const turned = slot.normals.map((n) =>
-        turn(n.split(',').map(Number) as unknown as Vec3).join(),
-      )
+      const turned = slot.normals.map((n) => turn(parseVecKey(n)).join())
       if (turned.sort().join('|') !== normals.join('|')) continue
       const box = homeBox(slot.position)
       const [lo, hi] = [0, 1].map((k) => turn(box.map((b) => b[k]!) as unknown as Vec3))

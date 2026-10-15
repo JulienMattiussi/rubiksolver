@@ -1,9 +1,10 @@
-import type { Color, Cube, Vec3 } from '../core/types'
+import type { Color, Cube } from '../core/types'
 import { countColors, cubeShape, stickersOfColor } from '../core/cube'
 import { usesRealPieces } from './editor'
 import { solveOptimal2 } from '../methods/standard/cube2'
 import { solve } from '../solve/solver'
 import { StepFailure } from '../solve/solverKit'
+import { mapVec } from '../core/geometry'
 
 export type ValidationError = 'counts' | 'impossible'
 export type ValidationResult =
@@ -16,7 +17,7 @@ function cornersAsTwoByTwo(cube: Cube): Cube {
   return cube
     .filter((c) => c.stickers.length === 3)
     .map((c) => ({
-      position: c.position.map(Math.sign) as unknown as Vec3,
+      position: mapVec(c.position, Math.sign),
       stickers: c.stickers,
     }))
 }

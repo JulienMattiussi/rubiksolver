@@ -1,13 +1,13 @@
 import { isSolved, solvedCube } from '../../core/cube'
 import { namedSlice, parseFtoMoves } from '../../puzzles/polyhedron/fto'
 import { applyRainbowMove } from '../../puzzles/shared/rainbow'
-import { AXIS_ROTATIONS } from '../../core/geometry'
+import { AXIS_ROTATIONS, vecKey } from '../../core/geometry'
 import { allTurnsOf } from '../../core/moveSet'
-import { colorsOf } from '../../core/pieces'
 import type { MethodPlan } from '../../solve/solverKit'
-import type { Cube, Cubie, RainbowMove, Vec3 } from '../../core/types'
-import { cycleTable, placeByCycles } from '../../solve/cycleTable'
+import type { Cube, Cubie, RainbowMove } from '../../core/types'
+import { alikeHomes, cycleTable, placeByCycles, uniqueHomes } from '../../solve/cycleTable'
 import { fromEverySide } from '../shared/rainbowKit'
+import { once } from '../../solve/once'
 
 /**
  * FTO, "méthode 2" of fan2cube.fr (FTO2): corners, then centers, then
@@ -28,7 +28,6 @@ const SOLVED = solvedCube('fto')
 const TURNS = allTurnsOf('fto')
 const SETUPS = TURNS.turns as RainbowMove[]
 const FACE_TURNS = SETUPS.filter((m) => !m.slice)
-const key = (p: Vec3) => p.join()
 
 const isCorner = (c: Cubie) => c.stickers.length === 4
 const isEdge = (c: Cubie) => c.stickers.length === 2
@@ -60,9 +59,9 @@ const cornersKey = (cube: Cube) =>
     .filter(isCorner)
     .map(
       (c) =>
-        key(c.position) +
+        vecKey(c.position) +
         c.stickers
-          .map((s) => s.color + key(s.normal))
+          .map((s) => s.color + vecKey(s.normal))
           .sort()
           .join(),
     )
@@ -99,38 +98,27 @@ function solveCorners(cube: Cube): RainbowMove[] {
   throw new Error('fto: the corners cannot go home')
 }
 
-let edgeTable: Map<string, RainbowMove[]> | undefined
-let centerTable: Map<string, RainbowMove[]> | undefined
-const edgeCycles = () =>
-  (edgeTable ??= cycleTable(SOLVED, isEdge, everySide(FTO_FORMULAS.O3), SETUPS))
-const centerCycles = () =>
-  (centerTable ??= cycleTable(SOLVED, isCenter, everySide(FTO_FORMULAS.O4), SETUPS))
+const edgeCycles = once(() => cycleTable(SOLVED, isEdge, everySide(FTO_FORMULAS.O3), SETUPS))
+const centerCycles = once(() => cycleTable(SOLVED, isCenter, everySide(FTO_FORMULAS.O4), SETUPS))
 
 /** Each edge, from where it stands to the slot of its colors. */
-function edgeHomes(state: Cube): Map<string, string> {
-  const home = new Map(
-    targetOf(state)!
-      .filter(isEdge)
-      .map((c) => [colorsOf(c), key(c.position)]),
-  )
-  return new Map(state.filter(isEdge).map((c) => [key(c.position), home.get(colorsOf(c))!]))
-}
+const edgeHomes = (state: Cube) => uniqueHomes(targetOf(state)!, isEdge)(state)
 
 /** The two families of centers, which no turn mixes: the slots a center
  *  reaches, from each. */
 const FAMILIES: readonly ReadonlySet<string>[] = (() => {
   const out: Set<string>[] = []
   for (const center of SOLVED.filter(isCenter)) {
-    if (out.some((f) => f.has(key(center.position)))) continue
-    const family = new Set([key(center.position)])
+    if (out.some((f) => f.has(vecKey(center.position)))) continue
+    const family = new Set([vecKey(center.position)])
     let frontier = [center]
     while (frontier.length) {
       const next: Cubie[] = []
       for (const c of frontier) {
         for (const turn of SETUPS) {
           const [moved] = applyRainbowMove([c], turn)
-          if (family.has(key(moved!.position))) continue
-          family.add(key(moved!.position))
+          if (family.has(vecKey(moved!.position))) continue
+          family.add(vecKey(moved!.position))
           next.push(moved!)
         }
       }
@@ -147,18 +135,11 @@ const centerHomes = (family: ReadonlySet<string>) => (state: Cube) => {
   const colorAt = new Map(
     targetOf(state)!
       .filter(isCenter)
-      .map((c) => [key(c.position), c.stickers[0]!.color]),
+      .map((c) => [vecKey(c.position), c.stickers[0]!.color]),
   )
-  const centers = state.filter((c) => isCenter(c) && family.has(key(c.position)))
-  const right = (c: Cubie) => colorAt.get(key(c.position)) === c.stickers[0]!.color
-  const free = centers.filter((c) => !right(c)).map((c) => key(c.position))
-  return new Map(
-    centers.map((c): [string, string] => {
-      const at = key(c.position)
-      if (right(c)) return [at, at]
-      const slot = free.findIndex((s) => colorAt.get(s) === c.stickers[0]!.color)
-      return [at, free.splice(slot, 1)[0]!]
-    }),
+  return alikeHomes(
+    state.filter((c) => isCenter(c) && family.has(vecKey(c.position))),
+    (slot) => colorAt.get(vecKey(slot)),
   )
 }
 

@@ -4,6 +4,7 @@ import { cubeDims, cubeShape } from '@/lib/core/cube'
 import { formatMove } from '@/lib/core/moves'
 import { solveProgress, walkFocus } from '@/lib/solve/progress'
 import type { SolveStep } from '@/lib/solve/solver'
+import { stepName } from '@/i18n/translations'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { SECTION_LABEL } from '@/components/ui/styles'
@@ -22,7 +23,6 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
   const dims = useCube((s) => cubeDims(s.cube))
   const shape = useCube((s) => cubeShape(s.cube))
 
-  const stepName = (key: string) => (t.steps as Record<string, string>)[key] ?? key
   const pending = queue.length + (active ? 1 : 0)
   const { played, focus } = walkFocus(dispatched, pending, rewinding)
   const progress = solveProgress(
@@ -67,20 +67,10 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
         {steps.map((step, i) => {
           const { done, current } = progress.steps[i]!
           return (
-            <li
-              key={i}
-              // The step under way a size up: what one follows.
-              className={`shrink-0 rounded-lg border px-2.5 py-1.5 ${current ? 'text-sm' : 'text-xs'} ${
-                current
-                  ? 'border-sky-400 bg-sky-500/10'
-                  : done
-                    ? 'border-transparent bg-slate-800/40 text-slate-400'
-                    : 'border-transparent bg-slate-800/40'
-              }`}
-            >
+            <li key={i} className={stepClass(done, current)}>
               <div className="flex items-start justify-between gap-2">
                 <span className="min-w-0 font-medium text-slate-200">
-                  {i + 1}. {stepName(step.key)}
+                  {i + 1}. {stepName(t, step.key)}
                 </span>
                 <span className="flex shrink-0 items-center gap-1 whitespace-nowrap text-slate-400">
                   {done && <Check className="size-3 text-emerald-400" aria-hidden />}
@@ -92,12 +82,6 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
               >
                 {step.moves.map((move, k) => {
                   const at = firstOf[i]! + k
-                  const tone =
-                    at === focus
-                      ? '-mx-0.5 rounded-sm bg-sky-400 px-0.5 font-bold text-slate-950'
-                      : at < played
-                        ? 'text-slate-600'
-                        : ''
                   // The space between two moves stays outside both: a
                   // highlighted move is boxed on itself alone.
                   return (
@@ -105,7 +89,7 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
                       {k > 0 && ' '}
                       <span
                         ref={at === focus ? focused : undefined}
-                        className={tone}
+                        className={moveClass(at, focus, played)}
                         aria-current={at === focus ? 'step' : undefined}
                       >
                         {formatMove(move, labels, dims, shape)}
@@ -120,4 +104,20 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
       </ol>
     </div>
   )
+}
+
+/** A step's box: the step under way a size up (what one follows) and
+ *  framed, a step done grayed. */
+function stepClass(done: boolean, current: boolean): string {
+  const base = 'shrink-0 rounded-lg border px-2.5 py-1.5'
+  if (current) return `${base} text-sm border-sky-400 bg-sky-500/10`
+  if (done) return `${base} text-xs border-transparent bg-slate-800/40 text-slate-400`
+  return `${base} text-xs border-transparent bg-slate-800/40`
+}
+
+/** A move's tone: the move in focus boxed, the moves played grayed. */
+function moveClass(at: number, focus: number, played: number): string {
+  if (at === focus) return '-mx-0.5 rounded-sm bg-sky-400 px-0.5 font-bold text-slate-950'
+  if (at < played) return 'text-slate-600'
+  return ''
 }

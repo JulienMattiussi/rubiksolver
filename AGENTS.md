@@ -82,7 +82,7 @@ indiscernables ainsi font échouer le chargement du module (`core/cube.ts`).
 
 **Les coups** : un coup est un `Turn`, l'union de `Move` (les cubes) et des
 coups des puzzles qui ne tournent pas comme un cube (`StarMove`, `PyraMove`,
-`GhostMove`, `PuckMove`, `RainbowMove`, `GearMove`, `MegaMove`) ; le code
+`GhostMove`, `PuckMove`, `RainbowMove`, `GearMove`, `MegaMove`, `CopterMove`) ; le code
 générique (file d'animation, rendu, notation) prend un `Turn`, et `turn.ts`
 et `moves.ts` aiguillent selon sa sorte. L'animation tourne autour d'un axe
 quelconque (`turnRotation` renvoie un vecteur) ; les solveurs des cubes
@@ -109,12 +109,13 @@ src/
 │   │   ├── standard/    #   3x3 (algs, layers3, roux, petrus, zz, recenter, pieces3), 2x2 (cube2), super cubes,
 │   │   │                #     solver4/ solver5/ solver6/ (réductions des 4x4, 5x5 et 6x6)
 │   │   ├── <catégorie>/ #   les autres (towerLayers et towerReduce : briques des tours, pyraKit...)
-│   │   └── shared/      #   ce qui sert à plusieurs catégories (rainbowKit)
+│   │   └── shared/      #   ce qui sert à plusieurs catégories (rainbowKit, skewbKit)
 │   ├── solve/           # Briques des solveurs : solver (registre des méthodes, solve), solverKit (MethodPlan,
 │   │                    #   buildSteps), pieceSearch, cycleLibrary / cycleTable (3-cycles), centerCycles,
 │   │                    #   wingPairing, exhaustive (optimal par recherche exhaustive), progress
 │   ├── editor/          # La saisie : editor, editorTables, pieceEditor, forms (formes d'un déformable),
-│   │                    #   validate, gearEditor, roadblockEditor
+│   │                    #   jointsEditor (soudures), cutsEditor (demi-cubies du Fashion-V), validate,
+│   │                    #   gearEditor, roadblockEditor
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
 │   ├── core/            # Scene, CubeView / Cubie / Sticker (puzzles à grille), PolyView / PolyModel / PolyPiece
@@ -129,8 +130,8 @@ src/
 ├── store/               # Zustand : cubeStore (cube, file de coups, solution), editorStore, savedStore,
 │                        #   viewStore, router
 ├── hooks/               # useAutoPlan (solution dans le worker), useIsDesktop, useSolveShortcuts
-├── i18n/                # fr/ et en/ (ui, methods, steps ; EN typé sur FR), translations (les assemble),
-│                        #   moveSentences, i18nStore
+├── i18n/                # fr/ et en/ (ui, methods, steps, moveSentences ; EN typé sur FR), translations
+│                        #   (les assemble), i18nStore
 ├── workers/             # solveWorker : la solution hors du fil de l'interface
 └── assets/gear/         # Masques des pièces du Gear Cube (scripts/gear_face.py)
 tests/
@@ -184,7 +185,8 @@ sorte de coup (étoile, Pyraminx, Rainbow...) dans le cœur, qui ne sont pas
 propres à un puzzle, les pads dédiés (`StarPad`, `PyraPad`... dans
 `components/controls/`, choisis par le `pad` de la carte) et quelques détails
 de saisie (`PolyEditView`, `lib/editor/gearEditor.ts`,
-`lib/editor/roadblockEditor.ts`).
+`lib/editor/roadblockEditor.ts`, `lib/editor/jointsEditor.ts`,
+`lib/editor/cutsEditor.ts`).
 
 **Tests d'un puzzle** : ce que tout puzzle doit vérifier est écrit une fois,
 dans la suite de conformance `tests/unit/puzzles.test.ts`, qui parcourt un

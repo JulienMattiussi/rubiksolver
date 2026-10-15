@@ -1,4 +1,5 @@
 import { solvedCube } from '@/lib/core/cube'
+import { parseVecKey } from '@/lib/core/geometry'
 import type { Color, Cubie } from '@/lib/core/types'
 import { cutSolidPolygons } from '../../core/cutSolid'
 
@@ -24,7 +25,7 @@ const FACE_COLOR: Record<string, Color> = {
 const pieces = cutSolidPolygons(
   {
     planes: Object.keys(FACE_COLOR).map((key) => ({
-      normal: key.split(',').map(Number) as [number, number, number],
+      normal: parseVecKey(key),
       offset: FAR,
     })),
     cutColor: (n) => FACE_COLOR[n.join()],

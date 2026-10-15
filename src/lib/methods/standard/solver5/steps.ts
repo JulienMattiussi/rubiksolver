@@ -4,7 +4,7 @@ import { allTurnsOf, type MoveSet } from '../../../core/moveSet'
 import { applyMoves } from '../../../core/turn'
 import type { Cube, Move } from '../../../core/types'
 import { isFixedCenter } from './kinds'
-import { projectPlan } from '../solver4/steps'
+import { projectOuterPlan } from '../solver4/steps'
 import type { MethodPlan } from '../../../solve/solverKit'
 import { centersDone, solveCenters } from './centers'
 import { MIDDLES } from '../../../solve/cycleLibrary'
@@ -74,6 +74,6 @@ export function reduction5Plan(plan3x3: MethodPlan): MethodPlan {
       phases: [fixEdgeParity],
       optional: true,
     },
-    ...projectPlan(plan3x3, to3x3),
+    ...projectOuterPlan(plan3x3, to3x3),
   ]
 }

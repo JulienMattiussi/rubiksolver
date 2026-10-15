@@ -4,9 +4,11 @@ import { invertMoves } from '../../core/moves'
 import { colorsOf } from '../../core/pieces'
 import { parseDinoMoves } from '../../puzzles/shared/rainbow'
 import type { MethodPlan } from '../../solve/solverKit'
-import type { Cube, Cubie, RainbowMove, Vec3 } from '../../core/types'
-import { cycleTable, placeByCycles } from '../../solve/cycleTable'
+import type { Cube, Cubie, RainbowMove } from '../../core/types'
+import { alikeHomes, cycleTable, placeByCycles } from '../../solve/cycleTable'
 import { fromEverySide, heldTargets, isEven } from '../shared/rainbowKit'
+import { vecKey } from '../../core/geometry'
+import { once } from '../../solve/once'
 
 /**
  * Rex Cube, "edges, centers, petals", as taught on fan2cube.fr (rexcube2):
@@ -27,7 +29,6 @@ import { fromEverySide, heldTargets, isEven } from '../shared/rainbowKit'
 const SOLVED = solvedCube('rex')
 const TURNS = allTurnsOf('rex')
 const SETUPS = TURNS.turns as RainbowMove[]
-const key = (p: Vec3) => p.join()
 
 const isEdge = (c: Cubie) => c.stickers.length === 2
 const isCenter = (c: Cubie) =>
@@ -38,12 +39,12 @@ const EDGE_CYCLE = parseDinoMoves("[GA']", 'rex')
 const CENTER_CYCLE = parseDinoMoves("[DG']", 'rex')
 const PETAL_SWAP = parseDinoMoves("[DG'][D'B]", 'rex')
 
-let edgeTable: Map<string, RainbowMove[]> | undefined
-let centerTable: Map<string, RainbowMove[]> | undefined
-const edgeCycles = () =>
-  (edgeTable ??= cycleTable(SOLVED, isEdge, fromEverySide(EDGE_CYCLE), SETUPS, (c) => !isEdge(c)))
-const centerCycles = () =>
-  (centerTable ??= cycleTable(SOLVED, isCenter, fromEverySide(CENTER_CYCLE), SETUPS, isPetal))
+const edgeCycles = once(() =>
+  cycleTable(SOLVED, isEdge, fromEverySide(EDGE_CYCLE), SETUPS, (c) => !isEdge(c)),
+)
+const centerCycles = once(() =>
+  cycleTable(SOLVED, isCenter, fromEverySide(CENTER_CYCLE), SETUPS, isPetal),
+)
 
 /**
  * Pure 3-cycles of petals. The page's formula swaps two pairs of petals of
@@ -68,8 +69,8 @@ const TARGETS = heldTargets(SOLVED)
  *  petal slot's color. */
 function homesOf(target: Cube) {
   return {
-    home: new Map(target.filter((c) => !isPetal(c)).map((c) => [colorsOf(c), key(c.position)])),
-    petal: new Map(target.filter(isPetal).map((c) => [key(c.position), c.stickers[0]!.color])),
+    home: new Map(target.filter((c) => !isPetal(c)).map((c) => [colorsOf(c), vecKey(c.position)])),
+    petal: new Map(target.filter(isPetal).map((c) => [vecKey(c.position), c.stickers[0]!.color])),
   }
 }
 
@@ -82,10 +83,12 @@ function targetOf(state: Cube) {
     if (!isEven(state.filter(isEdge), homes.home) || !isEven(state.filter(isCenter), homes.home))
       continue
     const right =
-      state.filter((c) => !isPetal(c) && homes.home.get(colorsOf(c)) === key(c.position)).length *
+      state.filter((c) => !isPetal(c) && homes.home.get(colorsOf(c)) === vecKey(c.position))
+        .length *
         4 +
-      state.filter((c) => isPetal(c) && homes.petal.get(key(c.position)) === c.stickers[0]!.color)
-        .length
+      state.filter(
+        (c) => isPetal(c) && homes.petal.get(vecKey(c.position)) === c.stickers[0]!.color,
+      ).length
     if (right > most) [best, most] = [homes, right]
   }
   return best!
@@ -94,7 +97,7 @@ function targetOf(state: Cube) {
 /** Each piece of a kind, from where it stands to its home. */
 const homesFor = (kind: (c: Cubie) => boolean) => (state: Cube) => {
   const { home } = targetOf(state)
-  return new Map(state.filter(kind).map((c) => [key(c.position), home.get(colorsOf(c))!]))
+  return new Map(state.filter(kind).map((c) => [vecKey(c.position), home.get(colorsOf(c))!]))
 }
 
 const placed = (kind: (c: Cubie) => boolean) => (state: Cube) =>
@@ -111,17 +114,9 @@ const family = (slot: string) => slot.split(',').reduce((p, x) => p * Math.sign(
 const petalHomes = (side: number) => (state: Cube) => {
   const { petal } = targetOf(state)
   // One family at a time (the other's petals left where they are).
-  const petals = state.filter((c) => isPetal(c) && family(key(c.position)) === side)
-  const colorAt = (c: Cubie) => c.stickers[0]!.color
-  const right = (c: Cubie) => petal.get(key(c.position)) === colorAt(c)
-  const free = petals.filter((c) => !right(c)).map((c) => key(c.position))
-  return new Map(
-    petals.map((c) => {
-      const at = key(c.position)
-      if (right(c)) return [at, at]
-      const slot = free.findIndex((s) => petal.get(s) === colorAt(c))
-      return [at, free.splice(slot, 1)[0]!]
-    }),
+  return alikeHomes(
+    state.filter((c) => isPetal(c) && family(vecKey(c.position)) === side),
+    (slot) => petal.get(vecKey(slot)),
   )
 }
 

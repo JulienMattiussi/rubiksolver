@@ -1,4 +1,4 @@
-import { normalIndex } from '@/lib/core/geometry'
+import { mapVec, normalIndex } from '@/lib/core/geometry'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import { face, type P3, type PiecePolygon } from '../../core/polygons'
 import { polyhedron, type Plane } from '../../core/polyhedron'
@@ -37,7 +37,7 @@ function cutsOf(position: Vec3): Plane[] {
   const corner = position.every((v) => v !== 0)
   if (corner) {
     return [0, 1, 2].map((flip) => ({
-      normal: position.map((v, a) => (a === flip ? v : -v)) as unknown as Vec3,
+      normal: mapVec(position, (v, a) => (a === flip ? v : -v)),
       offset: 0,
     }))
   }

@@ -3,9 +3,10 @@ import { allTurnsOf } from '../../core/moveSet'
 import { colorsOf } from '../../core/pieces'
 import { parseDinoMoves } from '../../puzzles/shared/rainbow'
 import type { MethodPlan } from '../../solve/solverKit'
-import type { Cube, Cubie, RainbowMove, Vec3 } from '../../core/types'
+import type { Cube, Cubie, RainbowMove } from '../../core/types'
 import { cycleTable, placeByCycles } from '../../solve/cycleTable'
 import { fromEverySide, heldTargets, isEven } from '../shared/rainbowKit'
+import { vecKey } from '../../core/geometry'
 
 /**
  * Dino Cube, "layer by layer", as taught on fan2cube.fr (dinocube2), with
@@ -25,7 +26,6 @@ import { fromEverySide, heldTargets, isEven } from '../shared/rainbowKit'
 
 const SOLVED = solvedCube('dino')
 const TURNS = allTurnsOf('dino')
-const key = (p: Vec3) => p.join()
 
 /** The page's formula, as it writes it. */
 const DINO_CYCLE = parseDinoMoves("[GA']")
@@ -46,7 +46,7 @@ const dinoCycles = (solved: Cube, isEdge: (c: Cubie) => boolean = () => true) =>
 const TARGETS = heldTargets(SOLVED)
 
 /** Where each piece belongs in a target: the slot of its colors. */
-const homeIn = (target: Cube) => new Map(target.map((c) => [colorsOf(c), key(c.position)]))
+const homeIn = (target: Cube) => new Map(target.map((c) => [colorsOf(c), vecKey(c.position)]))
 
 /** The target the state is nearest (most pieces home), among those a
  *  3-cycle can reach. */
@@ -56,7 +56,7 @@ function targetOf(state: Cube): Map<string, string> {
   for (const target of TARGETS) {
     const home = homeIn(target)
     if (!isEven(state, home)) continue
-    const right = state.filter((c) => home.get(colorsOf(c)) === key(c.position)).length
+    const right = state.filter((c) => home.get(colorsOf(c)) === vecKey(c.position)).length
     if (right > most) [best, most] = [home, right]
   }
   return best!
@@ -80,7 +80,7 @@ export function dinoLayers(
       state.filter(isEdge).map((c) => {
         const to = home.get(colorsOf(c))!
         const y = Number(to.split(',')[1])
-        return [key(c.position), rows.includes(y) ? to : key(c.position)]
+        return [vecKey(c.position), rows.includes(y) ? to : vecKey(c.position)]
       }),
     )
   }

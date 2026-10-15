@@ -1,6 +1,6 @@
 import { paint, type EditStickers } from './editor'
 import { stickerId, tablesFor } from './editorTables'
-import { normalIndex } from '../core/geometry'
+import { normalIndex, parseVecKey } from '../core/geometry'
 import { barCells } from '../puzzles/bandaged/roadblock'
 import type { Color, Vec3 } from '../core/types'
 
@@ -32,7 +32,7 @@ export function paintBar(
     for (const id of Object.keys(before)) {
       if (next[id] !== undefined) continue
       const [key, at] = id.split(':') as [string, string]
-      const position = key.split(',').map(Number) as unknown as Vec3
+      const position = parseVecKey(key)
       if (position.filter((v) => Math.abs(v) === 2).length !== 1) continue
       for (const other of barCells(position, turned)) delete next[stickerId(other, Number(at))]
     }

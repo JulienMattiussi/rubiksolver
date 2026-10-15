@@ -1,4 +1,4 @@
-import { AXIS_ROTATIONS, normalIndex } from '@/lib/core/geometry'
+import { AXIS_ROTATIONS, mapVec, normalIndex } from '@/lib/core/geometry'
 import { colorsOf } from '@/lib/core/pieces'
 import type { Color, Cube, Cubie, Vec3 } from '@/lib/core/types'
 import { dot, polyhedron, type Plane } from './polyhedron'
@@ -71,9 +71,7 @@ export function cutSolidPolygons(solid: CutSolid, solved: Cube) {
     const middle = [0, 1, 2].map((d) => all.reduce((s, p) => s + p[d]!, 0) / all.length)
     const carry = (p: readonly number[]): P3 =>
       turn(
-        p.map(
-          (v, d) => (middle[d]! + (v - middle[d]!) * SHRINK) * (solid.scale ?? 1),
-        ) as unknown as Vec3,
+        mapVec(p, (v, d) => (middle[d]! + (v - middle[d]!) * SHRINK) * (solid.scale ?? 1)),
       ) as unknown as P3
     const polygons = faces.flatMap(({ corners, normal }) => {
       const points = corners.map(carry)

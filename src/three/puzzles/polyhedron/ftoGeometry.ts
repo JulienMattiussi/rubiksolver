@@ -1,7 +1,7 @@
-import { normalIndex } from '@/lib/core/geometry'
+import { mapVec, normalIndex } from '@/lib/core/geometry'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import { face, type P3, type PiecePolygon } from '../../core/polygons'
-import { polyhedron, type Plane } from '../../core/polyhedron'
+import { dot, polyhedron, type Plane } from '../../core/polyhedron'
 
 /**
  * Geometry of the FTO's pieces (lib/puzzles/polyhedron/fto.ts): the octahedron |x| + |y| + |z|
@@ -26,10 +26,9 @@ const AXES: readonly Vec3[] = [
   [1, -1, 1],
   [-1, 1, 1],
 ]
-const DIAGONALS: readonly Vec3[] = AXES.flatMap((n) => [n, n.map((v) => -v) as unknown as Vec3])
+const DIAGONALS: readonly Vec3[] = AXES.flatMap((n) => [n, mapVec(n, (v) => -v)])
 
-const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
-const minus = (n: Vec3) => n.map((v) => -v) as unknown as Vec3
+const minus = (n: Vec3) => mapVec(n, (v) => -v)
 
 /** The planes of a slot's piece: the octahedron, then its layer along each
  *  axis (beyond a cut, or between the two). */

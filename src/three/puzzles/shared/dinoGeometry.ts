@@ -1,4 +1,4 @@
-import { normalIndex } from '@/lib/core/geometry'
+import { mapVec, normalIndex } from '@/lib/core/geometry'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import { face, type P3, type PiecePolygon } from '../../core/polygons'
 import { polyhedron, type Plane } from '../../core/polyhedron'
@@ -57,7 +57,7 @@ function pieceFaces(position: Vec3, hole: boolean) {
       }),
     )
   // Clear of the holes: its two coordinates add up to at least 1 + HOLE.
-  const inner = [0, 1, 2].map((a) => (a === third ? 0 : -position[a]!)) as unknown as Vec3
+  const inner = mapVec([0, 1, 2], (a) => (a === third ? 0 : -position[a]!))
   faces = polyhedron([...CUBE, ...cuts, ...(hole ? [{ normal: inner, offset: -(1 + HOLE) }] : [])])
   SHAPES.set(id, faces)
   return faces

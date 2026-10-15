@@ -94,7 +94,7 @@ export function CubePicker({
         onClick={openPicker}
         disabled={disabled}
         aria-haspopup="dialog"
-        aria-label={`${t.cubeLabel} : ${shown}`}
+        aria-label={t.cubeLabelOf(shown)}
         className="flex w-full items-center gap-3 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-left text-sm font-semibold text-white transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
       >
         {home ? (
@@ -120,7 +120,6 @@ export function CubePicker({
                 type="button"
                 onClick={() => setCategory(null)}
                 title={t.allCategories}
-                aria-label={t.allCategories}
                 className="flex items-center gap-1 rounded-lg border border-slate-600 bg-slate-800 py-1 pr-2.5 pl-1.5 text-xs font-semibold text-slate-200 transition hover:border-sky-400 hover:bg-sky-500/20 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
               >
                 <ChevronLeft className="size-4" aria-hidden />

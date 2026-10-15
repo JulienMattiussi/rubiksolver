@@ -1,10 +1,11 @@
 import { faceColorsOf, solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS, faceOfNormal } from '../../core/geometry'
+import { AXIS_ROTATIONS, faceOfNormal, mapVec, vecKey } from '../../core/geometry'
 import { invertMoves, movesFor } from '../../core/moves'
-import type { MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, CubeShape, Move, Vec3 } from '../../core/types'
+import { colorsOf as pieceColors } from '../../core/pieces'
 import { cycleTable, placeByCycles } from '../../solve/cycleTable'
+import { once } from '../../solve/once'
 
 /**
  * Reduction of the big towers (4x4x3, 4x4x5, 5x5x4) to a smaller one, as
@@ -14,8 +15,6 @@ import { cycleTable, placeByCycles } from '../../solve/cycleTable'
  * commutator of an inner layer and a face turn or two ([A, B], [A, B C B']
  * or [A B A', C]), set up by a turn undone after (`cycleTable`).
  */
-
-const key = (p: Vec3) => p.join()
 
 const commutator = (a: readonly Move[], b: readonly Move[]): Move[] => [
   ...a,
@@ -97,7 +96,7 @@ function slotColors(shape: CubeShape, isKind: (c: Cubie) => boolean): Map<string
   return new Map(
     solvedCube(shape)
       .filter(isKind)
-      .map((c) => [key(c.position), faces[faceOfNormal(c.stickers[0]!.normal)]]),
+      .map((c) => [vecKey(c.position), faces[faceOfNormal(c.stickers[0]!.normal)]]),
   )
 }
 
@@ -134,18 +133,18 @@ export function homesByColor(
   const blocks = once(() => blocksOf(table()))
   return (state: Cube): Map<string, string> => {
     const orbit = blocks()
-    const pieces = state.filter((c) => colors.has(key(c.position)))
-    const wrong = pieces.filter((c) => colors.get(key(c.position)) !== c.stickers[0]!.color)
+    const pieces = state.filter((c) => colors.has(vecKey(c.position)))
+    const wrong = pieces.filter((c) => colors.get(vecKey(c.position)) !== c.stickers[0]!.color)
     const free = new Map<string, string[]>()
     const slotId = (slot: string, color: string) => `${orbit.get(slot)}|${color}`
     for (const c of wrong) {
-      const at = key(c.position)
+      const at = vecKey(c.position)
       const want = slotId(at, colors.get(at)!)
       free.set(want, [...(free.get(want) ?? []), at])
     }
     const homes = new Map<string, string>()
     for (const c of pieces) {
-      const at = key(c.position)
+      const at = vecKey(c.position)
       homes.set(at, wrong.includes(c) ? free.get(slotId(at, c.stickers[0]!.color))!.shift()! : at)
     }
     return homes
@@ -157,9 +156,11 @@ export function homesByColor(
 function carrying(solvedPiece: Cubie, piece: Cubie): (v: Vec3) => Vec3 {
   return AXIS_ROTATIONS.find(
     (turn) =>
-      key(turn(solvedPiece.position)) === key(piece.position) &&
+      vecKey(turn(solvedPiece.position)) === vecKey(piece.position) &&
       solvedPiece.stickers.every(
-        (s) => key(turn(s.normal)) === key(piece.stickers.find((t) => t.color === s.color)!.normal),
+        (s) =>
+          vecKey(turn(s.normal)) ===
+          vecKey(piece.stickers.find((t) => t.color === s.color)!.normal),
       ),
   )!
 }
@@ -186,20 +187,17 @@ export function wingsToMiddles(
   isMiddle: (c: Cubie) => boolean,
 ) {
   const solved = solvedCube(shape)
-  const colors = (c: Cubie) =>
-    c.stickers
-      .map((s) => s.color)
-      .sort()
-      .join('')
   const solvedWings = solved.filter(isWing)
-  const solvedMiddles = new Map(solved.filter(isMiddle).map((c) => [colors(c), c]))
+  const solvedMiddles = new Map(solved.filter(isMiddle).map((c) => [pieceColors(c), c]))
   return (state: Cube): Map<string, string> => {
-    const middles = new Map(state.filter(isMiddle).map((c) => [colors(c), c]))
+    const middles = new Map(state.filter(isMiddle).map((c) => [pieceColors(c), c]))
     return new Map(
       state.filter(isWing).map((w) => {
-        const home = solvedWings.find((s) => colors(s) === colors(w) && handOf(s) === handOf(w))!
-        const turn = carrying(solvedMiddles.get(colors(w))!, middles.get(colors(w))!)
-        return [key(w.position), key(turn(home.position))]
+        const home = solvedWings.find(
+          (s) => pieceColors(s) === pieceColors(w) && handOf(s) === handOf(w),
+        )!
+        const turn = carrying(solvedMiddles.get(pieceColors(w))!, middles.get(pieceColors(w))!)
+        return [vecKey(w.position), vecKey(turn(home.position))]
       }),
     )
   }
@@ -217,23 +215,18 @@ export function wingEdges(shape: CubeShape, isWing: (c: Cubie) => boolean) {
   const reach = Math.max(...solvedCube(shape).map((c) => Math.abs(c.position[0])))
   /** An edge: the wing's position, its coordinate along the edge set to 0. */
   const edgeOf = (p: Vec3) =>
-    key(p.map((v, i) => (i === 1 || Math.abs(v) === reach ? v : 0)) as unknown as Vec3)
-  const colors = (c: Cubie) =>
-    c.stickers
-      .map((s) => s.color)
-      .sort()
-      .join('')
+    vecKey(mapVec(p, (v, i) => (i === 1 || Math.abs(v) === reach ? v : 0)))
   const colorsOf = (state: Cube, swap = false): Map<string, string> => {
     const wings = state.filter(isWing)
     const edges = [...new Set(wings.map((w) => edgeOf(w.position)))].sort()
     const counts = new Map<string, number>()
     for (const w of wings) {
-      const id = `${edgeOf(w.position)}|${colors(w)}`
+      const id = `${edgeOf(w.position)}|${pieceColors(w)}`
       counts.set(id, (counts.get(id) ?? 0) + 1)
     }
     const given = new Map<string, string>()
     const taken = new Set<string>()
-    const all = [...new Set(wings.map(colors))]
+    const all = [...new Set(wings.map(pieceColors))]
     const ranked = edges
       .flatMap((e) => all.map((c) => ({ e, c, n: counts.get(`${e}|${c}`) ?? 0 })))
       .sort((a, b) => b.n - a.n || (a.e + a.c < b.e + b.c ? -1 : 1))
@@ -263,15 +256,13 @@ export function wingEdges(shape: CubeShape, isWing: (c: Cubie) => boolean) {
           // The wing as it would stand in a slot: its top or bottom color up
           // or down, the other out to the side.
           const target = slots.find((s) => {
-            if (given.get(edgeOf(s)) !== colors(w)) return false
+            if (given.get(edgeOf(s)) !== pieceColors(w)) return false
             const up: Vec3 = [0, Math.sign(s[1]), 0]
-            const out = s.map((v, i) =>
-              i !== 1 && Math.abs(v) === reach ? Math.sign(v) : 0,
-            ) as unknown as Vec3
+            const out = mapVec(s, (v, i) => (i !== 1 && Math.abs(v) === reach ? Math.sign(v) : 0))
             const n = sorted.map((st) => (st.color === upColor ? up : out))
             return Math.sign(det(s, n[0]!, n[1]!)) === own
           })!
-          return [key(w.position), key(target)]
+          return [vecKey(w.position), vecKey(target)]
         }),
       )
     }
@@ -291,52 +282,6 @@ export const byCycles =
 export const placed = (homeOf: (state: Cube) => ReadonlyMap<string, string>) => (cube: Cube) =>
   [...homeOf(cube)].every(([at, to]) => at === to)
 
-/** A plan read on a projection (the tower a big one has become), its moves
- *  played as they are. */
-export function projected(plan: MethodPlan, project: (cube: Cube) => Cube): MethodPlan {
-  return plan.map((spec) => ({
-    ...spec,
-    goal: (cube: Cube) => spec.goal(project(cube)),
-    phases: spec.phases.map((phase) => (cube: Cube) => phase(project(cube))),
-  }))
-}
-
-/** Lazily built, once. */
-export function once<T>(build: () => T): () => T {
-  let value: T | undefined
-  return () => (value ??= build())
-}
-
-/** Whether a permutation of slots (each to where its piece goes) is odd. */
-export function isOdd(home: ReadonlyMap<string, string>): boolean {
-  const seen = new Set<string>()
-  let odd = 0
-  for (const start of home.keys()) {
-    for (let at = start; !seen.has(at); at = home.get(at)!) {
-      seen.add(at)
-      odd ^= at === start ? 0 : 1
-    }
-  }
-  return odd === 1
-}
-
-/** Where each piece of a kind goes, its pieces all unlike (its solved
- *  slot, found by its colors). */
-export function homesByColors(shape: CubeShape, isKind: (c: Cubie) => boolean) {
-  const colors = (c: Cubie) =>
-    c.stickers
-      .map((s) => s.color)
-      .sort()
-      .join('')
-  const homes = new Map(
-    solvedCube(shape)
-      .filter(isKind)
-      .map((c) => [colors(c), key(c.position)]),
-  )
-  return (state: Cube): Map<string, string> =>
-    new Map(state.filter(isKind).map((c) => [key(c.position), homes.get(colors(c))!]))
-}
-
 /** Where each two-sticker piece goes, twins told apart by handedness (a
  *  4x4x3's wings): its solved slot. */
 export function homesByHand(shape: CubeShape, isKind: (c: Cubie) => boolean) {
@@ -348,10 +293,10 @@ export function homesByHand(shape: CubeShape, isKind: (c: Cubie) => boolean) {
   const homes = new Map(
     solvedCube(shape)
       .filter(isKind)
-      .map((c) => [id(c), key(c.position)]),
+      .map((c) => [id(c), vecKey(c.position)]),
   )
   return (state: Cube): Map<string, string> =>
-    new Map(state.filter(isKind).map((c) => [key(c.position), homes.get(id(c))!]))
+    new Map(state.filter(isKind).map((c) => [vecKey(c.position), homes.get(id(c))!]))
 }
 
 /** Whether the pieces of a kind stand an odd permutation away from where

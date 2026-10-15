@@ -1,26 +1,23 @@
 import { Fragment, useState } from 'react'
-import { cubeShape, solvedCube } from '@/lib/core/cube'
+import { cubeShape } from '@/lib/core/cube'
 import { normalOfIndex } from '@/lib/core/geometry'
+import type { Cubie } from '@/lib/core/types'
 import { canPaint, slotsFor } from '@/lib/editor/editor'
-import { stickerId } from '@/lib/editor/editorTables'
+import { stickerId, type Slot } from '@/lib/editor/editorTables'
 import { entersByPieces, piecesIn } from '@/lib/editor/pieceEditor'
-import { CATEGORY_OF } from '@/lib/puzzles/catalog'
-import { fusedAs } from '@/lib/puzzles/bandaged/bonds'
-import { entersJoints, splits, tileMates, withJoints } from '@/lib/editor/jointsEditor'
+import { splits, tileMates } from '@/lib/editor/jointsEditor'
 import { cutPieces } from '@/lib/editor/cutsEditor'
-import { JointHandles } from './JointHandles'
-import { withBars } from '@/lib/puzzles/bandaged/roadblock'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { COLOR_HEX } from './colors'
 import { EMPTY_COLOR } from './EditView'
+import { JointHandles } from './JointHandles'
+import { Decal } from './Decal'
+import { PolyPiece } from './PolyPiece'
+import { polyDrawing } from './polyDrawing'
 
 /** An empty border of a super cube's center: darker than an empty sticker. */
 const EMPTY_BORDER = '#334155'
-import { Decal } from './Decal'
-import { PolyPiece } from './PolyPiece'
-import { UNPAINTED } from '../puzzles/twisted/latchGeometry'
-import { polyDrawing } from './polyDrawing'
 
 /**
  * A gridless puzzle in edit mode: every slot drawn as its piece, each visible
@@ -45,11 +42,9 @@ export function PolyEditView() {
   // A bandaged puzzle's joints being clicked: its pieces drawn plain.
   const clickingJoints = useEditor((s) => s.phase === 'joints')
   const split = useEditor((s) => s.split)
-  const byJoints = entersJoints(shape)
   // While a form is being chosen, the one hovered (the original otherwise).
   const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
   const drawing = polyDrawing(shape)
-  const isSuper = shape === 'super4' || shape === 'super5'
   const pieces = entersByPieces(shape) ? piecesIn(edit, shape) : undefined
   // The sticker under the pointer (its slot's key, then its normal index).
   const [hovered, setHovered] = useState<string | null>(null)
@@ -64,6 +59,37 @@ export function PolyEditView() {
   const cutAt = useEditor((s) => s.cutAt)
   // The cell under the pointer: its halves light up together.
   const [hoveredCell, setHoveredCell] = useState<string | null>(null)
+
+  /** A Z-Twist side center, a Quarter Cube's: a click turns it a quarter,
+   *  or back. */
+  const turnsOnClick = (slot: Slot) =>
+    slot.stickers.length === 1 && !!drawing.editTurns?.(slot.position)
+
+  /** The slot's piece as drawn: as solved (its geometry lists every
+   *  sticker), turned as entered, then as its drawing says (`editLook`). */
+  const lookOf = (slot: Slot, turns: boolean): Cubie => {
+    const plain = {
+      position: slot.position,
+      stickers: slot.stickers.map((s) => ({ normal: s.normal, color: s.solvedColor })),
+      ...(turns && { spin: twisted.includes(slot.key) ? 1 : 0 }),
+    }
+    if (!drawing.editLook) return plain
+    const colors = slot.stickers.map((s) => edit[s.id])
+    return drawing.editLook(plain, { colors, twisted, joints })
+  }
+
+  /** What a click on the slot does: split it while the joints are entered,
+   *  turn it, or paint the sticker clicked. */
+  const onSelectFor = (slot: Slot, turns: boolean) => {
+    if (clickingJoints) {
+      if (!splits(shape, joints, slot.position)) return undefined
+      return (ni: number, at: readonly number[]) =>
+        split(slot.position, splitAxis(slot.position, ni, at))
+    }
+    if (turns) return () => twistAt(slot.key)
+    if (canPaint(shape, slot.key, form)) return (ni: number) => paintAt(slot.key, ni)
+    return undefined
+  }
 
   // The Fashion-V's halves being placed: drawn as its cells say, gray but
   // its centers (which never move); a click turns a cell's halves round.
@@ -98,37 +124,8 @@ export function PolyEditView() {
       <group quaternion={drawing.orient ?? [0, 0, 0, 1]} position={drawing.offset ?? [0, 0, 0]}>
         {slotsFor(shape, form).map((slot) => {
           const byNi = new Map(slot.stickers.map((s) => [s.ni, s.id]))
-          // The slot's piece as solved: its geometry lists every sticker.
-          // A Z-Twist side center, a Quarter Cube's: a click turns it a
-          // quarter, or back.
-          const twistCenter =
-            slot.stickers.length === 1 &&
-            ((shape === 'twist' && slot.position[1] === 0) || shape === 'quarter')
-          const plain = {
-            position: slot.position,
-            stickers: slot.stickers.map((s) => ({ normal: s.normal, color: s.solvedColor })),
-            ...(twistCenter && { spin: twisted.includes(slot.key) ? 1 : 0 }),
-          }
-          // A RoadBlock-I's centers drawn as their bars lie (`twisted`: its
-          // faces turned a quarter); a bandaged puzzle's pieces fused as solved.
-          // A Latch Cube's piece drawn in its entered colors (its arrows and
-          // circles follow them; none until it is all painted).
-          const solved =
-            shape === 'latch'
-              ? {
-                  ...plain,
-                  stickers: plain.stickers.map((st, i) => ({
-                    ...st,
-                    color: edit[slot.stickers[i]!.id] ?? UNPAINTED,
-                  })),
-                }
-              : shape === 'roadblock'
-                ? withBars([plain], twisted)[0]!
-                : byJoints
-                  ? withJoints([plain], joints)[0]!
-                  : CATEGORY_OF[shape] === 'bandaged'
-                    ? fusedAs(plain, solvedCube(shape))
-                    : plain
+          const turns = turnsOnClick(slot)
+          const solved = lookOf(slot, turns)
           if (pieces && slot.paintable) {
             // Entered piece by piece: the piece placed, or the slot's own in
             // gray while empty; a click puts the next one.
@@ -154,7 +151,7 @@ export function PolyEditView() {
             slot.stickers
               .filter(
                 (s) =>
-                  isSuper &&
+                  drawing.editBorders &&
                   s.normal.reduce((sum, v, d) => sum + v * slot.position[d]!, 0) !==
                     Math.max(...slot.position.map(Math.abs)),
               )
@@ -186,17 +183,7 @@ export function PolyEditView() {
               cubie={solved}
               drawing={drawing}
               stickerHex={hex}
-              onSelect={
-                clickingJoints
-                  ? splits(shape, joints, slot.position)
-                    ? (ni, at) => split(slot.position, splitAxis(slot.position, ni, at))
-                    : undefined
-                  : twistCenter
-                    ? () => twistAt(slot.key)
-                    : canPaint(shape, slot.key, form)
-                      ? (ni) => paintAt(slot.key, ni)
-                      : undefined
-              }
+              onSelect={onSelectFor(slot, turns)}
               onHover={hover(slot.key)}
               lit={litIn(slot.key)}
             />

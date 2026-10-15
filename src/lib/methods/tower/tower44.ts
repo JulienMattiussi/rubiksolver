@@ -1,4 +1,4 @@
-import { faceColorsOf } from '../../core/cube'
+import { faceColorsOf, solvedCube } from '../../core/cube'
 import { allTurnsOf } from '../../core/moveSet'
 import { parseMoves } from '../../core/moves'
 import type { MethodPlan, StepSpec } from '../../solve/solverKit'
@@ -7,15 +7,15 @@ import { innerDomino, middleLayer, outerDomino } from './towerLayers'
 import {
   byCycles,
   homesByColor,
-  homesByColors,
   homesByHand,
-  isOdd,
   oddBlocks,
-  once,
   placed,
   towerCycles,
   wingEdges,
 } from './towerReduce'
+import { once } from '../../solve/once'
+import { permutationIsOdd } from '../../solve/permutation'
+import { uniqueHomes } from '../../solve/cycleTable'
 
 /**
  * 4x4x3 and 4x4x5 towers, as fan2cube.fr solves them (tower4432,
@@ -62,8 +62,10 @@ function plan44(shape: '443' | '445'): MethodPlan {
     return byCycles(wingTable, homesFor(colorsOf(cube, odd)))(cube)
   }
 
-  const cornersOdd = (cube: Cube) => isOdd(homesByColors(shape, isCorner)(cube))
-  const middleOdd = (cube: Cube) => isOdd(homesByColors(shape, isMiddleEdge)(cube))
+  const cornerHomes = uniqueHomes(solvedCube(shape), isCorner)
+  const middleHomes = uniqueHomes(solvedCube(shape), isMiddleEdge)
+  const cornersOdd = (cube: Cube) => permutationIsOdd(cornerHomes(cube))
+  const middleOdd = (cube: Cube) => permutationIsOdd(middleHomes(cube))
   const wingsOdd = oddBlocks(homesByHand(shape, isWing), wingTable)
   /** Whether the middle edges lie turned: their colors of the left and
    *  right faces along z (all four alike: only the middle layer's quarter

@@ -1,3 +1,4 @@
+import { isMark } from '@/lib/core/types'
 import { FACE_NORMAL, normalIndex } from '@/lib/core/geometry'
 import { barAxis } from '@/lib/puzzles/bandaged/roadblock'
 import type { Cubie, Face } from '@/lib/core/types'
@@ -60,7 +61,7 @@ export function roadblockPolygons(cubie: Cubie): PiecePolygon[] {
       paint: 'body',
       normal: [...n] as P3,
     })
-    const sticker = cubie.stickers.find((s) => s.color !== 'H' && s.normal.join() === n.join())
+    const sticker = cubie.stickers.find((s) => !isMark(s) && s.normal.join() === n.join())
     if (sticker) {
       out.push({
         points: orient(rect(edge(b, STICKER), edge(c, STICKER), 0.004)),

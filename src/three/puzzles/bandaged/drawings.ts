@@ -1,6 +1,10 @@
-import type { CubeShape } from '@/lib/core/types'
+import { solvedCube } from '@/lib/core/cube'
+import type { CubeShape, Cubie } from '@/lib/core/types'
+import { entersJoints, withJoints } from '@/lib/editor/jointsEditor'
 import { BLOCKS } from '@/lib/puzzles/bandaged/blocks'
-import type { PolyDrawing } from '../../core/polyDrawing'
+import { fusedAs } from '@/lib/puzzles/bandaged/bonds'
+import { withBars } from '@/lib/puzzles/bandaged/roadblock'
+import type { EditEntry, PolyDrawing } from '../../core/polyDrawing'
 import { aiPolygons } from './aiGeometry'
 import { bandagedPolygons, bandagedThumbnail } from './bandagedGeometry'
 import { roadblockPolygons } from './roadblockGeometry'
@@ -17,14 +21,32 @@ const YAW: Partial<Record<keyof typeof BLOCKS, number>> = {
   quadStripe: Math.PI,
 }
 
+/** A bandaged puzzle's piece while it is entered: fused as its joints say
+ *  when they are entered, as solved otherwise. */
+const fusedLook =
+  (shape: CubeShape) =>
+  (plain: Cubie, { joints }: EditEntry): Cubie =>
+    entersJoints(shape) ? withJoints([plain], joints)[0]! : fusedAs(plain, solvedCube(shape))
+
 /** Upright as the cubes; the 3x3x3s alike, but turned to show their blocks. */
 export const BANDAGED_DRAWINGS = {
   ...(Object.fromEntries(
     (Object.keys(BLOCKS) as (keyof typeof BLOCKS)[]).map((shape) => [
       shape,
-      { polygons: bandagedPolygons, thumbnail: bandagedThumbnail, yaw: YAW[shape] ?? 0 },
+      {
+        polygons: bandagedPolygons,
+        thumbnail: bandagedThumbnail,
+        yaw: YAW[shape] ?? 0,
+        editLook: fusedLook(shape),
+      },
     ]),
   ) as Record<keyof typeof BLOCKS, PolyDrawing>),
-  ai: { polygons: aiPolygons, yaw: 0 },
-  roadblock: { polygons: roadblockPolygons, yaw: 0 },
+  ai: { polygons: aiPolygons, yaw: 0, editLook: fusedLook('ai') },
+  // Entered, its centers drawn as their bars lie (`twisted`: its faces
+  // turned a quarter).
+  roadblock: {
+    polygons: roadblockPolygons,
+    yaw: 0,
+    editLook: (plain, { twisted }) => withBars([plain], twisted)[0]!,
+  },
 } satisfies Partial<Record<CubeShape, PolyDrawing>>

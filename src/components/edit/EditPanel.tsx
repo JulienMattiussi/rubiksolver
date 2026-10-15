@@ -7,7 +7,7 @@ import { entersCuts, wholeCount } from '@/lib/editor/cutsEditor'
 import { gearFaces, gearsPainted } from '@/lib/editor/gearEditor'
 import { hasColoredClips, SHAPE_EDIT_HINT } from '@/lib/core/types'
 import type { EditHint } from '@/lib/puzzles/entry'
-import type { Translations } from '@/i18n/translations'
+import { stepName, type Translations } from '@/i18n/translations'
 import { entersByPieces, placedCount } from '@/lib/editor/pieceEditor'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
@@ -15,7 +15,9 @@ import { useEditor } from '@/store/editorStore'
 import { Button } from '@/components/ui/Button'
 import { BarToggles } from './BarToggles'
 import { ColorPalette } from './ColorPalette'
+import { ErrorAlert } from './ErrorAlert'
 import { FormPicker } from './FormPicker'
+import { PhasePanel } from './PhasePanel'
 import { PiecesLeft } from './PiecesLeft'
 
 /** The editor's own hints, by kind (a puzzle's card says which). */
@@ -27,6 +29,22 @@ const HINTS = (t: Translations): Record<EditHint, string> => ({
   gear: t.editHintGear,
   gearPlain: t.editHintGearPlain,
 })
+
+/** Why the entry is refused: the colors counted wrong (on a mirror cube,
+ *  its sizes), the gears, the colors against the joints, or the state
+ *  unsolvable (at the step the solver stopped, when it says). */
+function errorText(
+  t: Translations,
+  error: string,
+  failedStep: string | null,
+  mirror: boolean,
+): string {
+  if (error === 'gears') return t.errorGears
+  if (error === 'jointsColors') return t.errorJointsColors
+  if (error === 'counts') return mirror ? t.errorCountsMirror : t.errorCounts
+  if (failedStep && failedStep in t.steps) return t.errorImpossibleAt(stepName(t, failedStep))
+  return t.errorImpossible
+}
 
 /** Cube-entry panel: the form first on a shape-shifting puzzle (FormPicker),
  *  the joints first on a bandaged one whose blocks move (JointHandles),
@@ -67,51 +85,29 @@ export function EditPanel() {
 
   if (phase === 'cuts') {
     return (
-      <div className="flex flex-col gap-5">
-        <p className="text-xs leading-relaxed text-slate-400">{t.editHintCuts}</p>
-        <span className="text-sm font-medium text-slate-200">
-          {t.wholeEdgesOf(wholeCount(cuts))}
-        </span>
-        {error === 'cuts' && (
-          <p role="alert" className="rounded-lg bg-red-500/15 px-3 py-2 text-xs text-red-300">
-            {t.errorCuts}
-          </p>
-        )}
-        <div className="grid grid-cols-2 gap-2">
-          <Button variant="primary" onClick={acceptCuts} className="col-span-2">
-            <Check className="size-4" aria-hidden />
-            {t.acceptCuts}
-          </Button>
-          <Button onClick={cancel} className="col-span-2">
-            <X className="size-4" aria-hidden />
-            {t.cancel}
-          </Button>
-        </div>
-      </div>
+      <PhasePanel
+        hint={t.editHintCuts}
+        counter={
+          <span className="text-sm font-medium text-slate-200">
+            {t.wholeEdgesOf(wholeCount(cuts))}
+          </span>
+        }
+        error={error === 'cuts' ? t.errorCuts : null}
+        accept={t.acceptCuts}
+        onAccept={acceptCuts}
+      />
     )
   }
 
   if (phase === 'joints') {
     return (
-      <div className="flex flex-col gap-5">
-        <p className="text-xs leading-relaxed text-slate-400">{t.editHintJoints}</p>
-        <PiecesLeft shape={shape} />
-        {error === 'joints' && (
-          <p role="alert" className="rounded-lg bg-red-500/15 px-3 py-2 text-xs text-red-300">
-            {t.errorJoints}
-          </p>
-        )}
-        <div className="grid grid-cols-2 gap-2">
-          <Button variant="primary" onClick={acceptJoints} className="col-span-2">
-            <Check className="size-4" aria-hidden />
-            {t.acceptJoints}
-          </Button>
-          <Button onClick={cancel} className="col-span-2">
-            <X className="size-4" aria-hidden />
-            {t.cancel}
-          </Button>
-        </div>
-      </div>
+      <PhasePanel
+        hint={t.editHintJoints}
+        counter={<PiecesLeft shape={shape} />}
+        error={error === 'joints' ? t.errorJoints : null}
+        accept={t.acceptJoints}
+        onAccept={acceptJoints}
+      />
     )
   }
 
@@ -138,7 +134,7 @@ export function EditPanel() {
               : t.editHint}
       </p>
 
-      {shape === 'roadblock' && <BarToggles />}
+      {hint === 'roadblock' && <BarToggles />}
 
       {!byPieces && <ColorPalette />}
 
@@ -153,21 +149,7 @@ export function EditPanel() {
         {complete && <Check className="size-4 text-emerald-400" aria-hidden />}
       </div>
 
-      {error && (
-        <p role="alert" className="rounded-lg bg-red-500/15 px-3 py-2 text-xs text-red-300">
-          {error === 'gears'
-            ? t.errorGears
-            : error === 'jointsColors'
-              ? t.errorJointsColors
-              : error !== 'counts'
-                ? failedStep && failedStep in t.steps
-                  ? t.errorImpossibleAt((t.steps as Record<string, string>)[failedStep]!)
-                  : t.errorImpossible
-                : mirror
-                  ? t.errorCountsMirror
-                  : t.errorCounts}
-        </p>
-      )}
+      {error && <ErrorAlert>{errorText(t, error, failedStep, mirror)}</ErrorAlert>}
 
       <div className="grid grid-cols-2 gap-2">
         <Button variant="primary" onClick={apply} disabled={!complete} className="col-span-2">

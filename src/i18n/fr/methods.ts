@@ -86,7 +86,7 @@ export const METHODS_FR = {
   },
   fashionLaid: {
     name: 'Coucher puis deux tours',
-    desc: 'On couche d’abord toutes les paires, par blocs comme sur un Rubik’s Cube, pour retrouver un 3x3x5 ; puis on le résout comme les tours : le Domino du dehors (H et B), celui du dedans (h et b), enfin l’équateur.',
+    desc: 'On couche d’abord toutes les paires, par blocs comme sur un Rubik’s Cube, pour retrouver un 3x3x5 ; on range l’équateur autour de ses centres ; puis on le résout comme les tours : le Domino du dehors (H et B), puis celui du dedans (h et b), leurs formules jouées deux fois pour que l’équateur ne bouge pas.',
   },
   latchEdgesFirst: {
     name: 'Les arêtes d’abord',

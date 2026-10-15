@@ -1,6 +1,7 @@
-import { FACE_NORMAL, FACE_SPEC } from '../../core/geometry'
+import { FACE_NORMAL, FACE_SPEC, mapVec } from '../../core/geometry'
+import { MARK } from '../../core/types'
 import { applyMove, moveSlab, inSlab } from '../../core/turn'
-import type { Color, Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
+import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
 
 /**
  * The RoadBlock-I (fan2cube.fr/roadblock-I1, WitEden, 2012): a 5x5x5 whose
@@ -15,9 +16,6 @@ import type { Color, Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
  * its bar (as the Fisher Cube's, fisher.ts): every turn carries it, and the
  * face it is on says how its bar lies.
  */
-
-/** The marks' color, never drawn nor painted. */
-const MARK: Color = 'H'
 
 const isCenter = (c: Cubie) =>
   c.position.filter((v) => Math.abs(v) === 2).length === 1 &&
@@ -46,7 +44,7 @@ function barOn(face: Vec3, turned: boolean): Vec3 {
   const start = solvedBar(face)
   if (!turned) return start
   const other = 3 - face.findIndex((v) => v !== 0) - start.findIndex((v) => v !== 0)
-  return [0, 1, 2].map((d) => (d === other ? 1 : 0)) as unknown as Vec3
+  return mapVec([0, 1, 2], (d) => (d === other ? 1 : 0))
 }
 
 /** The 5x5x5 as a RoadBlock-I: its centers marked along their bars, as
@@ -77,9 +75,9 @@ export const barsTurned = (cube: Cube): string[] =>
  *  as `turned` says. */
 export function barCells(position: Vec3, turned: readonly string[]): Vec3[] {
   const axis = position.findIndex((v) => Math.abs(v) === 2)
-  const face = position.map((v, d) => (d === axis ? Math.sign(v) : 0)) as unknown as Vec3
+  const face = mapVec(position, (v, d) => (d === axis ? Math.sign(v) : 0))
   const along = barOn(face, turned.includes(faceKey(face))).findIndex((v) => v !== 0)
-  return [-1, 0, 1].map((k) => position.map((v, d) => (d === along ? k : v)) as unknown as Vec3)
+  return [-1, 0, 1].map((k) => mapVec(position, (v, d) => (d === along ? k : v)))
 }
 
 /** The 5x5x5 it is, its bars' marks set aside. */

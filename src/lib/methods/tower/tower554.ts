@@ -1,18 +1,17 @@
 import { moveSet } from '../../core/moveSet'
 import { parseMoves } from '../../core/moves'
-import type { MethodPlan } from '../../solve/solverKit'
+import { projectPlan, type MethodPlan } from '../../solve/solverKit'
 import type { Cube, Cubie } from '../../core/types'
 import { TOWER334_PLAN } from './tower334'
 import {
   byCycles,
   homesByColor,
   oddBlocks,
-  once,
   placed,
-  projected,
   towerCycles,
   wingsToMiddles,
 } from './towerReduce'
+import { once } from '../../solve/once'
 
 /**
  * 5x5x4 tower, as fan2cube.fr solves it (tower5542): "le but est de
@@ -119,5 +118,5 @@ export const TOWER554_PLAN: MethodPlan = [
     moves: ALL,
     phases: [kindStep('wings')],
   },
-  ...projected(TOWER334_PLAN, to334),
+  ...projectPlan(TOWER334_PLAN, to334),
 ]

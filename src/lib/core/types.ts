@@ -427,6 +427,14 @@ export interface CopterMove {
 export type Turn =
   Move | StarMove | PyraMove | GhostMove | PuckMove | RainbowMove | GearMove | MegaMove | CopterMove
 
+/** The color of a hidden mark: a sticker no one sees, which tells a
+ *  piece's state its colors do not (a bandaged puzzle's blocks, the Fisher
+ *  Cube's and the Master Morphinx's turned centers, the Latch Cube's core). */
+export const MARK: Color = 'H'
+
+/** Whether a sticker is a hidden mark. */
+export const isMark = (s: { readonly color: Color }): boolean => s.color === MARK
+
 /** Whether a turn is a star prism's. */
 export const isStarMove = (turn: Turn): turn is StarMove => 'ring' in turn || 'slash' in turn
 

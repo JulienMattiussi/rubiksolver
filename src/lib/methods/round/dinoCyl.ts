@@ -1,12 +1,12 @@
 import { isSolved, solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS } from '../../core/geometry'
+import { AXIS_ROTATIONS, vecKey } from '../../core/geometry'
 import { allTurnsOf } from '../../core/moveSet'
 import { invertMoves } from '../../core/moves'
 import { colorsOf } from '../../core/pieces'
 import { parseDinoMoves } from '../../puzzles/shared/rainbow'
 import type { MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
-import type { Cube, Cubie, RainbowMove, Vec3 } from '../../core/types'
+import type { Cube, Cubie, RainbowMove } from '../../core/types'
 import { dinoLayers } from '../diagonal/dino'
 import { fromEverySide } from '../shared/rainbowKit'
 
@@ -26,7 +26,6 @@ import { fromEverySide } from '../shared/rainbowKit'
 
 const SOLVED = solvedCube('dinoCyl')
 const TURNS = allTurnsOf('dinoCyl')
-const key = (p: Vec3) => p.join()
 const isCorner = (c: Cubie) => c.stickers.length === 3
 const isEdge = (c: Cubie) => !isCorner(c)
 
@@ -44,12 +43,12 @@ const HELD: readonly Cube[] = AXIS_ROTATIONS.map((turn) =>
 /** The way of holding it the corners say (they never move), as each
  *  piece's home by its colors. */
 function targetOf(state: Cube): Map<string, string> {
-  const at = new Map(state.filter(isCorner).map((c) => [key(c.position), colorsOf(c)]))
+  const at = new Map(state.filter(isCorner).map((c) => [vecKey(c.position), colorsOf(c)]))
   const held = HELD.find((h) =>
-    h.filter(isCorner).every((c) => at.get(key(c.position)) === colorsOf(c)),
+    h.filter(isCorner).every((c) => at.get(vecKey(c.position)) === colorsOf(c)),
   )
   if (!held) throw new Error('dinoCyl: its corners are not a puzzle held any way')
-  return new Map(held.map((c) => [colorsOf(c), key(c.position)]))
+  return new Map(held.map((c) => [colorsOf(c), vecKey(c.position)]))
 }
 
 /** The corner turns, from every side, both ways, and what each turns. */
@@ -63,16 +62,16 @@ function turnCorners(cube: Cube): RainbowMove[] {
   // The target's corners, by position: each as it should stand.
   const want = (s: Cube) => {
     const home = targetOf(s)
-    const held = HELD.find((h) => h.every((c) => home.get(colorsOf(c)) === key(c.position)))!
-    return new Map(held.filter(isCorner).map((c) => [key(c.position), pose(c)]))
+    const held = HELD.find((h) => h.every((c) => home.get(colorsOf(c)) === vecKey(c.position)))!
+    return new Map(held.filter(isCorner).map((c) => [vecKey(c.position), pose(c)]))
   }
   for (let guard = 0; guard < 16; guard++) {
     const target = want(state)
-    const off = state.filter((c) => isCorner(c) && target.get(key(c.position)) !== pose(c))
+    const off = state.filter((c) => isCorner(c) && target.get(vecKey(c.position)) !== pose(c))
     if (!off.length) return all
-    const at = key(off[0]!.position)
+    const at = vecKey(off[0]!.position)
     const home = (s: Cube) => {
-      const c = s.find((p) => key(p.position) === at)!
+      const c = s.find((p) => vecKey(p.position) === at)!
       return target.get(at) === pose(c)
     }
     const moves = TURNERS.find((m) => home(applyMoves(state, m)))

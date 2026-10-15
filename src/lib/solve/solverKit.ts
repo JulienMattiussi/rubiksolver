@@ -186,7 +186,29 @@ export function planOutline(plan: MethodPlan): { key: string; optional?: true }[
 /** A solving method for one shape: its steps, in order. */
 export type MethodPlan = readonly StepSpec[]
 
-/** Run a method's steps, emitting one named step each (empty ones dropped). */
+/**
+ * A plan read through a view of the puzzle (its colors only, the 3x3 it has
+ * become, the way it is held...): each goal read on the view, each phase run
+ * on it. Its turns play as they are, or through `lift` when the view turns
+ * other layers than the puzzle (its allowed turns lifted alike).
+ */
+export function projectPlan(
+  plan: MethodPlan,
+  view: (cube: Cube) => Cube,
+  lift?: (turn: Turn) => Turn,
+): MethodPlan {
+  return plan.map((spec) => ({
+    ...spec,
+    goal: (cube: Cube) => spec.goal(view(cube)),
+    moves: lift
+      ? { generators: spec.moves.generators.map(lift), turns: spec.moves.turns.map(lift) }
+      : spec.moves,
+    phases: spec.phases.map((phase) =>
+      lift ? (cube: Cube) => phase(view(cube)).map(lift) : (cube: Cube) => phase(view(cube)),
+    ),
+  }))
+}
+
 /** A step that cannot reach its goal (an impossible puzzle, as far as this
  *  method goes): which one, for the editor to say where to look. */
 export class StepFailure extends Error {
@@ -207,6 +229,7 @@ function goesFrom(cube: Cube, moves: readonly Turn[]): boolean {
   return true
 }
 
+/** Run a method's steps, emitting one named step each (empty ones dropped). */
 export function buildSteps(cube: Cube, plan: MethodPlan): SolveStep[] {
   if (isSolved(cube)) return []
   let state = cube

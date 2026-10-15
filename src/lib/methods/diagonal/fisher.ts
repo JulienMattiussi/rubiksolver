@@ -2,7 +2,7 @@ import { isSolved } from '../../core/cube'
 import { centersOff, withoutMarks } from '../../puzzles/diagonal/fisher'
 import { invertMoves } from '../../core/moves'
 import { moveSet } from '../../core/moveSet'
-import { relMoves, SIDES, type MethodPlan } from '../../solve/solverKit'
+import { projectPlan, relMoves, SIDES, type MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Move } from '../../core/types'
 
@@ -49,11 +49,7 @@ function turnCenters(cube: Cube): Move[] {
 /** A 3x3 plan, played on the Fisher Cube: on its colors, then its centers. */
 export function fisherPlan(plan: MethodPlan): MethodPlan {
   return [
-    ...plan.map((spec) => ({
-      ...spec,
-      goal: (cube: Cube) => spec.goal(withoutMarks(cube)),
-      phases: spec.phases.map((phase) => (cube: Cube) => phase(withoutMarks(cube))),
-    })),
+    ...projectPlan(plan, withoutMarks),
     {
       key: 'stepFisherCenters',
       goal: isSolved,

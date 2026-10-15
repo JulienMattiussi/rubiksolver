@@ -12,7 +12,7 @@ import {
   TRIANGLE_NAMES_FR,
   STAR_LAYER_FR,
   type StarLayer,
-} from '../moveSentences'
+} from './moveSentences'
 
 /** The interface's texts and move titles (the source; English mirrors it). */
 export const UI_FR = {
@@ -223,6 +223,7 @@ export const UI_FR = {
     H: 'Graphite',
   },
   cubeLabel: 'Choix du cube',
+  cubeLabelOf: (name: string) => `Choix du cube : ${name}`,
   chooseCube: 'Choisir un cube',
   chooseModel: 'Choisissez un modèle',
   homeLink: 'Revenir à l’accueil',

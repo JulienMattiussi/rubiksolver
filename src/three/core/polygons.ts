@@ -63,3 +63,17 @@ export function face(
     ? [body, { points: sticker(points, normal, scale), paint: color, normal, ni }]
     : [body]
 }
+
+/** A point of the face of normal `n` through `center`, at (u, v) across it
+ *  (counter-clockwise seen from outside), lifted off it. */
+export function onFace(center: readonly number[], n: readonly number[], lift: number) {
+  const a = n.findIndex((v) => v !== 0)
+  const [b, c] = [(a + 1) % 3, (a + 2) % 3]
+  return (u: number, v: number): P3 => {
+    const p: number[] = [...center]
+    p[a] = center[a]! + n[a]! * (0.5 + lift)
+    p[b] = center[b]! + u
+    p[c] = center[c]! + v * n[a]!
+    return p as P3
+  }
+}

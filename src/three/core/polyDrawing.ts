@@ -1,5 +1,6 @@
 import type * as THREE from 'three'
-import type { CubeShape, Cubie } from '@/lib/core/types'
+import type { Color, CubeShape, Cubie } from '@/lib/core/types'
+import type { Joint } from '@/lib/editor/jointsEditor'
 import type { DecalPlace, PiecePolygon } from './polygons'
 import { BANDAGED_DRAWINGS } from '../puzzles/bandaged/drawings'
 import { DIAGONAL_DRAWINGS } from '../puzzles/diagonal/drawings'
@@ -39,6 +40,27 @@ export interface PolyDrawing {
   /** The one color of every sticker, when the puzzle wears a single one
    *  (the Floppy Ghost's silver): its pieces are told apart by shape. */
   readonly skin?: string
+  /** How a slot's piece is drawn while the puzzle is entered, from the piece
+   *  as solved (`plain`), when not as is: the Latch Cube's in its entered
+   *  colors, the RoadBlock-I's centers as their bars lie, a bandaged
+   *  puzzle's pieces fused (PolyEditView). */
+  readonly editLook?: (plain: Cubie, entry: EditEntry) => Cubie
+  /** Whether a slot's center turns a quarter when clicked while the puzzle
+   *  is entered (the Z-Twist's side centers, the Quarter Cube's). */
+  readonly editTurns?: (position: readonly number[]) => boolean
+  /** Its centers' borders darker while empty, to show where to paint (the
+   *  super cubes'). */
+  readonly editBorders?: true
+}
+
+/** What an entry holds that a piece's look may follow (`editLook`). */
+export interface EditEntry {
+  /** The color entered on each of the piece's stickers, in its order. */
+  readonly colors: readonly (Color | undefined)[]
+  /** The faces or centers turned a quarter (editorStore's `twisted`). */
+  readonly twisted: readonly string[]
+  /** A bandaged puzzle's joints clicked so far. */
+  readonly joints: readonly Joint[]
 }
 
 /**

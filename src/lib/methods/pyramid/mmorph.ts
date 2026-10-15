@@ -4,8 +4,8 @@ import { withoutCenterMarks } from '../../puzzles/pyramid/mmorph'
 import { invertMoves, parseMoves } from '../../core/moves'
 import { moveSet } from '../../core/moveSet'
 import { solvePieces } from '../../solve/pieceSearch'
-import type { MethodPlan } from '../../solve/solverKit'
-import type { Cube, Move } from '../../core/types'
+import { projectPlan, type MethodPlan } from '../../solve/solverKit'
+import type { Move } from '../../core/types'
 
 /**
  * The Master Morphinx (mmorph.ts) solved "style Rubik's Cube", as
@@ -39,11 +39,7 @@ const TURNERS: Move[][] = [CENTERS_TWO, CENTER_HALF].flatMap((formula) =>
  *  centers. */
 export function mmorphPlan(plan: MethodPlan): MethodPlan {
   return [
-    ...plan.map((spec) => ({
-      ...spec,
-      goal: (cube: Cube) => spec.goal(withoutCenterMarks(cube)),
-      phases: spec.phases.map((phase) => (cube: Cube) => phase(withoutCenterMarks(cube))),
-    })),
+    ...projectPlan(plan, withoutCenterMarks),
     {
       key: 'stepMorphCenters',
       goal: isSolved,

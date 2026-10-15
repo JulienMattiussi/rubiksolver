@@ -5,7 +5,8 @@ Chaque méthode, ses puzzles et ses étapes (registre : `src/lib/solve/solver.ts
 ## Les méthodes du 3x3 et des cubes
 
 Sur le 3x3, le Fisher Cube, le Windmill et le Master Morphinx (pas le
-Z-Twist ni le Barrel), toutes les méthodes 3x3 commencent par **Remettre les
+Z-Twist, le Barrel ni le Void Cube, sans centres : voir
+[holey](puzzles/holey.md)), toutes les méthodes 3x3 commencent par **Remettre les
 centres** (`withCentersHome`, voir « Coups avancés du 3x3 »,
 [standard](puzzles/standard.md)), étape retirée quand elle est vide ; les
 nombres d'étapes ci-dessous ne la comptent pas.

@@ -1,5 +1,5 @@
 import { FACE_COLOR, solvedCube } from '@/lib/core/cube'
-import { AXIS_ROTATIONS, normalIndex, rotateN } from '@/lib/core/geometry'
+import { AXIS_ROTATIONS, mapVec, normalIndex, rotateN } from '@/lib/core/geometry'
 import { colorsOf } from '@/lib/core/pieces'
 import type { Color, Cubie, Vec3 } from '@/lib/core/types'
 import type { P3, PiecePolygon } from '../../core/polygons'
@@ -319,7 +319,7 @@ function turnOf(cubie: Cubie): (v: Vec3) => Vec3 {
   )!
 }
 
-const unit = (axis: number): Vec3 => [0, 1, 2].map((d) => (d === axis ? 1 : 0)) as unknown as Vec3
+const unit = (axis: number): Vec3 => mapVec([0, 1, 2], (d) => (d === axis ? 1 : 0))
 const SHAPES = new Map<string, PiecePolygon[]>()
 
 /** Every polygon of a Z-Twist piece, as it stands (`outside`: its outer

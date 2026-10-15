@@ -10,15 +10,8 @@ import {
   solvedMegaminx,
 } from './megaminx'
 import { solvedOct4 } from './oct4'
-import {
-  RAINBOW_TURNS,
-  scrambleRainbow,
-  scrambleSkewbU,
-  SKEWB_SYMMETRIES,
-  SKEWB_TURNS,
-  solvedRainbow,
-  solvedSkewbU,
-} from '../shared/rainbow'
+import { RAINBOW_TURNS, scrambleRainbow, solvedRainbow } from '../shared/rainbow'
+import { scrambleSkewbU, SKEWB_SYMMETRIES, SKEWB_TURNS, solvedSkewbU } from '../shared/skewbs'
 import { solvedGem, solvedVto } from './vto'
 
 /** The Megaminx, as the Holey Megaminx turns too. */

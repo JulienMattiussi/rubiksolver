@@ -1,9 +1,9 @@
 import { FACE_COLOR, solvedCube } from '../../core/cube'
-import { homeAt, homesOf } from '../../core/pieces'
+import { homeAt, homesOf, recolored } from '../../core/pieces'
 import { invertMoves, parseMoves } from '../../core/moves'
 import { allTurnsOf, moveSet } from '../../core/moveSet'
 import { applyMoves } from '../../core/turn'
-import { atEverySide, type MethodPlan } from '../../solve/solverKit'
+import { atEverySide, projectPlan, type MethodPlan } from '../../solve/solverKit'
 import { solvePieces } from '../../solve/pieceSearch'
 import type { Color, Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
 import { frame2 } from '../standard/cube2'
@@ -51,13 +51,7 @@ function asCube(cube: Cube): Cube {
   const rename = new Map<Color, Color>(
     (Object.keys(frame) as Face[]).map((f) => [frame[f], FACE_COLOR[f]]),
   )
-  return [
-    ...cube.map((c) => ({
-      ...c,
-      stickers: c.stickers.map((s) => ({ ...s, color: rename.get(s.color)! })),
-    })),
-    ...CENTERS,
-  ]
+  return [...recolored(cube, rename), ...CENTERS]
 }
 
 const TURNS = allTurnsOf('void')
@@ -133,9 +127,7 @@ const OWN: MethodPlan = [
   ...BEGINNER_PLAN.slice(3),
 ]
 
-export const VOID_CUBE_PLAN: MethodPlan = OWN.map((spec) => ({
+export const VOID_CUBE_PLAN: MethodPlan = projectPlan(OWN, asCube).map((spec) => ({
   ...spec,
   moves: TURNS,
-  goal: (cube) => spec.goal(asCube(cube)),
-  phases: spec.phases.map((phase) => (cube: Cube) => phase(asCube(cube))),
 }))

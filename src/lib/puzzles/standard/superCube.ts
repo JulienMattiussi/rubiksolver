@@ -1,4 +1,5 @@
 import type { Color, Cube, Cubie, Sticker, Vec3 } from '../../core/types'
+import { mapVec } from '../../core/geometry'
 
 /**
  * The Super Revenge and the Super Professor (fan2cube.fr/superrevenge1 and
@@ -44,7 +45,7 @@ export function withBorders(cube: Cube): Cube {
       if (d === axis || (c.position[d] === 0 && !middle)) continue
       const toward = middle ? [1, -1] : [Math.sign(c.position[d]!)]
       for (const sign of toward) {
-        const normal = [0, 1, 2].map((k) => (k === d ? sign : 0)) as unknown as Vec3
+        const normal = mapVec([0, 1, 2], (k) => (k === d ? sign : 0))
         borders.push({ normal, color: faceColor.get(normal.join())! })
       }
     }

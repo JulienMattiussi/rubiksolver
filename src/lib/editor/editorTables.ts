@@ -1,7 +1,7 @@
 import { cubeOrientations, solvedCube } from '../core/cube'
 import { MODELS } from '../puzzles/models'
 import { lookOf } from './forms'
-import { AXIS_ROTATIONS, normalIndex } from '../core/geometry'
+import { AXIS_ROTATIONS, normalIndex, vecKey } from '../core/geometry'
 import { layerTurnsOf } from '../core/moves'
 import { applyMove } from '../core/turn'
 import {
@@ -27,8 +27,7 @@ import {
  * piece there, the box being broken); validation tells the reachable ones.
  */
 
-const posKey = (p: Vec3): string => p.join(',')
-export const stickerId = (p: Vec3, ni: number): string => `${posKey(p)}:${ni}`
+export const stickerId = (p: Vec3, ni: number): string => `${vecKey(p)}:${ni}`
 
 type SlotKind = 'corner' | 'edge' | 'center' | 'core'
 
@@ -81,7 +80,7 @@ function entrySolved(shape: CubeShape): Cube {
 /** A cubie of a solved cube as a slot (fixed position + exterior normals). */
 function toSlot(shape: CubeShape, cubie: Cubie, fixed: boolean): Slot {
   return {
-    key: posKey(cubie.position),
+    key: vecKey(cubie.position),
     position: cubie.position,
     kind: kindOf(cubie.stickers.length),
     paintable: cubie.stickers.length > 0 && !fixed,
@@ -248,7 +247,7 @@ function pieceKeyOf(cubie: Cubie, solvedPosition: Vec3): string {
     .join(',')
   return cubie.stickers.length === 1
     ? `C:${kind}${handOf(solvedPosition)}:${cubie.stickers[0]!.color}`
-    : `P:${posKey(solvedPosition)}`
+    : `P:${vecKey(solvedPosition)}`
 }
 
 /** Which of two mirror kinds a center is, when its face holds both (a
@@ -282,7 +281,7 @@ function computePlacements(
   for (const slot of paintableSlots) perSlot.set(slot.key, new Map())
   for (const cube of cubeOrientations(solved)) {
     cube.forEach((cubie, i) => {
-      const bucket = perSlot.get(posKey(cubie.position))
+      const bucket = perSlot.get(vecKey(cubie.position))
       if (!bucket) return // fixed piece / core
       const colors: Placement = {}
       for (const s of cubie.stickers) colors[normalIndex(s.normal)] = s.color

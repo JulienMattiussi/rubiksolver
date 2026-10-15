@@ -1,4 +1,5 @@
 import { FACE_COLOR } from '../../core/cube'
+import { MARK } from '../../core/types'
 import { FACE_NORMAL } from '../../core/geometry'
 import { applyMove } from '../../core/turn'
 import type { Color, Cube, Cubie, Face, Move, Sticker, Vec3 } from '../../core/types'
@@ -108,12 +109,12 @@ export function scrambleLatch(length: number, rng: () => number, start: Cube): M
 
 /** The mark on the hidden core, along a diagonal (no face's): the core
  *  never moves, the mark only tells the Latch Cube from the 3x3. */
-const MARK = { normal: [1, 1, 1] as Vec3, color: 'H' as Color }
+const CORE_MARK = { normal: [1, 1, 1] as Vec3, color: MARK }
 
 const isCore = (c: Cubie) => c.position.every((v) => v === 0)
 
 export const withLatchMark = (cube: Cube): Cube =>
-  cube.map((c) => (isCore(c) && !c.stickers.length ? { ...c, stickers: [MARK] } : c))
+  cube.map((c) => (isCore(c) && !c.stickers.length ? { ...c, stickers: [CORE_MARK] } : c))
 
 export const withoutLatchMark = (cube: Cube): Cube =>
   cube.map((c) => (isCore(c) ? { ...c, stickers: [] } : c))

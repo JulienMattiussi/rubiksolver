@@ -1,4 +1,5 @@
 import { cubeShape, FACE_COLOR } from '../../core/cube'
+import { isMark } from '../../core/types'
 import { invertMoves, sameLayer } from '../../core/moves'
 import { allTurnsOf, type MoveSet } from '../../core/moveSet'
 import { solvePieces } from '../../solve/pieceSearch'
@@ -103,7 +104,6 @@ export const home =
 // START: the position each page's formulas are played from
 // ---------------------------------------------------------------------------
 
-const isMark = (s: { color: string }) => s.color === 'H'
 const marked = (c: Cubie) => c.stickers.some(isMark)
 
 /** A cubie as a search reads it: where it is, its stickers by normal (its

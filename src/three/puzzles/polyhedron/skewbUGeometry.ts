@@ -1,6 +1,6 @@
-import { DODECA_NORMALS, normalIndex } from '@/lib/core/geometry'
+import { DODECA_NORMALS, mapVec, normalIndex } from '@/lib/core/geometry'
 import type { Cubie, Vec3 } from '@/lib/core/types'
-import { polyhedron, type Plane } from '../../core/polyhedron'
+import { dot, polyhedron, type Plane } from '../../core/polyhedron'
 import { face, type P3, type PiecePolygon } from '../../core/polygons'
 
 /**
@@ -29,9 +29,6 @@ const real = (n: Vec3): P3 => {
   return v.map((x) => x / length) as P3
 }
 
-const dot = (a: readonly number[], b: readonly number[]) =>
-  a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!
-
 const SLOTS = new Map<string, { corners: P3[]; normal: Vec3 }[]>()
 
 /** The part of the dodecahedron a slot holds. */
@@ -43,7 +40,7 @@ function slotFaces(position: Vec3) {
     ...DODECA_NORMALS.map((n) => ({ normal: real(n) as unknown as Vec3, offset: 1 })),
     ...DIAGONALS.map((d) => {
       const s = Math.sign(dot(d, position))
-      return { normal: d.map((x) => -s * x) as unknown as Vec3, offset: 0 }
+      return { normal: mapVec(d, (x) => -s * x), offset: 0 }
     }),
   ]
   faces = polyhedron(planes)

@@ -1,4 +1,4 @@
-import { AXIS_ROTATIONS, FACE_NORMAL, faceOfNormal } from '../../core/geometry'
+import { AXIS_ROTATIONS, FACE_NORMAL, faceOfNormal, vecKey } from '../../core/geometry'
 import { parseMoves } from '../../core/moves'
 import { allTurnsOf, moveSet } from '../../core/moveSet'
 import { homesOf } from '../../core/pieces'
@@ -7,6 +7,7 @@ import { isSolved, solvedCube } from '../../core/cube'
 import type { MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
+import { once } from '../../solve/once'
 
 /**
  * Quarter Cube, "edges first", as taught on fan2cube.fr (quarter2). Every
@@ -68,20 +69,17 @@ function variants(formula: readonly Move[]): Move[][] {
   })
 }
 
-let MACROS: Record<'edges' | 'flip' | 'corners' | 'twist', Move[][]> | undefined
-const macros = () =>
-  (MACROS ??= {
-    edges: variants(EDGE_CYCLE),
-    flip: variants(EDGE_FLIP),
-    corners: variants(CORNER_CYCLE),
-    twist: variants(CORNER_TWIST),
-  })
+const macros = once(() => ({
+  edges: variants(EDGE_CYCLE),
+  flip: variants(EDGE_FLIP),
+  corners: variants(CORNER_CYCLE),
+  twist: variants(CORNER_TWIST),
+}))
 
 const isEdge = (c: Cubie) => c.stickers.length === 2
 const isCorner = (c: Cubie) => c.stickers.length === 3
 const EDGES = homesOf('quarter', isEdge)
 const CORNERS = homesOf('quarter', isCorner)
-const key = (p: Vec3) => p.join()
 const HOME = new Map(
   SOLVED.map((c) => [
     c.stickers
@@ -94,14 +92,14 @@ const HOME = new Map(
 
 /** A piece in its slot, whichever way round. */
 const placed = (c: Cubie) =>
-  key(
+  vecKey(
     HOME.get(
       c.stickers
         .map((s) => s.color)
         .sort()
         .join(),
     )!.position,
-  ) === key(c.position)
+  ) === vecKey(c.position)
 /** A piece in its slot, the right way round. */
 const home = (c: Cubie) => {
   const h = HOME.get(
@@ -111,9 +109,9 @@ const home = (c: Cubie) => {
       .join(),
   )!
   return (
-    key(h.position) === key(c.position) &&
+    vecKey(h.position) === vecKey(c.position) &&
     h.stickers.every((s) =>
-      c.stickers.some((x) => x.color === s.color && key(x.normal) === key(s.normal)),
+      c.stickers.some((x) => x.color === s.color && vecKey(x.normal) === vecKey(s.normal)),
     )
   )
 }
@@ -133,7 +131,7 @@ function oneByOne(
     const all: Move[] = []
     const count = (pieces: readonly Cubie[]) => pieces.filter(done).length
     for (let guard = 0; guard < homes.length; guard++) {
-      const tracked = state.filter((c) => homes.some((h) => key(h) === key(c.position)))
+      const tracked = state.filter((c) => homes.some((h) => vecKey(h) === vecKey(c.position)))
       const now = count(tracked)
       if (now === homes.length) break
       const want = Math.min(homes.length, now + step)

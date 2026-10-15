@@ -2,10 +2,10 @@ import { backToBox, loopsBack } from '../../puzzles/tower/camoShape'
 import { isBoxed, solvedCube } from '../../core/cube'
 import { AXIS_ROTATIONS, faceOfNormal } from '../../core/geometry'
 import { formatMoves, parseMoves } from '../../core/moves'
-import { allTurnsOf, moveSet, type MoveSet } from '../../core/moveSet'
+import { allTurnsOf, moveSet } from '../../core/moveSet'
 import { homesOf } from '../../core/pieces'
 import { solvePieces } from '../../solve/pieceSearch'
-import { atEverySide, type MethodPlan } from '../../solve/solverKit'
+import { atEverySide, projectPlan, type MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, Move, Turn, Vec3 } from '../../core/types'
 import { DOMINO_PLAN } from './domino'
@@ -192,18 +192,9 @@ const asCamo = (turn: Turn): Turn => {
   const m = turn as Move
   return m.face === 'U' || m.face === 'D' ? { ...m, depth: 2, wide: true } : m
 }
-const asCamoSet = (set: MoveSet): MoveSet => ({
-  generators: set.generators.map(asCamo),
-  turns: set.turns.map(asCamo),
-})
 
 /** D: the Domino's plan, read on the Domino the puzzle is. */
-const DOMINO_PHASE: MethodPlan = DOMINO_PLAN.map((spec): MethodPlan[number] => ({
-  ...spec,
-  goal: (cube) => spec.goal(asDomino(cube)),
-  moves: asCamoSet(spec.moves),
-  phases: spec.phases.map((phase) => (cube: Cube) => phase(asDomino(cube)).map(asCamo)),
-}))
+const DOMINO_PHASE: MethodPlan = projectPlan(DOMINO_PLAN, asDomino, asCamo)
 
 export const CAMO_PLAN: MethodPlan = [
   { key: 'stepCamoShape', goal: isBoxed, moves: allTurnsOf('camo'), phases: [backInShape] },

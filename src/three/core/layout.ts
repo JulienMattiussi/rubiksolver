@@ -1,3 +1,4 @@
+import { isMark } from '@/lib/core/types'
 import { layerCoords } from '@/lib/core/geometry'
 import type { Cube, Cubie, Dims, Vec3 } from '@/lib/core/types'
 
@@ -35,8 +36,8 @@ export const CUBIE_GAP = 0.012
  *  hollow, seen through, its hidden core left out; a piece wearing only
  *  hidden marks (the Latch Cube's core) never shows. */
 export function drawnIn(cube: Cube): (cubie: Cubie) => boolean {
-  const hollow = !cube.some((c) => c.stickers.length === 1 && c.stickers[0]!.color !== 'H')
+  const hollow = !cube.some((c) => c.stickers.length === 1 && !isMark(c.stickers[0]!))
   return (cubie) =>
     (!hollow || cubie.stickers.length > 0) &&
-    (cubie.stickers.length === 0 || cubie.stickers.some((s) => s.color !== 'H'))
+    (cubie.stickers.length === 0 || cubie.stickers.some((s) => !isMark(s)))
 }

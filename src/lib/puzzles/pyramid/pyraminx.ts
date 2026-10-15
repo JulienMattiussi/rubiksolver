@@ -1,4 +1,4 @@
-import { TET_NORMALS } from '../../core/geometry'
+import { mapVec, TET_NORMALS } from '../../core/geometry'
 import type {
   Color,
   Cube,
@@ -94,7 +94,11 @@ function surfaceSums(count: number): number[][] {
 
 function cell(times: number[]): Cubie {
   const position = PYRA_VERTICES.reduce<Vec3>(
-    (p, v, i) => add(p, PYRA_CORNERS[v].map((x) => x * times[i]!) as unknown as Vec3),
+    (p, v, i) =>
+      add(
+        p,
+        mapVec(PYRA_CORNERS[v], (x) => x * times[i]!),
+      ),
     [0, 0, 0],
   )
   return piece(
@@ -137,7 +141,7 @@ function solvedJing(): Cube {
     ...edges,
     ...PYRA_VERTICES.map((v) =>
       piece(
-        PYRA_CORNERS[v].map((x) => -x) as unknown as Vec3,
+        mapVec(PYRA_CORNERS[v], (x) => -x),
         PYRA_VERTICES.filter((w) => w !== v),
       ),
     ),

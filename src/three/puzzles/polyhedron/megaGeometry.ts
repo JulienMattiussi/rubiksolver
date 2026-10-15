@@ -1,4 +1,4 @@
-import { normalIndex } from '@/lib/core/geometry'
+import { mapVec, normalIndex } from '@/lib/core/geometry'
 import {
   MEGA_AXES,
   MEGA_FACES,
@@ -49,7 +49,7 @@ function slotFaces(slot: readonly MegaFace[], crystal: boolean) {
   const planes: Plane[] = MEGA_FACES.flatMap((f): Plane[] => {
     const n = MEGA_AXES[f] as unknown as Vec3
     const within: Plane = { normal: n, offset: 1 }
-    const minus = n.map((v) => -v) as unknown as Vec3
+    const minus = mapVec(n, (v) => -v)
     return [within, layers.has(f) ? { normal: minus, offset: -cut } : { normal: n, offset: cut }]
   })
   faces = polyhedron(planes)

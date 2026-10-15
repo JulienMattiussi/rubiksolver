@@ -1,5 +1,5 @@
 import { tallAxis } from './camo'
-import { FACE_SPEC, layerCoords } from '../../core/geometry'
+import { FACE_SPEC, layerCoords, mapVec } from '../../core/geometry'
 import { invertMove, layerTurnsOf } from '../../core/moves'
 import { applyMove, moveSlab } from '../../core/turn'
 import type { Cube, Move, Vec3 } from '../../core/types'
@@ -65,7 +65,7 @@ function shapeTurns(): ShapeTurn[] {
     // Where the turn sends each axis: a sticker turned with a cell inside.
     const cell = CELLS.find(inside)!
     const axes = [0, 1, 2].map((a) => {
-      const normal = [0, 1, 2].map((d) => (d === a ? 1 : 0)) as unknown as Vec3
+      const normal = mapVec([0, 1, 2], (d) => (d === a ? 1 : 0))
       const [moved] = applyMove(
         [{ position: cell, stickers: [{ normal, color: 'W' }] }],
         move,

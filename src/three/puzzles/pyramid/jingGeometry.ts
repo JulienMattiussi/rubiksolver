@@ -1,4 +1,5 @@
 import { normalIndex, TET_NORMALS } from '@/lib/core/geometry'
+import { dot } from '../../core/polyhedron'
 import { PYRA_CORNERS, PYRA_VERTICES, pyraToCartesian } from '@/lib/puzzles/pyramid/pyraminx'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import { colorFacing, type P3, type PiecePolygon } from '../../core/polygons'
@@ -56,8 +57,6 @@ function unit(p: readonly number[]): P3 {
   const length = Math.hypot(...p)
   return p.map((x) => x / length) as P3
 }
-const dot = (a: readonly number[], b: readonly number[]) =>
-  a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!
 
 /** The radius a point of the flat tetrahedron at `length` from the center
  *  moves to: pushed toward the sphere through the corners, then softly

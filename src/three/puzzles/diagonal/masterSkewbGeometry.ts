@@ -1,7 +1,7 @@
-import { normalIndex } from '@/lib/core/geometry'
+import { mapVec, normalIndex } from '@/lib/core/geometry'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import { face, type P3, type PiecePolygon } from '../../core/polygons'
-import { polyhedron, type Plane } from '../../core/polyhedron'
+import { dot, polyhedron, type Plane } from '../../core/polyhedron'
 
 /**
  * Geometry of the Master Skewb's pieces (lib/puzzles/shared/rainbow.ts): the
@@ -36,8 +36,7 @@ const DIAGONALS: readonly Vec3[] = [
   [1, -1, 1],
   [-1, 1, 1],
 ]
-const minus = (v: Vec3) => v.map((x) => -x + 0) as unknown as Vec3
-const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+const minus = (v: Vec3) => mapVec(v, (x) => -x + 0)
 
 const SHAPES = new Map<string, { corners: P3[]; normal: Vec3 }[]>()
 

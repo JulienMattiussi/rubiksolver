@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useLayoutEffect, useRef, useState } from 'react'
 import { cubeShape } from '@/lib/core/cube'
 import { methodsFor, type MethodId } from '@/lib/solve/solver'
@@ -59,7 +60,11 @@ function MethodDesc({ text }: { text: string }) {
           aria-label={open ? t.showLess : t.showMore}
           className="rounded px-1 font-semibold text-slate-300 hover:text-white focus-visible:outline-2 focus-visible:outline-sky-400"
         >
-          {open ? '▴' : '▾'}
+          {open ? (
+            <ChevronUp className="size-4" aria-hidden />
+          ) : (
+            <ChevronDown className="size-4" aria-hidden />
+          )}
         </button>
       )}
     </div>

@@ -1,9 +1,11 @@
 import { cubeOrientations, isSolved, solvedCube } from '../../core/cube'
-import { buildLibrary, OUTER, placeAll, SLICES, type Library } from '../../solve/cycleLibrary'
+import { buildLibrary, OUTER, placeAll, SLICES } from '../../solve/cycleLibrary'
 import { allTurnsOf } from '../../core/moveSet'
 import { parseMoves } from '../../core/moves'
 import type { MethodPlan } from '../../solve/solverKit'
 import type { Color, Cube, Cubie, Move } from '../../core/types'
+import { once } from '../../solve/once'
+import { permutationIsOdd } from '../../solve/permutation'
 
 /**
  * 4-Trajber's Octahedron, "corners first", as taught on fan2cube.fr
@@ -70,33 +72,21 @@ function middlesEven(cube: Cube): boolean {
       .filter(([slot]) => slot.split(',').every((v) => Math.abs(Number(v)) === 3))
       .map(([slot, color]) => [color, slot]),
   )
-  const goesTo = new Map(cube.filter(isMiddle).map((c) => [key(c), slotOf.get(colorOf(c))!]))
-  const seen = new Set<string>()
-  let swaps = 0
-  for (const start of goesTo.keys()) {
-    for (let slot = start, n = 0; !seen.has(slot); slot = goesTo.get(slot)!, n++) {
-      seen.add(slot)
-      if (n > 0) swaps++
-    }
-  }
-  return swaps % 2 === 0
+  return !permutationIsOdd(
+    new Map(cube.filter(isMiddle).map((c) => [key(c), slotOf.get(colorOf(c))!])),
+  )
 }
-
-let libraries: Record<'corners' | 'edges' | 'middles', Library> | undefined
 
 /** The three 3-cycle libraries, built once. */
-function cycleLibraries() {
-  libraries ??= {
-    corners: buildLibrary(SLICES, OUTER, SLICES, SOLVED, isCorner, MECHANISM),
-    edges: buildLibrary(SLICES, OUTER, OUTER, SOLVED, isEdge, MECHANISM),
-    middles: buildLibrary(OUTER, OUTER, OUTER, SOLVED, isMiddle, MECHANISM),
-  }
-  return libraries
-}
+const cycleLibraries = once(() => ({
+  corners: buildLibrary(SLICES, OUTER, SLICES, SOLVED, isCorner, MECHANISM),
+  edges: buildLibrary(SLICES, OUTER, OUTER, SOLVED, isEdge, MECHANISM),
+  middles: buildLibrary(OUTER, OUTER, OUTER, SOLVED, isMiddle, MECHANISM),
+}))
 
 /** Bring every piece of a kind to a slot wanting its color, by 3-cycles
  *  (`placeAll`), the colors read once at the start. */
-function placeKind(kind: (c: Cubie) => boolean, which: keyof NonNullable<typeof libraries>) {
+function placeKind(kind: (c: Cubie) => boolean, which: keyof ReturnType<typeof cycleLibraries>) {
   return (cube: Cube): Move[] => {
     const wanted = wantedColors(cube)
     const holds = new Map(cube.filter(kind).map((c) => [key(c), colorOf(c) as string]))

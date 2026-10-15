@@ -1,4 +1,4 @@
-import { FACE_SPEC } from '../../core/geometry'
+import { FACE_SPEC, mapVec } from '../../core/geometry'
 import { applyMove, moveSlab } from '../../core/turn'
 import type { Color, Cube, Cubie, Move, Vec3 } from '../../core/types'
 
@@ -28,7 +28,7 @@ export function solvedAi(solved4: Cube): Cube {
   const blocks = solved4
     .filter((c) => c.stickers.length === 3 && even(c.position))
     .map((c): Cubie => ({
-      position: c.position.map((v) => Math.sign(v) * 2) as unknown as Vec3,
+      position: mapVec(c.position, (v) => Math.sign(v) * 2),
       stickers: c.stickers.map((s) => ({ normal: s.normal, color: s.color as Color })),
     }))
   return [...small, ...blocks]

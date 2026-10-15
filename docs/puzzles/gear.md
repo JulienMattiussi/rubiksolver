@@ -2,7 +2,7 @@
 
 Détail des puzzles de la catégorie (modèles : `src/lib/puzzles/gear/`, méthodes : `src/lib/methods/gear/`, dessins : `src/three/puzzles/gear/`). Les principes communs sont dans [AGENTS.md](../../AGENTS.md).
 
-## Le Gear Cube Ultimate (`gearU`)
+## Les Gear Cubes (`gearU`, `gearCube`, `gearX`)
 
 Les Gear Cubes (fan2cube.fr/gearcube1 et 2, Jaap) sont
 des 3x3x3 dont les arêtes sont des engrenages : les deux faces d'un axe sont

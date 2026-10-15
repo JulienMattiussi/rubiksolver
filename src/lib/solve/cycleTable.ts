@@ -1,7 +1,8 @@
-import { normalIndex } from '../core/geometry'
+import { normalIndex, vecKey } from '../core/geometry'
 import { applyMoves } from '../core/turn'
 import { invertMoves } from '../core/moves'
 import type { Color, Cube, Cubie, Turn, Vec3 } from '../core/types'
+import { colorsOf } from '../core/pieces'
 
 /**
  * 3-cycles of one kind of piece, on any puzzle: given formulas (each already
@@ -11,8 +12,6 @@ import type { Color, Cube, Cubie, Turn, Vec3 } from '../core/types'
  * brick of the big Pyraminxes', the Rainbow's, the Dino's and Rex's, the
  * FTO's, the super cubes' and the big towers' methods, among others.
  */
-
-const key = (p: Vec3) => p.join()
 
 /** Where a sequence sends each slot of the kind (`a` to `b`), from the
  *  solved puzzle; with `pure`, null when it also moves or twists a piece
@@ -28,7 +27,7 @@ function effect(
   const pose = (c: Cubie) => [c.position, ...c.stickers.map((s) => s.normal)].join('|')
   const map = new Map<string, string>()
   for (const [i, c] of solved.entries()) {
-    if (isKind(c)) map.set(key(c.position), key(after[i]!.position))
+    if (isKind(c)) map.set(vecKey(c.position), vecKey(after[i]!.position))
     else if (pure && !mayMove(c) && pose(c) !== pose(after[i]!)) return null
   }
   return map
@@ -111,9 +110,37 @@ export function handedHome(piece: Cubie, slots: Cube, faces: Map<number, Color>)
     const normalOf = (color: Color) =>
       slot.stickers.find((s) => faces.get(normalIndex(s.normal)) === color)?.normal
     const [na, nb] = [normalOf(a.color), normalOf(b.color)]
-    if (na && nb && Math.sign(det(slot.position, na, nb)) === own) return key(slot.position)
+    if (na && nb && Math.sign(det(slot.position, na, nb)) === own) return vecKey(slot.position)
   }
   throw new Error('cycleTable: a piece belongs nowhere')
+}
+
+/** Where each piece of a kind belongs, its pieces all unlike: the slot of
+ *  its colors in `target` (the solved puzzle, maybe as held). */
+export function uniqueHomes(target: Cube, isKind: (c: Cubie) => boolean) {
+  const homes = new Map(target.filter(isKind).map((c) => [colorsOf(c), vecKey(c.position)]))
+  return (state: Cube): Map<string, string> =>
+    new Map(state.filter(isKind).map((c) => [vecKey(c.position), homes.get(colorsOf(c))!]))
+}
+
+/** Where each of some one-sticker pieces belongs, alike by color (a family
+ *  of petals, of centers): those right stay, the others each go to one of
+ *  the wrong slots that `wants` their color. */
+export function alikeHomes(
+  pieces: Cube,
+  wants: (slot: Vec3) => Color | undefined,
+): Map<string, string> {
+  const colorAt = (c: Cubie) => c.stickers[0]!.color
+  const right = (c: Cubie) => wants(c.position) === colorAt(c)
+  const free = pieces.filter((c) => !right(c)).map((c) => c.position)
+  return new Map(
+    pieces.map((c) => {
+      const at = vecKey(c.position)
+      if (right(c)) return [at, at]
+      const slot = free.findIndex((s) => wants(s) === colorAt(c))
+      return [at, vecKey(free.splice(slot, 1)[0]!)]
+    }),
+  )
 }
 
 /**

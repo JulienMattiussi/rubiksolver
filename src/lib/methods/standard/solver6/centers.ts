@@ -1,8 +1,9 @@
 import { solvedCube } from '../../../core/cube'
 import { centerSolver } from '../../../solve/centerCycles'
-import { buildLibrary, DEEP, OUTER, SLICES, type Library } from '../../../solve/cycleLibrary'
+import { buildLibrary, DEEP, OUTER, SLICES } from '../../../solve/cycleLibrary'
 import type { Cubie, Dims, Move } from '../../../core/types'
 import { isInnerX, isOblique, isOuterX } from './kinds'
+import { once } from '../../../solve/once'
 
 /**
  * 6x6 centers (centerCycles.ts): each face's sixteen, four of each kind
@@ -18,10 +19,8 @@ function isCenter(c: Cubie) {
   return isInnerX(c) || isOuterX(c) || isOblique(c)
 }
 
-const lazy = (slices: readonly Move[], inner: readonly Move[], kind: (c: Cubie) => boolean) => {
-  let library: Library | undefined
-  return () => (library ??= buildLibrary(slices, OUTER, inner, CENTERS, kind, SIX))
-}
+const lazy = (slices: readonly Move[], inner: readonly Move[], kind: (c: Cubie) => boolean) =>
+  once(() => buildLibrary(slices, OUTER, inner, CENTERS, kind, SIX))
 
 export const { centersDone, solveCenters } = centerSolver({
   mechanism: SIX,

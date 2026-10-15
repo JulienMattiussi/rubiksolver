@@ -1,12 +1,20 @@
 import { cubeOrientations, solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS, FACE_NORMAL, faceOfNormal, normalIndex } from '../../core/geometry'
+import {
+  AXIS_ROTATIONS,
+  FACE_NORMAL,
+  faceOfNormal,
+  mapVec,
+  normalIndex,
+  vecKey,
+} from '../../core/geometry'
 import { allTurnsOf } from '../../core/moveSet'
 import { invertMoves, parseMoves } from '../../core/moves'
 import { colorsOf } from '../../core/pieces'
 import type { MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import type { Cube, CubeShape, Cubie, Move, Vec3 } from '../../core/types'
-import { cycleTable, placeByCycles } from '../../solve/cycleTable'
+import { cycleTable, placeByCycles, uniqueHomes } from '../../solve/cycleTable'
+import { once } from '../../solve/once'
 
 /**
  * Octahedron VTO and GEM-0, "centers then edges", as taught on fan2cube.fr
@@ -40,7 +48,6 @@ const reach = (c: Cubie) => Math.max(...c.position.map(Math.abs))
 const isCenter = (c: Cubie) => nonZero(c) === 1 && reach(c) === 1
 const isTip = (c: Cubie) => nonZero(c) === 1 && reach(c) === 2
 const isEdge = (c: Cubie) => nonZero(c) === 2
-const key = (p: Vec3) => p.join()
 
 /** The VTO page's formulas, in the cube's letters (P = U, G = F, D = R). */
 export const FACE_CYCLE = parseMoves("F R' F' R")
@@ -85,9 +92,9 @@ function centersThenEdges(
   /** How the solved puzzle is held: the way whose corners show the same
    *  colors as this state's (they never move, only turn). */
   function holdingOf(cube: Cube): Cube {
-    const at = new Map(cube.filter(isCenter).map((c) => [key(c.position), colorsOf(c)]))
+    const at = new Map(cube.filter(isCenter).map((c) => [vecKey(c.position), colorsOf(c)]))
     const held = f.holdings.find((h) =>
-      h.filter(isCenter).every((c) => at.get(key(c.position)) === colorsOf(c)),
+      h.filter(isCenter).every((c) => at.get(vecKey(c.position)) === colorsOf(c)),
     )
     if (!held) throw new Error('vto: its corners match no way of holding it')
     return held
@@ -100,11 +107,11 @@ function centersThenEdges(
   /** Whether every piece of a kind (they only turn in place) shows its
    *  faces' colors. */
   const facingRight = (kind: (c: Cubie) => boolean) => (cube: Cube) => {
-    const held = new Map(holdingOf(cube).map((c) => [key(c.position), c]))
+    const held = new Map(holdingOf(cube).map((c) => [vecKey(c.position), c]))
     return cube
       .filter(kind)
       .every((c) =>
-        c.stickers.every((s) => sticker(held.get(key(c.position))!, s.normal) === s.color),
+        c.stickers.every((s) => sticker(held.get(vecKey(c.position))!, s.normal) === s.color),
       )
   }
   const centersDone = facingRight(isCenter)
@@ -114,14 +121,14 @@ function centersThenEdges(
   const turnEach =
     (kind: (c: Cubie) => boolean, turn: (m: Move) => Move) =>
     (cube: Cube): Move[] => {
-      const held = new Map(holdingOf(cube).map((c) => [key(c.position), c]))
+      const held = new Map(holdingOf(cube).map((c) => [vecKey(c.position), c]))
       const moves: Move[] = []
       let state = cube
       for (const home of f.solved.filter(kind)) {
-        const face = faceOfNormal(home.position.map(Math.sign) as unknown as Vec3)
-        const want = held.get(key(home.position))!
+        const face = faceOfNormal(mapVec(home.position, Math.sign))
+        const want = held.get(vecKey(home.position))!
         const right = (s: Cube) => {
-          const c = s.find((p) => key(p.position) === key(home.position))!
+          const c = s.find((p) => vecKey(p.position) === vecKey(home.position))!
           return c.stickers.every((st) => sticker(want, st.normal) === st.color)
         }
         if (right(state)) continue
@@ -137,14 +144,7 @@ function centersThenEdges(
 
   /** Where each edge slot's piece belongs: the slot of its colors when solved
    *  as the puzzle is held. */
-  function edgeHomes(cube: Cube): Map<string, string> {
-    const homeOf = new Map(
-      holdingOf(cube)
-        .filter(isEdge)
-        .map((c) => [colorsOf(c), key(c.position)]),
-    )
-    return new Map(cube.filter(isEdge).map((c) => [key(c.position), homeOf.get(colorsOf(c))!]))
-  }
+  const edgeHomes = (cube: Cube) => uniqueHomes(holdingOf(cube), isEdge)(cube)
 
   /** A formula as seen from each way of holding the puzzle: its faces carried
    *  by the whole-puzzle turn. */
@@ -154,26 +154,23 @@ function centersThenEdges(
     )
   }
 
-  let cycles: Map<string, Move[]> | undefined
-
   /** Every 3-cycle of edges, from the page's (built once). */
-  function edgeCycles() {
-    cycles ??= cycleTable(f.solved, isEdge, f.cycleFormulas.flatMap(fromEverySide), cornerTurns)
-    return cycles
-  }
+  const edgeCycles = once(() =>
+    cycleTable(f.solved, isEdge, f.cycleFormulas.flatMap(fromEverySide), cornerTurns),
+  )
 
   /** Whether every edge sits home: placed, maybe flipped. */
   const edgesPlaced = (cube: Cube) => [...edgeHomes(cube)].every(([at, home]) => at === home)
 
   /** The edges standing flipped (placed, their colors on the wrong faces). */
   function flipped(cube: Cube): string[] {
-    const held = new Map(holdingOf(cube).map((c) => [key(c.position), c]))
+    const held = new Map(holdingOf(cube).map((c) => [vecKey(c.position), c]))
     return cube
       .filter(isEdge)
       .filter((c) =>
-        c.stickers.some((s) => sticker(held.get(key(c.position))!, s.normal) !== s.color),
+        c.stickers.some((s) => sticker(held.get(vecKey(c.position))!, s.normal) !== s.color),
       )
-      .map((c) => key(c.position))
+      .map((c) => vecKey(c.position))
   }
 
   let flips: Map<string, Move[]> | undefined
@@ -191,19 +188,19 @@ function centersThenEdges(
       const changed = f.solved.flatMap((c, i) => {
         const now = after[i]!
         const same =
-          key(now.position) === key(c.position) &&
+          vecKey(now.position) === vecKey(c.position) &&
           now.stickers.every((s, k) => normalIndex(s.normal) === normalIndex(c.stickers[k]!.normal))
         return same ? [] : [{ c, now }]
       })
       // Only two edges, each back in its slot, turned over.
       if (
         changed.length !== 2 ||
-        !changed.every(({ c, now }) => isEdge(c) && key(now.position) === key(c.position))
+        !changed.every(({ c, now }) => isEdge(c) && vecKey(now.position) === vecKey(c.position))
       ) {
         return null
       }
       return changed
-        .map(({ c }) => key(c.position))
+        .map(({ c }) => vecKey(c.position))
         .sort()
         .join('|')
     }

@@ -1,7 +1,9 @@
 import { solvedCube } from '../core/cube'
 import type { Cube, CubeShape, Vec3 } from '../core/types'
 import { BLOCKS } from '../puzzles/bandaged/blocks'
-import { formsOfBlocks, isMark, MARK } from '../puzzles/bandaged/bonds'
+import { formsOfBlocks } from '../puzzles/bandaged/bonds'
+import { isMark, MARK } from '../core/types'
+import { mapVec, parseVecKey } from '../core/geometry'
 
 /**
  * Entering a bandaged 3x3x3 (bonds.ts) whose blocks move: first where its
@@ -38,14 +40,14 @@ export function jointsOf(cube: Cube): Joint[] {
 export function withJoints(cube: Cube, joints: readonly Joint[]): Cube {
   const bound = new Map<string, Vec3[]>()
   for (const joint of joints) {
-    const [a, b] = joint.split('|').map((p) => p.split(',').map(Number) as unknown as Vec3)
+    const [a, b] = joint.split('|').map(parseVecKey)
     bound.set(a!.join(), [...(bound.get(a!.join()) ?? []), b!])
     bound.set(b!.join(), [...(bound.get(b!.join()) ?? []), a!])
   }
   return cube.map((c) => {
     const stickers = c.stickers.filter((s) => !isMark(s))
     const marks = (bound.get(c.position.join()) ?? []).map((p) => ({
-      normal: p.map((v, i) => v - c.position[i]!) as unknown as Vec3,
+      normal: mapVec(p, (v, i) => v - c.position[i]!),
       color: MARK,
     }))
     return { ...c, stickers: [...stickers, ...marks] }
@@ -132,7 +134,7 @@ export const matchesJoints = (cube: Cube, joints: readonly Joint[]): boolean =>
 // Pieces: what the joints make, how they grow and split
 // ---------------------------------------------------------------------------
 
-const cellOf = (key: string): Vec3 => key.split(',').map(Number) as unknown as Vec3
+const cellOf = (key: string): Vec3 => parseVecKey(key)
 
 /** The pieces `joints` make: each cell's piece (its cells' keys), a cell no
  *  joint holds standing alone. */
@@ -185,8 +187,7 @@ const UNITS: readonly Vec3[] = [
   [0, 0, -1],
 ]
 const inside = (p: readonly number[]) => p.every((v) => Math.abs(v) <= 1) && p.some((v) => v !== 0)
-const plus = (p: readonly number[], d: readonly number[]) =>
-  p.map((v, i) => v + d[i]!) as unknown as Vec3
+const plus = (p: readonly number[], d: readonly number[]) => mapVec(p, (v, i) => v + d[i]!)
 
 /**
  * The joints offered while entering a bandaged puzzle's blocks: between two

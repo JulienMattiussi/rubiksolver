@@ -1,4 +1,4 @@
-import { AXIS_ROTATIONS, normalIndex, TET_NORMALS } from '@/lib/core/geometry'
+import { AXIS_ROTATIONS, mapVec, normalIndex, parseVecKey, TET_NORMALS } from '@/lib/core/geometry'
 import { PYRA_CORNERS, PYRA_VERTICES } from '@/lib/puzzles/pyramid/pyraminx'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import { face, type P3, type PiecePolygon } from '../../core/polygons'
@@ -24,15 +24,15 @@ const STICKER_SCALE = 0.82
 /** A cubie's cell (the octant of `signs`) cut by the tetrahedron. */
 function pieceFaces(signs: Vec3) {
   const cell: Plane[] = [0, 1, 2].flatMap((a) => {
-    const axis = [0, 0, 0].map((_, d) => (d === a ? signs[a]! : 0)) as unknown as Vec3
+    const axis = mapVec([0, 0, 0], (_, d) => (d === a ? signs[a]! : 0))
     return [
-      { normal: axis.map((v) => -v) as unknown as Vec3, offset: 0 }, // the cube's middle
+      { normal: mapVec(axis, (v) => -v), offset: 0 }, // the cube's middle
       { normal: axis, offset: 2 }, // its outside
     ]
   })
   // Each face of the tetrahedron, opposite a corner v: v . p >= -2.
   const tetra = PYRA_VERTICES.map((v) => ({
-    normal: PYRA_CORNERS[v].map((x) => -x) as unknown as Vec3,
+    normal: mapVec(PYRA_CORNERS[v], (x) => -x),
     offset: 2,
   }))
   return polyhedron([...cell, ...tetra])
@@ -63,7 +63,7 @@ function placing(cubie: Cubie, kind: 'corner' | 'middle') {
     (turn) =>
       turn(home.position).join() === cubie.position.join() &&
       homeNormals
-        .map((n) => turn(n.split(',').map(Number) as unknown as Vec3).join())
+        .map((n) => turn(parseVecKey(n)).join())
         .sort()
         .join('|') === wanted,
   )

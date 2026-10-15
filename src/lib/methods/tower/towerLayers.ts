@@ -1,5 +1,5 @@
 import { faceColorsOf, isSolved, solvedCube } from '../../core/cube'
-import { normalIndex } from '../../core/geometry'
+import { normalIndex, vecKey } from '../../core/geometry'
 import { invertMoves, parseMoves } from '../../core/moves'
 import { allTurnsOf, moveSet, type MoveSet } from '../../core/moveSet'
 import { atHome, homesOf } from '../../core/pieces'
@@ -23,7 +23,8 @@ import {
   SWAP_EDGES_BACK,
   SWAP_EDGES_RIGHT,
 } from './domino'
-import { byCycles, homesByColor, once, towerCycles } from './towerReduce'
+import { byCycles, homesByColor, towerCycles } from './towerReduce'
+import { once } from '../../solve/once'
 
 /**
  * The towers as fan2cube.fr solves them once reduced (tower3342, and the
@@ -48,8 +49,6 @@ import { byCycles, homesByColor, once, towerCycles } from './towerReduce'
  * pieces unique) would be left in a parity no formula keeping the inner one
  * undoes.
  */
-
-const key = (p: Vec3) => p.join()
 
 /** Where some pieces stand and how they are turned, twins merged. */
 const layoutKey = (pieces: readonly Cubie[]) =>
@@ -147,8 +146,8 @@ const both = (formulas: readonly (readonly Move[])[]) =>
 
 /**
  * The steps of the inner Domino at height `y` (its layers turned as `depth`
- * from U and D): its corners, then its edges. The outer layers too, so
- * (`y` the top), when every other layer must stay as it is.
+ * from U and D): its corners, then its edges. Also used for the outer
+ * layers (`y` the top) when every other layer must be kept.
  */
 export function innerDomino(shape: CubeShape, y: number, depth: 1 | 2 | 3): StepSpec[] {
   const solved = solvedCube(shape)
@@ -194,7 +193,7 @@ export function innerDomino(shape: CubeShape, y: number, depth: 1 | 2 | 3): Step
   const phase =
     (track: readonly Vec3[], formulas: readonly Move[][], goalOf: readonly Vec3[]) =>
     (cube: Cube): Move[] => {
-      const goal = new Set(goalOf.map(key))
+      const goal = new Set(goalOf.map(vecKey))
       // The outer layers' pieces are each one of a kind: those to bring
       // home, all tracked and home, are one state, searched from both ends.
       const single = extra === 1
@@ -204,7 +203,7 @@ export function innerDomino(shape: CubeShape, y: number, depth: 1 | 2 | 3): Step
         macros: formulas,
         ...(!single && {
           goal: (p: readonly Cubie[]) =>
-            p.filter((c) => goal.has(key(c.position)) && isHome(c)).length === goal.size,
+            p.filter((c) => goal.has(vecKey(c.position)) && isHome(c)).length === goal.size,
           key: layoutKey,
         }),
         among: inPair,

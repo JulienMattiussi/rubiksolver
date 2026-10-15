@@ -5,8 +5,8 @@ import { turnAllowed } from '@/lib/core/turn'
 import type { Face, Move } from '@/lib/core/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
-import { SECTION_LABEL, TURN_PAIR } from '@/components/ui/styles'
 import { PadButton } from './PadButton'
+import { PadGroups } from './PadGroups'
 import { PadHeader } from './PadHeader'
 
 /** The Fashion-V's turns, by group: its blocks (each side's column, each
@@ -47,22 +47,16 @@ export function FashionPad({ disabled }: { disabled: boolean }) {
   return (
     <div>
       <PadHeader />
-      {GROUPS.map(({ key, layers }) => (
-        <div key={key} className="mb-3">
-          <h3 className={`${SECTION_LABEL} mb-2`}>{t.fashionGroups[key]}</h3>
-          <div className="grid grid-cols-2 gap-2">
-            {layers.map((layer) => (
-              <div
-                key={formatMove({ ...layer, amount: 1 }, labels, dims, shape)}
-                className={TURN_PAIR}
-              >
-                {button({ ...layer, amount: 1 }, false)}
-                {button({ ...layer, amount: 3 }, true)}
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
+      <PadGroups
+        groups={GROUPS.map((g) => ({ ...g, title: t.fashionGroups[g.key] }))}
+        layerKey={(layer) => formatMove({ ...layer, amount: 1 }, labels, dims, shape)}
+        pair={(layer) => (
+          <>
+            {button({ ...layer, amount: 1 }, false)}
+            {button({ ...layer, amount: 3 }, true)}
+          </>
+        )}
+      />
     </div>
   )
 }

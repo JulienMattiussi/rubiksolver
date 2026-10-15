@@ -87,7 +87,7 @@ export const METHODS_EN: typeof METHODS_FR = {
   },
   fashionLaid: {
     name: 'Lay down, then two towers',
-    desc: 'Every pair is laid down first, by blocks as on a Rubik’s Cube, back to a 3x3x5; then it is solved as the towers are: the outer Domino (H and B), the inner one (h and b), last the equator.',
+    desc: 'Every pair is laid down first, by blocks as on a Rubik’s Cube, back to a 3x3x5; the equator is put home about its centers; then it is solved as the towers are: the outer Domino (H and B), then the inner one (h and b), their formulas played twice over so that the equator stays.',
   },
   latchEdgesFirst: {
     name: 'Edges first',

@@ -5,7 +5,8 @@ import { moveSet } from '../../core/moveSet'
 import { solvePieces } from '../../solve/pieceSearch'
 import type { Cubie } from '../../core/types'
 import { innerDomino } from '../tower/towerLayers'
-import { backToBox, BLOCK_TURNS } from './fashionShape'
+import { BLOCK_TURNS } from '../../puzzles/twisted/fashion'
+import { backToBox } from './fashionShape'
 
 /**
  * Fashion-V, as fan2cube.fr solves it (fashioncube2): laid down to a

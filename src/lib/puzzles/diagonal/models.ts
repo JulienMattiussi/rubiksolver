@@ -5,18 +5,20 @@ import type { PuzzleModel } from '../model'
 import {
   DINO_TURNS,
   REX_TURNS,
-  MASTER_TURNS,
   scrambleDino,
-  scrambleMasterSkewb,
   scrambleRex,
+  solvedDino,
+  solvedRex,
+} from '../shared/dinoRex'
+import {
+  MASTER_TURNS,
+  scrambleMasterSkewb,
   scrambleSkewbU,
   SKEWB_CUBE_SYMMETRIES,
   SKEWB_TURNS,
-  solvedDino,
   solvedMasterSkewb,
-  solvedRex,
   solvedSkewb,
-} from '../shared/rainbow'
+} from '../shared/skewbs'
 import { asSeenThin, withRealThinEdges } from '../shared/thinEdges'
 import { fisherSolved, windmillSolved, withMarks } from './fisher'
 

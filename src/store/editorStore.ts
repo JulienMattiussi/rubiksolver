@@ -40,7 +40,7 @@ import {
 import { barsTurned } from '@/lib/puzzles/bandaged/roadblock'
 import { paintBar, turnFace } from '@/lib/editor/roadblockEditor'
 import { validateCube, type ValidationError } from '@/lib/editor/validate'
-import { normalOfIndex } from '@/lib/core/geometry'
+import { normalOfIndex, parseVecKey } from '@/lib/core/geometry'
 import { hasColoredClips, type Color, type Cube, type CubeShape, type Vec3 } from '@/lib/core/types'
 import { useCube } from './cubeStore'
 
@@ -263,7 +263,7 @@ export const useEditor = create<EditorStore>((set, get) => ({
           : paint(s.edit, shape, slotKey, ni, s.selectedColor, s.form)
       // A bandaged puzzle's block shows one tile a face: painted whole.
       if (entersJoints(shape) && edit !== s.edit) {
-        const cell = slotKey.split(',').map(Number) as unknown as Vec3
+        const cell = parseVecKey(slotKey)
         for (const mate of tileMates(s.joints, cell, normalOfIndex(ni))) {
           edit = paint(edit, shape, mate.join(','), ni, s.selectedColor, s.form)
         }

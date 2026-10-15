@@ -1,4 +1,4 @@
-import { AXIS_ROTATIONS, normalIndex } from '@/lib/core/geometry'
+import { AXIS_ROTATIONS, mapVec, normalIndex } from '@/lib/core/geometry'
 import { solvedCube } from '@/lib/core/cube'
 import { colorsOf } from '@/lib/core/pieces'
 import type { Cubie, Vec3 } from '@/lib/core/types'
@@ -44,9 +44,7 @@ const CYLINDER: readonly Plane[] = [
 function planesOf(position: Vec3): Plane[] {
   const cuts = DIAGONALS.map((d): Plane => {
     const beyond = dot(d, position) >= 2
-    return beyond
-      ? { normal: d.map((v) => -v) as unknown as Vec3, offset: -CUT }
-      : { normal: d, offset: CUT }
+    return beyond ? { normal: mapVec(d, (v) => -v), offset: -CUT } : { normal: d, offset: CUT }
   })
   return [...CYLINDER, ...cuts]
 }
@@ -118,9 +116,7 @@ function polygonsOf(cubie: Cubie, outside: boolean): PiecePolygon[] {
   const all = faces.flatMap((f) => f.corners)
   const middle = [0, 1, 2].map((d) => all.reduce((s, p) => s + p[d]!, 0) / all.length)
   const carry = (p: readonly number[]): P3 =>
-    turn(
-      p.map((v, d) => (middle[d]! + (v - middle[d]!) * SHRINK) * SCALE) as unknown as Vec3,
-    ) as unknown as P3
+    turn(mapVec(p, (v, d) => (middle[d]! + (v - middle[d]!) * SHRINK) * SCALE)) as unknown as P3
   const out = faces.flatMap(({ corners, normal }): PiecePolygon[] => {
     const outer = isOuter(normal, corners)
     if (outside && !outer) return []

@@ -1,4 +1,4 @@
-import { normalIndex } from '@/lib/core/geometry'
+import { mapVec, normalIndex } from '@/lib/core/geometry'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import { GEM_CELL, OCT3_REACH, VTO_CELL, type CellBounds } from '@/lib/puzzles/polyhedron/vto'
 import { face, type DecalPlace, type P3, type PiecePolygon } from '../../core/polygons'
@@ -37,8 +37,7 @@ interface OctLayout {
 
 /** The convex piece in the cell at `position`. */
 function cellPlanes(position: Vec3, layout: OctLayout): Plane[] {
-  const axis = (a: number, sign: number) =>
-    [0, 1, 2].map((d) => (d === a ? sign : 0)) as unknown as Vec3
+  const axis = (a: number, sign: number) => mapVec([0, 1, 2], (d) => (d === a ? sign : 0))
   const cell: Plane[] = [0, 1, 2].flatMap((a) => {
     const [lo, hi] = layout.cell(position[a]!)
     // An outer layer opens outward: no plane there.

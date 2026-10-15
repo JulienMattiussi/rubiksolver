@@ -1,12 +1,13 @@
 import { FACE_COLOR, solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS, FACE_NORMAL, faceOfNormal, normalIndex } from '../../core/geometry'
+import { isMark } from '../../core/types'
+import { AXIS_ROTATIONS, FACE_NORMAL, faceOfNormal, normalIndex, vecKey } from '../../core/geometry'
 import { formatMoves, invertMoves, parseMoves } from '../../core/moves'
 import { moveSet, OUTER_TURNS } from '../../core/moveSet'
-import { homesOf } from '../../core/pieces'
+import { colorsOf, homesOf } from '../../core/pieces'
 import { applyMove, applyMoves } from '../../core/turn'
-import { arrowOn, latchTurns } from '../../puzzles/twisted/latch'
+import { arrowOn, faceWays, latchTurns } from '../../puzzles/twisted/latch'
 import { solvePieces } from '../../solve/pieceSearch'
-import { cycleTable, placeByCycles } from '../../solve/cycleTable'
+import { cycleTable, placeByCycles, uniqueHomes } from '../../solve/cycleTable'
 import { atEverySide, type MethodPlan } from '../../solve/solverKit'
 import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
 import {
@@ -18,6 +19,7 @@ import {
   TURN_OVER,
   TURN_TWO,
 } from '../holey/tori'
+import { once } from '../../solve/once'
 
 /**
  * Latch Cube, "les arêtes d'abord": its faces lock with arrows of both
@@ -51,22 +53,12 @@ const SOLVED = solvedCube('latch')
 const isEdge = (c: Cubie) => c.stickers.length === 2
 const isCorner = (c: Cubie) => c.stickers.length === 3
 const EDGES = homesOf('latch', isEdge)
-const key = (p: Vec3) => p.join()
 
-/** Whether a face is locked: arrows of both kinds on it. */
-function locked(pieces: readonly Cubie[], face: Face): boolean {
-  const n = FACE_NORMAL[face].join()
-  let cw = false
-  let ccw = false
-  for (const c of pieces) {
-    for (const s of c.stickers) {
-      if (s.normal.join() !== n) continue
-      const way = arrowOn(c, s)
-      if (way === 'cw') cw = true
-      if (way === 'ccw') ccw = true
-    }
-  }
-  return cw && ccw
+/** Whether a face is locked: arrows of both kinds on it (faceWays reads
+ *  any pieces, the tracked edges alone too). */
+const locked = (pieces: Cube, face: Face) => {
+  const { cw, ccw } = faceWays(pieces, face)
+  return !cw && !ccw
 }
 
 /** A turn goes, its way aside, when its face is not locked (turning a face
@@ -94,7 +86,7 @@ const arrowPattern = (pieces: readonly Cubie[]) =>
     .filter(isEdge)
     .map(
       (c) =>
-        `${key(c.position)}${c.stickers.map((s) => `${normalIndex(s.normal)}${arrowOn(c, s) ?? '-'}`).join('')}`,
+        `${vecKey(c.position)}${c.stickers.map((s) => `${normalIndex(s.normal)}${arrowOn(c, s) ?? '-'}`).join('')}`,
     )
     .sort()
     .join('|')
@@ -118,10 +110,11 @@ const U_TURNS = moveSet('U')
 
 /** Whether these edges are home. */
 const edgesAt = (homes: readonly Vec3[]) => {
-  const at = new Set(homes.map(key))
+  const at = new Set(homes.map(vecKey))
   return (pieces: readonly Cubie[]) =>
     pieces.every(
-      (c, i) => !at.has(key(EDGES[i]!)) || (key(c.position) === key(EDGES[i]!) && right(c)),
+      (c, i) =>
+        !at.has(vecKey(EDGES[i]!)) || (vecKey(c.position) === vecKey(EDGES[i]!) && right(c)),
     )
 }
 
@@ -145,7 +138,7 @@ function placeEdges(
   macros: Move[][],
   maxDepth: number,
 ): Move[] {
-  const at = new Set(homes.map(key))
+  const at = new Set(homes.map(vecKey))
   return solvePieces<Move>(cube, {
     track: EDGES,
     moves: { generators: turns, turns },
@@ -154,19 +147,19 @@ function placeEdges(
     goal: edgesAt(homes),
     key: (pieces) =>
       `${pieces
-        .filter((_, i) => at.has(key(EDGES[i]!)))
-        .map((c) => key(c.position) + c.stickers.map((s) => normalIndex(s.normal)).join(''))
+        .filter((_, i) => at.has(vecKey(EDGES[i]!)))
+        .map((c) => vecKey(c.position) + c.stickers.map((s) => normalIndex(s.normal)).join(''))
         .join(';')}#${arrowPattern(pieces)}`,
     maxDepth,
   })
 }
 
 /** The edges held one way: the bottom cross one at a time (any turn), each
- *  middle edge (by the top's turns and the Tori's formulas, with
- *  `fallback` any turn if the locks stand in the way), then the top ones together (by the top's
- *  turns and formulas); null when the locks stop it. */
+ *  middle edge (by the top's turns and the Tori's formulas, with `fallback`
+ *  any turn if the locks stand in the way), then the top ones together (by
+ *  the top's turns and formulas); null when the locks stop it. */
 function edgesHeld(cube: Cube, holding: Holding, fallback: boolean): Move[] | null {
-  const homes = [...EDGES].sort((a, b) => inverseHeight(holding, a) - inverseHeight(holding, b))
+  const homes = [...EDGES].sort((a, b) => heightAs(holding, a) - heightAs(holding, b))
   const all = (OUTER_TURNS.turns as Move[]).map(holding.move)
   const top = (U_TURNS.turns as Move[]).map(holding.move)
   const middle = MIDDLE.map((f) => f.map(holding.move))
@@ -207,7 +200,7 @@ function edgesHeld(cube: Cube, holding: Holding, fallback: boolean): Move[] | nu
 
 /** How high an edge's home stands as the cube is held (along the face it
  *  brings up). */
-const inverseHeight = (holding: Holding, p: Vec3) => {
+const heightAs = (holding: Holding, p: Vec3) => {
   const up = FACE_NORMAL[holding.move({ face: 'U', amount: 1 }).face]
   return p[0] * up[0] + p[1] * up[1] + p[2] * up[2]
 }
@@ -228,9 +221,7 @@ function solveEdges(cube: Cube): Move[] {
  *  way, set up by up to two turns (undone after). */
 function variants(formula: string): Move[][] {
   const base = parseMoves(formula)
-  const held = AXIS_ROTATIONS.map((turn) =>
-    base.map((m) => ({ ...m, face: faceOfNormal(turn(FACE_NORMAL[m.face])) })),
-  ).flatMap((f) => [f, invertMoves(f)])
+  const held = HOLDINGS.map((h) => base.map(h.move)).flatMap((f) => [f, invertMoves(f)])
   const singles = OUTER_TURNS.turns as Move[]
   const setups: Move[][] = [
     [],
@@ -253,27 +244,19 @@ function goes(cube: Cube, moves: readonly Move[]): boolean {
 }
 
 const CORNERS = homesOf('latch', isCorner)
-const colorsOf = (c: Cubie) =>
-  c.stickers
-    .map((s) => s.color)
-    .sort()
-    .join()
 
 /** Every 3-cycle of corners that goes, the shortest of each. */
-let cycles: Map<string, Move[]> | undefined
-const cornerCycles = () =>
-  (cycles ??= cycleTable(
+const cornerCycles = once(() =>
+  cycleTable(
     SOLVED,
     isCorner,
     variants(CORNER_CYCLE).sort((a, b) => a.length - b.length),
     [],
-  ))
+  ),
+)
 
 /** Each corner sent to the slot of its colors. */
-function cornerHomes(state: Cube): Map<string, string> {
-  const homes = new Map(SOLVED.filter(isCorner).map((c) => [colorsOf(c), key(c.position)]))
-  return new Map(state.filter(isCorner).map((c) => [key(c.position), homes.get(colorsOf(c))!]))
-}
+const cornerHomes = uniqueHomes(SOLVED, isCorner)
 
 /** The twists that go, one of each effect (the corners stay in place). */
 let twists: Move[][] | undefined
@@ -285,7 +268,7 @@ function twistMacros(): Move[][] {
     .filter((seq) => {
       const look = applyMoves(SOLVED, seq)
         .filter(isCorner)
-        .map((c) => key(c.position) + c.stickers.map((s) => s.normal.join()).join())
+        .map((c) => vecKey(c.position) + c.stickers.map((s) => s.normal.join()).join())
         .join('|')
       if (seen.has(look)) return false
       seen.add(look)
@@ -302,26 +285,19 @@ export const LATCH_PLAN: MethodPlan = [
     key: 'stepLatchCorners',
     goal: (cube) =>
       edgesHome(cube) &&
-      cube.filter(isCorner).every((c) =>
-        SOLVED.some(
-          (h) =>
-            key(h.position) === key(c.position) &&
-            h.stickers
-              .map((s) => s.color)
-              .sort()
-              .join() ===
-              c.stickers
-                .map((s) => s.color)
-                .sort()
-                .join(),
+      cube
+        .filter(isCorner)
+        .every((c) =>
+          SOLVED.some(
+            (h) => vecKey(h.position) === vecKey(c.position) && colorsOf(h) === colorsOf(c),
+          ),
         ),
-      ),
     moves: OUTER_TURNS,
     phases: [(cube) => played(cube, placeByCycles(cube, cornerCycles(), cornerHomes))],
   },
   {
     key: 'stepLatchTwist',
-    goal: (cube) => cube.every((c) => c.stickers.every((s) => s.color === 'H' || right(c))),
+    goal: (cube) => cube.every((c) => c.stickers.every((s) => isMark(s) || right(c))),
     moves: OUTER_TURNS,
     phases: [
       (cube) =>

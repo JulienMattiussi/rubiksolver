@@ -1,7 +1,7 @@
 import { isSolved, solvedCube } from '../../core/cube'
-import { normalIndex } from '../../core/geometry'
+import { normalIndex, vecKey } from '../../core/geometry'
 import type { MethodPlan } from '../../solve/solverKit'
-import type { Cube, Cubie, PyraMove, PyraVertex, Vec3 } from '../../core/types'
+import type { Cube, Cubie, PyraMove, PyraVertex } from '../../core/types'
 import { cycleTable, handedHome, placeByCycles } from '../../solve/cycleTable'
 import {
   alignCorners,
@@ -14,6 +14,7 @@ import {
   pyraSet,
   showsFaces,
 } from './pyraKit'
+import { once } from '../../solve/once'
 
 /**
  * Professor Pyraminx (the Pyraminx 5x5x5), "wings then co-wings", as taught
@@ -67,7 +68,6 @@ const isCoWing = (c: Cubie) => c.stickers.length === 2 && odd(c)
 const isCoCenter = (c: Cubie) => c.stickers.length === 1 && !odd(c)
 const isCenter = (c: Cubie) => c.stickers.length === 1 && odd(c)
 
-const key = (p: Vec3) => p.join()
 const solveGroup = groupSolver('pyra5')
 
 /** Each piece of `among` in the slot its handedness says (cycleTable.ts). */
@@ -75,7 +75,9 @@ const handedHomes = (among: (c: Cubie) => boolean) => {
   const slots = SOLVED.filter(among)
   return (cube: Cube) => (state: Cube) => {
     const faces = faceColors(cube, SIZE)
-    return new Map(state.filter(among).map((c) => [key(c.position), handedHome(c, slots, faces)]))
+    return new Map(
+      state.filter(among).map((c) => [vecKey(c.position), handedHome(c, slots, faces)]),
+    )
   }
 }
 
@@ -90,27 +92,19 @@ const coCenterHomes = (cube: Cube) => (state: Cube) => {
   const coCenters = state.filter(isCoCenter)
   const wrong = coCenters.filter((c) => c.stickers[0]!.color !== wants(c))
   const open = [...wrong]
-  const homes = new Map(coCenters.map((c) => [key(c.position), key(c.position)]))
+  const homes = new Map(coCenters.map((c) => [vecKey(c.position), vecKey(c.position)]))
   for (const c of wrong) {
     const i = open.findIndex((slot) => wants(slot) === c.stickers[0]!.color)
-    homes.set(key(c.position), key(open.splice(i, 1)[0]!.position))
+    homes.set(vecKey(c.position), vecKey(open.splice(i, 1)[0]!.position))
   }
   return homes
 }
 
-let tables:
-  | {
-      wings: Map<string, PyraMove[]>
-      coWings: Map<string, PyraMove[]>
-      coCenters: Map<string, PyraMove[]>
-    }
-  | undefined
-
 /** The 3-cycle tables of the three kinds placed one at a time (built once). */
-function cycleTables() {
+const cycleTables = once(() => {
   const sides = (texts: string[]) => texts.flatMap((f) => fromEverySide(formula(f)))
   const setups = SLICES.turns as PyraMove[]
-  tables ??= {
+  return {
     wings: cycleTable(
       SOLVED,
       isWing,
@@ -132,8 +126,7 @@ function cycleTables() {
       isCenter,
     ),
   }
-  return tables
-}
+})
 
 const wingHomes = handedHomes(isWing)
 const coWingHomes = handedHomes(isCoWing)

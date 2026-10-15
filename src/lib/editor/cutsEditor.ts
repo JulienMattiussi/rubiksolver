@@ -1,8 +1,9 @@
 import { solvedCube } from '../core/cube'
 import { invertMoves } from '../core/moves'
 import { applyMoves } from '../core/turn'
-import { cutsToBox, FASHION_CELLS } from '../methods/twisted/fashionShape'
+import { cutsToBox, FASHION_CELLS, WHOLE } from '../methods/twisted/fashionShape'
 import type { Cube, CubeShape, Cubie, Vec3 } from '../core/types'
+import { mapVec, parseVecKey, vecKey } from '../core/geometry'
 
 /**
  * Entering the Fashion-V where its halves stand (lib/puzzles/twisted/
@@ -15,11 +16,8 @@ import type { Cube, CubeShape, Cubie, Vec3 } from '../core/types'
  */
 
 /** Per cell (its signs, `'1,1,0'`): the axis its halves are cut across, or
- *  9 for a whole edge. */
+ *  `WHOLE` for a whole edge. */
 export type Cuts = Readonly<Record<string, number>>
-
-const WHOLE = 9
-const key = (cell: Vec3) => cell.join()
 
 /** Whether a puzzle is entered so, its halves first. */
 export const entersCuts = (shape: CubeShape): boolean => shape === 'fashion'
@@ -28,23 +26,23 @@ export const entersCuts = (shape: CubeShape): boolean => shape === 'fashion'
  *  in the equator. */
 export function boxCuts(): Cuts {
   return Object.fromEntries([
-    ...FASHION_CELLS.corners.map((c) => [key(c), 1]),
-    ...FASHION_CELLS.edges.map((c) => [key(c), c[1] === 0 ? WHOLE : 1]),
+    ...FASHION_CELLS.corners.map((c) => [vecKey(c), 1]),
+    ...FASHION_CELLS.edges.map((c) => [vecKey(c), c[1] === 0 ? WHOLE : 1]),
   ])
 }
 
-const cellOf = (p: Vec3): Vec3 => p.map(Math.sign) as unknown as Vec3
+const cellOf = (p: Vec3): Vec3 => mapVec(p, Math.sign)
 
 /** The cuts of a state: each cell's outer half says its axis; a cell
  *  without one holds a whole edge. */
 export function cutsOf(cube: Cube): Cuts {
   const cuts: Record<string, number> = Object.fromEntries([
-    ...FASHION_CELLS.corners.map((c) => [key(c), WHOLE]),
-    ...FASHION_CELLS.edges.map((c) => [key(c), WHOLE]),
+    ...FASHION_CELLS.corners.map((c) => [vecKey(c), WHOLE]),
+    ...FASHION_CELLS.edges.map((c) => [vecKey(c), WHOLE]),
   ])
   for (const c of cube) {
     const axis = c.position.findIndex((v) => Math.abs(v) === 2)
-    const cell = key(cellOf(c.position))
+    const cell = vecKey(cellOf(c.position))
     if (axis >= 0 && cell in cuts) cuts[cell] = axis
   }
   return cuts
@@ -60,7 +58,7 @@ function waysOf(cell: Vec3): number[] {
 
 /** A cell clicked: its halves the next way round. */
 export function nextCut(cuts: Cuts, cellKey: string): Cuts {
-  const cell = cellKey.split(',').map(Number) as unknown as Vec3
+  const cell = parseVecKey(cellKey)
   const ways = waysOf(cell)
   const now = ways.indexOf(cuts[cellKey] ?? ways[0]!)
   return { ...cuts, [cellKey]: ways[(now + 1) % ways.length]! }
@@ -68,7 +66,7 @@ export function nextCut(cuts: Cuts, cellKey: string): Cuts {
 
 /** How many cells hold a whole edge (four, in any form). */
 export const wholeCount = (cuts: Cuts): number =>
-  FASHION_CELLS.edges.filter((c) => cuts[key(c)] === WHOLE).length
+  FASHION_CELLS.edges.filter((c) => cuts[vecKey(c)] === WHOLE).length
 
 /** A neutral piece at `position`, a sticker on each of `faces` (a side's
  *  color: a top or bottom one would tell its drawing which way it is thin,
@@ -94,9 +92,9 @@ export function cutPieces(cuts: Cuts): Cube {
     ...centers,
     ...cells.flatMap((cell): Cube => {
       const faces = [0, 1, 2].filter((a) => cell[a] !== 0)
-      const cut = cuts[key(cell)]!
+      const cut = cuts[vecKey(cell)]!
       if (cut === WHOLE) return [piece(cell, faces)]
-      const at = (k: number) => cell.map((v, a) => (a === cut ? v * k : v)) as unknown as Vec3
+      const at = (k: number) => mapVec(cell, (v, a) => (a === cut ? v * k : v))
       return [
         piece(at(2), faces),
         piece(
@@ -113,8 +111,8 @@ export function cutPieces(cuts: Cuts): Cube {
 export function formOfCuts(cuts: Cuts): Cube | null {
   if (wholeCount(cuts) !== 4) return null
   const moves = cutsToBox(
-    FASHION_CELLS.edges.map((c) => cuts[key(c)]!),
-    FASHION_CELLS.corners.map((c) => cuts[key(c)]!),
+    FASHION_CELLS.edges.map((c) => cuts[vecKey(c)]!),
+    FASHION_CELLS.corners.map((c) => cuts[vecKey(c)]!),
   )
   return moves && applyMoves(solvedCube('fashion'), invertMoves(moves))
 }

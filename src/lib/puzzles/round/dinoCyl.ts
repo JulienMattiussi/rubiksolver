@@ -1,4 +1,4 @@
-import { solvedDino } from '../shared/rainbow'
+import { solvedDino } from '../shared/dinoRex'
 import type { Color, Cube, Cubie, Vec3 } from '../../core/types'
 
 /**

@@ -306,7 +306,7 @@ test('address: a link opens its puzzle and language, back returns to the previou
   page,
 }) => {
   await page.goto('/#/en/floppy-ghost')
-  await expect(page.getByRole('button', { name: 'Cube choice : Floppy Ghost' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Cube choice: Floppy Ghost' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Scramble' })).toBeVisible()
   await page.getByRole('button', { name: /^Cube choice/ }).click()
   await page.getByRole('button', { name: /^Pyramids,/ }).click()
@@ -317,7 +317,7 @@ test('address: a link opens its puzzle and language, back returns to the previou
   await page.goBack()
   await page.goBack()
   await expect(page).toHaveURL(/#\/en\/floppy-ghost$/)
-  await expect(page.getByRole('button', { name: 'Cube choice : Floppy Ghost' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Cube choice: Floppy Ghost' })).toBeVisible()
 })
 
 test('home page: a gallery to choose from, the solve block grayed, the title leads back', async ({

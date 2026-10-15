@@ -1,7 +1,7 @@
-import { normalIndex } from '@/lib/core/geometry'
+import { mapVec, normalIndex } from '@/lib/core/geometry'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import { face, type P3, type PiecePolygon } from '../../core/polygons'
-import { polyhedron, type Plane } from '../../core/polyhedron'
+import { dot, polyhedron, type Plane } from '../../core/polyhedron'
 
 /**
  * Geometry of the Rainbow's pieces (see lib/puzzles/shared/rainbow.ts): the cuboctahedron
@@ -34,7 +34,7 @@ const CORNERS: readonly Vec3[] = [0, 1, 2].flatMap((zero) =>
   [-1, 1].flatMap((a) =>
     [-1, 1].map((b) => {
       const p = [a, b]
-      return [0, 1, 2].map((d) => (d === zero ? 0 : p.shift()!)) as unknown as Vec3
+      return mapVec([0, 1, 2], (d) => (d === zero ? 0 : p.shift()!))
     }),
   ),
 )
@@ -44,7 +44,6 @@ const SOLID: Plane[] = [
   ...DIAGONALS.map((normal) => ({ normal, offset: 2 })),
 ]
 
-const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 const cross = (a: Vec3, b: Vec3): Vec3 => [
   a[1] * b[2] - a[2] * b[1],
   a[2] * b[0] - a[0] * b[2],
@@ -55,11 +54,11 @@ const cross = (a: Vec3, b: Vec3): Vec3 => [
  *  leaving corner `v` on triangle `d`: the fixed center lies beyond it. */
 function centerCut(v: Vec3, d: Vec3): Plane {
   const ends = CORNERS.filter((w) => dot(w, d) === 2 && w.join() !== v.join())
-  const [m1, m2] = ends.map((w) => v.map((x, i) => (x + w[i]!) / 2) as unknown as Vec3)
+  const [m1, m2] = ends.map((w) => mapVec(v, (x, i) => (x + w[i]!) / 2))
   // Oriented so that the corner's side is normal . p <= 0.
   const normal = cross(m1!, m2!)
   return {
-    normal: dot(normal, v) > 0 ? (normal.map((x) => -x) as unknown as Vec3) : normal,
+    normal: dot(normal, v) > 0 ? mapVec(normal, (x) => -x) : normal,
     offset: 0,
   }
 }
@@ -77,14 +76,14 @@ function pieceFaces(position: Vec3) {
     const corners = CORNERS.filter((w) => dot(w, position) === 2)
     planes = corners.map((w) => {
       const cut = centerCut(w, position)
-      return { normal: cut.normal.map((x) => -x) as unknown as Vec3, offset: 0 }
+      return { normal: mapVec(cut.normal, (x) => -x), offset: 0 }
     })
   } else {
     // Nearer this corner than any other, short of the triangles' middles.
     const neighbours = CORNERS.filter((w) => w.join() !== id && dot(w, position) > 0)
     planes = [
       ...neighbours.map((w) => ({
-        normal: w.map((x, i) => x - position[i]!) as unknown as Vec3,
+        normal: mapVec(w, (x, i) => x - position[i]!),
         offset: 0,
       })),
       ...DIAGONALS.filter((d) => dot(d, position) === 2).map((d) => centerCut(position, d)),

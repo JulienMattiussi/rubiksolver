@@ -1,6 +1,7 @@
 import { FACES, invertMoves } from '../core/moves'
 import { applyMoves } from '../core/turn'
-import type { Cube, Cubie, Dims, Move, Vec3 } from '../core/types'
+import type { Cube, Cubie, Dims, Move } from '../core/types'
+import { vecKey } from '../core/geometry'
 
 /**
  * 3-cycle libraries of the big cubes' pieces (the 5x5's and 6x6's centers and wings,
@@ -18,8 +19,6 @@ import type { Cube, Cubie, Dims, Move, Vec3 } from '../core/types'
 
 /** The 5x5's mechanism, by default. */
 const FIVE: Dims = [5, 5, 5]
-
-const key = (p: Vec3) => p.join(',')
 
 interface Cycle {
   readonly moves: readonly Move[]
@@ -44,7 +43,7 @@ export const MIDDLES = DEEP.filter((m) => ['R', 'U', 'F'].includes(m.face))
 /** Where each piece of `pieces` lands under `moves`, by slot. */
 function slotMap(moves: readonly Move[], pieces: Cube, mechanism: Dims): Map<string, string> {
   const after = applyMoves(pieces, moves, mechanism)
-  return new Map(pieces.map((c, i) => [key(c.position), key(after[i]!.position)]))
+  return new Map(pieces.map((c, i) => [vecKey(c.position), vecKey(after[i]!.position)]))
 }
 
 /** The moved slots of a sequence, if it is a pure 3-cycle of `kind`'s
@@ -61,18 +60,18 @@ function pureCycle(
     const before = watched[i]!
     const now = after[i]!
     const still =
-      key(now.position) === key(before.position) &&
-      now.stickers.every((s, k) => key(s.normal) === key(before.stickers[k]!.normal))
+      vecKey(now.position) === vecKey(before.position) &&
+      now.stickers.every((s, k) => vecKey(s.normal) === vecKey(before.stickers[k]!.normal))
     if (still) continue
     if (!kind(before) || moved.length === 3) return null
     moved.push(i)
   }
   if (moved.length !== 3) return null
-  const from = key(watched[moved[0]!]!.position)
-  const to = key(after[moved[0]!]!.position)
-  const next = moved.find((i) => key(watched[i]!.position) === to)
+  const from = vecKey(watched[moved[0]!]!.position)
+  const to = vecKey(after[moved[0]!]!.position)
+  const next = moved.find((i) => vecKey(watched[i]!.position) === to)
   if (next === undefined) return null // not a single 3-cycle
-  const third = key(after[next]!.position)
+  const third = vecKey(after[next]!.position)
   return [from, to, third]
 }
 

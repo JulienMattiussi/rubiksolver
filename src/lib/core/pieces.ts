@@ -1,6 +1,6 @@
-import { faceColorsOf, solvedCube } from './cube'
-import { faceOfNormal } from './geometry'
-import type { Color, Cube, CubeShape, Cubie, Face, Vec3 } from './types'
+import { FACE_COLOR, faceColorsOf, solvedCube } from './cube'
+import { AXIS_ROTATIONS, faceOfNormal } from './geometry'
+import type { Color, Cube, CubeShape, Cubie, Face, Sticker, Vec3 } from './types'
 
 /**
  * Queries on a puzzle's pieces (pure): their colors, where one stands,
@@ -15,7 +15,13 @@ export function colorAt(cubie: Cubie, face: Face): Color | undefined {
 
 /** A piece's colors, sorted: the same wherever it sits, and for twin pieces. */
 export function colorsOf(cubie: Cubie): string {
-  return cubie.stickers
+  return stickerColors(cubie.stickers)
+}
+
+/** Some stickers' colors, sorted (a piece's own, its marks set aside). Each
+ *  color is one letter, so they join with nothing between. */
+export function stickerColors(stickers: readonly Sticker[]): string {
+  return stickers
     .map((s) => s.color)
     .sort()
     .join('')
@@ -24,6 +30,27 @@ export function colorsOf(cubie: Cubie): string {
 /** Whether a piece carries exactly these colors. */
 export function hasColors(cubie: Cubie, colors: readonly Color[]): boolean {
   return colorsOf(cubie) === [...colors].sort().join('')
+}
+
+/** Each way of holding a puzzle without fixed colors (no centers): each
+ *  color of `solved` renamed to the standard one of the face it is on then. */
+export function colorRenames(solved: Cube): Map<Color, Color>[] {
+  return AXIS_ROTATIONS.map(
+    (turn) =>
+      new Map(
+        solved.flatMap((c) =>
+          c.stickers.map((s) => [s.color, FACE_COLOR[faceOfNormal(turn(s.normal))]] as const),
+        ),
+      ),
+  )
+}
+
+/** A state with its colors renamed (read as held another way). */
+export function recolored(cube: Cube, rename: ReadonlyMap<Color, Color>): Cube {
+  return cube.map((c) => ({
+    ...c,
+    stickers: c.stickers.map((s) => ({ ...s, color: rename.get(s.color)! })),
+  }))
 }
 
 /** The cubie at `position` among `cubies`, if any. */

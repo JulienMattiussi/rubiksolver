@@ -1,3 +1,4 @@
+import { isMark } from '@/lib/core/types'
 import { FACE_NORMAL, normalIndex } from '@/lib/core/geometry'
 import type { Cubie, Face } from '@/lib/core/types'
 import type { P3, PiecePolygon } from '../../core/polygons'
@@ -28,7 +29,7 @@ export const bandagedPolygons = (cubie: Cubie): PiecePolygon[] => polygonsOf(cub
 export const bandagedThumbnail = (cubie: Cubie): PiecePolygon[] => polygonsOf(cubie, THUMBNAIL_SEAM)
 
 function polygonsOf(cubie: Cubie, seam: number): PiecePolygon[] {
-  const colored = cubie.stickers.filter((s) => s.color !== 'H')
+  const colored = cubie.stickers.filter((s) => !isMark(s))
   if (colored.length === 0) return [] // the hidden core
   const key =
     seam + cubie.position.join() + cubie.stickers.map((s) => s.normal.join() + s.color).join('|')
@@ -38,7 +39,7 @@ function polygonsOf(cubie: Cubie, seam: number): PiecePolygon[] {
   // towards a fused neighbour (its body `seam` short of it), short of it
   // otherwise.
   const fused = (axis: number, side: number) =>
-    cubie.stickers.some((s) => s.color === 'H' && s.normal[axis] === side)
+    cubie.stickers.some((s) => isMark(s) && s.normal[axis] === side)
   const reach = (axis: number, side: number, inset: number, toBlock = 0) =>
     cubie.position[axis]! + side * (0.5 - (fused(axis, side) ? toBlock : inset))
   const out: PiecePolygon[] = []

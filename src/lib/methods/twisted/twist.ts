@@ -1,6 +1,6 @@
 import { isSolved, solvedCube } from '../../core/cube'
 import { allTurnsOf } from '../../core/moveSet'
-import { buildSteps, type MethodPlan } from '../../solve/solverKit'
+import { buildSteps, projectPlan, type MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Face, Move, Turn } from '../../core/types'
 import { BEGINNER_PLAN } from '../standard/layers3'
@@ -98,11 +98,7 @@ function combine(target: readonly number[]): Turn[] | null {
 /** A 3x3 plan, played on the Z-Twist: on its colors, then its centers. */
 export function twistPlan(plan: MethodPlan): MethodPlan {
   return [
-    ...plan.map((spec) => ({
-      ...spec,
-      goal: (cube: Cube) => spec.goal(asCube(cube)),
-      phases: spec.phases.map((phase) => (cube: Cube) => phase(asCube(cube))),
-    })),
+    ...projectPlan(plan, asCube),
     {
       key: 'stepTwistCenters',
       goal: isSolved,

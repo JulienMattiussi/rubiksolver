@@ -25,11 +25,11 @@ const PADS: Record<PadKind, (disabled: boolean) => ReactNode> = {
   mega: (disabled) => <MegaPad disabled={disabled} />,
   crystal: (disabled) => <MegaPad disabled={disabled} crystal />,
   fto: (disabled) => <FtoPad disabled={disabled} />,
-  rainbow: (disabled) => <RainbowPad disabled={disabled} />,
-  dino: (disabled) => <RainbowPad disabled={disabled} dino />,
-  rex: (disabled) => <RainbowPad disabled={disabled} rex />,
-  skewb: (disabled) => <RainbowPad disabled={disabled} skewb />,
-  masterSkewb: (disabled) => <RainbowPad disabled={disabled} master />,
+  rainbow: (disabled) => <RainbowPad disabled={disabled} variant="rainbow" />,
+  dino: (disabled) => <RainbowPad disabled={disabled} variant="dino" />,
+  rex: (disabled) => <RainbowPad disabled={disabled} variant="rex" />,
+  skewb: (disabled) => <RainbowPad disabled={disabled} variant="skewb" />,
+  masterSkewb: (disabled) => <RainbowPad disabled={disabled} variant="masterSkewb" />,
   gear: (disabled) => <GearPad disabled={disabled} />,
 }
 

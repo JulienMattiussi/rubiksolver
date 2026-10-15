@@ -7,6 +7,7 @@ import {
   RAINBOW_TRIANGLES,
 } from '../shared/rainbow'
 import type { Cube, Cubie, RainbowCorner, RainbowMove, Vec3 } from '../../core/types'
+import { mapVec } from '../../core/geometry'
 
 /**
  * The FTO, Face Turning Octahedron (fan2cube.fr/FTO1, Jürgen Brandt, 2009):
@@ -45,7 +46,7 @@ function images(point: Vec3): Vec3[] {
   ]
   for (const order of orders) {
     for (const signs of FACES) {
-      const p = order.map((d, i) => point[d]! * signs[i]! + 0) as unknown as Vec3
+      const p = mapVec(order, (d, i) => point[d]! * signs[i]! + 0)
       seen.set(p.join(), p)
     }
   }

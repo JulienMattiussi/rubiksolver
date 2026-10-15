@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { dot } from '../../core/polyhedron'
 import type { Vec3 } from '@/lib/core/types'
 import blockUrl from '@/assets/gear/block.png'
 import centerUrl from '@/assets/gear/center.png'
@@ -6,6 +7,7 @@ import clipUrl from '@/assets/gear/clip.png'
 import cornerUrl from '@/assets/gear/corner.png'
 import gearUrl from '@/assets/gear/gear.png'
 import OUTLINES from '@/assets/gear/outlines.json'
+import { mapVec } from '@/lib/core/geometry'
 
 /**
  * The Gear Cube's face, as agreed on a flat drawing: 13 pieces, each a mask
@@ -53,11 +55,10 @@ export function gearMask(kind: GearPiece): THREE.Texture {
 /** Two directions across a face, for its drawing's x (right) and y (down). */
 function faceAxes(normal: Vec3): [Vec3, Vec3] {
   const a = normal.findIndex((v) => v !== 0)
-  const unit = (i: number) => [0, 1, 2].map((k) => (k === i ? 1 : 0)) as unknown as Vec3
+  const unit = (i: number) => mapVec([0, 1, 2], (k) => (k === i ? 1 : 0))
   return [unit((a + 1) % 3), unit((a + 2) % 3)]
 }
 
-const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 /** A quarter turn clockwise on the drawing (y down): top goes right. */
 const turn = ([x, y]: readonly [number, number]): [number, number] => [-y, x]
 

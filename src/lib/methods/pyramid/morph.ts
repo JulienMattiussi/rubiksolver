@@ -1,5 +1,5 @@
 import { FACE_COLOR, isSolved, solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS } from '../../core/geometry'
+import { AXIS_ROTATIONS, mapVec } from '../../core/geometry'
 import { allTurnsOf } from '../../core/moveSet'
 import { PYRA_CORNERS, PYRA_FACE_COLOR, PYRA_VERTICES } from '../../puzzles/pyramid/pyraminx'
 import type { MethodPlan } from '../../solve/solverKit'
@@ -30,7 +30,7 @@ function homeOf(cubie: Cubie): Vec3 | undefined {
     return v && PYRA_CORNERS[v]
   }
   const v = PYRA_VERTICES.find((w) => PYRA_FACE_COLOR[w] === colors[0])
-  return v && (PYRA_CORNERS[v].map((x) => -x) as unknown as Vec3)
+  return v && mapVec(PYRA_CORNERS[v], (x) => -x)
 }
 
 const MORPH = solvedCube('morph')

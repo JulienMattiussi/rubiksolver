@@ -5,6 +5,7 @@ import { parseDinoMoves, RAINBOW_CORNERS } from '../../puzzles/shared/rainbow'
 import type { MethodPlan } from '../../solve/solverKit'
 import type { CubeShape, Cubie, RainbowMove, Vec3 } from '../../core/types'
 import { aroundTop, notPetal, skewbKit } from '../shared/skewbKit'
+import { colorsOf } from '../../core/pieces'
 
 /**
  * Skewb, "le Haut d'abord", as taught on fan2cube.fr (skewb2 and skewb4):
@@ -37,12 +38,6 @@ const parseAs = (kind: 'skewb' | 'master') => (formula: string) => parseDinoMove
 /** A corner's set: its coordinates' signs multiplied. Turns never take a
  *  corner from one set to the other ("deux clans", skewb3). */
 const setOf = (p: readonly number[]) => Math.sign(p[0]! * p[1]! * p[2]!)
-
-const colorsOf = (c: Cubie) =>
-  c.stickers
-    .map((s) => s.color)
-    .sort()
-    .join()
 
 /**
  * "Le Haut d'abord" on a Skewb's corners and centers, the Skewb's own or a

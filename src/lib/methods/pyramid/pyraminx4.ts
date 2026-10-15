@@ -1,6 +1,6 @@
 import { isSolved, solvedCube } from '../../core/cube'
 import type { MethodPlan } from '../../solve/solverKit'
-import type { Cube, Cubie, PyraMove, PyraVertex, Vec3 } from '../../core/types'
+import type { Cube, Cubie, PyraMove, PyraVertex } from '../../core/types'
 import { cycleTable, handedHome, placeByCycles } from '../../solve/cycleTable'
 import {
   alignCorners,
@@ -13,6 +13,8 @@ import {
   pyraSet,
   showsFaces,
 } from './pyraKit'
+import { vecKey } from '../../core/geometry'
+import { once } from '../../solve/once'
 
 /**
  * Master Pyraminx, "wings then midges", as taught on fan2cube.fr
@@ -64,29 +66,26 @@ const home = (cube: Cube, keep: (c: Cubie) => boolean) => {
 // ---------------------------------------------------------------------------
 
 const WING_SLOTS = solvedCube('pyra4').filter(isWing)
-const key = (p: Vec3) => p.join()
 
 /**
  * Every wing 3-cycle (all 440), keyed by what it does, `a>b>c`: fan2cube's
  * four, from every side, then set up by turns (cycleTable.ts).
  */
-let cycles: Map<string, PyraMove[]> | undefined
-export function wingCycles(): Map<string, PyraMove[]> {
-  cycles ??= cycleTable(
+export const wingCycles = once(() =>
+  cycleTable(
     solvedCube('pyra4'),
     isWing,
     ["[H'1 D2]", "[H1 G'2]", "[H2 G'1]", "[H'2 D1]"].flatMap((f) => fromEverySide(formula(f))),
     SLICES.turns as PyraMove[],
-  )
-  return cycles
-}
+  ),
+)
 
 /** Place the wings one by one, each with a 3-cycle through an unplaced slot. */
 function solveWings(cube: Cube): PyraMove[] {
   const faces = faceColors(cube, SIZE)
   return placeByCycles(cube, wingCycles(), (state) => {
     const wings = state.filter(isWing)
-    return new Map(wings.map((w) => [key(w.position), handedHome(w, WING_SLOTS, faces)]))
+    return new Map(wings.map((w) => [vecKey(w.position), handedHome(w, WING_SLOTS, faces)]))
   })
 }
 

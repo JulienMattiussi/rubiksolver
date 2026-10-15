@@ -1,8 +1,10 @@
-import { FACE_NORMAL, FACE_SPEC } from '../../core/geometry'
+import { FACE_NORMAL, FACE_SPEC, mapVec } from '../../core/geometry'
+import { MARK, isMark } from '../../core/types'
 import { stateKey } from '../../core/cube'
 import { simplifyMoves } from '../../core/moves'
 import { applyMove, inSlab, moveSlab } from '../../core/turn'
-import type { Color, Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
+import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
+import { stickerColors } from '../../core/pieces'
 
 /**
  * The bandaged 3x3x3s (fan2cube.fr's "Bandaged" puzzles): a 3x3x3 whose
@@ -17,9 +19,6 @@ import type { Color, Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
  * blocks lie. The marks are never drawn nor painted.
  */
 
-/** The marks' color, never drawn nor painted. */
-export const MARK: Color = 'H'
-
 /** A block, by the names of its cubies (`'DFL'` a corner, `'F'` a center,
  *  `'O'` the hidden core, which a 2x2x2 holds). */
 export type Block = readonly string[]
@@ -27,7 +26,7 @@ export type Block = readonly string[]
 /** Where a named cubie sits when solved. */
 function cellOf(name: string): Vec3 {
   return [...name.replace('O', '')].reduce<Vec3>(
-    (p, f) => p.map((v, i) => v + FACE_NORMAL[f as Face][i]!) as unknown as Vec3,
+    (p, f) => mapVec(p, (v, i) => v + FACE_NORMAL[f as Face][i]!),
     [0, 0, 0],
   )
 }
@@ -47,13 +46,10 @@ export function withBlocks(cube: Cube, blocks: readonly Block[]): Cube {
     if (!block) return c
     const marks = block
       .filter((p) => touching(p, c.position))
-      .map((p) => ({ normal: p.map((v, i) => v - c.position[i]!) as unknown as Vec3, color: MARK }))
+      .map((p) => ({ normal: mapVec(p, (v, i) => v - c.position[i]!), color: MARK }))
     return { ...c, stickers: [...c.stickers, ...marks] }
   })
 }
-
-/** Whether a sticker is a block's mark. */
-export const isMark = (s: { color: Color }) => s.color === MARK
 
 /** The 3x3x3 it is, its marks set aside. */
 export const withoutMarks = (cube: Cube): Cube =>
@@ -161,12 +157,7 @@ export function scrambleBandaged(
 }
 
 /** A piece's colors, marks aside: who it is. */
-const colorsOf = (c: Cubie) =>
-  c.stickers
-    .filter((s) => !isMark(s))
-    .map((s) => s.color)
-    .sort()
-    .join('')
+const colorsOf = (c: Cubie) => stickerColors(c.stickers.filter((s) => !isMark(s)))
 
 /**
  * An entered state's marks, from its colors (`entered`, without marks):
@@ -185,7 +176,7 @@ export function marksFromColors(entered: Cube, solved: Cube): Cube {
       const partner = solved.find((s) => same(s.position, partnerCell))!
       const now = at.get(colorsOf(partner))
       if (!now || !touching(now, c.position)) return []
-      return [{ normal: now.map((v, i) => v - c.position[i]!) as unknown as Vec3, color: MARK }]
+      return [{ normal: mapVec(now, (v, i) => v - c.position[i]!), color: MARK }]
     })
     return marks.length ? { ...c, stickers: [...c.stickers, ...marks] } : c
   })

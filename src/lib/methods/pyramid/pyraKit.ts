@@ -1,6 +1,6 @@
 import { colorsOf, cubieAt, homesOf } from '../../core/pieces'
 import { solvePieces } from '../../solve/pieceSearch'
-import { normalIndex, TET_NORMALS } from '../../core/geometry'
+import { mapVec, normalIndex, TET_NORMALS } from '../../core/geometry'
 import { NOTATION_FR } from '../../core/moves'
 import type { MoveSet } from '../../core/moveSet'
 import { PYRA_CORNERS, PYRA_VERTICES } from '../../puzzles/pyramid/pyraminx'
@@ -76,7 +76,7 @@ export const FORMULAS_ONLY: MoveSet = { generators: [], turns: [] }
 /** Where a corner's center piece (the Master's co-tip) sits, or its tip; on
  *  the Jing (size 2), its one corner piece, at v. */
 const cornerAt = (v: PyraVertex, size: number, tip: boolean): Vec3 =>
-  PYRA_CORNERS[v].map((x) => x * (size === 2 ? 1 : tip ? size - 1 : size - 2)) as unknown as Vec3
+  mapVec(PYRA_CORNERS[v], (x) => x * (size === 2 ? 1 : tip ? size - 1 : size - 2))
 
 /**
  * The color each face (by normal index) takes. The center pieces never leave

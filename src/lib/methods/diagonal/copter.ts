@@ -1,5 +1,5 @@
 import { FACE_COLOR, solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS, faceOfNormal } from '../../core/geometry'
+import { AXIS_ROTATIONS, faceOfNormal, mapVec, vecKey } from '../../core/geometry'
 import { invertMoves } from '../../core/moves'
 import { allTurnsOf } from '../../core/moveSet'
 import {
@@ -10,9 +10,11 @@ import {
   parseCopterMoves,
 } from '../../puzzles/diagonal/copter'
 import { solvePieces } from '../../solve/pieceSearch'
-import { cycleTable, placeByCycles } from '../../solve/cycleTable'
-import type { MethodPlan, StepSpec } from '../../solve/solverKit'
+import { cycleTable, placeByCycles, uniqueHomes } from '../../solve/cycleTable'
+import { projectPlan, type MethodPlan, type StepSpec } from '../../solve/solverKit'
 import type { CopterMove, Cube, Cubie, Vec3 } from '../../core/types'
+import { once } from '../../solve/once'
+import { colorRenames, colorsOf, recolored } from '../../core/pieces'
 
 /**
  * The Curvy Copters, "les arêtes d'abord", as taught on fan2cube.fr
@@ -64,22 +66,8 @@ const isCenter = (c: Cubie) => c.stickers.length === 1 && nonZero(c) === 1
 const isPetal = (c: Cubie) => c.stickers.length === 1 && nonZero(c) === 2
 const isLeaf = (c: Cubie) => c.stickers.length === 1 && nonZero(c) === 3
 
-const key = (p: Vec3) => p.join()
-const colorsOf = (c: Cubie) =>
-  c.stickers
-    .map((s) => s.color)
-    .sort()
-    .join()
 /** Each sticker the color of the face it is on. */
 const right = (c: Cubie) => c.stickers.every((s) => s.color === FACE_COLOR[faceOfNormal(s.normal)])
-
-/** Each piece of a kind sent to the slot of its colors (one of a kind). */
-const uniqueHomes =
-  (solved: Cube, kind: (c: Cubie) => boolean) =>
-  (state: Cube): Map<string, string> => {
-    const homes = new Map(solved.filter(kind).map((c) => [colorsOf(c), key(c.position)]))
-    return new Map(state.filter(kind).map((c) => [key(c.position), homes.get(colorsOf(c))!]))
-  }
 
 /** The color a slot of one sticker wants: its face's (the axis it is
  *  farthest out along). */
@@ -92,9 +80,7 @@ function want(p: Vec3): string {
 
 /** The turn of the edge at `position`. */
 const edgeAt = (position: Vec3): CopterMove => ({
-  edge: COPTER_EDGES.find(
-    (e) => key(COPTER_AXES[e]) === key(position.map(Math.sign) as unknown as Vec3),
-  )!,
+  edge: COPTER_EDGES.find((e) => vecKey(COPTER_AXES[e]) === vecKey(mapVec(position, Math.sign)))!,
 })
 
 /** Each piece of a kind sent to a slot of its color in its own `group`
@@ -107,11 +93,11 @@ const alikeHomes =
     const free = pieces.filter((c) => !right(c)).map((c) => c.position)
     return new Map(
       pieces.map((c) => {
-        const at = key(c.position)
+        const at = vecKey(c.position)
         if (right(c)) return [at, at]
         const color = c.stickers[0]!.color
         const slot = free.findIndex((s) => want(s) === color && group(s) === group(c.position))
-        return [at, key(free.splice(slot, 1)[0]!)]
+        return [at, vecKey(free.splice(slot, 1)[0]!)]
       }),
     )
   }
@@ -121,22 +107,22 @@ function orbits(solved: Cube, kind: (c: Cubie) => boolean): (p: Vec3) => number 
   const of = new Map<string, number>()
   let n = 0
   for (const start of solved.filter(kind)) {
-    if (of.has(key(start.position))) continue
+    if (of.has(vecKey(start.position))) continue
     let frontier: Cube = [{ position: start.position, stickers: [] }]
-    of.set(key(start.position), n)
+    of.set(vecKey(start.position), n)
     while (frontier.length) {
       frontier = frontier.flatMap((c) =>
         COPTER_TURNS.flatMap((turn) => {
           const [next] = applyCopterMove([c], turn)
-          if (of.has(key(next!.position))) return []
-          of.set(key(next!.position), n)
+          if (of.has(vecKey(next!.position))) return []
+          of.set(vecKey(next!.position), n)
           return [next!]
         }),
       )
     }
     n++
   }
-  return (p) => of.get(key(p))!
+  return (p) => of.get(vecKey(p))!
 }
 
 interface CopterFormulas {
@@ -155,35 +141,17 @@ interface CopterFormulas {
  */
 function heldByEdges(shape: 'copter' | 'copter3', plan: MethodPlan): MethodPlan {
   const solved = solvedCube(shape)
-  const pairs = new Map(solved.filter(isEdge).map((c) => [key(c.position), colorsOf(c)]))
-  const renames = AXIS_ROTATIONS.map(
-    (turn) =>
-      new Map(
-        solved.flatMap((c) =>
-          c.stickers.map((s) => [s.color, FACE_COLOR[faceOfNormal(turn(s.normal))]] as const),
-        ),
-      ),
-  )
-  const renamed = (cube: Cube, rename: Map<string, string>): Cube =>
-    cube.map((c) => ({
-      ...c,
-      stickers: c.stickers.map((s) => ({
-        ...s,
-        color: rename.get(s.color) as Cubie['stickers'][number]['color'],
-      })),
-    }))
+  const pairs = new Map(solved.filter(isEdge).map((c) => [vecKey(c.position), colorsOf(c)]))
+  const renames = colorRenames(solved)
   const upright = (cube: Cube): Cube => {
     for (const rename of renames) {
-      const held = renamed(cube, rename)
-      if (held.filter(isEdge).every((c) => pairs.get(key(c.position)) === colorsOf(c))) return held
+      const held = recolored(cube, rename)
+      if (held.filter(isEdge).every((c) => pairs.get(vecKey(c.position)) === colorsOf(c)))
+        return held
     }
     throw new Error('copter: its edges hold no way')
   }
-  return plan.map((spec) => ({
-    ...spec,
-    goal: (cube) => spec.goal(upright(cube)),
-    phases: spec.phases.map((phase) => (cube: Cube) => phase(upright(cube))),
-  }))
+  return projectPlan(plan, upright)
 }
 
 /** The plan of a Curvy Copter, from its page's formulas. */
@@ -200,9 +168,7 @@ function copterPlan(shape: 'copter' | 'copter3', formulas: CopterFormulas): Meth
     list: readonly string[],
     later: (c: Cubie) => boolean,
   ) => {
-    let built: Map<string, CopterMove[]> | undefined
-    return () =>
-      (built ??= cycleTable(SOLVED, kind, list.flatMap(fromEverySide), COPTER_TURNS, later))
+    return once(() => cycleTable(SOLVED, kind, list.flatMap(fromEverySide), COPTER_TURNS, later))
   }
   const placed =
     (kinds: readonly ((c: Cubie) => boolean)[], also?: (c: Cube) => boolean) => (cube: Cube) =>

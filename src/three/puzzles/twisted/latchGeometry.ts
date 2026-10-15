@@ -1,8 +1,9 @@
+import { MARK } from '@/lib/core/types'
 import { FACE_NORMAL, normalIndex } from '@/lib/core/geometry'
 import { arrowOn, type ArrowWay } from '@/lib/puzzles/twisted/latch'
 import { FACE_COLOR } from '@/lib/core/cube'
 import type { Color, Cubie, Face, Sticker } from '@/lib/core/types'
-import { face, type P3, type PiecePolygon } from '../../core/polygons'
+import { face, onFace, type P3, type PiecePolygon } from '../../core/polygons'
 
 /**
  * Geometry of the Latch Cube's pieces (lib/puzzles/twisted/latch.ts): a
@@ -19,20 +20,6 @@ const RADIUS = 1
 const WIDTH = 0.035
 /** Half a sticker's side: the circle is drawn within it. */
 const HALF = 0.5 * SHRINK * STICKER_SCALE
-
-/** A point of the face of normal `n` of the piece at `center`, at (u, v)
- *  across it (counter-clockwise seen from outside), lifted off it. */
-function onFace(center: readonly number[], n: readonly number[], lift: number) {
-  const a = n.findIndex((v) => v !== 0)
-  const [b, c] = [(a + 1) % 3, (a + 2) % 3]
-  return (u: number, v: number): P3 => {
-    const p: number[] = [...center]
-    p[a] = center[a]! + n[a]! * (0.5 + lift)
-    p[b] = center[b]! + u
-    p[c] = center[c]! + v * n[a]!
-    return p as P3
-  }
-}
 
 /** Where the face's middle stands from the piece, across the face. */
 function faceMiddle(position: readonly number[], n: readonly number[]): [number, number] {
@@ -217,7 +204,7 @@ function arrow(cubie: Cubie, s: Sticker, flat = false): PiecePolygon[] {
 
 /** The color the editor gives a sticker not painted yet (hidden: the
  *  marks' color, which no sticker shows). */
-export const UNPAINTED: Color = 'H'
+export const UNPAINTED: Color = MARK
 
 /** Every polygon of a piece, as it stands (the marked core: none); for
  *  the picker's thumbnail, each print whole on its sticker. */

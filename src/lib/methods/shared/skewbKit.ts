@@ -1,17 +1,15 @@
 import { solvedCube } from '../../core/cube'
 import { invertMoves } from '../../core/moves'
 import { solvePieces } from '../../solve/pieceSearch'
-import {
-  canonicalSlice,
-  parseDinoMoves,
-  RAINBOW_CORNERS,
-  RAINBOW_TRIANGLES,
-} from '../../puzzles/shared/rainbow'
+import { parseDinoMoves, RAINBOW_CORNERS, RAINBOW_TRIANGLES } from '../../puzzles/shared/rainbow'
+import { canonicalSlice } from '../../puzzles/shared/skewbs'
 import { applyMoves as applyMovesTo } from '../../core/turn'
 import type { Cube, CubeShape, Cubie, RainbowMove, Turn, Vec3 } from '../../core/types'
+import { colorsOf } from '../../core/pieces'
 
 /**
- * Bricks of the Skewbs' methods (the Skewb, the Skewb Ultimate), "le Haut
+ * Bricks of the Skewbs' methods (the Skewb, the Skewb Ultimate, the Master
+ * Skewb's corners and centers), "le Haut
  * d'abord" as fan2cube.fr teaches it: only the bottom corners turn, so the
  * top center never moves and sets how the puzzle is held. The puzzle is
  * read held as solved, its top center home (any holding that does), the
@@ -127,18 +125,8 @@ export function skewbKit(
       const upright = turned(cube, holdingOf(cube).turn)
       return homes.every((p) => {
         const want = SOLVED.find(at(p))!
-        const colors = want.stickers
-          .map((s) => s.color)
-          .sort()
-          .join()
-        const piece = upright.find(
-          (c) =>
-            notPetal(c) &&
-            c.stickers
-              .map((s) => s.color)
-              .sort()
-              .join() === colors,
-        )
+        const colors = colorsOf(want)
+        const piece = upright.find((c) => notPetal(c) && colorsOf(c) === colors)
         return (
           piece !== undefined &&
           (placed ? piece.position.join() === p.join() : keyOf(piece) === keyOf(want))
@@ -182,7 +170,7 @@ export function skewbKit(
     }
   }
 
-  return { SOLVED, held, home, oneByOne, keyOf }
+  return { SOLVED, held, home, oneByOne }
 }
 
 /** A formula from each side of the top (fan2cube's t H): turned a quarter

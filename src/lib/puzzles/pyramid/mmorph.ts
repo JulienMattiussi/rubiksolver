@@ -1,4 +1,6 @@
-import type { Color, Cube, Cubie, Vec3 } from '../../core/types'
+import type { Cube, Cubie, Vec3 } from '../../core/types'
+import { MARK } from '../../core/types'
+import { mapVec } from '../../core/geometry'
 
 /**
  * The Master Morphinx (fan2cube.fr/mastermorphinx1, Aleh Hladzilin and Adam
@@ -15,12 +17,8 @@ import type { Color, Cube, Cubie, Vec3 } from '../../core/types'
  * pointing along the next axis when home.
  */
 
-/** The mark's color, never drawn nor painted. */
-const MARK: Color = 'H'
-
 /** A center's mark when home: along the next axis. */
-const markOf = (axis: number): Vec3 =>
-  [0, 1, 2].map((d) => (d === (axis + 1) % 3 ? 1 : 0)) as unknown as Vec3
+const markOf = (axis: number): Vec3 => mapVec([0, 1, 2], (d) => (d === (axis + 1) % 3 ? 1 : 0))
 
 const isCenter = (c: Cubie) => c.position.filter((v) => v !== 0).length === 1
 

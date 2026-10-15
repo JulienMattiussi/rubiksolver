@@ -10,7 +10,7 @@ import {
   rotateN,
 } from './geometry'
 import { MODELS } from '../puzzles/models'
-import { ALL_COLORS, SHAPE_DIMS, SHAPE_SCHEME, SHAPE_SHIFTS } from './types'
+import { ALL_COLORS, MARK, SHAPE_DIMS, SHAPE_SCHEME, SHAPE_SHIFTS } from './types'
 import type {
   Axis,
   Color,
@@ -110,7 +110,7 @@ function stickerCount(cube: Cube): number {
   let n = 0
   for (const c of cube) {
     let marks = 0
-    for (const s of c.stickers) if (s.color === 'H') marks++
+    for (const s of c.stickers) if (s.color === MARK) marks++
     const colored = c.stickers.length - marks
     n += colored + marks * (1 + 100 * colored)
     if (c.spin !== undefined) n += 1000

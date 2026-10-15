@@ -1,6 +1,5 @@
 import { isSolved } from '../../core/cube'
-import type { MoveSet } from '../../core/moveSet'
-import type { MethodPlan } from '../../solve/solverKit'
+import { projectPlan, type MethodPlan } from '../../solve/solverKit'
 import { applyStarMove } from '../../puzzles/round/star'
 import type { Cube, RingMove, StarMove, Turn } from '../../core/types'
 import { ringTurns, STAR_PLAN, starSet } from './starPrism'
@@ -41,23 +40,13 @@ function lift(turn: Turn, star: Star): Turn {
   return star === 'outer' || 'slash' in move ? move : { ...move, ring: INNER_RING[move.ring] }
 }
 
-function liftSet(set: MoveSet, star: Star): MoveSet {
-  return {
-    generators: set.generators.map((t) => lift(t, star)),
-    turns: set.turns.map((t) => lift(t, star)),
-  }
-}
-
 /** The 2-star plan on one star, its steps renamed. */
 function onStar(star: Star, keys: readonly string[]): MethodPlan {
-  return STAR_PLAN.map((spec, i) => ({
-    key: keys[i]!,
-    goal: (cube: Cube) => spec.goal(starOf(cube, star)),
-    moves: liftSet(spec.moves, star),
-    phases: spec.phases.map(
-      (phase) => (cube: Cube) => phase(starOf(cube, star)).map((t) => lift(t, star)),
-    ),
-  }))
+  return projectPlan(
+    STAR_PLAN,
+    (cube) => starOf(cube, star),
+    (t) => lift(t, star),
+  ).map((spec, i) => ({ ...spec, key: keys[i]! }))
 }
 
 /** Turn both inner layers together until they line up with the outer ones. */

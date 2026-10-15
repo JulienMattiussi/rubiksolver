@@ -212,7 +212,7 @@ describe('<Controls />', () => {
     )
     await user.click(screen.getByRole('button', { name: 'Standards, 7 puzzles' }))
     expect(screen.getByRole('button', { name: '3x3' })).toHaveAttribute('aria-current', 'true')
-    await user.click(screen.getByRole('button', { name: 'Toutes les catégories' }))
+    await user.click(screen.getByRole('button', { name: 'Catégories' }))
     await user.click(screen.getByRole('button', { name: 'Plats, 3 puzzles' }))
     await user.click(screen.getByRole('button', { name: '3x3x1 (Floppy)' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()

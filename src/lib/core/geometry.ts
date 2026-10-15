@@ -6,6 +6,21 @@ import type { Axis, Dims, Face, Vec3 } from './types'
  * y = up, z = towards the viewer (front). No floating point ever enters here.
  */
 
+/** Map each coordinate of a 3-vector (with its axis index) to a new `Vec3`. */
+export function mapVec(v: readonly number[], f: (x: number, axis: number) => number): Vec3 {
+  return [f(v[0]!, 0), f(v[1]!, 1), f(v[2]!, 2)]
+}
+
+/** The canonical key of a position: its coordinates joined by commas. */
+export function vecKey(p: readonly number[]): string {
+  return p.join()
+}
+
+/** The position a `vecKey` names. */
+export function parseVecKey(key: string): Vec3 {
+  return mapVec(key.split(',').map(Number), (x) => x)
+}
+
 /** Outward normal of each face (unit axis vector). */
 export const FACE_NORMAL: Record<Face, Vec3> = {
   R: [1, 0, 0],
@@ -49,7 +64,7 @@ export const TET_NORMALS: readonly Vec3[] = [
 /** The other four diagonals: where the Pyramorphinx's stickers face once a
  *  quarter turn has laid a face of its tetrahedron the other way round (a
  *  2x2 turn maps each diagonal to an opposite one). */
-const DUAL_NORMALS: readonly Vec3[] = TET_NORMALS.map((n) => n.map((x) => -x) as unknown as Vec3)
+const DUAL_NORMALS: readonly Vec3[] = TET_NORMALS.map((n) => mapVec(n, (x) => -x))
 
 /** A first-quadrant direction every 18 degrees past the x axis (18, 36, 54,
  *  72), as integers pointing that way within two degrees. */

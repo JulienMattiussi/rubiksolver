@@ -1,12 +1,13 @@
 import { FACE_COLOR, solvedCube } from '../../../core/cube'
-import { FACE_NORMAL, faceOfNormal } from '../../../core/geometry'
+import { FACE_NORMAL, faceOfNormal, mapVec, vecKey } from '../../../core/geometry'
 import { parseMoves } from '../../../core/moves'
 import { applyMove, applyMoves } from '../../../core/turn'
 import type { Color, Cube, Cubie, Dims, Face, Move, Vec3 } from '../../../core/types'
-import { buildLibrary, DEEP, OUTER, SLICES, type Library } from '../../../solve/cycleLibrary'
+import { buildLibrary, DEEP, OUTER, SLICES } from '../../../solve/cycleLibrary'
 import { cornerTwistSum, edgeFlipParity, permSignsMatch } from '../solver4/parity'
 import { oddArrangement, pairWings } from '../../../solve/wingPairing'
 import { isInnerWing, isOuterWing } from './kinds'
+import { once } from '../../../solve/once'
 
 /**
  * 6x6 edges: each edge slot gets one edge, its four wings brought in by
@@ -28,7 +29,6 @@ import { isInnerWing, isOuterWing } from './kinds'
 
 const SIX: Dims = [6, 6, 6]
 const SOLVED = solvedCube('6')
-const key = (p: readonly number[]) => p.join(',')
 const isWing = (c: Cubie) => isOuterWing(c) || isInnerWing(c)
 
 /** An edge slot: its faces, and its wing slots (outer pair, inner pair). */
@@ -44,12 +44,12 @@ const EDGES: readonly EdgeSlot[] = SOLVED.filter(
   (c) => isOuterWing(c) && c.position.some((v) => v === 3),
 ).map((w) => {
   const free = w.position.findIndex((v) => Math.abs(v) === 3)
-  const along = (v: number) => key(w.position.map((x, a) => (a === free ? v : x)))
+  const along = (v: number) => vecKey(w.position.map((x, a) => (a === free ? v : x)))
   return {
     faces: w.stickers.map((s) => faceOfNormal(s.normal)) as [Face, Face],
     outer: [along(3), along(-3)],
     inner: [along(1), along(-1)],
-    at: w.position.map((x, a) => (a === free ? 0 : Math.sign(x))) as unknown as Vec3,
+    at: mapVec(w.position, (x, a) => (a === free ? 0 : Math.sign(x))),
   }
 })
 
@@ -69,9 +69,9 @@ const WING_POSES: ReadonlyMap<number, ReadonlyMap<string, ReadonlyMap<Face, Colo
     const queue: Cubie[] = [home]
     for (let k = 0; k < queue.length; k++) {
       const wing = queue[k]!
-      if (seen.has(key(wing.position))) continue
+      if (seen.has(vecKey(wing.position))) continue
       seen.set(
-        key(wing.position),
+        vecKey(wing.position),
         new Map(wing.stickers.map((s) => [faceOfNormal(s.normal), s.color])),
       )
       for (const move of moves) queue.push(applyMove([wing], move, SIX)[0]!)
@@ -85,7 +85,7 @@ const WING_POSES: ReadonlyMap<number, ReadonlyMap<string, ReadonlyMap<Face, Colo
 function wingOf(cubie: Cubie): number {
   const faces = new Map(cubie.stickers.map((s) => [faceOfNormal(s.normal), s.color]))
   for (const [wing, slots] of WING_POSES) {
-    const pose = slots.get(key(cubie.position))
+    const pose = slots.get(vecKey(cubie.position))
     if (pose && [...faces].every(([f, c]) => pose.get(f) === c)) return wing
   }
   throw new Error('edges: unknown wing')
@@ -93,7 +93,7 @@ function wingOf(cubie: Cubie): number {
 
 /** Where each wing stands now. */
 const wingSlots = (cube: Cube) =>
-  new Map(cube.filter(isWing).map((c) => [wingOf(c), key(c.position)]))
+  new Map(cube.filter(isWing).map((c) => [wingOf(c), vecKey(c.position)]))
 
 /** The wing showing these colors on the slot's faces at `slot`. */
 function wingFor(slot: string, faces: readonly Face[], colors: readonly Color[]): number {
@@ -128,7 +128,7 @@ const slotWanted = (s: number, placed: Placed): [string, number][] => {
 function as3x3(cube: Cube, plan: readonly Placed[]): Cube {
   const corners = cube
     .filter((c) => c.stickers.length === 3)
-    .map((c) => ({ ...c, position: c.position.map((v) => v / 5) as unknown as Vec3 }))
+    .map((c) => ({ ...c, position: mapVec(c.position, (v) => v / 5) }))
   const edges = EDGES.map((slot, s) => {
     const colors = colorsOf(plan[s]!)
     return {
@@ -179,7 +179,7 @@ function planEdges(cube: Cube): Placed[] {
 const shows = (cube: Cube) =>
   new Map(
     cube.filter(isWing).map((c) => [
-      key(c.position),
+      vecKey(c.position),
       c.stickers
         .map((s) => `${faceOfNormal(s.normal)}:${s.color}`)
         .sort()
@@ -199,7 +199,7 @@ export function edgesPaired(cube: Cube): boolean {
   return EDGES.every((slot) => pairsOf(look, slot).whole)
 }
 
-const UF = EDGES.findIndex((e) => key(e.at) === '0,1,1')
+const UF = EDGES.findIndex((e) => vecKey(e.at) === '0,1,1')
 
 /** Paired, but maybe for the UF edge, its pairs each alike (a crossed pair
  *  of wings, the parity, shows its colors the other way). */
@@ -212,17 +212,13 @@ export function pairedOrParity(cube: Cube): boolean {
 }
 
 const STICKERED = SOLVED.filter((c) => c.stickers.length > 0)
-let libraries: { outer: Library; inner: Library } | null = null
 
 /** Pure wing 3-cycles of each orbit: everything with a sticker stays, but
  *  three wings. */
-function wingLibraries() {
-  libraries ??= {
-    outer: buildLibrary(SLICES, OUTER, OUTER, STICKERED, isOuterWing, SIX),
-    inner: buildLibrary(DEEP, OUTER, OUTER, STICKERED, isInnerWing, SIX),
-  }
-  return libraries
-}
+const wingLibraries = once(() => ({
+  outer: buildLibrary(SLICES, OUTER, OUTER, STICKERED, isOuterWing, SIX),
+  inner: buildLibrary(DEEP, OUTER, OUTER, STICKERED, isInnerWing, SIX),
+}))
 
 /** Pair every edge as planned; an orbit an odd permutation away gets its
  *  UF pair aimed crossed, for the parity step. */
@@ -281,6 +277,6 @@ export function fixEdgeParity(cube: Cube): Move[] {
 
 /** The 3x3's edges as each slot's first outer wing shows them. */
 function readEdges(cube: Cube): Cube {
-  const byPos = new Map(cube.map((c) => [key(c.position), c]))
+  const byPos = new Map(cube.map((c) => [vecKey(c.position), c]))
   return EDGES.map((slot) => ({ position: slot.at, stickers: byPos.get(slot.outer[0])!.stickers }))
 }

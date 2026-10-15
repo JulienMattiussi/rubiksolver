@@ -1,8 +1,7 @@
-import { useState } from 'react'
 import { cubeDims, cubeShape } from '@/lib/core/cube'
 import { describeMove } from '@/lib/app/moveGuide'
 import { turnAllowed } from '@/lib/core/turn'
-import { FACE_NORMAL, faceOfNormal } from '@/lib/core/geometry'
+import { FACE_NORMAL, faceOfNormal, mapVec } from '@/lib/core/geometry'
 import {
   advancedMovesFor,
   formatMove,
@@ -13,11 +12,11 @@ import {
   sameLayer,
   type LayerKind,
 } from '@/lib/core/moves'
-import type { Face, Move, Vec3 } from '@/lib/core/types'
+import type { Face, Move } from '@/lib/core/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
-import { SegmentedToggle } from '@/components/ui/SegmentedToggle'
-import { SECTION_LABEL, TURN_PAIR } from '@/components/ui/styles'
+import { TURN_PAIR } from '@/components/ui/styles'
+import { LayerTabs } from './LayerTabs'
 import { PadButton } from './PadButton'
 import { PadHeader } from './PadHeader'
 
@@ -66,26 +65,6 @@ export function MovePad({ disabled }: { disabled: boolean }) {
   )
   /** The rows of buttons a tab shows, three layers a row. */
   const rowsOf = (k: PadTab) => Math.ceil((k === 'advanced' ? advancedLayers : faces).length / 3)
-  // Every kind of layer stacked, each under its name, when they all fit
-  // (as many rows as the Megaminx's pad); otherwise two tabs, each stacked:
-  // the outer layers (a face, alone or with the layers behind it), then the
-  // inner ones (the slices).
-  const stacked = kinds.reduce((n, k) => n + rowsOf(k), 0) <= STACKED_ROWS
-  const groups: { key: LayerGroup; kinds: PadTab[] }[] = stacked
-    ? [{ key: 'outer', kinds }]
-    : (['outer', 'inner'] as const)
-        .map((key) => ({ key, kinds: kinds.filter((k) => isOuter(k) === (key === 'outer')) }))
-        .filter((g) => g.kinds.length > 0)
-  // On a new puzzle, the first tab where something turns (a tab may hold
-  // only turns the state jams).
-  const [picked, setPicked] = useState<{ shape: string; group: LayerGroup | null }>({
-    shape: '',
-    group: null,
-  })
-  if (picked.shape !== shape) {
-    setPicked({ shape, group: groups.find((g) => g.kinds.some(playable))?.key ?? null })
-  }
-  const current = groups.find((g) => g.key === picked.group && picked.shape === shape) ?? groups[0]!
   const nameOf = (k: PadTab) =>
     vto && (k === 'outer' || k === 'wide') ? t.vtoLayerKinds[k] : t.layerKinds[k]
 
@@ -98,8 +77,7 @@ export function MovePad({ disabled }: { disabled: boolean }) {
     const offered = (face: Face) => moves.some((m) => m.face === face && layerKindOf(m) === kind)
     /** A middle slice is shown once, under the face that names it (2U for
      *  E, not 2D as well). */
-    const opposite = (face: Face) =>
-      faceOfNormal(FACE_NORMAL[face].map((v) => -v + 0) as unknown as Vec3)
+    const opposite = (face: Face) => faceOfNormal(mapVec(FACE_NORMAL[face], (v) => -v + 0))
     const named = (face: Face) => offered(face) || !offered(opposite(face))
 
     const button = (move: Move, exists: boolean, ghost: boolean) => {
@@ -179,36 +157,19 @@ export function MovePad({ disabled }: { disabled: boolean }) {
   return (
     <div>
       <PadHeader />
-      {groups.length > 1 && (
-        <div className="mb-2">
-          <SegmentedToggle
-            size="sm"
-            ariaLabel={t.layerLabel}
-            value={current.key}
-            onChange={(group) => setPicked({ shape, group })}
-            options={groups.map((g) => ({ value: g.key, label: t.layerGroups[g.key] }))}
-          />
-        </div>
-      )}
-      {current.kinds.length > 1
-        ? current.kinds.map((k) => (
-            <div key={k} className="mb-2">
-              <p className={`${SECTION_LABEL} mb-1`}>{nameOf(k)}</p>
-              {grid(k)}
-            </div>
-          ))
-        : grid(current.kinds[0]!)}
+      <LayerTabs
+        shape={shape}
+        kinds={kinds}
+        rows={rowsOf}
+        isOuter={isOuter}
+        playable={playable}
+        nameOf={nameOf}
+        grid={grid}
+      />
     </div>
   )
 }
 
-/** The pad's two tabs, when its kinds of layers do not fit stacked. */
-type LayerGroup = 'outer' | 'inner'
-
 /** Whether a kind of layer turns an outer face (alone or with the layers
  *  behind it): the pad's outer tab. */
 const isOuter = (k: PadTab) => k === 'outer' || k === 'wide' || k === 'wide3'
-
-/** Rows of buttons a pad stacks at most, every kind of layer at once (as
- *  many as the Megaminx's): past them, the kinds go in tabs. */
-export const STACKED_ROWS = 6

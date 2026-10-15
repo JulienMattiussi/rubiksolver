@@ -2,6 +2,7 @@ import { allTurnsOf } from '../../core/moveSet'
 import { PUCK_COLORS, puckNumber, puckPlace, puckSolved } from '../../puzzles/round/puck'
 import type { MethodPlan } from '../../solve/solverKit'
 import type { Cube, PuckMove, PuckSteps } from '../../core/types'
+import { once } from '../../solve/once'
 
 /**
  * Hockey Puck, "isolate, then permute" (the 2-Star Prism's way, starPrism.ts),
@@ -92,9 +93,8 @@ interface Swap {
 }
 
 /** Every swap: each of `SWAPS` with turns of both layers around it. */
-let ALL_SWAPS: Swap[] | undefined
-function allSwaps(): Swap[] {
-  ALL_SWAPS ??= SWAPS.flatMap((swap) =>
+const allSwaps = once((): Swap[] =>
+  SWAPS.flatMap((swap) =>
     Array.from({ length: 144 }, (_, i): Swap => {
       const [u, v] = [Math.floor(i / 12), i % 12]
       const moves = [...turn('U', -u), ...turn('D', -v), ...swap, ...turn('U', u), ...turn('D', v)]
@@ -105,9 +105,8 @@ function allSwaps(): Swap[] {
         throw new Error('puck: a swap crosses layers')
       return { moves, top: moved.filter((k) => k < 12), bottom: moved.filter((k) => k >= 12) }
     }),
-  )
-  return ALL_SWAPS
-}
+  ),
+)
 
 const has = (pair: readonly number[], a: number, b: number) =>
   pair.length === 2 && pair.includes(a) && pair.includes(b)

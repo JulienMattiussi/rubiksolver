@@ -1,4 +1,4 @@
-import { layerCoords } from '../../core/geometry'
+import { layerCoords, mapVec } from '../../core/geometry'
 import type { Color, Cube, Cubie, Vec3 } from '../../core/types'
 
 /**
@@ -42,7 +42,7 @@ export function solvedOct4(): Cube {
       for (const z of coords) {
         const position: Vec3 = [x, y, z]
         if (position.every((v) => Math.abs(v) === 1)) continue // inside
-        const normal = position.map(Math.sign) as unknown as Vec3
+        const normal = mapVec(position, Math.sign)
         cubies.push({ position, stickers: [{ normal, color: OCT_FACE_COLOR.get(normal.join())! }] })
       }
     }

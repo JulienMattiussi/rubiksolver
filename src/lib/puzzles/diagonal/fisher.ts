@@ -1,5 +1,7 @@
 import { thinEdgesSolved } from '../shared/thinEdges'
-import type { Color, Cube, Cubie, Vec3 } from '../../core/types'
+import { MARK } from '../../core/types'
+import type { Cube, Cubie } from '../../core/types'
+import { mapVec } from '../../core/geometry'
 
 /**
  * The Fisher Cube (Tony Fisher, 1985): a 3x3x3 cut to a cube turned an
@@ -26,9 +28,6 @@ import type { Color, Cube, Cubie, Vec3 } from '../../core/types'
  * its stickers.
  */
 
-/** The mark's color, never drawn nor painted. */
-const MARK: Color = 'H'
-
 const isSideCenter = (c: Cubie) =>
   c.stickers.length === 1 && c.position[1] === 0 && c.position.some((v) => v !== 0)
 
@@ -38,7 +37,7 @@ export const withMarks = (cube: Cube, windmill = false): Cube =>
   cube.map((c) => {
     if (!isSideCenter(c)) return c
     const [x, , z] = c.stickers[0]!.normal
-    const along = [z, 0, -x].map((v) => v + 0) as unknown as Vec3
+    const along = mapVec([z, 0, -x], (v) => v + 0)
     return {
       ...c,
       stickers: [

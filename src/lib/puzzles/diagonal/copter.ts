@@ -1,5 +1,5 @@
 import { FACE_COLOR } from '../../core/cube'
-import { FACE_NORMAL } from '../../core/geometry'
+import { FACE_NORMAL, mapVec } from '../../core/geometry'
 import type { FaceLabels } from '../../core/moves'
 import type { CopterEdge, CopterMove, Cube, Cubie, Face, Vec3 } from '../../core/types'
 
@@ -60,7 +60,7 @@ export function copterTurns(move: CopterMove, position: Vec3): boolean {
 const halfTurn =
   (e: Vec3) =>
   (v: Vec3): Vec3 =>
-    e.map((x, a) => dot(v, e) * x - v[a]! + 0) as unknown as Vec3
+    mapVec(e, (x, a) => dot(v, e) * x - v[a]! + 0)
 
 export function applyCopterMove(cube: Cube, move: CopterMove): Cube {
   const turn = halfTurn(COPTER_AXES[move.edge])

@@ -1,8 +1,10 @@
 import { FACE_COLOR, solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS, faceOfNormal } from '../../core/geometry'
+import { faceOfNormal } from '../../core/geometry'
 import type { MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import type { Color, Cube, Cubie, Turn } from '../../core/types'
+import { colorRenames, colorsOf, recolored } from '../../core/pieces'
+import { permutationIsOdd } from '../../solve/permutation'
 
 /**
  * The Void Cube read as a 3x3: without centers, their colors are chosen,
@@ -22,22 +24,12 @@ const CENTERS = solvedCube('3').filter((c) => c.stickers.length === 1)
 
 /** Each way of holding it: each color renamed to the standard one of the
  *  face it is on then. */
-const RENAMES: Map<Color, Color>[] = AXIS_ROTATIONS.map(
-  (turn) =>
-    new Map(
-      SOLVED.flatMap((c) =>
-        c.stickers.map((s) => [s.color, FACE_COLOR[faceOfNormal(turn(s.normal))]] as const),
-      ),
-    ),
-)
+const RENAMES = colorRenames(SOLVED)
 
 /** The 3x3 the Void Cube is, held one way: its colors renamed, these
  *  centers added. */
-const asCube = (cube: Cube, rename: Map<Color, Color>, centers: Cube): Cube => [
-  ...cube.map((c) => ({
-    ...c,
-    stickers: c.stickers.map((s) => ({ ...s, color: rename.get(s.color)! })),
-  })),
+const asCube = (cube: Cube, rename: ReadonlyMap<Color, Color>, centers: Cube): Cube => [
+  ...recolored(cube, rename),
   ...centers,
 ]
 
@@ -63,12 +55,6 @@ function centerSets(plan: MethodPlan): Cube[] {
   return [...found.values()]
 }
 
-const colorsOf = (c: Cubie) =>
-  c.stickers
-    .map((s) => s.color)
-    .sort()
-    .join()
-
 /** Whether the pieces of a kind are oddly permuted (each piece's home
  *  found by its colors). */
 function oddly(cube: Cube, kind: (c: Cubie) => boolean): boolean {
@@ -78,17 +64,7 @@ function oddly(cube: Cube, kind: (c: Cubie) => boolean): boolean {
   const next = new Map(
     cube.filter(kind).map((c) => [slot.get(c.position.join())!, home.get(colorsOf(c))!]),
   )
-  const seen = new Set<number>()
-  let odd = false
-  for (const start of next.keys()) {
-    let length = 0
-    for (let i = start; !seen.has(i); i = next.get(i)!) {
-      seen.add(i)
-      length++
-    }
-    if (length > 0 && length % 2 === 0) odd = !odd
-  }
-  return odd
+  return permutationIsOdd(next)
 }
 
 /** No singularity: as a 3x3's, the edges permuted as the corners and the

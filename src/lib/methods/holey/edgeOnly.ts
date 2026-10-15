@@ -1,7 +1,8 @@
 import { FACE_COLOR, solvedCube } from '../../core/cube'
 import { AXIS_ROTATIONS, faceOfNormal } from '../../core/geometry'
+import { recolored } from '../../core/pieces'
 import { edgeFlipParity } from '../standard/solver4/parity'
-import type { MethodPlan } from '../../solve/solverKit'
+import { projectPlan, type MethodPlan } from '../../solve/solverKit'
 import type { Color, Cube } from '../../core/types'
 import { TORI_PLAN } from './tori'
 
@@ -56,17 +57,7 @@ function asTori(cube: Cube): Cube {
   const rename = new Map<Color, Color>()
   for (const c of held)
     for (const s of c.stickers) rename.set(s.color, FACE_COLOR[faceOfNormal(s.normal)])
-  return [
-    ...cube.map((c) => ({
-      ...c,
-      stickers: c.stickers.map((s) => ({ ...s, color: rename.get(s.color)! })),
-    })),
-    ...CENTERS,
-  ]
+  return [...recolored(cube, rename), ...CENTERS]
 }
 
-export const EDGE_ONLY_PLAN: MethodPlan = TORI_PLAN.map((spec) => ({
-  ...spec,
-  goal: (cube) => spec.goal(asTori(cube)),
-  phases: spec.phases.map((phase) => (cube: Cube) => phase(asTori(cube))),
-}))
+export const EDGE_ONLY_PLAN: MethodPlan = projectPlan(TORI_PLAN, asTori)

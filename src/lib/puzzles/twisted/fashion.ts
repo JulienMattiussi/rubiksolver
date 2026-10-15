@@ -50,13 +50,14 @@ const IN_BOX: Move[] = [
   })),
 ]
 
-/** Every turn it has: the thin layers, the equator, the blocks. */
-const ALL: Move[] = [
-  ...IN_BOX,
-  ...(['U', 'D', 'R', 'L', 'F', 'B'] as Face[]).flatMap((face) =>
-    ([1, 2, 3] as const).map((amount): Move => ({ face, amount, depth: 2, wide: true })),
-  ),
-]
+/** Its blocks' turns: each side's column and each half, a quarter either
+ *  way or a half, three by face. */
+export const BLOCK_TURNS: Move[] = (['U', 'D', 'R', 'L', 'F', 'B'] as Face[]).flatMap((face) =>
+  ([1, 2, 3] as const).map((amount): Move => ({ face, amount, depth: 2, wide: true })),
+)
+
+/** Every turn it has: the thin layers and the blocks. */
+const ALL: Move[] = [...IN_BOX, ...BLOCK_TURNS]
 
 const sameLayer = (a: Move, b: Move) =>
   a.face === b.face && a.depth === b.depth && a.wide === b.wide
@@ -86,12 +87,8 @@ const SUFFIX = { 1: '', 2: '2', 3: "'" } as const
 export function formatFashionMove(move: Move, labels: FaceLabels): string {
   const letter = labels[move.face]
   const vertical = move.face === 'U' || move.face === 'D'
-  const name = move.wide
-    ? vertical
-      ? `${letter}*`
-      : letter
-    : move.depth
-      ? letter.toLowerCase()
-      : letter
+  let name = letter
+  if (move.wide && vertical) name = `${letter}*`
+  else if (!move.wide && move.depth) name = letter.toLowerCase()
   return name + SUFFIX[move.amount]
 }

@@ -1,5 +1,5 @@
 import { allTurnsOf } from '../../../core/moveSet'
-import { projectPlan } from '../solver4/steps'
+import { projectOuterPlan } from '../solver4/steps'
 import type { MethodPlan } from '../../../solve/solverKit'
 import { centersDone, solveCenters } from './centers'
 import { fixEdgeParity, pairEdges, pairedOrParity } from './edges'
@@ -25,6 +25,6 @@ export function reduction6Plan(plan3x3: MethodPlan): MethodPlan {
       phases: [fixEdgeParity],
       optional: true,
     },
-    ...projectPlan(plan3x3, to3x3),
+    ...projectOuterPlan(plan3x3, to3x3),
   ]
 }

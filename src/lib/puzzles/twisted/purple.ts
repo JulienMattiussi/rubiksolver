@@ -1,4 +1,4 @@
-import { FACE_SPEC } from '../../core/geometry'
+import { FACE_SPEC, mapVec } from '../../core/geometry'
 import type { Color, Cube, Cubie, Face, Sticker, Vec3 } from '../../core/types'
 
 /**
@@ -23,8 +23,7 @@ import type { Color, Cube, Cubie, Face, Sticker, Vec3 } from '../../core/types'
 /** Half the width of a piece: its coordinates' parity tells (minis even). */
 const half = (c: Cubie) => (Math.abs(c.position[0]) % 2 === 1 ? 2 : 1)
 
-const axis = (a: number, sign: number): Vec3 =>
-  [0, 1, 2].map((d) => (d === a ? sign : 0)) as unknown as Vec3
+const axis = (a: number, sign: number): Vec3 => mapVec([0, 1, 2], (d) => (d === a ? sign : 0))
 
 /** A's colors, by the axis its face looks along (the right yellow, the top
  *  lime, the front blue). */
@@ -40,7 +39,7 @@ export function solvedPurple(): Cube {
         .map((z): Vec3 => [x, y, z])
         .filter((s) => s.some((v) => v < 0))
         .map((s): Cubie => ({
-          position: s.map((v) => (v < 0 ? -3 : 1)) as unknown as Vec3,
+          position: mapVec(s, (v) => (v < 0 ? -3 : 1)),
           stickers: s.map((v, a): Sticker => ({ normal: axis(a, v), color: 'V' })),
         })),
     ),

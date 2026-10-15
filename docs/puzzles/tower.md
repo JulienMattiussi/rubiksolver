@@ -2,7 +2,7 @@
 
 Détail des puzzles de la catégorie (modèles : `src/lib/puzzles/tower/`, méthodes : `src/lib/methods/tower/`, dessins : `src/three/puzzles/tower/`). Les principes communs sont dans [AGENTS.md](../../AGENTS.md).
 
-## La tour 2x2x4 (forme qui se déforme)
+## La tour 2x2x4 (`224`, forme qui se déforme)
 
 La tour (`[2, 4, 2]`, `SHAPE_SHIFTS`) sort de sa boîte : son mécanisme est **un
 4x4x4 auquel il manque des pièces**. Ses coups se calculent donc sur la grille

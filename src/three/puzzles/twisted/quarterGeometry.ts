@@ -1,7 +1,7 @@
 import { FACE_COLOR } from '@/lib/core/cube'
 import { FACE_NORMAL, normalIndex } from '@/lib/core/geometry'
 import type { Cubie, Face } from '@/lib/core/types'
-import { face, type P3, type PiecePolygon } from '../../core/polygons'
+import { face, onFace, type P3, type PiecePolygon } from '../../core/polygons'
 
 /**
  * Geometry of the Quarter Cube's pieces (lib/puzzles/twisted/quarter.ts): a 3x3's cubies,
@@ -19,20 +19,6 @@ const STICKER_SCALE = 0.86
 const PIN = 90
 const GROOVE: [number, number] = [0.15, 0.23]
 const RECESS: [number, number] = [0.25, 0.28]
-
-/** A point of the face of normal `n` through `center`, at (u, v) across it
- *  (counter-clockwise seen from outside), lifted off it. */
-function onFace(center: readonly number[], n: readonly number[], lift: number) {
-  const a = n.findIndex((v) => v !== 0)
-  const [b, c] = [(a + 1) % 3, (a + 2) % 3]
-  return (u: number, v: number): P3 => {
-    const p: number[] = [...center]
-    p[a] = center[a]! + n[a]! * (0.5 + lift)
-    p[b] = center[b]! + u
-    p[c] = center[c]! + v * n[a]!
-    return p as P3
-  }
-}
 
 /** A band of a ring between two radii, from one angle to another (degrees,
  *  counter-clockwise seen from outside). */

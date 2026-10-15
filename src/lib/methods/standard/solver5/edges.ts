@@ -1,12 +1,13 @@
 import { solvedCube } from '../../../core/cube'
-import { faceOfNormal } from '../../../core/geometry'
+import { faceOfNormal, mapVec, vecKey } from '../../../core/geometry'
 import { parseMoves } from '../../../core/moves'
 import { applyMove, applyMoves } from '../../../core/turn'
 import type { Color, Cube, Cubie, Face, Move, Vec3 } from '../../../core/types'
 import { centersDone } from './centers'
-import { buildLibrary, OUTER, SLICES, type Library } from '../../../solve/cycleLibrary'
+import { buildLibrary, OUTER, SLICES } from '../../../solve/cycleLibrary'
 import { oddArrangement, pairWings } from '../../../solve/wingPairing'
 import { isMidge, isWing } from './kinds'
+import { once } from '../../../solve/once'
 
 /**
  * 5x5 edges: pair each edge's two wings with its middle piece, which stays
@@ -25,7 +26,6 @@ import { isMidge, isWing } from './kinds'
 
 const MECHANISM = [5, 5, 5] as const
 const SOLVED = solvedCube('5')
-const key = (p: Vec3) => p.join(',')
 
 /** Each edge: its middle piece's slot and its two wing slots. */
 interface EdgeSlot {
@@ -36,9 +36,9 @@ interface EdgeSlot {
 
 const EDGES: readonly EdgeSlot[] = SOLVED.filter(isMidge).map((m) => {
   const free = m.position.findIndex((v) => v === 0)
-  const at = (v: number): Vec3 => m.position.map((x, a) => (a === free ? v : x)) as unknown as Vec3
+  const at = (v: number): Vec3 => mapVec(m.position, (x, a) => (a === free ? v : x))
   return {
-    midge: key(m.position),
+    midge: vecKey(m.position),
     wings: [at(1), at(-1)],
     faces: m.stickers.map((s) => faceOfNormal(s.normal)),
   }
@@ -54,9 +54,9 @@ const WING_POSES: ReadonlyMap<number, ReadonlyMap<string, ReadonlyMap<Face, Colo
     const queue: Cubie[] = [home]
     for (let k = 0; k < queue.length; k++) {
       const wing = queue[k]!
-      if (seen.has(key(wing.position))) continue
+      if (seen.has(vecKey(wing.position))) continue
       seen.set(
-        key(wing.position),
+        vecKey(wing.position),
         new Map(wing.stickers.map((s) => [faceOfNormal(s.normal), s.color])),
       )
       for (const move of [...OUTER, ...SLICES]) queue.push(applyMove([wing], move, MECHANISM)[0]!)
@@ -70,7 +70,7 @@ const WING_POSES: ReadonlyMap<number, ReadonlyMap<string, ReadonlyMap<Face, Colo
 function wingOf(cubie: Cubie): number {
   const faces = new Map(cubie.stickers.map((s) => [faceOfNormal(s.normal), s.color]))
   for (const [wing, slots] of WING_POSES) {
-    const pose = slots.get(key(cubie.position))
+    const pose = slots.get(vecKey(cubie.position))
     if (pose && [...faces].every(([f, c]) => pose.get(f) === c)) return wing
   }
   throw new Error('edges: unknown wing')
@@ -78,17 +78,17 @@ function wingOf(cubie: Cubie): number {
 
 /** The wing each wing slot wants: the one showing its edge's middle colors. */
 function targets(cube: Cube): Map<string, number> {
-  const byPos = new Map(cube.map((c) => [key(c.position), c]))
+  const byPos = new Map(cube.map((c) => [vecKey(c.position), c]))
   const wanted = new Map<string, number>()
   for (const edge of EDGES) {
     const midge = byPos.get(edge.midge)!
     const colors = new Map(midge.stickers.map((s) => [faceOfNormal(s.normal), s.color]))
     for (const p of edge.wings) {
       const wing = [...WING_POSES].find(([, slots]) =>
-        edge.faces.every((f) => slots.get(key(p))?.get(f) === colors.get(f)),
+        edge.faces.every((f) => slots.get(vecKey(p))?.get(f) === colors.get(f)),
       )
       if (!wing) throw new Error('edges: no wing fits')
-      wanted.set(key(p), wing[0])
+      wanted.set(vecKey(p), wing[0])
     }
   }
   return wanted
@@ -96,7 +96,7 @@ function targets(cube: Cube): Map<string, number> {
 
 /** Where each wing stands now. */
 function wingSlots(cube: Cube): Map<number, string> {
-  return new Map(cube.filter(isWing).map((c) => [wingOf(c), key(c.position)]))
+  return new Map(cube.filter(isWing).map((c) => [wingOf(c), vecKey(c.position)]))
 }
 
 /** Wing slots not holding the wing they want (`wanted`: the targets). */
@@ -120,24 +120,21 @@ function crossedEdge(cube: Cube): EdgeSlot | undefined {
   const wanted = targets(cube)
   const at = wingSlots(cube)
   return EDGES.find((edge) => {
-    const [a, b] = edge.wings.map(key)
+    const [a, b] = edge.wings.map(vecKey)
     return at.get(wanted.get(a!)!) === b && at.get(wanted.get(b!)!) === a
   })
 }
 
-let library: Library | null = null
-
 /** Pure wing 3-cycles: everything with a sticker stays, but three wings. */
-function wingLibrary(): Library {
-  library ??= buildLibrary(
+const wingLibrary = once(() =>
+  buildLibrary(
     SLICES,
     OUTER,
     OUTER,
     SOLVED.filter((c) => c.stickers.length > 0),
     isWing,
-  )
-  return library
-}
+  ),
+)
 
 /** Whether bringing every wing where it is wanted is an odd permutation
  *  of the wing slots, which 3-cycles never make: the edge parity. */
@@ -173,7 +170,7 @@ export function fixEdgeParity(cube: Cube): Move[] {
   const crossed = crossedEdge(cube)
   if (!crossed || edgesPaired(cube)) return []
   // Outer turns move whole edges: follow the crossed edge's middle piece.
-  const midge = cube.find((c) => key(c.position) === crossed.midge)!
+  const midge = cube.find((c) => vecKey(c.position) === crossed.midge)!
   const moves = [...toUF(midge), ...EDGE_PARITY]
   const after = applyMoves(cube, moves)
   if (!edgesPaired(after) || !centersDone(after))
@@ -187,7 +184,7 @@ function toUF(midge: Cubie): Move[] {
   for (let depth = 0; depth <= 2; depth++) {
     const next: typeof frontier = []
     for (const node of frontier) {
-      if (key(node.piece.position) === '0,2,2') return node.moves
+      if (vecKey(node.piece.position) === '0,2,2') return node.moves
       for (const move of OUTER) {
         next.push({
           piece: applyMove([node.piece], move, MECHANISM)[0]!,

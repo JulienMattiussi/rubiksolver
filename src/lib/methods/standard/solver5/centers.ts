@@ -1,7 +1,8 @@
 import { solvedCube } from '../../../core/cube'
 import { centerSolver } from '../../../solve/centerCycles'
-import { buildLibrary, MIDDLES, OUTER, SLICES, type Library } from '../../../solve/cycleLibrary'
+import { buildLibrary, MIDDLES, OUTER, SLICES } from '../../../solve/cycleLibrary'
 import { isCrossCenter, isDiagonalCenter, isFixedCenter, isMovingCenter } from './kinds'
+import { once } from '../../../solve/once'
 
 /**
  * 5x5 centers (centerCycles.ts): each face's eight moving centers (four
@@ -13,21 +14,16 @@ import { isCrossCenter, isDiagonalCenter, isFixedCenter, isMovingCenter } from '
 /** The centers a 3-cycle must leave alone, the fixed ones included. */
 const CENTERS = solvedCube('5').filter((c) => isMovingCenter(c) || isFixedCenter(c))
 
-const lazy = (build: () => Library) => {
-  let library: Library | undefined
-  return () => (library ??= build())
-}
-
 export const { centersDone, solveCenters } = centerSolver({
   mechanism: [5, 5, 5],
   kinds: [
     {
       is: isDiagonalCenter,
-      cycles: lazy(() => buildLibrary(SLICES, OUTER, SLICES, CENTERS, isDiagonalCenter)),
+      cycles: once(() => buildLibrary(SLICES, OUTER, SLICES, CENTERS, isDiagonalCenter)),
     },
     {
       is: isCrossCenter,
-      cycles: lazy(() => buildLibrary(MIDDLES, OUTER, SLICES, CENTERS, isCrossCenter)),
+      cycles: once(() => buildLibrary(MIDDLES, OUTER, SLICES, CENTERS, isCrossCenter)),
     },
   ],
   slices: SLICES,

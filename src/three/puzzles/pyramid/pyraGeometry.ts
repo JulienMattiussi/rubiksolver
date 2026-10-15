@@ -1,4 +1,4 @@
-import { normalIndex, TET_NORMALS } from '@/lib/core/geometry'
+import { mapVec, normalIndex, TET_NORMALS } from '@/lib/core/geometry'
 import {
   PYRA_CORNERS,
   PYRA_FACE_COLOR,
@@ -78,7 +78,7 @@ function polygonsOf(cubie: Cubie, size: number, faces: CellFace[]): PiecePolygon
 /** A small tetrahedron: the face opposite each of its corners looks the
  *  other way, along that corner's face normal. */
 function tetrahedron(cubie: Cubie, size: number): PiecePolygon[] {
-  const corners = CORNERS.map((v) => cubie.position.map((x, a) => x + v[a]!) as unknown as Vec3)
+  const corners = CORNERS.map((v) => mapVec(cubie.position, (x, a) => x + v[a]!))
   return polygonsOf(
     cubie,
     size,
@@ -99,8 +99,8 @@ function octahedron(cubie: Cubie, size: number, truncated: boolean): PiecePolygo
     cubie,
     size,
     octants.map((s) => ({
-      corners: [0, 1, 2].map(
-        (a) => cubie.position.map((x, b) => (b === a ? x + 2 * s[a]! : x)) as unknown as Vec3,
+      corners: [0, 1, 2].map((a) =>
+        mapVec(cubie.position, (x, b) => (b === a ? x + 2 * s[a]! : x)),
       ),
       normal: s,
       ...(truncated &&
