@@ -36,3 +36,7 @@ export const MIRROR_STICKER = '#d8a63f'
 
 /** Floppy Ghost: every facelet silver, like the real one. */
 export const GHOST_STICKER = '#c8cfd8'
+
+/** A cell of a face being copied that shows no sticker (faceCanvases.ts): a piece's plastic or a hole, a little lighter than the
+ *  plastic so it reads as painted. */
+export const ABSENT_HEX = '#1e293b'

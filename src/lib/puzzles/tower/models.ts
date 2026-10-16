@@ -5,6 +5,7 @@ import { moveSlab } from '../../core/turn'
 import type { PuzzleModel } from '../model'
 import { camoBoxed, camoTurns } from './camo'
 import { TOWER234_MECHANISM, tower234Boxed, tower234Turns } from './tower234'
+import { CAMO_FACE_ENTRY } from './camoViews'
 
 export const TOWER_MODELS = {
   // The 2x3x4: its side columns lie down, cut either way (tower234.ts).
@@ -32,5 +33,6 @@ export const TOWER_MODELS = {
     turnAllowed: (cube, move) =>
       camoTurns(cube, FACE_SPEC[move.face].coordIndex, moveSlab(move, turnDims('camo'))),
     boxed: camoBoxed,
+    entry: { faces: CAMO_FACE_ENTRY },
   },
 } satisfies Partial<Record<CubeShape, PuzzleModel>>

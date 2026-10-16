@@ -154,7 +154,19 @@ export const UI_EN: typeof UI_FR = {
   editHintQuarter:
     'Pick a color and click the stickers; the centers are there already. A click on a center turns its mark a quarter: give each the position of yours (it says which way its face can turn).',
   editHintCamo:
-    'First put your Camouflage back into its brick shape, every piece lying flat, before entering it. Deformed, it can take hundreds of thousands of shapes: far too many to offer you, and no way to guess yours. Once in shape, pick a color and click the stickers; turn the view to reach the other faces.',
+    'Pick a color and click the stickers; turn the view to reach the other faces. Your Camouflage is not a brick? “Change the shape” enters it face by face.',
+  editHintFaces:
+    'Copy the face of your puzzle toward you: pick a color (or “Absent” where no sticker shows) and click the cells, then click the joints between the cells of one sticker. Then tilt your puzzle toward you (its top comes to the front) and do the same.',
+  faceStep: (n: number, total: number) => `Face ${n} / ${total}`,
+  faceAbsent: 'Absent',
+  tiltDown: 'Enter the next face',
+  tiltUp: 'Back to the previous face',
+  findShape: 'Find the shape',
+  findingShape: 'Finding the shape…',
+  changeFaces: 'Change the shape',
+  errorFaces: 'This face is not complete: every cell must be painted, a color or “Absent”.',
+  errorFacesShape:
+    'No Camouflage shape shows these four faces: check the joints and the absent cells.',
   editHintTwist:
     'Click a corner or an edge to put a piece there that fits: each click moves on to the next (another piece, or the same one turned). A click on a side center turns it a quarter turn, to match the shape of yours.',
   editHintMirror:
@@ -176,8 +188,6 @@ export const UI_EN: typeof UI_FR = {
   changeBars: 'Change the bars',
   fromCurrent: 'Edit',
   fromCurrentTitle: 'Edit the cube from its current state',
-  notInBox:
-    'Bring the puzzle back into its brick shape first: deformed, its shapes are too many to offer',
   chooseForm: 'What shape is your puzzle in?',
   chooseFormHint:
     'Pick the shape it stands in, held as in the thumbnail (hover one to see it large), before placing its colors.',

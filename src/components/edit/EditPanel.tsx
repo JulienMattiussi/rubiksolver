@@ -1,4 +1,15 @@
-import { Check, Cog, Eraser, Layers, Link2, Rows3, Shapes, X, type LucideIcon } from 'lucide-react'
+import {
+  Box,
+  Check,
+  Cog,
+  Eraser,
+  Layers,
+  Link2,
+  Rows3,
+  Shapes,
+  X,
+  type LucideIcon,
+} from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
 import { isComplete, progress } from '@/lib/editor/editor'
 import { formsOf } from '@/lib/editor/forms'
@@ -15,6 +26,7 @@ import { useEditor } from '@/store/editorStore'
 import { Button } from '@/components/ui/Button'
 import { ColorPalette } from './ColorPalette'
 import { ErrorAlert } from './ErrorAlert'
+import { FacesPanel } from './FacesPanel'
 import { FormPicker } from './FormPicker'
 import { PhasePanel } from './PhasePanel'
 import { PiecesLeft } from './PiecesLeft'
@@ -51,6 +63,7 @@ const SETUPS = (
     icon: Layers,
     error: t.errorCuts,
   },
+  faces: { hint: t.editHintFaces, accept: t.findShape, change: t.changeFaces, icon: Box },
   bars: { hint: t.editHintBars, accept: t.acceptBars, change: t.changeBars, icon: Rows3 },
   gears: { hint: t.editHintGears, accept: t.acceptGears, change: t.changeGears, icon: Cog },
 })
@@ -107,6 +120,8 @@ export function EditPanel() {
     )
   }
 
+  if (phase === 'faces') return <FacesPanel />
+
   if (phase !== 'paint') {
     const { hint, accept, error: refused } = SETUPS(t)[phase]
     return (
@@ -137,7 +152,8 @@ export function EditPanel() {
   const complete = isComplete(edit, shape, form) && (!gears || gears.painted === gears.total)
   // Counted with the stickers: every face to paint, clips and gears alike.
   const faces = hasColoredClips(shape) ? gearFaces(gear, shape) : null
-  const shifts = formsOf(shape).length > 1
+  // Its forms to pick from, unless its shape is told face by face.
+  const shifts = formsOf(shape).length > 1 && setup !== 'faces'
 
   return (
     <div className="flex flex-col gap-5">

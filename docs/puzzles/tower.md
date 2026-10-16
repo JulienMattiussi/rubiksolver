@@ -148,7 +148,35 @@ toujours, une couche seule (`R`, `2R`) tant qu'aucune pièce n'est debout
 sur son axe de son côté. Dans la boîte, le haut ne tourne donc qu'en bloc ;
 les côtés tournent couche par couche, et la déforment.
 
-**Saisie** dans la boîte seulement (`notEnterable`) ; « Modifier » attend qu'il y soit revenu.
+**Saisie** : son pavé se peint comme un puzzle à stickers ; « Modifier »
+le prend tel qu'il est, dans sa forme. Déformé, il a bien trop de formes
+pour des vignettes (2 421 009, jusqu'à 10 coups de la boîte), mais quatre
+de ses faces autour d'un axe la disent toujours : de ses 2 421 009 formes,
+aucune ne montre les mêmes quatre faces qu'une autre (mesuré ; avec trois
+faces, 61 % seulement, jusqu'à 6 formes possibles). « Changer la forme »
+ouvre donc quatre canevas (`lib/editor/faceCanvases.ts`, réglage `faces` de
+`setup.ts`) : sa face devant soi, puis, basculé vers soi à chaque fois, ce
+qui était son dessus, son derrière, son dessous (`FACES`,
+`lib/puzzles/shared/faceViews.ts`). Chaque
+canevas a 6x6 cases d'une demi-unité ; on peint chacune d'une couleur, ou
+« absent » là où l'on ne voit pas de sticker (le plastique d'une pièce en
+retrait, ou un trou : trop difficile à recopier à plat, il ne dit rien), et
+l'on joint les cases d'un même sticker (de toute forme : une pièce qui
+dépasse peut en cacher une partie) ; deux cases colorées voisines non
+jointes sont deux pièces, deux zones qui ne se touchent pas peuvent être la
+même.
+La forme se retrouve des seules cases colorées (`shapeFromViews`,
+`camoViews.ts`) : une recherche case par case, les cases du dehors
+d'abord, chaque ligne de vue vérifiée dès que ses premières cases sont
+connues (le premier sticker rencontré est celui de la région, le même le
+long de toutes ses lignes ; deux régions de part et d'autre d'un trait,
+deux pièces). Mesurée sur des
+mélanges : une seule forme, la bonne, en 100 ms environ, 3 s au pire, d'où
+le worker (`workers/facesWorker.ts`). L'état est ensuite atteint depuis la
+boîte (`shapeToBox`), vérifié contre les canevas (`showsCanvases` : un
+sticker là où l'on a dit absent le refuse), et la peinture commence avec
+les stickers que les faces montrent (`editOfCanvases`) : restent ses
+côtés.
 
 **Résolution** (`methods/tower/camo.ts`, méthode **Réduction en Domino**,
 d'après la page) : (A) la forme (« au feeling », dit la page) : une

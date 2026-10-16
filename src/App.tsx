@@ -9,6 +9,7 @@ import { useRoute } from '@/store/router'
 import { HomeGallery } from '@/components/home/HomeGallery'
 import { Fireworks } from '@/components/celebration/Fireworks'
 import { Scene } from '@/three/core/Scene'
+import { FaceArrows } from '@/components/edit/FaceArrows'
 
 export default function App() {
   const locale = useI18n((s) => s.locale)
@@ -38,6 +39,7 @@ export default function App() {
         }
       >
         {home ? <HomeGallery /> : <Scene />}
+        <FaceArrows />
       </div>
       {/* On desktop the wrapper spans the whole screen and lets clicks through
           to the scene: the panel cards opt back in (see Controls). */}

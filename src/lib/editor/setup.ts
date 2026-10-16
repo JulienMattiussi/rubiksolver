@@ -1,8 +1,11 @@
-import { cubeShape } from '../core/cube'
+import { cubeShape, solvedCube } from '../core/cube'
 import { hasColoredClips, isGear, type Cube, type CubeShape } from '../core/types'
 import { parseVecKey } from '../core/geometry'
 import { barsTurned, faceKeyAt } from '../puzzles/bandaged/roadblock'
 import type { EntryMarks } from '../puzzles/model'
+import { canvasesOf, type Canvases } from './faceCanvases'
+import { MODELS } from '../puzzles/models'
+import type { FaceEntry } from '../puzzles/shared/faceViews'
 import { boxCuts, cutsOf, entersCuts, type Cuts } from './cutsEditor'
 import type { EditStickers } from './editor'
 import { tablesFor } from './editorTables'
@@ -12,18 +15,31 @@ import { entersJoints, fixedJoints, jointsOf, type Joint } from './jointsEditor'
 /**
  * What some puzzles' entry sets before their colors, clicking the puzzle in
  * 3D, then accepting: a bandaged puzzle's joints (jointsEditor.ts), the
- * Fashion-V's halves (cutsEditor.ts), the RoadBlock-I's bars (which way
- * each face's lie) and a Gear Cube's gears (how far each is pivoted). The
- * colors are painted next, on the puzzle as set.
+ * Fashion-V's halves (cutsEditor.ts), a shape told face by face (faceCanvases.ts,
+ * its shape told face by face), the RoadBlock-I's bars (which way each
+ * face's lie) and a Gear Cube's gears (how far each is pivoted). The colors
+ * are painted next, on the puzzle as set.
  */
-export type Setup = 'joints' | 'cuts' | 'bars' | 'gears'
+export type Setup = 'joints' | 'cuts' | 'faces' | 'bars' | 'gears'
 
 /** The setup a puzzle's entry starts with, if any. */
 export function setupOf(shape: CubeShape): Setup | null {
   if (entersJoints(shape)) return 'joints'
   if (entersCuts(shape)) return 'cuts'
+  if (faceEntryOf(shape)) return 'faces'
   if (shape === 'roadblock') return 'bars'
   return isGear(shape) ? 'gears' : null
+}
+
+/** How a puzzle is entered face by face, if it is (its model's). */
+export const faceEntryOf = (shape: CubeShape): FaceEntry | undefined => MODELS[shape]?.entry?.faces
+
+/** The setup an entry starts with, if any: a shape told face by face only
+ *  when it says so (the Purple), else once changed (the Camouflage, its box
+ *  painted first, most often as it is). */
+export function firstSetupOf(shape: CubeShape): Setup | null {
+  const setup = setupOf(shape)
+  return setup === 'faces' && !faceEntryOf(shape)!.first ? null : setup
 }
 
 /** What a click while setting turns, by key (lit up together under the
@@ -50,6 +66,8 @@ export interface Settings {
   readonly joints: readonly Joint[]
   /** The Fashion-V's cells, how their halves stand. */
   readonly cuts: Cuts
+  /** Its faces, as its canvases show them (a shape told face by face). */
+  readonly faces: Canvases
   /** Slots turned: a Z-Twist's side centers a quarter off, a Quarter
    *  Cube's faces a quarter on, by slot; a RoadBlock-I's faces whose bars
    *  lie a quarter off, by their middle center's slot. */
@@ -63,6 +81,7 @@ export function startSettings(shape: CubeShape): Settings {
   return {
     joints: entersJoints(shape) ? fixedJoints(shape) : [],
     cuts: entersCuts(shape) ? boxCuts() : {},
+    faces: faceEntryOf(shape) ? canvasesOf(solvedCube(shape), faceEntryOf(shape)!) : [],
     twisted: [],
     spins: {},
   }
@@ -74,6 +93,7 @@ export function settingsOf(cube: Cube): Settings {
   return {
     joints: entersJoints(shape) ? jointsOf(cube) : [],
     cuts: entersCuts(shape) ? cutsOf(cube) : {},
+    faces: faceEntryOf(shape) ? canvasesOf(cube, faceEntryOf(shape)!) : [],
     twisted:
       shape === 'roadblock'
         ? barsTurned(cube)

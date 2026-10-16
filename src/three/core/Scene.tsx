@@ -15,6 +15,8 @@ import { PolyView } from './PolyView'
 export function Scene() {
   const editing = useEditor((s) => s.mode === 'edit')
   const gridless = useCube((s) => isPolyDrawn(cubeShape(s.cube)))
+  // A face being copied stays straight in front: no orbiting meanwhile.
+  const facing = useEditor((s) => s.mode === 'edit' && s.phase === 'faces')
   return (
     <Canvas camera={{ position: HOME_POSITION.toArray(), fov: 42 }} dpr={[1, 2]}>
       <color attach="background" args={['#0f172a']} />
@@ -36,6 +38,7 @@ export function Scene() {
       )}
       <OrbitControls
         makeDefault
+        enabled={!facing}
         enablePan={false}
         minDistance={5.5}
         maxDistance={15}

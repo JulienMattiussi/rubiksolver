@@ -266,13 +266,15 @@ const ENTERED: [string, string, string][] = [
   ['Soudés', 'Fused', '54 / 54 stickers'],
   // Its joints taken from its state, then its colors.
   ['Soudés', 'Stripe', '54 / 54 stickers'],
+  // Out of its box, entered as it stands.
+  ['Tours', 'Camouflage 4x4x2', '64 / 64 stickers'],
   // Its gears askew, their pivots taken from its state; gears painted apart.
   ['Engrenages', 'Gear Cube Ultimate', '78 / 78 faces'],
 ]
 
 for (const [category, name, complete] of ENTERED) {
   test(`${name}: scramble, enter from the current state, apply, then solve`, async ({ page }) => {
-    test.setTimeout(120000)
+    test.setTimeout(180000)
     const errors: string[] = []
     page.on('pageerror', (e) => errors.push(e.message))
     await page.goto('/#/fr/3x3')
@@ -284,8 +286,10 @@ for (const [category, name, complete] of ENTERED) {
     await fromCurrent.click()
     await expect(page.getByText(complete)).toBeVisible()
     await page.getByRole('button', { name: 'Utiliser ce cube' }).click()
+    // Its solution computed first (some puzzles take a while: the Z-Twist,
+    // the Fashion-V), the button saying so meanwhile.
     const solve = page.getByRole('button', { name: 'Résoudre' })
-    await expect(solve).toBeEnabled()
+    await expect(solve).toBeEnabled({ timeout: 60000 })
     await solve.click()
     await expect(page.getByText('Cube résolu')).toBeVisible({ timeout: 90000 })
     expect(errors).toEqual([])
@@ -353,6 +357,35 @@ test('home page: a gallery to choose from, the solve block grayed, the title lea
       name: /^Choisissez votre modèle dans la galerie, parmi les \d+ disponibles$/,
     }),
   ).toBeVisible()
+  expect(errors).toEqual([])
+})
+
+test('Camouflage entry: its shape face by face, then the stickers left to paint', async ({
+  page,
+}) => {
+  test.setTimeout(120000)
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/#/fr/camouflage')
+  await page.getByLabel('Vitesse').fill('100')
+  await page.getByRole('button', { name: 'Mélanger' }).click()
+  const fromCurrent = page.getByRole('button', { name: 'Modifier', exact: true })
+  await expect(fromCurrent).toBeEnabled({ timeout: 30000 })
+  await fromCurrent.click()
+  // Its four faces, as it stands, tilted toward us one after the other.
+  await page.getByRole('button', { name: 'Changer la forme' }).click()
+  const next = page.getByRole('button', { name: 'Saisir la face suivante' })
+  for (const face of [1, 2, 3]) {
+    await expect(page.getByText(`Face ${face} / 4`)).toBeVisible()
+    await next.click()
+  }
+  await page.getByRole('button', { name: 'Revenir à la face précédente' }).click()
+  await expect(page.getByText('Face 3 / 4')).toBeVisible()
+  await next.click()
+  await page.getByRole('button', { name: 'Trouver la forme' }).click()
+  // Found: the stickers the faces show already painted, its sides left.
+  await expect(page.getByText(/^\d+ \/ 64 stickers$/)).toBeVisible({ timeout: 20000 })
+  await expect(page.getByText('64 / 64 stickers')).toHaveCount(0)
   expect(errors).toEqual([])
 })
 

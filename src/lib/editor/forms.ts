@@ -1,4 +1,4 @@
-import { cubeShape, isBoxed, solvedCube, turnDims } from '../core/cube'
+import { cubeShape, solvedCube, turnDims } from '../core/cube'
 import { AXIS_ROTATIONS, normalIndex } from '../core/geometry'
 import { layerTurnsOf } from '../core/moves'
 import { applyMove, turnAllowed } from '../core/turn'
@@ -77,24 +77,18 @@ function heldLook(cube: Cube): string {
 
 const FORMS = new Map<CubeShape, readonly Form[]>()
 
-/** Shape-shifting puzzles with too many forms to offer (the Camouflage's,
- *  hundreds of thousands): entered in their box only. */
-const BOX_ONLY: readonly CubeShape[] = ['camo']
-
-/** Why a state cannot be entered as it stands ("from the current state"),
- *  if so: a puzzle entered in its box out of it. */
-export function notEnterable(cube: Cube): 'box' | null {
-  return BOX_ONLY.includes(cubeShape(cube)) && !isBoxed(cube) ? 'box' : null
-}
+/** Shape-shifting puzzles with too many forms to offer, entered otherwise:
+ *  the Fashion-V's (millions) cell by cell (cutsEditor.ts), the
+ *  Camouflage's (2.4 million) face by face (faceCanvases.ts). */
+const NOT_OFFERED: readonly CubeShape[] = ['fashion', 'camo']
 
 /** The forms of a shape, the box first, then by tips and distance; a
- *  puzzle that keeps its box (or is entered in it) has that one only. */
+ *  puzzle that keeps its box (or is entered otherwise) has that one only. */
 export function formsOf(shape: CubeShape): readonly Form[] {
   let forms = FORMS.get(shape)
   if (forms) return forms
   const solved = solvedCube(shape)
-  // The Fashion-V's, millions, are entered cell by cell (cutsEditor.ts).
-  if (!SHAPE_SHIFTS[shape] || BOX_ONLY.includes(shape) || shape === 'fashion') {
+  if (!SHAPE_SHIFTS[shape] || NOT_OFFERED.includes(shape)) {
     forms = [{ cube: solved, distance: 0, tips: 0 }]
   } else {
     const turns = layerTurnsOf(shape)

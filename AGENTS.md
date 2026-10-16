@@ -117,7 +117,8 @@ src/
 │   │                    #   wingPairing, exhaustive (optimal par recherche exhaustive), progress
 │   ├── editor/          # La saisie : editor, editorTables, pieceEditor, forms (formes d'un déformable),
 │   │                    #   setup (réglages avant peinture), jointsEditor (soudures), cutsEditor
-│   │                    #   (demi-cubies du Fashion-V), gearEditor, roadblockEditor, validate
+│   │                    #   (demi-cubies du Fashion-V), faceCanvases (forme face par face), gearEditor,
+│   │                    #   roadblockEditor, validate
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
 │   ├── core/            # Scene, CubeView / Cubie / Sticker (puzzles à grille), PolyView / PolyModel / PolyPiece
@@ -134,7 +135,8 @@ src/
 ├── hooks/               # useAutoPlan (solution dans le worker), useIsDesktop, useSolveShortcuts
 ├── i18n/                # fr/ et en/ (ui, methods, steps, moveSentences ; EN typé sur FR), translations
 │                        #   (les assemble), i18nStore
-├── workers/             # solveWorker : la solution hors du fil de l'interface
+├── workers/             # solveWorker : la solution hors du fil de l'interface ; facesWorker (et
+│                        #   findFaces) : la forme retrouvée de ses faces (Camouflage, Purple)
 └── assets/gear/         # Masques des pièces du Gear Cube (scripts/gear_face.py)
 tests/
 ├── unit/                # Vitest : conformance de tous les puzzles (puzzles.test.ts), puis rangés comme le code :
@@ -317,8 +319,7 @@ code : « Le cube miroir » dans
   de `buildSteps`, lu par `validateCube`).
 
 **Puzzles déformables (tours 2x2x4 et 2x3x4, Purple, Pyramorphinx, AI Cube ;
-le Camouflage, aux formes trop nombreuses, dans sa boîte seulement ; le
-Fashion-V par ses demi-cubies)** : on saisit le puzzle dans la forme où il
+le Camouflage par ses faces ; le Fashion-V par ses demi-cubies)** : on saisit le puzzle dans la forme où il
 se trouve physiquement. La saisie commence par **choisir sa forme**
 (`FormPicker`) parmi celles qu'il peut prendre (`lib/editor/forms.ts`) : un
 parcours en largeur sur l'état sans ses couleurs (où sont les pièces, quelles
@@ -355,7 +356,8 @@ formes, étoiles comprises (voir « Le Star Prism » dans
 **Réglage avant peinture** (`lib/editor/setup.ts`) : quelques puzzles
 règlent quelque chose avant leurs couleurs, en cliquant le puzzle en 3D,
 puis le valident : les soudures d'un soudé, les demi-cubies du Fashion-V,
-le sens des barres du RoadBlock-I, le pivot des engrenages d'un Gear Cube.
+les faces du Camouflage, le sens des barres du RoadBlock-I, le pivot des
+engrenages d'un Gear Cube.
 Une même mécanique : `setupOf` dit lequel, `settingsOf` le lit sur un état
 (« Modifier »), `setupTargets` dit ce qu'un clic fait tourner (le survol
 l'allume en entier), `acceptSetup` / `editSetup` y entrent et en sortent,
@@ -364,6 +366,27 @@ boutons sont les mêmes sur toutes les saisies : le bouton principal avance,
 « Changer... » revient d'une étape depuis la peinture (les couleurs
 gardées tant que l'étape ne change pas), « Annuler » quitte la saisie sans
 rien appliquer, quelle que soit l'étape.
+
+**Saisie face par face** (`lib/puzzles/shared/faceViews.ts`,
+`lib/editor/faceCanvases.ts`), pour un puzzle fait de boîtes aux formes
+trop nombreuses ou trop difficiles à distinguer en vignettes (le
+Camouflage, le Purple) : quatre canevas (ses faces) sur un cube qui
+bascule vers soi d'une face à l'autre (`FaceCanvases`), vu de face sans
+rotation à la souris (`CameraReset`), deux boutons au-dessus et en dessous
+du canevas pour revenir à la face précédente ou saisir la suivante
+(`FaceArrows`) ; on y peint chaque case d'une couleur ou « absent », et on
+joint les cases d'une même face de pièce. Le puzzle le déclare dans son
+modèle (`entry.faces`, un `FaceEntry`) : sa grille (la boîte de cases de
+chaque pièce, ce que chaque face montre), la taille du canevas, si un
+dessin se place où il est sur la grille (`framed` : le Camouflage) ou
+n'importe où (le Purple, comparé au dessin près), s'il commence par ses
+faces (`first` : le Purple ; le Camouflage peint d'abord son pavé, « Changer
+la forme » les ouvre), et comment retrouver ses états (`find`, dans un
+worker : une recherche case par case pour le Camouflage, `camoViews.ts` ;
+la comparaison avec ses 1 160 formes tenues des 24 façons pour le Purple,
+`purpleViews.ts`). La peinture commence ensuite avec les stickers que les
+faces montrent ; voir [docs/puzzles/tower.md](docs/puzzles/tower.md) et
+[docs/puzzles/twisted.md](docs/puzzles/twisted.md).
 
 **Saisie par les demi-cubies** (`lib/editor/cutsEditor.ts`), pour le
 Fashion-V, aux formes trop nombreuses : un clic sur une case fait défiler la

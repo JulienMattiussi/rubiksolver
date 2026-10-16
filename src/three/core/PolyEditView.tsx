@@ -7,6 +7,7 @@ import { stickerId, type Slot } from '@/lib/editor/editorTables'
 import { entersByPieces, piecesIn } from '@/lib/editor/pieceEditor'
 import { splits, tileMates } from '@/lib/editor/jointsEditor'
 import { cutPieces } from '@/lib/editor/cutsEditor'
+import { FaceCanvases } from './FaceCanvases'
 import { faceKeyAt } from '@/lib/puzzles/bandaged/roadblock'
 import { isBarCenter, setupTargets } from '@/lib/editor/setup'
 import { useCube } from '@/store/cubeStore'
@@ -61,6 +62,7 @@ export function PolyEditView() {
   const litIn = (slotKey: string) =>
     hovered?.startsWith(`${slotKey}|`) ? Number(hovered.slice(slotKey.length + 1)) : null
   const clickingCuts = useEditor((s) => s.phase === 'cuts')
+  const copyingFaces = useEditor((s) => s.phase === 'faces')
   const cuts = useEditor((s) => s.cuts)
   const cutAt = useEditor((s) => s.cutAt)
   // The cell under the pointer: its halves light up together.
@@ -108,6 +110,8 @@ export function PolyEditView() {
     return undefined
   }
 
+  // The Camouflage's faces being copied, one canvas each.
+  if (copyingFaces) return <FaceCanvases />
   // The Fashion-V's halves being placed: drawn as its cells say, gray but
   // its centers (which never move); a click turns a cell's halves round.
   if (clickingCuts) {

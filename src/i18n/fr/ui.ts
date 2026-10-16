@@ -159,7 +159,20 @@ export const UI_FR = {
   editHintQuarter:
     'Choisissez une couleur puis cliquez les stickers ; les centres sont déjà là. Un clic sur un centre tourne son repère d’un quart : donnez à chacun la position du vôtre (il dit dans quel sens sa face peut tourner).',
   editHintCamo:
-    'Remettez d’abord votre Camouflage en forme de pavé, chaque pièce à plat, avant de le saisir. Déformé, il peut prendre des centaines de milliers de formes : bien trop pour vous les proposer, et pas moyen de deviner la vôtre. Une fois en forme, choisissez une couleur et cliquez les stickers ; tournez la vue pour atteindre les autres faces.',
+    'Choisissez une couleur et cliquez les stickers ; tournez la vue pour atteindre les autres faces. Votre Camouflage n’est pas en pavé ? « Changer la forme » le saisit face par face.',
+  editHintFaces:
+    'Reproduisez la face de votre puzzle tournée vers vous : choisissez une couleur (ou « Absent » là où on ne voit pas de sticker) et cliquez les cases, puis cliquez les joints entre les cases d’un même sticker. Ensuite, basculez votre puzzle vers vous (son dessus vient devant) et faites de même.',
+  faceStep: (n: number, total: number) => `Face ${n} / ${total}`,
+  faceAbsent: 'Absent',
+  tiltDown: 'Saisir la face suivante',
+  tiltUp: 'Revenir à la face précédente',
+  findShape: 'Trouver la forme',
+  findingShape: 'Recherche de la forme…',
+  changeFaces: 'Changer la forme',
+  errorFaces:
+    'Cette face n’est pas complète : chaque case doit être peinte, d’une couleur ou « Absent ».',
+  errorFacesShape:
+    'Aucune forme du Camouflage ne montre ces quatre faces : vérifiez les joints et les cases absentes.',
   editHintTwist:
     'Cliquez un coin ou une arête pour y poser une pièce qui peut s’y loger : chaque clic passe à la suivante (autre pièce, ou la même tournée). Un clic sur un centre de côté le tourne d’un quart de tour, pour lui donner la forme du vôtre.',
   editHintMirror:
@@ -181,8 +194,6 @@ export const UI_FR = {
   changeBars: 'Changer les barres',
   fromCurrent: 'Modifier',
   fromCurrentTitle: 'Modifier le cube depuis son état actuel',
-  notInBox:
-    'Remettez d’abord le puzzle en forme de pavé : déformé, ses formes sont trop nombreuses pour être proposées',
   chooseForm: 'Dans quelle forme est votre puzzle ?',
   chooseFormHint:
     'Choisissez la forme dans laquelle il se trouve, tenu comme sur la vignette (survolez-en une pour la voir en grand), avant d’en placer les couleurs.',

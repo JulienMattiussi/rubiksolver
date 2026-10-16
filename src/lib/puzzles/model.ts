@@ -1,5 +1,6 @@
 import type { FaceLabels } from '../core/moves'
 import type { Cube, Dims, Face, Move, Turn } from '../core/types'
+import type { FaceEntry } from './shared/faceViews'
 
 /** What an entry says of a puzzle besides its colors: the slots `turned`
  *  (a gear over on its clips, a center a quarter off, a face's bars across)
@@ -50,6 +51,9 @@ export interface PuzzleModel {
     /** Piece by piece, a click on a slot putting the next piece that fits
      *  (pieceEditor.ts). */
     readonly byPieces?: true
+    /** Its shape told face by face, too many to offer as thumbnails
+     *  (shared/faceViews.ts). */
+    readonly faces?: FaceEntry
     /** What the editor shows of a state, from the state `held` as the
      *  editor holds it (what entering cannot see set aside). */
     readonly seen?: (cube: Cube, held: (cube: Cube) => Cube) => Cube

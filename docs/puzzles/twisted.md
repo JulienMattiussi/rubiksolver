@@ -51,8 +51,20 @@ le chemin de l'arbre défait : un coup qui est passé repasse dans l'autre
 sens) ; **Optimale** : la plus courte d'un coup. Le test vérifie sur tout
 l'espace que chaque solution a exactement la longueur de sa distance.
 
-**Saisie** : comme la tour, par sa forme (388, les rotations du puzzle
-entier fusionnées), puis ses couleurs. Les gros cubes arrivent déjà
+**Saisie** : par ses faces d'abord, puis ses couleurs. Ses 388 formes (les
+rotations du puzzle entier fusionnées) se distinguent mal en vignettes ;
+quatre de ses faces, elles, ne laissent jamais deux formes (mesuré sur ses
+1 160 formes tenues des 24 façons). On les reproduit sur des canevas de
+5x5 mini-cubes (sa face la plus large), un gros cube sur 2x2, où l'on veut
+sur le canevas : le dessin est comparé tel quel, quel que soit l'endroit
+(`lib/puzzles/twisted/purpleViews.ts`, l'entrée `faces` de son modèle,
+voir « Saisie face par face » dans AGENTS.md). Toutes ses faces sont
+violettes, même celles qu'un coup découvre : la palette des faces propose
+le violet, et « absent » n'y dit que les trous. Ses formes sont toutes
+calculées une fois (un parcours de ses 1 160 formes), puis chacune tenue
+des 24 façons, indexée par ses quatre dessins (dans le worker, une seconde
+environ la première fois). « Modifier » le saisit tel qu'il est, sans
+passer par ses faces. Les gros cubes arrivent déjà
 violets (et la palette ne propose pas le violet : `paletteColors` écarte
 une couleur que les stickers pré-remplis prennent tous) : `emptyEdit` remplit tout sticker que toutes les pièces qui
 tiennent dans son emplacement montrent d'une seule couleur (dans la boîte,

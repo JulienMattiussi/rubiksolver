@@ -2,8 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { camoBox } from '@/lib/puzzles/tower/camo'
 import { isBoxed, isSolved, solvedCube } from '@/lib/core/cube'
 import { methodsFor } from '@/lib/solve/solver'
-import { backToBox } from '@/lib/puzzles/tower/camoShape'
-import { formsOf, notEnterable } from '@/lib/editor/forms'
+import { backToBox, shapeOf } from '@/lib/puzzles/tower/camoShape'
+import { CAMO_FACE_ENTRY, shapeFromViews } from '@/lib/puzzles/tower/camoViews'
+import { sightOf } from '@/lib/puzzles/shared/faceViews'
+
+const camoViewsOf = (cube: Parameters<typeof sightOf>[0]) => sightOf(cube, CAMO_FACE_ENTRY.grid)
+import { formsOf } from '@/lib/editor/forms'
 import { EXCHANGE, evenWings, WING_PARITY } from '@/lib/methods/tower/camo'
 import { formatMove, layerTurnsOf, parseMoves, scrambleTurns } from '@/lib/core/moves'
 import { applyMoves, turnAllowed } from '@/lib/core/turn'
@@ -40,10 +44,29 @@ describe('Camouflage 4x4x2', () => {
     expect(turns).not.toContain('F')
   })
 
-  it('is entered in its box only: its forms are too many to offer', () => {
+  it('offers no forms to pick: too many, it is entered face by face', () => {
     expect(formsOf('camo')).toHaveLength(1)
-    expect(notEnterable(applyMoves(SOLVED, parseMoves('R')))).toBe('box')
-    expect(notEnterable(SOLVED)).toBeNull()
+  })
+
+  it('is seen from four sides: its front, top, back and bottom, as it tilts toward us', () => {
+    // In its box: the front shows its four columns' stickers, a region each
+    // (thick, thin, thin, thick across), its top a 4x4 of regions.
+    const { views } = camoViewsOf(SOLVED)
+    expect(new Set(views[0]!.filter((r) => r >= 0)).size).toBe(8)
+    expect(new Set(views[1]!.filter((r) => r >= 0)).size).toBe(16)
+    // Its top's front row is the front face's top row, read the same way.
+    expect(views[1]!.slice(30, 36).map((r) => r >= 0)).toEqual([true, true, true, true, true, true])
+  })
+
+  it('has its shape found again from its four faces alone', () => {
+    for (const seed of [1, 2, 3, 4, 5]) {
+      const cube = applyMoves(SOLVED, scrambleTurns('camo', 40, seededRng(seed), SOLVED))
+      expect(shapeFromViews(camoViewsOf(cube).views)).toEqual(shapeOf(cube))
+    }
+    // A face no shape shows: two regions of one piece.
+    const { views } = camoViewsOf(SOLVED)
+    const front = views[0]!.map((r) => (r === 1 ? 0 : r))
+    expect(shapeFromViews([front, ...views.slice(1)])).toBeNull()
   })
 
   it('goes back in its box from far off, in a few turns', () => {

@@ -22,7 +22,7 @@ import type { Cube, Move, Vec3 } from '../../core/types'
 const MECHANISM = [4, 4, 4] as const
 
 /** The cells a piece can stand in (no piece stands in a 4x4x4 corner's). */
-const CELLS: Vec3[] = []
+export const CELLS: Vec3[] = []
 for (const x of layerCoords(4)) {
   for (const y of layerCoords(4)) {
     for (const z of layerCoords(4)) {
@@ -32,10 +32,11 @@ for (const x of layerCoords(4)) {
 }
 const CELL = new Map(CELLS.map((c, i) => [c.join(), i]))
 
-/** A shape: per cell, 0 if empty, else 1 + the tall axis of its piece. */
-type Shape = Uint8Array
+/** A shape: per cell (`CELLS`), 0 if empty, else 1 + the tall axis of its
+ *  piece. */
+export type Shape = Uint8Array
 
-function shapeOf(cube: Cube): Shape {
+export function shapeOf(cube: Cube): Shape {
   const shape = new Uint8Array(CELLS.length)
   for (const c of cube) shape[CELL.get(c.position.join())!] = 1 + tallAxis(c)
   return shape
@@ -127,7 +128,12 @@ function fromBox(box: Shape, depth: number) {
 /** Turns putting the puzzle back in its box (null past the search's
  *  reach). `box` is the solved puzzle. */
 export function backToBox(cube: Cube, box: Cube, deep = 5, nodes = 600_000): Move[] | null {
-  const start = shapeOf(cube)
+  return shapeToBox(shapeOf(cube), box, deep, nodes)
+}
+
+/** Turns putting a shape back in its box (`backToBox`), from the shape
+ *  alone (as entered face by face, camoViews.ts). */
+export function shapeToBox(start: Shape, box: Cube, deep = 5, nodes = 600_000): Move[] | null {
   if (boxed(start)) return []
   const turns = shapeTurns()
   const back = fromBox(shapeOf(box), deep)

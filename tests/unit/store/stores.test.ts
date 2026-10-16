@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { applyMoves } from '@/lib/core/turn'
 import { cubeToEdit, emptyEdit } from '@/lib/editor/editor'
@@ -299,6 +299,50 @@ describe('editor store: setting before the colors', () => {
     editor().acceptSetup()
     editor().clearAll()
     expect(editor().twisted).toEqual(['2,0,0'])
+  })
+})
+
+describe('editor store: the Camouflage face by face', () => {
+  it('paints its box first, its faces on Change, each held before the next', async () => {
+    useCube.getState().setShape('camo')
+    const editor = () => useEditor.getState()
+    editor().enter()
+    expect(editor().phase).toBe('paint')
+    editor().editSetup()
+    expect(editor()).toMatchObject({ phase: 'faces', faceAt: 0 })
+    // A face with an unpainted cell does not hold.
+    useEditor.setState((s) => ({
+      faces: s.faces.map((c, f) => (f === 0 ? { ...c, cells: [null, ...c.cells.slice(1)] } : c)),
+    }))
+    editor().tiltFace(1)
+    expect(editor()).toMatchObject({ faceAt: 0, error: 'faces' })
+    editor().faceCellAt(0)
+    editor().setFaceColor('absent')
+    editor().faceCellAt(0)
+    for (const at of [1, 2, 3]) {
+      editor().tiltFace(1)
+      expect(editor().faceAt).toBe(at)
+    }
+    editor().tiltFace(-1)
+    editor().tiltFace(1)
+    // Past the last: its state found from its faces (at once without a
+    // worker), on to its colors, the box's stickers they show painted.
+    editor().tiltFace(1)
+    await vi.waitFor(() => expect(editor().phase).toBe('paint'))
+    expect(editor().form).toBeUndefined()
+    expect(Object.keys(editor().edit).length).toBeGreaterThan(0)
+  })
+})
+
+describe('editor store: the Purple face by face', () => {
+  it('starts with its faces, before any form to pick, and has no thumbnails', () => {
+    useCube.getState().setShape('purple')
+    const editor = () => useEditor.getState()
+    editor().enter()
+    expect(editor()).toMatchObject({ phase: 'faces', faceAt: 0 })
+    // Its box's faces, ready to change.
+    expect(editor().faces).toHaveLength(4)
+    expect(editor().faces[0]!.cells).toHaveLength(25)
   })
 })
 

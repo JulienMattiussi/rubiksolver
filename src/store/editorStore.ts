@@ -30,7 +30,27 @@ import {
   type Joint,
 } from '@/lib/editor/jointsEditor'
 import { paintBar, turnFace } from '@/lib/editor/roadblockEditor'
-import { marksOf, settingsOf, setupOf, startSettings, type Setup } from '@/lib/editor/setup'
+import {
+  faceEntryOf,
+  firstSetupOf,
+  marksOf,
+  settingsOf,
+  setupOf,
+  startSettings,
+  type Setup,
+} from '@/lib/editor/setup'
+import {
+  editOfCanvases,
+  paintCanvas,
+  regionsOf,
+  showsCanvases,
+  toggleJoin,
+  viewsOfCanvases,
+  type Canvases,
+  type FaceCell,
+} from '@/lib/editor/faceCanvases'
+import { FACES } from '@/lib/puzzles/shared/faceViews'
+import { findFaces } from '@/workers/findFaces'
 import { validateCube, type ValidationError } from '@/lib/editor/validate'
 import { normalOfIndex, parseVecKey } from '@/lib/core/geometry'
 import { hasColoredClips, type Color, type Cube, type CubeShape, type Vec3 } from '@/lib/core/types'
@@ -55,6 +75,13 @@ interface EditorStore {
   joints: readonly Joint[]
   /** The Fashion-V's cells, how their halves stand (cutsEditor.ts). */
   cuts: Cuts
+  /** A shape told face by face, as entered (faceCanvases.ts), the face
+   *  being entered (`faceAt`, in `FACES` order), what a click paints there
+   *  (`faceColor`), and whether its state is being searched (`finding`). */
+  faces: Canvases
+  faceAt: number
+  faceColor: FaceCell
+  finding: boolean
   /** The form being entered (a state of it, see forms.ts); undefined: the box. */
   form: Cube | undefined
   /** The form hovered while choosing one, shown in 3D meanwhile. */
@@ -70,7 +97,8 @@ interface EditorStore {
   spins: Spins
   /** Reason the last apply was rejected (`gears`: a gear not its clips'
    *  colors), or null. */
-  error: ValidationError | 'gears' | 'joints' | 'jointsColors' | 'cuts' | null
+  error:
+    ValidationError | 'gears' | 'joints' | 'jointsColors' | 'cuts' | 'faces' | 'facesShape' | null
   /** The solving step that found the cube impossible, when one did. */
   failedStep: string | null
 
@@ -85,6 +113,14 @@ interface EditorStore {
   split: (cell: Vec3, axis: number) => void
   /** A cell's halves the next way round (the Fashion-V). */
   cutAt: (cellKey: string) => void
+  /** A cell of the face being entered painted (`faceColor`). */
+  faceCellAt: (cell: number) => void
+  /** A joint of the face being entered clicked: two cells joined, or apart. */
+  faceJoinAt: (a: number, b: number) => void
+  setFaceColor: (cell: FaceCell) => void
+  /** The puzzle tilted toward us (1: the next face, once this one holds;
+   *  past the last, its state searched, then on to its colors) or back (-1). */
+  tiltFace: (step: 1 | -1) => void
   /** A gear's pivot a sixth on (its slice's with it, but on the Extreme). */
   spinAt: (slotKey: string) => void
   /** The setup kept, if the puzzle can stand so (the joints of one of its
@@ -117,6 +153,10 @@ export const useEditor = create<EditorStore>((set, get) => ({
   phase: 'paint',
   joints: [],
   cuts: {},
+  faces: [],
+  faceAt: 0,
+  faceColor: 'W',
+  finding: false,
   form: undefined,
   preview: undefined,
   selectedColor: 'W',
@@ -129,10 +169,14 @@ export const useEditor = create<EditorStore>((set, get) => ({
 
   enter: () => {
     const shape = currentShape()
-    const first = formsOf(shape).length > 1 ? 'form' : setupOf(shape)
+    // Its faces first if it says so (the Purple), before any form to pick.
+    const setup = firstSetupOf(shape)
+    const first = setup === 'faces' ? setup : formsOf(shape).length > 1 ? 'form' : setup
     set({
       mode: 'edit',
       phase: first ?? 'paint',
+      faceAt: 0,
+      finding: false,
       ...startSettings(shape),
       form: undefined,
       preview: undefined,
@@ -186,6 +230,65 @@ export const useEditor = create<EditorStore>((set, get) => ({
 
   cutAt: (cellKey) => set((s) => ({ cuts: nextCut(s.cuts, cellKey), error: null })),
 
+  faceCellAt: (cell) =>
+    set((s) => ({
+      faces: s.faces.map((c, f) => (f === s.faceAt ? paintCanvas(c, cell, s.faceColor) : c)),
+      error: null,
+    })),
+
+  faceJoinAt: (a, b) =>
+    set((s) => ({
+      faces: s.faces.map((c, f) => (f === s.faceAt ? toggleJoin(c, a, b) : c)),
+      error: null,
+    })),
+
+  setFaceColor: (faceColor) => set({ faceColor }),
+
+  tiltFace: (step) => {
+    const { faceAt, faces, finding } = get()
+    if (finding) return
+    if (step < 0) {
+      set({ faceAt: Math.max(0, faceAt - 1), error: null })
+      return
+    }
+    if (!regionsOf(faces[faceAt]!)) {
+      set({ error: 'faces' })
+      return
+    }
+    if (faceAt < FACES.length - 1) {
+      set({ faceAt: faceAt + 1, error: null })
+      return
+    }
+    // The four faces held: the state they show, searched in a worker.
+    set({ finding: true, error: null })
+    const shape = currentShape()
+    const entry = faceEntryOf(shape)!
+    void findFaces(shape, viewsOfCanvases(faces)!).then((states) => {
+      // Left meanwhile (cancelled, or back to a face): dropped.
+      const now = get()
+      if (now.mode !== 'edit' || now.phase !== 'faces' || now.faces !== faces) {
+        set({ finding: false })
+        return
+      }
+      // Its colors where the faces say (a sticker where one said absent
+      // refuses it).
+      const found = states.find((f) => showsCanvases(f, faces, entry))
+      if (!found) {
+        set({ finding: false, error: 'facesShape' })
+        return
+      }
+      const form = formOf(found.cube)
+      set((s) => ({
+        finding: false,
+        phase: 'paint',
+        form,
+        // Painted from what the faces show; the rest to paint.
+        edit: { ...emptyEdit(shape, form), ...editOfCanvases(found, faces, entry) },
+        selectedColor: pickable(s.selectedColor, form),
+      }))
+    })
+  },
+
   spinAt: (slotKey) =>
     set((s) => ({ spins: nextSpin(s.spins, currentShape(), slotKey), error: null })),
 
@@ -218,7 +321,7 @@ export const useEditor = create<EditorStore>((set, get) => ({
 
   editSetup: () => {
     const setup = setupOf(currentShape())
-    if (setup) set({ phase: setup, error: null })
+    if (setup) set({ phase: setup, faceAt: 0, error: null })
   },
 
   cancel: () => set({ mode: 'play', preview: undefined, error: null }),

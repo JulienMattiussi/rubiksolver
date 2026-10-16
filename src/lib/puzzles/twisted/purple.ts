@@ -21,7 +21,7 @@ import type { Color, Cube, Cubie, Face, Sticker, Vec3 } from '../../core/types'
  */
 
 /** Half the width of a piece: its coordinates' parity tells (minis even). */
-const half = (c: Cubie) => (Math.abs(c.position[0]) % 2 === 1 ? 2 : 1)
+export const half = (c: Cubie) => (Math.abs(c.position[0]) % 2 === 1 ? 2 : 1)
 
 const axis = (a: number, sign: number): Vec3 => mapVec([0, 1, 2], (d) => (d === a ? sign : 0))
 

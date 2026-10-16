@@ -2,7 +2,6 @@ import { ArchiveRestore, Bookmark, RotateCcw, Square } from 'lucide-react'
 import { useState } from 'react'
 import { cubeShape } from '@/lib/core/cube'
 import { SHAPE_LABEL } from '@/lib/core/types'
-import { notEnterable } from '@/lib/editor/forms'
 import { encodeCube } from '@/lib/app/snapshot'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
@@ -40,7 +39,6 @@ export function SetupSection() {
   const solving = useCube((s) => s.solving)
   const solved = useCube(selectSolved)
   const alreadySaved = saved?.cube === encodeCube(cube)
-  const blocked = notEnterable(cube)
   const savedTime = saved
     ? new Date(saved.savedAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
     : ''
@@ -66,12 +64,11 @@ export function SetupSection() {
           <FEATURE_ICON.edit className="size-4" aria-hidden />
           {t.editCube}
         </Button>
-        {/* A Camouflage is entered in its box. */}
         <Button
           onClick={enterFromCurrent}
-          disabled={busy || blocked !== null}
+          disabled={busy}
           variant="ghost"
-          title={blocked === 'box' ? t.notInBox : t.fromCurrentTitle}
+          title={t.fromCurrentTitle}
         >
           {t.fromCurrent}
         </Button>

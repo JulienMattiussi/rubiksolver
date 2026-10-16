@@ -8,6 +8,7 @@ import { asSeenThin, thinEdgesSolved } from '../shared/thinEdges'
 import { withCenterSpins, withTurnedCenters } from './twist'
 import { purpleBoxed, purpleSolved, purpleTurns, solvedPurple, turnAboutA } from './purple'
 import { scramblePurple } from './purpleStates'
+import { PURPLE_FACE_ENTRY } from './purpleViews'
 
 export const TWISTED_MODELS = {
   // Its box is off its core, which its coordinates are about; held only
@@ -19,6 +20,7 @@ export const TWISTED_MODELS = {
     isSolved: purpleSolved,
     symmetries: [turnAboutA],
     scramble: scramblePurple,
+    entry: { faces: PURPLE_FACE_ENTRY },
   },
   // Its thin edges show one color: their way round does not count.
   twist: {
