@@ -1,6 +1,6 @@
-// English names of the puzzles' layers and faces, and the move guide's
-// sentences (one per turn, built from its description, see
-// lib/app/moveGuide.ts), used by ui.ts.
+// English names of the puzzles' layers and faces, and every turn's
+// sentences, built from its description (lib/app/moveGuide.ts): the move
+// guide's, long, and the tutorial's, short. Used by ui.ts.
 
 import type { MoveDescription } from '@/lib/app/moveGuide'
 import { fromAbove } from '@/lib/puzzles/round/star'
@@ -229,4 +229,88 @@ export function describeEn(d: MoveDescription): string {
       ? 'a half turn: the direction does not matter'
       : `a quarter turn ${d.turn === 'cw' ? 'clockwise' : 'counterclockwise'}, as seen from the ${face}`
   return `Turn ${target} ${how}.`
+}
+
+/** A name with a comma in it closed by another. */
+const closed = (name: string) => (name.includes(',') ? `${name},` : name)
+
+const senseEn = (clockwise: boolean) => (clockwise ? 'clockwise' : 'counterclockwise')
+
+/** A turn's short sentence (the tutorial's, beside its letters): what
+ *  turns, how far and which way, without the guide's details. */
+export function describeShortEn(d: MoveDescription): string {
+  if (d.kind === 'gear' && d.thrice) {
+    return `Three half turns of the ${FACE_NAMES_EN[d.face]} in a row`
+  }
+  if (d.kind === 'gear') {
+    return `Turn the ${FACE_NAMES_EN[d.face]} a half turn ${senseEn(d.clockwise)}, facing it`
+  }
+  if (d.kind === 'slash') return 'Turn the right half a half turn (the slash)'
+  if (d.kind === 'dinoCorner') {
+    const corner = DINO_CORNER_NAMES_EN[d.corner]
+    const what = d.slice ? `the inner slice of ${corner}` : corner
+    return `Turn ${what} a third of a turn ${senseEn(d.clockwise)}, seen from it`
+  }
+  if (d.kind === 'megaFace') {
+    const n = Math.abs(d.fifths)
+    return `Turn ${MEGA_FACE_NAMES_EN[d.face]} ${n === 1 ? 'a fifth of a turn' : 'two fifths of a turn'} ${senseEn(d.fifths > 0)}, facing it`
+  }
+  if (d.kind === 'ftoFace') {
+    const face = FTO_FACE_NAMES_EN[d.triangle]
+    const what = d.slice ? `the slice next to ${face}` : face
+    return d.slice
+      ? `Turn ${what} a third of a turn ${senseEn(d.clockwise)}, seen from ${face}`
+      : `Turn ${what} a third of a turn ${senseEn(d.clockwise)}, facing it`
+  }
+  if (d.kind === 'triangle') {
+    return `Turn ${closed(TRIANGLE_NAMES_EN[d.triangle])} a third of a turn ${senseEn(d.clockwise)}, facing it`
+  }
+  if (d.kind === 'puckSlash') return 'Turn the right half of the disc a half turn (the pivot)'
+  if (d.kind === 'puckLayer') {
+    const n = Math.abs(d.twelfths)
+    return `Turn the ${d.layer === 'U' ? 'top' : 'bottom'} disc ${n === 1 ? 'one notch' : `${n} notches`} ${senseEn(d.twelfths > 0)}, seen from above`
+  }
+  if (d.kind === 'fashion') {
+    const face = FACE_NAMES_EN[d.face]
+    const what = {
+      block: `the block of the ${face}`,
+      half: HALF_NAMES_EN[d.face],
+      thin: `the thin layer of the ${face}`,
+      inner: `the thin layer under the ${face}`,
+    }[d.layer]
+    return d.turn === 'half'
+      ? `Turn ${what} a half turn`
+      : `Turn ${what} ${senseEn(d.turn === 'cw')}, seen from that side`
+  }
+  if (d.kind === 'copterEdge') {
+    return `Turn the ${COPTER_EDGE_EN[d.edge]} edge a half turn about its axis`
+  }
+  if (d.kind === 'side') return `Flip ${SIDE_NAMES_EN[d.side]} over`
+  if ('vertex' in d) {
+    const corner = CORNER_NAMES_EN[d.vertex]
+    const what = {
+      tip: `the tip of the ${corner}`,
+      corner: `the layer of the ${corner}`,
+      half: `the half of the ${corner}`,
+      slice: `the ${{ 1: 'first', 2: 'second', 3: 'third', 4: 'fourth' }[d.slice ?? 1]} slice of the ${corner}`,
+      opposite: `the face opposite the ${corner}`,
+    }[d.kind]
+    return `Turn ${what} a third of a turn ${senseEn(d.clockwise)}, seen from that corner`
+  }
+  if (d.kind === 'ring') {
+    const layer = `the ${STAR_LAYER_EN[d.ring]} layer`
+    if (d.pieces === 3) return `Turn ${layer} a half turn (three notches)`
+    const seen = fromAbove(d.ring) ? 'seen from above' : 'seen from below'
+    return `Turn ${layer} ${d.pieces === 1 ? 'one notch' : 'two notches'} ${senseEn(d.clockwise)}, ${seen}`
+  }
+  const face = FACE_NAMES_EN[d.face]
+  const what = {
+    face: `the ${face}`,
+    middle: `the middle slice (parallel to the ${face})`,
+    slice: d.third ? `the third layer from the ${face}` : `the inner slice next to the ${face}`,
+    wide: d.halfPuzzle ? HALF_NAMES_EN[d.face] : `the ${face} and the slice next to it`,
+  }[d.kind]
+  if (d.turn === 'half') return `Turn ${what} twice (a half turn)`
+  const seen = d.kind === 'face' ? 'facing it' : `seen from the ${face}`
+  return `Turn ${what} ${senseEn(d.turn === 'cw')}, ${seen}`
 }

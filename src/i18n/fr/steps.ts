@@ -128,6 +128,7 @@ export const STEPS_FR = {
   stepStarBottom: 'Bas fini',
   stepStarTop: 'Haut fini',
   stepRecenter: 'Centres remis en place',
+  stepTutorialCross: 'Placer une arête de la croix jaune',
   stepInnerIsolate: 'Étoile interne : sommets isolés',
   stepInnerBottom: 'Étoile interne : bas fini',
   stepInnerTop: 'Étoile interne : haut fini',

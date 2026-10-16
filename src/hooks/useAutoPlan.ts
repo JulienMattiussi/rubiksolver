@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { isSolved } from '@/lib/core/cube'
 import type { SolveRequest, SolveResponse } from '@/workers/solveWorker'
 import { planKey, selectBusy, useCube } from '@/store/cubeStore'
+import { useTutorialStore } from '@/store/tutorialStore'
 
 /** Wait after the cube settles before computing (a burst of turns: once). */
 const SETTLE_MS = 150
@@ -18,6 +19,8 @@ function solver(): Worker | null {
     worker.onmessage = ({ data }: MessageEvent<SolveResponse>) => {
       const key = pending.get(data.id)
       pending.delete(data.id)
+      // The tutorial shows its own formulas: no solution meanwhile.
+      if (useTutorialStore.getState().active) return
       if (key && data.steps) useCube.getState().setPlan(data.steps, key)
     }
   }

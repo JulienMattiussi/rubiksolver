@@ -68,6 +68,13 @@ interface CubeStore {
   undoStep: () => void
   /** Undo the solution's last move played. */
   undoMove: () => void
+  /** Play a step given (a tutorial's formula), added to the steps shown
+   *  (after the ones played: one undone gives way): their moves list the
+   *  formulas played so far. */
+  playStep: (step: SolveStep) => void
+  /** Play turns that are neither a turn by hand nor a scramble (a
+   *  tutorial's undoing): the solution stays as it is. */
+  playTurns: (turns: readonly Turn[]) => void
   reset: () => void
   /** Halt the queue. The solution goes with it: the cube now sits between
    *  two of its steps, so neither "all played" nor "next step" holds. */
@@ -232,6 +239,26 @@ export const useCube = create<CubeStore>((set, get) => ({
   undoStep: () => goTo((steps, dispatched) => stepStart(lengthsOf(steps), dispatched)),
 
   undoMove: () => goTo((_, dispatched) => dispatched - 1),
+
+  playStep: (step) =>
+    set((s) => {
+      // The steps played so far, those undone dropped.
+      let played = 0
+      const kept = (s.steps ?? []).filter((x) => (played += x.moves.length) <= s.dispatched)
+      const steps = [...kept, step]
+      return {
+        steps,
+        dispatched: lengthsOf(steps).reduce((n, len) => n + len, 0),
+        queue: [...s.queue, ...step.moves],
+        rewinding: false,
+        solving: true,
+        scrambling: false,
+        plannedFor: null,
+      }
+    }),
+
+  playTurns: (turns) =>
+    set((s) => ({ queue: [...s.queue, ...turns], solving: true, scrambling: false })),
 
   reset: () => set((s) => loadedCube(solvedCube(cubeShape(s.cube)))),
 

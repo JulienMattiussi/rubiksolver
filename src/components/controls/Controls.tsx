@@ -5,7 +5,7 @@ import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { Button } from '@/components/ui/Button'
 import { EditPanel } from '@/components/edit/EditPanel'
-import { SolvePanel } from '@/components/solve/SolvePanel'
+import { SolveArea } from '@/components/solve/SolveArea'
 import { CollapseButton } from './CollapseButton'
 import { Credit } from './Credit'
 import { LanguageToggle } from './LanguageToggle'
@@ -80,7 +80,7 @@ export function Controls() {
           <header className="flex justify-end">
             <LanguageToggle />
           </header>
-          <SolvePanel home={home} />
+          <SolveArea home={home} />
         </div>
       </div>
     )
@@ -119,7 +119,7 @@ export function Controls() {
             )}
             <div className={collapsed ? 'hidden flex-col gap-5 sm:flex' : 'flex flex-col gap-5'}>
               {setup}
-              <SolvePanel home={home} />
+              <SolveArea home={home} />
               <Credit />
             </div>
           </>

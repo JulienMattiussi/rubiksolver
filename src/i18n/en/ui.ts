@@ -4,6 +4,7 @@ import type { GhostSide, MegaFace, PyraVertex, RainbowCorner } from '@/lib/core/
 import {
   CORNER_NAMES_EN,
   describeEn,
+  describeShortEn,
   FACE_NAMES_EN,
   MEGA_FACE_NAMES_EN,
   SIDE_NAMES_EN,
@@ -25,6 +26,7 @@ export const UI_EN: typeof UI_FR = {
   scramble: 'Scramble',
   solve: 'Solve',
   computing: 'Computing the solution…',
+  computingShort: 'Computing…',
   reset: 'Reset',
   stop: 'Stop',
   speed: 'Speed',
@@ -291,6 +293,7 @@ export const UI_EN: typeof UI_FR = {
     dinoCorners: 'Corners',
   },
   describeMove: describeEn,
+  describeMoveShort: describeShortEn,
   guideBlocked: 'This move is not possible in this configuration',
   puzzleCount: (n: number) => `${n} puzzle${n > 1 ? 's' : ''}`,
   cubeKind: (label: string, mirror: boolean) => `${label}${mirror ? ' mirror' : ''}`,

@@ -313,6 +313,7 @@ describe.each(PUZZLES)('$shape', ({ shape, pieces, stickers, orientations, paint
       for (const labels of [NOTATION_US, NOTATION_FR]) expect(formatMove(turn, labels)).toBeTruthy()
       for (const locale of Object.values(LOCALES)) {
         expect(locale.describeMove(describeMove(turn, shape))).not.toMatch(/undefined|NaN/)
+        expect(locale.describeMoveShort(describeMove(turn, shape))).not.toMatch(/undefined|NaN/)
       }
     }
   })

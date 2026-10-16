@@ -1,6 +1,6 @@
-// French names of the puzzles' layers and faces, and the move guide's
-// sentences (one per turn, built from its description, see
-// lib/app/moveGuide.ts), used by ui.ts.
+// French names of the puzzles' layers and faces, and every turn's
+// sentences, built from its description (lib/app/moveGuide.ts): the move
+// guide's, long, and the tutorial's, short. Used by ui.ts.
 
 import type { MoveDescription } from '@/lib/app/moveGuide'
 import { fromAbove } from '@/lib/puzzles/round/star'
@@ -235,4 +235,100 @@ export function describeFr(d: MoveDescription): string {
       ? 'd’un demi-tour : le sens n’a pas d’importance'
       : `d’un quart de tour dans le sens ${d.turn === 'cw' ? 'des aiguilles' : 'inverse des aiguilles'} d’une montre, vu depuis la ${face}`
   return `On tourne ${target} ${how}.`
+}
+
+/** « de » before a name: « du » before « le », « des » before « les ». */
+const of = (name: string) =>
+  name.startsWith('le ')
+    ? `du ${name.slice(3)}`
+    : name.startsWith('les ')
+      ? `des ${name.slice(4)}`
+      : `de ${name}`
+
+/** A name with a comma in it closed by another (« du sommet du haut,
+ *  devant à droite, d’un tiers de tour »). */
+const closed = (name: string) => (name.includes(',') ? `${name},` : name)
+
+const senseFr = (clockwise: boolean) =>
+  clockwise ? 'dans le sens horaire' : 'dans le sens antihoraire'
+
+/** A turn's short sentence (the tutorial's, beside its letters): what
+ *  turns, how far and which way, without the guide's details. */
+export function describeShortFr(d: MoveDescription): string {
+  if (d.kind === 'gear' && d.thrice) {
+    return `Trois demi-tours de suite de la ${FACE_NAMES_FR[d.face]}`
+  }
+  if (d.kind === 'gear') {
+    return `Demi-tour de la ${FACE_NAMES_FR[d.face]} ${senseFr(d.clockwise)}, en la regardant`
+  }
+  if (d.kind === 'slash') return 'Demi-tour de la moitié droite (le slash)'
+  if (d.kind === 'dinoCorner') {
+    const corner = DINO_CORNER_NAMES_FR[d.corner]
+    const what = d.slice ? `de la tranche intérieure ${of(corner)}` : of(corner)
+    return `Rotation ${closed(what)} d’un tiers de tour ${senseFr(d.clockwise)}, vu depuis lui`
+  }
+  if (d.kind === 'megaFace') {
+    const n = Math.abs(d.fifths)
+    return `Rotation ${of(MEGA_FACE_NAMES_FR[d.face])} ${n === 1 ? 'd’un cinquième de tour' : 'de deux cinquièmes de tour'} ${senseFr(d.fifths > 0)}, en la regardant`
+  }
+  if (d.kind === 'ftoFace') {
+    const face = FTO_FACE_NAMES_FR[d.triangle]
+    const what = d.slice ? `de la tranche voisine ${of(face)}` : of(face)
+    return d.slice
+      ? `Rotation ${what} d’un tiers de tour ${senseFr(d.clockwise)}, vu depuis ${face}`
+      : `Rotation ${what} d’un tiers de tour ${senseFr(d.clockwise)}, en la regardant`
+  }
+  if (d.kind === 'triangle') {
+    return `Rotation ${closed(of(TRIANGLE_NAMES_FR[d.triangle]))} d’un tiers de tour ${senseFr(d.clockwise)}, en le regardant`
+  }
+  if (d.kind === 'puckSlash') return 'Demi-tour de la moitié droite du disque (le pivot)'
+  if (d.kind === 'puckLayer') {
+    const n = Math.abs(d.twelfths)
+    return `Rotation du disque ${d.layer === 'U' ? 'du haut' : 'du bas'} ${n === 1 ? 'd’un cran' : `de ${n} crans`} ${senseFr(d.twelfths > 0)}, vu de dessus`
+  }
+  if (d.kind === 'fashion') {
+    const face = FACE_NAMES_FR[d.face]
+    const what = {
+      block: `du bloc de la ${face}`,
+      half: of(HALF_NAMES_FR[d.face]),
+      thin: `de la couche fine de la ${face}`,
+      inner: `de la couche fine sous la ${face}`,
+    }[d.layer]
+    return d.turn === 'half'
+      ? `Demi-tour ${what}`
+      : `Rotation ${what} ${senseFr(d.turn === 'cw')}, vu de ce côté`
+  }
+  if (d.kind === 'copterEdge') {
+    return `Demi-tour de l’arête ${COPTER_EDGE_FR[d.edge]} sur son axe`
+  }
+  if (d.kind === 'side') return `Demi-tour ${of(SIDE_NAMES_FR[d.side])}`
+  if ('vertex' in d) {
+    const corner = CORNER_NAMES_FR[d.vertex]
+    const what = {
+      tip: `de la pointe du ${corner}`,
+      corner: `de la couche du ${corner}`,
+      half: `de la moitié du ${corner}`,
+      slice: `de la ${{ 1: 'première', 2: 'deuxième', 3: 'troisième', 4: 'quatrième' }[d.slice ?? 1]} tranche du ${corner}`,
+      opposite: `de la face opposée au ${corner}`,
+    }[d.kind]
+    return `Rotation ${what} d’un tiers de tour ${senseFr(d.clockwise)}, vu depuis ce sommet`
+  }
+  if (d.kind === 'ring') {
+    const layer = of(STAR_LAYER_FR[d.ring])
+    if (d.pieces === 3) return `Demi-tour ${layer} (trois crans)`
+    const seen = fromAbove(d.ring) ? 'vu de dessus' : 'vu de dessous'
+    return `Rotation ${layer} ${d.pieces === 1 ? 'd’un cran' : 'de deux crans'} ${senseFr(d.clockwise)}, ${seen}`
+  }
+  const face = FACE_NAMES_FR[d.face]
+  const what = {
+    face: `de la ${face}`,
+    middle: `de la tranche du milieu (parallèle à la ${face})`,
+    slice: d.third
+      ? `de la troisième couche depuis la ${face}`
+      : `de la tranche interne voisine de la ${face}`,
+    wide: d.halfPuzzle ? of(HALF_NAMES_FR[d.face]) : `de la ${face} et de sa tranche voisine`,
+  }[d.kind]
+  if (d.turn === 'half') return `Rotation ${what} deux fois (demi-tour)`
+  const seen = d.kind === 'face' ? 'en la regardant' : `vu depuis la ${face}`
+  return `Rotation ${what} ${senseFr(d.turn === 'cw')}, ${seen}`
 }

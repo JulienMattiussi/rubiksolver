@@ -129,6 +129,7 @@ export const STEPS_EN: typeof STEPS_FR = {
   stepStarBottom: 'Bottom finished',
   stepStarTop: 'Top finished',
   stepRecenter: 'Centers put back',
+  stepTutorialCross: 'Place a yellow cross edge',
   stepInnerIsolate: 'Inner star: points isolated',
   stepInnerBottom: 'Inner star: bottom finished',
   stepInnerTop: 'Inner star: top finished',

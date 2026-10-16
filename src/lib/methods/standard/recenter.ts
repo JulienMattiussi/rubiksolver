@@ -14,9 +14,10 @@ import { homeOf, piecesHome } from './pieces3'
 const CENTERS = ['U', 'D', 'L', 'R', 'F', 'B']
 const SLICE_TURNS = moveSet('M E S')
 
-const centersHome = (cube: Cube): boolean => piecesHome(cube, CENTERS)
+export const centersHome = (cube: Cube): boolean => piecesHome(cube, CENTERS)
 
-function recenter(cube: Cube): Move[] {
+/** The slice turns putting the centers back. */
+export function recenter(cube: Cube): Move[] {
   return solvePieces(cube, { track: CENTERS.map(homeOf), moves: SLICE_TURNS, maxDepth: 6 })
 }
 

@@ -1,4 +1,4 @@
-import type { RefObject } from 'react'
+import type { ReactNode, RefObject } from 'react'
 import type * as THREE from 'three'
 import { cubeDims } from '@/lib/core/cube'
 import { centeringOffset, LAYER_THICKNESS } from '@/lib/core/shape'
@@ -21,6 +21,16 @@ export interface ModelProps {
   turnSpin?: number
   progress?: RefObject<number>
   highlighted?: (index: number) => boolean
+  /** Pieces hatched (a tutorial formula moves them, not placed yet). */
+  hatched?: (index: number) => boolean
+  /** The piece standing where a tutorial formula takes its piece. */
+  marked?: (index: number) => boolean
+  /** The highlighted and marked pieces' glow pulsing (the tutorial's). */
+  pulse?: boolean
+  /** A click on a piece (the tutorial's). */
+  onPick?: (index: number) => void
+  /** Drawn in the pieces' frame (the tutorial's arrow). */
+  children?: ReactNode
 }
 
 /** A grid puzzle drawn from its logical state, the turning layer in its own
@@ -36,6 +46,11 @@ export function CubeModel({
   turnSpin,
   progress,
   highlighted = NO_PIECES,
+  hatched = NO_PIECES,
+  marked = NO_PIECES,
+  pulse = false,
+  onPick,
+  children,
 }: ModelProps & { variant: CubeVariant }) {
   const dims = cubeDims(cube)
   // A Gear Cube: small center squares, the edges' clips around them.
@@ -54,6 +69,10 @@ export function CubeModel({
               dims={dims}
               variant={variant}
               highlighted={highlighted(i)}
+              hatched={hatched(i)}
+              marked={marked(i)}
+              pulse={pulse}
+              onPick={onPick && (() => onPick(i))}
               smallCenter={gear}
             />
           ),
@@ -61,10 +80,19 @@ export function CubeModel({
         <group ref={groupRef}>
           {cube.map((c, i) =>
             isTurning(i) && shown(i) ? (
-              <Cubie key={i} cubie={c} dims={dims} variant={variant} smallCenter={gear} />
+              <Cubie
+                key={i}
+                cubie={c}
+                dims={dims}
+                variant={variant}
+                highlighted={highlighted(i)}
+                hatched={hatched(i)}
+                smallCenter={gear}
+              />
             ) : null,
           )}
         </group>
+        {children}
         <group ref={halfRef}>
           {cube.map((c, i) =>
             isHalfTurning(i) ? (

@@ -57,7 +57,9 @@ function findCorner(cube: Cube, a: Color, b: Color, c: Color): Cubie {
 // Phase predicates (exported for tests and for the methods reusing them)
 // ---------------------------------------------------------------------------
 
-function edgePlaced(cube: Cube, s: Face): boolean {
+/** The cross edge of side `s` (yellow and that side's color) at its slot,
+ *  yellow down. */
+export function edgePlaced(cube: Cube, s: Face): boolean {
   const edge = findEdge(cube, FACE_COLOR.D, FACE_COLOR[s])
   return colorAt(edge, 'D') === FACE_COLOR.D && colorAt(edge, s) === FACE_COLOR[s]
 }

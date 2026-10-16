@@ -2,7 +2,7 @@ import type { ComponentPropsWithRef, ReactNode } from 'react'
 
 import { FEATURE_BUTTON, type Feature } from './features'
 
-type Variant = 'primary' | 'default' | 'ghost' | Feature
+type Variant = 'primary' | 'default' | 'ghost' | 'solveOutline' | Feature
 
 const BASE =
   'inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ' +
@@ -13,6 +13,9 @@ const VARIANTS: Record<Variant, string> = {
   primary: 'bg-sky-500 text-white hover:bg-sky-400',
   default: 'bg-slate-700 text-slate-100 hover:bg-slate-600',
   ghost: 'bg-transparent text-slate-300 hover:bg-slate-700/60',
+  // Solving's color, outlined: an action beside Solve (the tutorial).
+  solveOutline:
+    'bg-amber-500/15 font-semibold text-amber-200 ring-1 ring-inset ring-amber-400/40 hover:bg-amber-500/25',
   // The buttons opening the app's features stand out in their colors.
   ...FEATURE_BUTTON,
 }

@@ -1,4 +1,15 @@
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Cog, Square } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Cog,
+  GraduationCap,
+  Square,
+} from 'lucide-react'
+import { cubeShape } from '@/lib/core/cube'
+import { tutorialFor } from '@/lib/tutorial/tutorial'
+import { useTutorialStore } from '@/store/tutorialStore'
 import { stepEnd } from '@/lib/solve/progress'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
@@ -45,6 +56,10 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
   const back = home || busy || dispatched === 0
   const ahead = home || busy || solved || !ready || (dispatched > 0 && dispatched >= total)
   const editing = useEditor((s) => s.mode === 'edit')
+  // A puzzle with a tutorial: its button beside Solve.
+  const tutorial = useCube((s) => tutorialFor(cubeShape(s.cube)) !== undefined) && !home
+  const startTutorial = useTutorialStore((s) => s.start)
+  const wide = tutorial ? '' : 'col-span-2'
   // The solution being computed: a turning cog says so.
   const computing = !home && !solved && !ready
   useSolveShortcuts({
@@ -76,11 +91,7 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
       <div className="grid grid-cols-2 gap-2">
         {busy && solving ? (
           // Pauses where it stands: the move under way ends, the rest waits.
-          <Button
-            onClick={pause}
-            className="col-span-2"
-            title={`${t.pauseTitle} (${t.solveKeys.pause})`}
-          >
+          <Button onClick={pause} className={wide} title={`${t.pauseTitle} (${t.solveKeys.pause})`}>
             <Square className="size-4" aria-hidden />
             {t.stop}
           </Button>
@@ -90,15 +101,30 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
             onClick={solveAll}
             disabled={home || busy || solved || !ready}
             aria-busy={computing}
-            className="col-span-2"
-            title={`${t.solve} (${t.solveKeys.solve})`}
+            // Computing, its cog turns and it says so shortly (the whole
+            // words in its tooltip): it keeps its size beside Tutorial.
+            aria-label={computing ? t.computing : undefined}
+            className={wide}
+            title={computing ? t.computing : `${t.solve} (${t.solveKeys.solve})`}
           >
             {computing ? (
               <Cog className="size-4 motion-safe:animate-spin" aria-hidden />
             ) : (
               <FEATURE_ICON.solve className="size-4" aria-hidden />
             )}
-            {computing ? t.computing : t.solve}
+            {computing ? t.computingShort : t.solve}
+          </Button>
+        )}
+        {tutorial && (
+          // Nothing to teach on a solved puzzle.
+          <Button
+            variant="solveOutline"
+            onClick={startTutorial}
+            disabled={busy || solved}
+            title={t.tutorial.buttonTitle}
+          >
+            <GraduationCap className="size-4" aria-hidden />
+            {t.tutorial.button}
           </Button>
         )}
         <Button

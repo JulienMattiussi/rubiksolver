@@ -1,11 +1,12 @@
 import type { RefObject } from 'react'
 import { cubieBox, LAYER_THICKNESS } from '@/lib/core/shape'
 import type { CubeVariant, Cubie as CubieType, Dims } from '@/lib/core/types'
-import { COLOR_HEX, HIGHLIGHT, MIRROR_STICKER, PLASTIC } from './colors'
+import { COLOR_HEX, HIGHLIGHT, MIRROR_STICKER, PLACE, PLASTIC } from './colors'
 import { CUBIE_GAP, visualPosition } from './layout'
 import { GearCorner } from '../puzzles/gear/GearCorner'
 import { GearEdge } from '../puzzles/gear/GearEdge'
 import { Sticker } from './Sticker'
+import { usePulse } from './usePulse'
 
 /** A Gear Cube's core block: up to the pieces' bodies, which go 0.45 deep. */
 const GEAR_CORE = 2 * (1.5 - 0.47)
@@ -18,6 +19,10 @@ export function Cubie({
   dims,
   variant,
   highlighted = false,
+  hatched = false,
+  marked = false,
+  pulse = false,
+  onPick,
   spinning,
   progress,
   smallCenter = false,
@@ -31,8 +36,17 @@ export function Cubie({
   cubie: CubieType
   dims: Dims
   variant: CubeVariant
-  /** Part of the turn a hovered pad button would make. */
+  /** Part of the turn a hovered pad button would make, or the piece a
+   *  tutorial formula aims at. */
   highlighted?: boolean
+  /** Hatched: moved by a tutorial formula, not placed yet. */
+  hatched?: boolean
+  /** Marked: where a tutorial formula takes the piece it aims at. */
+  marked?: boolean
+  /** Its glow (highlighted or marked) pulsing: the tutorial's. */
+  pulse?: boolean
+  /** A click on it (the tutorial picks pieces so). */
+  onPick?: () => void
   /** A Gear Cube's gear in a turning slice: the sixths it spins, and how far
    *  along the turn is. */
   spinning?: number
@@ -51,6 +65,7 @@ export function Cubie({
   onHover?: (face: string, on: boolean) => void
   lit?: string | null
 }) {
+  const glowRef = usePulse(pulse && (highlighted || marked), highlighted || marked ? 0.7 : 0)
   // A Gear Cube's core: a black block filling the middle, so the gaps
   // between the pieces' shaped bodies show no hole.
   if (smallCenter && cubie.stickers.length === 0) {
@@ -108,11 +123,12 @@ export function Cubie({
       <mesh castShadow position={[center[0], center[1], center[2]]}>
         <boxGeometry args={[size[0] - CUBIE_GAP, size[1] - CUBIE_GAP, size[2] - CUBIE_GAP]} />
         <meshStandardMaterial
+          ref={glowRef}
           color={PLASTIC}
           roughness={0.65}
           metalness={0.1}
-          emissive={HIGHLIGHT}
-          emissiveIntensity={highlighted ? 0.7 : 0}
+          emissive={marked ? PLACE : HIGHLIGHT}
+          emissiveIntensity={highlighted || marked ? 0.7 : 0}
         />
       </mesh>
       {cubie.stickers.map((s, i) => (
@@ -120,9 +136,12 @@ export function Cubie({
           key={i}
           normal={s.normal}
           color={mirror ? MIRROR_STICKER : COLOR_HEX[s.color]}
+          hatched={hatched}
           box={{ size, center }}
           metal={mirror}
-          glow={highlighted}
+          glow={highlighted || marked}
+          pulse={pulse && (highlighted || marked)}
+          onSelect={onPick}
         />
       ))}
     </group>

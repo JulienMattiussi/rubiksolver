@@ -30,6 +30,14 @@ export const PLASTIC = '#0b0f1a'
 /** Glow of the pieces a hovered turn would move (the UI's accent, sky). */
 export const HIGHLIGHT = '#38bdf8'
 
+/** A tutorial's mark for the place a piece goes: its arrow's amber. */
+export const PLACE = '#fbbf24'
+
+/** A tutorial's pieces that move but are not placed yet (a formula's, see
+ *  lib/tutorial/tutorial.ts) are hatched: their stickers' colors crossed by
+ *  dark stripes (`hatchTexture`). The same, as a CSS swatch. */
+export const HATCH = 'repeating-linear-gradient(45deg, #e2e8f0 0 2px, #1e293b 2px 4px)'
+
 /** Mirror cube: every facelet wears the same gold, pieces are told apart by
  *  their size. */
 export const MIRROR_STICKER = '#d8a63f'

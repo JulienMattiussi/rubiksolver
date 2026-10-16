@@ -12,6 +12,8 @@ export function paintable(
   return {
     onClick: (e: ThreeEvent<MouseEvent>) => {
       e.stopPropagation()
+      // The end of a drag turning the view: no click.
+      if (e.delta > 4) return
       const at = e.object.worldToLocal(e.point.clone())
       onSelect([at.x, at.y, at.z])
     },
