@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react'
 
 /** A tutorial instruction led by the tones it speaks of (their swatches:
- *  the colors the pieces show on the puzzle, or a CSS background such as
- *  `HATCH`). */
+ *  the colors the pieces show on the puzzle). */
 export function Toned({ colors, children }: { colors: readonly string[]; children: ReactNode }) {
   return (
     <span>
@@ -11,7 +10,7 @@ export function Toned({ colors, children }: { colors: readonly string[]; childre
           <span
             key={color}
             className="inline-block size-3 rounded-sm"
-            style={{ background: color }}
+            style={{ backgroundColor: color }}
           />
         ))}
       </span>

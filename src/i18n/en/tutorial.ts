@@ -20,8 +20,7 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   spotSwap: (piece: string, other: string) =>
     `Spot ${piece}, and ${other} which stands in its place.`,
   play: (count: number) => (count === 1 ? 'Play this move:' : `Play these ${count} moves:`),
-  check: (piece: string) =>
-    `Check the new positions: ${piece} is in its place. The hatched pieces moved too, they will be placed later.`,
+  check: (piece: string) => `Check the new positions: ${piece} is in its place.`,
   checkAll: 'Check the new positions: the pieces are in their place.',
   legendMoved:
     'The hatched cubes will be moved by the formula, with no effect on the expected result.',

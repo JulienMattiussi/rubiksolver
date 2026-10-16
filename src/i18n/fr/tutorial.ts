@@ -20,8 +20,7 @@ export const TUTORIAL_FR = {
   spotSwap: (piece: string, other: string) => `Repère ${piece}, et ${other} qui occupe sa place.`,
   play: (count: number) =>
     count === 1 ? 'Effectue ce mouvement :' : `Effectue ces ${count} mouvements :`,
-  check: (piece: string) =>
-    `Vérifie les nouvelles positions : ${piece} est à sa place. Les pièces hachurées ont bougé aussi, on les placera plus tard.`,
+  check: (piece: string) => `Vérifie les nouvelles positions : ${piece} est à sa place.`,
   checkAll: 'Vérifie les nouvelles positions : les pièces sont à leur place.',
   /** The legend of the hatched pieces, under the step's hint. */
   legendMoved:

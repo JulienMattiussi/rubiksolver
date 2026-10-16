@@ -119,28 +119,32 @@ src/
 │   │                    #   setup (réglages avant peinture), jointsEditor (soudures), cutsEditor
 │   │                    #   (demi-cubies du Fashion-V), faceCanvases (forme face par face), gearEditor,
 │   │                    #   roadblockEditor, validate
+│   ├── tutorial/        # Le tutoriel : tutorial (TutorialStep, registre tutorialFor, tons des pièces, chemin de
+│   │                    #   la flèche), cube3 (les pas du 3x3 : recentrer, la croix arête par arête)
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
 │   ├── core/            # Scene, CubeView / Cubie / Sticker (puzzles à grille), PolyView / PolyModel / PolyPiece
 │   │                    #   (puzzles en polygones), EditView / PolyEditView (saisie), polyDrawing (registre des
-│   │                    #   dessins), polyhedron, cutSolid, layout, isometric (vignettes), useTurnAnimation...
+│   │                    #   dessins), polyhedron, cutSolid, layout, isometric (vignettes), useTurnAnimation,
+│   │                    #   TutorialArrow, hatchTexture et usePulse (le tutoriel)...
 │   ├── guide/           # Le guide des mouvements : GuideCanvas, GuideTile, guideCamera
 │   └── puzzles/         # Les dessins, un dossier par catégorie : drawings.ts et la géométrie de chaque puzzle
 │                        #   (gear/ : pas de drawings.ts, les pièces du Gear Cube sont des composants que dessine
 │                        #   Cubie) ; shared/ : dinoGeometry (Dino Cube, Edge Only)
 ├── components/          # UI : ui/ (primitives), controls/ (panneau, pads de coups, padFor), picker/, guide/, edit/,
-│                        #   solve/, home/, celebration/
+│                        #   solve/ (SolveArea : la résolution ou le tutoriel), tutorial/, home/, celebration/
 ├── store/               # Zustand : cubeStore (cube, file de coups, solution), editorStore, savedStore,
-│                        #   viewStore, router
-├── hooks/               # useAutoPlan (solution dans le worker), useIsDesktop, useSolveShortcuts
-├── i18n/                # fr/ et en/ (ui, methods, steps, moveSentences ; EN typé sur FR), translations
+│                        #   viewStore, router, tutorialStore (pick, formules jouées, coups à la main, arrêt)
+├── hooks/               # useAutoPlan (solution dans le worker), useIsDesktop, useSolveShortcuts, useTutorial
+├── i18n/                # fr/ et en/ (ui, methods, steps, moveSentences : phrases longues du guide et
+│                        #   courtes du tutoriel, tutorial ; EN typé sur FR), translations
 │                        #   (les assemble), i18nStore
 ├── workers/             # solveWorker : la solution hors du fil de l'interface ; facesWorker (et
 │                        #   findFaces) : la forme retrouvée de ses faces (Camouflage, Purple)
 └── assets/gear/         # Masques des pièces du Gear Cube (scripts/gear_face.py)
 tests/
 ├── unit/                # Vitest : conformance de tous les puzzles (puzzles.test.ts), puis rangés comme le code :
-│                        #   core/, solve/, editor/, app/, three/, store/, puzzles/<catégorie>/ (un fichier par
+│                        #   core/, solve/, editor/, app/, three/, store/, tutorial/, puzzles/<catégorie>/ (un fichier par
 │                        #   puzzle, modèle, méthode et dessin ensemble)
 ├── component/           # Vitest + Testing Library
 ├── e2e/                 # Playwright
@@ -415,8 +419,22 @@ langue et résolution à droite ; une seule carte sur mobile et en saisie),
 sélecteur de puzzle en modale par catégories puis puzzles (vignettes SVG
 dessinées par le code, `three/core/isometric.ts`), pad de coups construit
 depuis les coups de la forme, guide des mouvements, solution jouée dans les
-deux sens et au clavier, feu d'artifice quand un coup résout, adresse
+deux sens et au clavier, tutoriel (on résout soi-même, pas à pas, guidé
+par une flèche et des pièces mises en valeur), feu d'artifice quand un coup résout, adresse
 `#/<langue>/<puzzle>` (l'accueil sinon). Le détail : [docs/interface.md](docs/interface.md).
+
+### Le tutoriel (`src/lib/tutorial/`)
+
+Un puzzle a un tutoriel s'il figure au registre `TUTORIALS`
+(`tutorial.ts`) : son `stepOf(cube)` dit le pas où en est l'état
+(`TutorialStep` : clé, rang de l'étape et avancement, centre à tenir de
+face, sticker repère de la flèche, pièces placées, suggestion, pièces et
+emplacements qu'on peut choisir, et la formule pour un choix, qui garde les
+pièces placées). Tout le reste (tons des pièces `tonesOf`, flèche
+`markerPath`, panneau, arrêt, coups à la main, annulation) est générique.
+**Ajouter un tutoriel** : un module `lib/tutorial/<puzzle>.ts` et sa ligne
+au registre ; les titres, consignes et phrases d'avancement de ses étapes
+dans `i18n/{fr,en}/tutorial.ts` ; ses tests dans `tests/unit/tutorial/`.
 
 ---
 

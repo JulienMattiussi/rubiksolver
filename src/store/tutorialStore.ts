@@ -10,7 +10,7 @@ import { useCube } from './cubeStore'
  *  state it left (`cube`, its key `on`), and the key of the state it led
  *  to (`after`); the turns played by hand before it, since its step began
  *  (`manual`), are undone with it. */
-export interface Played {
+interface Played {
   readonly pick: TutorialPick | null
   readonly moves: readonly Move[]
   readonly cube: Cube

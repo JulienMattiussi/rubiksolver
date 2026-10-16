@@ -8,7 +8,9 @@ const TILE = 128
 let texture: THREE.CanvasTexture | null = null
 
 /** The hatching laid over a sticker (its color shows between dark
- *  diagonal stripes, see `HATCH`): one texture, made on first use. */
+ *  diagonal stripes): a tutorial's pieces that move but are not placed yet
+ *  (a formula's, see lib/tutorial/tutorial.ts). One texture, made on first
+ *  use. */
 export function hatchTexture(): THREE.CanvasTexture {
   if (texture) return texture
   const canvas = document.createElement('canvas')

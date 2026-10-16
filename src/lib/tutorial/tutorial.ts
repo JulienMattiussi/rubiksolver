@@ -107,3 +107,16 @@ export function markerPath(
     toNormal: after.stickers.find((s) => s.color === before.stickers[k]!.color)!.normal,
   }
 }
+
+/** A piece's colors, the marker's first (the yellow edge's: yellow-green). */
+export function pieceColors(cube: Cube, index: number, marker?: Color): Color[] {
+  return [...cube[index]!.stickers]
+    .sort((a, b) => Number(b.color === marker) - Number(a.color === marker))
+    .map((s) => s.color)
+}
+
+/** The piece standing where a pick goes (null: none, or the pick's own). */
+export function occupantOf(cube: Cube, pick: TutorialPick): number | null {
+  const at = cube.findIndex((c, i) => i !== pick.piece && c.position.join() === pick.slot.join())
+  return at < 0 ? null : at
+}

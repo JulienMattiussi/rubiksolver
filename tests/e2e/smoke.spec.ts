@@ -413,3 +413,42 @@ test('bandaged entry: its joints first, a form it cannot take refused', async ({
   await expect(page.getByRole('button', { name: 'Saisir', exact: true })).toBeVisible()
   expect(errors).toEqual([])
 })
+
+test('tutorial: a formula applied, looked at, undone; a move by hand finished', async ({
+  page,
+}) => {
+  test.setTimeout(90000)
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/#/fr/3x3')
+  await page.getByLabel('Vitesse').fill('100')
+  // Solved: nothing to learn yet.
+  const tutorial = page.getByRole('button', { name: 'Tutoriel', exact: true })
+  await expect(tutorial).toBeDisabled()
+  await page.getByRole('button', { name: 'Mélanger' }).click()
+  await expect(tutorial).toBeEnabled({ timeout: 30000 })
+  await tutorial.click()
+
+  const panel = page.getByRole('region', { name: 'Tutoriel' })
+  await expect(panel.getByText('Construire la croix jaune')).toBeVisible()
+  const moves = panel.locator('ol ol button')
+  const formula = async () => (await moves.allTextContents()).join(' ')
+  const before = await formula()
+
+  // Applied: a stop on it, then undone back to the same formula.
+  await page.getByRole('button', { name: 'Appliquer la formule' }).click()
+  await expect(page.getByRole('button', { name: 'Suivant' })).toBeVisible()
+  await page.getByRole('button', { name: 'Annuler le déplacement' }).click()
+  await expect(page.getByRole('button', { name: 'Appliquer la formule' })).toBeEnabled()
+  expect(await formula()).toBe(before)
+
+  // Its first move by hand, then the rest of it played to the stop.
+  await moves.first().click()
+  await page.getByRole('button', { name: 'Valider le déplacement' }).click()
+  await expect(page.getByRole('button', { name: 'Suivant' })).toBeVisible()
+  await page.getByRole('button', { name: 'Suivant' }).click()
+
+  await page.getByRole('button', { name: 'Quitter le tutoriel' }).click()
+  await expect(page.getByRole('button', { name: 'Résoudre' })).toBeVisible()
+  expect(errors).toEqual([])
+})

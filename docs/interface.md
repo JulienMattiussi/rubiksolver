@@ -44,7 +44,8 @@ mobile et en saisie, une seule carte) :
   qui ne tourne pas comme un cube a son propre pad, nommé par le `pad` de sa
   carte et construit par `padFor`).
 - **Résolution** : choix de la **méthode** (liste déroulante, filtrée par
-  forme via `methodsFor`), **Résoudre**
+  forme via `methodsFor`), **Tutoriel** à côté de Résoudre sur les puzzles
+  qui en ont un (voir plus bas), **Résoudre**
   (joue le reste de la solution), puis la solution parcourue dans les deux
   sens : **étape précédente / suivante** et **coup précédent / suivant** (le
   coup en cours ou le prochain est surligné dans sa
@@ -116,7 +117,38 @@ en surbrillance les pièces que ce coup tournerait (corps bleu ciel, stickers
 éclaircis) : `PadButton` (sur tous les pads) écrit le coup dans
 `viewStore.preview`, `usePreviewed` (lu par `CubeView` et `PolyView`) en
 déduit les pièces avec `turnedBy` et `halfTurnedBy` (les mêmes fonctions que
-l'animation), sauf pendant une animation ou si le coup est bloqué.
+l'animation), sauf pendant une animation ou si le coup est bloqué. Dans le
+tutoriel, l'aperçu l'emporte sur la pièce visée tant qu'un bouton est
+survolé.
+
+**Tutoriel** (`lib/tutorial/`, `store/tutorialStore.ts`,
+`hooks/useTutorial.ts`, `components/tutorial/`) : sur un puzzle qui en a un
+(`tutorialFor`, le 3x3 pour l'instant), le bouton Tutoriel (grisé sur un
+puzzle résolu) remplace le bloc de résolution par un panneau où l'on résout
+soi-même, un **pas** à la fois : un pas est une formule qui amène une pièce
+à sa place sans déranger celles déjà placées (sur le 3x3 : recentrer, puis
+la croix jaune arête par arête, la formule la plus courte en coups
+externes ; les coins viendront). Le panneau dit l'**étape** (son rang,
+son but, son avancement en pastilles et en mots, sa consigne, la légende
+des hachures), puis quatre **consignes numérotées** : tenir le centre de
+face (un clic tourne la vue vers lui, `viewStore.viewToward`), repérer la
+pièce et celle qui occupe sa place, jouer la formule (chaque coup en
+bouton du pad, à côté de sa phrase courte `t.describeMoveShort`), vérifier
+les nouvelles positions. Sur le cube, la pièce visée et l'emplacement
+**scintillent** (`usePulse`), les pièces que la formule déplace sans les
+placer sont **hachurées** (`hatchTexture`), et une **flèche** va de la face
+du sticker repère à celle où il arrive (`TutorialArrow` : un demi-cercle
+centré entre les deux faces, élargi jusqu'à passer au large du cube, chaque
+bout sortant de sa face tout droit, en pointillés là où le cube le cache).
+Un clic sur une autre pièce la choisit, puis un clic sur un emplacement ;
+la formule se recalcule. « Appliquer la formule » la joue puis marque un
+**arrêt** (les consignes faites cochées, la vérification en avant) jusqu'à
+« Suivant ». Des coups joués **à la main** pendant un pas (le pad ou les
+boutons de la formule) sont suivis : le bouton devient « Valider le
+déplacement » (le reste de la formule, recalculée pour la même pièce), et
+« Annuler le déplacement » ramène au début du pas, formule et coups à la
+main compris. La solution précalculée de la méthode n'est pas montrée
+pendant le tutoriel (`useAutoPlan` s'en abstient).
 
 **Feu d'artifice** (`components/celebration/Fireworks.tsx`) : quand un coup
 amène le puzzle résolu (`solvedByTurn` du store : le coup qui finit, depuis
