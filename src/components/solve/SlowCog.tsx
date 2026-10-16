@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 const SLOW_MS = 4000
 
 /** Over the steps while a solution takes long to compute: a big turning cog
- *  that grows and fades in, so a slow puzzle (the Gear Cube Extreme) does
+ *  that grows and fades in, so a slow puzzle (the Z-Twist, the Fashion-V) does
  *  not look stuck. Nothing for a quick one. */
 export function SlowCog({ computing }: { computing: boolean }) {
   const [slow, setSlow] = useState(false)

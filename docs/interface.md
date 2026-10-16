@@ -66,7 +66,7 @@ mobile et en saisie, une seule carte) :
   (`planKey`) ; tant qu'elle n'est pas prête, Résoudre dit « Calcul de la
   solution… », un rouage tournant à la place de son icône, et ses boutons
   restent grisés (`useAutoPlan` le renvoie). Un calcul qui dure plus de 4 s
-  (le Gear Cube Extreme) fait apparaître un grand rouage tournant par-dessus
+  (le Z-Twist, le Fashion-V) fait apparaître un grand rouage tournant par-dessus
   le plan (`SlowCog`), qui grandit en se dévoilant : la page ne semble pas
   bloquée. Pendant un mélange, Mélanger porte lui aussi un rouage tournant
   (`ScrambleButton`, `selectScrambling`).

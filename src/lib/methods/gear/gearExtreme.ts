@@ -14,6 +14,7 @@ import {
   type Vec3,
 } from '../../core/types'
 import { search } from './gear'
+import { spinMacros, spinsHome } from './spinSearch'
 
 /**
  * The Gear Cube Extreme, "equator then corners", as taught on fan2cube.fr
@@ -26,7 +27,8 @@ import { search } from './gear'
  *   D. Isolate       the bottom edges on the bottom: (BG²B'G'²)⁵
  *   E. Place         the edges, a pair on top and a pair below swapped
  *   F. Clips         turned right way round: D²(D²H)¹²D'²
- *   G. Gears         spun home, a third at a time: (D²H)².D⁸.(H'D'²)²
+ *   G. Gears         spun home, a third at a time: (D²H)².D⁸.(H'D'²)²,
+ *                    searched on their spins alone (spinSearch.ts)
  *
  * Each step searches among its formulas only, seen from every side and set
  * up by top and bottom turns undone after (which leaves the corners be),
@@ -300,18 +302,18 @@ function extremePlan(): MethodPlan {
       goal: isSolved,
       moves: all,
       phases: [
-        (cube) =>
-          oneAtATime(
-            cube,
-            isGear,
-            edgeOrder(homeOf(cube)),
-            variants(TWIST),
-            (c) => !c.spin,
-            lookOf((c) => String(c.spin)),
-          ),
+        // Searched on the gears' spins alone (spinSearch.ts): the twist
+        // only spins them, all else back in place.
+        (cube) => spinsHome(cube, GEAR_SLOTS, twists()),
       ],
     },
   ]
 }
+
+/** The gears' slots, and the twist seen and set up every way, each by what
+ *  it adds to their spins (worked out once, when first needed). */
+export const GEAR_SLOTS = SOLVED.filter(isGear).map(at)
+let TWISTS: ReturnType<typeof spinMacros> | undefined
+export const twists = () => (TWISTS ??= spinMacros(SOLVED, GEAR_SLOTS, variants(TWIST)))
 
 export const GEAR_EXTREME_PLAN = extremePlan()

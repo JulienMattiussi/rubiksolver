@@ -102,8 +102,14 @@ placées, (HA,HD)(BA,BD) ; (F) les agrafes, D²(D²H)¹²D'² ; (G) les
 engrenages, (D²H)².D⁸.(H'D'²)². Les formules sont aussi jouées à l'envers,
 préparées par des tours du haut et du bas, sur
 les seules pièces de l'étape, une pièce à la fois (`parseGearFormula` lit
-la notation de la page). Calcul parfois long (dans le worker ; pistes dans
-`AMELIORATIONS.md`). **Saisie** comme l'Ultimate, pivot des
+la notation de la page). L'étape (G) cherche autrement
+(`methods/gear/spinSearch.ts`) : chaque variante de la formule ne fait que
+faire pivoter des engrenages, toujours des mêmes sixièmes quel que soit
+l'état (testé), donc elle est notée une fois par ce qu'elle ajoute aux 8
+pivots, et la recherche porte sur ces seuls pivots, une variante une
+addition (6⁸ états au plus) : la plus courte suite de variantes, en une
+fraction de seconde, là où rejouer chaque variante coup par coup prenait
+de 8 à 27 s (et deux à trois fois plus de coups). **Saisie** comme l'Ultimate, pivot des
 engrenages d'abord, mais chacun le sien (`spinMates` : le haut et le bas
 font passer les engrenages d'une tranche à l'autre), ses blocs peints comme
 des stickers ;

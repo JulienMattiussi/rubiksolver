@@ -16,7 +16,9 @@ import {
 } from '@/lib/editor/gearEditor'
 import type { Cube, Face, GearMove } from '@/lib/core/types'
 import { validateCube } from '@/lib/editor/validate'
-import { twistedCorner } from '../../../helpers'
+import { GEAR_SLOTS, twists } from '@/lib/methods/gear/gearExtreme'
+import { spinEffect, spinsHome } from '@/lib/methods/gear/spinSearch'
+import { seededRng, twistedCorner } from '../../../helpers'
 
 const SOLVED = solvedCube('gearU')
 
@@ -286,5 +288,33 @@ describe('Gear Cube Extreme (fan2cube.fr/gearultimate2)', () => {
       twisted.every((c) => !c.turned && c.spin === 2 && c.to === c.piece.position.join()),
     ).toBe(true)
     expect(twisted.map((c) => c.piece.position[1]).sort()).toEqual([-1, 1, 1, 1])
+  })
+})
+
+describe('Gear Cube Extreme: its gears spun home on their spins alone', () => {
+  const X = solvedCube('gearX')
+  const rng = seededRng(7)
+  const spun = () =>
+    applyMoves(
+      X,
+      Array.from({ length: 6 }, () => [
+        ...twists()[Math.floor(rng() * twists().length)]!.formula,
+      ]).flat(),
+    )
+
+  it('has each twist only spin gears, by the same sixths whatever their spins', () => {
+    expect(twists().length).toBeGreaterThan(0)
+    const state = spun()
+    for (const { effect, formula } of twists()) {
+      expect(spinEffect(state, GEAR_SLOTS, formula)).toEqual(effect)
+    }
+  })
+
+  it('spins every gear home with the fewest twists', () => {
+    for (let k = 0; k < 3; k++) {
+      const state = spun()
+      const home = applyMoves(state, spinsHome(state, GEAR_SLOTS, twists()))
+      expect(home.every((c) => !c.spin)).toBe(true)
+    }
   })
 })
