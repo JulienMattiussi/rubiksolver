@@ -100,16 +100,20 @@ describe('3x3 tutorial', () => {
     const tutorial = tutorialFor('3')!
     const underWay = (manual: Move[]) => {
       const now = applyMoves(cube, manual)
-      return formulaUnderWay(tutorial, stepOf(now, cube), pick, now, cube, manual)!
+      return formulaUnderWay(tutorial, stepOf(now, cube), pick, now, cube, manual)
     }
-    // Followed: the rest of it, move for move.
+    // Followed: the rest of it, move for move, the formula still shown.
     for (let k = 1; k < moves.length; k++) {
-      expect(underWay(moves.slice(0, k))).toEqual(moves.slice(k))
+      expect(underWay(moves.slice(0, k))).toEqual({
+        rest: moves.slice(k),
+        shown: moves,
+        done: k,
+      })
     }
     // Strayed (the cross turned): still lands the corner, the rest kept.
     const strayed = parseMoves('D R')
     const now = applyMoves(cube, strayed)
-    const mend = underWay(strayed)
+    const mend = underWay(strayed).rest!
     expect(keepsPlaced(now, mend, step.placed, cube)).toBe(true)
     const after = applyMoves(now, mend)
     expect(after[pick.piece]!.position).toEqual(pick.slot)

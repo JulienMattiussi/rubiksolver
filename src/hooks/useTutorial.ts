@@ -28,8 +28,11 @@ export interface TutorialView {
   step: TutorialStep | null
   /** The piece and place shown: the user's pick, else the suggestion. */
   pick: TutorialPick | null
-  /** The formula for it (null: none). */
+  /** The formula for it, what is left to play (null: none). */
   moves: Move[] | null
+  /** The formula shown, and how many of its moves are played by hand
+   *  already (it stays shown while they follow it). */
+  shown: { moves: Move[]; done: number } | null
   /** Each piece's tone under it, by index (null while a turn plays). */
   tones: Tone[] | null
   /** A piece clicked on the puzzle: picked, or the place for the piece
@@ -43,6 +46,7 @@ const OFF = {
   step: null,
   pick: null,
   moves: null,
+  shown: null,
   tones: null,
   click: () => {},
 }
@@ -79,11 +83,13 @@ export function useTutorial(): TutorialView {
     : picked && pickedOn === stateKey(cube)
       ? picked
       : (step?.suggestion ?? null)
-  const moves = useMemo(() => {
-    if (review) return [...last.moves]
-    if (!step) return null
-    return tutorial ? formulaUnderWay(tutorial, step, pick, read, begun, manual as Move[]) : null
+  const underWay = useMemo(() => {
+    if (review) return { rest: [...last.moves], shown: [...last.moves], done: 0 }
+    if (!step || !tutorial) return null
+    return formulaUnderWay(tutorial, step, pick, read, begun, manual as Move[])
   }, [review, last, step, pick, manual, read, begun, tutorial])
+  const moves = underWay?.rest ?? null
+  const shown = underWay?.shown ? { moves: underWay.shown, done: underWay.done } : null
   const tones = useMemo(() => {
     if (!step || !moves || busy) return null
     const tones = tonesOf(read, moves, pick, step.placed)
@@ -119,5 +125,5 @@ export function useTutorial(): TutorialView {
       if (first) choose({ piece: index, slot: first })
     }
   }
-  return { cube: read, review, progress, step, pick, moves, tones, click }
+  return { cube: read, review, progress, step, pick, moves, shown, tones, click }
 }

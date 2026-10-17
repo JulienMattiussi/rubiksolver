@@ -18,7 +18,7 @@ export const TUTORIAL_FR = {
       : stickers === 2
         ? `l’arête ${colors}`
         : `le coin ${colors}`,
-  spot: (piece: string) => `Repère ${piece} : la flèche montre sa place.`,
+  spot: (piece: string) => `Repère ${piece}.`,
   spotSwap: (piece: string, other: string) => `Repère ${piece}, et ${other} qui occupe sa place.`,
   /** None left: turns by hand have done the step's formula. */
   play: (count: number) =>
@@ -29,6 +29,8 @@ export const TUTORIAL_FR = {
         : `Effectue ces ${count} mouvements :`,
   /** A block the formula repeats: after its lead, or the whole of it. */
   repeat: (times: number) => `Puis répète ${times} fois ces mouvements :`,
+  /** The round of a repeated block under way, followed by hand. */
+  round: (n: number, times: number) => `(${n === 1 ? '1re' : `${n}e`} fois sur ${times})`,
   repeatAll: (count: number, times: number) =>
     `Effectue ces ${count} mouvements, ${times} fois de suite :`,
   check: (piece: string) => `Vérifie les nouvelles positions : ${piece} est à sa place.`,

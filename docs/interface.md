@@ -155,7 +155,10 @@ encore résolu) fait apparaître un 💪 devant le cube, qui grandit, bat deux
 fois et s'efface (`StageCheer`, `tutorialStore.stagesDone`), distinct du
 feu d'artifice de la résolution complète. Des coups joués **à la main** pendant un pas (le pad ou les
 boutons de la formule) sont suivis : le bouton devient « Valider le
-déplacement » (le reste de la formule, recalculée pour la même pièce), et
+déplacement » (le reste de la formule). S'ils suivent la formule du début
+du pas, elle reste affichée, ses coups joués estompés, le suivant entouré et
+la répétition en cours dite ; sinon elle est recalculée pour la même pièce,
+en remettant les pièces placées au début du pas (`formulaUnderWay`). Et
 « Annuler le déplacement » ramène au début du pas, formule et coups à la
 main compris. La solution précalculée de la méthode n'est pas montrée
 pendant le tutoriel (`useAutoPlan` s'en abstient). Tout ce qui remplacerait le cube suivi est

@@ -17,7 +17,7 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
       : stickers === 2
         ? `the ${colors} edge`
         : `the ${colors} corner`,
-  spot: (piece: string) => `Spot ${piece}: the arrow shows its place.`,
+  spot: (piece: string) => `Spot ${piece}.`,
   spotSwap: (piece: string, other: string) =>
     `Spot ${piece}, and ${other} which stands in its place.`,
   play: (count: number) =>
@@ -27,6 +27,7 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
         ? 'Play this move:'
         : `Play these ${count} moves:`,
   repeat: (times: number) => `Then play these moves ${times} times:`,
+  round: (n: number, times: number) => `(round ${n} of ${times})`,
   repeatAll: (count: number, times: number) =>
     `Play these ${count} moves, ${times} times in a row:`,
   check: (piece: string) => `Check the new positions: ${piece} is in its place.`,

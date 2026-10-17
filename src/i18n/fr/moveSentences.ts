@@ -250,7 +250,7 @@ const of = (name: string) =>
 const closed = (name: string) => (name.includes(',') ? `${name},` : name)
 
 const senseFr = (clockwise: boolean) =>
-  clockwise ? 'dans le sens horaire' : 'dans le sens antihoraire'
+  clockwise ? 'dans le sens horaire' : 'dans le sens anti-horaire'
 
 /** A turn's short sentence (the tutorial's, beside its letters): what
  *  turns, how far and which way, without the guide's details. */

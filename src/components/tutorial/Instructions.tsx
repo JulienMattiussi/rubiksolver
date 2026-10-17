@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react'
 import type { ReactNode } from 'react'
+import type { Move } from '@/lib/core/types'
 import { formulaParts, occupantOf, pieceColors } from '@/lib/tutorial/tutorial'
 import type { TutorialView } from '@/hooks/useTutorial'
 import { useI18n } from '@/i18n/i18nStore'
@@ -17,7 +18,7 @@ import { Toned } from './Toned'
 export function Instructions({ view, busy }: { view: TutorialView; busy: boolean }) {
   const t = useI18n((s) => s.t)
   const viewToward = useView((s) => s.viewToward)
-  const { cube, step, pick, moves, review } = view
+  const { cube, step, pick, shown, review } = view
   if (!step) return null
   // Where the center to face stands: the view turns toward it.
   const front = cube.find((c) => c.stickers.length === 1 && c.stickers[0]!.color === step.front)
@@ -29,31 +30,51 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
         .join('-'),
     )
   const occupant = pick ? occupantOf(cube, pick) : null
-  // The formula move by move, a block it repeats shown once, with its count.
-  const play = (formula: NonNullable<typeof moves>) => {
+  // The formula move by move, a block it repeats shown once, with its
+  // count; followed by hand, the moves played so far checked off, the next
+  // one standing out, and the block's round told.
+  const play = (formula: Move[], done: number) => {
     const { lead, block, times } = formulaParts(formula)
-    const list = (part: typeof lead, inline = false) => (
-      <FormulaMoves cube={cube} moves={part} disabled={busy || review} inline={inline} />
+    const list = (part: Move[], playedOf: number, nextHere: boolean, inline = false) => (
+      <FormulaMoves
+        cube={cube}
+        moves={part}
+        disabled={busy || review}
+        inline={inline}
+        done={playedOf}
+        next={done > 0 && nextHere}
+      />
     )
     if (times === 0) {
       return (
         <>
           {t.tutorial.play(formula.length)}
-          {list(formula)}
+          {list(formula, done, true)}
         </>
       )
     }
+    const leadDone = Math.min(done, lead.length)
+    const inBlock = Math.max(0, done - lead.length)
+    // Rounds of the block played, and how far into the next.
+    const rounds = Math.min(times, Math.floor(inBlock / block.length))
+    const into = rounds === times ? block.length : inBlock % block.length
+    const round = inBlock > 0 ? ` ${t.tutorial.round(Math.min(rounds + 1, times), times)}` : ''
+    const blockList = list(block, into, leadDone === lead.length && rounds < times, true)
     return lead.length > 0 ? (
       <>
         {t.tutorial.play(lead.length)}
-        {list(lead)}
-        <p className="mt-1.5">{t.tutorial.repeat(times)}</p>
-        {list(block, true)}
+        {list(lead, leadDone, true)}
+        <p className="mt-1.5">
+          {t.tutorial.repeat(times)}
+          {round}
+        </p>
+        {blockList}
       </>
     ) : (
       <>
         {t.tutorial.repeatAll(block.length, times)}
-        {list(block, true)}
+        {round}
+        {blockList}
       </>
     )
   }
@@ -78,7 +99,7 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
           </Toned>,
         ]
       : []),
-    moves ? play(moves) : t.tutorial.noFormula,
+    shown ? play(shown.moves, shown.done) : t.tutorial.noFormula,
     pick ? t.tutorial.check(name(pick.piece)) : t.tutorial.checkAll,
   ]
   return (

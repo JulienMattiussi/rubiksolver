@@ -32,11 +32,21 @@ const followed = (turns: readonly Move[], formula: readonly Move[]) =>
       t.wide === formula[i]!.wide,
   )
 
+/** A step's formula as it stands: what is left to play (`rest`, null if
+ *  none is found), and the formula to show (`shown`) with how many of its
+ *  moves are played already (`done`). */
+export interface FormulaUnderWay {
+  readonly rest: Move[] | null
+  readonly shown: Move[] | null
+  readonly done: number
+}
+
 /**
  * The formula of a step under way, after turns by hand (`manual`, from
- * `begun` to `cube`): what is left of the formula shown when it began, if
- * they followed it; else a formula from here that keeps the pieces placed;
- * else those turns undone, then the formula from where it began.
+ * `begun` to `cube`): if they followed the formula shown when it began, it
+ * stays shown, those moves played, the rest to play; else a formula from
+ * here that keeps the pieces placed; else those turns undone, then the
+ * formula from where it began.
  */
 export function formulaUnderWay(
   tutorial: Tutorial,
@@ -45,11 +55,14 @@ export function formulaUnderWay(
   cube: Cube,
   begun: Cube,
   manual: readonly Move[],
-): Move[] | null {
-  if (manual.length === 0) return step.formula(pick)
+): FormulaUnderWay {
+  const fresh = (moves: Move[] | null) => ({ rest: moves, shown: moves, done: 0 })
+  if (manual.length === 0) return fresh(step.formula(pick))
   const fromStart = tutorial.stepOf(begun)?.formula(pick) ?? null
-  if (fromStart && followed(manual, fromStart)) return fromStart.slice(manual.length)
+  if (fromStart && followed(manual, fromStart)) {
+    return { rest: fromStart.slice(manual.length), shown: fromStart, done: manual.length }
+  }
   const found = step.formula(pick)
-  if (found && keepsPlaced(cube, found, step.placed, begun)) return found
-  return fromStart ? simplifyMoves([...invertMoves(manual), ...fromStart]) : null
+  if (found && keepsPlaced(cube, found, step.placed, begun)) return fresh(found)
+  return fresh(fromStart ? simplifyMoves([...invertMoves(manual), ...fromStart]) : null)
 }

@@ -8,29 +8,39 @@ import { TURN_PAIR } from '@/components/ui/styles'
 
 /** A formula move by move: each a pad button (a click plays it alone, as
  *  the pad's do), beside its words; or, `inline`, the buttons in a row, their
- *  words in their tooltips (a block repeated, short and seen often). */
+ *  words in their tooltips (a block repeated, short and seen often). While
+ *  it is followed by hand, its first `done` moves are played (dimmed, off)
+ *  and, `next`, the one after stands out. */
 export function FormulaMoves({
   cube,
   moves,
   disabled,
   inline = false,
+  done = 0,
+  next = false,
 }: {
   cube: Cube
   moves: readonly Move[]
   disabled: boolean
   inline?: boolean
+  done?: number
+  next?: boolean
 }) {
   const t = useI18n((s) => s.t)
   const labels = useI18n(selectMoveLabels)
   const dims = cubeDims(cube)
   const shape = cubeShape(cube)
-  const button = (m: Move, words: string) => (
-    <div className={`${TURN_PAIR} w-10`}>
+  const button = (m: Move, i: number, words: string) => (
+    <div
+      className={`${TURN_PAIR} w-10 ${i < done ? 'opacity-40' : ''} ${
+        next && i === done ? 'ring-2 ring-amber-400 ring-offset-1 ring-offset-slate-900' : ''
+      }`}
+    >
       <PadButton
         move={m}
         label={formatMove(m, labels, dims, shape)}
         title={words}
-        disabled={disabled}
+        disabled={disabled || i < done}
         ghost={m.amount === 3}
         dense
       />
@@ -41,7 +51,7 @@ export function FormulaMoves({
     return (
       <ol className="mt-1.5 flex flex-wrap gap-1.5">
         {moves.map((m, i) => (
-          <li key={i}>{button(m, wordsOf(m))}</li>
+          <li key={i}>{button(m, i, wordsOf(m))}</li>
         ))}
       </ol>
     )
@@ -52,8 +62,12 @@ export function FormulaMoves({
         const words = wordsOf(m)
         return (
           <li key={i} className="contents">
-            {button(m, words)}
-            <span className="text-[11px] leading-snug text-slate-400">{words}</span>
+            {button(m, i, words)}
+            <span
+              className={`text-[11px] leading-snug ${i < done ? 'text-slate-600 line-through' : 'text-slate-400'}`}
+            >
+              {words}
+            </span>
           </li>
         )
       })}
