@@ -132,14 +132,31 @@ soi-même, un **pas** à la fois : un pas est une formule qui amène une pièce
 la croix jaune arête par arête, la formule la plus courte en coups
 externes ; les coins jaunes un par un, amenés au-dessus de leur place puis
 descendus par le déclencheur de la place, `R U R' U'` pour l'avant droite,
-répété ; la deuxième couronne viendra). Le panneau dit l'**étape** (son rang,
+répété ; les arêtes du milieu une par une, amenées au-dessus du centre de
+leur couleur puis insérées à droite (`U R U' R' U' F' U F`) ou à gauche
+(`U' L' U L U F U' F'`) ; la croix blanche par `F R U R' U' F'`, selon la
+figure que dessine le blanc en haut (un point, un L tenu derrière à gauche,
+une ligne tenue de gauche à droite), ses arêtes mises en valeur, sans
+pièce à choisir ; les arêtes blanches à leur place viendront). Chaque pas dit comment **tenir le
+cube** (`TutorialStep.hold`, `lib/core/hold.ts` : la face devant, le haut
+en haut) : pour un coin, sa place devant à droite, donc toujours
+`R U R' U'`. La vue tourne d'elle-même vers le centre à tenir quand la
+tenue change, les coups de la formule s'écrivent et se décrivent dans
+cette tenue, et le pavé de coups aussi pendant le tutoriel
+(`tutorialStore.hold`) : `R` tourne la face qu'on voit à droite. Le panneau dit l'**étape** (son rang,
 son but, son avancement en pastilles et en mots, sa consigne, la légende
 des hachures), puis quatre **consignes numérotées** : tenir le centre de
 face (un clic tourne la vue vers lui, `viewStore.viewToward`), repérer la
 pièce et celle qui occupe sa place, jouer la formule (chaque coup en
 bouton du pad, à côté de sa phrase courte `t.describeMoveShort` ; un bloc
-répété à sa fin, montré une fois avec son nombre, sur une rangée de boutons
-dont les phrases sont en infobulle, `formulaParts`), vérifier
+découpée comme on l'apprend, `formulaSegments` : les enchaînements appris
+(`TutorialStep.algorithms`), d'où qu'on les joue, sur une rangée de
+boutons, un enchaînement répété dit une fois avec son nombre, chacun coupé
+en les gestes que déclare sa définition (l'insertion : dégager, puis
+ramener) ; un morceau dont un coup n'a encore été montré
+dans aucun pas validé, `tutorialStore.learnt`, s'affiche en colonne, chaque
+coup avec sa phrase à droite, les autres en rangée, leurs phrases en
+infobulle ; les coups simples restent en colonne aux étapes 1 et 2), vérifier
 les nouvelles positions. Sur le cube, la pièce visée et l'emplacement
 **scintillent** (`usePulse`), les pièces que la formule déplace sans les
 placer sont **hachurées** (`hatchTexture`), et une **flèche** va de la face

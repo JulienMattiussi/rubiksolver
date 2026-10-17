@@ -116,6 +116,14 @@ describe('tutorial store', () => {
     }
   })
 
+  it('notes the moves shown, forgotten on a new start', () => {
+    useTutorialStore.getState().learn(['R', "U'"])
+    useTutorialStore.getState().learn(['R', 'F2'])
+    expect(useTutorialStore.getState().learnt).toEqual(['R', "U'", 'F2'])
+    useTutorialStore.getState().start()
+    expect(useTutorialStore.getState().learnt).toEqual([])
+  })
+
   it('is left when another puzzle is chosen', () => {
     byHand('U')
     useCube.getState().setShape('2')

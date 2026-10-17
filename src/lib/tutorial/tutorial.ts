@@ -1,6 +1,7 @@
 import { applyMoves } from '../core/turn'
+import { moveInHold, type Hold } from '../core/hold'
 import type { Color, Cube, CubeShape, Move, Vec3 } from '../core/types'
-import { CUBE3_TUTORIAL } from './cube3'
+import { CUBE3_TUTORIAL } from '../tutorials/standard/cube3'
 
 /**
  * The tutorial: the puzzle solved a step at a time by the user, each step
@@ -28,9 +29,10 @@ export interface TutorialStep {
   readonly stage?: number
   /** How far the stage has come: its pieces placed, of how many. */
   readonly progress?: { readonly done: number; readonly total: number }
-  /** The center to hold facing you while playing the formula (its color):
-   *  the formula's letters read from there. */
-  readonly front: Color
+  /** The way to hold the puzzle for a pick (the side facing you, the top
+   *  up): its formula's letters read from there, the same formula for
+   *  every slot (the corners' `R U R' U'`, their slot front right). */
+  readonly hold: (pick: TutorialPick | null) => Hold
   /** The color of the sticker that tells where a piece goes (the cross's
    *  yellow, down): the arrow joins its face before and after. */
   readonly marker?: Color
@@ -46,6 +48,14 @@ export interface TutorialStep {
   /** The formula moving the pick where it goes, keeping the placed pieces
    *  (null: none found, or the step is still to come). */
   readonly formula: (pick: TutorialPick | null) => Move[] | null
+  /** The sequences its formulas use, as read in its hold, each cut in the
+   *  gestures it is learnt as (shown so). */
+  readonly algorithms?: readonly Sequence[]
+  /** A step recognized by a figure rather than a piece picked (the last
+   *  layer's: the white cross's dot, L or line): the figure's name (a key
+   *  of the tutorial's texts), and the pieces that draw it, highlighted. */
+  readonly figure?: string
+  readonly focus?: readonly number[]
   /** Whether the step is not taught yet (the rest of the solve to come). */
   readonly comingSoon?: true
 }
@@ -75,10 +85,11 @@ export function tonesOf(
   moves: readonly Move[],
   pick: TutorialPick | null,
   placed: readonly number[],
+  focus: readonly number[] = [],
 ): Tone[] {
   const after = applyMoves(cube, moves)
   return cube.map((c, i) => {
-    if (pick && i === pick.piece) return 'target'
+    if ((pick && i === pick.piece) || focus.includes(i)) return 'target'
     if (pick && c.position.join() === pick.slot.join()) return 'slot'
     if (placed.includes(i)) return 'placed'
     const a = after[i]!
@@ -125,35 +136,70 @@ export function occupantOf(cube: Cube, pick: TutorialPick): number | null {
   return at < 0 ? null : at
 }
 
-/** The longest block a formula's end may repeat (a trigger's four moves,
- *  and room to spare). */
-const LONGEST_BLOCK = 8
+/** A sequence learnt, as its gestures: pieces each doing one thing (the
+ *  middle edges' insertion: out of the way, then back), shown apart. */
+export type Sequence = readonly (readonly Move[])[]
+
+/** A piece of a formula as it is taught: moves to play one by one, or a
+ *  sequence learnt played `times` times in a row. */
+export interface FormulaSegment {
+  readonly kind: 'moves' | 'sequence'
+  readonly moves: Move[]
+  readonly times: number
+}
+
+const HOLDS: readonly Hold[] = ['F', 'R', 'B', 'L']
 
 /**
- * A formula read as it is taught: its lead, then a block played `times`
- * times in a row (the corners' trigger, `R U R' U'` thrice), the block
- * covering as much of its end as it can; no block (`times` 0) when nothing
- * repeats.
+ * A formula (read in its hold) cut as it is taught: the sequences learnt
+ * (`known`: the corners' trigger, the middle edges' insertions) wherever
+ * they come and from whichever side they are played (another slot's
+ * insertion lifting an edge out), gesture by gesture, a sequence repeated
+ * told once with its count, and the moves between them one by one.
  */
-export function formulaParts(moves: readonly Move[]): {
-  lead: Move[]
-  block: Move[]
-  times: number
-} {
+export function formulaSegments(
+  moves: readonly Move[],
+  known: readonly Sequence[] = [],
+): FormulaSegment[] {
   const same = (a: Move, b: Move) => a.face === b.face && a.amount === b.amount
-  let best = { lead: [...moves], block: [] as Move[], times: 0 }
-  for (let size = 2; size <= LONGEST_BLOCK; size++) {
-    const block = moves.slice(moves.length - size)
-    let times = 1
-    while (
-      (times + 1) * size <= moves.length &&
-      block.every((m, i) => same(m, moves[moves.length - (times + 1) * size + i]!))
-    ) {
-      times++
-    }
-    if (times >= 2 && times * size > best.block.length * best.times) {
-      best = { lead: moves.slice(0, moves.length - times * size), block, times }
+  const segments: { kind: 'moves' | 'sequence'; moves: Move[]; times: number }[] = []
+  for (let i = 0; i < moves.length;) {
+    const learnt = known.find((sequence) => {
+      const k = sequence.flat()
+      return (
+        i + k.length <= moves.length &&
+        HOLDS.some((hold) => k.every((m, j) => same(moveInHold(hold, moves[i + j]!), m)))
+      )
+    })
+    const last = segments[segments.length - 1]
+    if (learnt) {
+      // A sequence of one gesture repeated is told once with its count;
+      // one of several, gesture by gesture.
+      const played = moves.slice(i, i + learnt.flat().length)
+      if (
+        learnt.length === 1 &&
+        last?.kind === 'sequence' &&
+        last.moves.length === played.length &&
+        last.moves.every((m, j) => same(m, played[j]!))
+      ) {
+        last.times++
+      } else {
+        let at = 0
+        for (const gesture of learnt) {
+          segments.push({
+            kind: 'sequence',
+            moves: played.slice(at, at + gesture.length),
+            times: 1,
+          })
+          at += gesture.length
+        }
+      }
+      i += played.length
+    } else {
+      if (last?.kind === 'moves') last.moves.push(moves[i]!)
+      else segments.push({ kind: 'moves', moves: [moves[i]!], times: 1 })
+      i++
     }
   }
-  return best
+  return segments
 }

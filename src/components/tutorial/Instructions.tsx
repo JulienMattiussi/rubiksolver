@@ -1,11 +1,15 @@
 import { Check } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { Move } from '@/lib/core/types'
-import { formulaParts, occupantOf, pieceColors } from '@/lib/tutorial/tutorial'
+import { formulaSegments, occupantOf, pieceColors } from '@/lib/tutorial/tutorial'
 import type { TutorialView } from '@/hooks/useTutorial'
 import { useI18n } from '@/i18n/i18nStore'
 import { useView } from '@/store/viewStore'
+import { useTutorialStore } from '@/store/tutorialStore'
+import { formatMove } from '@/lib/core/moves'
 import { COLOR_HEX, HIGHLIGHT, PLACE } from '@/three/core/colors'
+import { FACE_NORMAL } from '@/lib/core/geometry'
+import { moveInHold } from '@/lib/core/hold'
 import { FormulaMoves } from './FormulaMoves'
 import { Toned } from './Toned'
 
@@ -15,13 +19,22 @@ import { Toned } from './Toned'
  * Once played (`review`), the instructions done are checked off and the
  * last stands out.
  */
+/** The stage from which moves one by one show their words in tooltips
+ *  only (those not shown yet aside). */
+const WORDS_UNTIL_STAGE = 3
+
 export function Instructions({ view, busy }: { view: TutorialView; busy: boolean }) {
   const t = useI18n((s) => s.t)
   const viewToward = useView((s) => s.viewToward)
-  const { cube, step, pick, shown, review } = view
-  if (!step) return null
+  const learnt = useTutorialStore((s) => s.learnt)
+  const { cube, step, pick, hold, shown, review } = view
+  if (!step || !hold) return null
   // Where the center to face stands: the view turns toward it.
-  const front = cube.find((c) => c.stickers.length === 1 && c.stickers[0]!.color === step.front)
+  // The center to hold in front: the one on that side.
+  const front = cube.find(
+    (c) => c.stickers.length === 1 && c.stickers[0]!.normal.join() === FACE_NORMAL[hold].join(),
+  )!
+  const frontColor = front.stickers[0]!.color
   const name = (index: number) =>
     t.tutorial.piece(
       cube[index]!.stickers.length,
@@ -30,77 +43,100 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
         .join('-'),
     )
   const occupant = pick ? occupantOf(cube, pick) : null
-  // The formula move by move, a block it repeats shown once, with its
-  // count; followed by hand, the moves played so far checked off, the next
-  // one standing out, and the block's round told.
+  // The formula cut as taught (moves one by one, sequences learnt, a
+  // sequence repeated told once with its count); followed by hand, the
+  // moves played so far checked off, the next one standing out, a repeat's
+  // round told. Read as held: a sequence is known by its letters.
   const play = (formula: Move[], done: number) => {
-    const { lead, block, times } = formulaParts(formula)
-    const list = (part: Move[], playedOf: number, nextHere: boolean, inline = false) => (
-      <FormulaMoves
-        cube={cube}
-        moves={part}
-        disabled={busy || review}
-        inline={inline}
-        done={playedOf}
-        next={done > 0 && nextHere}
-      />
+    const segments = formulaSegments(
+      formula.map((m) => moveInHold(hold, m)),
+      step.algorithms,
     )
-    if (times === 0) {
+    const seen = new Set(learnt)
+    const isNew = (m: Move) => !seen.has(formatMove(moveInHold(hold, m)))
+    // Words beside each move: in the first stages for moves one by one, and
+    // always for a piece with a move not shown yet; else in tooltips, the
+    // moves in a row.
+    let start = 0
+    return segments.map((segment, k) => {
+      const size = segment.moves.length
+      const from = start
+      start += size * segment.times
+      const moves = formula.slice(from, from + size)
+      // How far into this segment the moves played reach, and its next one.
+      const into = Math.max(0, done - from)
+      const rounds = Math.min(segment.times, Math.floor(into / size))
+      const playedOf = rounds === segment.times ? size : into % size
+      const current = done > 0 && done >= from && done < start
+      const round =
+        segment.times > 1 && into > 0 && rounds < segment.times
+          ? ` ${t.tutorial.round(rounds + 1, segment.times)}`
+          : ''
+      const text =
+        segment.kind === 'moves'
+          ? k === 0
+            ? t.tutorial.play(size)
+            : t.tutorial.thenPlay(size)
+          : segment.times > 1
+            ? k === 0
+              ? t.tutorial.repeatAll(size, segment.times)
+              : t.tutorial.repeat(segment.times)
+            : k === 0
+              ? t.tutorial.sequence(size)
+              : t.tutorial.thenSequence
       return (
-        <>
-          {t.tutorial.play(formula.length)}
-          {list(formula, done, true)}
-        </>
-      )
-    }
-    const leadDone = Math.min(done, lead.length)
-    const inBlock = Math.max(0, done - lead.length)
-    // Rounds of the block played, and how far into the next.
-    const rounds = Math.min(times, Math.floor(inBlock / block.length))
-    const into = rounds === times ? block.length : inBlock % block.length
-    const round = inBlock > 0 ? ` ${t.tutorial.round(Math.min(rounds + 1, times), times)}` : ''
-    const blockList = list(block, into, leadDone === lead.length && rounds < times, true)
-    return lead.length > 0 ? (
-      <>
-        {t.tutorial.play(lead.length)}
-        {list(lead, leadDone, true)}
-        <p className="mt-1.5">
-          {t.tutorial.repeat(times)}
+        <div key={k} className={k > 0 ? 'mt-1.5' : ''}>
+          {text}
           {round}
-        </p>
-        {blockList}
-      </>
-    ) : (
-      <>
-        {t.tutorial.repeatAll(block.length, times)}
-        {round}
-        {blockList}
-      </>
-    )
+          <FormulaMoves
+            cube={cube}
+            moves={moves}
+            disabled={busy || review}
+            inline={
+              !moves.some(isNew) &&
+              (segment.kind === 'sequence' || (step.stage ?? 0) >= WORDS_UNTIL_STAGE)
+            }
+            hold={hold}
+            done={playedOf}
+            next={current}
+          />
+        </div>
+      )
+    })
   }
   const instructions: ReactNode[] = [
     <button
       key="hold"
       type="button"
-      onClick={() => front && viewToward(front.stickers[0]!.normal)}
+      onClick={() => viewToward(front.stickers[0]!.normal)}
       title={t.tutorial.facingTitle}
       className="rounded text-left underline decoration-dotted underline-offset-2 hover:text-white focus-visible:outline-2 focus-visible:outline-sky-400"
     >
-      <Toned colors={[COLOR_HEX[step.front]]}>
-        {t.tutorial.facing(t.colors[step.front].toLowerCase())}
+      <Toned colors={[COLOR_HEX[frontColor]]}>
+        {t.tutorial.facing(t.colors[frontColor].toLowerCase())}
       </Toned>
     </button>,
-    ...(pick
+    ...(step.figure
       ? [
-          <Toned key="spot" framed colors={occupant === null ? [HIGHLIGHT] : [HIGHLIGHT, PLACE]}>
-            {occupant === null
-              ? t.tutorial.spot(name(pick.piece))
-              : t.tutorial.spotSwap(name(pick.piece), name(occupant))}
+          <Toned key="figure" framed colors={[HIGHLIGHT]}>
+            {t.tutorial.figures[step.figure]}
           </Toned>,
         ]
-      : []),
-    shown ? play(shown.moves, shown.done) : t.tutorial.noFormula,
-    pick ? t.tutorial.check(name(pick.piece)) : t.tutorial.checkAll,
+      : pick
+        ? [
+            <Toned key="spot" framed colors={occupant === null ? [HIGHLIGHT] : [HIGHLIGHT, PLACE]}>
+              {occupant === null
+                ? t.tutorial.spot(name(pick.piece))
+                : t.tutorial.spotSwap(name(pick.piece), name(occupant))}
+            </Toned>,
+          ]
+        : []),
+    shown ? <div key="play">{play(shown.moves, shown.done)}</div> : t.tutorial.noFormula,
+    pick
+      ? t.tutorial.check(name(pick.piece))
+      : step.figure
+        ? t.tutorial.checkFigure
+        : t.tutorial.checkAll,
   ]
   return (
     <ol className="flex flex-col gap-2.5 text-xs leading-snug text-slate-300">

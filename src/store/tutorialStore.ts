@@ -3,6 +3,7 @@ import { cubeShape, isSolved, stateKey } from '@/lib/core/cube'
 import { invertMoves } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cube, Move, Turn } from '@/lib/core/types'
+import type { Hold } from '@/lib/core/hold'
 import { tutorialFor, type TutorialPick } from '@/lib/tutorial/tutorial'
 import { useCube } from './cubeStore'
 
@@ -39,6 +40,11 @@ interface TutorialStore {
   /** Counts the steps validated on a puzzle that turns by hand had already
    *  solved (no formula left to play): each one is celebrated. */
   cheers: number
+  /** The way the puzzle is held for the step under way (null: the
+   *  tutorial is off): the pad reads its turns from there too. */
+  hold: Hold | null
+  /** Hold the puzzle another way (the panel's, following its step). */
+  setHold: (hold: Hold | null) => void
   /** Counts the stages done (a stage's last step validated, the puzzle not
    *  solved yet): each one is cheered (StageCheer). */
   stagesDone: number
@@ -49,6 +55,11 @@ interface TutorialStore {
   /** Play a step's formula for a pick, then forget the pick: the next step
    *  suggests. */
   apply: (step: { key: string; moves: Move[] }, pick: TutorialPick | null) => void
+  /** The moves shown in the formulas validated so far (as read held, in
+   *  the international notation): a move not shown yet keeps its words. */
+  learnt: readonly string[]
+  /** Note a formula's moves as shown. */
+  learn: (moves: readonly string[]) => void
   /** Undo the turns played by hand since the step began, or else the last
    *  formula played (with the turns by hand before it), its pick back:
    *  applying plays it again. */
@@ -63,19 +74,23 @@ export const useTutorialStore = create<TutorialStore>((set, get) => ({
   active: false,
   cheers: 0,
   stagesDone: 0,
+  learnt: [],
+  learn: (moves) => set((s) => ({ learnt: [...new Set([...s.learnt, ...moves])] })),
+  hold: null,
+  setHold: (hold) => set({ hold }),
   ...IDLE,
 
   start: () => {
     // A solution shown or under way gives way: the list shows the tutorial's.
     useCube.getState().stop()
     useCube.getState().setSpeedMode('tutorial')
-    set({ active: true, ...IDLE })
+    set({ active: true, learnt: [], ...IDLE })
   },
 
   exit: () => {
     useCube.getState().stop()
     useCube.getState().setSpeedMode('play')
-    set({ active: false, ...IDLE })
+    set({ active: false, hold: null, ...IDLE })
   },
 
   choose: (pick) => set({ pick, pickedOn: pick && stateKey(useCube.getState().cube) }),
@@ -151,7 +166,7 @@ useCube.subscribe((now, before) => {
   const tutorial = useTutorialStore.getState()
   // Another puzzle chosen: the tutorial is left.
   if (tutorial.active && cubeShape(now.cube) !== cubeShape(before.cube)) {
-    useTutorialStore.setState({ active: false, ...IDLE })
+    useTutorialStore.setState({ active: false, hold: null, ...IDLE })
     useCube.getState().setSpeedMode('play')
     return
   }

@@ -130,6 +130,8 @@ export const STEPS_FR = {
   stepRecenter: 'Centres remis en place',
   stepTutorialCross: 'Placer une arête de la croix jaune',
   stepTutorialCorner: 'Placer un coin jaune',
+  stepTutorialMiddle: 'Placer une arête du milieu',
+  stepTutorialTopCross: 'Orienter les arêtes blanches',
   stepInnerIsolate: 'Étoile interne : sommets isolés',
   stepInnerBottom: 'Étoile interne : bas fini',
   stepInnerTop: 'Étoile interne : haut fini',

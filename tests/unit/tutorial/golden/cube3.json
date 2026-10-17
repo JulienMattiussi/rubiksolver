@@ -1,0 +1,4550 @@
+[
+ {
+  "seed": 3,
+  "steps": [
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [],
+    "pickable": [
+     11,
+     19,
+     9,
+     1
+    ],
+    "suggestion": "11>0,-1,1",
+    "moves": "F2",
+    "formulas": {
+     "11>0,-1,1": {
+      "moves": "F2",
+      "hold": "F"
+     },
+     "11>1,-1,0": {
+      "moves": "U' R2",
+      "hold": "F"
+     },
+     "11>0,-1,-1": {
+      "moves": "U2 B2",
+      "hold": "F"
+     },
+     "11>-1,-1,0": {
+      "moves": "U L2",
+      "hold": "F"
+     },
+     "19>0,-1,1": {
+      "moves": "L2 F'",
+      "hold": "F"
+     },
+     "19>1,-1,0": {
+      "moves": "B D'",
+      "hold": "F"
+     },
+     "19>0,-1,-1": {
+      "moves": "B",
+      "hold": "F"
+     },
+     "19>-1,-1,0": {
+      "moves": "B D",
+      "hold": "F"
+     },
+     "9>0,-1,1": {
+      "moves": "L F'",
+      "hold": "F"
+     },
+     "9>1,-1,0": {
+      "moves": "U B' R",
+      "hold": "F"
+     },
+     "9>0,-1,-1": {
+      "moves": "L' B",
+      "hold": "F"
+     },
+     "9>-1,-1,0": {
+      "moves": "U B L'",
+      "hold": "F"
+     },
+     "1>0,-1,1": {
+      "moves": "R2 F",
+      "hold": "F"
+     },
+     "1>1,-1,0": {
+      "moves": "B' D'",
+      "hold": "F"
+     },
+     "1>0,-1,-1": {
+      "moves": "B'",
+      "hold": "F"
+     },
+     "1>-1,-1,0": {
+      "moves": "B' D",
+      "hold": "F"
+     }
+    },
+    "tones": "sssssmmmmsstssssssssmsssssm",
+    "arrow": {
+     "from": [
+      0,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      0,
+      -1,
+      1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": null,
+    "strayed": {
+     "rest": "F2",
+     "shown": "F2",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11
+    ],
+    "pickable": [
+     19,
+     9,
+     1
+    ],
+    "suggestion": "19>1,-1,0",
+    "moves": "D B D'",
+    "formulas": {
+     "19>1,-1,0": {
+      "moves": "D B D'",
+      "hold": "F"
+     },
+     "19>0,-1,-1": {
+      "moves": "B",
+      "hold": "F"
+     },
+     "19>-1,-1,0": {
+      "moves": "D' B D",
+      "hold": "F"
+     },
+     "9>1,-1,0": {
+      "moves": "U B' R",
+      "hold": "F"
+     },
+     "9>0,-1,-1": {
+      "moves": "L' B",
+      "hold": "F"
+     },
+     "9>-1,-1,0": {
+      "moves": "U B L'",
+      "hold": "F"
+     },
+     "1>1,-1,0": {
+      "moves": "D B' D'",
+      "hold": "F"
+     },
+     "1>0,-1,-1": {
+      "moves": "B'",
+      "hold": "F"
+     },
+     "1>-1,-1,0": {
+      "moves": "D' B' D",
+      "hold": "F"
+     }
+    },
+    "tones": "mmssssssmsspssssssmtsmssmss",
+    "arrow": {
+     "from": [
+      -1,
+      0,
+      -1
+     ],
+     "fromNormal": [
+      -1,
+      0,
+      0
+     ],
+     "to": [
+      1,
+      -1,
+      0
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "B D'",
+     "shown": "D B D'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "B D'",
+     "shown": "D B D'",
+     "done": 1
+    }
+   },
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19
+    ],
+    "pickable": [
+     9,
+     1
+    ],
+    "suggestion": "9>0,-1,-1",
+    "moves": "L' B",
+    "formulas": {
+     "9>0,-1,-1": {
+      "moves": "L' B",
+      "hold": "F"
+     },
+     "9>-1,-1,0": {
+      "moves": "U B L'",
+      "hold": "F"
+     },
+     "1>0,-1,-1": {
+      "moves": "B2",
+      "hold": "F"
+     },
+     "1>-1,-1,0": {
+      "moves": "U' L2",
+      "hold": "F"
+     }
+    },
+    "tones": "smmssmssmtspsssmssmpmmsmmsm",
+    "arrow": {
+     "from": [
+      -1,
+      1,
+      0
+     ],
+     "fromNormal": [
+      -1,
+      0,
+      0
+     ],
+     "to": [
+      0,
+      -1,
+      -1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "B",
+     "shown": "L' B",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' L' B",
+     "shown": "D' L' B",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 3,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9
+    ],
+    "pickable": [
+     1
+    ],
+    "suggestion": "1>-1,-1,0",
+    "moves": "D' B D",
+    "formulas": {
+     "1>-1,-1,0": {
+      "moves": "D' B D",
+      "hold": "F"
+     }
+    },
+    "tones": "stmsssssmpspsssmssspssssmmm",
+    "arrow": {
+     "from": [
+      -1,
+      0,
+      -1
+     ],
+     "fromNormal": [
+      -1,
+      0,
+      0
+     ],
+     "to": [
+      -1,
+      -1,
+      0
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "B D",
+     "shown": "D' B D",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D2 B D",
+     "shown": "D2 B D",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1
+    ],
+    "pickable": [
+     20,
+     18,
+     0,
+     2
+    ],
+    "suggestion": "20>1,-1,1",
+    "moves": "U' R U R' U' R U R' U' R U R' U'",
+    "formulas": {
+     "20>1,-1,1": {
+      "moves": "U' R U R' U' R U R' U' R U R' U'",
+      "hold": "F"
+     },
+     "20>1,-1,-1": {
+      "moves": "U2 B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "20>-1,-1,-1": {
+      "moves": "U L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "20>-1,-1,1": {
+      "moves": "F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     },
+     "18>1,-1,1": {
+      "moves": "B U B' R U R' U'",
+      "hold": "F"
+     },
+     "18>1,-1,-1": {
+      "moves": "B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "18>-1,-1,-1": {
+      "moves": "B U B' U2 L U L' U'",
+      "hold": "B"
+     },
+     "18>-1,-1,1": {
+      "moves": "B U B' U F U F' U'",
+      "hold": "L"
+     },
+     "0>1,-1,1": {
+      "moves": "",
+      "hold": "F"
+     },
+     "0>1,-1,-1": {
+      "moves": "R U R' U2 B U B' U' B U B' U' B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "0>-1,-1,-1": {
+      "moves": "R U R' U L U L' U' L U L' U' L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "0>-1,-1,1": {
+      "moves": "R U R' F U F' U' F U F' U' F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     },
+     "2>1,-1,1": {
+      "moves": "L U L' U R U R' U' R U R' U' R U R' U' R U R' U' R U R' U'",
+      "hold": "F"
+     },
+     "2>1,-1,-1": {
+      "moves": "L U L' B U B' U' B U B' U' B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "2>-1,-1,-1": {
+      "moves": "",
+      "hold": "B"
+     },
+     "2>-1,-1,1": {
+      "moves": "L U L' U2 F U F' U' F U F' U' F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "spsmsmmsspspsssssmsptsssmmm",
+    "arrow": {
+     "from": [
+      -1,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      1,
+      -1,
+      1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "R U R' U' R U R' U' R U R' U'",
+     "shown": "U' R U R' U' R U R' U' R U R' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U' R U R' U' R U R' U' R U R' U'",
+     "shown": "D' U' R U R' U' R U R' U' R U R' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "R",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20
+    ],
+    "pickable": [
+     18,
+     0,
+     2
+    ],
+    "suggestion": "18>1,-1,-1",
+    "moves": "B U B' U' B U B' U'",
+    "formulas": {
+     "18>1,-1,-1": {
+      "moves": "B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "18>-1,-1,-1": {
+      "moves": "B U B' U2 L U L' U'",
+      "hold": "B"
+     },
+     "18>-1,-1,1": {
+      "moves": "B U B' U F U F' U'",
+      "hold": "L"
+     },
+     "0>1,-1,-1": {
+      "moves": "U' B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "0>-1,-1,-1": {
+      "moves": "U2 L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "0>-1,-1,1": {
+      "moves": "U F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     },
+     "2>1,-1,-1": {
+      "moves": "L U L' B U B' U' B U B' U' B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "2>-1,-1,-1": {
+      "moves": "",
+      "hold": "B"
+     },
+     "2>-1,-1,1": {
+      "moves": "L U L' U2 F U F' U' F U F' U' F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "spssssmsspspsssssmtppmssmmm",
+    "arrow": {
+     "from": [
+      1,
+      -1,
+      -1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      -1
+     ],
+     "to": [
+      1,
+      -1,
+      -1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U B' U' B U B' U'",
+     "shown": "B U B' U' B U B' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' B U B' U' B U B' U'",
+     "shown": "D' B U B' U' B U B' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "B",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18
+    ],
+    "pickable": [
+     0,
+     2
+    ],
+    "suggestion": "0>-1,-1,-1",
+    "moves": "U2 L U L' U' L U L' U' L U L' U'",
+    "formulas": {
+     "0>-1,-1,-1": {
+      "moves": "U2 L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "0>-1,-1,1": {
+      "moves": "U F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     },
+     "2>-1,-1,-1": {
+      "moves": "",
+      "hold": "B"
+     },
+     "2>-1,-1,1": {
+      "moves": "L U L' U2 F U F' U' F U F' U' F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "tpsmsmmsspspsssssspppmssmmm",
+    "arrow": {
+     "from": [
+      1,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      -1,
+      -1,
+      -1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "L U L' U' L U L' U' L U L' U'",
+     "shown": "U2 L U L' U' L U L' U' L U L' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U2 L U L' U' L U L' U' L U L' U'",
+     "shown": "D' U2 L U L' U' L U L' U' L U L' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 3,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "L",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0
+    ],
+    "pickable": [
+     2
+    ],
+    "suggestion": "2>-1,-1,1",
+    "moves": "U' F U F' U' F U F' U' F U F' U'",
+    "formulas": {
+     "2>-1,-1,1": {
+      "moves": "U' F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "pptmsmmsspspsssssspppmssmmm",
+    "arrow": {
+     "from": [
+      -1,
+      1,
+      -1
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      -1,
+      -1,
+      1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "F U F' U' F U F' U' F U F' U'",
+     "shown": "U' F U F' U' F U F' U' F U F' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U' F U F' U' F U F' U' F U F' U'",
+     "shown": "D' U' F U F' U' F U F' U' F U F' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "R",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2
+    ],
+    "pickable": [
+     3,
+     5,
+     21,
+     23
+    ],
+    "suggestion": "23>1,0,1",
+    "moves": "U F U' F' U' L' U L U' F' U F U R U' R'",
+    "formulas": {
+     "3>1,0,1": {
+      "moves": "U R U' R' U' F' U F",
+      "hold": "F"
+     },
+     "3>1,0,-1": {
+      "moves": "U' U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "3>-1,0,-1": {
+      "moves": "U U' B' U B U L U' L'",
+      "hold": "L"
+     },
+     "3>-1,0,1": {
+      "moves": "U U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "5>1,0,1": {
+      "moves": "U' U R U' R' U' F' U F",
+      "hold": "F"
+     },
+     "5>1,0,-1": {
+      "moves": "U2 U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "5>-1,0,-1": {
+      "moves": "U U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "5>-1,0,1": {
+      "moves": "U' U' L' U L U F U' F'",
+      "hold": "F"
+     },
+     "21>1,0,1": {
+      "moves": "U2 U R U' R' U' F' U F",
+      "hold": "F"
+     },
+     "21>1,0,-1": {
+      "moves": "U U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "21>-1,0,-1": {
+      "moves": "U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "21>-1,0,1": {
+      "moves": "U' U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "23>1,0,1": {
+      "moves": "U F U' F' U' L' U L U' F' U F U R U' R'",
+      "hold": "R"
+     },
+     "23>1,0,-1": {
+      "moves": "U F U' F' U' L' U L U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "23>-1,0,-1": {
+      "moves": "U F U' F' U' L' U L U' U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "23>-1,0,1": {
+      "moves": "",
+      "hold": "L"
+     }
+    },
+    "tones": "pppmsmmsmpspsssssspppmstsmm",
+    "arrow": {
+     "from": [
+      -1,
+      0,
+      1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      1
+     ],
+     "to": [
+      1,
+      0,
+      1
+     ],
+     "toNormal": [
+      1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "F U' F' U' L' U L U' F' U F U R U' R'",
+     "shown": "U F U' F' U' L' U L U' F' U F U R U' R'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U F U' F' U' L' U L U' F' U F U R U' R'",
+     "shown": "D' U F U' F' U' L' U L U' F' U F U R U' R'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "R",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23
+    ],
+    "pickable": [
+     3,
+     5,
+     21
+    ],
+    "suggestion": "21>1,0,-1",
+    "moves": "U' U B U' B' U' R' U R",
+    "formulas": {
+     "3>1,0,-1": {
+      "moves": "U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "3>-1,0,-1": {
+      "moves": "U' U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "3>-1,0,1": {
+      "moves": "U2 U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "5>1,0,-1": {
+      "moves": "U F U' F' U' L' U L U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "5>-1,0,-1": {
+      "moves": "U F U' F' U' L' U L U' U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "5>-1,0,1": {
+      "moves": "U F U' F' U' L' U L U2 U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "21>1,0,-1": {
+      "moves": "U' U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "21>-1,0,-1": {
+      "moves": "U2 U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "21>-1,0,1": {
+      "moves": "U U F U' F' U' L' U L",
+      "hold": "L"
+     }
+    },
+    "tones": "pppmssmmmpspssssssppptspssm",
+    "arrow": {
+     "from": [
+      0,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      1
+     ],
+     "to": [
+      1,
+      0,
+      -1
+     ],
+     "toNormal": [
+      1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U B U' B' U' R' U R",
+     "shown": "U' U B U' B' U' R' U R",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' B U' B' U' R' U R",
+     "shown": "D' B U' B' U' R' U R",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "L",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21
+    ],
+    "pickable": [
+     3,
+     5
+    ],
+    "suggestion": "3>-1,0,-1",
+    "moves": "U U' B' U B U L U' L'",
+    "formulas": {
+     "3>-1,0,-1": {
+      "moves": "U U' B' U B U L U' L'",
+      "hold": "L"
+     },
+     "3>-1,0,1": {
+      "moves": "U U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "5>-1,0,-1": {
+      "moves": "U F U' F' U' L' U L U' U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "5>-1,0,1": {
+      "moves": "U F U' F' U' L' U L U2 U F U' F' U' L' U L",
+      "hold": "L"
+     }
+    },
+    "tones": "ppptsssmmpspsssssmppppspmsm",
+    "arrow": {
+     "from": [
+      0,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      1
+     ],
+     "to": [
+      -1,
+      0,
+      -1
+     ],
+     "toNormal": [
+      -1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U' B' U B U L U' L'",
+     "shown": "U U' B' U B U L U' L'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' B' U B U L U' L'",
+     "shown": "D' B' U B U L U' L'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 3,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "L",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3
+    ],
+    "pickable": [
+     5
+    ],
+    "suggestion": "5>-1,0,1",
+    "moves": "U F U' F' U' L' U L U2 U F U' F' U' L' U L",
+    "formulas": {
+     "5>-1,0,1": {
+      "moves": "U F U' F' U' L' U L U2 U F U' F' U' L' U L",
+      "hold": "L"
+     }
+    },
+    "tones": "ppppstmmmpspsssmsmppppspmmm",
+    "arrow": {
+     "from": [
+      -1,
+      0,
+      1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      1
+     ],
+     "to": [
+      -1,
+      0,
+      1
+     ],
+     "toNormal": [
+      -1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "F U' F' U' L' U L U2 U F U' F' U' L' U L",
+     "shown": "U F U' F' U' L' U L U2 U F U' F' U' L' U L",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U F U' F' U' L' U L U' F U' F' U' L' U L",
+     "shown": "D' U F U' F' U' L' U L U' F U' F' U' L' U L",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTopEdges",
+    "stage": 5,
+    "progress": null,
+    "comingSoon": true,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": null,
+    "formulas": {},
+    "tones": null,
+    "arrow": null,
+    "followed": null,
+    "strayed": null
+   }
+  ]
+ },
+ {
+  "seed": 11,
+  "steps": [
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [],
+    "pickable": [
+     11,
+     19,
+     9,
+     1
+    ],
+    "suggestion": "11>0,-1,1",
+    "moves": "U2 F2",
+    "formulas": {
+     "11>0,-1,1": {
+      "moves": "U2 F2",
+      "hold": "F"
+     },
+     "11>1,-1,0": {
+      "moves": "U R2",
+      "hold": "F"
+     },
+     "11>0,-1,-1": {
+      "moves": "B2",
+      "hold": "F"
+     },
+     "11>-1,-1,0": {
+      "moves": "U' L2",
+      "hold": "F"
+     },
+     "19>0,-1,1": {
+      "moves": "L' D",
+      "hold": "F"
+     },
+     "19>1,-1,0": {
+      "moves": "L' D2",
+      "hold": "F"
+     },
+     "19>0,-1,-1": {
+      "moves": "L' D'",
+      "hold": "F"
+     },
+     "19>-1,-1,0": {
+      "moves": "L'",
+      "hold": "F"
+     },
+     "9>0,-1,1": {
+      "moves": "L D",
+      "hold": "F"
+     },
+     "9>1,-1,0": {
+      "moves": "L D2",
+      "hold": "F"
+     },
+     "9>0,-1,-1": {
+      "moves": "L D'",
+      "hold": "F"
+     },
+     "9>-1,-1,0": {
+      "moves": "L",
+      "hold": "F"
+     },
+     "1>0,-1,1": {
+      "moves": "D2",
+      "hold": "F"
+     },
+     "1>1,-1,0": {
+      "moves": "D'",
+      "hold": "F"
+     },
+     "1>0,-1,-1": {
+      "moves": "",
+      "hold": "F"
+     },
+     "1>-1,-1,0": {
+      "moves": "D",
+      "hold": "F"
+     }
+    },
+    "tones": "mssssmmmsmstssssssmsmmsmmsm",
+    "arrow": {
+     "from": [
+      0,
+      1,
+      -1
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      0,
+      -1,
+      1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "F2",
+     "shown": "U2 F2",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "U2 F2",
+     "shown": "U2 F2",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11
+    ],
+    "pickable": [
+     19,
+     9,
+     1
+    ],
+    "suggestion": "19>1,-1,0",
+    "moves": "B2 R",
+    "formulas": {
+     "19>1,-1,0": {
+      "moves": "B2 R",
+      "hold": "F"
+     },
+     "19>0,-1,-1": {
+      "moves": "D L' D'",
+      "hold": "F"
+     },
+     "19>-1,-1,0": {
+      "moves": "L'",
+      "hold": "F"
+     },
+     "9>1,-1,0": {
+      "moves": "R'",
+      "hold": "F"
+     },
+     "9>0,-1,-1": {
+      "moves": "D' R' D",
+      "hold": "F"
+     },
+     "9>-1,-1,0": {
+      "moves": "D2 R' D2",
+      "hold": "F"
+     },
+     "1>1,-1,0": {
+      "moves": "F D' F'",
+      "hold": "F"
+     },
+     "1>0,-1,-1": {
+      "moves": "",
+      "hold": "F"
+     },
+     "1>-1,-1,0": {
+      "moves": "F D F'",
+      "hold": "F"
+     }
+    },
+    "tones": "mmmssmsmmmspsssssmmtmsssmss",
+    "arrow": {
+     "from": [
+      -1,
+      0,
+      -1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      -1
+     ],
+     "to": [
+      1,
+      -1,
+      0
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "R",
+     "shown": "B2 R",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D L' D2",
+     "shown": "D L' D2",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19
+    ],
+    "pickable": [
+     9,
+     1
+    ],
+    "suggestion": "9>0,-1,-1",
+    "moves": "U' B2",
+    "formulas": {
+     "9>0,-1,-1": {
+      "moves": "U' B2",
+      "hold": "F"
+     },
+     "9>-1,-1,0": {
+      "moves": "U2 L2",
+      "hold": "F"
+     },
+     "1>0,-1,-1": {
+      "moves": "B2",
+      "hold": "F"
+     },
+     "1>-1,-1,0": {
+      "moves": "U' L2",
+      "hold": "F"
+     }
+    },
+    "tones": "mmmssmmsmtspsssmsmmpmmsssss",
+    "arrow": {
+     "from": [
+      1,
+      1,
+      0
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      0,
+      -1,
+      -1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "B2",
+     "shown": "U' B2",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "U2 L2 D'",
+     "shown": "U2 L2 D'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 3,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9
+    ],
+    "pickable": [
+     1
+    ],
+    "suggestion": "1>-1,-1,0",
+    "moves": "L2",
+    "formulas": {
+     "1>-1,-1,0": {
+      "moves": "L2",
+      "hold": "F"
+     }
+    },
+    "tones": "stmssmssmpspssssssmpsssmssm",
+    "arrow": {
+     "from": [
+      -1,
+      1,
+      0
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      -1,
+      -1,
+      0
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": null,
+    "strayed": {
+     "rest": "D' L2",
+     "shown": "D' L2",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1
+    ],
+    "pickable": [
+     20,
+     18,
+     0,
+     2
+    ],
+    "suggestion": "20>1,-1,1",
+    "moves": "U R U R' U'",
+    "formulas": {
+     "20>1,-1,1": {
+      "moves": "U R U R' U'",
+      "hold": "F"
+     },
+     "20>1,-1,-1": {
+      "moves": "B U B' U'",
+      "hold": "R"
+     },
+     "20>-1,-1,-1": {
+      "moves": "U' L U L' U'",
+      "hold": "B"
+     },
+     "20>-1,-1,1": {
+      "moves": "U2 F U F' U'",
+      "hold": "L"
+     },
+     "18>1,-1,1": {
+      "moves": "U' R U R' U' R U R' U' R U R' U' R U R' U' R U R' U'",
+      "hold": "F"
+     },
+     "18>1,-1,-1": {
+      "moves": "U2 B U B' U' B U B' U' B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "18>-1,-1,-1": {
+      "moves": "U L U L' U' L U L' U' L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "18>-1,-1,1": {
+      "moves": "F U F' U' F U F' U' F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     },
+     "0>1,-1,1": {
+      "moves": "B U B' R U R' U'",
+      "hold": "F"
+     },
+     "0>1,-1,-1": {
+      "moves": "B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "0>-1,-1,-1": {
+      "moves": "B U B' U2 L U L' U'",
+      "hold": "B"
+     },
+     "0>-1,-1,1": {
+      "moves": "B U B' U F U F' U'",
+      "hold": "L"
+     },
+     "2>1,-1,1": {
+      "moves": "F U F' U2 R U R' U' R U R' U' R U R' U'",
+      "hold": "F"
+     },
+     "2>1,-1,-1": {
+      "moves": "F U F' U B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "2>-1,-1,-1": {
+      "moves": "F U F' L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "2>-1,-1,1": {
+      "moves": "F U F' U' F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "spsmssmsspspsssmssmptmsssms",
+    "arrow": {
+     "from": [
+      1,
+      1,
+      -1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      -1
+     ],
+     "to": [
+      1,
+      -1,
+      1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "R U R' U'",
+     "shown": "U R U R' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U R U R' U'",
+     "shown": "D' U R U R' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "R",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20
+    ],
+    "pickable": [
+     18,
+     0,
+     2
+    ],
+    "suggestion": "18>1,-1,-1",
+    "moves": "B U B' U'",
+    "formulas": {
+     "18>1,-1,-1": {
+      "moves": "B U B' U'",
+      "hold": "R"
+     },
+     "18>-1,-1,-1": {
+      "moves": "U' L U L' U'",
+      "hold": "B"
+     },
+     "18>-1,-1,1": {
+      "moves": "U2 F U F' U'",
+      "hold": "L"
+     },
+     "0>1,-1,-1": {
+      "moves": "B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "0>-1,-1,-1": {
+      "moves": "B U B' U2 L U L' U'",
+      "hold": "B"
+     },
+     "0>-1,-1,1": {
+      "moves": "B U B' U F U F' U'",
+      "hold": "L"
+     },
+     "2>1,-1,-1": {
+      "moves": "F U F' U B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "2>-1,-1,-1": {
+      "moves": "F U F' L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "2>-1,-1,1": {
+      "moves": "F U F' U' F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "spssssmmspspsssssmtppmssssm",
+    "arrow": {
+     "from": [
+      1,
+      1,
+      -1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      -1
+     ],
+     "to": [
+      1,
+      -1,
+      -1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U B' U'",
+     "shown": "B U B' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' B U B' U'",
+     "shown": "D' B U B' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "B",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18
+    ],
+    "pickable": [
+     0,
+     2
+    ],
+    "suggestion": "0>-1,-1,-1",
+    "moves": "U' L U L' U'",
+    "formulas": {
+     "0>-1,-1,-1": {
+      "moves": "U' L U L' U'",
+      "hold": "B"
+     },
+     "0>-1,-1,1": {
+      "moves": "U2 F U F' U'",
+      "hold": "L"
+     },
+     "2>-1,-1,-1": {
+      "moves": "F U F' L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "2>-1,-1,1": {
+      "moves": "F U F' U' F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "tpsmssmmspspsssmsmpppssmmsm",
+    "arrow": {
+     "from": [
+      1,
+      1,
+      -1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      -1
+     ],
+     "to": [
+      -1,
+      -1,
+      -1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "L U L' U'",
+     "shown": "U' L U L' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U' L U L' U'",
+     "shown": "D' U' L U L' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 3,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "L",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0
+    ],
+    "pickable": [
+     2
+    ],
+    "suggestion": "2>-1,-1,1",
+    "moves": "F U F' U' F U F' U' F U F' U' F U F' U'",
+    "formulas": {
+     "2>-1,-1,1": {
+      "moves": "F U F' U' F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "pptssmmsspspsssmsmpppsssmsm",
+    "arrow": {
+     "from": [
+      -1,
+      -1,
+      1
+     ],
+     "fromNormal": [
+      -1,
+      0,
+      0
+     ],
+     "to": [
+      -1,
+      -1,
+      1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U F' U' F U F' U' F U F' U' F U F' U'",
+     "shown": "F U F' U' F U F' U' F U F' U' F U F' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' F U F' U' F U F' U' F U F' U' F U F' U'",
+     "shown": "D' F U F' U' F U F' U' F U F' U' F U F' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     21
+    ],
+    "pickable": [
+     3,
+     5,
+     23
+    ],
+    "suggestion": "23>1,0,1",
+    "moves": "U' U R U' R' U' F' U F",
+    "formulas": {
+     "3>1,0,1": {
+      "moves": "U2 U R U' R' U' F' U F",
+      "hold": "F"
+     },
+     "3>-1,0,-1": {
+      "moves": "U' U' B' U B U L U' L'",
+      "hold": "L"
+     },
+     "3>-1,0,1": {
+      "moves": "U' U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "5>1,0,1": {
+      "moves": "U R U' R' U' F' U F",
+      "hold": "F"
+     },
+     "5>-1,0,-1": {
+      "moves": "U2 U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "5>-1,0,1": {
+      "moves": "U' L' U L U F U' F'",
+      "hold": "F"
+     },
+     "23>1,0,1": {
+      "moves": "U' U R U' R' U' F' U F",
+      "hold": "F"
+     },
+     "23>-1,0,-1": {
+      "moves": "U U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "23>-1,0,1": {
+      "moves": "U F U' F' U' L' U L",
+      "hold": "L"
+     }
+    },
+    "tones": "pppmsmmsmpspssssssppppstssm",
+    "arrow": {
+     "from": [
+      -1,
+      1,
+      0
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      1,
+      0,
+      1
+     ],
+     "toNormal": [
+      1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U R U' R' U' F' U F",
+     "shown": "U' U R U' R' U' F' U F",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' R U' R' U' F' U F",
+     "shown": "D' R U' R' U' F' U F",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "L",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21
+    ],
+    "pickable": [
+     3,
+     5
+    ],
+    "suggestion": "3>-1,0,-1",
+    "moves": "U U' B' U B U L U' L'",
+    "formulas": {
+     "3>-1,0,-1": {
+      "moves": "U U' B' U B U L U' L'",
+      "hold": "L"
+     },
+     "3>-1,0,1": {
+      "moves": "U U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "5>-1,0,-1": {
+      "moves": "U U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "5>-1,0,1": {
+      "moves": "U F U' F' U' L' U L",
+      "hold": "L"
+     }
+    },
+    "tones": "ppptsmmsmpspsssssmppppspssm",
+    "arrow": {
+     "from": [
+      0,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      1
+     ],
+     "to": [
+      -1,
+      0,
+      -1
+     ],
+     "toNormal": [
+      -1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U' B' U B U L U' L'",
+     "shown": "U U' B' U B U L U' L'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' B' U B U L U' L'",
+     "shown": "D' B' U B U L U' L'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 3,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3
+    ],
+    "pickable": [
+     5
+    ],
+    "suggestion": "5>-1,0,1",
+    "moves": "U' L' U L U F U' F'",
+    "formulas": {
+     "5>-1,0,1": {
+      "moves": "U' L' U L U F U' F'",
+      "hold": "F"
+     }
+    },
+    "tones": "ppppstmmspspsssssmppppspmmm",
+    "arrow": {
+     "from": [
+      0,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      -1,
+      0,
+      1
+     ],
+     "toNormal": [
+      -1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "L' U L U F U' F'",
+     "shown": "U' L' U L U F U' F'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U' L' U L U F U' F'",
+     "shown": "D' U' L' U L U F U' F'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialTopCross",
+    "stage": 4,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "R",
+    "figure": "figureLine",
+    "focus": [
+     7,
+     15
+    ],
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": "R B U B' U' R'",
+    "formulas": {},
+    "tones": "ppppspmsmpspsssmsmppppspmmm",
+    "arrow": null,
+    "followed": {
+     "rest": "B U B' U' R'",
+     "shown": "R B U B' U' R'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' R B U B' U' R'",
+     "shown": "D' R B U B' U' R'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTopEdges",
+    "stage": 5,
+    "progress": null,
+    "comingSoon": true,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": null,
+    "formulas": {},
+    "tones": null,
+    "arrow": null,
+    "followed": null,
+    "strayed": null
+   }
+  ]
+ },
+ {
+  "seed": 27,
+  "steps": [
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [],
+    "pickable": [
+     11,
+     19,
+     9,
+     1
+    ],
+    "suggestion": "11>0,-1,1",
+    "moves": "R2 F",
+    "formulas": {
+     "11>0,-1,1": {
+      "moves": "R2 F",
+      "hold": "F"
+     },
+     "11>1,-1,0": {
+      "moves": "B' D'",
+      "hold": "F"
+     },
+     "11>0,-1,-1": {
+      "moves": "B'",
+      "hold": "F"
+     },
+     "11>-1,-1,0": {
+      "moves": "B' D",
+      "hold": "F"
+     },
+     "19>0,-1,1": {
+      "moves": "",
+      "hold": "F"
+     },
+     "19>1,-1,0": {
+      "moves": "D",
+      "hold": "F"
+     },
+     "19>0,-1,-1": {
+      "moves": "D2",
+      "hold": "F"
+     },
+     "19>-1,-1,0": {
+      "moves": "D'",
+      "hold": "F"
+     },
+     "9>0,-1,1": {
+      "moves": "U F2",
+      "hold": "F"
+     },
+     "9>1,-1,0": {
+      "moves": "R2",
+      "hold": "F"
+     },
+     "9>0,-1,-1": {
+      "moves": "U' B2",
+      "hold": "F"
+     },
+     "9>-1,-1,0": {
+      "moves": "U2 L2",
+      "hold": "F"
+     },
+     "1>0,-1,1": {
+      "moves": "R' D'",
+      "hold": "F"
+     },
+     "1>1,-1,0": {
+      "moves": "R'",
+      "hold": "F"
+     },
+     "1>0,-1,-1": {
+      "moves": "R' D",
+      "hold": "F"
+     },
+     "1>-1,-1,0": {
+      "moves": "R' D2",
+      "hold": "F"
+     }
+    },
+    "tones": "mmsmssmssmstssssssmsmmsmmsm",
+    "arrow": {
+     "from": [
+      1,
+      0,
+      -1
+     ],
+     "fromNormal": [
+      1,
+      0,
+      0
+     ],
+     "to": [
+      0,
+      -1,
+      1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "F",
+     "shown": "R2 F",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "R2 F",
+     "shown": "R2 F",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11
+    ],
+    "pickable": [
+     19,
+     9,
+     1
+    ],
+    "suggestion": "19>1,-1,0",
+    "moves": "D' F' D",
+    "formulas": {
+     "19>1,-1,0": {
+      "moves": "D' F' D",
+      "hold": "F"
+     },
+     "19>0,-1,-1": {
+      "moves": "L2 B",
+      "hold": "F"
+     },
+     "19>-1,-1,0": {
+      "moves": "D F' D'",
+      "hold": "F"
+     },
+     "9>1,-1,0": {
+      "moves": "",
+      "hold": "F"
+     },
+     "9>0,-1,-1": {
+      "moves": "R2 U' B2",
+      "hold": "F"
+     },
+     "9>-1,-1,0": {
+      "moves": "R2 U2 L2",
+      "hold": "F"
+     },
+     "1>1,-1,0": {
+      "moves": "R",
+      "hold": "F"
+     },
+     "1>0,-1,-1": {
+      "moves": "D' R D",
+      "hold": "F"
+     },
+     "1>-1,-1,0": {
+      "moves": "B2 L'",
+      "hold": "F"
+     }
+    },
+    "tones": "sssmssmsssspssssssmtmmssmss",
+    "arrow": {
+     "from": [
+      -1,
+      0,
+      1
+     ],
+     "fromNormal": [
+      -1,
+      0,
+      0
+     ],
+     "to": [
+      1,
+      -1,
+      0
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "F' D",
+     "shown": "D' F' D",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D2 F' D",
+     "shown": "D2 F' D",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19
+    ],
+    "pickable": [
+     9,
+     1
+    ],
+    "suggestion": "9>0,-1,-1",
+    "moves": "D2 F D2",
+    "formulas": {
+     "9>0,-1,-1": {
+      "moves": "D2 F D2",
+      "hold": "F"
+     },
+     "9>-1,-1,0": {
+      "moves": "D F D'",
+      "hold": "F"
+     },
+     "1>0,-1,-1": {
+      "moves": "D' R D",
+      "hold": "F"
+     },
+     "1>-1,-1,0": {
+      "moves": "B2 L'",
+      "hold": "F"
+     }
+    },
+    "tones": "ssmmssmsstspssssssmpmmsssss",
+    "arrow": {
+     "from": [
+      1,
+      0,
+      1
+     ],
+     "fromNormal": [
+      1,
+      0,
+      0
+     ],
+     "to": [
+      0,
+      -1,
+      -1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "F D2",
+     "shown": "D2 F D2",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D F D2",
+     "shown": "D F D2",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 3,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9
+    ],
+    "pickable": [
+     1
+    ],
+    "suggestion": "1>-1,-1,0",
+    "moves": "D2 R D2",
+    "formulas": {
+     "1>-1,-1,0": {
+      "moves": "D2 R D2",
+      "hold": "F"
+     }
+    },
+    "tones": "mtssssmsspspssssssmpsmsmssm",
+    "arrow": {
+     "from": [
+      1,
+      0,
+      -1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      -1
+     ],
+     "to": [
+      -1,
+      -1,
+      0
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "R D2",
+     "shown": "D2 R D2",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D R D2",
+     "shown": "D R D2",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1
+    ],
+    "pickable": [
+     20,
+     18,
+     0,
+     2
+    ],
+    "suggestion": "20>1,-1,1",
+    "moves": "U' R U R' U' R U R' U' R U R' U'",
+    "formulas": {
+     "20>1,-1,1": {
+      "moves": "U' R U R' U' R U R' U' R U R' U'",
+      "hold": "F"
+     },
+     "20>1,-1,-1": {
+      "moves": "U2 B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "20>-1,-1,-1": {
+      "moves": "U L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "20>-1,-1,1": {
+      "moves": "F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     },
+     "18>1,-1,1": {
+      "moves": "U R U R' U' R U R' U' R U R' U'",
+      "hold": "F"
+     },
+     "18>1,-1,-1": {
+      "moves": "B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "18>-1,-1,-1": {
+      "moves": "U' L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "18>-1,-1,1": {
+      "moves": "U2 F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     },
+     "0>1,-1,1": {
+      "moves": "F U F' U2 R U R' U'",
+      "hold": "F"
+     },
+     "0>1,-1,-1": {
+      "moves": "F U F' U B U B' U'",
+      "hold": "R"
+     },
+     "0>-1,-1,-1": {
+      "moves": "F U F' L U L' U'",
+      "hold": "B"
+     },
+     "0>-1,-1,1": {
+      "moves": "F U F' U' F U F' U'",
+      "hold": "L"
+     },
+     "2>1,-1,1": {
+      "moves": "B U B' R U R' U'",
+      "hold": "F"
+     },
+     "2>1,-1,-1": {
+      "moves": "B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "2>-1,-1,-1": {
+      "moves": "B U B' U2 L U L' U'",
+      "hold": "B"
+     },
+     "2>-1,-1,1": {
+      "moves": "B U B' U F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "spsmsmmsmpspsssssmmptmsssss",
+    "arrow": {
+     "from": [
+      -1,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      1,
+      -1,
+      1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "R U R' U' R U R' U' R U R' U'",
+     "shown": "U' R U R' U' R U R' U' R U R' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U' R U R' U' R U R' U' R U R' U'",
+     "shown": "D' U' R U R' U' R U R' U' R U R' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "R",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20
+    ],
+    "pickable": [
+     18,
+     0,
+     2
+    ],
+    "suggestion": "18>1,-1,-1",
+    "moves": "B U B' U'",
+    "formulas": {
+     "18>1,-1,-1": {
+      "moves": "B U B' U'",
+      "hold": "R"
+     },
+     "18>-1,-1,-1": {
+      "moves": "U' L U L' U'",
+      "hold": "B"
+     },
+     "18>-1,-1,1": {
+      "moves": "U2 F U F' U'",
+      "hold": "L"
+     },
+     "0>1,-1,-1": {
+      "moves": "F U F' U B U B' U'",
+      "hold": "R"
+     },
+     "0>-1,-1,-1": {
+      "moves": "F U F' L U L' U'",
+      "hold": "B"
+     },
+     "0>-1,-1,1": {
+      "moves": "F U F' U' F U F' U'",
+      "hold": "L"
+     },
+     "2>1,-1,-1": {
+      "moves": "B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "2>-1,-1,-1": {
+      "moves": "B U B' U2 L U L' U'",
+      "hold": "B"
+     },
+     "2>-1,-1,1": {
+      "moves": "B U B' U F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "spsssmmsmpspsssssstppmsmsss",
+    "arrow": {
+     "from": [
+      1,
+      1,
+      -1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      -1
+     ],
+     "to": [
+      1,
+      -1,
+      -1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U B' U'",
+     "shown": "B U B' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' B U B' U'",
+     "shown": "D' B U B' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "B",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18
+    ],
+    "pickable": [
+     0,
+     2
+    ],
+    "suggestion": "0>-1,-1,-1",
+    "moves": "F U F' L U L' U'",
+    "formulas": {
+     "0>-1,-1,-1": {
+      "moves": "F U F' L U L' U'",
+      "hold": "B"
+     },
+     "0>-1,-1,1": {
+      "moves": "F U F' U' F U F' U'",
+      "hold": "L"
+     },
+     "2>-1,-1,-1": {
+      "moves": "U' L U L' U'",
+      "hold": "B"
+     },
+     "2>-1,-1,1": {
+      "moves": "U2 F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "tpmmssmsmpspsssmsmpppmsmmms",
+    "arrow": {
+     "from": [
+      -1,
+      -1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      1
+     ],
+     "to": [
+      -1,
+      -1,
+      -1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U F' L U L' U'",
+     "shown": "F U F' L U L' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' F U F' L U L' U'",
+     "shown": "D' F U F' L U L' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 3,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "L",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0
+    ],
+    "pickable": [
+     2
+    ],
+    "suggestion": "2>-1,-1,1",
+    "moves": "U F U F' U' F U F' U' F U F' U'",
+    "formulas": {
+     "2>-1,-1,1": {
+      "moves": "U F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "pptsssssmpspsssmsspppmsmmmm",
+    "arrow": {
+     "from": [
+      1,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      -1,
+      -1,
+      1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "F U F' U' F U F' U' F U F' U'",
+     "shown": "U F U F' U' F U F' U' F U F' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U F U F' U' F U F' U' F U F' U'",
+     "shown": "D' U F U F' U' F U F' U' F U F' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2
+    ],
+    "pickable": [
+     3,
+     5,
+     21,
+     23
+    ],
+    "suggestion": "23>1,0,1",
+    "moves": "U R U' R' U' F' U F",
+    "formulas": {
+     "3>1,0,1": {
+      "moves": "U F U' F' U' L' U L U U R U' R' U' F' U F",
+      "hold": "F"
+     },
+     "3>1,0,-1": {
+      "moves": "U F U' F' U' L' U L U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "3>-1,0,-1": {
+      "moves": "U F U' F' U' L' U L U' U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "3>-1,0,1": {
+      "moves": "",
+      "hold": "L"
+     },
+     "5>1,0,1": {
+      "moves": "U B U' B' U' R' U R U' U R U' R' U' F' U F",
+      "hold": "F"
+     },
+     "5>1,0,-1": {
+      "moves": "",
+      "hold": "R"
+     },
+     "5>-1,0,-1": {
+      "moves": "U B U' B' U' R' U R U U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "5>-1,0,1": {
+      "moves": "U B U' B' U' R' U R U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "21>1,0,1": {
+      "moves": "U U R U' R' U' F' U F",
+      "hold": "F"
+     },
+     "21>1,0,-1": {
+      "moves": "U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "21>-1,0,-1": {
+      "moves": "U' U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "21>-1,0,1": {
+      "moves": "U2 U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "23>1,0,1": {
+      "moves": "U R U' R' U' F' U F",
+      "hold": "F"
+     },
+     "23>1,0,-1": {
+      "moves": "U' U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "23>-1,0,-1": {
+      "moves": "U2 U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "23>-1,0,1": {
+      "moves": "U U F U' F' U' L' U L",
+      "hold": "L"
+     }
+    },
+    "tones": "pppsssmsmpspsssmsspppmstmms",
+    "arrow": {
+     "from": [
+      0,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      1,
+      0,
+      1
+     ],
+     "toNormal": [
+      1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "R U' R' U' F' U F",
+     "shown": "U R U' R' U' F' U F",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U R U' R' U' F' U F",
+     "shown": "D' U R U' R' U' F' U F",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "B",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23
+    ],
+    "pickable": [
+     3,
+     5,
+     21
+    ],
+    "suggestion": "21>1,0,-1",
+    "moves": "U U' R' U R U B U' B'",
+    "formulas": {
+     "3>1,0,-1": {
+      "moves": "U F U' F' U' L' U L U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "3>-1,0,-1": {
+      "moves": "U F U' F' U' L' U L U' U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "3>-1,0,1": {
+      "moves": "",
+      "hold": "L"
+     },
+     "5>1,0,-1": {
+      "moves": "",
+      "hold": "R"
+     },
+     "5>-1,0,-1": {
+      "moves": "U B U' B' U' R' U R U U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "5>-1,0,1": {
+      "moves": "U B U' B' U' R' U R U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "21>1,0,-1": {
+      "moves": "U U' R' U R U B U' B'",
+      "hold": "B"
+     },
+     "21>-1,0,-1": {
+      "moves": "U U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "21>-1,0,1": {
+      "moves": "U F U' F' U' L' U L",
+      "hold": "L"
+     }
+    },
+    "tones": "pppsssmmmpspssssssppptspmms",
+    "arrow": {
+     "from": [
+      -1,
+      1,
+      0
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      1,
+      0,
+      -1
+     ],
+     "toNormal": [
+      1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U' R' U R U B U' B'",
+     "shown": "U U' R' U R U B U' B'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' R' U R U B U' B'",
+     "shown": "D' R' U R U B U' B'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "B",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21
+    ],
+    "pickable": [
+     3,
+     5
+    ],
+    "suggestion": "3>-1,0,-1",
+    "moves": "U F U' F' U' L' U L U' U L U' L' U' B' U B",
+    "formulas": {
+     "3>-1,0,-1": {
+      "moves": "U F U' F' U' L' U L U' U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "3>-1,0,1": {
+      "moves": "",
+      "hold": "L"
+     },
+     "5>-1,0,-1": {
+      "moves": "U2 U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "5>-1,0,1": {
+      "moves": "U' L' U L U F U' F'",
+      "hold": "F"
+     }
+    },
+    "tones": "ppptsmmmspspsssmssppppspmmm",
+    "arrow": {
+     "from": [
+      -1,
+      0,
+      1
+     ],
+     "fromNormal": [
+      -1,
+      0,
+      0
+     ],
+     "to": [
+      -1,
+      0,
+      -1
+     ],
+     "toNormal": [
+      -1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "F U' F' U' L' U L U' U L U' L' U' B' U B",
+     "shown": "U F U' F' U' L' U L U' U L U' L' U' B' U B",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U F U' F' U' L' U L2 U' L' U' B' U B",
+     "shown": "D' U F U' F' U' L' U L2 U' L' U' B' U B",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 3,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3
+    ],
+    "pickable": [
+     5
+    ],
+    "suggestion": "5>-1,0,1",
+    "moves": "U U' L' U L U F U' F'",
+    "formulas": {
+     "5>-1,0,1": {
+      "moves": "U U' L' U L U F U' F'",
+      "hold": "F"
+     }
+    },
+    "tones": "ppppstmsmpspsssmsmppppspssm",
+    "arrow": {
+     "from": [
+      1,
+      1,
+      0
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      -1,
+      0,
+      1
+     ],
+     "toNormal": [
+      -1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U' L' U L U F U' F'",
+     "shown": "U U' L' U L U F U' F'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' L' U L U F U' F'",
+     "shown": "D' L' U L U F U' F'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTopEdges",
+    "stage": 5,
+    "progress": null,
+    "comingSoon": true,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": null,
+    "formulas": {},
+    "tones": null,
+    "arrow": null,
+    "followed": null,
+    "strayed": null
+   }
+  ]
+ },
+ {
+  "seed": 42,
+  "steps": [
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [],
+    "pickable": [
+     11,
+     19,
+     9,
+     1
+    ],
+    "suggestion": "11>0,-1,1",
+    "moves": "L D",
+    "formulas": {
+     "11>0,-1,1": {
+      "moves": "L D",
+      "hold": "F"
+     },
+     "11>1,-1,0": {
+      "moves": "L D2",
+      "hold": "F"
+     },
+     "11>0,-1,-1": {
+      "moves": "L D'",
+      "hold": "F"
+     },
+     "11>-1,-1,0": {
+      "moves": "L",
+      "hold": "F"
+     },
+     "19>0,-1,1": {
+      "moves": "F2",
+      "hold": "F"
+     },
+     "19>1,-1,0": {
+      "moves": "U' R2",
+      "hold": "F"
+     },
+     "19>0,-1,-1": {
+      "moves": "U2 B2",
+      "hold": "F"
+     },
+     "19>-1,-1,0": {
+      "moves": "U L2",
+      "hold": "F"
+     },
+     "9>0,-1,1": {
+      "moves": "D R F",
+      "hold": "F"
+     },
+     "9>1,-1,0": {
+      "moves": "F' R'",
+      "hold": "F"
+     },
+     "9>0,-1,-1": {
+      "moves": "D R' B'",
+      "hold": "F"
+     },
+     "9>-1,-1,0": {
+      "moves": "F L",
+      "hold": "F"
+     },
+     "1>0,-1,1": {
+      "moves": "L' D",
+      "hold": "F"
+     },
+     "1>1,-1,0": {
+      "moves": "L' D2",
+      "hold": "F"
+     },
+     "1>0,-1,-1": {
+      "moves": "L' D'",
+      "hold": "F"
+     },
+     "1>-1,-1,0": {
+      "moves": "L'",
+      "hold": "F"
+     }
+    },
+    "tones": "mmsssmmsmsstsssssmssmssmmmm",
+    "arrow": {
+     "from": [
+      -1,
+      0,
+      1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      1
+     ],
+     "to": [
+      0,
+      -1,
+      1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "D",
+     "shown": "L D",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "L D",
+     "shown": "L D",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11
+    ],
+    "pickable": [
+     19,
+     9,
+     1
+    ],
+    "suggestion": "19>1,-1,0",
+    "moves": "U' R2",
+    "formulas": {
+     "19>1,-1,0": {
+      "moves": "U' R2",
+      "hold": "F"
+     },
+     "19>0,-1,-1": {
+      "moves": "U2 B2",
+      "hold": "F"
+     },
+     "19>-1,-1,0": {
+      "moves": "U L2",
+      "hold": "F"
+     },
+     "9>1,-1,0": {
+      "moves": "D B D' R",
+      "hold": "F"
+     },
+     "9>0,-1,-1": {
+      "moves": "R' B'",
+      "hold": "F"
+     },
+     "9>-1,-1,0": {
+      "moves": "D B' D' L'",
+      "hold": "F"
+     },
+     "1>1,-1,0": {
+      "moves": "U2 R2",
+      "hold": "F"
+     },
+     "1>0,-1,-1": {
+      "moves": "U B2",
+      "hold": "F"
+     },
+     "1>-1,-1,0": {
+      "moves": "L2",
+      "hold": "F"
+     }
+    },
+    "tones": "mmmmssmmssspsssmssmtmmssssm",
+    "arrow": {
+     "from": [
+      0,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      1,
+      -1,
+      0
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "R2",
+     "shown": "U' R2",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "U2 B2 D'",
+     "shown": "U2 B2 D'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19
+    ],
+    "pickable": [
+     9,
+     1
+    ],
+    "suggestion": "9>0,-1,-1",
+    "moves": "U2 L' B",
+    "formulas": {
+     "9>0,-1,-1": {
+      "moves": "U2 L' B",
+      "hold": "F"
+     },
+     "9>-1,-1,0": {
+      "moves": "U' B L'",
+      "hold": "F"
+     },
+     "1>0,-1,-1": {
+      "moves": "U2 B2",
+      "hold": "F"
+     },
+     "1>-1,-1,0": {
+      "moves": "U L2",
+      "hold": "F"
+     }
+    },
+    "tones": "mmsmssmmmtspsssmsmmpmssmmmm",
+    "arrow": {
+     "from": [
+      1,
+      1,
+      0
+     ],
+     "fromNormal": [
+      1,
+      0,
+      0
+     ],
+     "to": [
+      0,
+      -1,
+      -1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "L' B",
+     "shown": "U2 L' B",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "U F' L D'",
+     "shown": "U F' L D'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCross",
+    "stage": 1,
+    "progress": {
+     "done": 3,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9
+    ],
+    "pickable": [
+     1
+    ],
+    "suggestion": "1>-1,-1,0",
+    "moves": "D' B D",
+    "formulas": {
+     "1>-1,-1,0": {
+      "moves": "D' B D",
+      "hold": "F"
+     }
+    },
+    "tones": "mtsmsmmsspspssssssspssssmsm",
+    "arrow": {
+     "from": [
+      -1,
+      0,
+      -1
+     ],
+     "fromNormal": [
+      -1,
+      0,
+      0
+     ],
+     "to": [
+      -1,
+      -1,
+      0
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "B D",
+     "shown": "D' B D",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D2 B D",
+     "shown": "D2 B D",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1
+    ],
+    "pickable": [
+     20,
+     18,
+     0,
+     2
+    ],
+    "suggestion": "20>1,-1,1",
+    "moves": "B U B' R U R' U'",
+    "formulas": {
+     "20>1,-1,1": {
+      "moves": "B U B' R U R' U'",
+      "hold": "F"
+     },
+     "20>1,-1,-1": {
+      "moves": "B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "20>-1,-1,-1": {
+      "moves": "B U B' U2 L U L' U'",
+      "hold": "B"
+     },
+     "20>-1,-1,1": {
+      "moves": "B U B' U F U F' U'",
+      "hold": "L"
+     },
+     "18>1,-1,1": {
+      "moves": "R U R' U'",
+      "hold": "F"
+     },
+     "18>1,-1,-1": {
+      "moves": "U' B U B' U'",
+      "hold": "R"
+     },
+     "18>-1,-1,-1": {
+      "moves": "U2 L U L' U'",
+      "hold": "B"
+     },
+     "18>-1,-1,1": {
+      "moves": "U F U F' U'",
+      "hold": "L"
+     },
+     "0>1,-1,1": {
+      "moves": "U R U R' U' R U R' U' R U R' U' R U R' U' R U R' U'",
+      "hold": "F"
+     },
+     "0>1,-1,-1": {
+      "moves": "B U B' U' B U B' U' B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "0>-1,-1,-1": {
+      "moves": "U' L U L' U' L U L' U' L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "0>-1,-1,1": {
+      "moves": "U2 F U F' U' F U F' U' F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     },
+     "2>1,-1,1": {
+      "moves": "R U R' U' R U R' U' R U R' U' R U R' U'",
+      "hold": "F"
+     },
+     "2>1,-1,-1": {
+      "moves": "R U R' U2 B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "2>-1,-1,-1": {
+      "moves": "R U R' U L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "2>-1,-1,1": {
+      "moves": "R U R' F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "mpsssmsmmpspsssmsmmptmsssmm",
+    "arrow": {
+     "from": [
+      1,
+      -1,
+      -1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      -1
+     ],
+     "to": [
+      1,
+      -1,
+      1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U B' R U R' U'",
+     "shown": "B U B' R U R' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' B U B' R U R' U'",
+     "shown": "D' B U B' R U R' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "R",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20
+    ],
+    "pickable": [
+     18,
+     0,
+     2
+    ],
+    "suggestion": "18>1,-1,-1",
+    "moves": "U2 B U B' U'",
+    "formulas": {
+     "18>1,-1,-1": {
+      "moves": "U2 B U B' U'",
+      "hold": "R"
+     },
+     "18>-1,-1,-1": {
+      "moves": "U L U L' U'",
+      "hold": "B"
+     },
+     "18>-1,-1,1": {
+      "moves": "F U F' U'",
+      "hold": "L"
+     },
+     "0>1,-1,-1": {
+      "moves": "B U B' U' B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "0>-1,-1,-1": {
+      "moves": "B U B' U2 L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "0>-1,-1,1": {
+      "moves": "B U B' U F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     },
+     "2>1,-1,-1": {
+      "moves": "U' B U B' U' B U B' U' B U B' U'",
+      "hold": "R"
+     },
+     "2>-1,-1,-1": {
+      "moves": "U2 L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "2>-1,-1,1": {
+      "moves": "U F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "spmssssmmpspsssmsmtppmsssmm",
+    "arrow": {
+     "from": [
+      -1,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      1
+     ],
+     "to": [
+      1,
+      -1,
+      -1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "B U B' U'",
+     "shown": "U2 B U B' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U2 B U B' U'",
+     "shown": "D' U2 B U B' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "B",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18
+    ],
+    "pickable": [
+     0,
+     2
+    ],
+    "suggestion": "0>-1,-1,-1",
+    "moves": "U' L U L' U' L U L' U' L U L' U'",
+    "formulas": {
+     "0>-1,-1,-1": {
+      "moves": "U' L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "0>-1,-1,1": {
+      "moves": "U2 F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     },
+     "2>-1,-1,-1": {
+      "moves": "U L U L' U' L U L' U' L U L' U'",
+      "hold": "B"
+     },
+     "2>-1,-1,1": {
+      "moves": "F U F' U' F U F' U' F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "tpmssssmmpspsssmsmpppssssmm",
+    "arrow": {
+     "from": [
+      1,
+      1,
+      -1
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      -1,
+      -1,
+      -1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "L U L' U' L U L' U' L U L' U'",
+     "shown": "U' L U L' U' L U L' U' L U L' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U' L U L' U' L U L' U' L U L' U'",
+     "shown": "D' U' L U L' U' L U L' U' L U L' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialCorner",
+    "stage": 2,
+    "progress": {
+     "done": 3,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "L",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0
+    ],
+    "pickable": [
+     2
+    ],
+    "suggestion": "2>-1,-1,1",
+    "moves": "F U F' U'",
+    "formulas": {
+     "2>-1,-1,1": {
+      "moves": "F U F' U'",
+      "hold": "L"
+     }
+    },
+    "tones": "pptssssmmpspsssssmpppssmssm",
+    "arrow": {
+     "from": [
+      -1,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      1
+     ],
+     "to": [
+      -1,
+      -1,
+      1
+     ],
+     "toNormal": [
+      0,
+      -1,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U F' U'",
+     "shown": "F U F' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' F U F' U'",
+     "shown": "D' F U F' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "R",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2
+    ],
+    "pickable": [
+     3,
+     5,
+     21,
+     23
+    ],
+    "suggestion": "23>1,0,1",
+    "moves": "U' U' F' U F U R U' R'",
+    "formulas": {
+     "3>1,0,1": {
+      "moves": "U L U' L' U' B' U B U R U' R' U' F' U F",
+      "hold": "F"
+     },
+     "3>1,0,-1": {
+      "moves": "U L U' L' U' B' U B U' U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "3>-1,0,-1": {
+      "moves": "U L U' L' U' B' U B U2 U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "3>-1,0,1": {
+      "moves": "U L U' L' U' B' U B U U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "5>1,0,1": {
+      "moves": "",
+      "hold": "F"
+     },
+     "5>1,0,-1": {
+      "moves": "U R U' R' U' F' U F U U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "5>-1,0,-1": {
+      "moves": "U R U' R' U' F' U F U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "5>-1,0,1": {
+      "moves": "U R U' R' U' F' U F U' U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "21>1,0,1": {
+      "moves": "U B U' B' U' R' U R U' U R U' R' U' F' U F",
+      "hold": "F"
+     },
+     "21>1,0,-1": {
+      "moves": "U B U' B' U' R' U R U2 U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "21>-1,0,-1": {
+      "moves": "U B U' B' U' R' U R U U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "21>-1,0,1": {
+      "moves": "U B U' B' U' R' U R U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "23>1,0,1": {
+      "moves": "U' U' F' U F U R U' R'",
+      "hold": "R"
+     },
+     "23>1,0,-1": {
+      "moves": "U' U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "23>-1,0,-1": {
+      "moves": "U2 U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "23>-1,0,1": {
+      "moves": "U U F U' F' U' L' U L",
+      "hold": "L"
+     }
+    },
+    "tones": "pppsssmsmpspsssmsspppsstmmm",
+    "arrow": {
+     "from": [
+      0,
+      1,
+      1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      1
+     ],
+     "to": [
+      1,
+      0,
+      1
+     ],
+     "toNormal": [
+      1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U' F' U F U R U' R'",
+     "shown": "U' U' F' U F U R U' R'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U2 F' U F U R U' R'",
+     "shown": "D' U2 F' U F U R U' R'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "R",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23
+    ],
+    "pickable": [
+     3,
+     5,
+     21
+    ],
+    "suggestion": "21>1,0,-1",
+    "moves": "U B U' B' U' R' U R U2 U B U' B' U' R' U R",
+    "formulas": {
+     "3>1,0,-1": {
+      "moves": "U L U' L' U' B' U B U' U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "3>-1,0,-1": {
+      "moves": "U L U' L' U' B' U B U2 U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "3>-1,0,1": {
+      "moves": "U L U' L' U' B' U B U U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "5>1,0,-1": {
+      "moves": "U2 U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "5>-1,0,-1": {
+      "moves": "U U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "5>-1,0,1": {
+      "moves": "U' U' L' U L U F U' F'",
+      "hold": "F"
+     },
+     "21>1,0,-1": {
+      "moves": "U B U' B' U' R' U R U2 U B U' B' U' R' U R",
+      "hold": "R"
+     },
+     "21>-1,0,-1": {
+      "moves": "U B U' B' U' R' U R U U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "21>-1,0,1": {
+      "moves": "U B U' B' U' R' U R U F U' F' U' L' U L",
+      "hold": "L"
+     }
+    },
+    "tones": "pppssmmmmpspsssmssppptspmmm",
+    "arrow": {
+     "from": [
+      1,
+      0,
+      -1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      -1
+     ],
+     "to": [
+      1,
+      0,
+      -1
+     ],
+     "toNormal": [
+      1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "B U' B' U' R' U R U2 U B U' B' U' R' U R",
+     "shown": "U B U' B' U' R' U R U2 U B U' B' U' R' U R",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U B U' B' U' R' U R U' B U' B' U' R' U R",
+     "shown": "D' U B U' B' U' R' U R U' B U' B' U' R' U R",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "B",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21
+    ],
+    "pickable": [
+     3,
+     5
+    ],
+    "suggestion": "3>-1,0,-1",
+    "moves": "U L U' L' U' B' U B U2 U L U' L' U' B' U B",
+    "formulas": {
+     "3>-1,0,-1": {
+      "moves": "U L U' L' U' B' U B U2 U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "3>-1,0,1": {
+      "moves": "U L U' L' U' B' U B U U F U' F' U' L' U L",
+      "hold": "L"
+     },
+     "5>-1,0,-1": {
+      "moves": "U' U L U' L' U' B' U B",
+      "hold": "B"
+     },
+     "5>-1,0,1": {
+      "moves": "U U' L' U L U F U' F'",
+      "hold": "F"
+     }
+    },
+    "tones": "ppptsmmmmpspsssmssppppspmmm",
+    "arrow": {
+     "from": [
+      -1,
+      0,
+      -1
+     ],
+     "fromNormal": [
+      0,
+      0,
+      -1
+     ],
+     "to": [
+      -1,
+      0,
+      -1
+     ],
+     "toNormal": [
+      -1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "L U' L' U' B' U B U2 U L U' L' U' B' U B",
+     "shown": "U L U' L' U' B' U B U2 U L U' L' U' B' U B",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U L U' L' U' B' U B U' L U' L' U' B' U B",
+     "shown": "D' U L U' L' U' B' U B U' L U' L' U' B' U B",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialMiddle",
+    "stage": 3,
+    "progress": {
+     "done": 3,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3
+    ],
+    "pickable": [
+     5
+    ],
+    "suggestion": "5>-1,0,1",
+    "moves": "U' U' L' U L U F U' F'",
+    "formulas": {
+     "5>-1,0,1": {
+      "moves": "U' U' L' U L U F U' F'",
+      "hold": "F"
+     }
+    },
+    "tones": "ppppstmmmpspssssssppppspmmm",
+    "arrow": {
+     "from": [
+      -1,
+      1,
+      0
+     ],
+     "fromNormal": [
+      0,
+      1,
+      0
+     ],
+     "to": [
+      -1,
+      0,
+      1
+     ],
+     "toNormal": [
+      -1,
+      0,
+      0
+     ]
+    },
+    "followed": {
+     "rest": "U' L' U L U F U' F'",
+     "shown": "U' U' L' U L U F U' F'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U2 L' U L U F U' F'",
+     "shown": "D' U2 L' U L U F U' F'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialTopCross",
+    "stage": 4,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": "figureDot",
+    "focus": [],
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": "F R U R' U' F'",
+    "formulas": {},
+    "tones": "ppppspmsmpspsssmsmppppspmmm",
+    "arrow": null,
+    "followed": {
+     "rest": "R U R' U' F'",
+     "shown": "F R U R' U' F'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' F R U R' U' F'",
+     "shown": "D' F R U R' U' F'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialTopCross",
+    "stage": 4,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "B",
+    "figure": "figureL",
+    "focus": [
+     15,
+     17
+    ],
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": "B L U L' U' B'",
+    "formulas": {},
+    "tones": "ppppspmmmpspsssssmppppspmmm",
+    "arrow": null,
+    "followed": {
+     "rest": "L U L' U' B'",
+     "shown": "B L U L' U' B'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' B L U L' U' B'",
+     "shown": "D' B L U L' U' B'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialTopCross",
+    "stage": 4,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": "figureLine",
+    "focus": [
+     15,
+     25
+    ],
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": "F R U R' U' F'",
+    "formulas": {},
+    "tones": "ppppspmmmpspsssmsmppppspmsm",
+    "arrow": null,
+    "followed": {
+     "rest": "R U R' U' F'",
+     "shown": "F R U R' U' F'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' F R U R' U' F'",
+     "shown": "D' F R U R' U' F'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTopEdges",
+    "stage": 5,
+    "progress": null,
+    "comingSoon": true,
+    "hold": "F",
+    "figure": null,
+    "focus": null,
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": null,
+    "formulas": {},
+    "tones": null,
+    "arrow": null,
+    "followed": null,
+    "strayed": null
+   }
+  ]
+ }
+]

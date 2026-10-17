@@ -93,7 +93,8 @@ src/
 ├── lib/                 # Logique pure, zéro React / zéro three.js (entièrement testée)
 │   ├── core/            # Le moteur : types (CubeShape, Move, Turn...), geometry (normales, rotations entières),
 │   │                    #   cube (construction, reconnaissance, résolu, boîte, orientations), pieces, turn (coups,
-│   │                    #   coups permis, animation), moves (notation, coups d'une forme, mélange), moveSet, shape (miroir)
+│   │                    #   coups permis, animation), moves (notation, coups d'une forme, mélange), moveSet, shape (miroir),
+│   │                    #   hold (le cube tenu autrement : un coup lu depuis la face tenue devant)
 │   ├── puzzles/         # Les puzzles, un dossier par catégorie (voir « La fiche d'un puzzle ») :
 │   │   ├── catalog.ts   #   tous les puzzles, dans l'ordre du sélecteur (catalog.ts de chaque catégorie)
 │   │   ├── entry.ts     #   PuzzleEntry : nom, adresse, dimensions, mélange, couches, miroir, couleurs, pad, consigne
@@ -119,9 +120,11 @@ src/
 │   │                    #   setup (réglages avant peinture), jointsEditor (soudures), cutsEditor
 │   │                    #   (demi-cubies du Fashion-V), faceCanvases (forme face par face), gearEditor,
 │   │                    #   roadblockEditor, validate
-│   ├── tutorial/        # Le tutoriel : tutorial (TutorialStep, registre tutorialFor, tons des pièces, chemin de
-│   │                    #   la flèche, formule lue en blocs répétés), cube3 (les pas du 3x3 : recentrer, la
-│   │                    #   croix arête par arête), cube3Corners (les coins jaunes, par le déclencheur)
+│   ├── tutorial/        # Le moteur du tutoriel : tutorial (TutorialStep, registre tutorialFor, tons des pièces,
+│   │                    #   chemin de la flèche, formule lue en blocs), kit (TutorialPlan déclaré : étapes de
+│   │                    #   pièces ou de formule, tutorialOf), keep (pièces gardées, formule en cours de pas)
+│   ├── tutorials/       # Les tutoriels, un dossier par catégorie : standard/cube3 (recentrer, croix, coins
+│   │                    #   jaunes, arêtes du milieu, croix blanche par figures)
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
 │                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
@@ -425,18 +428,32 @@ deux sens et au clavier, tutoriel (on résout soi-même, pas à pas, guidé
 par une flèche et des pièces mises en valeur), feu d'artifice quand un coup résout, adresse
 `#/<langue>/<puzzle>` (l'accueil sinon). Le détail : [docs/interface.md](docs/interface.md).
 
-### Le tutoriel (`src/lib/tutorial/`)
+### Le tutoriel (`src/lib/tutorial/`, `src/lib/tutorials/`)
 
-Un puzzle a un tutoriel s'il figure au registre `TUTORIALS`
-(`tutorial.ts`) : son `stepOf(cube)` dit le pas où en est l'état
-(`TutorialStep` : clé, rang de l'étape et avancement, centre à tenir de
-face, sticker repère de la flèche, pièces placées, suggestion, pièces et
-emplacements qu'on peut choisir, et la formule pour un choix, qui garde les
-pièces placées). Tout le reste (tons des pièces `tonesOf`, flèche
-`markerPath`, panneau, arrêt, coups à la main, annulation) est générique.
-**Ajouter un tutoriel** : un module `lib/tutorial/<puzzle>.ts` et sa ligne
-au registre ; les titres, consignes et phrases d'avancement de ses étapes
-dans `i18n/{fr,en}/tutorial.ts` ; ses tests dans `tests/unit/tutorial/`.
+Un tutoriel est **déclaré, pas codé**, comme une méthode : un
+`TutorialPlan` (`lib/tutorial/kit.ts`) est une liste d'étapes, et
+`tutorialOf` en fait le pas où en est un état. Une étape de **pièces**
+(`PieceStage`) place des pièces une à une : ses cibles (`Target` : la
+pièce, son emplacement, « placée »), comment tenir le puzzle pour un choix
+(`hold`, voir `lib/core/hold.ts`), le sticker que suit la flèche, les
+enchaînements appris (`Sequence`, chacun en ses gestes, montrés à part), et la façon de trouver la formule (une
+recherche vers l'objectif, ou une recette : placement puis enchaînement) ;
+le moteur fait le reste (pièces placées au début du pas et gardées,
+choix possibles, suggestion, avancement). Une étape de **formule**
+(`FormulaStage`) joue la sienne sans choix (le recentrage du 3x3). Une
+étape de **figures** (`FigureStage`, la dernière couche) reconnaît une
+figure (`Figure` : comment la tenir, la formule lue dans cette tenue) et en
+met les pièces en valeur, sans pièce à choisir. Après
+les étapes, `next` annonce celle qui vient. Le registre `TUTORIALS`
+(`tutorial.ts`) lie une forme à son tutoriel ; tout le reste (tons des
+pièces, flèche, panneau, arrêt, coups à la main, annulation) est
+générique. **Ajouter un tutoriel** : sa définition dans
+`lib/tutorials/<catégorie>/<puzzle>.ts` et sa ligne au registre ; les
+titres, consignes et phrases d'avancement de ses étapes dans
+`i18n/{fr,en}/tutorial.ts`, leurs noms dans `steps.ts` ; ses tests dans
+`tests/unit/tutorial/`. Le comportement du tutoriel du 3x3 est figé pas à
+pas par `golden.test.ts` (référence `golden/cube3.json`, écrite par le
+test : `-u` pour la réécrire, seulement sur un changement voulu).
 
 ---
 

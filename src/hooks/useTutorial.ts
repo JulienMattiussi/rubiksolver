@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import type { Hold } from '@/lib/core/hold'
 import type { Cube, Move } from '@/lib/core/types'
 import { invertMoves } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
@@ -28,6 +29,8 @@ export interface TutorialView {
   step: TutorialStep | null
   /** The piece and place shown: the user's pick, else the suggestion. */
   pick: TutorialPick | null
+  /** The way to hold the puzzle for it: the formula reads from there. */
+  hold: Hold | null
   /** The formula for it, what is left to play (null: none). */
   moves: Move[] | null
   /** The formula shown, and how many of its moves are played by hand
@@ -45,6 +48,7 @@ const OFF = {
   progress: null,
   step: null,
   pick: null,
+  hold: null,
   moves: null,
   shown: null,
   tones: null,
@@ -92,7 +96,7 @@ export function useTutorial(): TutorialView {
   const shown = underWay?.shown ? { moves: underWay.shown, done: underWay.done } : null
   const tones = useMemo(() => {
     if (!step || !moves || busy) return null
-    const tones = tonesOf(read, moves, pick, step.placed)
+    const tones = tonesOf(read, moves, pick, step.placed, step.focus)
     // Played: the piece that stood in the way only moved like the others.
     return review ? tones.map((t) => (t === 'slot' ? 'moved' : t)) : tones
   }, [step, moves, busy, read, pick, review])
@@ -125,5 +129,16 @@ export function useTutorial(): TutorialView {
       if (first) choose({ piece: index, slot: first })
     }
   }
-  return { cube: read, review, progress, step, pick, moves, shown, tones, click }
+  return {
+    cube: read,
+    review,
+    progress,
+    step,
+    pick,
+    hold: step.hold(pick),
+    moves,
+    shown,
+    tones,
+    click,
+  }
 }

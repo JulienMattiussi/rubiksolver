@@ -103,7 +103,9 @@ export function firstLayerDone(cube: Cube): boolean {
   return crossDone(cube) && CORNER_PAIRS.every(([a, b]) => cornerPlaced(cube, a, b))
 }
 
-function middleEdgePlaced(cube: Cube, s1: Face, s2: Face): boolean {
+/** The middle-layer edge between sides `s1` and `s2` at its slot, its
+ *  colors on their sides. */
+export function middleEdgePlaced(cube: Cube, s1: Face, s2: Face): boolean {
   const edge = findEdge(cube, FACE_COLOR[s1], FACE_COLOR[s2])
   return colorAt(edge, s1) === FACE_COLOR[s1] && colorAt(edge, s2) === FACE_COLOR[s2]
 }

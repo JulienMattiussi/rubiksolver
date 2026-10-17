@@ -1,5 +1,10 @@
 import { ArrowRight, GraduationCap, Sparkles, Undo2, X } from 'lucide-react'
+import { useEffect } from 'react'
+import { moveInHold } from '@/lib/core/hold'
+import { formatMove } from '@/lib/core/moves'
+import { FACE_NORMAL } from '@/lib/core/geometry'
 import { useI18n } from '@/i18n/i18nStore'
+import { useView } from '@/store/viewStore'
 import { selectBusy, useCube } from '@/store/cubeStore'
 import { useTutorialStore } from '@/store/tutorialStore'
 import { useTutorial } from '@/hooks/useTutorial'
@@ -16,6 +21,7 @@ export function TutorialPanel() {
   const t = useI18n((s) => s.t)
   const busy = useCube(selectBusy)
   const apply = useTutorialStore((s) => s.apply)
+  const learn = useTutorialStore((s) => s.learn)
   const undo = useTutorialStore((s) => s.undo)
   const exit = useTutorialStore((s) => s.exit)
   const next = useTutorialStore((s) => s.next)
@@ -23,9 +29,23 @@ export function TutorialPanel() {
   // Turns by hand since the step began: applying finishes it from there.
   const manual = useTutorialStore((s) => s.manual).length > 0
   const view = useTutorial()
-  const { step, moves, pick, review, progress } = view
+  const { step, moves, pick, review, progress, hold } = view
+  const setHold = useTutorialStore((s) => s.setHold)
+  const viewToward = useView((s) => s.viewToward)
+  // A new way to hold the puzzle: the pad follows it, and the view turns to
+  // its front center (the cube's, wherever it stands).
+  useEffect(() => {
+    setHold(hold)
+    if (!hold) return
+    const front = useCube
+      .getState()
+      .cube.find(
+        (c) => c.stickers.length === 1 && c.stickers[0]!.normal.join() === FACE_NORMAL[hold].join(),
+      )
+    if (front) viewToward(front.stickers[0]!.normal)
+  }, [hold, setHold, viewToward])
   return (
-    <section aria-label={t.tutorial.button} className={`${SECTION_BOX} min-h-0`}>
+    <section aria-label={t.tutorial.button} className={SECTION_BOX}>
       <div className="flex items-center justify-between">
         <h2 className={`${SECTION_LABEL} flex items-center gap-2`}>
           <GraduationCap className="size-4" aria-hidden />
@@ -54,7 +74,14 @@ export function TutorialPanel() {
             ) : (
               <Button
                 variant="solve"
-                onClick={() => moves && apply({ key: step.key, moves }, pick)}
+                onClick={() => {
+                  if (!moves) return
+                  // The moves shown, learnt from now on.
+                  if (hold && view.shown) {
+                    learn(view.shown.moves.map((m) => formatMove(moveInHold(hold, m))))
+                  }
+                  apply({ key: step.key, moves }, pick)
+                }}
                 disabled={busy || !moves || (moves.length === 0 && !manual)}
               >
                 <Sparkles className="size-4" aria-hidden />
