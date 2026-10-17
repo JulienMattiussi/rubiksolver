@@ -4,6 +4,7 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   button: 'Tutorial',
   buttonTitle: 'Learn to solve it step by step, picking the pieces to move',
   exit: 'Leave the tutorial',
+  close: 'Close the tutorial',
   apply: 'Apply the formula',
   undo: 'Undo the move',
   finish: 'Complete the move',

@@ -206,9 +206,8 @@ un état non résolu ; pas une réinitialisation, un changement de puzzle ni
 une restauration), quelques fusées montent et éclatent aux couleurs du cube
 pendant trois secondes, sur un canvas qui laisse passer les clics et
 n'existe que le temps du spectacle (rien au repos). Dans le tutoriel, seulement
-une fois le pas validé : le coup d'une formule qui le résout, ou « Valider le
-déplacement » sur un puzzle que des coups à la main ont résolu ; un coup à
-la main seul ne le déclenche pas. Rien pour
+à sa fin, avec la coupe : toutes ses étapes montrées, celles que le cube
+remplissait déjà comprises (`tutorialStore.cheer`), jamais à un coup. Rien pour
 qui demande moins d'animations (`prefers-reduced-motion`).
 
 **Adresse** (`lib/app/route.ts`, `store/router.ts`, sans bibliothèque) : l'URL

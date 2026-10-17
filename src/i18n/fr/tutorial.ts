@@ -3,6 +3,7 @@ export const TUTORIAL_FR = {
   button: 'Tutoriel',
   buttonTitle: 'Apprendre à résoudre pas à pas, en choisissant les pièces à déplacer',
   exit: 'Quitter le tutoriel',
+  close: 'Fermer le tutoriel',
   apply: 'Appliquer la formule',
   undo: 'Annuler le déplacement',
   finish: 'Valider le déplacement',

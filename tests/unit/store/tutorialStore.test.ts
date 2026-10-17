@@ -92,13 +92,14 @@ describe('tutorial store', () => {
     expect(stateKey(useCube.getState().cube)).toBe(start)
   })
 
-  it('cheers a step validated on a puzzle turns by hand solved', () => {
+  it('cheers only the end, not a step solving the puzzle by hand', () => {
     useCube.getState().reset()
     byHand("R U R' U'")
-    // Turned back by hand: solved, nothing left to play.
     byHand("U R U' R'")
     const cheers = useTutorialStore.getState().cheers
     useTutorialStore.getState().apply({ key: 'stepTutorialCross', moves: [] }, null)
+    expect(useTutorialStore.getState().cheers).toBe(cheers)
+    useTutorialStore.getState().cheer()
     expect(useTutorialStore.getState().cheers).toBe(cheers + 1)
   })
 

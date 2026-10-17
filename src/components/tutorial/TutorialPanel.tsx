@@ -32,6 +32,13 @@ export function TutorialPanel() {
   const { step, moves, pick, review, progress, hold, frame } = view
   const setHold = useTutorialStore((s) => s.setHold)
   const showStage = useTutorialStore((s) => s.showStage)
+  const cheer = useTutorialStore((s) => s.cheer)
+  // The end come (every stage shown, the puzzle solved): the cup, and the
+  // fireworks with it, not before.
+  const over = !step
+  useEffect(() => {
+    if (over) cheer()
+  }, [over, cheer])
   // The stage of the step shown, noted (a stage skipped over is then shown
   // in passing, see useTutorial).
   useEffect(() => {
@@ -74,6 +81,10 @@ export function TutorialPanel() {
         <div className="flex flex-col items-center gap-3 py-4 text-center">
           <GoldTrophy className="size-32 drop-shadow-[0_0_18px_rgba(251,191,36,0.45)]" />
           <p className="text-lg font-bold text-emerald-300">{t.tutorial.solved}</p>
+          <Button onClick={exit} className="mt-2 w-full">
+            <X className="size-4" aria-hidden />
+            {t.tutorial.close}
+          </Button>
         </div>
       )}
       {/* A stage the puzzle already meets: said so, then on. */}

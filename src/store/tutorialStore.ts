@@ -37,9 +37,11 @@ interface TutorialStore {
   /** The last formula played is being looked at, before the next step: its
    *  pieces where they went, until `next`. */
   review: boolean
-  /** Counts the steps validated on a puzzle that turns by hand had already
-   *  solved (no formula left to play): each one is celebrated. */
+  /** Counts the tutorials ended (every stage shown, the puzzle solved):
+   *  each one is celebrated. */
   cheers: number
+  /** The tutorial has come to its end: celebrate. */
+  cheer: () => void
   /** The way the puzzle is held for the step under way (null: the
    *  tutorial is off): the pad reads its turns from there too. */
   hold: Hold | null
@@ -78,6 +80,7 @@ const IDLE = { pick: null, pickedOn: null, played: [], manual: [], review: false
 export const useTutorialStore = create<TutorialStore>((set, get) => ({
   active: false,
   cheers: 0,
+  cheer: () => set((s) => ({ cheers: s.cheers + 1 })),
   stagesDone: 0,
   stageShown: 0,
   showStage: (stage) => set((s) => (stage > s.stageShown ? { stageShown: stage } : s)),
@@ -114,7 +117,6 @@ export const useTutorialStore = create<TutorialStore>((set, get) => ({
     }
     // Turns by hand may have done it all: nothing left to play.
     if (step.moves.length > 0) useCube.getState().playStep(step)
-    else if (isSolved(cube)) set((s) => ({ cheers: s.cheers + 1 }))
     // The step began where turns by hand were not yet played: its stage over?
     const tutorial = tutorialFor(cubeShape(cube))
     const began = tutorial?.stepOf(applyMoves(cube, invertMoves(get().manual)))
