@@ -120,8 +120,10 @@ src/
 │   │                    #   (demi-cubies du Fashion-V), faceCanvases (forme face par face), gearEditor,
 │   │                    #   roadblockEditor, validate
 │   ├── tutorial/        # Le tutoriel : tutorial (TutorialStep, registre tutorialFor, tons des pièces, chemin de
-│   │                    #   la flèche), cube3 (les pas du 3x3 : recentrer, la croix arête par arête)
-│   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), moveGuide, speed, easing
+│   │                    #   la flèche, formule lue en blocs répétés), cube3 (les pas du 3x3 : recentrer, la
+│   │                    #   croix arête par arête), cube3Corners (les coins jaunes, par le déclencheur)
+│   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
+│                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
 │   ├── core/            # Scene, CubeView / Cubie / Sticker (puzzles à grille), PolyView / PolyModel / PolyPiece
 │   │                    #   (puzzles en polygones), EditView / PolyEditView (saisie), polyDrawing (registre des

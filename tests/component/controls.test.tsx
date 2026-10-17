@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { Controls } from '@/components/controls/Controls'
 import { useI18n } from '@/i18n/i18nStore'
 import { cubeShape, solvedCube, stateKey } from '@/lib/core/cube'
@@ -8,6 +8,7 @@ import { applyMoves } from '@/lib/core/turn'
 import { parseMoves } from '@/lib/core/moves'
 import { useCube } from '@/store/cubeStore'
 import { useSaved } from '@/store/savedStore'
+import { stubStorage } from '../helpers'
 import { useView } from '@/store/viewStore'
 
 /** Choose a puzzle through the picker: open it, its category, then the puzzle. */
@@ -22,12 +23,7 @@ beforeEach(() => {
   useCube.getState().reset()
   useI18n.getState().setLocale('fr')
   useSaved.setState({ saved: {} })
-  // An in-memory Storage: the runtime's own may be missing or inert.
-  const items = new Map<string, string>()
-  vi.stubGlobal('localStorage', {
-    getItem: (key: string) => items.get(key) ?? null,
-    setItem: (key: string, value: string) => items.set(key, value),
-  })
+  stubStorage()
 })
 
 describe('<Controls />', () => {

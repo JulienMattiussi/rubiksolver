@@ -5,14 +5,16 @@ import { crossDone, edgePlaced } from '../methods/standard/layers3'
 import { homeOf } from '../methods/standard/pieces3'
 import { centersHome, recenter } from '../methods/standard/recenter'
 import { OUTER_GENERATORS, search, SIDES } from '../solve/solverKit'
+import { cornersDone, cornersStep } from './cube3Corners'
 import type { Tutorial, TutorialPick, TutorialStep } from './tutorial'
 
 /**
  * The 3x3's tutorial, layer by layer (the beginner method, its frame: yellow
  * down, white up). First the centers put back if a slice moved them, then
  * the yellow cross: an edge at a time, the shortest way that keeps the
- * edges already placed (a few turns, its corners hatched: placed later).
- * The rest of the solve is still to come.
+ * edges already placed (a few turns, its corners hatched: placed later);
+ * then the yellow corners (cube3Corners.ts). The rest of the solve is still
+ * to come.
  */
 
 const Y = FACE_COLOR.D
@@ -43,9 +45,10 @@ function recenterStep(cube: Cube): TutorialStep {
 }
 
 /** The yellow cross, an edge at a time: any yellow edge not placed, to any
- *  cross slot no placed edge holds, yellow down. */
-function crossStep(cube: Cube): TutorialStep {
-  const placedSides = SIDES.filter((s) => edgePlaced(cube, s))
+ *  cross slot no placed edge holds, yellow down; the edges placed read
+ *  where the step began (`begun`), all brought back. */
+function crossStep(cube: Cube, begun: Cube): TutorialStep {
+  const placedSides = SIDES.filter((s) => edgePlaced(begun, s))
   const placed = placedSides.map((s) => crossEdge(cube, s))
   const free = SIDES.filter((s) => !placedSides.includes(s))
   const next = free[0]!
@@ -71,10 +74,10 @@ function crossStep(cube: Cube): TutorialStep {
   }
 }
 
-/** What comes after the cross, not taught yet. */
+/** What comes after the first layer, not taught yet. */
 const comingSoon = (placed: number[]): TutorialStep => ({
-  key: 'stepBottomCorners',
-  stage: 2,
+  key: 'stepMiddle',
+  stage: 3,
   front: FRONT,
   placed,
   suggestion: null,
@@ -85,9 +88,12 @@ const comingSoon = (placed: number[]): TutorialStep => ({
 })
 
 export const CUBE3_TUTORIAL: Tutorial = {
-  stepOf: (cube) => {
-    if (!centersHome(cube)) return recenterStep(cube)
-    if (!crossDone(cube)) return crossStep(cube)
-    return comingSoon(SIDES.map((s) => crossEdge(cube, s)))
+  // The stage is the one the step began in.
+  stepOf: (cube, begun = cube) => {
+    if (!centersHome(begun)) return recenterStep(cube)
+    if (!crossDone(begun)) return crossStep(cube, begun)
+    const cross = SIDES.map((s) => crossEdge(cube, s))
+    if (!cornersDone(begun)) return cornersStep(cube, begun, cross)
+    return comingSoon(cross)
   },
 }

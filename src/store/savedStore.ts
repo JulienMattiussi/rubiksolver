@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { cubeShape } from '@/lib/core/cube'
 import { decodeCube, encodeCube } from '@/lib/app/snapshot'
+import { readStored, writeStored } from '@/lib/app/storage'
 import type { Cube, CubeShape } from '@/lib/core/types'
 import { useCube } from './cubeStore'
 
@@ -14,25 +15,10 @@ type SavedByShape = Partial<Record<CubeShape, SavedState>>
 
 const STORAGE_KEY = 'rubiksolver.saved'
 
-/** Saved states from a previous visit. Storage may be missing, blocked or
- *  hold anything, so every failure just means "nothing saved". */
-function readStorage(): SavedByShape {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    const parsed: unknown = raw ? JSON.parse(raw) : {}
-    return parsed && typeof parsed === 'object' ? (parsed as SavedByShape) : {}
-  } catch {
-    return {}
-  }
-}
-
-function writeStorage(saved: SavedByShape): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved))
-  } catch {
-    // Storage unavailable: the state still lives for this session.
-  }
-}
+/** Saved states from a previous visit: any object (an entry that no
+ *  longer decodes is dropped on restore). */
+const isSaved = (value: unknown): value is SavedByShape =>
+  typeof value === 'object' && value !== null
 
 interface SavedStore {
   /** One memorized state per shape (the mirror skin shares its shape's). */
@@ -45,14 +31,14 @@ interface SavedStore {
 }
 
 export const useSaved = create<SavedStore>((set, get) => ({
-  saved: readStorage(),
+  saved: readStored(STORAGE_KEY, isSaved, {}),
 
   save: (cube) => {
     const saved = {
       ...get().saved,
       [cubeShape(cube)]: { cube: encodeCube(cube), savedAt: Date.now() },
     }
-    writeStorage(saved)
+    writeStored(STORAGE_KEY, saved)
     set({ saved })
   },
 
@@ -66,7 +52,7 @@ export const useSaved = create<SavedStore>((set, get) => ({
     }
     const saved = { ...get().saved }
     delete saved[shape]
-    writeStorage(saved)
+    writeStored(STORAGE_KEY, saved)
     set({ saved })
   },
 }))

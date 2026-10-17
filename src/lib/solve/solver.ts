@@ -244,7 +244,7 @@ export function methodsFor(shape: CubeShape) {
           {
             id: m.id as MethodId,
             solve: (cube: Cube) => buildSteps(cube, plan),
-            outline: planOutline(plan),
+            outline: (start?: Cube) => planOutline(plan, start),
           },
         ]
       : []

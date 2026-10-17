@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { solvedByTurn, useCube } from '@/store/cubeStore'
+import { useTutorialStore } from '@/store/tutorialStore'
 import { COLOR_HEX } from '@/three/core/colors'
 
 /** The sparks' colors: the cube's. */
@@ -149,20 +150,32 @@ function Show({ onEnd }: { onEnd: () => void }) {
 /**
  * A little fireworks show over the whole app when a turn solves the puzzle
  * (`solvedByTurn`), gone after three seconds: its canvas only exists while
- * it plays. Skipped for who asks for reduced motion.
+ * it plays. In the tutorial, only once a step is validated: a formula's
+ * turn solving it, or a step validated on a puzzle turns by hand solved
+ * (`cheers`); a turn by hand alone does not. Skipped for who asks for
+ * reduced motion.
  */
 export function Fireworks() {
   // Each show its own key, so a new one starts afresh.
   const [show, setShow] = useState(0)
   const end = useCallback(() => setShow(0), [])
-  useEffect(
-    () =>
-      useCube.subscribe((next, prev) => {
-        if (!solvedByTurn(prev, next)) return
-        if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
-        setShow((n) => n + 1)
-      }),
-    [],
-  )
+  useEffect(() => {
+    const fire = () => {
+      if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+      setShow((n) => n + 1)
+    }
+    const turns = useCube.subscribe((next, prev) => {
+      if (!solvedByTurn(prev, next)) return
+      if (useTutorialStore.getState().active && !prev.solving) return
+      fire()
+    })
+    const steps = useTutorialStore.subscribe((next, prev) => {
+      if (next.cheers !== prev.cheers) fire()
+    })
+    return () => {
+      turns()
+      steps()
+    }
+  }, [])
   return show ? <Show key={show} onEnd={end} /> : null
 }

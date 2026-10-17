@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
 import type { Cube, CubeShape } from '@/lib/core/types'
 
@@ -39,4 +40,14 @@ export function twistedCorner(shape: CubeShape): Cube {
 /** The 2x2 variant, kept for the existing suites. */
 export function twistedCorner2(): Cube {
   return twistedCorner('2')
+}
+
+/** An in-memory localStorage, in place of the runtime's (which may be
+ *  missing or inert): a fresh one per call. */
+export function stubStorage(): void {
+  const items = new Map<string, string>()
+  vi.stubGlobal('localStorage', {
+    getItem: (key: string) => items.get(key) ?? null,
+    setItem: (key: string, value: string) => items.set(key, value),
+  })
 }

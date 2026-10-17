@@ -92,6 +92,36 @@ describe('tutorial store', () => {
     expect(stateKey(useCube.getState().cube)).toBe(start)
   })
 
+  it('cheers a step validated on a puzzle turns by hand solved', () => {
+    useCube.getState().reset()
+    byHand("R U R' U'")
+    // Turned back by hand: solved, nothing left to play.
+    byHand("U R U' R'")
+    const cheers = useTutorialStore.getState().cheers
+    useTutorialStore.getState().apply({ key: 'stepTutorialCross', moves: [] }, null)
+    expect(useTutorialStore.getState().cheers).toBe(cheers + 1)
+  })
+
+  it('counts a stage done once its last step is validated', () => {
+    const before = useTutorialStore.getState().stagesDone
+    for (let guard = 0; ; guard++) {
+      expect(guard).toBeLessThan(5)
+      const { step, pick, moves } = current()
+      if (step.key !== 'stepTutorialCross') break
+      const last = step.progress!.done === 3
+      useTutorialStore.getState().apply({ key: step.key, moves }, pick)
+      drain()
+      useTutorialStore.getState().next()
+      expect(useTutorialStore.getState().stagesDone).toBe(before + (last ? 1 : 0))
+    }
+  })
+
+  it('is left when another puzzle is chosen', () => {
+    byHand('U')
+    useCube.getState().setShape('2')
+    expect(useTutorialStore.getState()).toMatchObject({ active: false, manual: [] })
+  })
+
   it('forgets it all on leaving', () => {
     byHand('U')
     useTutorialStore.getState().exit()

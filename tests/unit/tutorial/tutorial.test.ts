@@ -3,11 +3,13 @@ import { FACE_COLOR, solvedCube } from '@/lib/core/cube'
 import { parseMoves } from '@/lib/core/moves'
 import { colorAt, hasColors } from '@/lib/core/pieces'
 import { applyMoves } from '@/lib/core/turn'
-import type { Cube } from '@/lib/core/types'
-import { crossDone, edgePlaced } from '@/lib/methods/standard/layers3'
+import type { Cube, Move } from '@/lib/core/types'
+import { crossDone, edgePlaced, firstLayerDone } from '@/lib/methods/standard/layers3'
 import { centersHome } from '@/lib/methods/standard/recenter'
+import { formulaUnderWay, keepsPlaced } from '@/lib/tutorial/keep'
 import { SIDES } from '@/lib/solve/solverKit'
 import {
+  formulaParts,
   markerPath,
   occupantOf,
   pieceColors,
@@ -19,7 +21,7 @@ import {
 const Y = FACE_COLOR.D
 const SCRAMBLE = parseMoves("R U F' L2 D B' R2 U' F L D2 B")
 const scrambled = applyMoves(solvedCube('3'), SCRAMBLE)
-const stepOf = (cube: Cube): TutorialStep => tutorialFor('3')!.stepOf(cube)!
+const stepOf = (cube: Cube, begun?: Cube): TutorialStep => tutorialFor('3')!.stepOf(cube, begun)!
 
 describe('tutorial registry', () => {
   it('has the 3x3 only', () => {
@@ -66,19 +68,112 @@ describe('3x3 tutorial', () => {
     for (const p of step.placed) expect(after[p]).toEqual(cube[p])
   })
 
-  it('walks the cross to its end, then the corners are still to come', () => {
+  it('keeps the pieces placed where the step began, through turns by hand', () => {
+    // Every cross step of the walk, its formula's first moves played by hand.
     let cube = scrambled
-    for (let guard = 0; !crossDone(cube); guard++) {
-      expect(guard).toBeLessThan(4)
+    while (!crossDone(cube)) {
+      const step = stepOf(cube)
+      const pick = step.suggestion!
+      const moves = step.formula(pick)!
+      for (let k = 1; k < moves.length; k++) {
+        const midway = applyMoves(cube, moves.slice(0, k))
+        const under = stepOf(midway, cube)
+        expect(under.key).toBe(step.key)
+        expect(under.placed).toEqual(step.placed)
+        const rest = under.formula(pick)!
+        expect(keepsPlaced(midway, rest, step.placed, cube)).toBe(true)
+        expect(applyMoves(midway, rest)[pick.piece]!.position).toEqual(pick.slot)
+      }
+      cube = applyMoves(cube, moves)
+    }
+  })
+
+  it('keeps a corner formula followed by hand, and mends one strayed from', () => {
+    let cube = scrambled
+    while (!crossDone(cube)) {
       const step = stepOf(cube)
       cube = applyMoves(cube, step.formula(step.suggestion)!)
     }
-    const next = stepOf(cube)
-    expect(next.key).toBe('stepBottomCorners')
-    expect(next.comingSoon).toBe(true)
+    const step = stepOf(cube)
+    const pick = step.suggestion!
+    const moves = step.formula(pick)!
+    const tutorial = tutorialFor('3')!
+    const underWay = (manual: Move[]) => {
+      const now = applyMoves(cube, manual)
+      return formulaUnderWay(tutorial, stepOf(now, cube), pick, now, cube, manual)!
+    }
+    // Followed: the rest of it, move for move.
+    for (let k = 1; k < moves.length; k++) {
+      expect(underWay(moves.slice(0, k))).toEqual(moves.slice(k))
+    }
+    // Strayed (the cross turned): still lands the corner, the rest kept.
+    const strayed = parseMoves('D R')
+    const now = applyMoves(cube, strayed)
+    const mend = underWay(strayed)
+    expect(keepsPlaced(now, mend, step.placed, cube)).toBe(true)
+    const after = applyMoves(now, mend)
+    expect(after[pick.piece]!.position).toEqual(pick.slot)
+  })
+
+  it('walks the cross, then the corners, then the rest is still to come', () => {
+    const walk = (cube: Cube, key: string) => {
+      for (let guard = 0; ; guard++) {
+        expect(guard).toBeLessThan(5)
+        const step = stepOf(cube)
+        if (step.key !== key) return cube
+        cube = applyMoves(cube, step.formula(step.suggestion)!)
+      }
+    }
+    const cross = walk(scrambled, 'stepTutorialCross')
+    expect(crossDone(cross)).toBe(true)
+    expect(stepOf(cross)).toMatchObject({ key: 'stepTutorialCorner', stage: 2 })
+    const layer = walk(cross, 'stepTutorialCorner')
+    expect(firstLayerDone(layer)).toBe(true)
+    const next = stepOf(layer)
+    expect(next).toMatchObject({ key: 'stepMiddle', stage: 3, comingSoon: true })
     expect(next.formula(null)).toBeNull()
     // On the solved puzzle too: nothing further taught yet.
     expect(stepOf(solvedCube('3')).comingSoon).toBe(true)
+  })
+
+  it('takes any yellow corner to any free slot by the trigger, the rest kept', () => {
+    const cross = (() => {
+      let cube = scrambled
+      while (!crossDone(cube)) {
+        const step = stepOf(cube)
+        cube = applyMoves(cube, step.formula(step.suggestion)!)
+      }
+      return cube
+    })()
+    const step = stepOf(cross)
+    for (const piece of step.pickable) {
+      for (const slot of step.slots(piece)) {
+        const moves = step.formula({ piece, slot })!
+        const after = applyMoves(cross, moves)
+        expect(after[piece]!.position).toEqual(slot)
+        expect(colorAt(after[piece]!, 'D')).toBe(Y)
+        for (const p of step.placed) expect(after[p]).toEqual(cross[p])
+        // Ends on the slot's trigger, repeated: a corner's formula reads so.
+        expect(formulaParts(moves).block.length % 4).toBe(0)
+      }
+    }
+  })
+})
+
+describe('a formula read as taught', () => {
+  it('shows a block it repeats once, with its count', () => {
+    const parts = formulaParts(parseMoves("U2 R U R' U' R U R' U' R U R' U'"))
+    expect(parts.lead).toEqual(parseMoves('U2'))
+    expect(parts.block).toEqual(parseMoves("R U R' U'"))
+    expect(parts.times).toBe(3)
+  })
+
+  it('leaves a formula that repeats nothing whole', () => {
+    expect(formulaParts(parseMoves("R U F'"))).toEqual({
+      lead: parseMoves("R U F'"),
+      block: [],
+      times: 0,
+    })
   })
 })
 

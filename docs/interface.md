@@ -60,7 +60,9 @@ mobile et en saisie, une seule carte) :
   et elle suit le coup en cours pendant que la solution joue.
   Les étapes s'affichent sans attendre : le **plan** de la méthode dès son
   choix (`PlanOutline`, « si nécessaire » sur les étapes qu'on saute
-  souvent : `StepSpec.optional`), puis la **vraie solution** dès que le cube
+  souvent : `StepSpec.optional` ; celles du début que le cube remplit déjà
+  sont omises, comme le recentrage du 3x3 tant qu'aucune tranche n'a
+  bougé ses centres), puis la **vraie solution** dès que le cube
   est au repos, calculée d'avance dans un worker (`useAutoPlan`,
   `workers/solveWorker.ts`) pour ne jamais figer la page ; Résoudre et Pas à
   pas la réutilisent tant qu'elle vaut pour l'état et la méthode
@@ -126,36 +128,50 @@ survolé.
 (`tutorialFor`, le 3x3 pour l'instant), le bouton Tutoriel (grisé sur un
 puzzle résolu) remplace le bloc de résolution par un panneau où l'on résout
 soi-même, un **pas** à la fois : un pas est une formule qui amène une pièce
-à sa place sans déranger celles déjà placées (sur le 3x3 : recentrer, puis
+à sa place sans déranger celles déjà placées (sur le 3x3 : recentrer ;
 la croix jaune arête par arête, la formule la plus courte en coups
-externes ; les coins viendront). Le panneau dit l'**étape** (son rang,
+externes ; les coins jaunes un par un, amenés au-dessus de leur place puis
+descendus par le déclencheur de la place, `R U R' U'` pour l'avant droite,
+répété ; la deuxième couronne viendra). Le panneau dit l'**étape** (son rang,
 son but, son avancement en pastilles et en mots, sa consigne, la légende
 des hachures), puis quatre **consignes numérotées** : tenir le centre de
 face (un clic tourne la vue vers lui, `viewStore.viewToward`), repérer la
 pièce et celle qui occupe sa place, jouer la formule (chaque coup en
-bouton du pad, à côté de sa phrase courte `t.describeMoveShort`), vérifier
+bouton du pad, à côté de sa phrase courte `t.describeMoveShort` ; un bloc
+répété à sa fin, montré une fois avec son nombre, sur une rangée de boutons
+dont les phrases sont en infobulle, `formulaParts`), vérifier
 les nouvelles positions. Sur le cube, la pièce visée et l'emplacement
 **scintillent** (`usePulse`), les pièces que la formule déplace sans les
 placer sont **hachurées** (`hatchTexture`), et une **flèche** va de la face
 du sticker repère à celle où il arrive (`TutorialArrow` : un demi-cercle
-centré entre les deux faces, élargi jusqu'à passer au large du cube, chaque
+centré entre les deux faces, du côté opposé au centre du cube, ou dans le
+plan de l'écran pour deux faces opposées, élargi jusqu'à passer au large du cube, chaque
 bout sortant de sa face tout droit, en pointillés là où le cube le cache).
 Un clic sur une autre pièce la choisit, puis un clic sur un emplacement ;
 la formule se recalcule. « Appliquer la formule » la joue puis marque un
 **arrêt** (les consignes faites cochées, la vérification en avant) jusqu'à
-« Suivant ». Des coups joués **à la main** pendant un pas (le pad ou les
+« Suivant » ; une **étape** finie (son dernier pas validé, le puzzle pas
+encore résolu) fait apparaître un 💪 devant le cube, qui grandit, bat deux
+fois et s'efface (`StageCheer`, `tutorialStore.stagesDone`), distinct du
+feu d'artifice de la résolution complète. Des coups joués **à la main** pendant un pas (le pad ou les
 boutons de la formule) sont suivis : le bouton devient « Valider le
 déplacement » (le reste de la formule, recalculée pour la même pièce), et
 « Annuler le déplacement » ramène au début du pas, formule et coups à la
 main compris. La solution précalculée de la méthode n'est pas montrée
-pendant le tutoriel (`useAutoPlan` s'en abstient).
+pendant le tutoriel (`useAutoPlan` s'en abstient). Tout ce qui remplacerait le cube suivi est
+grisé tant qu'il est ouvert (mélange, réinitialisation, saisie,
+restauration), avec une infobulle qui invite à le quitter ; choisir un
+autre puzzle le quitte.
 
 **Feu d'artifice** (`components/celebration/Fireworks.tsx`) : quand un coup
 amène le puzzle résolu (`solvedByTurn` du store : le coup qui finit, depuis
 un état non résolu ; pas une réinitialisation, un changement de puzzle ni
 une restauration), quelques fusées montent et éclatent aux couleurs du cube
 pendant trois secondes, sur un canvas qui laisse passer les clics et
-n'existe que le temps du spectacle (rien au repos). Rien pour
+n'existe que le temps du spectacle (rien au repos). Dans le tutoriel, seulement
+une fois le pas validé : le coup d'une formule qui le résout, ou « Valider le
+déplacement » sur un puzzle que des coups à la main ont résolu ; un coup à
+la main seul ne le déclenche pas. Rien pour
 qui demande moins d'animations (`prefers-reduced-motion`).
 
 **Adresse** (`lib/app/route.ts`, `store/router.ts`, sans bibliothèque) : l'URL
@@ -178,7 +194,11 @@ inconnue est complétée par celle de l'app, un puzzle inconnu mène à
 l'accueil (`replaceState`, sans entrée d'historique) ; on ne change ni de
 puzzle ni de page pendant une animation ou une saisie (l'adresse est
 remise). La notation et la vitesse restent hors de
-l'adresse. La langue donne aussi le `lang` du document et sa meta
+l'adresse : elles sont gardées d'une visite à l'autre dans le navigateur
+(`lib/app/storage.ts`, comme les états mémorisés), la vitesse en deux
+réglages, celui du mélange et de la résolution et celui du tutoriel (plus
+lent par défaut), l'un ou l'autre selon que le tutoriel est ouvert
+(`cubeStore.speedMode`). La langue donne aussi le `lang` du document et sa meta
 description (`App.tsx`) ; celle d'`index.html` est bilingue, puisqu'un
 robot qui n'exécute pas le JavaScript ne voit qu'une adresse (le `#` n'est
 pas envoyé au serveur).

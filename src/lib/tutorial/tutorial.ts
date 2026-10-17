@@ -50,9 +50,13 @@ export interface TutorialStep {
   readonly comingSoon?: true
 }
 
-/** A tutorial: the step a state stands at, or null once it is done. */
+/** A tutorial: the step a state stands at, or null once it is done. While
+ *  a step is under way (turns by hand since it began, at `begun`), the step
+ *  and the pieces it keeps are read where it began, and its formula works
+ *  from `cube`, bringing them all back: a turn by hand that moves a placed
+ *  piece does not take it off the list. */
 export interface Tutorial {
-  readonly stepOf: (cube: Cube) => TutorialStep | null
+  readonly stepOf: (cube: Cube, begun?: Cube) => TutorialStep | null
 }
 
 /** The puzzles that have a tutorial. */
@@ -119,4 +123,37 @@ export function pieceColors(cube: Cube, index: number, marker?: Color): Color[] 
 export function occupantOf(cube: Cube, pick: TutorialPick): number | null {
   const at = cube.findIndex((c, i) => i !== pick.piece && c.position.join() === pick.slot.join())
   return at < 0 ? null : at
+}
+
+/** The longest block a formula's end may repeat (a trigger's four moves,
+ *  and room to spare). */
+const LONGEST_BLOCK = 8
+
+/**
+ * A formula read as it is taught: its lead, then a block played `times`
+ * times in a row (the corners' trigger, `R U R' U'` thrice), the block
+ * covering as much of its end as it can; no block (`times` 0) when nothing
+ * repeats.
+ */
+export function formulaParts(moves: readonly Move[]): {
+  lead: Move[]
+  block: Move[]
+  times: number
+} {
+  const same = (a: Move, b: Move) => a.face === b.face && a.amount === b.amount
+  let best = { lead: [...moves], block: [] as Move[], times: 0 }
+  for (let size = 2; size <= LONGEST_BLOCK; size++) {
+    const block = moves.slice(moves.length - size)
+    let times = 1
+    while (
+      (times + 1) * size <= moves.length &&
+      block.every((m, i) => same(m, moves[moves.length - (times + 1) * size + i]!))
+    ) {
+      times++
+    }
+    if (times >= 2 && times * size > best.block.length * best.times) {
+      best = { lead: moves.slice(0, moves.length - times * size), block, times }
+    }
+  }
+  return best
 }

@@ -7,6 +7,7 @@ import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { useSaved } from '@/store/savedStore'
+import { useTutorialStore } from '@/store/tutorialStore'
 import { Button } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { CubePicker } from '@/components/picker/CubePicker'
@@ -18,7 +19,9 @@ import { SpeedSlider } from './SpeedSlider'
 import { StatusBadge } from './StatusBadge'
 
 /** Setup block: cube choice (picker) + status on one line, scramble/reset/edit actions,
- *  save/restore a state (one per shape, kept across reloads), speed, move pad. */
+ *  save/restore a state (one per shape, kept across reloads), speed, move pad.
+ *  During the tutorial, what would replace the cube (a scramble, a reset,
+ *  an entry, a restored state) is locked; another puzzle leaves it. */
 export function SetupSection() {
   const t = useI18n((s) => s.t)
   const cube = useCube((s) => s.cube)
@@ -38,6 +41,8 @@ export function SetupSection() {
   // A solution playing is paused from its own panel (SolvePanel).
   const solving = useCube((s) => s.solving)
   const solved = useCube(selectSolved)
+  const tutorial = useTutorialStore((s) => s.active)
+  const locked = tutorial ? t.tutorial.locked : undefined
   const alreadySaved = saved?.cube === encodeCube(cube)
   const savedTime = saved
     ? new Date(saved.savedAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
@@ -45,6 +50,7 @@ export function SetupSection() {
 
   return (
     <section aria-label={t.sectionSetup} className={SECTION_BOX}>
+      {/* Another puzzle leaves the tutorial (tutorialStore). */}
       <CubePicker disabled={busy} trailing={<StatusBadge />} />
 
       <div className="grid grid-cols-2 gap-2">
@@ -55,20 +61,25 @@ export function SetupSection() {
             {t.stop}
           </Button>
         ) : (
-          <Button onClick={reset} disabled={solved || busy}>
+          <Button onClick={reset} disabled={solved || busy || tutorial} title={locked}>
             <RotateCcw className="size-4" aria-hidden />
             {t.reset}
           </Button>
         )}
-        <Button onClick={enterEdit} disabled={busy} variant="edit" title={t.editCubeTitle}>
+        <Button
+          onClick={enterEdit}
+          disabled={busy || tutorial}
+          variant="edit"
+          title={locked ?? t.editCubeTitle}
+        >
           <FEATURE_ICON.edit className="size-4" aria-hidden />
           {t.editCube}
         </Button>
         <Button
           onClick={enterFromCurrent}
-          disabled={busy}
+          disabled={busy || tutorial}
           variant="ghost"
-          title={t.fromCurrentTitle}
+          title={locked ?? t.fromCurrentTitle}
         >
           {t.fromCurrent}
         </Button>
@@ -84,9 +95,9 @@ export function SetupSection() {
         </Button>
         <Button
           onClick={() => restore(shape)}
-          disabled={busy || !saved || alreadySaved}
+          disabled={busy || tutorial || !saved || alreadySaved}
           variant="ghost"
-          title={saved ? t.restoreStateTitle(savedTime) : t.nothingSaved}
+          title={locked ?? (saved ? t.restoreStateTitle(savedTime) : t.nothingSaved)}
         >
           <ArchiveRestore className="size-4" aria-hidden />
           {t.restoreState}

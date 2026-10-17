@@ -13,6 +13,8 @@ interface PadButtonProps {
   /** The second of a pair (the opposite turn): outlined, not filled. */
   ghost?: boolean
   compact?: boolean
+  /** Short and narrow: a move in a list (the tutorial's formula). */
+  dense?: boolean
 }
 
 /**
@@ -21,7 +23,7 @@ interface PadButtonProps {
  * hears the pointer even while the button is disabled, so the highlight never
  * sticks once a click starts the animation.
  */
-export function PadButton({ move, label, title, disabled, ghost, compact }: PadButtonProps) {
+export function PadButton({ move, label, title, disabled, ghost, compact, dense }: PadButtonProps) {
   const pushMove = useCube((s) => s.pushMove)
   const setPreview = useView((s) => s.setPreview)
   // Never leave a highlight behind: the pad changes with the puzzle.
@@ -36,7 +38,9 @@ export function PadButton({ move, label, title, disabled, ghost, compact }: PadB
         onBlur={hide}
         onClick={() => move && pushMove(move)}
         variant={ghost ? 'ghost' : undefined}
-        className={`flex-1 rounded-none whitespace-nowrap ${compact ? 'px-0 text-xs tracking-tight' : 'px-2'}`}
+        className={`flex-1 rounded-none whitespace-nowrap ${
+          dense ? 'h-7 px-0 py-0! text-xs' : compact ? 'px-0 text-xs tracking-tight' : 'px-2'
+        }`}
         aria-label={title}
         title={title}
       >

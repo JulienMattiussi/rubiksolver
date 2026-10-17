@@ -178,9 +178,14 @@ export interface StepSpec {
 }
 
 /** A method's steps as shown before solving: their names, and the ones that
- *  may be skipped. */
-export function planOutline(plan: MethodPlan): { key: string; optional?: true }[] {
-  return plan.map((spec) => ({ key: spec.key, ...(spec.optional && { optional: spec.optional }) }))
+ *  may be skipped. Given the state to solve (`start`), the optional steps
+ *  leading the plan that it already meets are left out, as its solution
+ *  will (the 3x3's centers put back, when no slice moved them). */
+export function planOutline(plan: MethodPlan, start?: Cube): { key: string; optional?: true }[] {
+  const skipped = start ? plan.findIndex((spec) => !spec.optional || !spec.goal(start)) : 0
+  return plan
+    .slice(Math.max(0, skipped))
+    .map((spec) => ({ key: spec.key, ...(spec.optional && { optional: spec.optional }) }))
 }
 
 /** A solving method for one shape: its steps, in order. */

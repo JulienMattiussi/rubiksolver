@@ -56,3 +56,40 @@
     background-clip: padding-box;
   }
 }
+
+/* A tutorial stage done: its emoji grows in, beats twice, then fades out
+   (StageCheer). */
+@theme {
+  --animate-cheer: cheer 1.8s ease-out forwards;
+
+  @keyframes cheer {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    18% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    30% {
+      transform: scale(1);
+    }
+    44% {
+      transform: scale(1.2);
+    }
+    56% {
+      transform: scale(1);
+    }
+    70% {
+      transform: scale(1.2);
+    }
+    82% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.5);
+    }
+  }
+}

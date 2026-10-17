@@ -18,6 +18,9 @@ const MARGIN = 0.45
  *  where its ends face apart), and how much wider it is drawn each try
  *  until it clears the puzzle. */
 const LEAN = 0.5
+/** How near the puzzle's center the middle of the two faces lies when they
+ *  face apart (opposite faces: about none; side by side: a cell and more). */
+const NEAR_CENTER = 0.9
 const WIDER = 1.2
 const TRIES = 12
 /** Points along the circle, and where each end joins it (its angle off
@@ -56,7 +59,8 @@ function across(d: THREE.Vector3, u: THREE.Vector3, fallback: THREE.Vector3) {
  * second's (`b`, normal `n2`; the line ends at the head's base, `base`).
  * Its middle is half a circle centered between the two faces (`m`), as
  * wide as the way between them plus the margin, standing on the side away
- * from the puzzle's center (leaning to the viewer): it rises from beside
+ * from the puzzle's center (leaning to the viewer; across the view for
+ * faces apart, whose middle is near the center): it rises from beside
  * `a` to its top `e` and comes down beside `b`. Each end leaves its face
  * straight out over the margin, then joins the circle by a curve, so
  * there is no angle anywhere. Drawn wider until the whole line clears the
@@ -72,7 +76,14 @@ function arrowLine(
 ): THREE.Vector3[] {
   const m = v().addVectors(a, b).multiplyScalar(0.5)
   const u = a.distanceTo(b) > 1e-6 ? v().subVectors(a, m).normalize() : across(n1, n1, view)
-  const out = across(m.clone().addScaledVector(view, LEAN), u, view)
+  // Its side: away from the center, unless the middle sits near it (faces
+  // apart); then across the view, so the circle shows whole on screen
+  // rather than edge on, a line through the puzzle.
+  const flat = across(v().crossVectors(view, u), u, view)
+  const out =
+    m.length() < NEAR_CENTER
+      ? flat.multiplyScalar(flat.dot(m) < 0 ? -1 : 1)
+      : across(m.clone().addScaledVector(view, LEAN), u, view)
   const leaveFrom = a.clone().addScaledVector(n1, MARGIN)
   const landAt = base.clone().addScaledVector(n2, MARGIN)
   let radius = a.distanceTo(m) + MARGIN

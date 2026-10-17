@@ -431,6 +431,9 @@ test('tutorial: a formula applied, looked at, undone; a move by hand finished', 
 
   const panel = page.getByRole('region', { name: 'Tutoriel' })
   await expect(panel.getByText('Construire la croix jaune')).toBeVisible()
+  // The cube it follows cannot be replaced meanwhile.
+  await expect(page.getByRole('button', { name: 'Mélanger' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Réinitialiser' })).toBeDisabled()
   const moves = panel.locator('ol ol button')
   const formula = async () => (await moves.allTextContents()).join(' ')
   const before = await formula()
@@ -450,5 +453,6 @@ test('tutorial: a formula applied, looked at, undone; a move by hand finished', 
 
   await page.getByRole('button', { name: 'Quitter le tutoriel' }).click()
   await expect(page.getByRole('button', { name: 'Résoudre' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mélanger' })).toBeEnabled()
   expect(errors).toEqual([])
 })

@@ -7,6 +7,9 @@ import { planKey, selectBusy, selectScrambling, solvedByTurn, useCube } from '@/
 import { useEditor } from '@/store/editorStore'
 import { useSaved } from '@/store/savedStore'
 import { jointsOf } from '@/lib/editor/jointsEditor'
+import { useI18n } from '@/i18n/i18nStore'
+import { useTutorialStore } from '@/store/tutorialStore'
+import { stubStorage } from '../../helpers'
 
 /** Play the queue to the end, as the 3D loop does one frame at a time. */
 function drain() {
@@ -371,5 +374,29 @@ describe('editor store: a bandaged puzzle', () => {
     expect(useEditor.getState().phase).toBe('paint')
     useEditor.getState().cancel()
     expect(useEditor.getState().mode).toBe('play')
+  })
+})
+
+describe('preferences kept between visits', () => {
+  it('writes the notation and the speed chosen', () => {
+    stubStorage()
+    useI18n.getState().setNotation('fr')
+    useCube.getState().setTurnDuration(0.5)
+    expect(localStorage.getItem('rubiksolver.notation')).toBe('"fr"')
+    expect(localStorage.getItem('rubiksolver.turnDuration')).toBe('0.5')
+    useI18n.getState().setNotation('us')
+  })
+
+  it('keeps the tutorial speed apart, switched on opening and leaving it', () => {
+    stubStorage()
+    useCube.getState().setTurnDuration(0.1)
+    useTutorialStore.getState().start()
+    expect(useCube.getState().turnDuration).toBe(0.6)
+    useCube.getState().setTurnDuration(1)
+    useTutorialStore.getState().exit()
+    expect(useCube.getState().turnDuration).toBe(0.1)
+    useTutorialStore.getState().start()
+    expect(useCube.getState().turnDuration).toBe(1)
+    useTutorialStore.getState().exit()
   })
 })

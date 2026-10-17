@@ -1,4 +1,6 @@
 import { create } from 'zustand'
+import { readStored, writeStored } from '@/lib/app/storage'
+import { MAX_TURN_DURATION, MIN_TURN_DURATION } from '@/lib/app/speed'
 import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/core/cube'
 import { applyMove } from '@/lib/core/turn'
 import { invertMoves, scrambleTurns } from '@/lib/core/moves'
@@ -27,8 +29,10 @@ interface CubeStore {
   solving: boolean
   /** The queue plays a scramble (its button turns a cog). */
   scrambling: boolean
-  /** Seconds a single quarter turn takes to animate. */
+  /** Seconds a single quarter turn takes to animate: the speed of the
+   *  mode the app is in (`speedMode`), each kept between visits. */
   turnDuration: number
+  speedMode: SpeedMode
 
   /** Selected solving method. */
   method: MethodId
@@ -86,6 +90,9 @@ interface CubeStore {
   /** Replace the cube with a specific state (used by the editor). */
   loadCube: (cube: Cube) => void
   setTurnDuration: (seconds: number) => void
+  /** Switch to a mode's speed (the tutorial's on opening it, back on
+   *  leaving it). */
+  setSpeedMode: (mode: SpeedMode) => void
 
   /** Animation driver hooks (called from the 3D loop). */
   startNext: () => void
@@ -155,6 +162,20 @@ function goTo(to: (steps: readonly SolveStep[], dispatched: number) => number) {
   })
 }
 
+/** The speeds kept apart: scrambling and solving, and the tutorial's
+ *  (slower by default, to follow each turn). */
+export type SpeedMode = 'play' | 'tutorial'
+
+/** Each mode's speed chosen (seconds per turn), kept between visits. */
+const SPEEDS: Record<SpeedMode, { key: string; fallback: number }> = {
+  play: { key: 'rubiksolver.turnDuration', fallback: 0.2 },
+  tutorial: { key: 'rubiksolver.tutorialTurnDuration', fallback: 0.6 },
+}
+const isTurnDuration = (value: unknown): value is number =>
+  typeof value === 'number' && value >= MIN_TURN_DURATION && value <= MAX_TURN_DURATION
+const storedSpeed = (mode: SpeedMode) =>
+  readStored(SPEEDS[mode].key, isTurnDuration, SPEEDS[mode].fallback)
+
 export const useCube = create<CubeStore>((set, get) => ({
   cube: solvedCube(),
   variant: 'classic',
@@ -162,7 +183,8 @@ export const useCube = create<CubeStore>((set, get) => ({
   active: null,
   solving: false,
   scrambling: false,
-  turnDuration: 0.2,
+  turnDuration: storedSpeed('play'),
+  speedMode: 'play',
   method: 'beginner',
   steps: null,
   dispatched: 0,
@@ -276,7 +298,12 @@ export const useCube = create<CubeStore>((set, get) => ({
       return { queue: [], dispatched, solving: s.active !== null }
     }),
 
-  setTurnDuration: (seconds) => set({ turnDuration: seconds }),
+  setTurnDuration: (seconds) => {
+    writeStored(SPEEDS[get().speedMode].key, seconds)
+    set({ turnDuration: seconds })
+  },
+
+  setSpeedMode: (mode) => set({ speedMode: mode, turnDuration: storedSpeed(mode) }),
 
   startNext: () =>
     set((s) => {

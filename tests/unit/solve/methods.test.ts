@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { applyMoves } from '@/lib/core/turn'
-import { formatMove, scramble } from '@/lib/core/moves'
+import { formatMove, parseMoves, scramble } from '@/lib/core/moves'
 import { moveSet, OUTER_TURNS } from '@/lib/core/moveSet'
 import { PETRUS_PLAN } from '@/lib/methods/standard/petrus'
 import { ROUX_PLAN } from '@/lib/methods/standard/roux'
@@ -43,8 +43,14 @@ describe('method registry', () => {
     const outline = (shape: CubeShape, id: string) =>
       methodsFor(shape)
         .find((m) => m.id === id)!
-        .outline.map((s) => `${s.key}${s.optional ? '?' : ''}`)
+        .outline()
+        .map((s) => `${s.key}${s.optional ? '?' : ''}`)
     expect(outline('3', 'roux')[0]).toBe('stepRecenter?')
+    // Given the cube: the centers step only once a slice moved them.
+    const roux = methodsFor('3').find((m) => m.id === 'roux')!
+    const scrambled = applyMoves(solvedCube('3'), parseMoves("R U F' L2 D"))
+    expect(roux.outline(scrambled)[0]!.key).not.toBe('stepRecenter')
+    expect(roux.outline(applyMoves(scrambled, parseMoves('M')))[0]!.key).toBe('stepRecenter')
     expect(outline('3', 'roux')).toContain('stepLSEMiddle')
     expect(outline('4', 'reduction').slice(0, 3)).toEqual([
       'stepCenters',

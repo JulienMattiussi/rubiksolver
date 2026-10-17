@@ -8,6 +8,7 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   undo: 'Undo the move',
   finish: 'Complete the move',
   next: 'Next',
+  locked: 'Unavailable during the tutorial: leave it first',
   facing: (color: string) => `Hold the ${color} center facing you.`,
   facingTitle: 'Turn the view to face it',
   piece: (stickers: number, colors: string) =>
@@ -19,7 +20,15 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   spot: (piece: string) => `Spot ${piece}: the arrow shows its place.`,
   spotSwap: (piece: string, other: string) =>
     `Spot ${piece}, and ${other} which stands in its place.`,
-  play: (count: number) => (count === 1 ? 'Play this move:' : `Play these ${count} moves:`),
+  play: (count: number) =>
+    count === 0
+      ? 'Play the moves.'
+      : count === 1
+        ? 'Play this move:'
+        : `Play these ${count} moves:`,
+  repeat: (times: number) => `Then play these moves ${times} times:`,
+  repeatAll: (count: number, times: number) =>
+    `Play these ${count} moves, ${times} times in a row:`,
   check: (piece: string) => `Check the new positions: ${piece} is in its place.`,
   checkAll: 'Check the new positions: the pieces are in their place.',
   legendMoved:
@@ -31,16 +40,20 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   progress: {
     stepTutorialCross: (done: number, total: number) =>
       `${done} of ${total} edge${total > 1 ? 's' : ''} in place`,
+    stepTutorialCorner: (done: number, total: number) =>
+      `${done} of ${total} corner${total > 1 ? 's' : ''} in place`,
   },
   titles: {
     stepRecenter: 'Put the centers back in place',
     stepTutorialCross: 'Build the yellow cross',
-    stepBottomCorners: 'Place the first layer’s corners',
+    stepTutorialCorner: 'Place the yellow corners',
+    stepMiddle: 'Place the second layer’s edges',
   },
   hints: {
     stepRecenter:
       'A middle slice moved the centers: they go back first, everything else is placed around them.',
     stepTutorialCross: 'Place the cube’s four yellow edges one by one.',
-    stepBottomCorners: 'The cross is done! The rest, the first layer’s corners, is coming soon.',
+    stepTutorialCorner: 'Place the four yellow corners one by one, yellow down.',
+    stepMiddle: 'The first layer is done! The rest, the second layer’s edges, is coming soon.',
   },
 }

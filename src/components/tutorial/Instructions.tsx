@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { occupantOf, pieceColors } from '@/lib/tutorial/tutorial'
+import { formulaParts, occupantOf, pieceColors } from '@/lib/tutorial/tutorial'
 import type { TutorialView } from '@/hooks/useTutorial'
 import { useI18n } from '@/i18n/i18nStore'
 import { useView } from '@/store/viewStore'
@@ -29,6 +29,34 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
         .join('-'),
     )
   const occupant = pick ? occupantOf(cube, pick) : null
+  // The formula move by move, a block it repeats shown once, with its count.
+  const play = (formula: NonNullable<typeof moves>) => {
+    const { lead, block, times } = formulaParts(formula)
+    const list = (part: typeof lead, inline = false) => (
+      <FormulaMoves cube={cube} moves={part} disabled={busy || review} inline={inline} />
+    )
+    if (times === 0) {
+      return (
+        <>
+          {t.tutorial.play(formula.length)}
+          {list(formula)}
+        </>
+      )
+    }
+    return lead.length > 0 ? (
+      <>
+        {t.tutorial.play(lead.length)}
+        {list(lead)}
+        <p className="mt-1.5">{t.tutorial.repeat(times)}</p>
+        {list(block, true)}
+      </>
+    ) : (
+      <>
+        {t.tutorial.repeatAll(block.length, times)}
+        {list(block, true)}
+      </>
+    )
+  }
   const instructions: ReactNode[] = [
     <button
       key="hold"
@@ -43,25 +71,18 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
     </button>,
     ...(pick
       ? [
-          <Toned key="spot" colors={occupant === null ? [HIGHLIGHT] : [HIGHLIGHT, PLACE]}>
+          <Toned key="spot" framed colors={occupant === null ? [HIGHLIGHT] : [HIGHLIGHT, PLACE]}>
             {occupant === null
               ? t.tutorial.spot(name(pick.piece))
               : t.tutorial.spotSwap(name(pick.piece), name(occupant))}
           </Toned>,
         ]
       : []),
-    moves ? (
-      <>
-        {t.tutorial.play(moves.length)}
-        <FormulaMoves cube={cube} moves={moves} disabled={busy || review} />
-      </>
-    ) : (
-      t.tutorial.noFormula
-    ),
+    moves ? play(moves) : t.tutorial.noFormula,
     pick ? t.tutorial.check(name(pick.piece)) : t.tutorial.checkAll,
   ]
   return (
-    <ol className="flex flex-col gap-3 text-xs leading-relaxed text-slate-300">
+    <ol className="flex flex-col gap-2.5 text-xs leading-snug text-slate-300">
       {instructions.map((text, i) => {
         // Played: the instructions done, the last (check) to do.
         const done = review && i < instructions.length - 1

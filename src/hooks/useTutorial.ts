@@ -1,5 +1,8 @@
 import { useMemo } from 'react'
-import type { Cube } from '@/lib/core/types'
+import type { Cube, Move } from '@/lib/core/types'
+import { invertMoves } from '@/lib/core/moves'
+import { applyMoves } from '@/lib/core/turn'
+import { formulaUnderWay } from '@/lib/tutorial/keep'
 import { cubeShape, stateKey } from '@/lib/core/cube'
 import {
   tonesOf,
@@ -8,7 +11,6 @@ import {
   type TutorialPick,
   type TutorialStep,
 } from '@/lib/tutorial/tutorial'
-import type { Move } from '@/lib/core/types'
 import { selectBusy, useCube } from '@/store/cubeStore'
 import { useTutorialStore } from '@/store/tutorialStore'
 
@@ -55,25 +57,33 @@ export function useTutorial(): TutorialView {
   const pickedOn = useTutorialStore((s) => s.pickedOn)
   const choose = useTutorialStore((s) => s.choose)
   const played = useTutorialStore((s) => s.played)
+  const manual = useTutorialStore((s) => s.manual)
   const reviewing = useTutorialStore((s) => s.review)
   const last = played[played.length - 1]
   // The formula just played, while it plays and until a turn by hand.
   const review = reviewing && !!last && (busy || stateKey(cube) === last.after)
   const tutorial = tutorialFor(cubeShape(cube))
   const read = review ? last.cube : cube
+  // Where the step began: before the turns by hand since (the cube's turns
+  // on a puzzle with a tutorial are its own moves).
+  const begun = useMemo(
+    () => (review || manual.length === 0 ? read : applyMoves(read, invertMoves(manual) as Move[])),
+    [review, manual, read],
+  )
   const step = useMemo(
-    () => (active && tutorial ? tutorial.stepOf(read) : null),
-    [active, tutorial, read],
+    () => (active && tutorial ? tutorial.stepOf(read, begun) : null),
+    [active, tutorial, read, begun],
   )
   const pick = review
     ? last.pick
     : picked && pickedOn === stateKey(cube)
       ? picked
       : (step?.suggestion ?? null)
-  const moves = useMemo(
-    () => (review ? [...last.moves] : step ? step.formula(pick) : null),
-    [review, last, step, pick],
-  )
+  const moves = useMemo(() => {
+    if (review) return [...last.moves]
+    if (!step) return null
+    return tutorial ? formulaUnderWay(tutorial, step, pick, read, begun, manual as Move[]) : null
+  }, [review, last, step, pick, manual, read, begun, tutorial])
   const tones = useMemo(() => {
     if (!step || !moves || busy) return null
     const tones = tonesOf(read, moves, pick, step.placed)

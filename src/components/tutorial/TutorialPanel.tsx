@@ -5,18 +5,16 @@ import { useTutorialStore } from '@/store/tutorialStore'
 import { useTutorial } from '@/hooks/useTutorial'
 import { Button } from '@/components/ui/Button'
 import { SECTION_BOX, SECTION_LABEL } from '@/components/ui/styles'
-import { StepList } from '@/components/solve/StepList'
 import { Instructions } from './Instructions'
 import { StepHeading } from './StepHeading'
 
 /** In place of the solve block while the tutorial is on: its step
  *  (`StepHeading`) and its instructions (`Instructions`), applying the
- *  formula (or finishing it, after turns by hand) or undoing it, and the
- *  formulas played so far. Once played, a stop until `next`. */
+ *  formula (or finishing it, after turns by hand) or undoing it. Once
+ *  played, a stop until `next`. */
 export function TutorialPanel() {
   const t = useI18n((s) => s.t)
   const busy = useCube(selectBusy)
-  const steps = useCube((s) => s.steps)
   const apply = useTutorialStore((s) => s.apply)
   const undo = useTutorialStore((s) => s.undo)
   const exit = useTutorialStore((s) => s.exit)
@@ -70,7 +68,6 @@ export function TutorialPanel() {
           </div>
         </>
       )}
-      {steps && steps.length > 0 && <StepList steps={steps} />}
     </section>
   )
 }

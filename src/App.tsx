@@ -8,6 +8,7 @@ import { useEditor } from '@/store/editorStore'
 import { useRoute } from '@/store/router'
 import { HomeGallery } from '@/components/home/HomeGallery'
 import { Fireworks } from '@/components/celebration/Fireworks'
+import { StageCheer } from '@/components/celebration/StageCheer'
 import { Scene } from '@/three/core/Scene'
 import { FaceArrows } from '@/components/edit/FaceArrows'
 
@@ -40,6 +41,8 @@ export default function App() {
       >
         {home ? <HomeGallery /> : <Scene />}
         <FaceArrows />
+        {/* A tutorial stage done: a cheer in front of the puzzle. */}
+        <StageCheer />
       </div>
       {/* On desktop the wrapper spans the whole screen and lets clicks through
           to the scene: the panel cards opt back in (see Controls). */}

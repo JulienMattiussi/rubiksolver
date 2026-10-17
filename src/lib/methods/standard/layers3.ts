@@ -84,11 +84,15 @@ export function cornerPlacedIn(
   )
 }
 
-function cornerPlaced(cube: Cube, s1: Face, s2: Face): boolean {
+/** The first-layer corner between sides `s1` and `s2` at its slot, yellow
+ *  down. */
+export function cornerPlaced(cube: Cube, s1: Face, s2: Face): boolean {
   return cornerPlacedIn(cube, FACE_COLOR, s1, s2)
 }
 
-const CORNER_PAIRS: ReadonlyArray<readonly [Face, Face]> = [
+/** The first layer's corner slots, by their two sides: the second the
+ *  first's right (seen with the first in front). */
+export const CORNER_PAIRS: ReadonlyArray<readonly [Face, Face]> = [
   ['F', 'R'],
   ['R', 'B'],
   ['B', 'L'],

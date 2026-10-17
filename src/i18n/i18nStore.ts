@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { NOTATION_FR, NOTATION_US, type FaceLabels } from '@/lib/core/moves'
+import { readStored, writeStored } from '@/lib/app/storage'
 import { LOCALES, type Locale, type Translations } from './translations'
 
 /** Move notation: 'us' (U R F...) or 'fr' (H D F...). Independent of locale. */
@@ -20,13 +21,21 @@ function detectLocale(): Locale {
 
 const initial = detectLocale()
 
+/** The notation chosen, kept between visits. */
+const NOTATION_KEY = 'rubiksolver.notation'
+const isNotation = (value: unknown): value is Notation => value === 'us' || value === 'fr'
+
 export const useI18n = create<I18nState>((set) => ({
   locale: initial,
   t: LOCALES[initial],
-  // International notation by default, whatever the locale (toggleable).
-  notation: 'us',
+  // International notation by default, whatever the locale (toggleable),
+  // or the one chosen on a previous visit.
+  notation: readStored(NOTATION_KEY, isNotation, 'us'),
   setLocale: (locale) => set({ locale, t: LOCALES[locale] }),
-  setNotation: (notation) => set({ notation }),
+  setNotation: (notation) => {
+    writeStored(NOTATION_KEY, notation)
+    set({ notation })
+  },
 }))
 
 /** Face letters of the chosen notation, for every displayed move. */
