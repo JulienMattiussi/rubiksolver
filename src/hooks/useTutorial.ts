@@ -1,20 +1,16 @@
 import { useMemo } from 'react'
 import { CUBE_HOLDS, type Hold, type HoldFrame } from '@/lib/core/hold'
-import type { Cube, Move } from '@/lib/core/types'
+import type { Cube, Turn } from '@/lib/core/types'
 import { invertMoves } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
 import { formulaUnderWay } from '@/lib/tutorial/keep'
 import { cubeShape, stateKey } from '@/lib/core/cube'
-import {
-  alreadyDoneStep,
-  tonesOf,
-  tutorialFor,
-  type Tone,
-  type TutorialPick,
-  type TutorialStep,
-} from '@/lib/tutorial/tutorial'
+import { tonesOf, type Tone } from '@/lib/tutorial/scene'
+import { alreadyDoneStep, type TutorialPick, type TutorialStep } from '@/lib/tutorial/tutorial'
+import { tutorialFor } from '@/lib/tutorials/registry'
 import { selectBusy, useCube } from '@/store/cubeStore'
 import { useTutorialStore } from '@/store/tutorialStore'
+import { useTutorialTrack } from '@/store/tutorialTrack'
 
 export interface TutorialView {
   /** The state the step reads: the cube's, or, looking at a formula just
@@ -37,10 +33,10 @@ export interface TutorialView {
   /** How many stages the tutorial has. */
   stages: number
   /** The formula for it, what is left to play (null: none). */
-  moves: Move[] | null
+  moves: Turn[] | null
   /** The formula shown, and how many of its moves are played by hand
    *  already (it stays shown while they follow it). */
-  shown: { moves: Move[]; done: number } | null
+  shown: { moves: Turn[]; done: number } | null
   /** Each piece's tone under it, by index (null while a turn plays). */
   tones: Tone[] | null
   /** A piece clicked on the puzzle: picked, or the place for the piece
@@ -73,17 +69,17 @@ export function useTutorial(): TutorialView {
   const choose = useTutorialStore((s) => s.choose)
   const played = useTutorialStore((s) => s.played)
   const manual = useTutorialStore((s) => s.manual)
-  const stageShown = useTutorialStore((s) => s.stageShown)
+  const stageShown = useTutorialTrack((s) => s.stageShown)
+  const method = useCube((s) => s.method)
   const reviewing = useTutorialStore((s) => s.review)
   const last = played[played.length - 1]
   // The formula just played, while it plays and until a turn by hand.
   const review = reviewing && !!last && (busy || stateKey(cube) === last.after)
-  const tutorial = tutorialFor(cubeShape(cube))
+  const tutorial = tutorialFor(cubeShape(cube), method)
   const read = review ? last.cube : cube
-  // Where the step began: before the turns by hand since (the cube's turns
-  // on a puzzle with a tutorial are its own moves).
+  // Where the step began: before the turns by hand since.
   const begun = useMemo(
-    () => (review || manual.length === 0 ? read : applyMoves(read, invertMoves(manual) as Move[])),
+    () => (review || manual.length === 0 ? read : applyMoves(read, invertMoves(manual))),
     [review, manual, read],
   )
   const step = useMemo(
@@ -98,7 +94,7 @@ export function useTutorial(): TutorialView {
   const underWay = useMemo(() => {
     if (review) return { rest: [...last.moves], shown: [...last.moves], done: 0 }
     if (!step || !tutorial) return null
-    return formulaUnderWay(tutorial, step, pick, read, begun, manual as Move[])
+    return formulaUnderWay(tutorial, step, pick, read, begun, manual)
   }, [review, last, step, pick, manual, read, begun, tutorial])
   const moves = underWay?.rest ?? null
   const shown = underWay?.shown ? { moves: underWay.shown, done: underWay.done } : null
@@ -124,7 +120,7 @@ export function useTutorial(): TutorialView {
       cube,
       frame: tutorial.frame,
       stages: tutorial.stages,
-      step: alreadyDoneStep(tutorial.stageKeys[stage - 1]!, stage),
+      step: alreadyDoneStep(tutorial, stage),
       moves: [],
     }
   }

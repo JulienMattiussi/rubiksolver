@@ -2,6 +2,13 @@ import { create } from 'zustand'
 import type { Turn, Vec3 } from '@/lib/core/types'
 
 /** Bridges view requests from the DOM controls to the 3D scene. */
+/** How far, and toward which side, the view rises from a face it turns to
+ *  (none: a little toward the top). */
+export interface Lift {
+  readonly amount: number
+  readonly toward: Vec3
+}
+
 interface ViewStore {
   /** Bumped each time the view should be recentered. */
   resetToken: number
@@ -9,10 +16,10 @@ interface ViewStore {
   /** A face to turn the view toward (its outward normal), how far above
    *  it to look from (`lift`, none: a little), and a token bumped each time
    *  it is asked. */
-  toward: { normal: Vec3; lift?: number; token: number } | null
+  toward: { normal: Vec3; lift?: Lift; token: number } | null
   /** Turn the view to face the face of this outward normal (from higher
    *  up with a `lift`: the top in sight, for the last layer). */
-  viewToward: (normal: Vec3, lift?: number) => void
+  viewToward: (normal: Vec3, lift?: Lift) => void
   /** Turn whose pieces the scene highlights (a pad button is hovered or
    *  focused), or null. */
   preview: Turn | null

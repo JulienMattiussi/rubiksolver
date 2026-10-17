@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { selectBusy, useCube } from '@/store/cubeStore'
-import { useTutorialStore } from '@/store/tutorialStore'
+import { useTutorialTrack } from '@/store/tutorialTrack'
 
 /**
  * A tutorial stage done (`stagesDone`, its last formula validated): a 💪
@@ -19,7 +19,7 @@ export function StageCheer() {
       if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
       setShow((n) => n + 1)
     }
-    const stages = useTutorialStore.subscribe((next, prev) => {
+    const stages = useTutorialTrack.subscribe((next, prev) => {
       if (next.stagesDone === prev.stagesDone) return
       pending = true
       if (!selectBusy(useCube.getState())) fire()

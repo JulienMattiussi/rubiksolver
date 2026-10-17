@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { FACE_COLOR, isSolved, solvedCube } from '@/lib/core/cube'
+import { isSolved, solvedCube } from '@/lib/core/cube'
 import { formatMoves, parseMoves } from '@/lib/core/moves'
-import { colorAt, hasColors } from '@/lib/core/pieces'
+import { colorAt } from '@/lib/core/pieces'
 import { applyMoves } from '@/lib/core/turn'
-import type { Cube, Move } from '@/lib/core/types'
+import type { Cube, Turn } from '@/lib/core/types'
 import {
   crossDone,
   edgePlaced,
@@ -14,21 +14,8 @@ import { centersHome } from '@/lib/methods/standard/recenter'
 import { formulaUnderWay, keepsPlaced } from '@/lib/tutorial/keep'
 import { CUBE_HOLDS } from '@/lib/core/hold'
 import { SIDES } from '@/lib/solve/solverKit'
-import {
-  arrowsOf,
-  formulaSegments,
-  markerPath,
-  occupantOf,
-  pieceColors,
-  tonesOf,
-  tutorialFor,
-  type TutorialStep,
-} from '@/lib/tutorial/tutorial'
-
-const Y = FACE_COLOR.D
-const SCRAMBLE = parseMoves("R U F' L2 D B' R2 U' F L D2 B")
-const scrambled = applyMoves(solvedCube('3'), SCRAMBLE)
-const stepOf = (cube: Cube, begun?: Cube): TutorialStep => tutorialFor('3')!.stepOf(cube, begun)!
+import { tutorialFor } from '@/lib/tutorials/registry'
+import { Y, scrambled, stepOf } from './cube3Fixture'
 
 describe('tutorial registry', () => {
   it('counts its stages, to the last', () => {
@@ -118,7 +105,7 @@ describe('3x3 tutorial', () => {
     const pick = step.suggestion!
     const moves = step.formula(pick)!
     const tutorial = tutorialFor('3')!
-    const underWay = (manual: Move[]) => {
+    const underWay = (manual: Turn[]) => {
       const now = applyMoves(cube, manual)
       return formulaUnderWay(tutorial, stepOf(now, cube), pick, now, cube, manual)
     }
@@ -220,116 +207,5 @@ describe('3x3 tutorial', () => {
         expect(held.slice(-4)).toEqual(parseMoves("R U R' U'"))
       }
     }
-  })
-})
-
-describe('the white cross, by its figures', () => {
-  /** The first two layers solved, the top as a few turns leave it. */
-  const top = (moves: string) => {
-    const cube = applyMoves(solvedCube('3'), parseMoves(moves))
-    return { cube, step: stepOf(cube) }
-  }
-
-  it('reads a line held across, an L held back left, a dot, each by one formula', () => {
-    const formula = parseMoves("F R U R' U' F'")
-    // F R U R' U' F' turns a cross into a line; its inverse back.
-    const line = top("F U R U' R' F'")
-    expect(line.step).toMatchObject({ key: 'stepTutorialTopCross', figure: 'figureLine' })
-    const held = line.step.formula(null)!.map((m) => CUBE_HOLDS.inHold(line.step.hold(null), m))
-    expect(held).toEqual(formula)
-    // An arrow for each edge moved whose white ends up: the line's two
-    // missing edges among them.
-    const arrows = arrowsOf(line.cube, line.step.formula(null)!, line.step, null)
-    expect(arrows.length).toBeGreaterThanOrEqual(2)
-    for (const arrow of arrows) expect(arrow.toNormal).toEqual([0, 1, 0])
-    // Played, the line becomes the cross: the stage is done.
-    const after = tutorialFor('3')!.stepOf(applyMoves(line.cube, line.step.formula(null)!))
-    expect(after?.key).not.toBe('stepTutorialTopCross')
-  })
-
-  it('takes any top to the cross in three formulas at most', () => {
-    for (const moves of [
-      "F R U R' U' F'",
-      "F R U R' U' F' U F R U R' U' F'",
-      "R U2 R2 F R F' U2 R' F R F'",
-    ]) {
-      let { cube, step } = top(moves)
-      for (let k = 0; step.key === 'stepTutorialTopCross'; k++) {
-        expect(k).toBeLessThan(3)
-        expect(['figureDot', 'figureL', 'figureLine']).toContain(step.figure)
-        cube = applyMoves(cube, step.formula(null)!)
-        step = stepOf(cube)
-      }
-      expect(step.key).not.toBe('stepTutorialTopCross')
-    }
-  })
-})
-
-describe('a formula read as taught', () => {
-  const trigger = parseMoves("R U R' U'")
-  const insert = [parseMoves("U R U' R'"), parseMoves("U' F' U F")]
-
-  it('tells a sequence learnt repeated once, with its count', () => {
-    expect(formulaSegments(parseMoves("U2 R U R' U' R U R' U' R U R' U'"), [[trigger]])).toEqual([
-      { kind: 'moves', moves: parseMoves('U2'), times: 1 },
-      { kind: 'sequence', moves: trigger, times: 3 },
-    ])
-  })
-
-  it('knows a sequence learnt played from another side (an edge lifted out)', () => {
-    // The insertion held from the left: U L U' L' U' F' U F... read as held.
-    const lift = insert.flat().map((m) => CUBE_HOLDS.played('L', m))
-    const segments = formulaSegments([...lift, ...parseMoves('U2'), ...insert.flat()], [insert])
-    // Each insertion told gesture by gesture.
-    expect(segments.map((s) => [s.kind, s.moves.length])).toEqual([
-      ['sequence', 4],
-      ['sequence', 4],
-      ['moves', 1],
-      ['sequence', 4],
-      ['sequence', 4],
-    ])
-  })
-
-  it('leaves a formula with no sequence learnt as moves', () => {
-    expect(formulaSegments(parseMoves("R U F'"))).toEqual([
-      { kind: 'moves', moves: parseMoves("R U F'"), times: 1 },
-    ])
-  })
-})
-
-describe('what a formula does to the pieces', () => {
-  const step = stepOf(scrambled)
-  const pick = step.suggestion!
-  const moves = step.formula(pick)!
-
-  it('tells the piece aimed at, the one in its way, the moved and the still', () => {
-    const tones = tonesOf(scrambled, moves, pick, step.placed)
-    expect(tones[pick.piece]).toBe('target')
-    const occupant = occupantOf(scrambled, pick)
-    if (occupant !== null) expect(tones[occupant]).toBe('slot')
-    for (const p of step.placed) expect(tones[p]).toBe('placed')
-    expect(tones).toContain('moved')
-    // The centers never move under outer turns.
-    const centers = scrambled.flatMap((c, i) => (c.stickers.length === 1 ? [i] : []))
-    for (const c of centers) expect(tones[c]).toBe('still')
-  })
-
-  it('follows the marker sticker from its face to the one it lands on', () => {
-    const path = markerPath(scrambled, moves, pick, Y)
-    expect(path.from).toEqual(scrambled[pick.piece]!.position)
-    expect(path.to).toEqual(pick.slot)
-    expect(path.toNormal).toEqual([0, -1, 0])
-  })
-
-  it('names a piece by its colors, the marker first', () => {
-    const colors = pieceColors(scrambled, pick.piece, Y)
-    expect(colors[0]).toBe(Y)
-    expect(hasColors(scrambled[pick.piece]!, colors)).toBe(true)
-  })
-
-  it('finds no one in the way of a piece already at its place', () => {
-    expect(
-      occupantOf(scrambled, { piece: pick.piece, slot: scrambled[pick.piece]!.position }),
-    ).toBeNull()
   })
 })

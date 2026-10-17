@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
 import { formatMoves, parseMoves, scramble } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
-import type { Cube, Move } from '@/lib/core/types'
+import type { Cube, Turn } from '@/lib/core/types'
 import { formulaUnderWay } from '@/lib/tutorial/keep'
-import { arrowsOf, tonesOf, tutorialFor, type TutorialPick } from '@/lib/tutorial/tutorial'
+import { arrowsOf, tonesOf } from '@/lib/tutorial/scene'
+import type { TutorialPick } from '@/lib/tutorial/tutorial'
+import { tutorialFor } from '@/lib/tutorials/registry'
 import { seededRng } from '../../helpers'
 
 /**
@@ -21,7 +23,7 @@ import { seededRng } from '../../helpers'
 const SEEDS = [3, 11, 27, 42]
 const tutorial = tutorialFor('3')!
 
-const notation = (moves: readonly Move[] | null) => (moves ? formatMoves(moves) : null)
+const notation = (moves: readonly Turn[] | null) => (moves ? formatMoves(moves) : null)
 const at = (pick: TutorialPick) => `${pick.piece}>${pick.slot.join()}`
 
 function record(cube: Cube) {
@@ -35,7 +37,7 @@ function record(cube: Cube) {
     }
   }
   const moves = step.formula(pick)
-  const underWay = (manual: Move[]) => {
+  const underWay = (manual: Turn[]) => {
     const now = applyMoves(cube, manual)
     const u = formulaUnderWay(tutorial, tutorial.stepOf(now, cube)!, pick, now, cube, manual)
     return { rest: notation(u.rest), shown: notation(u.shown), done: u.done }
@@ -44,7 +46,7 @@ function record(cube: Cube) {
     key: step.key,
     stage: step.stage ?? null,
     progress: step.progress ?? null,
-    comingSoon: step.comingSoon ?? false,
+    comingSoon: step.kind === 'toCome',
     hold: step.hold(pick),
     figure: step.figure ?? null,
     focus: step.focus ?? null,
@@ -73,7 +75,7 @@ describe('3x3 tutorial, as it behaves', () => {
         const step = tutorial.stepOf(cube)
         if (!step) break
         steps.push(record(cube))
-        if (step.comingSoon) break
+        if (step.kind === 'toCome') break
         cube = applyMoves(cube, step.formula(step.suggestion)!)
       }
       return { seed, steps }

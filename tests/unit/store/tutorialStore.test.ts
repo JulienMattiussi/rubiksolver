@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { stateKey } from '@/lib/core/cube'
 import { parseMoves } from '@/lib/core/moves'
-import { tutorialFor } from '@/lib/tutorial/tutorial'
+import { tutorialFor } from '@/lib/tutorials/registry'
 import { selectBusy, useCube } from '@/store/cubeStore'
 import { useTutorialStore } from '@/store/tutorialStore'
+import { useTutorialTrack } from '@/store/tutorialTrack'
 
 /** Play the queue to the end, as the 3D loop does one frame at a time. */
 function drain() {
@@ -96,15 +97,15 @@ describe('tutorial store', () => {
     useCube.getState().reset()
     byHand("R U R' U'")
     byHand("U R U' R'")
-    const cheers = useTutorialStore.getState().cheers
+    const cheers = useTutorialTrack.getState().cheers
     useTutorialStore.getState().apply({ key: 'stepTutorialCross', moves: [] }, null)
-    expect(useTutorialStore.getState().cheers).toBe(cheers)
-    useTutorialStore.getState().cheer()
-    expect(useTutorialStore.getState().cheers).toBe(cheers + 1)
+    expect(useTutorialTrack.getState().cheers).toBe(cheers)
+    useTutorialTrack.getState().cheer()
+    expect(useTutorialTrack.getState().cheers).toBe(cheers + 1)
   })
 
   it('counts a stage done once its last step is validated', () => {
-    const before = useTutorialStore.getState().stagesDone
+    const before = useTutorialTrack.getState().stagesDone
     for (let guard = 0; ; guard++) {
       expect(guard).toBeLessThan(5)
       const { step, pick, moves } = current()
@@ -113,24 +114,24 @@ describe('tutorial store', () => {
       useTutorialStore.getState().apply({ key: step.key, moves }, pick)
       drain()
       useTutorialStore.getState().next()
-      expect(useTutorialStore.getState().stagesDone).toBe(before + (last ? 1 : 0))
+      expect(useTutorialTrack.getState().stagesDone).toBe(before + (last ? 1 : 0))
     }
   })
 
   it('notes the moves shown, forgotten on a new start', () => {
-    useTutorialStore.getState().learn(['R', "U'"])
-    useTutorialStore.getState().learn(['R', 'F2'])
-    expect(useTutorialStore.getState().learnt).toEqual(['R', "U'", 'F2'])
+    useTutorialTrack.getState().learn(['R', "U'"])
+    useTutorialTrack.getState().learn(['R', 'F2'])
+    expect(useTutorialTrack.getState().learnt).toEqual(['R', "U'", 'F2'])
     useTutorialStore.getState().start()
-    expect(useTutorialStore.getState().learnt).toEqual([])
+    expect(useTutorialTrack.getState().learnt).toEqual([])
   })
 
   it('notes the furthest stage shown, from none on a new start', () => {
-    useTutorialStore.getState().showStage(2)
-    useTutorialStore.getState().showStage(1)
-    expect(useTutorialStore.getState().stageShown).toBe(2)
+    useTutorialTrack.getState().showStage(2)
+    useTutorialTrack.getState().showStage(1)
+    expect(useTutorialTrack.getState().stageShown).toBe(2)
     useTutorialStore.getState().start()
-    expect(useTutorialStore.getState().stageShown).toBe(0)
+    expect(useTutorialTrack.getState().stageShown).toBe(0)
   })
 
   it('is left when another puzzle is chosen', () => {

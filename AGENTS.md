@@ -121,11 +121,11 @@ src/
 │   │                    #   setup (réglages avant peinture), jointsEditor (soudures), cutsEditor
 │   │                    #   (demi-cubies du Fashion-V), faceCanvases (forme face par face), gearEditor,
 │   │                    #   roadblockEditor, validate
-│   ├── tutorial/        # Le moteur du tutoriel : tutorial (TutorialStep, registre tutorialFor, tons des pièces,
-│   │                    #   chemin de la flèche, formule lue en blocs), kit (TutorialPlan déclaré : étapes de
-│   │                    #   pièces ou de formule, tutorialOf), keep (pièces gardées, formule en cours de pas)
-│   ├── tutorials/       # Les tutoriels, un dossier par catégorie : standard/cube3 (recentrer, croix, coins
-│   │                    #   jaunes, arêtes du milieu), standard/cube3LastLayer (la dernière couche par figures)
+│   ├── tutorial/        # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
+│   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), scene (tons, flèches), segments
+│   │                    #   (formule lue en gestes), keep (pièces gardées, formule en cours de pas)
+│   ├── tutorials/       # Les tutoriels : registry (par forme, un par méthode), un dossier par catégorie :
+│   │                    #   standard/cube3 et cube3LastLayer (le 3x3, méthode débutant)
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
 │                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
@@ -140,7 +140,8 @@ src/
 ├── components/          # UI : ui/ (primitives), controls/ (panneau, pads de coups, padFor), picker/, guide/, edit/,
 │                        #   solve/ (SolveArea : la résolution ou le tutoriel), tutorial/, home/, celebration/
 ├── store/               # Zustand : cubeStore (cube, file de coups, solution), editorStore, savedStore,
-│                        #   viewStore, router, tutorialStore (pick, formules jouées, coups à la main, arrêt)
+│                        #   viewStore, router, tutorialStore (pick, formules jouées, coups à la main, arrêt),
+│                        #   tutorialTrack (étapes montrées, 💪 et fin, coups déjà montrés)
 ├── hooks/               # useAutoPlan (solution dans le worker), useIsDesktop, useSolveShortcuts, useTutorial
 ├── i18n/                # fr/ et en/ (ui, methods, steps, moveSentences : phrases longues du guide et
 │                        #   courtes du tutoriel, tutorial ; EN typé sur FR), translations
@@ -431,35 +432,46 @@ par une flèche et des pièces mises en valeur), feu d'artifice quand un coup r�
 
 ### Le tutoriel (`src/lib/tutorial/`, `src/lib/tutorials/`)
 
-Un tutoriel est **déclaré, pas codé**, comme une méthode : un
-`TutorialPlan` (`lib/tutorial/kit.ts`) est une liste d'étapes, et
-`tutorialOf` en fait le pas où en est un état. Une étape de **pièces**
-(`PieceStage`) place des pièces une à une : ses cibles (`Target` : la
-pièce, son emplacement, « placée »), comment tenir le puzzle pour un choix
-(`hold`, une tenue du cadre de tenues du plan, `TutorialPlan.frame` : par
-défaut celui d'un cube, que `ringHolds` déduit de ses faces autour du haut),
-le sticker que suit la flèche, les
-enchaînements appris (`Sequence`, chacun en ses gestes, montrés à part), et la façon de trouver la formule (une
-recherche vers l'objectif, ou une recette : placement puis enchaînement) ;
-le moteur fait le reste (pièces placées au début du pas et gardées,
-choix possibles, suggestion, avancement). Une étape de **formule**
-(`FormulaStage`) joue la sienne sans choix (le recentrage du 3x3). Une
-étape de **figures** (`FigureStage`, la dernière couche) reconnaît une
-figure (`Figure` : comment la tenir, la formule lue dans cette tenue) et en
-met les pièces en valeur, sans pièce à choisir. Une étape peut aussi
-déclarer la face qu'elle travaille (`face` : flèches, vue), et si ses coups
-gardent leur description (`words`) : aucune règle d'affichage ne dépend
-d'un numéro d'étape ni d'une face écrite dans le code commun. Après
-les étapes, `next` annonce celle qui vient. Le registre `TUTORIALS`
-(`tutorial.ts`) lie une forme à son tutoriel ; tout le reste (tons des
-pièces, flèche, panneau, arrêt, coups à la main, annulation) est
-générique. **Ajouter un tutoriel** : sa définition dans
-`lib/tutorials/<catégorie>/<puzzle>.ts` et sa ligne au registre ; les
-titres, consignes et phrases d'avancement de ses étapes dans
-`i18n/{fr,en}/tutorial.ts`, leurs noms dans `steps.ts` ; ses tests dans
-`tests/unit/tutorial/`. Le comportement du tutoriel du 3x3 est figé pas à
-pas par `golden.test.ts` (référence `golden/cube3.json`, écrite par le
-test : `-u` pour la réécrire, seulement sur un changement voulu).
+Un tutoriel est **déclaré, pas codé**, comme une méthode, et le moteur ne
+connaît aucun modèle : il manipule n'importe quel coup de l'appli
+(`Turn`), lit les positions et les stickers des pièces, et reçoit du
+tutoriel ses tenues. Un `TutorialPlan` (`lib/tutorial/kit.ts`) est une
+liste d'étapes, et `tutorialOf` en fait le pas où en est un état (sa sorte,
+`TutorialStep.kind` : pièces, formule, figure, déjà faite, à venir) :
+
+- une étape de **pièces** (`PieceStage`) place des pièces une à une : ses
+  cibles (`Target` : la pièce, son emplacement, « placée »), la tenue pour
+  un choix, le sticker que suit la flèche, les enchaînements appris
+  (`Sequence`, chacun en ses gestes) et la façon de trouver la formule (une
+  recherche vers l'objectif, ou une recette) ; le moteur fait le reste
+  (pièces placées au début du pas et gardées, choix, suggestion,
+  avancement) ;
+- une étape de **figures** (`FigureStage`) reconnaît une figure (comment la
+  tenir, la formule lue dans cette tenue), sans pièce à choisir, ses
+  pièces travaillées (`subjects`) fléchées ;
+- une étape de **formule** (`FormulaStage`) joue la sienne (le recentrage) ;
+- après les étapes, `next` peut annoncer celle qui vient (un tutoriel
+  partiel) ; sans `next`, le tutoriel finit sur le puzzle résolu.
+
+Chaque étape déclare aussi la face qu'elle travaille (`side`, une normale :
+flèches et vue) et si ses coups gardent leur description (`words`) : aucune
+règle d'affichage ne dépend d'un numéro d'étape, d'une face ni d'une sorte
+de coup écrite dans le code commun. Les **tenues** (`TutorialPlan.frame`,
+un `HoldFrame`) disent comment tenir le modèle et lire un coup dans une
+tenue : celles d'un cube se déduisent de ses faces (`ringHolds`,
+`CUBE_HOLDS` par défaut) ; un modèle aux coups d'une autre sorte donne les
+siennes. Le **registre** (`lib/tutorials/registry.ts`) liste par forme un
+tutoriel par méthode ; le tutoriel montré suit la méthode choisie, sinon le
+premier. **Ajouter un tutoriel** : sa définition dans
+`lib/tutorials/<catégorie>/<puzzle>.ts` et sa ligne au registre (sa
+méthode) ; les titres, consignes, figures, vérifications et phrases
+d'avancement de ses étapes dans `i18n/{fr,en}/tutorial.ts`, leurs noms
+dans `steps.ts` ; ses tests dans `tests/unit/tutorial/`. Le rendu des tons
+et des flèches n'existe aujourd'hui que pour les puzzles à grille
+(`CubeView`) ; un puzzle en polygones (`PolyView`) l'ajoutera avec son
+premier tutoriel. Le comportement du tutoriel du 3x3 est figé pas à pas
+par `golden.test.ts` (référence `golden/cube3.json`, écrite par le test :
+`-u` pour la réécrire, seulement sur un changement voulu).
 
 ---
 

@@ -16,7 +16,7 @@ import type { Face, Move } from '@/lib/core/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useTutorialStore } from '@/store/tutorialStore'
-import { tutorialFor } from '@/lib/tutorial/tutorial'
+import { tutorialFor } from '@/lib/tutorials/registry'
 import { TURN_PAIR } from '@/components/ui/styles'
 import { LayerTabs } from './LayerTabs'
 import { PadButton } from './PadButton'
@@ -49,7 +49,8 @@ export function MovePad({ disabled }: { disabled: boolean }) {
   const cube = useCube((s) => s.cube)
   const dims = cubeDims(cube)
   const hold = useTutorialStore((s) => s.hold)
-  const frame = tutorialFor(shape)?.frame
+  const method = useCube((s) => s.method)
+  const frame = tutorialFor(shape, method)?.frame
   const moves = movesFor(shape)
   const advanced = advancedMovesFor(shape)
   // The VTO turns its corners wide, its tips alone outer: corners first.

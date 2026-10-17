@@ -8,7 +8,7 @@ import {
   Square,
 } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
-import { tutorialFor } from '@/lib/tutorial/tutorial'
+import { tutorialFor } from '@/lib/tutorials/registry'
 import { useTutorialStore } from '@/store/tutorialStore'
 import { stepEnd } from '@/lib/solve/progress'
 import { useI18n } from '@/i18n/i18nStore'
@@ -57,7 +57,7 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
   const ahead = home || busy || solved || !ready || (dispatched > 0 && dispatched >= total)
   const editing = useEditor((s) => s.mode === 'edit')
   // A puzzle with a tutorial: its button beside Solve.
-  const tutorial = useCube((s) => tutorialFor(cubeShape(s.cube)) !== undefined) && !home
+  const tutorial = useCube((s) => tutorialFor(cubeShape(s.cube), s.method) !== undefined) && !home
   const startTutorial = useTutorialStore((s) => s.start)
   const wide = tutorial ? '' : 'col-span-2'
   // The solution being computed: a turning cog says so.

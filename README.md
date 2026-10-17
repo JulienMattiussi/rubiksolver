@@ -4,8 +4,8 @@
 
 # Rubik Solver
 
-**Turn, scramble or enter 75 twisty puzzles in 3D, then learn to solve them step by
-step, with real methods.**
+**Turn, scramble or enter 75 twisty puzzles in 3D, then solve them step by step with
+real methods, or learn to solve the 3x3 yourself with a guided tutorial.**
 
 [**Try it**](https://rubiksolver.yavadeus.dev) &nbsp;·&nbsp;
 [The puzzles](#75-puzzles-12-families) &nbsp;·&nbsp;
@@ -18,7 +18,8 @@ step, with real methods.**
 
 <sub>
   100% front-end &nbsp;·&nbsp; React 19 + React Three Fiber &nbsp;·&nbsp; TypeScript strict &nbsp;·&nbsp;
-  integer-only puzzle engine &nbsp;·&nbsp; 47 solving methods &nbsp;·&nbsp; French and English &nbsp;·&nbsp; MIT license
+  integer-only puzzle engine &nbsp;·&nbsp; 47 solving methods &nbsp;·&nbsp; a guided 3x3 tutorial &nbsp;·&nbsp;
+  French and English &nbsp;·&nbsp; MIT license
 </sub>
 
 </div>
@@ -43,6 +44,18 @@ puzzles also get an **optimal** solution, and every other puzzle has a method of
 own.
 
 <img src="docs/images/megaminx.png" width="820" alt="A scrambled Megaminx with its Extended star method: bottom star, bottom corners, low equator, five faces around...">
+
+### Learn how to solve it with a step-by-step tutorial
+
+On the 3x3, the **tutorial** walks you through the beginner's method, seven stages
+from the yellow cross to the last corners, one piece at a time. Each step tells you
+which center to hold in front, which piece to move and where to (an arrow shows the
+way, the pieces in play shine), and the formula to play, its moves explained in words
+while the letters are new. Play it with a button, or by hand on the move pad: the
+tutorial follows your moves, adapts when you stray, and can take you back to where the
+step began. Pick another piece if you like, and the formula changes with it.
+
+<img src="docs/images/tutorial.png" width="820" alt="The 3x3 tutorial: an arrow from a yellow edge to its place, and the step's numbered instructions on the right.">
 
 ### Learn how it moves
 
@@ -116,6 +129,10 @@ solve in disguise.
 - **Shape-shifting puzzles list their own shapes.** A breadth-first search over the
   state without its colors finds every shape a puzzle can take; shapes that only differ
   by how it is held are merged, then drawn as thumbnails to pick from.
+- **The tutorial is declared, like the methods.** A tutorial is a list of stages
+  (pieces to place one at a time, or figures to recognize), each with its targets, how
+  to hold the puzzle and how to find its formulas. The engine knows no puzzle: a
+  tutorial for another puzzle, or another method, only declares its own stages.
 - **Every formula is tested before a method uses it.** Methods for the less common
   puzzles follow the formulas of [fan2cube.fr](https://www.fan2cube.fr), each one seen
   from every side and set up by a move undone afterwards; each formula's effect is

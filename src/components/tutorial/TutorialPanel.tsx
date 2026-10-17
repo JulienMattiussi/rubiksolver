@@ -5,6 +5,7 @@ import { useI18n } from '@/i18n/i18nStore'
 import { useView } from '@/store/viewStore'
 import { selectBusy, useCube } from '@/store/cubeStore'
 import { useTutorialStore } from '@/store/tutorialStore'
+import { useTutorialTrack } from '@/store/tutorialTrack'
 import { useTutorial } from '@/hooks/useTutorial'
 import { Button } from '@/components/ui/Button'
 import { SECTION_BOX, SECTION_LABEL } from '@/components/ui/styles'
@@ -21,7 +22,7 @@ export function TutorialPanel() {
   const t = useI18n((s) => s.t)
   const busy = useCube(selectBusy)
   const apply = useTutorialStore((s) => s.apply)
-  const learn = useTutorialStore((s) => s.learn)
+  const learn = useTutorialTrack((s) => s.learn)
   const undo = useTutorialStore((s) => s.undo)
   const exit = useTutorialStore((s) => s.exit)
   const next = useTutorialStore((s) => s.next)
@@ -31,8 +32,8 @@ export function TutorialPanel() {
   const view = useTutorial()
   const { step, moves, pick, review, progress, hold, frame } = view
   const setHold = useTutorialStore((s) => s.setHold)
-  const showStage = useTutorialStore((s) => s.showStage)
-  const cheer = useTutorialStore((s) => s.cheer)
+  const showStage = useTutorialTrack((s) => s.showStage)
+  const cheer = useTutorialTrack((s) => s.cheer)
   // The end come (every stage shown, the puzzle solved): the cup, and the
   // fireworks with it, not before.
   const over = !step
@@ -42,7 +43,7 @@ export function TutorialPanel() {
   // The stage of the step shown, noted (a stage skipped over is then shown
   // in passing, see useTutorial).
   useEffect(() => {
-    if (step?.stage && !step.alreadyDone) showStage(step.stage)
+    if (step?.stage && step.kind !== 'alreadyDone') showStage(step.stage)
   }, [step, showStage])
   const lift = liftFor(step)
   const viewToward = useView((s) => s.viewToward)
@@ -88,7 +89,7 @@ export function TutorialPanel() {
         </div>
       )}
       {/* A stage the puzzle already meets: said so, then on. */}
-      {step?.alreadyDone && (
+      {step?.kind === 'alreadyDone' && (
         <>
           <p className="text-xs leading-relaxed text-slate-300">
             {t.tutorial.alreadyDone}
@@ -101,7 +102,7 @@ export function TutorialPanel() {
           </Button>
         </>
       )}
-      {step && !step.comingSoon && !step.alreadyDone && (
+      {step && step.kind !== 'toCome' && step.kind !== 'alreadyDone' && (
         <>
           <Instructions view={view} busy={busy} />
           <div className="flex flex-col gap-2">

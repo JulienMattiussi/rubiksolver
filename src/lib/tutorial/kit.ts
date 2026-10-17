@@ -1,6 +1,6 @@
 import { applyMoves } from '../core/turn'
 import { CUBE_HOLDS, type Hold, type HoldFrame } from '../core/hold'
-import type { Color, Cube, Face, Move, Vec3 } from '../core/types'
+import type { Color, Cube, Turn, Vec3 } from '../core/types'
 import { keepsPlaced } from './keep'
 import type { Sequence, Tutorial, TutorialPick, TutorialStep } from './tutorial'
 
@@ -11,8 +11,10 @@ import type { Sequence, Tutorial, TutorialPick, TutorialStep } from './tutorial'
  * (their targets), how to hold the puzzle, how to find a formula; the kit
  * does the rest (which are placed where the step began, which may be
  * picked and where to, the suggestion, how far along, the placed pieces
- * kept). A few play a formula of their own, no piece picked
- * (`FormulaStage`: the 3x3's centers put back).
+ * kept). Others are played by figures (`FigureStage`: the last layer's),
+ * or play a formula of their own, no piece picked (`FormulaStage`: the
+ * 3x3's centers put back). Nothing here knows a model: its turns, its
+ * pieces' positions and its holds (`frame`) come from the plan.
  */
 
 /** A piece a stage places: which it is on a state, where it goes, and
@@ -53,7 +55,7 @@ interface PieceStage {
   /** How to hold the puzzle for a pick (`next`: the target suggested). */
   readonly hold: (begun: Cube, pick: TutorialPick | null, next: Target) => Hold
   /** The formula taking a pick where it goes, keeping what it must. */
-  readonly formula: (cube: Cube, pick: TutorialPick, kept: Kept) => Move[] | null
+  readonly formula: (cube: Cube, pick: TutorialPick, kept: Kept) => Turn[] | null
   /** Its formulas checked to keep the placed pieces as they were (those a
    *  recipe finds, unlike a search for that goal). */
   readonly checked?: true
@@ -65,7 +67,7 @@ interface FormulaStage {
   readonly key: string
   readonly done: (cube: Cube) => boolean
   readonly hold: Hold
-  readonly formula: (cube: Cube) => Move[]
+  readonly formula: (cube: Cube) => Turn[]
 }
 
 /** A figure a stage recognizes, and what to do about it: held the way it
@@ -74,7 +76,7 @@ interface Figure {
   readonly key: string
   /** Where the figure shows: how to hold the puzzle and what to play, read
    *  in that hold (null: it is not there). */
-  readonly match: (cube: Cube) => { hold: Hold; moves: readonly Move[] } | null
+  readonly match: (cube: Cube) => { hold: Hold; moves: readonly Turn[] } | null
 }
 
 /** A stage played by figures, no piece picked (the last layer's): the
@@ -93,8 +95,8 @@ export interface FigureStage {
    *  their arrows from top face to top face, or following `marker`). */
   readonly subjects?: (cube: Cube) => number[]
   readonly marker?: Color
-  /** The side it works on (see `TutorialStep.face`). */
-  readonly face?: Face
+  /** The side it works on, its outward normal (see `TutorialStep.side`). */
+  readonly side?: Vec3
   readonly progress: (cube: Cube) => { done: number; total: number }
   readonly algorithms?: readonly Sequence[]
 }
@@ -131,7 +133,7 @@ function figureStep(
       .map((figure) => ({ figure, seen: figure.match(state) }))
       .find((f) => f.seen !== null)
   const found = figureOf(begun)
-  const hold = found?.seen?.hold ?? 'F'
+  const hold = found?.seen?.hold ?? frame.holds[0]!
   // The formula of the figure the puzzle shows now, held as the step began
   // (turned by hand to another figure: none, the step taken back).
   const now = cube === begun ? found : figureOf(cube)
@@ -139,6 +141,7 @@ function figureStep(
     now?.seen && now.seen.hold === hold ? now.seen.moves.map((m) => frame.played(hold, m)) : null
   const fromBegun = found?.seen?.moves.map((m) => frame.played(hold, m))
   return {
+    kind: 'figure',
     ...(fromBegun && { outcome: def.progress(applyMoves(begun, fromBegun)) }),
     key: def.key,
     stage: def.stage,
@@ -149,7 +152,7 @@ function figureStep(
     ...(def.focus && { focus: def.focus(cube) }),
     ...(def.subjects && { subjects: def.subjects(cube) }),
     ...(def.marker && { marker: def.marker }),
-    ...(def.face && { face: def.face }),
+    ...(def.side && { side: def.side }),
     placed: kept,
     suggestion: null,
     pickable: [],
@@ -167,6 +170,7 @@ function pieceStep(def: PieceStage, cube: Cube, begun: Cube, kept: number[]): Tu
   const placed = [...kept, ...done.map((t) => t.piece(cube))]
   const targetsKept = (c: Cube) => done.every((t) => t.placed(c))
   return {
+    kind: 'pieces',
     key: def.key,
     stage: def.stage,
     progress: { done: done.length, total: def.targets.length },
@@ -215,6 +219,7 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
           if (stage.kind === 'figures') return figureStep(stage, frame, cube, begun, kept)
           return stage.kind === 'formula'
             ? {
+                kind: 'formula',
                 key: stage.key,
                 hold: () => stage.hold,
                 placed: [],
@@ -230,6 +235,7 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
       const { next } = plan
       if (!next) return null
       return {
+        kind: 'toCome',
         key: next.key,
         stage: next.stage,
         hold: () => next.hold,
@@ -238,7 +244,6 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
         pickable: [],
         slots: () => [],
         formula: () => null,
-        comingSoon: true,
       }
     },
   }

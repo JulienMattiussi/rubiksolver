@@ -123,82 +123,71 @@ l'animation), sauf pendant une animation ou si le coup est bloqué. Dans le
 tutoriel, l'aperçu l'emporte sur la pièce visée tant qu'un bouton est
 survolé.
 
-**Tutoriel** (`lib/tutorial/`, `store/tutorialStore.ts`,
-`hooks/useTutorial.ts`, `components/tutorial/`) : sur un puzzle qui en a un
-(`tutorialFor`, le 3x3 pour l'instant), le bouton Tutoriel (grisé sur un
-puzzle résolu) remplace le bloc de résolution par un panneau où l'on résout
-soi-même, un **pas** à la fois : un pas est une formule qui amène une pièce
-à sa place sans déranger celles déjà placées (sur le 3x3 : recentrer ;
-la croix jaune arête par arête, la formule la plus courte en coups
-externes ; les coins jaunes un par un, amenés au-dessus de leur place puis
-descendus par le déclencheur de la place, `R U R' U'` pour l'avant droite,
-répété ; les arêtes du milieu une par une, amenées au-dessus du centre de
-leur couleur puis insérées à droite (`U R U' R' U' F' U F`) ou à gauche
-(`U' L' U L U F U' F'`) ; la croix blanche par `F R U R' U' F'`, selon la
-figure que dessine le blanc en haut (un point, un L tenu derrière à gauche,
-une ligne tenue de gauche à droite), ses arêtes mises en valeur, sans
-pièce à choisir ; une étape qui travaille le dessus (`face`) monte la vue
-pour le voir (`liftFor`), et les pièces qu'elle travaille (`subjects`) ne
-sont pas hachurées quand la formule les déplace : une flèche chacune vers
-sa place, de face du dessus à face du dessus, ou suivant leur blanc quand
-il y monte (la croix blanche). Plusieurs flèches défilent une à une
-(`useArrowTurns` : chacune apparaît en une seconde, reste 0,4 s, puis s'efface
-pendant que la suivante apparaît) ; la pièce de départ de celle qu'on voit
-scintille en bleu, celle de son arrivée en ambre ; puis les arêtes blanches au-dessus de leur centre
-(`R U R' U R U2 R'`), les coins blancs à leur place
-(`U R U' L' U R' U' L`) et enfin tournés blanc en haut (`R' D' R D` répété,
-un seul pas, la première couche se défaisant en route), jusqu'au cube
-résolu : « Résolu, bravo ! » et le feu d'artifice). Chaque pas dit comment **tenir le
-cube** (`TutorialStep.hold`, parmi les tenues du tutoriel, son
-`HoldFrame` : pour un cube, `lib/core/hold.ts` les déduit de ses faces,
-chacune des faces autour du haut tenue devant, le haut en haut) : pour un coin, sa place devant à droite, donc toujours
-`R U R' U'`. La vue tourne d'elle-même vers le centre à tenir quand la
-tenue change, les coups de la formule s'écrivent et se décrivent dans
-cette tenue, et le pavé de coups aussi pendant le tutoriel
-(`tutorialStore.hold`) : `R` tourne la face qu'on voit à droite. Le panneau dit l'**étape** (son rang,
-son but, son avancement en pastilles et en mots, sa consigne, la légende
-des hachures), puis quatre **consignes numérotées** : tenir le centre de
-face (un clic tourne la vue vers lui, `viewStore.viewToward`), repérer la
-pièce et celle qui occupe sa place, jouer la formule (chaque coup en
-bouton du pad, à côté de sa phrase courte `t.describeMoveShort` ; un bloc
-découpée comme on l'apprend, `formulaSegments` : les enchaînements appris
-(`TutorialStep.algorithms`), d'où qu'on les joue, sur une rangée de
-boutons, un enchaînement répété dit une fois avec son nombre, chacun coupé
-en les gestes que déclare sa définition (l'insertion : dégager, puis
-ramener) ; un morceau dont un coup n'a encore été montré ni dans un pas
-validé, `tutorialStore.learnt`, ni plus tôt dans la formule, s'affiche en colonne, chaque
-coup avec sa phrase à droite, les autres en rangée, leurs phrases en
-infobulle ; les coups simples restent en colonne dans les étapes qui le
-déclarent, `words` : les deux premières), vérifier
-les nouvelles positions. Sur le cube, la pièce visée et l'emplacement
-**scintillent** (`usePulse`), les pièces que la formule déplace sans les
-placer sont **hachurées** (`hatchTexture`), et une **flèche** va de la face
-du sticker repère à celle où il arrive (`TutorialArrow` : un demi-cercle
-centré entre les deux faces, du côté opposé au centre du cube, ou dans le
-plan de l'écran pour deux faces opposées, élargi jusqu'à passer au large du cube, chaque
-bout sortant de sa face tout droit, en pointillés là où le cube le cache).
-Un clic sur une autre pièce la choisit, puis un clic sur un emplacement ;
-la formule se recalcule. « Appliquer la formule » la joue puis marque un
-**arrêt** (les consignes faites cochées, la vérification en avant) jusqu'à
-« Suivant ». Une étape que le cube remplit déjà quand le tutoriel y
-arrive (la croix blanche faite d'avance) n'est pas sautée : elle s'affiche
-avec « les cubes à déplacer à cette étape sont déjà dans la bonne position »
-et un bouton « Suivant » (`tutorialStore.stageShown`, `alreadyDoneStep`) ;
-une **étape** finie (son dernier pas validé, le puzzle pas
-encore résolu) fait apparaître un 💪 devant le cube, qui grandit, bat deux
-fois et s'efface (`StageCheer`, `tutorialStore.stagesDone`), distinct du
-feu d'artifice de la résolution complète. Des coups joués **à la main** pendant un pas (le pad ou les
-boutons de la formule) sont suivis : le bouton devient « Valider le
-déplacement » (le reste de la formule). S'ils suivent la formule du début
-du pas, elle reste affichée, ses coups joués estompés, le suivant entouré et
-la répétition en cours dite ; sinon elle est recalculée pour la même pièce,
-en remettant les pièces placées au début du pas (`formulaUnderWay`). Et
-« Annuler le déplacement » ramène au début du pas, formule et coups à la
-main compris. La solution précalculée de la méthode n'est pas montrée
-pendant le tutoriel (`useAutoPlan` s'en abstient). Tout ce qui remplacerait le cube suivi est
-grisé tant qu'il est ouvert (mélange, réinitialisation, saisie,
-restauration), avec une infobulle qui invite à le quitter ; choisir un
-autre puzzle le quitte.
+**Tutoriel** (moteur `lib/tutorial/`, tutoriels `lib/tutorials/`, état
+`store/tutorialStore.ts` et `store/tutorialTrack.ts`, `hooks/useTutorial.ts`,
+`components/tutorial/`). Sur un puzzle qui en a un pour la méthode choisie
+(`tutorialFor(forme, méthode)`, sinon son premier ; aujourd'hui le 3x3,
+méthode débutant), le bouton Tutoriel (grisé sur un puzzle résolu) remplace
+le bloc de résolution par un panneau où l'on résout soi-même, un **pas** à
+la fois.
+
+- **Le parcours du 3x3** : recentrer si une tranche a bougé les centres,
+  puis sept étapes. Croix jaune arête par arête (la formule la plus
+  courte) ; coins jaunes, amenés au-dessus de leur place puis descendus
+  par `R U R' U'` répété ; arêtes du milieu, insérées à droite
+  (`U R U' R' U' F' U F`) ou à gauche (`U' L' U L U F U' F'`) ; croix
+  blanche par `F R U R' U' F'` selon la figure du dessus (point, L, ligne) ;
+  arêtes blanches au-dessus de leur centre (`R U R' U R U2 R'`) ; coins
+  blancs à leur place (`U R U' L' U R' U' L`) ; coins blancs tournés (`R' D'
+R D` répété, un seul pas, la première couche se défaisant en route).
+- **Le panneau** : l'étape (« Étape 4 sur 7 », son but, son avancement,
+  sa consigne, la légende des hachures), puis quatre **consignes
+  numérotées** : tenir le centre de face (un clic tourne la vue vers lui),
+  repérer la pièce et celle qui occupe sa place (ou la figure), jouer la
+  formule, vérifier le résultat (un nombre : « 5 faces blanches vers le
+  haut »). La formule est découpée comme on l'apprend (`formulaSegments`) :
+  coups simples, gestes des enchaînements appris (`algorithms`, d'où qu'on
+  les joue), un geste répété dit une fois avec son nombre. Un morceau dont
+  un coup n'a encore été montré nulle part (`tutorialTrack.learnt`) est en
+  colonne, chaque coup avec sa phrase courte (`t.describeMoveShort`) ;
+  les autres en rangée de boutons, leur phrase en infobulle ; les étapes
+  qui le déclarent (`words`) gardent les coups simples en colonne.
+- **La tenue** : chaque pas dit comment tenir le puzzle, une tenue du cadre
+  du tutoriel (`HoldFrame` ; pour un cube, `lib/core/hold.ts` le déduit
+  de ses faces). La vue tourne vers le centre à tenir quand la tenue
+  change (plus haut pour une étape qui travaille le dessus, `side`), les
+  coups de la formule s'écrivent et se décrivent dans cette tenue, et le
+  pavé de coups aussi pendant le tutoriel : `R` tourne la face qu'on voit
+  à droite.
+- **Sur le cube** : la pièce visée scintille en bleu et l'emplacement en
+  ambre (`usePulse`), les pièces que la formule déplace sans les placer
+  sont hachurées (`hatchTexture`), et une flèche va de la face du sticker
+  repère à celle où il arrive (`TutorialArrow` : un demi-cercle autour du
+  milieu des deux faces, élargi jusqu'à passer au large du cube, en
+  pointillés là où il est caché). Aux étapes par figures, les pièces
+  travaillées (`subjects`) gardent leurs couleurs, une flèche chacune ;
+  plusieurs flèches défilent une à une (`useArrowTurns`), la pièce de
+  départ de celle qu'on voit en bleu, celle de son arrivée en ambre.
+- **Jouer** : un clic sur une autre pièce la choisit, puis sur un
+  emplacement. « Appliquer la formule » la joue puis marque un **arrêt**
+  (les consignes faites cochées, la vérification en avant, les pièces
+  déplacées en bleu) jusqu'à « Suivant ». Des coups joués **à la main** (le
+  pavé ou les boutons de la formule) sont suivis : s'ils suivent la
+  formule, elle reste affichée, ses coups joués estompés, le suivant
+  entouré ; sinon elle est recalculée en remettant les pièces placées au
+  début du pas (`formulaUnderWay`) ; le bouton devient « Valider le
+  déplacement ». « Annuler le déplacement » ramène au début du pas.
+- **Le parcours** : une étape que le cube remplit déjà quand le tutoriel
+  y arrive n'est pas sautée : elle s'affiche avec « les cubes à déplacer
+  à cette étape sont déjà dans la bonne position » et un bouton « Suivant »
+  (`tutorialTrack.stageShown`). Une étape finie fait apparaître un 💪 devant
+  le cube (`StageCheer`) ; la fin du tutoriel, une coupe, « Résolu, bravo ! »,
+  un bouton pour le fermer, et le feu d'artifice.
+- **Autour** : la solution précalculée de la méthode n'est pas montrée
+  (`useAutoPlan` s'en abstient) ; ce qui remplacerait le cube suivi est
+  grisé (mélange, réinitialisation, saisie, restauration) ; choisir un
+  autre puzzle quitte le tutoriel ; la vitesse du tutoriel est gardée à
+  part de celle du jeu.
 
 **Feu d'artifice** (`components/celebration/Fireworks.tsx`) : quand un coup
 amène le puzzle résolu (`solvedByTurn` du store : le coup qui finit, depuis

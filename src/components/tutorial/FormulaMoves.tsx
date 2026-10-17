@@ -2,7 +2,7 @@ import { describeMove } from '@/lib/app/moveGuide'
 import { cubeDims, cubeShape } from '@/lib/core/cube'
 import { formatMove } from '@/lib/core/moves'
 import type { Hold, HoldFrame } from '@/lib/core/hold'
-import type { Cube, Move } from '@/lib/core/types'
+import type { Cube, Turn } from '@/lib/core/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { PadButton } from '@/components/controls/PadButton'
 import { TURN_PAIR } from '@/components/ui/styles'
@@ -25,7 +25,7 @@ export function FormulaMoves({
   frame,
 }: {
   cube: Cube
-  moves: readonly Move[]
+  moves: readonly Turn[]
   disabled: boolean
   inline?: boolean
   done?: number
@@ -37,7 +37,7 @@ export function FormulaMoves({
   const labels = useI18n(selectMoveLabels)
   const dims = cubeDims(cube)
   const shape = cubeShape(cube)
-  const button = (m: Move, i: number, words: string) => (
+  const button = (m: Turn, i: number, words: string) => (
     <div
       className={`${TURN_PAIR} w-10 ${i < done ? 'opacity-40' : ''} ${
         next && i === done ? 'ring-2 ring-amber-400 ring-offset-1 ring-offset-slate-900' : ''
@@ -48,12 +48,12 @@ export function FormulaMoves({
         label={formatMove(frame.inHold(hold, m), labels, dims, shape)}
         title={words}
         disabled={disabled || i < done}
-        ghost={m.amount === 3}
+        ghost={'amount' in m && m.amount === 3}
         dense
       />
     </div>
   )
-  const wordsOf = (m: Move) => t.describeMoveShort(describeMove(frame.inHold(hold, m), shape))
+  const wordsOf = (m: Turn) => t.describeMoveShort(describeMove(frame.inHold(hold, m), shape))
   if (inline) {
     return (
       <ol className="mt-1.5 flex flex-wrap gap-1.5">

@@ -1,13 +1,14 @@
 import { invertMoves, simplifyMoves } from '../core/moves'
 import { applyMoves } from '../core/turn'
-import type { Cube, Move } from '../core/types'
+import type { Cube, Turn } from '../core/types'
+import { sameTurn } from './segments'
 import type { Tutorial, TutorialPick, TutorialStep } from './tutorial'
 
 /** Whether a formula leaves the pieces a step keeps (`placed`) as they
  *  stood where it began (`begun`). */
 export function keepsPlaced(
   cube: Cube,
-  moves: readonly Move[],
+  moves: readonly Turn[],
   placed: readonly number[],
   begun: Cube,
 ): boolean {
@@ -21,30 +22,23 @@ export function keepsPlaced(
   })
 }
 
-/** Whether turns are the start of a formula, move for move. */
-const followed = (turns: readonly Move[], formula: readonly Move[]) =>
-  turns.length <= formula.length &&
-  turns.every(
-    (t, i) =>
-      t.face === formula[i]!.face &&
-      t.amount === formula[i]!.amount &&
-      t.depth === formula[i]!.depth &&
-      t.wide === formula[i]!.wide,
-  )
+/** Whether turns are the start of a formula, turn for turn. */
+const followed = (turns: readonly Turn[], formula: readonly Turn[]) =>
+  turns.length <= formula.length && turns.every((t, i) => sameTurn(t, formula[i]!))
 
 /** A step's formula as it stands: what is left to play (`rest`, null if
  *  none is found), and the formula to show (`shown`) with how many of its
- *  moves are played already (`done`). */
+ *  turns are played already (`done`). */
 export interface FormulaUnderWay {
-  readonly rest: Move[] | null
-  readonly shown: Move[] | null
+  readonly rest: Turn[] | null
+  readonly shown: Turn[] | null
   readonly done: number
 }
 
 /**
  * The formula of a step under way, after turns by hand (`manual`, from
  * `begun` to `cube`): if they followed the formula shown when it began, it
- * stays shown, those moves played, the rest to play; else a formula from
+ * stays shown, those turns played, the rest to play; else a formula from
  * here that keeps the pieces placed; else those turns undone, then the
  * formula from where it began.
  */
@@ -54,9 +48,9 @@ export function formulaUnderWay(
   pick: TutorialPick | null,
   cube: Cube,
   begun: Cube,
-  manual: readonly Move[],
+  manual: readonly Turn[],
 ): FormulaUnderWay {
-  const fresh = (moves: Move[] | null) => ({ rest: moves, shown: moves, done: 0 })
+  const fresh = (moves: Turn[] | null) => ({ rest: moves, shown: moves, done: 0 })
   if (manual.length === 0) return fresh(step.formula(pick))
   const fromStart = tutorial.stepOf(begun)?.formula(pick) ?? null
   if (fromStart && followed(manual, fromStart)) {

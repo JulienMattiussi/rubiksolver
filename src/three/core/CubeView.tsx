@@ -1,5 +1,5 @@
 import { cubeDims } from '@/lib/core/cube'
-import { arrowsOf } from '@/lib/tutorial/tutorial'
+import { arrowsOf } from '@/lib/tutorial/scene'
 import { useCube } from '@/store/cubeStore'
 import { useView } from '@/store/viewStore'
 import { useTutorial } from '@/hooks/useTutorial'

@@ -40,7 +40,7 @@ export function StepHeading({
         </div>
       )}
       <p className="mt-1 text-xs leading-relaxed text-slate-400">{t.tutorial.hints[step.key]}</p>
-      {!step.comingSoon && !step.alreadyDone && (
+      {(step.kind === 'pieces' || step.kind === 'figure' || step.kind === 'formula') && (
         <p className="mt-2 flex items-center gap-2 text-xs text-slate-400">
           <HatchedCubie className="size-6 shrink-0" />
           {t.tutorial.legendMoved}

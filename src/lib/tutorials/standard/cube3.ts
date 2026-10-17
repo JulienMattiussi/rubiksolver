@@ -83,7 +83,7 @@ const cornerTarget = (pair: Pair): Target => ({
 const TRIGGER = parseMoves("R U R' U'")
 
 /** A slot's trigger as played: held with its first side in front. */
-const triggerAt = ([a]: Pair) => TRIGGER.map((m) => CUBE_HOLDS.played(a, m))
+const triggerAt = ([a]: Pair) => TRIGGER.map((m) => CUBE_HOLDS.played(a, m) as Move)
 
 /**
  * A corner to a slot, yellow down: out of the bottom layer if it stands in
@@ -138,7 +138,7 @@ const RIGHT = RIGHT_PARTS.flat()
 const LEFT = LEFT_PARTS.flat()
 
 const inserted = (front: Face, moves: readonly Move[]) =>
-  moves.map((m) => CUBE_HOLDS.played(front, m))
+  moves.map((m) => CUBE_HOLDS.played(front, m) as Move)
 
 /** Whether the picked edge, at its own slot, shows its colors on their
  *  sides (at another slot, either way does). */

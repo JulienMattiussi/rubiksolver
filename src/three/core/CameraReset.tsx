@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { easeInOut } from '@/lib/app/easing'
-import { useView } from '@/store/viewStore'
+import { useView, type Lift } from '@/store/viewStore'
 import { useEditor } from '@/store/editorStore'
 import { FACE_ON_POSITION, HOME_POSITION, HOME_TARGET } from './camera'
 
@@ -15,11 +15,18 @@ interface OrbitLike {
 
 /** Where the camera looks at a face from: in front of it, a little above
  *  (the top still in sight; for the top or bottom, a little in front), or
- *  `lift` above. */
-function facingFrom(normal: readonly number[], lift = 0.45): THREE.Vector3 {
+ *  raised as `lift` says. */
+function facingFrom(normal: readonly number[], lift?: Lift): THREE.Vector3 {
   const n = new THREE.Vector3(...normal)
-  const above = Math.abs(n.y) > 0.5 ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(0, 1, 0)
-  return n.addScaledVector(above, lift).normalize().multiplyScalar(HOME_POSITION.length())
+  const above = lift
+    ? new THREE.Vector3(...lift.toward)
+    : Math.abs(n.y) > 0.5
+      ? new THREE.Vector3(0, 0, 1)
+      : new THREE.Vector3(0, 1, 0)
+  return n
+    .addScaledVector(above, lift?.amount ?? 0.45)
+    .normalize()
+    .multiplyScalar(HOME_POSITION.length())
 }
 
 /** Smoothly flies the camera back to its home framing when asked to recenter

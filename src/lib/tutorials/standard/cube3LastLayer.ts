@@ -1,4 +1,5 @@
 import { FACE_COLOR, isSolved } from '../../core/cube'
+import { FACE_NORMAL } from '../../core/geometry'
 import { CUBE_HOLDS, type Hold } from '../../core/hold'
 import { parseMoves } from '../../core/moves'
 import { colorAt, hasColors } from '../../core/pieces'
@@ -75,7 +76,7 @@ const whiteEdgesUp = (cube: Cube) =>
 
 const TOP_CROSS_STAGE: FigureStage = {
   kind: 'figures',
-  face: 'U',
+  side: FACE_NORMAL.U,
   key: 'stepTutorialTopCross',
   stage: 4,
   done: (cube) => whiteEdgesUp(cube).length === 4,
@@ -152,7 +153,7 @@ const sideBySide = (cube: Cube) => {
 
 const TOP_EDGES_STAGE: FigureStage = {
   kind: 'figures',
-  face: 'U',
+  side: FACE_NORMAL.U,
   key: 'stepTutorialTopEdges',
   stage: 5,
   done: (cube) => edgesHome(cube).length === 4,
@@ -196,7 +197,7 @@ function cornersFormula(cube: Cube): { hold: Hold; moves: Move[] } {
 
 const TOP_CORNERS_STAGE: FigureStage = {
   kind: 'figures',
-  face: 'U',
+  side: FACE_NORMAL.U,
   key: 'stepTutorialTopCorners',
   stage: 6,
   done: (cube) => cornersHome(cube).length === 4,
@@ -251,7 +252,7 @@ function twistFormula(start: Cube): Move[] {
 
 const TOP_TWIST_STAGE: FigureStage = {
   kind: 'figures',
-  face: 'U',
+  side: FACE_NORMAL.U,
   key: 'stepTutorialTopTwist',
   stage: 7,
   done: isSolved,

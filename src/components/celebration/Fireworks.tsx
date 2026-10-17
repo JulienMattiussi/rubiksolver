@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { solvedByTurn, useCube } from '@/store/cubeStore'
 import { useTutorialStore } from '@/store/tutorialStore'
+import { useTutorialTrack } from '@/store/tutorialTrack'
 import { COLOR_HEX } from '@/three/core/colors'
 
 /** The sparks' colors: the cube's. */
@@ -168,7 +169,7 @@ export function Fireworks() {
       if (useTutorialStore.getState().active) return
       fire()
     })
-    const steps = useTutorialStore.subscribe((next, prev) => {
+    const steps = useTutorialTrack.subscribe((next, prev) => {
       if (next.cheers !== prev.cheers) fire()
     })
     return () => {

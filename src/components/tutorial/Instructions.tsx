@@ -1,11 +1,12 @@
 import { Check } from 'lucide-react'
 import type { ReactNode } from 'react'
-import type { Move } from '@/lib/core/types'
-import { formulaSegments, occupantOf, pieceColors } from '@/lib/tutorial/tutorial'
+import type { Turn } from '@/lib/core/types'
+import { occupantOf, pieceColors } from '@/lib/tutorial/scene'
+import { formulaSegments } from '@/lib/tutorial/segments'
 import type { TutorialView } from '@/hooks/useTutorial'
 import { useI18n } from '@/i18n/i18nStore'
 import { useView } from '@/store/viewStore'
-import { useTutorialStore } from '@/store/tutorialStore'
+import { useTutorialTrack } from '@/store/tutorialTrack'
 import { formatMove } from '@/lib/core/moves'
 import { COLOR_HEX, HIGHLIGHT, PLACE } from '@/three/core/colors'
 import { FormulaMoves } from './FormulaMoves'
@@ -22,7 +23,7 @@ import { liftFor } from './liftFor'
 export function Instructions({ view, busy }: { view: TutorialView; busy: boolean }) {
   const t = useI18n((s) => s.t)
   const viewToward = useView((s) => s.viewToward)
-  const learnt = useTutorialStore((s) => s.learnt)
+  const learnt = useTutorialTrack((s) => s.learnt)
   const { cube, step, pick, hold, frame, shown, review } = view
   if (!step || !hold) return null
   // Where the center to face stands: the view turns toward it.
@@ -43,7 +44,7 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
   // sequence repeated told once with its count); followed by hand, the
   // moves played so far checked off, the next one standing out, a repeat's
   // round told. Read as held: a sequence is known by its letters.
-  const play = (formula: Move[], done: number) => {
+  const play = (formula: Turn[], done: number) => {
     const segments = formulaSegments(
       formula.map((m) => frame.inHold(hold, m)),
       step.algorithms,
@@ -52,8 +53,8 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
     // Seen: in a step validated, or earlier in this formula (a gesture told
     // once with its words, then in a row).
     const seen = new Set(learnt)
-    const key = (m: Move) => formatMove(frame.inHold(hold, m))
-    const isNew = (m: Move) => !seen.has(key(m))
+    const key = (m: Turn) => formatMove(frame.inHold(hold, m))
+    const isNew = (m: Turn) => !seen.has(key(m))
     // Words beside each move: for moves one by one in the steps that keep
     // them (`words`), and always for a piece with a move not shown yet;
     // else in tooltips, the moves in a row.
