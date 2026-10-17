@@ -7,6 +7,10 @@ export const TUTORIAL_FR = {
   undo: 'Annuler le déplacement',
   finish: 'Valider le déplacement',
   next: 'Suivant',
+  /** A stage the puzzle already meets when the tutorial comes to it. */
+  alreadyDone:
+    'Dans cette configuration, les cubes à déplacer à cette étape sont déjà dans la bonne position.',
+  alreadyDoneNext: 'On peut passer à l’étape suivante.',
   /** Why the actions replacing the cube are off. */
   locked: 'Indisponible pendant le tutoriel : quitte-le d’abord',
   facing: (color: string) => `Place le centre ${color} face à toi.`,
@@ -80,7 +84,7 @@ export const TUTORIAL_FR = {
   noFormula: 'Aucune formule ne mène là sans déranger les pièces déjà placées.',
   solved: 'Résolu, bravo !',
   /** A step's rank among the method's stages, or before them. */
-  stage: (n: number) => `Étape ${n}`,
+  stage: (n: number, total: number) => `Étape ${n} sur ${total}`,
   beforeStages: 'Avant de commencer',
   /** How far a step has come, by its key (its pieces placed, of how many). */
   progress: {

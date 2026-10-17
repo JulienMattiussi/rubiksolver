@@ -31,6 +31,19 @@ const scrambled = applyMoves(solvedCube('3'), SCRAMBLE)
 const stepOf = (cube: Cube, begun?: Cube): TutorialStep => tutorialFor('3')!.stepOf(cube, begun)!
 
 describe('tutorial registry', () => {
+  it('counts its stages, to the last', () => {
+    expect(tutorialFor('3')!.stages).toBe(7)
+    expect(tutorialFor('3')!.stageKeys).toEqual([
+      'stepTutorialCross',
+      'stepTutorialCorner',
+      'stepTutorialMiddle',
+      'stepTutorialTopCross',
+      'stepTutorialTopEdges',
+      'stepTutorialTopCorners',
+      'stepTutorialTopTwist',
+    ])
+  })
+
   it('has the 3x3 only', () => {
     expect(tutorialFor('3')).toBeDefined()
     expect(tutorialFor('2')).toBeUndefined()

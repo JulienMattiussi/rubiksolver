@@ -71,6 +71,9 @@ export interface TutorialStep {
    *  steps, the letters being learnt); else they show in a row, their
    *  words in tooltips, but for those not shown yet. */
   readonly words?: true
+  /** A stage the puzzle already meets, shown in passing (nothing to play:
+   *  on to the next). */
+  readonly alreadyDone?: true
   /** Whether the step is not taught yet (the rest of the solve to come). */
   readonly comingSoon?: true
 }
@@ -84,7 +87,25 @@ export interface Tutorial {
   readonly stepOf: (cube: Cube, begun?: Cube) => TutorialStep | null
   /** The ways to hold the puzzle its steps use (its formulas read so). */
   readonly frame: HoldFrame
+  /** How many stages it has, to the last (the one to come counted), and
+   *  each one's key (the first stage's first). */
+  readonly stages: number
+  readonly stageKeys: readonly string[]
 }
+
+/** A stage the puzzle already meets when the tutorial comes to it: shown
+ *  all the same, nothing to play. */
+export const alreadyDoneStep = (key: string, stage: number): TutorialStep => ({
+  key,
+  stage,
+  alreadyDone: true,
+  hold: () => 'F',
+  placed: [],
+  suggestion: null,
+  pickable: [],
+  slots: () => [],
+  formula: () => [],
+})
 
 /** The puzzles that have a tutorial. */
 const TUTORIALS: Partial<Record<CubeShape, Tutorial>> = { '3': CUBE3_TUTORIAL }

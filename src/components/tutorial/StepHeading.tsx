@@ -9,8 +9,11 @@ import { HatchedCubie } from './HatchedCubie'
 export function StepHeading({
   step,
   progress,
+  stages,
 }: {
   step: TutorialStep
+  /** How many stages the tutorial has. */
+  stages: number
   progress: { done: number; total: number } | null
 }) {
   const t = useI18n((s) => s.t)
@@ -18,7 +21,7 @@ export function StepHeading({
   return (
     <div>
       <p className="text-[11px] font-semibold tracking-wide text-amber-300 uppercase">
-        {step.stage ? t.tutorial.stage(step.stage) : t.tutorial.beforeStages}
+        {step.stage ? t.tutorial.stage(step.stage, stages) : t.tutorial.beforeStages}
       </p>
       <h3 className="text-sm font-semibold text-white">
         {t.tutorial.titles[step.key] ?? stepName(t, step.key)}
@@ -37,7 +40,7 @@ export function StepHeading({
         </div>
       )}
       <p className="mt-1 text-xs leading-relaxed text-slate-400">{t.tutorial.hints[step.key]}</p>
-      {!step.comingSoon && (
+      {!step.comingSoon && !step.alreadyDone && (
         <p className="mt-2 flex items-center gap-2 text-xs text-slate-400">
           <HatchedCubie className="size-6 shrink-0" />
           {t.tutorial.legendMoved}

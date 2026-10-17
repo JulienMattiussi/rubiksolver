@@ -124,6 +124,14 @@ describe('tutorial store', () => {
     expect(useTutorialStore.getState().learnt).toEqual([])
   })
 
+  it('notes the furthest stage shown, from none on a new start', () => {
+    useTutorialStore.getState().showStage(2)
+    useTutorialStore.getState().showStage(1)
+    expect(useTutorialStore.getState().stageShown).toBe(2)
+    useTutorialStore.getState().start()
+    expect(useTutorialStore.getState().stageShown).toBe(0)
+  })
+
   it('is left when another puzzle is chosen', () => {
     byHand('U')
     useCube.getState().setShape('2')

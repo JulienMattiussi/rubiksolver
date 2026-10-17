@@ -191,8 +191,23 @@ function pieceStep(def: PieceStage, cube: Cube, begun: Cube, kept: number[]): Tu
  *  are all done, the stage still to come. */
 export function tutorialOf(plan: TutorialPlan): Tutorial {
   const frame = plan.frame ?? CUBE_HOLDS
+  const stages = Math.max(
+    0,
+    ...plan.stages.map((s) => (s.kind === 'formula' ? 0 : s.stage)),
+    plan.next?.stage ?? 0,
+  )
+  const numbered = [
+    ...plan.stages.flatMap((s) => (s.kind === 'formula' ? [] : [s])),
+    ...(plan.next ? [plan.next] : []),
+  ]
+  const stageKeys = Array.from(
+    { length: stages },
+    (_, i) => numbered.find((s) => s.stage === i + 1)?.key ?? '',
+  )
   return {
     frame,
+    stages,
+    stageKeys,
     stepOf: (cube, begun = cube) => {
       let kept: number[] = []
       for (const stage of plan.stages) {

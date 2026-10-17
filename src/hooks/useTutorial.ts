@@ -6,6 +6,7 @@ import { applyMoves } from '@/lib/core/turn'
 import { formulaUnderWay } from '@/lib/tutorial/keep'
 import { cubeShape, stateKey } from '@/lib/core/cube'
 import {
+  alreadyDoneStep,
   tonesOf,
   tutorialFor,
   type Tone,
@@ -33,6 +34,8 @@ export interface TutorialView {
    *  the ways it may be held. */
   hold: Hold | null
   frame: HoldFrame
+  /** How many stages the tutorial has. */
+  stages: number
   /** The formula for it, what is left to play (null: none). */
   moves: Move[] | null
   /** The formula shown, and how many of its moves are played by hand
@@ -52,6 +55,7 @@ const OFF = {
   pick: null,
   hold: null,
   frame: CUBE_HOLDS,
+  stages: 0,
   moves: null,
   shown: null,
   tones: null,
@@ -69,6 +73,7 @@ export function useTutorial(): TutorialView {
   const choose = useTutorialStore((s) => s.choose)
   const played = useTutorialStore((s) => s.played)
   const manual = useTutorialStore((s) => s.manual)
+  const stageShown = useTutorialStore((s) => s.stageShown)
   const reviewing = useTutorialStore((s) => s.review)
   const last = played[played.length - 1]
   // The formula just played, while it plays and until a turn by hand.
@@ -103,6 +108,26 @@ export function useTutorial(): TutorialView {
     // Played: the piece that stood in the way only moved like the others.
     return review ? tones.map((t) => (t === 'slot' ? 'moved' : t)) : tones
   }, [step, moves, busy, read, pick, review])
+  // A stage skipped over (the puzzle meeting it already): shown in passing
+  // before the step, nothing to play.
+  const reached = step ? step.stage : tutorial && active ? tutorial.stages + 1 : undefined
+  if (
+    !review &&
+    tutorial &&
+    reached !== undefined &&
+    reached > stageShown + 1 &&
+    stageShown < tutorial.stages
+  ) {
+    const stage = stageShown + 1
+    return {
+      ...OFF,
+      cube,
+      frame: tutorial.frame,
+      stages: tutorial.stages,
+      step: alreadyDoneStep(tutorial.stageKeys[stage - 1]!, stage),
+      moves: [],
+    }
+  }
   if (!step) return { ...OFF, cube }
   // Looking at a formula played, its step may be over: all its pieces placed.
   const live = review && tutorial ? tutorial.stepOf(cube) : step
@@ -140,6 +165,7 @@ export function useTutorial(): TutorialView {
     pick,
     hold: step.hold(pick),
     frame: tutorial?.frame ?? CUBE_HOLDS,
+    stages: tutorial?.stages ?? 0,
     moves,
     shown,
     tones,

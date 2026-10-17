@@ -180,7 +180,11 @@ bout sortant de sa face tout droit, en pointillés là où le cube le cache).
 Un clic sur une autre pièce la choisit, puis un clic sur un emplacement ;
 la formule se recalcule. « Appliquer la formule » la joue puis marque un
 **arrêt** (les consignes faites cochées, la vérification en avant) jusqu'à
-« Suivant » ; une **étape** finie (son dernier pas validé, le puzzle pas
+« Suivant ». Une étape que le cube remplit déjà quand le tutoriel y
+arrive (la croix blanche faite d'avance) n'est pas sautée : elle s'affiche
+avec « les cubes à déplacer à cette étape sont déjà dans la bonne position »
+et un bouton « Suivant » (`tutorialStore.stageShown`, `alreadyDoneStep`) ;
+une **étape** finie (son dernier pas validé, le puzzle pas
 encore résolu) fait apparaître un 💪 devant le cube, qui grandit, bat deux
 fois et s'efface (`StageCheer`, `tutorialStore.stagesDone`), distinct du
 feu d'artifice de la résolution complète. Des coups joués **à la main** pendant un pas (le pad ou les

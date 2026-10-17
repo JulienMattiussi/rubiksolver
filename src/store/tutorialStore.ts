@@ -45,6 +45,11 @@ interface TutorialStore {
   hold: Hold | null
   /** Hold the puzzle another way (the panel's, following its step). */
   setHold: (hold: Hold | null) => void
+  /** The furthest stage the tutorial has shown: a stage the puzzle meets
+   *  before it comes to it is shown all the same, in passing. */
+  stageShown: number
+  /** Note a stage as shown. */
+  showStage: (stage: number) => void
   /** Counts the stages done (a stage's last step validated, the puzzle not
    *  solved yet): each one is cheered (StageCheer). */
   stagesDone: number
@@ -74,6 +79,8 @@ export const useTutorialStore = create<TutorialStore>((set, get) => ({
   active: false,
   cheers: 0,
   stagesDone: 0,
+  stageShown: 0,
+  showStage: (stage) => set((s) => (stage > s.stageShown ? { stageShown: stage } : s)),
   learnt: [],
   learn: (moves) => set((s) => ({ learnt: [...new Set([...s.learnt, ...moves])] })),
   hold: null,
@@ -84,7 +91,7 @@ export const useTutorialStore = create<TutorialStore>((set, get) => ({
     // A solution shown or under way gives way: the list shows the tutorial's.
     useCube.getState().stop()
     useCube.getState().setSpeedMode('tutorial')
-    set({ active: true, learnt: [], ...IDLE })
+    set({ active: true, learnt: [], stageShown: 0, ...IDLE })
   },
 
   exit: () => {

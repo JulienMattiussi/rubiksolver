@@ -8,6 +8,8 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   undo: 'Undo the move',
   finish: 'Complete the move',
   next: 'Next',
+  alreadyDone: 'As things stand, the cubes this step moves are already in the right place.',
+  alreadyDoneNext: 'On to the next step.',
   locked: 'Unavailable during the tutorial: leave it first',
   facing: (color: string) => `Hold the ${color} center facing you.`,
   facingTitle: 'Turn the view to face it',
@@ -68,7 +70,7 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
     'The hatched cubes will be moved by the formula, with no effect on the expected result.',
   noFormula: 'No formula gets there without disturbing the pieces already placed.',
   solved: 'Solved, well done!',
-  stage: (n: number) => `Step ${n}`,
+  stage: (n: number, total: number) => `Step ${n} of ${total}`,
   beforeStages: 'Before starting',
   progress: {
     stepTutorialCross: (done: number, total: number) =>
