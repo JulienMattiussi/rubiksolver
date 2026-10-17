@@ -94,7 +94,8 @@ src/
 │   ├── core/            # Le moteur : types (CubeShape, Move, Turn...), geometry (normales, rotations entières),
 │   │                    #   cube (construction, reconnaissance, résolu, boîte, orientations), pieces, turn (coups,
 │   │                    #   coups permis, animation), moves (notation, coups d'une forme, mélange), moveSet, shape (miroir),
-│   │                    #   hold (le cube tenu autrement : un coup lu depuis la face tenue devant)
+│   │                    #   hold (les tenues d'un modèle, HoldFrame, déduites de ses faces : un coup lu depuis
+│   │                    #   la face tenue devant)
 │   ├── puzzles/         # Les puzzles, un dossier par catégorie (voir « La fiche d'un puzzle ») :
 │   │   ├── catalog.ts   #   tous les puzzles, dans l'ordre du sélecteur (catalog.ts de chaque catégorie)
 │   │   ├── entry.ts     #   PuzzleEntry : nom, adresse, dimensions, mélange, couches, miroir, couleurs, pad, consigne
@@ -124,7 +125,7 @@ src/
 │   │                    #   chemin de la flèche, formule lue en blocs), kit (TutorialPlan déclaré : étapes de
 │   │                    #   pièces ou de formule, tutorialOf), keep (pièces gardées, formule en cours de pas)
 │   ├── tutorials/       # Les tutoriels, un dossier par catégorie : standard/cube3 (recentrer, croix, coins
-│   │                    #   jaunes, arêtes du milieu, croix blanche par figures)
+│   │                    #   jaunes, arêtes du milieu), standard/cube3LastLayer (la dernière couche par figures)
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
 │                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
@@ -435,7 +436,9 @@ Un tutoriel est **déclaré, pas codé**, comme une méthode : un
 `tutorialOf` en fait le pas où en est un état. Une étape de **pièces**
 (`PieceStage`) place des pièces une à une : ses cibles (`Target` : la
 pièce, son emplacement, « placée »), comment tenir le puzzle pour un choix
-(`hold`, voir `lib/core/hold.ts`), le sticker que suit la flèche, les
+(`hold`, une tenue du cadre de tenues du plan, `TutorialPlan.frame` : par
+défaut celui d'un cube, que `ringHolds` déduit de ses faces autour du haut),
+le sticker que suit la flèche, les
 enchaînements appris (`Sequence`, chacun en ses gestes, montrés à part), et la façon de trouver la formule (une
 recherche vers l'objectif, ou une recette : placement puis enchaînement) ;
 le moteur fait le reste (pièces placées au début du pas et gardées,
@@ -443,7 +446,10 @@ choix possibles, suggestion, avancement). Une étape de **formule**
 (`FormulaStage`) joue la sienne sans choix (le recentrage du 3x3). Une
 étape de **figures** (`FigureStage`, la dernière couche) reconnaît une
 figure (`Figure` : comment la tenir, la formule lue dans cette tenue) et en
-met les pièces en valeur, sans pièce à choisir. Après
+met les pièces en valeur, sans pièce à choisir. Une étape peut aussi
+déclarer la face qu'elle travaille (`face` : flèches, vue), et si ses coups
+gardent leur description (`words`) : aucune règle d'affichage ne dépend
+d'un numéro d'étape ni d'une face écrite dans le code commun. Après
 les étapes, `next` annonce celle qui vient. Le registre `TUTORIALS`
 (`tutorial.ts`) lie une forme à son tutoriel ; tout le reste (tons des
 pièces, flèche, panneau, arrêt, coups à la main, annulation) est

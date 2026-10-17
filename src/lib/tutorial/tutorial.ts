@@ -1,6 +1,7 @@
 import { applyMoves } from '../core/turn'
-import { moveInHold, type Hold } from '../core/hold'
-import type { Color, Cube, CubeShape, Move, Vec3 } from '../core/types'
+import { CUBE_HOLDS, type Hold, type HoldFrame } from '../core/hold'
+import { FACE_NORMAL } from '../core/geometry'
+import type { Color, Cube, CubeShape, Face, Move, Vec3 } from '../core/types'
 import { CUBE3_TUTORIAL } from '../tutorials/standard/cube3'
 
 /**
@@ -56,6 +57,17 @@ export interface TutorialStep {
    *  of the tutorial's texts), and the pieces that draw it, highlighted. */
   readonly figure?: string
   readonly focus?: readonly number[]
+  /** The pieces such a step works on (the top corners it cycles): those
+   *  its formula moves keep their colors, an arrow each to where it goes. */
+  readonly subjects?: readonly number[]
+  /** The side the step works on (the last layer's: the top): its
+   *  subjects' arrows go from face to face there, those following the
+   *  marker only when it comes there, and the view looks at it. */
+  readonly face?: Face
+  /** Whether its moves one by one keep their words beside them (the first
+   *  steps, the letters being learnt); else they show in a row, their
+   *  words in tooltips, but for those not shown yet. */
+  readonly words?: true
   /** Whether the step is not taught yet (the rest of the solve to come). */
   readonly comingSoon?: true
 }
@@ -67,6 +79,8 @@ export interface TutorialStep {
  *  piece does not take it off the list. */
 export interface Tutorial {
   readonly stepOf: (cube: Cube, begun?: Cube) => TutorialStep | null
+  /** The ways to hold the puzzle its steps use (its formulas read so). */
+  readonly frame: HoldFrame
 }
 
 /** The puzzles that have a tutorial. */
@@ -77,7 +91,7 @@ export const tutorialFor = (shape: CubeShape): Tutorial | undefined => TUTORIALS
 /** What a formula does to a piece: aimed at (`target`), standing where
  *  that one goes (`slot`), kept in place (`placed`), moved though not
  *  placed yet (`moved`: hatched), left be. */
-export type Tone = 'target' | 'slot' | 'placed' | 'moved' | 'still'
+export type Tone = 'target' | 'slot' | 'placed' | 'subject' | 'moved' | 'still'
 
 /** Each piece's tone (by index) under a formula. */
 export function tonesOf(
@@ -86,6 +100,7 @@ export function tonesOf(
   pick: TutorialPick | null,
   placed: readonly number[],
   focus: readonly number[] = [],
+  subjects: readonly number[] = [],
 ): Tone[] {
   const after = applyMoves(cube, moves)
   return cube.map((c, i) => {
@@ -96,7 +111,7 @@ export function tonesOf(
     const moved =
       a.position.join() !== c.position.join() ||
       a.stickers.some((s, k) => s.normal.join() !== c.stickers[k]!.normal.join())
-    return moved ? 'moved' : 'still'
+    return moved ? (subjects.includes(i) ? 'subject' : 'moved') : 'still'
   })
 }
 
@@ -121,6 +136,33 @@ export function markerPath(
     to: after.position,
     toNormal: after.stickers.find((s) => s.color === before.stickers[k]!.color)!.normal,
   }
+}
+
+/** A formula's arrows: the pick's (its marker sticker's way), or, with no
+ *  pick, one for each subject it moves, on the step's side (`face`): its
+ *  marker sticker's way if the step has one, when it comes to that side
+ *  (the white brought up), else from that side's face to the same where
+ *  it lands. */
+export function arrowsOf(
+  cube: Cube,
+  moves: readonly Move[],
+  step: TutorialStep,
+  pick: TutorialPick | null,
+): { from: Vec3; fromNormal: Vec3; to: Vec3; toNormal: Vec3 }[] {
+  if (moves.length === 0) return []
+  if (pick) return [markerPath(cube, moves, pick, step.marker)]
+  if (!step.face) return []
+  const after = applyMoves(cube, moves)
+  const up = FACE_NORMAL[step.face]
+  return (step.subjects ?? []).flatMap((i) => {
+    if (cube[i]!.position.join() === after[i]!.position.join()) return []
+    if (step.marker) {
+      // Only the marker stickers brought to that side: the figure next.
+      const path = markerPath(cube, moves, { piece: i, slot: [0, 0, 0] }, step.marker)
+      return path.toNormal.join() === up.join() ? [path] : []
+    }
+    return [{ from: cube[i]!.position, fromNormal: up, to: after[i]!.position, toNormal: up }]
+  })
 }
 
 /** A piece's colors, the marker's first (the yellow edge's: yellow-green). */
@@ -148,8 +190,6 @@ export interface FormulaSegment {
   readonly times: number
 }
 
-const HOLDS: readonly Hold[] = ['F', 'R', 'B', 'L']
-
 /**
  * A formula (read in its hold) cut as it is taught: the sequences learnt
  * (`known`: the corners' trigger, the middle edges' insertions) wherever
@@ -160,6 +200,7 @@ const HOLDS: readonly Hold[] = ['F', 'R', 'B', 'L']
 export function formulaSegments(
   moves: readonly Move[],
   known: readonly Sequence[] = [],
+  frame: HoldFrame = CUBE_HOLDS,
 ): FormulaSegment[] {
   const same = (a: Move, b: Move) => a.face === b.face && a.amount === b.amount
   const segments: { kind: 'moves' | 'sequence'; moves: Move[]; times: number }[] = []
@@ -168,7 +209,7 @@ export function formulaSegments(
       const k = sequence.flat()
       return (
         i + k.length <= moves.length &&
-        HOLDS.some((hold) => k.every((m, j) => same(moveInHold(hold, moves[i + j]!), m)))
+        frame.holds.some((hold) => k.every((m, j) => same(frame.inHold(hold, moves[i + j]!), m)))
       )
     })
     const last = segments[segments.length - 1]

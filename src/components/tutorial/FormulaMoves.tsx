@@ -1,7 +1,7 @@
 import { describeMove } from '@/lib/app/moveGuide'
 import { cubeDims, cubeShape } from '@/lib/core/cube'
 import { formatMove } from '@/lib/core/moves'
-import { moveInHold, type Hold } from '@/lib/core/hold'
+import type { Hold, HoldFrame } from '@/lib/core/hold'
 import type { Cube, Move } from '@/lib/core/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { PadButton } from '@/components/controls/PadButton'
@@ -22,6 +22,7 @@ export function FormulaMoves({
   done = 0,
   next = false,
   hold,
+  frame,
 }: {
   cube: Cube
   moves: readonly Move[]
@@ -30,6 +31,7 @@ export function FormulaMoves({
   done?: number
   next?: boolean
   hold: Hold
+  frame: HoldFrame
 }) {
   const t = useI18n((s) => s.t)
   const labels = useI18n(selectMoveLabels)
@@ -43,7 +45,7 @@ export function FormulaMoves({
     >
       <PadButton
         move={m}
-        label={formatMove(moveInHold(hold, m), labels, dims, shape)}
+        label={formatMove(frame.inHold(hold, m), labels, dims, shape)}
         title={words}
         disabled={disabled || i < done}
         ghost={m.amount === 3}
@@ -51,7 +53,7 @@ export function FormulaMoves({
       />
     </div>
   )
-  const wordsOf = (m: Move) => t.describeMoveShort(describeMove(moveInHold(hold, m), shape))
+  const wordsOf = (m: Move) => t.describeMoveShort(describeMove(frame.inHold(hold, m), shape))
   if (inline) {
     return (
       <ol className="mt-1.5 flex flex-wrap gap-1.5">

@@ -8,10 +8,9 @@ import { useView } from '@/store/viewStore'
 import { useTutorialStore } from '@/store/tutorialStore'
 import { formatMove } from '@/lib/core/moves'
 import { COLOR_HEX, HIGHLIGHT, PLACE } from '@/three/core/colors'
-import { FACE_NORMAL } from '@/lib/core/geometry'
-import { moveInHold } from '@/lib/core/hold'
 import { FormulaMoves } from './FormulaMoves'
 import { Toned } from './Toned'
+import { liftFor } from './liftFor'
 
 /**
  * A tutorial step's instructions, numbered: hold the puzzle (a click turns
@@ -19,20 +18,17 @@ import { Toned } from './Toned'
  * Once played (`review`), the instructions done are checked off and the
  * last stands out.
  */
-/** The stage from which moves one by one show their words in tooltips
- *  only (those not shown yet aside). */
-const WORDS_UNTIL_STAGE = 3
 
 export function Instructions({ view, busy }: { view: TutorialView; busy: boolean }) {
   const t = useI18n((s) => s.t)
   const viewToward = useView((s) => s.viewToward)
   const learnt = useTutorialStore((s) => s.learnt)
-  const { cube, step, pick, hold, shown, review } = view
+  const { cube, step, pick, hold, frame, shown, review } = view
   if (!step || !hold) return null
   // Where the center to face stands: the view turns toward it.
   // The center to hold in front: the one on that side.
   const front = cube.find(
-    (c) => c.stickers.length === 1 && c.stickers[0]!.normal.join() === FACE_NORMAL[hold].join(),
+    (c) => c.stickers.length === 1 && c.stickers[0]!.normal.join() === frame.front(hold).join(),
   )!
   const frontColor = front.stickers[0]!.color
   const name = (index: number) =>
@@ -49,14 +45,18 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
   // round told. Read as held: a sequence is known by its letters.
   const play = (formula: Move[], done: number) => {
     const segments = formulaSegments(
-      formula.map((m) => moveInHold(hold, m)),
+      formula.map((m) => frame.inHold(hold, m)),
       step.algorithms,
+      frame,
     )
+    // Seen: in a step validated, or earlier in this formula (a gesture told
+    // once with its words, then in a row).
     const seen = new Set(learnt)
-    const isNew = (m: Move) => !seen.has(formatMove(moveInHold(hold, m)))
-    // Words beside each move: in the first stages for moves one by one, and
-    // always for a piece with a move not shown yet; else in tooltips, the
-    // moves in a row.
+    const key = (m: Move) => formatMove(frame.inHold(hold, m))
+    const isNew = (m: Move) => !seen.has(key(m))
+    // Words beside each move: for moves one by one in the steps that keep
+    // them (`words`), and always for a piece with a move not shown yet;
+    // else in tooltips, the moves in a row.
     let start = 0
     return segments.map((segment, k) => {
       const size = segment.moves.length
@@ -68,6 +68,8 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
       const rounds = Math.min(segment.times, Math.floor(into / size))
       const playedOf = rounds === segment.times ? size : into % size
       const current = done > 0 && done >= from && done < start
+      const fresh = moves.some(isNew)
+      for (const m of moves) seen.add(key(m))
       const round =
         segment.times > 1 && into > 0 && rounds < segment.times
           ? ` ${t.tutorial.round(rounds + 1, segment.times)}`
@@ -92,11 +94,9 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
             cube={cube}
             moves={moves}
             disabled={busy || review}
-            inline={
-              !moves.some(isNew) &&
-              (segment.kind === 'sequence' || (step.stage ?? 0) >= WORDS_UNTIL_STAGE)
-            }
+            inline={!fresh && (segment.kind === 'sequence' || !step.words)}
             hold={hold}
+            frame={frame}
             done={playedOf}
             next={current}
           />
@@ -108,7 +108,7 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
     <button
       key="hold"
       type="button"
-      onClick={() => viewToward(front.stickers[0]!.normal)}
+      onClick={() => viewToward(front.stickers[0]!.normal, liftFor(step))}
       title={t.tutorial.facingTitle}
       className="rounded text-left underline decoration-dotted underline-offset-2 hover:text-white focus-visible:outline-2 focus-visible:outline-sky-400"
     >
@@ -135,7 +135,7 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
     pick
       ? t.tutorial.check(name(pick.piece))
       : step.figure
-        ? t.tutorial.checkFigure
+        ? (t.tutorial.checks[step.key] ?? t.tutorial.checkFigure)
         : t.tutorial.checkAll,
   ]
   return (

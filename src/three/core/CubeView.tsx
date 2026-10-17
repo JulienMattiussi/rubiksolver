@@ -1,5 +1,5 @@
 import { cubeDims } from '@/lib/core/cube'
-import { markerPath } from '@/lib/tutorial/tutorial'
+import { arrowsOf } from '@/lib/tutorial/tutorial'
 import { useCube } from '@/store/cubeStore'
 import { useView } from '@/store/viewStore'
 import { useTutorial } from '@/hooks/useTutorial'
@@ -23,11 +23,9 @@ export function CubeView() {
   const tutorial = useTutorial()
   const { tones, pick, moves, step } = tutorial
   const dims = cubeDims(cube)
-  // The arrow, from the marker sticker's face to where the formula takes it.
-  const path =
-    tones && !tutorial.review && pick && moves && moves.length > 0
-      ? markerPath(cube, moves, pick, step?.marker)
-      : null
+  // The arrows: the pick's marker sticker to where the formula takes it,
+  // or each piece the step works on to its place.
+  const paths = tones && !tutorial.review && step && moves ? arrowsOf(cube, moves, step, pick) : []
   return (
     <CubeModel
       cube={cube}
@@ -45,14 +43,15 @@ export function CubeView() {
       pulse={!!tones}
       onPick={tutorial.step ? tutorial.click : undefined}
     >
-      {path && (
+      {paths.map((path, i) => (
         <TutorialArrow
+          key={i}
           from={visualPosition(path.from, dims)}
           fromNormal={path.fromNormal}
           to={visualPosition(path.to, dims)}
           toNormal={path.toNormal}
         />
-      )}
+      ))}
     </CubeModel>
   )
 }

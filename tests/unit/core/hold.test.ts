@@ -1,26 +1,31 @@
 import { describe, expect, it } from 'vitest'
-import { faceInHold, heldFace, heldMove, moveInHold } from '@/lib/core/hold'
+import { FACE_NORMAL } from '@/lib/core/geometry'
+import { CUBE_HOLDS, ringHolds } from '@/lib/core/hold'
 import { formatMoves, parseMoves } from '@/lib/core/moves'
 
-describe('the way the puzzle is held', () => {
+describe('the ways a cube is held', () => {
+  it('finds its sides round the top from its faces', () => {
+    expect(CUBE_HOLDS.holds).toEqual(['F', 'R', 'B', 'L'])
+    expect(CUBE_HOLDS.front('R')).toEqual([1, 0, 0])
+  })
+
+  it('finds the sides round any axis of a model from its faces alone', () => {
+    // Held with the right side up: the sides round it, the top first.
+    expect(ringHolds(FACE_NORMAL, 'R', 'U').holds).toEqual(['U', 'F', 'D', 'B'])
+  })
+
   it('names each side where it stands, the top and bottom kept', () => {
     // The right side held in front: the back is on the right, the front on the left.
-    expect(heldFace('R', 'F')).toBe('R')
-    expect(heldFace('R', 'R')).toBe('B')
-    expect(heldFace('R', 'L')).toBe('F')
-    expect(heldFace('R', 'U')).toBe('U')
-    expect(faceInHold('R', 'B')).toBe('R')
-    for (const hold of ['F', 'R', 'B', 'L'] as const) {
-      for (const face of ['U', 'D', 'F', 'R', 'B', 'L'] as const) {
-        expect(faceInHold(hold, heldFace(hold, face))).toBe(face)
-      }
-    }
+    expect(CUBE_HOLDS.faceAt('R', 'F')).toBe('R')
+    expect(CUBE_HOLDS.faceAt('R', 'R')).toBe('B')
+    expect(CUBE_HOLDS.faceAt('R', 'L')).toBe('F')
+    expect(CUBE_HOLDS.faceAt('R', 'U')).toBe('U')
   })
 
   it('reads a formula in a hold, and plays it back', () => {
     const trigger = parseMoves("R U R' U'")
-    const played = trigger.map((m) => heldMove('B', m))
+    const played = trigger.map((m) => CUBE_HOLDS.played('B', m))
     expect(formatMoves(played)).toBe("L U L' U'")
-    expect(played.map((m) => moveInHold('B', m))).toEqual(trigger)
+    expect(played.map((m) => CUBE_HOLDS.inHold('B', m))).toEqual(trigger)
   })
 })

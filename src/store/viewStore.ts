@@ -6,11 +6,13 @@ interface ViewStore {
   /** Bumped each time the view should be recentered. */
   resetToken: number
   resetView: () => void
-  /** A face to turn the view toward (its outward normal), and a token
-   *  bumped each time it is asked. */
-  toward: { normal: Vec3; token: number } | null
-  /** Turn the view to face the face of this outward normal. */
-  viewToward: (normal: Vec3) => void
+  /** A face to turn the view toward (its outward normal), how far above
+   *  it to look from (`lift`, none: a little), and a token bumped each time
+   *  it is asked. */
+  toward: { normal: Vec3; lift?: number; token: number } | null
+  /** Turn the view to face the face of this outward normal (from higher
+   *  up with a `lift`: the top in sight, for the last layer). */
+  viewToward: (normal: Vec3, lift?: number) => void
   /** Turn whose pieces the scene highlights (a pad button is hovered or
    *  focused), or null. */
   preview: Turn | null
@@ -21,7 +23,8 @@ export const useView = create<ViewStore>((set) => ({
   resetToken: 0,
   resetView: () => set((s) => ({ resetToken: s.resetToken + 1 })),
   toward: null,
-  viewToward: (normal) => set((s) => ({ toward: { normal, token: (s.toward?.token ?? 0) + 1 } })),
+  viewToward: (normal, lift) =>
+    set((s) => ({ toward: { normal, lift, token: (s.toward?.token ?? 0) + 1 } })),
   preview: null,
   setPreview: (preview) => set({ preview }),
 }))

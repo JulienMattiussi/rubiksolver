@@ -42,11 +42,29 @@ export const TUTORIAL_FR = {
   check: (piece: string) => `Vérifie les nouvelles positions : ${piece} est à sa place.`,
   checkAll: 'Vérifie les nouvelles positions : les pièces sont à leur place.',
   checkFigure: 'Vérifie la nouvelle figure que dessine le blanc en haut.',
+  /** The check of a stage played by figures, by its key (else `checkFigure`). */
+  checks: {
+    stepTutorialTopEdges:
+      'Vérifie les nouvelles positions : les arêtes blanches en face de leur centre.',
+    stepTutorialTopCorners:
+      'Vérifie les nouvelles positions : les coins blancs entre leurs trois centres.',
+    stepTutorialTopTwist: 'Vérifie : chaque coin blanc a son blanc en haut, et le cube est résolu.',
+  } as Record<string, string>,
   /** The figures the top's white draws, by their key. */
   figures: {
     figureDot: 'Repère le blanc du haut : un point au centre, aucune arête blanche dessus.',
     figureL: 'Repère le blanc du haut : un L, tenu derrière et à gauche.',
     figureLine: 'Repère le blanc du haut : une ligne, tenue de gauche à droite.',
+    figureEdgesTurn:
+      'Repère les arêtes blanches : un tour du haut suffit à les mettre toutes en face de leur centre.',
+    figureEdgesSide: 'Repère les deux arêtes blanches en face de leur centre, côte à côte.',
+    figureEdgesFacing:
+      'Repère les arêtes blanches en face de leur centre : deux face à face, ou aucune.',
+    figureCornersOne:
+      'Repère le coin blanc déjà à sa place, même mal tourné : il reste devant à droite.',
+    figureCornersNone: 'Aucun coin blanc n’est encore à sa place : la formule en placera un.',
+    figureCornersTwist:
+      'Repère les coins blancs dont le blanc n’est pas en haut : chacun passe devant à droite pour être tourné.',
   } as Record<string, string>,
   /** The legend of the hatched pieces, under the step's hint. */
   legendMoved:
@@ -66,6 +84,12 @@ export const TUTORIAL_FR = {
       `${done} arête${done > 1 ? 's' : ''} sur ${total} en place`,
     stepTutorialTopCross: (done: number, total: number) =>
       `${done} arête${done > 1 ? 's' : ''} blanche${done > 1 ? 's' : ''} sur ${total} vers le haut`,
+    stepTutorialTopEdges: (done: number, total: number) =>
+      `${done} arête${done > 1 ? 's' : ''} sur ${total} à sa place`,
+    stepTutorialTopCorners: (done: number, total: number) =>
+      `${done} coin${done > 1 ? 's' : ''} sur ${total} à sa place`,
+    stepTutorialTopTwist: (done: number, total: number) =>
+      `${done} coin${done > 1 ? 's' : ''} sur ${total} blanc en haut`,
   } as Record<string, (done: number, total: number) => string>,
   /** Each step's goal, by its key: the panel's heading. */
   titles: {
@@ -74,7 +98,9 @@ export const TUTORIAL_FR = {
     stepTutorialCorner: 'Placer les coins jaunes',
     stepTutorialMiddle: 'Placer les arêtes du milieu',
     stepTutorialTopCross: 'Construire la croix blanche',
-    stepTopEdges: 'Placer les arêtes blanches',
+    stepTutorialTopEdges: 'Placer les arêtes blanches',
+    stepTutorialTopCorners: 'Placer les coins blancs',
+    stepTutorialTopTwist: 'Tourner les coins blancs',
   } as Record<string, string>,
   /** What each step asks, by its key. */
   hints: {
@@ -86,7 +112,10 @@ export const TUTORIAL_FR = {
       'Place une à une les quatre arêtes de la deuxième couronne, celles sans jaune ni blanc.',
     stepTutorialTopCross:
       'Tourne les arêtes du haut pour que le blanc y dessine une croix, sans t’occuper encore de leurs côtés.',
-    stepTopEdges:
-      'La croix blanche est faite ! La suite, les arêtes du haut à leur place, arrive bientôt.',
+    stepTutorialTopEdges: 'Place chaque arête blanche au-dessus du centre de sa couleur.',
+    stepTutorialTopCorners:
+      'Place chaque coin blanc entre ses trois centres, même s’il est mal tourné.',
+    stepTutorialTopTwist:
+      'Tourne chaque coin blanc pour que son blanc soit en haut. La première couche se défait en route : continue, elle se refait à la fin.',
   } as Record<string, string>,
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { FACE_COLOR, solvedCube } from '@/lib/core/cube'
+import { FACE_COLOR, isSolved, solvedCube } from '@/lib/core/cube'
 import { formatMoves, parseMoves } from '@/lib/core/moves'
 import { colorAt, hasColors } from '@/lib/core/pieces'
 import { applyMoves } from '@/lib/core/turn'
@@ -12,7 +12,7 @@ import {
 } from '@/lib/methods/standard/layers3'
 import { centersHome } from '@/lib/methods/standard/recenter'
 import { formulaUnderWay, keepsPlaced } from '@/lib/tutorial/keep'
-import { heldMove, moveInHold } from '@/lib/core/hold'
+import { CUBE_HOLDS } from '@/lib/core/hold'
 import { SIDES } from '@/lib/solve/solverKit'
 import {
   formulaSegments,
@@ -125,12 +125,12 @@ describe('3x3 tutorial', () => {
     expect(after[pick.piece]!.position).toEqual(pick.slot)
   })
 
-  it('walks the cross, the corners, the middle edges, the white cross, then the rest is to come', () => {
+  it('walks every stage, from the yellow cross to the puzzle solved', () => {
     const walk = (cube: Cube, key: string) => {
       for (let guard = 0; ; guard++) {
         expect(guard).toBeLessThan(5)
-        const step = stepOf(cube)
-        if (step.key !== key) return cube
+        const step = tutorialFor('3')!.stepOf(cube)
+        if (step?.key !== key) return cube
         cube = applyMoves(cube, step.formula(step.suggestion)!)
       }
     }
@@ -142,13 +142,22 @@ describe('3x3 tutorial', () => {
     expect(stepOf(layer)).toMatchObject({ key: 'stepTutorialMiddle', stage: 3 })
     const two = walk(layer, 'stepTutorialMiddle')
     expect(secondLayerDone(two)).toBe(true)
-    expect(stepOf(two)).toMatchObject({ key: 'stepTutorialTopCross', stage: 4 })
-    const cross = walk(two, 'stepTutorialTopCross')
-    const next = stepOf(cross)
-    expect(next).toMatchObject({ key: 'stepTopEdges', stage: 5, comingSoon: true })
-    expect(next.formula(null)).toBeNull()
-    // On the solved puzzle too: nothing further taught yet.
-    expect(stepOf(solvedCube('3')).comingSoon).toBe(true)
+    // The last layer, stage after stage (a stage the state already meets
+    // skipped), to the puzzle solved: the tutorial over.
+    let top = two
+    for (const [key, stage] of [
+      ['stepTutorialTopCross', 4],
+      ['stepTutorialTopEdges', 5],
+      ['stepTutorialTopCorners', 6],
+      ['stepTutorialTopTwist', 7],
+    ] as const) {
+      const step = tutorialFor('3')!.stepOf(top)
+      if (step?.key === key) expect(step.stage).toBe(stage)
+      top = walk(top, key)
+    }
+    expect(isSolved(top)).toBe(true)
+    expect(tutorialFor('3')!.stepOf(top)).toBeNull()
+    expect(tutorialFor('3')!.stepOf(solvedCube('3'))).toBeNull()
   })
 
   it('takes any middle edge to any free slot, the first layer kept', () => {
@@ -167,7 +176,7 @@ describe('3x3 tutorial', () => {
         // Held its way, every edge goes in by one of the two insertions
         // (none when it already stands there).
         if (moves.length === 0) continue
-        const held = moves.map((m) => moveInHold(step.hold({ piece, slot }), m))
+        const held = moves.map((m) => CUBE_HOLDS.inHold(step.hold({ piece, slot }), m))
         expect(["U R U' R' U' F' U F", "U' L' U L U F U' F'"]).toContain(
           formatMoves(held.slice(-8)),
         )
@@ -193,7 +202,7 @@ describe('3x3 tutorial', () => {
         expect(colorAt(after[piece]!, 'D')).toBe(Y)
         for (const p of step.placed) expect(after[p]).toEqual(cross[p])
         // Held with its slot front right, every corner ends on R U R' U'.
-        const held = moves.map((m) => moveInHold(step.hold({ piece, slot }), m))
+        const held = moves.map((m) => CUBE_HOLDS.inHold(step.hold({ piece, slot }), m))
         expect(held.slice(-4)).toEqual(parseMoves("R U R' U'"))
       }
     }
@@ -212,11 +221,12 @@ describe('the white cross, by its figures', () => {
     // F R U R' U' F' turns a cross into a line; its inverse back.
     const line = top("F U R U' R' F'")
     expect(line.step).toMatchObject({ key: 'stepTutorialTopCross', figure: 'figureLine' })
-    const held = line.step.formula(null)!.map((m) => moveInHold(line.step.hold(null), m))
+    const held = line.step.formula(null)!.map((m) => CUBE_HOLDS.inHold(line.step.hold(null), m))
     expect(held).toEqual(formula)
     expect(line.step.focus).toHaveLength(2)
     // Played, the line becomes the cross: the stage is done.
-    expect(stepOf(applyMoves(line.cube, line.step.formula(null)!)).key).toBe('stepTopEdges')
+    const after = tutorialFor('3')!.stepOf(applyMoves(line.cube, line.step.formula(null)!))
+    expect(after?.key).not.toBe('stepTutorialTopCross')
   })
 
   it('takes any top to the cross in three formulas at most', () => {
@@ -232,7 +242,7 @@ describe('the white cross, by its figures', () => {
         cube = applyMoves(cube, step.formula(null)!)
         step = stepOf(cube)
       }
-      expect(step.key).toBe('stepTopEdges')
+      expect(step.key).not.toBe('stepTutorialTopCross')
     }
   })
 })
@@ -250,7 +260,7 @@ describe('a formula read as taught', () => {
 
   it('knows a sequence learnt played from another side (an edge lifted out)', () => {
     // The insertion held from the left: U L U' L' U' F' U F... read as held.
-    const lift = insert.flat().map((m) => heldMove('L', m))
+    const lift = insert.flat().map((m) => CUBE_HOLDS.played('L', m))
     const segments = formulaSegments([...lift, ...parseMoves('U2'), ...insert.flat()], [insert])
     // Each insertion told gesture by gesture.
     expect(segments.map((s) => [s.kind, s.moves.length])).toEqual([

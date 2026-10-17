@@ -37,10 +37,26 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   check: (piece: string) => `Check the new positions: ${piece} is in its place.`,
   checkAll: 'Check the new positions: the pieces are in their place.',
   checkFigure: 'Check the new figure the white draws on top.',
+  checks: {
+    stepTutorialTopEdges: 'Check the new positions: the white edges facing their centers.',
+    stepTutorialTopCorners:
+      'Check the new positions: the white corners between their three centers.',
+    stepTutorialTopTwist: 'Check: every white corner white up, and the cube solved.',
+  },
   figures: {
     figureDot: 'Spot the white on top: a dot in the middle, no white edge up.',
     figureL: 'Spot the white on top: an L, held back and left.',
     figureLine: 'Spot the white on top: a line, held left to right.',
+    figureEdgesTurn:
+      'Spot the white edges: one turn of the top lines them all up with their centers.',
+    figureEdgesSide: 'Spot the two white edges lined up with their centers, side by side.',
+    figureEdgesFacing:
+      'Spot the white edges lined up with their centers: two facing each other, or none.',
+    figureCornersOne:
+      'Spot the white corner already in its place, even turned wrong: it stays front right.',
+    figureCornersNone: 'No white corner is in its place yet: the formula will place one.',
+    figureCornersTwist:
+      'Spot the white corners whose white is not up: each comes front right to be turned.',
   },
   legendMoved:
     'The hatched cubes will be moved by the formula, with no effect on the expected result.',
@@ -57,6 +73,12 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
       `${done} of ${total} edge${total > 1 ? 's' : ''} in place`,
     stepTutorialTopCross: (done: number, total: number) =>
       `${done} of ${total} white edge${total > 1 ? 's' : ''} up`,
+    stepTutorialTopEdges: (done: number, total: number) =>
+      `${done} of ${total} edge${total > 1 ? 's' : ''} in place`,
+    stepTutorialTopCorners: (done: number, total: number) =>
+      `${done} of ${total} corner${total > 1 ? 's' : ''} in place`,
+    stepTutorialTopTwist: (done: number, total: number) =>
+      `${done} of ${total} corner${total > 1 ? 's' : ''} white up`,
   },
   titles: {
     stepRecenter: 'Put the centers back in place',
@@ -64,7 +86,9 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
     stepTutorialCorner: 'Place the yellow corners',
     stepTutorialMiddle: 'Place the middle edges',
     stepTutorialTopCross: 'Build the white cross',
-    stepTopEdges: 'Place the white edges',
+    stepTutorialTopEdges: 'Place the white edges',
+    stepTutorialTopCorners: 'Place the white corners',
+    stepTutorialTopTwist: 'Turn the white corners',
   },
   hints: {
     stepRecenter:
@@ -75,7 +99,9 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
       'Place the second layer’s four edges one by one, those with neither yellow nor white.',
     stepTutorialTopCross:
       'Turn the top edges so the white draws a cross there, their sides left for later.',
-    stepTopEdges:
-      'The white cross is done! The rest, the top edges in their place, is coming soon.',
+    stepTutorialTopEdges: 'Place each white edge above the center of its color.',
+    stepTutorialTopCorners: 'Place each white corner between its three centers, even turned wrong.',
+    stepTutorialTopTwist:
+      'Turn each white corner so its white is up. The first layer comes apart on the way: go on, it comes back at the end.',
   },
 }

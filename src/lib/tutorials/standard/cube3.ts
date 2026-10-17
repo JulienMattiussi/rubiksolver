@@ -1,5 +1,5 @@
 import { FACE_COLOR } from '../../core/cube'
-import { heldFace, heldMove, type Hold } from '../../core/hold'
+import { CUBE_HOLDS, type Hold } from '../../core/hold'
 import { parseMoves, simplifyMoves } from '../../core/moves'
 import { colorAt, hasColors } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
@@ -14,6 +14,7 @@ import { homeOf } from '../../methods/standard/pieces3'
 import { centersHome, recenter } from '../../methods/standard/recenter'
 import { OUTER_GENERATORS, search, SIDES } from '../../solve/solverKit'
 import { tutorialOf, type Kept, type Target } from '../../tutorial/kit'
+import { LAST_LAYER } from './cube3LastLayer'
 import type { TutorialPick } from '../../tutorial/tutorial'
 
 /**
@@ -82,7 +83,7 @@ const cornerTarget = (pair: Pair): Target => ({
 const TRIGGER = parseMoves("R U R' U'")
 
 /** A slot's trigger as played: held with its first side in front. */
-const triggerAt = ([a]: Pair) => TRIGGER.map((m) => heldMove(a as Hold, m))
+const triggerAt = ([a]: Pair) => TRIGGER.map((m) => CUBE_HOLDS.played(a, m))
 
 /**
  * A corner to a slot, yellow down: out of the bottom layer if it stands in
@@ -137,7 +138,7 @@ const RIGHT = RIGHT_PARTS.flat()
 const LEFT = LEFT_PARTS.flat()
 
 const inserted = (front: Face, moves: readonly Move[]) =>
-  moves.map((m) => heldMove(front as Hold, m))
+  moves.map((m) => CUBE_HOLDS.played(front, m))
 
 /** Whether the picked edge, at its own slot, shows its colors on their
  *  sides (at another slot, either way does). */
@@ -191,38 +192,6 @@ const isMiddleEdge = (cube: Cube, i: number) =>
   cube[i]!.stickers.length === 2 && !cube[i]!.stickers.some((s) => s.color === W || s.color === Y)
 
 // ---------------------------------------------------------------------------
-// 4. The white cross
-// ---------------------------------------------------------------------------
-
-const SIDE_HOLDS: readonly Hold[] = ['F', 'R', 'B', 'L']
-
-/** The top edge on a side (read in a hold), if it shows white up. */
-const whiteUp = (cube: Cube, hold: Hold, side: Face) => {
-  const at = homeOf(`U${heldFace(hold, side)}`)
-  const edge = cube.find((c) => c.stickers.length === 2 && sameAt(c.position, at))
-  return !!edge && colorAt(edge, 'U') === W
-}
-
-/** The first hold in which the top's white edges draw a figure: which
- *  sides show white up (front, right, back, left), seen from there. */
-const heldWhere =
-  (figure: readonly [boolean, boolean, boolean, boolean]) =>
-  (cube: Cube): Hold | null =>
-    SIDE_HOLDS.find((hold) =>
-      (['F', 'R', 'B', 'L'] as const).every((side, i) => whiteUp(cube, hold, side) === figure[i]),
-    ) ?? null
-
-/** The white cross's one formula: a line becomes the cross, an L a line,
- *  a dot an L. */
-const TOP_CROSS = parseMoves("F R U R' U' F'")
-
-/** The top edges showing white up. */
-const whiteEdgesUp = (cube: Cube) =>
-  cube.flatMap((c, i) =>
-    c.stickers.length === 2 && c.position[1] === 1 && colorAt(c, 'U') === W ? [i] : [],
-  )
-
-// ---------------------------------------------------------------------------
 // The plan
 // ---------------------------------------------------------------------------
 
@@ -245,6 +214,7 @@ export const CUBE3_TUTORIAL = tutorialOf({
       stage: 1,
       targets: SIDES.map(crossTarget),
       marker: Y,
+      words: true,
       hold: () => 'F',
       formula: crossFormula,
     },
@@ -254,6 +224,7 @@ export const CUBE3_TUTORIAL = tutorialOf({
       stage: 2,
       targets: CORNER_PAIRS.map(cornerTarget),
       marker: Y,
+      words: true,
       algorithms: [[TRIGGER]],
       // Held with the slot front right: its trigger reads R U R' U'.
       hold: (_, pick, next) => pairOf(pick?.slot ?? next.slot)[0] as Hold,
@@ -274,21 +245,6 @@ export const CUBE3_TUTORIAL = tutorialOf({
       formula: (cube, pick) => edgePlan(cube, pick)?.moves ?? null,
       checked: true,
     },
-    {
-      kind: 'figures',
-      key: 'stepTutorialTopCross',
-      stage: 4,
-      done: (cube) => whiteEdgesUp(cube).length === 4,
-      // The line held across, the L held back left.
-      figures: [
-        { key: 'figureLine', hold: heldWhere([false, true, false, true]), moves: TOP_CROSS },
-        { key: 'figureL', hold: heldWhere([false, false, true, true]), moves: TOP_CROSS },
-        { key: 'figureDot', hold: heldWhere([false, false, false, false]), moves: TOP_CROSS },
-      ],
-      focus: whiteEdgesUp,
-      progress: (cube) => ({ done: whiteEdgesUp(cube).length, total: 4 }),
-      algorithms: [[TOP_CROSS]],
-    },
+    ...LAST_LAYER,
   ],
-  next: { key: 'stepTopEdges', stage: 5, hold: 'F' },
 })

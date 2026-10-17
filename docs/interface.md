@@ -137,9 +137,18 @@ leur couleur puis insérées à droite (`U R U' R' U' F' U F`) ou à gauche
 (`U' L' U L U F U' F'`) ; la croix blanche par `F R U R' U' F'`, selon la
 figure que dessine le blanc en haut (un point, un L tenu derrière à gauche,
 une ligne tenue de gauche à droite), ses arêtes mises en valeur, sans
-pièce à choisir ; les arêtes blanches à leur place viendront). Chaque pas dit comment **tenir le
-cube** (`TutorialStep.hold`, `lib/core/hold.ts` : la face devant, le haut
-en haut) : pour un coin, sa place devant à droite, donc toujours
+pièce à choisir ; une étape qui travaille le dessus (`face`) monte la vue
+pour le voir (`liftFor`), et les pièces qu'elle travaille (`subjects`) ne
+sont pas hachurées quand la formule les déplace : une flèche chacune vers
+sa place, de face du dessus à face du dessus, ou suivant leur blanc quand
+il y monte (la croix blanche) ; puis les arêtes blanches au-dessus de leur centre
+(`R U R' U R U2 R'`), les coins blancs à leur place
+(`U R U' L' U R' U' L`) et enfin tournés blanc en haut (`R' D' R D` répété,
+un seul pas, la première couche se défaisant en route), jusqu'au cube
+résolu : « Résolu, bravo ! » et le feu d'artifice). Chaque pas dit comment **tenir le
+cube** (`TutorialStep.hold`, parmi les tenues du tutoriel, son
+`HoldFrame` : pour un cube, `lib/core/hold.ts` les déduit de ses faces,
+chacune des faces autour du haut tenue devant, le haut en haut) : pour un coin, sa place devant à droite, donc toujours
 `R U R' U'`. La vue tourne d'elle-même vers le centre à tenir quand la
 tenue change, les coups de la formule s'écrivent et se décrivent dans
 cette tenue, et le pavé de coups aussi pendant le tutoriel
@@ -153,10 +162,11 @@ découpée comme on l'apprend, `formulaSegments` : les enchaînements appris
 (`TutorialStep.algorithms`), d'où qu'on les joue, sur une rangée de
 boutons, un enchaînement répété dit une fois avec son nombre, chacun coupé
 en les gestes que déclare sa définition (l'insertion : dégager, puis
-ramener) ; un morceau dont un coup n'a encore été montré
-dans aucun pas validé, `tutorialStore.learnt`, s'affiche en colonne, chaque
+ramener) ; un morceau dont un coup n'a encore été montré ni dans un pas
+validé, `tutorialStore.learnt`, ni plus tôt dans la formule, s'affiche en colonne, chaque
 coup avec sa phrase à droite, les autres en rangée, leurs phrases en
-infobulle ; les coups simples restent en colonne aux étapes 1 et 2), vérifier
+infobulle ; les coups simples restent en colonne dans les étapes qui le
+déclarent, `words` : les deux premières), vérifier
 les nouvelles positions. Sur le cube, la pièce visée et l'emplacement
 **scintillent** (`usePulse`), les pièces que la formule déplace sans les
 placer sont **hachurées** (`hatchTexture`), et une **flèche** va de la face

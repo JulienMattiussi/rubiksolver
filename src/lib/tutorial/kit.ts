@@ -1,5 +1,5 @@
-import { heldMove, type Hold } from '../core/hold'
-import type { Color, Cube, Move, Vec3 } from '../core/types'
+import { CUBE_HOLDS, type Hold, type HoldFrame } from '../core/hold'
+import type { Color, Cube, Face, Move, Vec3 } from '../core/types'
 import { keepsPlaced } from './keep'
 import type { Sequence, Tutorial, TutorialPick, TutorialStep } from './tutorial'
 
@@ -41,6 +41,9 @@ interface PieceStage {
   readonly targets: readonly Target[]
   /** The sticker the arrow follows (the cross's yellow). */
   readonly marker?: Color
+  /** Its moves one by one with their words beside them (see
+   *  `TutorialStep.words`). */
+  readonly words?: true
   /** The sequences its formulas end on, read in its hold. */
   readonly algorithms?: readonly Sequence[]
   /** The pieces one may pick, the placed ones given (by default, its
@@ -68,20 +71,27 @@ interface FormulaStage {
  *  asks (null: it is not there), the formula read in that hold. */
 interface Figure {
   readonly key: string
-  readonly hold: (cube: Cube) => Hold | null
-  readonly moves: readonly Move[]
+  /** Where the figure shows: how to hold the puzzle and what to play, read
+   *  in that hold (null: it is not there). */
+  readonly match: (cube: Cube) => { hold: Hold; moves: readonly Move[] } | null
 }
 
 /** A stage played by figures, no piece picked (the last layer's): the
  *  first figure found says how to hold the puzzle and what to play, until
  *  it is done; the pieces drawing it (`focus`) highlighted. */
-interface FigureStage {
+export interface FigureStage {
   readonly kind: 'figures'
   readonly key: string
   readonly stage: number
   readonly done: (cube: Cube) => boolean
   readonly figures: readonly Figure[]
   readonly focus: (cube: Cube) => number[]
+  /** The pieces it works on, moved with an arrow each (the top layer's,
+   *  their arrows from top face to top face, or following `marker`). */
+  readonly subjects?: (cube: Cube) => number[]
+  readonly marker?: Color
+  /** The side it works on (see `TutorialStep.face`). */
+  readonly face?: Face
   readonly progress: (cube: Cube) => { done: number; total: number }
   readonly algorithms?: readonly Sequence[]
 }
@@ -90,7 +100,12 @@ interface FigureStage {
  *  (shown, not taught yet). */
 export interface TutorialPlan {
   readonly stages: readonly Stage[]
-  readonly next: { readonly key: string; readonly stage: number; readonly hold: Hold }
+  /** The ways to hold the puzzle (a cube's sides round its top, unless
+   *  told). */
+  readonly frame?: HoldFrame
+  /** The stage still to come, shown not taught yet; none once the plan
+   *  solves the puzzle (the tutorial then over). */
+  readonly next?: { readonly key: string; readonly stage: number; readonly hold: Hold }
 }
 
 type Stage = PieceStage | FormulaStage | FigureStage
@@ -101,15 +116,24 @@ const isDone = (stage: Stage, cube: Cube) =>
 /** A figure stage's step: the figure found where the step began, held its
  *  way, its formula played from the puzzle's own frame and checked to keep
  *  the pieces placed. */
-function figureStep(def: FigureStage, cube: Cube, begun: Cube, kept: number[]): TutorialStep {
+function figureStep(
+  def: FigureStage,
+  frame: HoldFrame,
+  cube: Cube,
+  begun: Cube,
+  kept: number[],
+): TutorialStep {
   const figureOf = (state: Cube) =>
-    def.figures.map((figure) => ({ figure, hold: figure.hold(state) })).find((f) => f.hold !== null)
+    def.figures
+      .map((figure) => ({ figure, seen: figure.match(state) }))
+      .find((f) => f.seen !== null)
   const found = figureOf(begun)
-  const hold = found?.hold ?? 'F'
+  const hold = found?.seen?.hold ?? 'F'
   // The formula of the figure the puzzle shows now, held as the step began
   // (turned by hand to another figure: none, the step taken back).
   const now = cube === begun ? found : figureOf(cube)
-  const moves = now && now.hold === hold ? now.figure.moves.map((m) => heldMove(hold, m)) : null
+  const moves =
+    now?.seen && now.seen.hold === hold ? now.seen.moves.map((m) => frame.played(hold, m)) : null
   return {
     key: def.key,
     stage: def.stage,
@@ -118,6 +142,9 @@ function figureStep(def: FigureStage, cube: Cube, begun: Cube, kept: number[]): 
     ...(def.algorithms && { algorithms: def.algorithms }),
     ...(found && { figure: found.figure.key }),
     focus: def.focus(cube),
+    ...(def.subjects && { subjects: def.subjects(cube) }),
+    ...(def.marker && { marker: def.marker }),
+    ...(def.face && { face: def.face }),
     placed: kept,
     suggestion: null,
     pickable: [],
@@ -140,6 +167,7 @@ function pieceStep(def: PieceStage, cube: Cube, begun: Cube, kept: number[]): Tu
     progress: { done: done.length, total: def.targets.length },
     hold: (pick) => def.hold(begun, pick, next),
     ...(def.marker && { marker: def.marker }),
+    ...(def.words && { words: def.words }),
     ...(def.algorithms && { algorithms: def.algorithms }),
     placed,
     suggestion: { piece: next.piece(cube), slot: next.slot },
@@ -157,12 +185,14 @@ function pieceStep(def: PieceStage, cube: Cube, begun: Cube, kept: number[]): Tu
  *  began is the step (the pieces of the stages before kept), and once they
  *  are all done, the stage still to come. */
 export function tutorialOf(plan: TutorialPlan): Tutorial {
+  const frame = plan.frame ?? CUBE_HOLDS
   return {
+    frame,
     stepOf: (cube, begun = cube) => {
       let kept: number[] = []
       for (const stage of plan.stages) {
         if (!isDone(stage, begun)) {
-          if (stage.kind === 'figures') return figureStep(stage, cube, begun, kept)
+          if (stage.kind === 'figures') return figureStep(stage, frame, cube, begun, kept)
           return stage.kind === 'formula'
             ? {
                 key: stage.key,
@@ -177,10 +207,12 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
         }
         if (stage.kind === 'pieces') kept = [...kept, ...stage.targets.map((t) => t.piece(cube))]
       }
+      const { next } = plan
+      if (!next) return null
       return {
-        key: plan.next.key,
-        stage: plan.next.stage,
-        hold: () => plan.next.hold,
+        key: next.key,
+        stage: next.stage,
+        hold: () => next.hold,
         placed: kept,
         suggestion: null,
         pickable: [],

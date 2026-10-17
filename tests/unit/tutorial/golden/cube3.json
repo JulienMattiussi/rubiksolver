@@ -89,28 +89,30 @@
      }
     },
     "tones": "sssssmmmmsstssssssssmsssssm",
-    "arrow": {
-     "from": [
-      0,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      0,
-      -1,
-      1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       0,
+       -1,
+       1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": null,
     "strayed": {
      "rest": "F2",
@@ -178,28 +180,30 @@
      }
     },
     "tones": "mmssssssmsspssssssmtsmssmss",
-    "arrow": {
-     "from": [
-      -1,
-      0,
-      -1
-     ],
-     "fromNormal": [
-      -1,
-      0,
-      0
-     ],
-     "to": [
-      1,
-      -1,
-      0
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       0,
+       -1
+      ],
+      "fromNormal": [
+       -1,
+       0,
+       0
+      ],
+      "to": [
+       1,
+       -1,
+       0
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "B D'",
      "shown": "D B D'",
@@ -251,28 +255,30 @@
      }
     },
     "tones": "smmssmssmtspsssmssmpmmsmmsm",
-    "arrow": {
-     "from": [
-      -1,
-      1,
-      0
-     ],
-     "fromNormal": [
-      -1,
-      0,
-      0
-     ],
-     "to": [
-      0,
-      -1,
-      -1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       -1,
+       0,
+       0
+      ],
+      "to": [
+       0,
+       -1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "B",
      "shown": "L' B",
@@ -312,28 +318,30 @@
      }
     },
     "tones": "stmsssssmpspsssmssspssssmmm",
-    "arrow": {
-     "from": [
-      -1,
-      0,
-      -1
-     ],
-     "fromNormal": [
-      -1,
-      0,
-      0
-     ],
-     "to": [
-      -1,
-      -1,
-      0
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       0,
+       -1
+      ],
+      "fromNormal": [
+       -1,
+       0,
+       0
+      ],
+      "to": [
+       -1,
+       -1,
+       0
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "B D",
      "shown": "D' B D",
@@ -437,28 +445,30 @@
      }
     },
     "tones": "spsmsmmsspspsssssmsptsssmmm",
-    "arrow": {
-     "from": [
-      -1,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      1,
-      -1,
-      1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       1,
+       -1,
+       1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "R U R' U' R U R' U' R U R' U'",
      "shown": "U' R U R' U' R U R' U' R U R' U'",
@@ -534,28 +544,30 @@
      }
     },
     "tones": "spssssmsspspsssssmtppmssmmm",
-    "arrow": {
-     "from": [
-      1,
-      -1,
-      -1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      -1
-     ],
-     "to": [
-      1,
-      -1,
-      -1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       -1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       1,
+       -1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U B' U' B U B' U'",
      "shown": "B U B' U' B U B' U'",
@@ -611,28 +623,30 @@
      }
     },
     "tones": "tpsmsmmsspspsssssspppmssmmm",
-    "arrow": {
-     "from": [
-      1,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      -1,
-      -1,
-      -1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       -1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "L U L' U' L U L' U' L U L' U'",
      "shown": "U2 L U L' U' L U L' U' L U L' U'",
@@ -676,28 +690,30 @@
      }
     },
     "tones": "pptmsmmsspspsssssspppmssmmm",
-    "arrow": {
-     "from": [
-      -1,
-      1,
-      -1
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      -1,
-      -1,
-      1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       -1,
+       1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "F U F' U' F U F' U' F U F' U'",
      "shown": "U' F U F' U' F U F' U' F U F' U'",
@@ -805,28 +821,30 @@
      }
     },
     "tones": "pppmsmmsmpspsssssspppmstsmm",
-    "arrow": {
-     "from": [
-      -1,
-      0,
-      1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      1
-     ],
-     "to": [
-      1,
-      0,
-      1
-     ],
-     "toNormal": [
-      1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       0,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       1,
+       0,
+       1
+      ],
+      "toNormal": [
+       1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "F U' F' U' L' U L U' F' U F U R U' R'",
      "shown": "U F U' F' U' L' U L U' F' U F U R U' R'",
@@ -906,28 +924,30 @@
      }
     },
     "tones": "pppmssmmmpspssssssppptspssm",
-    "arrow": {
-     "from": [
-      0,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      1
-     ],
-     "to": [
-      1,
-      0,
-      -1
-     ],
-     "toNormal": [
-      1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       1,
+       0,
+       -1
+      ],
+      "toNormal": [
+       1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U B U' B' U' R' U R",
      "shown": "U' U B U' B' U' R' U R",
@@ -987,28 +1007,30 @@
      }
     },
     "tones": "ppptsssmmpspsssssmppppspmsm",
-    "arrow": {
-     "from": [
-      0,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      1
-     ],
-     "to": [
-      -1,
-      0,
-      -1
-     ],
-     "toNormal": [
-      -1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       -1,
+       0,
+       -1
+      ],
+      "toNormal": [
+       -1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U' B' U B U L U' L'",
      "shown": "U U' B' U B U L U' L'",
@@ -1056,28 +1078,30 @@
      }
     },
     "tones": "ppppstmmmpspsssmsmppppspmmm",
-    "arrow": {
-     "from": [
-      -1,
-      0,
-      1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      1
-     ],
-     "to": [
-      -1,
-      0,
-      1
-     ],
-     "toNormal": [
-      -1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       0,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       -1,
+       0,
+       1
+      ],
+      "toNormal": [
+       -1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "F U' F' U' L' U L U2 U F U' F' U' L' U L",
      "shown": "U F U' F' U' L' U L U2 U F U' F' U' L' U L",
@@ -1090,13 +1114,16 @@
     }
    },
    {
-    "key": "stepTopEdges",
+    "key": "stepTutorialTopEdges",
     "stage": 5,
-    "progress": null,
-    "comingSoon": true,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
     "hold": "F",
-    "figure": null,
-    "focus": null,
+    "figure": "figureEdgesSide",
+    "focus": [],
     "placed": [
      11,
      19,
@@ -1113,12 +1140,374 @@
     ],
     "pickable": [],
     "suggestion": null,
-    "moves": null,
+    "moves": "R U R' U R U2 R' U'",
     "formulas": {},
-    "tones": null,
-    "arrow": null,
-    "followed": null,
-    "strayed": null
+    "tones": "ppppspmsmpspssssssppppspmsm",
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       0
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       -1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       0,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       0,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       0,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       1,
+       1,
+       0
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
+    "followed": {
+     "rest": "U R' U R U2 R' U'",
+     "shown": "R U R' U R U2 R' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' R U R' U R U2 R' U'",
+     "shown": "D' R U R' U R U2 R' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialTopCorners",
+    "stage": 6,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": "figureCornersNone",
+    "focus": [],
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": "U R U' L' U R' U' L",
+    "formulas": {},
+    "tones": "ppppspssspspssssssppppspsss",
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       -1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       1,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       -1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
+    "followed": {
+     "rest": "R U' L' U R' U' L",
+     "shown": "U R U' L' U R' U' L",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U R U' L' U R' U' L",
+     "shown": "D' U R U' L' U R' U' L",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialTopCorners",
+    "stage": 6,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "R",
+    "figure": "figureCornersOne",
+    "focus": [
+     24
+    ],
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": "U B U' F' U B' U' F",
+    "formulas": {},
+    "tones": "ppppspssspspssssssppppsptss",
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       -1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       -1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       1,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
+    "followed": {
+     "rest": "B U' F' U B' U' F",
+     "shown": "U B U' F' U B' U' F",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U B U' F' U B' U' F",
+     "shown": "D' U B U' F' U B' U' F",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialTopTwist",
+    "stage": 7,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": "figureCornersTwist",
+    "focus": [
+     6,
+     26
+    ],
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": "R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U2",
+    "formulas": {},
+    "tones": "ppppsptsspspssssssppppspsst",
+    "arrows": [],
+    "followed": {
+     "rest": "D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U2",
+     "shown": "R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U2",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U2",
+     "shown": "D' R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U2",
+     "done": 0
+    }
    }
   ]
  },
@@ -1212,28 +1601,30 @@
      }
     },
     "tones": "mssssmmmsmstssssssmsmmsmmsm",
-    "arrow": {
-     "from": [
-      0,
-      1,
-      -1
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      0,
-      -1,
-      1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       0,
+       -1,
+       1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "F2",
      "shown": "U2 F2",
@@ -1305,28 +1696,30 @@
      }
     },
     "tones": "mmmssmsmmmspsssssmmtmsssmss",
-    "arrow": {
-     "from": [
-      -1,
-      0,
-      -1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      -1
-     ],
-     "to": [
-      1,
-      -1,
-      0
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       0,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       1,
+       -1,
+       0
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "R",
      "shown": "B2 R",
@@ -1378,28 +1771,30 @@
      }
     },
     "tones": "mmmssmmsmtspsssmsmmpmmsssss",
-    "arrow": {
-     "from": [
-      1,
-      1,
-      0
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      0,
-      -1,
-      -1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       0,
+       -1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "B2",
      "shown": "U' B2",
@@ -1439,28 +1834,30 @@
      }
     },
     "tones": "stmssmssmpspssssssmpsssmssm",
-    "arrow": {
-     "from": [
-      -1,
-      1,
-      0
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      -1,
-      -1,
-      0
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       -1,
+       0
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": null,
     "strayed": {
      "rest": "D' L2",
@@ -1560,28 +1957,30 @@
      }
     },
     "tones": "spsmssmsspspsssmssmptmsssms",
-    "arrow": {
-     "from": [
-      1,
-      1,
-      -1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      -1
-     ],
-     "to": [
-      1,
-      -1,
-      1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       1,
+       -1,
+       1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "R U R' U'",
      "shown": "U R U R' U'",
@@ -1657,28 +2056,30 @@
      }
     },
     "tones": "spssssmmspspsssssmtppmssssm",
-    "arrow": {
-     "from": [
-      1,
-      1,
-      -1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      -1
-     ],
-     "to": [
-      1,
-      -1,
-      -1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       1,
+       -1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U B' U'",
      "shown": "B U B' U'",
@@ -1734,28 +2135,30 @@
      }
     },
     "tones": "tpsmssmmspspsssmsmpppssmmsm",
-    "arrow": {
-     "from": [
-      1,
-      1,
-      -1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      -1
-     ],
-     "to": [
-      -1,
-      -1,
-      -1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       -1,
+       -1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "L U L' U'",
      "shown": "U' L U L' U'",
@@ -1799,28 +2202,30 @@
      }
     },
     "tones": "pptssmmsspspsssmsmpppsssmsm",
-    "arrow": {
-     "from": [
-      -1,
-      -1,
-      1
-     ],
-     "fromNormal": [
-      -1,
-      0,
-      0
-     ],
-     "to": [
-      -1,
-      -1,
-      1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       -1,
+       1
+      ],
+      "fromNormal": [
+       -1,
+       0,
+       0
+      ],
+      "to": [
+       -1,
+       -1,
+       1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U F' U' F U F' U' F U F' U' F U F' U'",
      "shown": "F U F' U' F U F' U' F U F' U' F U F' U'",
@@ -1900,28 +2305,30 @@
      }
     },
     "tones": "pppmsmmsmpspssssssppppstssm",
-    "arrow": {
-     "from": [
-      -1,
-      1,
-      0
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      1,
-      0,
-      1
-     ],
-     "toNormal": [
-      1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       1,
+       0,
+       1
+      ],
+      "toNormal": [
+       1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U R U' R' U' F' U F",
      "shown": "U' U R U' R' U' F' U F",
@@ -1981,28 +2388,30 @@
      }
     },
     "tones": "ppptsmmsmpspsssssmppppspssm",
-    "arrow": {
-     "from": [
-      0,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      1
-     ],
-     "to": [
-      -1,
-      0,
-      -1
-     ],
-     "toNormal": [
-      -1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       -1,
+       0,
+       -1
+      ],
+      "toNormal": [
+       -1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U' B' U B U L U' L'",
      "shown": "U U' B' U B U L U' L'",
@@ -2050,28 +2459,30 @@
      }
     },
     "tones": "ppppstmmspspsssssmppppspmmm",
-    "arrow": {
-     "from": [
-      0,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      -1,
-      0,
-      1
-     ],
-     "toNormal": [
-      -1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       0,
+       1
+      ],
+      "toNormal": [
+       -1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "L' U L U F U' F'",
      "shown": "U' L' U L U F U' F'",
@@ -2115,8 +2526,75 @@
     "suggestion": null,
     "moves": "R B U B' U' R'",
     "formulas": {},
-    "tones": "ppppspmsmpspsssmsmppppspmmm",
-    "arrow": null,
+    "tones": "ppppspmtmpspssstssppppspmsm",
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       0
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       1,
+       0,
+       0
+      ],
+      "to": [
+       0,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       -1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       -1,
+       0,
+       0
+      ],
+      "to": [
+       1,
+       1,
+       0
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "B U B' U' R'",
      "shown": "R B U B' U' R'",
@@ -2129,13 +2607,18 @@
     }
    },
    {
-    "key": "stepTopEdges",
+    "key": "stepTutorialTopEdges",
     "stage": 5,
-    "progress": null,
-    "comingSoon": true,
-    "hold": "F",
-    "figure": null,
-    "focus": null,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "B",
+    "figure": "figureEdgesSide",
+    "focus": [
+     25
+    ],
     "placed": [
      11,
      19,
@@ -2152,12 +2635,243 @@
     ],
     "pickable": [],
     "suggestion": null,
-    "moves": null,
+    "moves": "L U L' U L U2 L' U2",
     "formulas": {},
-    "tones": null,
-    "arrow": null,
-    "followed": null,
-    "strayed": null
+    "tones": "ppppspssmpspssssssppppspmtm",
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       0
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       -1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       0,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       0,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       0,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
+    "followed": {
+     "rest": "U L' U L U2 L' U2",
+     "shown": "L U L' U L U2 L' U2",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' L U L' U L U2 L' U2",
+     "shown": "D' L U L' U L U2 L' U2",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialTopCorners",
+    "stage": 6,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": "figureCornersOne",
+    "focus": [
+     26
+    ],
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": "U R U' L' U R' U' L",
+    "formulas": {},
+    "tones": "ppppspssspspssssssppppspsst",
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       -1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       -1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       1,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
+    "followed": {
+     "rest": "R U' L' U R' U' L",
+     "shown": "U R U' L' U R' U' L",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U R U' L' U R' U' L",
+     "shown": "D' U R U' L' U R' U' L",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialTopTwist",
+    "stage": 7,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": "figureCornersTwist",
+    "focus": [
+     8,
+     24
+    ],
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": "U R' D' R D R' D' R D R' D' R D R' D' R D U2 R' D' R D R' D' R D U",
+    "formulas": {},
+    "tones": "ppppspsstpspssssssppppsptss",
+    "arrows": [],
+    "followed": {
+     "rest": "R' D' R D R' D' R D R' D' R D R' D' R D U2 R' D' R D R' D' R D U",
+     "shown": "U R' D' R D R' D' R D R' D' R D R' D' R D U2 R' D' R D R' D' R D U",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U R' D' R D R' D' R D R' D' R D R' D' R D U2 R' D' R D R' D' R D U",
+     "shown": "D' U R' D' R D R' D' R D R' D' R D R' D' R D U2 R' D' R D R' D' R D U",
+     "done": 0
+    }
    }
   ]
  },
@@ -2251,28 +2965,30 @@
      }
     },
     "tones": "mmsmssmssmstssssssmsmmsmmsm",
-    "arrow": {
-     "from": [
-      1,
-      0,
-      -1
-     ],
-     "fromNormal": [
-      1,
-      0,
-      0
-     ],
-     "to": [
-      0,
-      -1,
-      1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       0,
+       -1
+      ],
+      "fromNormal": [
+       1,
+       0,
+       0
+      ],
+      "to": [
+       0,
+       -1,
+       1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "F",
      "shown": "R2 F",
@@ -2344,28 +3060,30 @@
      }
     },
     "tones": "sssmssmsssspssssssmtmmssmss",
-    "arrow": {
-     "from": [
-      -1,
-      0,
-      1
-     ],
-     "fromNormal": [
-      -1,
-      0,
-      0
-     ],
-     "to": [
-      1,
-      -1,
-      0
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       0,
+       1
+      ],
+      "fromNormal": [
+       -1,
+       0,
+       0
+      ],
+      "to": [
+       1,
+       -1,
+       0
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "F' D",
      "shown": "D' F' D",
@@ -2417,28 +3135,30 @@
      }
     },
     "tones": "ssmmssmsstspssssssmpmmsssss",
-    "arrow": {
-     "from": [
-      1,
-      0,
-      1
-     ],
-     "fromNormal": [
-      1,
-      0,
-      0
-     ],
-     "to": [
-      0,
-      -1,
-      -1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       0,
+       1
+      ],
+      "fromNormal": [
+       1,
+       0,
+       0
+      ],
+      "to": [
+       0,
+       -1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "F D2",
      "shown": "D2 F D2",
@@ -2478,28 +3198,30 @@
      }
     },
     "tones": "mtssssmsspspssssssmpsmsmssm",
-    "arrow": {
-     "from": [
-      1,
-      0,
-      -1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      -1
-     ],
-     "to": [
-      -1,
-      -1,
-      0
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       0,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       -1,
+       -1,
+       0
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "R D2",
      "shown": "D2 R D2",
@@ -2603,28 +3325,30 @@
      }
     },
     "tones": "spsmsmmsmpspsssssmmptmsssss",
-    "arrow": {
-     "from": [
-      -1,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      1,
-      -1,
-      1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       1,
+       -1,
+       1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "R U R' U' R U R' U' R U R' U'",
      "shown": "U' R U R' U' R U R' U' R U R' U'",
@@ -2700,28 +3424,30 @@
      }
     },
     "tones": "spsssmmsmpspsssssstppmsmsss",
-    "arrow": {
-     "from": [
-      1,
-      1,
-      -1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      -1
-     ],
-     "to": [
-      1,
-      -1,
-      -1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       1,
+       -1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U B' U'",
      "shown": "B U B' U'",
@@ -2777,28 +3503,30 @@
      }
     },
     "tones": "tpmmssmsmpspsssmsmpppmsmmms",
-    "arrow": {
-     "from": [
-      -1,
-      -1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      1
-     ],
-     "to": [
-      -1,
-      -1,
-      -1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       -1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       -1,
+       -1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U F' L U L' U'",
      "shown": "F U F' L U L' U'",
@@ -2842,28 +3570,30 @@
      }
     },
     "tones": "pptsssssmpspsssmsspppmsmmmm",
-    "arrow": {
-     "from": [
-      1,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      -1,
-      -1,
-      1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       -1,
+       1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "F U F' U' F U F' U' F U F' U'",
      "shown": "U F U F' U' F U F' U' F U F' U'",
@@ -2971,28 +3701,30 @@
      }
     },
     "tones": "pppsssmsmpspsssmsspppmstmms",
-    "arrow": {
-     "from": [
-      0,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      1,
-      0,
-      1
-     ],
-     "toNormal": [
-      1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       1,
+       0,
+       1
+      ],
+      "toNormal": [
+       1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "R U' R' U' F' U F",
      "shown": "U R U' R' U' F' U F",
@@ -3072,28 +3804,30 @@
      }
     },
     "tones": "pppsssmmmpspssssssppptspmms",
-    "arrow": {
-     "from": [
-      -1,
-      1,
-      0
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      1,
-      0,
-      -1
-     ],
-     "toNormal": [
-      1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       1,
+       0,
+       -1
+      ],
+      "toNormal": [
+       1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U' R' U R U B U' B'",
      "shown": "U U' R' U R U B U' B'",
@@ -3153,28 +3887,30 @@
      }
     },
     "tones": "ppptsmmmspspsssmssppppspmmm",
-    "arrow": {
-     "from": [
-      -1,
-      0,
-      1
-     ],
-     "fromNormal": [
-      -1,
-      0,
-      0
-     ],
-     "to": [
-      -1,
-      0,
-      -1
-     ],
-     "toNormal": [
-      -1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       0,
+       1
+      ],
+      "fromNormal": [
+       -1,
+       0,
+       0
+      ],
+      "to": [
+       -1,
+       0,
+       -1
+      ],
+      "toNormal": [
+       -1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "F U' F' U' L' U L U' U L U' L' U' B' U B",
      "shown": "U F U' F' U' L' U L U' U L U' L' U' B' U B",
@@ -3222,28 +3958,30 @@
      }
     },
     "tones": "ppppstmsmpspsssmsmppppspssm",
-    "arrow": {
-     "from": [
-      1,
-      1,
-      0
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      -1,
-      0,
-      1
-     ],
-     "toNormal": [
-      -1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       0,
+       1
+      ],
+      "toNormal": [
+       -1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U' L' U L U F U' F'",
      "shown": "U U' L' U L U F U' F'",
@@ -3256,13 +3994,16 @@
     }
    },
    {
-    "key": "stepTopEdges",
+    "key": "stepTutorialTopEdges",
     "stage": 5,
-    "progress": null,
-    "comingSoon": true,
-    "hold": "F",
-    "figure": null,
-    "focus": null,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "B",
+    "figure": "figureEdgesSide",
+    "focus": [],
     "placed": [
      11,
      19,
@@ -3279,12 +4020,154 @@
     ],
     "pickable": [],
     "suggestion": null,
-    "moves": null,
+    "moves": "L U L' U L U2 L' U'",
     "formulas": {},
-    "tones": null,
-    "arrow": null,
-    "followed": null,
-    "strayed": null
+    "tones": "ppppspmsmpspssssssppppspmsm",
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       0
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       0,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       0,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       -1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       1,
+       1,
+       0
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
+    "followed": {
+     "rest": "U L' U L U2 L' U'",
+     "shown": "L U L' U L U2 L' U'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' L U L' U L U2 L' U'",
+     "shown": "D' L U L' U L U2 L' U'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialTopTwist",
+    "stage": 7,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": "figureCornersTwist",
+    "focus": [
+     8,
+     24
+    ],
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": "U R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U",
+    "formulas": {},
+    "tones": "ppppspsstpspssssssppppsptss",
+    "arrows": [],
+    "followed": {
+     "rest": "R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U",
+     "shown": "U R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U",
+     "shown": "D' U R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U",
+     "done": 0
+    }
    }
   ]
  },
@@ -3378,28 +4261,30 @@
      }
     },
     "tones": "mmsssmmsmsstsssssmssmssmmmm",
-    "arrow": {
-     "from": [
-      -1,
-      0,
-      1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      1
-     ],
-     "to": [
-      0,
-      -1,
-      1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       0,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       0,
+       -1,
+       1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "D",
      "shown": "L D",
@@ -3471,28 +4356,30 @@
      }
     },
     "tones": "mmmmssmmssspsssmssmtmmssssm",
-    "arrow": {
-     "from": [
-      0,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      1,
-      -1,
-      0
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       1,
+       -1,
+       0
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "R2",
      "shown": "U' R2",
@@ -3544,28 +4431,30 @@
      }
     },
     "tones": "mmsmssmmmtspsssmsmmpmssmmmm",
-    "arrow": {
-     "from": [
-      1,
-      1,
-      0
-     ],
-     "fromNormal": [
-      1,
-      0,
-      0
-     ],
-     "to": [
-      0,
-      -1,
-      -1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       1,
+       0,
+       0
+      ],
+      "to": [
+       0,
+       -1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "L' B",
      "shown": "U2 L' B",
@@ -3605,28 +4494,30 @@
      }
     },
     "tones": "mtsmsmmsspspssssssspssssmsm",
-    "arrow": {
-     "from": [
-      -1,
-      0,
-      -1
-     ],
-     "fromNormal": [
-      -1,
-      0,
-      0
-     ],
-     "to": [
-      -1,
-      -1,
-      0
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       0,
+       -1
+      ],
+      "fromNormal": [
+       -1,
+       0,
+       0
+      ],
+      "to": [
+       -1,
+       -1,
+       0
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "B D",
      "shown": "D' B D",
@@ -3730,28 +4621,30 @@
      }
     },
     "tones": "mpsssmsmmpspsssmsmmptmsssmm",
-    "arrow": {
-     "from": [
-      1,
-      -1,
-      -1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      -1
-     ],
-     "to": [
-      1,
-      -1,
-      1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       -1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       1,
+       -1,
+       1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U B' R U R' U'",
      "shown": "B U B' R U R' U'",
@@ -3827,28 +4720,30 @@
      }
     },
     "tones": "spmssssmmpspsssmsmtppmsssmm",
-    "arrow": {
-     "from": [
-      -1,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      1
-     ],
-     "to": [
-      1,
-      -1,
-      -1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       1,
+       -1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "B U B' U'",
      "shown": "U2 B U B' U'",
@@ -3904,28 +4799,30 @@
      }
     },
     "tones": "tpmssssmmpspsssmsmpppssssmm",
-    "arrow": {
-     "from": [
-      1,
-      1,
-      -1
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      -1,
-      -1,
-      -1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       -1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "L U L' U' L U L' U' L U L' U'",
      "shown": "U' L U L' U' L U L' U' L U L' U'",
@@ -3969,28 +4866,30 @@
      }
     },
     "tones": "pptssssmmpspsssssmpppssmssm",
-    "arrow": {
-     "from": [
-      -1,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      1
-     ],
-     "to": [
-      -1,
-      -1,
-      1
-     ],
-     "toNormal": [
-      0,
-      -1,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       -1,
+       -1,
+       1
+      ],
+      "toNormal": [
+       0,
+       -1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U F' U'",
      "shown": "F U F' U'",
@@ -4098,28 +4997,30 @@
      }
     },
     "tones": "pppsssmsmpspsssmsspppsstmmm",
-    "arrow": {
-     "from": [
-      0,
-      1,
-      1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      1
-     ],
-     "to": [
-      1,
-      0,
-      1
-     ],
-     "toNormal": [
-      1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       1,
+       0,
+       1
+      ],
+      "toNormal": [
+       1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U' F' U F U R U' R'",
      "shown": "U' U' F' U F U R U' R'",
@@ -4199,28 +5100,30 @@
      }
     },
     "tones": "pppssmmmmpspsssmssppptspmmm",
-    "arrow": {
-     "from": [
-      1,
-      0,
-      -1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      -1
-     ],
-     "to": [
-      1,
-      0,
-      -1
-     ],
-     "toNormal": [
-      1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       1,
+       0,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       1,
+       0,
+       -1
+      ],
+      "toNormal": [
+       1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "B U' B' U' R' U R U2 U B U' B' U' R' U R",
      "shown": "U B U' B' U' R' U R U2 U B U' B' U' R' U R",
@@ -4280,28 +5183,30 @@
      }
     },
     "tones": "ppptsmmmmpspsssmssppppspmmm",
-    "arrow": {
-     "from": [
-      -1,
-      0,
-      -1
-     ],
-     "fromNormal": [
-      0,
-      0,
-      -1
-     ],
-     "to": [
-      -1,
-      0,
-      -1
-     ],
-     "toNormal": [
-      -1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       0,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       -1,
+       0,
+       -1
+      ],
+      "toNormal": [
+       -1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "L U' L' U' B' U B U2 U L U' L' U' B' U B",
      "shown": "U L U' L' U' B' U B U2 U L U' L' U' B' U B",
@@ -4349,28 +5254,30 @@
      }
     },
     "tones": "ppppstmmmpspssssssppppspmmm",
-    "arrow": {
-     "from": [
-      -1,
-      1,
-      0
-     ],
-     "fromNormal": [
-      0,
-      1,
-      0
-     ],
-     "to": [
-      -1,
-      0,
-      1
-     ],
-     "toNormal": [
-      -1,
-      0,
-      0
-     ]
-    },
+    "arrows": [
+     {
+      "from": [
+       -1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       0,
+       1
+      ],
+      "toNormal": [
+       -1,
+       0,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "U' L' U L U F U' F'",
      "shown": "U' U' L' U L U F U' F'",
@@ -4411,8 +5318,53 @@
     "suggestion": null,
     "moves": "F R U R' U' F'",
     "formulas": {},
-    "tones": "ppppspmsmpspsssmsmppppspmmm",
-    "arrow": null,
+    "tones": "ppppspmsmpspssssssppppspmsm",
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       1,
+       1,
+       0
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       0,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       0,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "R U R' U' F'",
      "shown": "F R U R' U' F'",
@@ -4456,8 +5408,31 @@
     "suggestion": null,
     "moves": "B L U L' U' B'",
     "formulas": {},
-    "tones": "ppppspmmmpspsssssmppppspmmm",
-    "arrow": null,
+    "tones": "ppppspmsmpspssststppppspmsm",
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       -1,
+       1,
+       0
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "L U L' U' B'",
      "shown": "B L U L' U' B'",
@@ -4501,8 +5476,75 @@
     "suggestion": null,
     "moves": "F R U R' U' F'",
     "formulas": {},
-    "tones": "ppppspmmmpspsssmsmppppspmsm",
-    "arrow": null,
+    "tones": "ppppspmsmpspssstssppppspmtm",
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       1,
+       1,
+       0
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       0,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       0,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       0,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "R U R' U' F'",
      "shown": "F R U R' U' F'",
@@ -4515,13 +5557,19 @@
     }
    },
    {
-    "key": "stepTopEdges",
+    "key": "stepTutorialTopEdges",
     "stage": 5,
-    "progress": null,
-    "comingSoon": true,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
     "hold": "F",
-    "figure": null,
-    "focus": null,
+    "figure": "figureEdgesFacing",
+    "focus": [
+     17,
+     15
+    ],
     "placed": [
      11,
      19,
@@ -4538,12 +5586,335 @@
     ],
     "pickable": [],
     "suggestion": null,
-    "moves": null,
+    "moves": "R U R' U R U2 R'",
     "formulas": {},
-    "tones": null,
-    "arrow": null,
-    "followed": null,
-    "strayed": null
+    "tones": "ppppspmsmpspssststppppspmsm",
+    "arrows": [
+     {
+      "from": [
+       1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       0,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       0,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       0
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       -1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       1,
+       1,
+       0
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
+    "followed": {
+     "rest": "U R' U R U2 R'",
+     "shown": "R U R' U R U2 R'",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' R U R' U R U2 R'",
+     "shown": "D' R U R' U R U2 R'",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialTopEdges",
+    "stage": 5,
+    "progress": {
+     "done": 2,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "L",
+    "figure": "figureEdgesSide",
+    "focus": [
+     17,
+     25
+    ],
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": "F U F' U F U2 F' U",
+    "formulas": {},
+    "tones": "ppppspmsmpspssssstppppspmtm",
+    "arrows": [
+     {
+      "from": [
+       0,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       0
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       -1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       0,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
+    "followed": {
+     "rest": "U F' U F U2 F' U",
+     "shown": "F U F' U F U2 F' U",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' F U F' U F U2 F' U",
+     "shown": "D' F U F' U F U2 F' U",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialTopCorners",
+    "stage": 6,
+    "progress": {
+     "done": 1,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "R",
+    "figure": "figureCornersOne",
+    "focus": [
+     24
+    ],
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": "U B U' F' U B' U' F U B U' F' U B' U' F",
+    "formulas": {},
+    "tones": "ppppspssspspssssssppppsptss",
+    "arrows": [
+     {
+      "from": [
+       -1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "from": [
+       -1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       1,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
+    "followed": {
+     "rest": "B U' F' U B' U' F U B U' F' U B' U' F",
+     "shown": "U B U' F' U B' U' F U B U' F' U B' U' F",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' U B U' F' U B' U' F U B U' F' U B' U' F",
+     "shown": "D' U B U' F' U B' U' F U B U' F' U B' U' F",
+     "done": 0
+    }
+   },
+   {
+    "key": "stepTutorialTopTwist",
+    "stage": 7,
+    "progress": {
+     "done": 0,
+     "total": 4
+    },
+    "comingSoon": false,
+    "hold": "F",
+    "figure": "figureCornersTwist",
+    "focus": [
+     6,
+     8,
+     24,
+     26
+    ],
+    "placed": [
+     11,
+     19,
+     9,
+     1,
+     20,
+     18,
+     0,
+     2,
+     23,
+     21,
+     3,
+     5
+    ],
+    "pickable": [],
+    "suggestion": null,
+    "moves": "R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D U",
+    "formulas": {},
+    "tones": "ppppsptstpspssssssppppsptst",
+    "arrows": [],
+    "followed": {
+     "rest": "D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D U",
+     "shown": "R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D U",
+     "done": 1
+    },
+    "strayed": {
+     "rest": "D' R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D U",
+     "shown": "D' R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D U",
+     "done": 0
+    }
    }
   ]
  }

@@ -4,7 +4,7 @@ import { formatMoves, parseMoves, scramble } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cube, Move } from '@/lib/core/types'
 import { formulaUnderWay } from '@/lib/tutorial/keep'
-import { markerPath, tonesOf, tutorialFor, type TutorialPick } from '@/lib/tutorial/tutorial'
+import { arrowsOf, tonesOf, tutorialFor, type TutorialPick } from '@/lib/tutorial/tutorial'
 import { seededRng } from '../../helpers'
 
 /**
@@ -54,11 +54,11 @@ function record(cube: Cube) {
     moves: notation(moves),
     formulas,
     tones: moves
-      ? tonesOf(cube, moves, pick, step.placed)
+      ? tonesOf(cube, moves, pick, step.placed, step.focus, step.subjects)
           .map((t) => t[0])
           .join('')
       : null,
-    arrow: pick && moves ? markerPath(cube, moves, pick, step.marker) : null,
+    arrows: moves ? arrowsOf(cube, moves, step, pick) : null,
     followed: moves && moves.length > 1 ? underWay(moves.slice(0, 1)) : null,
     strayed: moves ? underWay(parseMoves('D')) : null,
   }
@@ -69,8 +69,9 @@ describe('3x3 tutorial, as it behaves', () => {
     const walks = SEEDS.map((seed) => {
       let cube = applyMoves(solvedCube('3'), scramble('3', 25, seededRng(seed)))
       const steps = []
-      for (let guard = 0; guard < 20; guard++) {
-        const step = tutorial.stepOf(cube)!
+      for (let guard = 0; guard < 30; guard++) {
+        const step = tutorial.stepOf(cube)
+        if (!step) break
         steps.push(record(cube))
         if (step.comingSoon) break
         cube = applyMoves(cube, step.formula(step.suggestion)!)

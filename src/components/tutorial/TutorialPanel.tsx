@@ -1,8 +1,6 @@
 import { ArrowRight, GraduationCap, Sparkles, Undo2, X } from 'lucide-react'
 import { useEffect } from 'react'
-import { moveInHold } from '@/lib/core/hold'
 import { formatMove } from '@/lib/core/moves'
-import { FACE_NORMAL } from '@/lib/core/geometry'
 import { useI18n } from '@/i18n/i18nStore'
 import { useView } from '@/store/viewStore'
 import { selectBusy, useCube } from '@/store/cubeStore'
@@ -12,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { SECTION_BOX, SECTION_LABEL } from '@/components/ui/styles'
 import { Instructions } from './Instructions'
 import { StepHeading } from './StepHeading'
+import { liftFor } from './liftFor'
 
 /** In place of the solve block while the tutorial is on: its step
  *  (`StepHeading`) and its instructions (`Instructions`), applying the
@@ -29,8 +28,9 @@ export function TutorialPanel() {
   // Turns by hand since the step began: applying finishes it from there.
   const manual = useTutorialStore((s) => s.manual).length > 0
   const view = useTutorial()
-  const { step, moves, pick, review, progress, hold } = view
+  const { step, moves, pick, review, progress, hold, frame } = view
   const setHold = useTutorialStore((s) => s.setHold)
+  const lift = liftFor(step)
   const viewToward = useView((s) => s.viewToward)
   // A new way to hold the puzzle: the pad follows it, and the view turns to
   // its front center (the cube's, wherever it stands).
@@ -40,10 +40,10 @@ export function TutorialPanel() {
     const front = useCube
       .getState()
       .cube.find(
-        (c) => c.stickers.length === 1 && c.stickers[0]!.normal.join() === FACE_NORMAL[hold].join(),
+        (c) => c.stickers.length === 1 && c.stickers[0]!.normal.join() === frame.front(hold).join(),
       )
-    if (front) viewToward(front.stickers[0]!.normal)
-  }, [hold, setHold, viewToward])
+    if (front) viewToward(front.stickers[0]!.normal, lift)
+  }, [hold, frame, lift, setHold, viewToward])
   return (
     <section aria-label={t.tutorial.button} className={SECTION_BOX}>
       <div className="flex items-center justify-between">
@@ -62,6 +62,8 @@ export function TutorialPanel() {
         </button>
       </div>
       {step && <StepHeading step={step} progress={progress} />}
+      {/* Every stage done: the puzzle solved. */}
+      {!step && <p className="text-sm font-semibold text-emerald-300">{t.tutorial.solved}</p>}
       {step && !step.comingSoon && (
         <>
           <Instructions view={view} busy={busy} />
@@ -78,7 +80,7 @@ export function TutorialPanel() {
                   if (!moves) return
                   // The moves shown, learnt from now on.
                   if (hold && view.shown) {
-                    learn(view.shown.moves.map((m) => formatMove(moveInHold(hold, m))))
+                    learn(view.shown.moves.map((m) => formatMove(frame.inHold(hold, m))))
                   }
                   apply({ key: step.key, moves }, pick)
                 }}
