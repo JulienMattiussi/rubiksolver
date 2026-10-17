@@ -38,10 +38,16 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   checkAll: 'Check the new positions: the pieces are in their place.',
   checkFigure: 'Check the new figure the white draws on top.',
   checks: {
-    stepTutorialTopEdges: 'Check the new positions: the white edges facing their centers.',
-    stepTutorialTopCorners:
-      'Check the new positions: the white corners between their three centers.',
-    stepTutorialTopTwist: 'Check: every white corner white up, and the cube solved.',
+    stepTutorialTopCross: (done: number) => `Check there are now ${done + 1} white faces up.`,
+    stepTutorialTopEdges: (done: number) =>
+      done === 1
+        ? 'Check one white edge now faces its center.'
+        : `Check ${done} white edges now face their centers.`,
+    stepTutorialTopCorners: (done: number) =>
+      done === 1
+        ? 'Check one white corner is now in its place.'
+        : `Check ${done} white corners are now in their place.`,
+    stepTutorialTopTwist: () => 'Check every corner has its white up: the cube is solved.',
   },
   figures: {
     figureDot: 'Spot the white on top: a dot in the middle, no white edge up.',
@@ -97,8 +103,7 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
     stepTutorialCorner: 'Place the four yellow corners one by one, yellow down.',
     stepTutorialMiddle:
       'Place the second layer’s four edges one by one, those with neither yellow nor white.',
-    stepTutorialTopCross:
-      'Turn the top edges so the white draws a cross there, their sides left for later.',
+    stepTutorialTopCross: 'Turn the top edges so all their white faces point up.',
     stepTutorialTopEdges: 'Place each white edge above the center of its color.',
     stepTutorialTopCorners: 'Place each white corner between its three centers, even turned wrong.',
     stepTutorialTopTwist:

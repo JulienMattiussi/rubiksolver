@@ -84,7 +84,6 @@ const TOP_CROSS_STAGE: FigureStage = {
     topCrossFigure('figureL', [false, false, true, true]),
     topCrossFigure('figureDot', [false, false, false, false]),
   ],
-  focus: whiteEdgesUp,
   // The edges moved, an arrow each following its white.
   subjects: (cube) => topPieces(cube, 2),
   marker: W,
@@ -162,7 +161,6 @@ const TOP_EDGES_STAGE: FigureStage = {
     edgesFigure('figureEdgesSide', (cube) => lineUp(cube).home === 2 && sideBySide(cube)),
     edgesFigure('figureEdgesFacing', () => true),
   ],
-  focus: edgesHome,
   subjects: (cube) => topPieces(cube, 2),
   progress: (cube) => ({ done: edgesHome(cube).length, total: 4 }),
   algorithms: [[EDGES]],
@@ -209,7 +207,6 @@ const TOP_CORNERS_STAGE: FigureStage = {
     },
     { key: 'figureCornersNone', match: (cube) => cornersFormula(cube) },
   ],
-  focus: cornersHome,
   subjects: (cube) => topPieces(cube, 3),
   progress: (cube) => ({ done: cornersHome(cube).length, total: 4 }),
   algorithms: [[CORNERS]],

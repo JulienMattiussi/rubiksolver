@@ -57,6 +57,9 @@ export interface TutorialStep {
    *  of the tutorial's texts), and the pieces that draw it, highlighted. */
   readonly figure?: string
   readonly focus?: readonly number[]
+  /** How far the step will have come once its formula played (from where
+   *  it began): what to check then. */
+  readonly outcome?: { readonly done: number; readonly total: number }
   /** The pieces such a step works on (the top corners it cycles): those
    *  its formula moves keep their colors, an arrow each to where it goes. */
   readonly subjects?: readonly number[]
@@ -148,9 +151,9 @@ export function arrowsOf(
   moves: readonly Move[],
   step: TutorialStep,
   pick: TutorialPick | null,
-): { from: Vec3; fromNormal: Vec3; to: Vec3; toNormal: Vec3 }[] {
+): ({ piece: number } & ReturnType<typeof markerPath>)[] {
   if (moves.length === 0) return []
-  if (pick) return [markerPath(cube, moves, pick, step.marker)]
+  if (pick) return [{ piece: pick.piece, ...markerPath(cube, moves, pick, step.marker) }]
   if (!step.face) return []
   const after = applyMoves(cube, moves)
   const up = FACE_NORMAL[step.face]
@@ -159,9 +162,11 @@ export function arrowsOf(
     if (step.marker) {
       // Only the marker stickers brought to that side: the figure next.
       const path = markerPath(cube, moves, { piece: i, slot: [0, 0, 0] }, step.marker)
-      return path.toNormal.join() === up.join() ? [path] : []
+      return path.toNormal.join() === up.join() ? [{ piece: i, ...path }] : []
     }
-    return [{ from: cube[i]!.position, fromNormal: up, to: after[i]!.position, toNormal: up }]
+    return [
+      { piece: i, from: cube[i]!.position, fromNormal: up, to: after[i]!.position, toNormal: up },
+    ]
   })
 }
 

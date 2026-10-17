@@ -15,6 +15,7 @@ import { formulaUnderWay, keepsPlaced } from '@/lib/tutorial/keep'
 import { CUBE_HOLDS } from '@/lib/core/hold'
 import { SIDES } from '@/lib/solve/solverKit'
 import {
+  arrowsOf,
   formulaSegments,
   markerPath,
   occupantOf,
@@ -223,7 +224,11 @@ describe('the white cross, by its figures', () => {
     expect(line.step).toMatchObject({ key: 'stepTutorialTopCross', figure: 'figureLine' })
     const held = line.step.formula(null)!.map((m) => CUBE_HOLDS.inHold(line.step.hold(null), m))
     expect(held).toEqual(formula)
-    expect(line.step.focus).toHaveLength(2)
+    // An arrow for each edge moved whose white ends up: the line's two
+    // missing edges among them.
+    const arrows = arrowsOf(line.cube, line.step.formula(null)!, line.step, null)
+    expect(arrows.length).toBeGreaterThanOrEqual(2)
+    for (const arrow of arrows) expect(arrow.toNormal).toEqual([0, 1, 0])
     // Played, the line becomes the cross: the stage is done.
     const after = tutorialFor('3')!.stepOf(applyMoves(line.cube, line.step.formula(null)!))
     expect(after?.key).not.toBe('stepTutorialTopCross')

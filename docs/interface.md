@@ -141,7 +141,10 @@ pièce à choisir ; une étape qui travaille le dessus (`face`) monte la vue
 pour le voir (`liftFor`), et les pièces qu'elle travaille (`subjects`) ne
 sont pas hachurées quand la formule les déplace : une flèche chacune vers
 sa place, de face du dessus à face du dessus, ou suivant leur blanc quand
-il y monte (la croix blanche) ; puis les arêtes blanches au-dessus de leur centre
+il y monte (la croix blanche). Plusieurs flèches défilent une à une
+(`useArrowTurns` : chacune apparaît en une seconde, reste 0,4 s, puis s'efface
+pendant que la suivante apparaît) ; la pièce de départ de celle qu'on voit
+scintille en bleu, celle de son arrivée en ambre ; puis les arêtes blanches au-dessus de leur centre
 (`R U R' U R U2 R'`), les coins blancs à leur place
 (`U R U' L' U R' U' L`) et enfin tournés blanc en haut (`R' D' R D` répété,
 un seul pas, la première couche se défaisant en route), jusqu'au cube

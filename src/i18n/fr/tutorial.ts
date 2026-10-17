@@ -42,14 +42,22 @@ export const TUTORIAL_FR = {
   check: (piece: string) => `Vérifie les nouvelles positions : ${piece} est à sa place.`,
   checkAll: 'Vérifie les nouvelles positions : les pièces sont à leur place.',
   checkFigure: 'Vérifie la nouvelle figure que dessine le blanc en haut.',
-  /** The check of a stage played by figures, by its key (else `checkFigure`). */
+  /** The check of a stage played by figures, by its key, given how far
+   *  its formula takes it (else `checkFigure`). */
   checks: {
-    stepTutorialTopEdges:
-      'Vérifie les nouvelles positions : les arêtes blanches en face de leur centre.',
-    stepTutorialTopCorners:
-      'Vérifie les nouvelles positions : les coins blancs entre leurs trois centres.',
-    stepTutorialTopTwist: 'Vérifie : chaque coin blanc a son blanc en haut, et le cube est résolu.',
-  } as Record<string, string>,
+    // The white center counted with the edges.
+    stepTutorialTopCross: (done: number) =>
+      `Vérifie qu’il y a maintenant ${done + 1} faces blanches vers le haut.`,
+    stepTutorialTopEdges: (done: number) =>
+      done === 1
+        ? 'Vérifie qu’une arête blanche est maintenant en face de son centre.'
+        : `Vérifie que ${done} arêtes blanches sont maintenant en face de leur centre.`,
+    stepTutorialTopCorners: (done: number) =>
+      done === 1
+        ? 'Vérifie qu’un coin blanc est maintenant à sa place.'
+        : `Vérifie que ${done} coins blancs sont maintenant à leur place.`,
+    stepTutorialTopTwist: () => 'Vérifie que chaque coin a son blanc en haut : le cube est résolu.',
+  } as Record<string, (done: number) => string>,
   /** The figures the top's white draws, by their key. */
   figures: {
     figureDot: 'Repère le blanc du haut : un point au centre, aucune arête blanche dessus.',
@@ -111,7 +119,7 @@ export const TUTORIAL_FR = {
     stepTutorialMiddle:
       'Place une à une les quatre arêtes de la deuxième couronne, celles sans jaune ni blanc.',
     stepTutorialTopCross:
-      'Tourne les arêtes du haut pour que le blanc y dessine une croix, sans t’occuper encore de leurs côtés.',
+      'Tourne les arêtes du haut pour que toutes leurs faces blanches soient vers le haut.',
     stepTutorialTopEdges: 'Place chaque arête blanche au-dessus du centre de sa couleur.',
     stepTutorialTopCorners:
       'Place chaque coin blanc entre ses trois centres, même s’il est mal tourné.',

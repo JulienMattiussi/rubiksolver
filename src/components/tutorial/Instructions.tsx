@@ -135,7 +135,7 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
     pick
       ? t.tutorial.check(name(pick.piece))
       : step.figure
-        ? (t.tutorial.checks[step.key] ?? t.tutorial.checkFigure)
+        ? (t.tutorial.checks[step.key]?.(step.outcome?.done ?? 0) ?? t.tutorial.checkFigure)
         : t.tutorial.checkAll,
   ]
   return (

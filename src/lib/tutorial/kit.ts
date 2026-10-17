@@ -1,3 +1,4 @@
+import { applyMoves } from '../core/turn'
 import { CUBE_HOLDS, type Hold, type HoldFrame } from '../core/hold'
 import type { Color, Cube, Face, Move, Vec3 } from '../core/types'
 import { keepsPlaced } from './keep'
@@ -85,7 +86,9 @@ export interface FigureStage {
   readonly stage: number
   readonly done: (cube: Cube) => boolean
   readonly figures: readonly Figure[]
-  readonly focus: (cube: Cube) => number[]
+  /** The pieces to work on when no arrow says so (the corners to turn in
+   *  place), highlighted. */
+  readonly focus?: (cube: Cube) => number[]
   /** The pieces it works on, moved with an arrow each (the top layer's,
    *  their arrows from top face to top face, or following `marker`). */
   readonly subjects?: (cube: Cube) => number[]
@@ -134,14 +137,16 @@ function figureStep(
   const now = cube === begun ? found : figureOf(cube)
   const moves =
     now?.seen && now.seen.hold === hold ? now.seen.moves.map((m) => frame.played(hold, m)) : null
+  const fromBegun = found?.seen?.moves.map((m) => frame.played(hold, m))
   return {
+    ...(fromBegun && { outcome: def.progress(applyMoves(begun, fromBegun)) }),
     key: def.key,
     stage: def.stage,
     progress: def.progress(begun),
     hold: () => hold,
     ...(def.algorithms && { algorithms: def.algorithms }),
     ...(found && { figure: found.figure.key }),
-    focus: def.focus(cube),
+    ...(def.focus && { focus: def.focus(cube) }),
     ...(def.subjects && { subjects: def.subjects(cube) }),
     ...(def.marker && { marker: def.marker }),
     ...(def.face && { face: def.face }),

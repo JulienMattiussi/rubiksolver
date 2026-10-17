@@ -91,6 +91,7 @@
     "tones": "sssssmmmmsstssssssssmsssssm",
     "arrows": [
      {
+      "piece": 11,
       "from": [
        0,
        1,
@@ -182,6 +183,7 @@
     "tones": "mmssssssmsspssssssmtsmssmss",
     "arrows": [
      {
+      "piece": 19,
       "from": [
        -1,
        0,
@@ -257,6 +259,7 @@
     "tones": "smmssmssmtspsssmssmpmmsmmsm",
     "arrows": [
      {
+      "piece": 9,
       "from": [
        -1,
        1,
@@ -320,6 +323,7 @@
     "tones": "stmsssssmpspsssmssspssssmmm",
     "arrows": [
      {
+      "piece": 1,
       "from": [
        -1,
        0,
@@ -447,6 +451,7 @@
     "tones": "spsmsmmsspspsssssmsptsssmmm",
     "arrows": [
      {
+      "piece": 20,
       "from": [
        -1,
        1,
@@ -546,6 +551,7 @@
     "tones": "spssssmsspspsssssmtppmssmmm",
     "arrows": [
      {
+      "piece": 18,
       "from": [
        1,
        -1,
@@ -625,6 +631,7 @@
     "tones": "tpsmsmmsspspsssssspppmssmmm",
     "arrows": [
      {
+      "piece": 0,
       "from": [
        1,
        1,
@@ -692,6 +699,7 @@
     "tones": "pptmsmmsspspsssssspppmssmmm",
     "arrows": [
      {
+      "piece": 2,
       "from": [
        -1,
        1,
@@ -823,6 +831,7 @@
     "tones": "pppmsmmsmpspsssssspppmstsmm",
     "arrows": [
      {
+      "piece": 23,
       "from": [
        -1,
        0,
@@ -926,6 +935,7 @@
     "tones": "pppmssmmmpspssssssppptspssm",
     "arrows": [
      {
+      "piece": 21,
       "from": [
        0,
        1,
@@ -1009,6 +1019,7 @@
     "tones": "ppptsssmmpspsssssmppppspmsm",
     "arrows": [
      {
+      "piece": 3,
       "from": [
        0,
        1,
@@ -1080,6 +1091,7 @@
     "tones": "ppppstmmmpspsssmsmppppspmmm",
     "arrows": [
      {
+      "piece": 5,
       "from": [
        -1,
        0,
@@ -1123,7 +1135,7 @@
     "comingSoon": false,
     "hold": "F",
     "figure": "figureEdgesSide",
-    "focus": [],
+    "focus": null,
     "placed": [
      11,
      19,
@@ -1145,6 +1157,7 @@
     "tones": "ppppspmsmpspssssssppppspmsm",
     "arrows": [
      {
+      "piece": 7,
       "from": [
        1,
        1,
@@ -1167,6 +1180,7 @@
       ]
      },
      {
+      "piece": 15,
       "from": [
        -1,
        1,
@@ -1189,6 +1203,7 @@
       ]
      },
      {
+      "piece": 17,
       "from": [
        0,
        1,
@@ -1211,6 +1226,7 @@
       ]
      },
      {
+      "piece": 25,
       "from": [
        0,
        1,
@@ -1254,7 +1270,7 @@
     "comingSoon": false,
     "hold": "F",
     "figure": "figureCornersNone",
-    "focus": [],
+    "focus": null,
     "placed": [
      11,
      19,
@@ -1276,6 +1292,7 @@
     "tones": "ppppspssspspssssssppppspsss",
     "arrows": [
      {
+      "piece": 8,
       "from": [
        1,
        1,
@@ -1298,6 +1315,7 @@
       ]
      },
      {
+      "piece": 24,
       "from": [
        -1,
        1,
@@ -1320,6 +1338,7 @@
       ]
      },
      {
+      "piece": 26,
       "from": [
        -1,
        1,
@@ -1363,9 +1382,7 @@
     "comingSoon": false,
     "hold": "R",
     "figure": "figureCornersOne",
-    "focus": [
-     24
-    ],
+    "focus": null,
     "placed": [
      11,
      19,
@@ -1384,9 +1401,10 @@
     "suggestion": null,
     "moves": "U B U' F' U B' U' F",
     "formulas": {},
-    "tones": "ppppspssspspssssssppppsptss",
+    "tones": "ppppspssspspssssssppppspsss",
     "arrows": [
      {
+      "piece": 6,
       "from": [
        1,
        1,
@@ -1409,6 +1427,7 @@
       ]
      },
      {
+      "piece": 8,
       "from": [
        -1,
        1,
@@ -1431,6 +1450,7 @@
       ]
      },
      {
+      "piece": 26,
       "from": [
        -1,
        1,
@@ -1603,6 +1623,7 @@
     "tones": "mssssmmmsmstssssssmsmmsmmsm",
     "arrows": [
      {
+      "piece": 11,
       "from": [
        0,
        1,
@@ -1698,6 +1719,7 @@
     "tones": "mmmssmsmmmspsssssmmtmsssmss",
     "arrows": [
      {
+      "piece": 19,
       "from": [
        -1,
        0,
@@ -1773,6 +1795,7 @@
     "tones": "mmmssmmsmtspsssmsmmpmmsssss",
     "arrows": [
      {
+      "piece": 9,
       "from": [
        1,
        1,
@@ -1836,6 +1859,7 @@
     "tones": "stmssmssmpspssssssmpsssmssm",
     "arrows": [
      {
+      "piece": 1,
       "from": [
        -1,
        1,
@@ -1959,6 +1983,7 @@
     "tones": "spsmssmsspspsssmssmptmsssms",
     "arrows": [
      {
+      "piece": 20,
       "from": [
        1,
        1,
@@ -2058,6 +2083,7 @@
     "tones": "spssssmmspspsssssmtppmssssm",
     "arrows": [
      {
+      "piece": 18,
       "from": [
        1,
        1,
@@ -2137,6 +2163,7 @@
     "tones": "tpsmssmmspspsssmsmpppssmmsm",
     "arrows": [
      {
+      "piece": 0,
       "from": [
        1,
        1,
@@ -2204,6 +2231,7 @@
     "tones": "pptssmmsspspsssmsmpppsssmsm",
     "arrows": [
      {
+      "piece": 2,
       "from": [
        -1,
        -1,
@@ -2307,6 +2335,7 @@
     "tones": "pppmsmmsmpspssssssppppstssm",
     "arrows": [
      {
+      "piece": 23,
       "from": [
        -1,
        1,
@@ -2390,6 +2419,7 @@
     "tones": "ppptsmmsmpspsssssmppppspssm",
     "arrows": [
      {
+      "piece": 3,
       "from": [
        0,
        1,
@@ -2461,6 +2491,7 @@
     "tones": "ppppstmmspspsssssmppppspmmm",
     "arrows": [
      {
+      "piece": 5,
       "from": [
        0,
        1,
@@ -2504,10 +2535,7 @@
     "comingSoon": false,
     "hold": "R",
     "figure": "figureLine",
-    "focus": [
-     7,
-     15
-    ],
+    "focus": null,
     "placed": [
      11,
      19,
@@ -2526,9 +2554,10 @@
     "suggestion": null,
     "moves": "R B U B' U' R'",
     "formulas": {},
-    "tones": "ppppspmtmpspssstssppppspmsm",
+    "tones": "ppppspmsmpspssssssppppspmsm",
     "arrows": [
      {
+      "piece": 15,
       "from": [
        0,
        1,
@@ -2551,6 +2580,7 @@
       ]
      },
      {
+      "piece": 17,
       "from": [
        1,
        1,
@@ -2573,6 +2603,7 @@
       ]
      },
      {
+      "piece": 25,
       "from": [
        -1,
        1,
@@ -2616,9 +2647,7 @@
     "comingSoon": false,
     "hold": "B",
     "figure": "figureEdgesSide",
-    "focus": [
-     25
-    ],
+    "focus": null,
     "placed": [
      11,
      19,
@@ -2637,9 +2666,10 @@
     "suggestion": null,
     "moves": "L U L' U L U2 L' U2",
     "formulas": {},
-    "tones": "ppppspssmpspssssssppppspmtm",
+    "tones": "ppppspssmpspssssssppppspmsm",
     "arrows": [
      {
+      "piece": 7,
       "from": [
        0,
        1,
@@ -2662,6 +2692,7 @@
       ]
      },
      {
+      "piece": 15,
       "from": [
        -1,
        1,
@@ -2684,6 +2715,7 @@
       ]
      },
      {
+      "piece": 17,
       "from": [
        0,
        1,
@@ -2727,9 +2759,7 @@
     "comingSoon": false,
     "hold": "F",
     "figure": "figureCornersOne",
-    "focus": [
-     26
-    ],
+    "focus": null,
     "placed": [
      11,
      19,
@@ -2748,9 +2778,10 @@
     "suggestion": null,
     "moves": "U R U' L' U R' U' L",
     "formulas": {},
-    "tones": "ppppspssspspssssssppppspsst",
+    "tones": "ppppspssspspssssssppppspsss",
     "arrows": [
      {
+      "piece": 6,
       "from": [
        1,
        1,
@@ -2773,6 +2804,7 @@
       ]
      },
      {
+      "piece": 8,
       "from": [
        -1,
        1,
@@ -2795,6 +2827,7 @@
       ]
      },
      {
+      "piece": 24,
       "from": [
        -1,
        1,
@@ -2967,6 +3000,7 @@
     "tones": "mmsmssmssmstssssssmsmmsmmsm",
     "arrows": [
      {
+      "piece": 11,
       "from": [
        1,
        0,
@@ -3062,6 +3096,7 @@
     "tones": "sssmssmsssspssssssmtmmssmss",
     "arrows": [
      {
+      "piece": 19,
       "from": [
        -1,
        0,
@@ -3137,6 +3172,7 @@
     "tones": "ssmmssmsstspssssssmpmmsssss",
     "arrows": [
      {
+      "piece": 9,
       "from": [
        1,
        0,
@@ -3200,6 +3236,7 @@
     "tones": "mtssssmsspspssssssmpsmsmssm",
     "arrows": [
      {
+      "piece": 1,
       "from": [
        1,
        0,
@@ -3327,6 +3364,7 @@
     "tones": "spsmsmmsmpspsssssmmptmsssss",
     "arrows": [
      {
+      "piece": 20,
       "from": [
        -1,
        1,
@@ -3426,6 +3464,7 @@
     "tones": "spsssmmsmpspsssssstppmsmsss",
     "arrows": [
      {
+      "piece": 18,
       "from": [
        1,
        1,
@@ -3505,6 +3544,7 @@
     "tones": "tpmmssmsmpspsssmsmpppmsmmms",
     "arrows": [
      {
+      "piece": 0,
       "from": [
        -1,
        -1,
@@ -3572,6 +3612,7 @@
     "tones": "pptsssssmpspsssmsspppmsmmmm",
     "arrows": [
      {
+      "piece": 2,
       "from": [
        1,
        1,
@@ -3703,6 +3744,7 @@
     "tones": "pppsssmsmpspsssmsspppmstmms",
     "arrows": [
      {
+      "piece": 23,
       "from": [
        0,
        1,
@@ -3806,6 +3848,7 @@
     "tones": "pppsssmmmpspssssssppptspmms",
     "arrows": [
      {
+      "piece": 21,
       "from": [
        -1,
        1,
@@ -3889,6 +3932,7 @@
     "tones": "ppptsmmmspspsssmssppppspmmm",
     "arrows": [
      {
+      "piece": 3,
       "from": [
        -1,
        0,
@@ -3960,6 +4004,7 @@
     "tones": "ppppstmsmpspsssmsmppppspssm",
     "arrows": [
      {
+      "piece": 5,
       "from": [
        1,
        1,
@@ -4003,7 +4048,7 @@
     "comingSoon": false,
     "hold": "B",
     "figure": "figureEdgesSide",
-    "focus": [],
+    "focus": null,
     "placed": [
      11,
      19,
@@ -4025,6 +4070,7 @@
     "tones": "ppppspmsmpspssssssppppspmsm",
     "arrows": [
      {
+      "piece": 7,
       "from": [
        0,
        1,
@@ -4047,6 +4093,7 @@
       ]
      },
      {
+      "piece": 15,
       "from": [
        0,
        1,
@@ -4069,6 +4116,7 @@
       ]
      },
      {
+      "piece": 17,
       "from": [
        1,
        1,
@@ -4091,6 +4139,7 @@
       ]
      },
      {
+      "piece": 25,
       "from": [
        -1,
        1,
@@ -4263,6 +4312,7 @@
     "tones": "mmsssmmsmsstsssssmssmssmmmm",
     "arrows": [
      {
+      "piece": 11,
       "from": [
        -1,
        0,
@@ -4358,6 +4408,7 @@
     "tones": "mmmmssmmssspsssmssmtmmssssm",
     "arrows": [
      {
+      "piece": 19,
       "from": [
        0,
        1,
@@ -4433,6 +4484,7 @@
     "tones": "mmsmssmmmtspsssmsmmpmssmmmm",
     "arrows": [
      {
+      "piece": 9,
       "from": [
        1,
        1,
@@ -4496,6 +4548,7 @@
     "tones": "mtsmsmmsspspssssssspssssmsm",
     "arrows": [
      {
+      "piece": 1,
       "from": [
        -1,
        0,
@@ -4623,6 +4676,7 @@
     "tones": "mpsssmsmmpspsssmsmmptmsssmm",
     "arrows": [
      {
+      "piece": 20,
       "from": [
        1,
        -1,
@@ -4722,6 +4776,7 @@
     "tones": "spmssssmmpspsssmsmtppmsssmm",
     "arrows": [
      {
+      "piece": 18,
       "from": [
        -1,
        1,
@@ -4801,6 +4856,7 @@
     "tones": "tpmssssmmpspsssmsmpppssssmm",
     "arrows": [
      {
+      "piece": 0,
       "from": [
        1,
        1,
@@ -4868,6 +4924,7 @@
     "tones": "pptssssmmpspsssssmpppssmssm",
     "arrows": [
      {
+      "piece": 2,
       "from": [
        -1,
        1,
@@ -4999,6 +5056,7 @@
     "tones": "pppsssmsmpspsssmsspppsstmmm",
     "arrows": [
      {
+      "piece": 23,
       "from": [
        0,
        1,
@@ -5102,6 +5160,7 @@
     "tones": "pppssmmmmpspsssmssppptspmmm",
     "arrows": [
      {
+      "piece": 21,
       "from": [
        1,
        0,
@@ -5185,6 +5244,7 @@
     "tones": "ppptsmmmmpspsssmssppppspmmm",
     "arrows": [
      {
+      "piece": 3,
       "from": [
        -1,
        0,
@@ -5256,6 +5316,7 @@
     "tones": "ppppstmmmpspssssssppppspmmm",
     "arrows": [
      {
+      "piece": 5,
       "from": [
        -1,
        1,
@@ -5299,7 +5360,7 @@
     "comingSoon": false,
     "hold": "F",
     "figure": "figureDot",
-    "focus": [],
+    "focus": null,
     "placed": [
      11,
      19,
@@ -5321,6 +5382,7 @@
     "tones": "ppppspmsmpspssssssppppspmsm",
     "arrows": [
      {
+      "piece": 15,
       "from": [
        0,
        1,
@@ -5343,6 +5405,7 @@
       ]
      },
      {
+      "piece": 17,
       "from": [
        0,
        1,
@@ -5386,10 +5449,7 @@
     "comingSoon": false,
     "hold": "B",
     "figure": "figureL",
-    "focus": [
-     15,
-     17
-    ],
+    "focus": null,
     "placed": [
      11,
      19,
@@ -5408,9 +5468,10 @@
     "suggestion": null,
     "moves": "B L U L' U' B'",
     "formulas": {},
-    "tones": "ppppspmsmpspssststppppspmsm",
+    "tones": "ppppspmsmpspssssssppppspmsm",
     "arrows": [
      {
+      "piece": 25,
       "from": [
        0,
        1,
@@ -5454,10 +5515,7 @@
     "comingSoon": false,
     "hold": "F",
     "figure": "figureLine",
-    "focus": [
-     15,
-     25
-    ],
+    "focus": null,
     "placed": [
      11,
      19,
@@ -5476,9 +5534,10 @@
     "suggestion": null,
     "moves": "F R U R' U' F'",
     "formulas": {},
-    "tones": "ppppspmsmpspssstssppppspmtm",
+    "tones": "ppppspmsmpspssssssppppspmsm",
     "arrows": [
      {
+      "piece": 7,
       "from": [
        0,
        1,
@@ -5501,6 +5560,7 @@
       ]
      },
      {
+      "piece": 15,
       "from": [
        1,
        1,
@@ -5523,6 +5583,7 @@
       ]
      },
      {
+      "piece": 17,
       "from": [
        0,
        1,
@@ -5566,10 +5627,7 @@
     "comingSoon": false,
     "hold": "F",
     "figure": "figureEdgesFacing",
-    "focus": [
-     17,
-     15
-    ],
+    "focus": null,
     "placed": [
      11,
      19,
@@ -5588,9 +5646,10 @@
     "suggestion": null,
     "moves": "R U R' U R U2 R'",
     "formulas": {},
-    "tones": "ppppspmsmpspssststppppspmsm",
+    "tones": "ppppspmsmpspssssssppppspmsm",
     "arrows": [
      {
+      "piece": 7,
       "from": [
        1,
        1,
@@ -5613,6 +5672,7 @@
       ]
      },
      {
+      "piece": 15,
       "from": [
        0,
        1,
@@ -5635,6 +5695,7 @@
       ]
      },
      {
+      "piece": 25,
       "from": [
        -1,
        1,
@@ -5678,10 +5739,7 @@
     "comingSoon": false,
     "hold": "L",
     "figure": "figureEdgesSide",
-    "focus": [
-     17,
-     25
-    ],
+    "focus": null,
     "placed": [
      11,
      19,
@@ -5700,9 +5758,10 @@
     "suggestion": null,
     "moves": "F U F' U F U2 F' U",
     "formulas": {},
-    "tones": "ppppspmsmpspssssstppppspmtm",
+    "tones": "ppppspmsmpspssssssppppspmsm",
     "arrows": [
      {
+      "piece": 7,
       "from": [
        0,
        1,
@@ -5725,6 +5784,7 @@
       ]
      },
      {
+      "piece": 15,
       "from": [
        -1,
        1,
@@ -5768,9 +5828,7 @@
     "comingSoon": false,
     "hold": "R",
     "figure": "figureCornersOne",
-    "focus": [
-     24
-    ],
+    "focus": null,
     "placed": [
      11,
      19,
@@ -5789,9 +5847,10 @@
     "suggestion": null,
     "moves": "U B U' F' U B' U' F U B U' F' U B' U' F",
     "formulas": {},
-    "tones": "ppppspssspspssssssppppsptss",
+    "tones": "ppppspssspspssssssppppspsss",
     "arrows": [
      {
+      "piece": 6,
       "from": [
        -1,
        1,
@@ -5814,6 +5873,7 @@
       ]
      },
      {
+      "piece": 8,
       "from": [
        1,
        1,
@@ -5836,6 +5896,7 @@
       ]
      },
      {
+      "piece": 26,
       "from": [
        -1,
        1,

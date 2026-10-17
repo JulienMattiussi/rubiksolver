@@ -1,6 +1,6 @@
 import { Line } from '@react-three/drei'
-import { useThree } from '@react-three/fiber'
-import { useMemo } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
+import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { PLACE as ARROW } from './colors'
 
@@ -150,19 +150,38 @@ function Marks({
  * first straight out, follows a circle bowing out from the puzzle (clear
  * of it, see `arrowLine`), and comes straight into the second, its head
  * there. Where the puzzle hides
- * it, it shows dotted.
+ * it, it shows dotted. With `fade`, it shows as much as that says at each
+ * moment (several arrows taking turns).
  */
 export function TutorialArrow({
   from,
   fromNormal,
   to,
   toNormal,
+  fade,
 }: {
   from: V3
   fromNormal: V3
   to: V3
   toNormal: V3
+  /** How much it shows (0 to 1) at a time in seconds. */
+  fade?: (seconds: number) => number
 }) {
+  const groupRef = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => {
+    const group = groupRef.current
+    if (!group || !fade) return
+    const shown = fade(clock.elapsedTime)
+    group.visible = shown > 0.01
+    group.traverse((object) => {
+      const material = (object as THREE.Mesh).material as THREE.Material | undefined
+      if (!material) return
+      // Each part's own opacity kept, the whole faded with it.
+      material.userData.opacity ??= material.opacity
+      material.transparent = true
+      material.opacity = (material.userData.opacity as number) * shown
+    })
+  })
   const camera = useThree((s) => s.camera)
   const view = camera.position.clone().normalize()
   const viewKey = view
@@ -188,7 +207,7 @@ export function TutorialArrow({
   }, [from, fromNormal, to, toNormal, viewKey])
   const curve = { points, color: ARROW, lineWidth: 4 }
   return (
-    <group>
+    <group ref={groupRef}>
       {/* Dotted through the puzzle, plain over it where nothing hides it. */}
       <Line {...curve} dashed dashSize={0.08} gapSize={0.1} depthTest={false} renderOrder={9} />
       <Line {...curve} renderOrder={10} />
