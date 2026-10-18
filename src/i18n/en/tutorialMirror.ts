@@ -1,5 +1,6 @@
 import type { TUTORIAL_MIRROR_FR } from '../fr/tutorialMirror'
-import { listEn, PIECES_EN } from './tutorial'
+import { listEn } from './list'
+import { PIECES_EN } from './tutorial'
 
 export const TUTORIAL_MIRROR_EN: typeof TUTORIAL_MIRROR_FR = {
   thickness: {

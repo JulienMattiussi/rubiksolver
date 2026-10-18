@@ -147,7 +147,8 @@ src/
 │                        #   tutorialTrack (étapes montrées, 💪 et fin, coups déjà montrés)
 ├── hooks/               # useAutoPlan (solution dans le worker), useIsDesktop, useSolveShortcuts, useTutorial
 ├── i18n/                # fr/ et en/ (ui, methods, steps, moveSentences : phrases longues du guide et
-│                        #   courtes du tutoriel, tutorial, tutorialMirror ; EN typé sur FR), translations
+│                        #   courtes du tutoriel, tutorial : phrases communes, tutorials/ : les textes de chaque tutoriel,
+│                        #   tutorialMirror ; EN typé sur FR), tutorialTexts (leur forme), translations
 │                        #   (les assemble), i18nStore
 ├── workers/             # solveWorker : la solution hors du fil de l'interface ; facesWorker (et
 │                        #   findFaces) : la forme retrouvée de ses faces (Camouflage, Purple)
@@ -490,9 +491,10 @@ siennes. Le **registre** (`lib/tutorials/registry.ts`) liste par forme un
 tutoriel par méthode ; le bouton Tutoriel n'est offert que pour la méthode
 choisie qui en a un. **Ajouter un tutoriel** : sa définition dans
 `lib/tutorials/<catégorie>/<puzzle>.ts` et sa ligne au registre (sa
-méthode) ; les titres, consignes, figures, vérifications et phrases
-d'avancement de ses étapes dans `i18n/{fr,en}/tutorial.ts`, leurs noms
-dans `steps.ts` ; ses tests dans `tests/unit/tutorials/` (ceux du moteur dans `tests/unit/teach/`). Le rendu des tons,
+méthode) ; les titres, consignes, figures, vérifications, phrases
+d'avancement et termes de ses étapes dans son module de textes
+(`i18n/{fr,en}/tutorials/<puzzle>.ts`, ajouté à la fusion de `tutorial.ts`),
+leurs noms dans `steps.ts` ; ses tests dans `tests/unit/tutorials/` (ceux du moteur dans `tests/unit/teach/`). Le rendu des tons,
 du clic et des flèches est commun aux deux vues (`useTutorialScene`, pour
 `CubeView` et `PolyView`) : la flèche contourne les plans des faces du
 puzzle (`three/core/hull.ts`), et sur un puzzle en polygones part du centre

@@ -33,6 +33,3 @@ export const PYRA_HOLDS: HoldFrame = {
   played: (hold, turn) => relabeled(turn, thirds(hold)),
   inHold: (hold, turn) => relabeled(turn, (3 - thirds(hold)) % 3),
 }
-
-/** The hold with a corner at the back (the top: the first). */
-export const holdBehind = (vertex: PyraVertex): string => (vertex === 'U' ? HOLDS[0]! : vertex)

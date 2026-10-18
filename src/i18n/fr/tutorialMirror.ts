@@ -1,5 +1,6 @@
 import type { CubeColor } from '@/lib/core/types'
-import { listFr, PIECES_FR } from './tutorial'
+import { listFr } from './list'
+import { PIECES_FR } from './tutorial'
 
 /**
  * The tutorial's texts on a mirror cube, where a color is a thickness: each
