@@ -121,7 +121,7 @@ src/
 │   │                    #   setup (réglages avant peinture), jointsEditor (soudures), cutsEditor
 │   │                    #   (demi-cubies du Fashion-V), faceCanvases (forme face par face), gearEditor,
 │   │                    #   roadblockEditor, validate
-│   ├── tutorial/        # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
+│   ├── teach/           # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
 │   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), scene (tons, flèches), segments
 │   │                    #   (formule lue en gestes), keep (pièces gardées, formule en cours de pas), macros
 │   │                    #   (la plus courte chaîne de gestes appris vers un but)
@@ -146,14 +146,14 @@ src/
 │                        #   tutorialTrack (étapes montrées, 💪 et fin, coups déjà montrés)
 ├── hooks/               # useAutoPlan (solution dans le worker), useIsDesktop, useSolveShortcuts, useTutorial
 ├── i18n/                # fr/ et en/ (ui, methods, steps, moveSentences : phrases longues du guide et
-│                        #   courtes du tutoriel, tutorial ; EN typé sur FR), translations
+│                        #   courtes du tutoriel, tutorial, tutorialMirror ; EN typé sur FR), translations
 │                        #   (les assemble), i18nStore
 ├── workers/             # solveWorker : la solution hors du fil de l'interface ; facesWorker (et
 │                        #   findFaces) : la forme retrouvée de ses faces (Camouflage, Purple)
 └── assets/gear/         # Masques des pièces du Gear Cube (scripts/gear_face.py)
 tests/
 ├── unit/                # Vitest : conformance de tous les puzzles (puzzles.test.ts), puis rangés comme le code :
-│                        #   core/, solve/, editor/, app/, three/, store/, tutorial/, puzzles/<catégorie>/ (un fichier par
+│                        #   core/, solve/, editor/, app/, three/, store/, teach/, tutorials/, puzzles/<catégorie>/ (un fichier par
 │                        #   puzzle, modèle, méthode et dessin ensemble)
 ├── component/           # Vitest + Testing Library
 ├── e2e/                 # Playwright
@@ -432,12 +432,12 @@ deux sens et au clavier, tutoriel (on résout soi-même, pas à pas, guidé
 par une flèche et des pièces mises en valeur), feu d'artifice quand un coup résout, adresse
 `#/<langue>/<puzzle>` (l'accueil sinon). Le détail : [docs/interface.md](docs/interface.md).
 
-### Le tutoriel (`src/lib/tutorial/`, `src/lib/tutorials/`)
+### Le tutoriel (`src/lib/teach/`, `src/lib/tutorials/`)
 
 Un tutoriel est **déclaré, pas codé**, comme une méthode, et le moteur ne
 connaît aucun modèle : il manipule n'importe quel coup de l'appli
 (`Turn`), lit les positions et les stickers des pièces, et reçoit du
-tutoriel ses tenues. Un `TutorialPlan` (`lib/tutorial/kit.ts`) est une
+tutoriel ses tenues. Un `TutorialPlan` (`lib/teach/kit.ts`) est une
 liste d'étapes, et `tutorialOf` en fait le pas où en est un état (sa sorte,
 `TutorialStep.kind` : pièces, formule, figure, déjà faite, à venir) :
 
@@ -453,7 +453,16 @@ liste d'étapes, et `tutorialOf` en fait le pas où en est un état (sa sorte,
   pièces travaillées (`subjects`) fléchées ;
 - une étape de **formule** (`FormulaStage`) joue la sienne (le recentrage) ;
 - après les étapes, `next` peut annoncer celle qui vient (un tutoriel
-  partiel) ; sans `next`, le tutoriel finit sur le puzzle résolu.
+  partiel) ; sans `next`, le tutoriel finit sur le puzzle résolu ;
+- avant les étapes, le **vocabulaire** (`glossary`, l'étape 0) : chaque
+  terme (`Term`) allume ses pièces et dit d'où les regarder, un pas par
+  terme, « Passer » les saute ; un terme peut être réservé à un rendu
+  (`only` : les six épaisseurs d'un miroir, `lib/tutorials/standard/terms.ts`).
+
+Sur un cube miroir, les textes parlent en épaisseurs (très fine, fine,
+moins fine, moins épaisse, épaisse, très épaisse) : `i18n/*/tutorialMirror.ts`
+remplace ceux qui citent une couleur, et `useTutorialTexts` choisit selon
+le rendu.
 
 Un puzzle sans centres (le 2x2) dit la couleur d'une face autrement
 (`TutorialPlan.faceColor` : lue sur son coin repère, là où il se
@@ -463,7 +472,7 @@ l'état où le pas commence (`targets` en fonction : les coins autour du
 repère). Une formule qui ne fait que tourner le cube entier (un `Move`
 `whole`, noté `x y z` : le 2x2 retourné, jaune en bas) ne montre ni pièce
 gênante ni hachures. Une figure peut se résoudre par la plus courte chaîne de
-gestes appris (`firstGesture`, `lib/tutorial/macros.ts` : tenue, tour du
+gestes appris (`firstGesture`, `lib/teach/macros.ts` : tenue, tour du
 haut, algorithme), dont chaque pas joue le premier geste ; à longueur égale,
 celui qui avance le plus (`rank`), et une figure « détour » dit quand aucun
 n'avance (le 2x2 et ses Sunes).
@@ -482,7 +491,7 @@ choisie qui en a un. **Ajouter un tutoriel** : sa définition dans
 `lib/tutorials/<catégorie>/<puzzle>.ts` et sa ligne au registre (sa
 méthode) ; les titres, consignes, figures, vérifications et phrases
 d'avancement de ses étapes dans `i18n/{fr,en}/tutorial.ts`, leurs noms
-dans `steps.ts` ; ses tests dans `tests/unit/tutorial/`. Le rendu des tons
+dans `steps.ts` ; ses tests dans `tests/unit/tutorials/` (ceux du moteur dans `tests/unit/teach/`). Le rendu des tons
 et des flèches n'existe aujourd'hui que pour les puzzles à grille
 (`CubeView`) ; un puzzle en polygones (`PolyView`) l'ajoutera avec son
 premier tutoriel. Le comportement du tutoriel du 3x3 est figé pas à pas

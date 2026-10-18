@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { parseMoves } from '@/lib/core/moves'
 import { CUBE_HOLDS } from '@/lib/core/hold'
-import { formulaSegments } from '@/lib/tutorial/segments'
+import { formulaSegments } from '@/lib/teach/segments'
 
 describe('a formula read as taught', () => {
   const trigger = parseMoves("R U R' U'")

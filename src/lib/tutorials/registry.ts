@@ -1,6 +1,6 @@
 import type { CubeShape } from '../core/types'
 import type { MethodId } from '../solve/solver'
-import type { Tutorial } from '../tutorial/tutorial'
+import type { Tutorial } from '../teach/tutorial'
 import { CUBE2_TUTORIAL } from './standard/cube2'
 import { CUBE3_TUTORIAL } from './standard/cube3'
 

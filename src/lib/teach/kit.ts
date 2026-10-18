@@ -2,7 +2,7 @@ import { applyMoves } from '../core/turn'
 import { CUBE_HOLDS, type Hold, type HoldFrame } from '../core/hold'
 import type { Color, Cube, Turn, Vec3 } from '../core/types'
 import { keepsPlaced } from './keep'
-import type { Sequence, Tutorial, TutorialPick, TutorialStep } from './tutorial'
+import type { Sequence, Term, Tutorial, TutorialPick, TutorialStep } from './tutorial'
 
 /**
  * Tutorials declared, not coded: a puzzle's tutorial is a list of stages
@@ -118,6 +118,8 @@ export interface TutorialPlan {
    *  center there (a 2x2: from its anchor corner); by default, the center's
    *  there. */
   readonly faceColor?: (cube: Cube, normal: Vec3) => Color | null
+  /** The words its steps use, shown first (see `Tutorial.glossary`). */
+  readonly glossary?: readonly Term[]
   /** The stage still to come, shown not taught yet; none once the plan
    *  solves the puzzle (the tutorial then over). */
   readonly next?: { readonly key: string; readonly stage: number; readonly hold: Hold }
@@ -233,6 +235,7 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
     frame,
     stages,
     stageKeys,
+    glossary: plan.glossary ?? [],
     faceColor: (cube, normal) => {
       const center = centerColor(cube, normal)
       if (center) return { color: center, center: true }

@@ -1,17 +1,17 @@
 import { Check } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { Turn } from '@/lib/core/types'
-import { markedOn, occupantOf, pieceColors } from '@/lib/tutorial/scene'
-import { formulaSegments } from '@/lib/tutorial/segments'
+import { markedOn, occupantOf, pieceColors } from '@/lib/teach/scene'
+import { formulaSegments } from '@/lib/teach/segments'
 import type { TutorialView } from '@/hooks/useTutorial'
-import { useI18n } from '@/i18n/i18nStore'
 import { useView } from '@/store/viewStore'
 import { useTutorialTrack } from '@/store/tutorialTrack'
 import { formatMove } from '@/lib/core/moves'
-import { COLOR_HEX, HIGHLIGHT, PLACE } from '@/three/core/colors'
+import { HIGHLIGHT, PLACE } from '@/three/core/colors'
 import { FormulaMoves } from './FormulaMoves'
 import { Toned } from './Toned'
 import { liftFor } from './liftFor'
+import { useTutorialTexts } from './useTutorialTexts'
 
 /**
  * A tutorial step's instructions, numbered: hold the puzzle (a click turns
@@ -21,7 +21,7 @@ import { liftFor } from './liftFor'
  */
 
 export function Instructions({ view, busy }: { view: TutorialView; busy: boolean }) {
-  const t = useI18n((s) => s.t)
+  const tx = useTutorialTexts()
   const viewToward = useView((s) => s.viewToward)
   const learnt = useTutorialTrack((s) => s.learnt)
   const { cube, step, pick, hold, frame, shown, review } = view
@@ -32,12 +32,7 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
   const frontNormal = frame.front(hold)
   const front = view.tutorial?.faceColor(cube, frontNormal) ?? null
   const name = (index: number) =>
-    t.tutorial.piece(
-      cube[index]!.stickers.length,
-      pieceColors(cube, index, step.marker)
-        .map((c) => t.colors[c].toLowerCase())
-        .join('-'),
-    )
+    tx.piece(cube[index]!.stickers.length, pieceColors(cube, index, step.marker).map(tx.colorName))
   const occupant = pick ? occupantOf(cube, pick, view.moves ?? []) : null
   // The formula cut as taught (moves one by one, sequences learnt, a
   // sequence repeated told once with its count); followed by hand, the
@@ -72,20 +67,20 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
       for (const m of moves) seen.add(key(m))
       const round =
         segment.times > 1 && into > 0 && rounds < segment.times
-          ? ` ${t.tutorial.round(rounds + 1, segment.times)}`
+          ? ` ${tx.round(rounds + 1, segment.times)}`
           : ''
       const text =
         segment.kind === 'moves'
           ? k === 0
-            ? t.tutorial.play(size)
-            : t.tutorial.thenPlay(size)
+            ? tx.play(size)
+            : tx.thenPlay(size)
           : segment.times > 1
             ? k === 0
-              ? t.tutorial.repeatAll(size, segment.times)
-              : t.tutorial.repeat(segment.times)
+              ? tx.repeatAll(size, segment.times)
+              : tx.repeat(segment.times)
             : k === 0
-              ? t.tutorial.sequence(size)
-              : t.tutorial.thenSequence
+              ? tx.sequence(size)
+              : tx.thenSequence
       return (
         <div key={k} className={k > 0 ? 'mt-1.5' : ''}>
           {text}
@@ -112,13 +107,11 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
             key="hold"
             type="button"
             onClick={() => viewToward(frontNormal, liftFor(step))}
-            title={t.tutorial.facingTitle}
+            title={tx.facingTitle}
             className="rounded text-left underline decoration-dotted underline-offset-2 hover:text-white focus-visible:outline-2 focus-visible:outline-sky-400"
           >
-            <Toned colors={[COLOR_HEX[front.color]]}>
-              {(front.center ? t.tutorial.facing : t.tutorial.facingFace)(
-                t.colors[front.color].toLowerCase(),
-              )}
+            <Toned colors={[tx.swatch(front.color)]}>
+              {tx.facing(tx.colorName(front.color), front.center)}
             </Toned>
           </button>,
         ]
@@ -126,28 +119,28 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
     ...(step.figure
       ? [
           <Toned key="figure" framed colors={[HIGHLIGHT]}>
-            {t.tutorial.figures[step.figure]}
+            {tx.figures[step.figure]}
           </Toned>,
         ]
       : pick
         ? [
             <Toned key="spot" framed colors={occupant === null ? [HIGHLIGHT] : [HIGHLIGHT, PLACE]}>
               {occupant === null
-                ? t.tutorial.spot(name(pick.piece))
-                : t.tutorial.spotSwap(name(pick.piece), name(occupant))}
+                ? tx.spot(name(pick.piece))
+                : tx.spotSwap(name(pick.piece), name(occupant))}
             </Toned>,
           ]
         : []),
-    shown ? <div key="play">{play(shown.moves, shown.done)}</div> : t.tutorial.noFormula,
+    shown ? <div key="play">{play(shown.moves, shown.done)}</div> : tx.noFormula,
     pick
-      ? t.tutorial.check(name(pick.piece))
+      ? tx.check(name(pick.piece))
       : step.figure
-        ? (t.tutorial.checks[step.key]?.(
+        ? (tx.checks[step.key]?.(
             step.outcome?.done ?? 0,
             // Which pieces it leaves marked on the side, named.
             markedOn(cube, view.moves ?? [], step).map(name),
-          ) ?? t.tutorial.checkFigure)
-        : (t.tutorial.checks[step.key]?.(0) ?? t.tutorial.checkAll),
+          ) ?? tx.checkFigure)
+        : (tx.checks[step.key]?.(0) ?? tx.checkAll),
   ]
   return (
     <ol className="flex flex-col gap-2.5 text-xs leading-snug text-slate-300">

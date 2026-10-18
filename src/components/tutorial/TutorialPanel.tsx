@@ -1,4 +1,4 @@
-import { ArrowRight, GraduationCap, Sparkles, Undo2, X } from 'lucide-react'
+import { ArrowRight, GraduationCap, SkipForward, Sparkles, Undo2, X } from 'lucide-react'
 import { useEffect } from 'react'
 import { formatMove } from '@/lib/core/moves'
 import { useI18n } from '@/i18n/i18nStore'
@@ -13,7 +13,7 @@ import { Instructions } from './Instructions'
 import { GoldTrophy } from './GoldTrophy'
 import { StepHeading } from './StepHeading'
 import { liftFor } from './liftFor'
-import { turnsWhole } from '@/lib/tutorial/scene'
+import { turnsWhole } from '@/lib/teach/scene'
 
 /** In place of the solve block while the tutorial is on: its step
  *  (`StepHeading`) and its instructions (`Instructions`), applying the
@@ -35,6 +35,8 @@ export function TutorialPanel() {
   const setHold = useTutorialStore((s) => s.setHold)
   const showStage = useTutorialTrack((s) => s.showStage)
   const cheer = useTutorialTrack((s) => s.cheer)
+  const showTerm = useTutorialTrack((s) => s.showTerm)
+  const setTermsShown = useTutorialTrack((s) => s.setTermsShown)
   // The end come (every stage shown, the puzzle solved): the cup, and the
   // fireworks with it, not before.
   const over = !step
@@ -54,13 +56,18 @@ export function TutorialPanel() {
     review && !busy && progress !== null && progress.done === progress.total
       ? (step?.shows ?? null)
       : null
+  // On a word of the glossary: where its pieces are seen from.
+  const termFrom = view.term?.from
   // A new way to hold the puzzle: the pad follows it, and the view turns to
-  // the side held in front (or to the side just finished).
+  // the side held in front (or to the side just finished, or to a word's
+  // pieces).
   useEffect(() => {
     setHold(hold)
-    if (finished) viewToward(finished)
+    if (termFrom !== undefined) {
+      if (termFrom) viewToward(termFrom)
+    } else if (finished) viewToward(finished)
     else if (hold) viewToward(frame.front(hold), lift)
-  }, [hold, frame, lift, finished, setHold, viewToward])
+  }, [hold, frame, lift, finished, termFrom, setHold, viewToward])
   return (
     <section aria-label={t.tutorial.button} className={SECTION_BOX}>
       <div className="flex items-center justify-between">
@@ -111,7 +118,20 @@ export function TutorialPanel() {
           </Button>
         </>
       )}
-      {step && step.kind !== 'toCome' && step.kind !== 'alreadyDone' && (
+      {/* A word of the glossary: on to the next, or past them all. */}
+      {step?.kind === 'term' && (
+        <div className="flex flex-col gap-2">
+          <Button variant="solve" onClick={showTerm}>
+            <ArrowRight className="size-4" aria-hidden />
+            {t.tutorial.next}
+          </Button>
+          <Button onClick={() => setTermsShown(view.term?.count ?? 0)}>
+            <SkipForward className="size-4" aria-hidden />
+            {t.tutorial.skipTerms}
+          </Button>
+        </div>
+      )}
+      {step && step.kind !== 'toCome' && step.kind !== 'alreadyDone' && step.kind !== 'term' && (
         <>
           <Instructions view={view} busy={busy} />
           <div className="flex flex-col gap-2">
@@ -137,10 +157,18 @@ export function TutorialPanel() {
                 {manual ? t.tutorial.finish : t.tutorial.apply}
               </Button>
             )}
-            <Button onClick={undo} disabled={busy || (!played && !manual)}>
-              <Undo2 className="size-4" aria-hidden />
-              {t.tutorial.undo}
-            </Button>
+            {/* Nothing played yet: back to the glossary's start instead. */}
+            {!played && !manual && view.glossary > 0 ? (
+              <Button onClick={() => setTermsShown(0)} disabled={busy}>
+                <Undo2 className="size-4" aria-hidden />
+                {t.tutorial.backToGlossary}
+              </Button>
+            ) : (
+              <Button onClick={undo} disabled={busy || (!played && !manual)}>
+                <Undo2 className="size-4" aria-hidden />
+                {t.tutorial.undo}
+              </Button>
+            )}
           </div>
         </>
       )}

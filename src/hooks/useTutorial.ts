@@ -1,17 +1,18 @@
 import { useMemo } from 'react'
 import { CUBE_HOLDS, type Hold, type HoldFrame } from '@/lib/core/hold'
-import type { Cube, Turn } from '@/lib/core/types'
+import type { Cube, Turn, Vec3 } from '@/lib/core/types'
 import { invertMoves } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
-import { formulaUnderWay } from '@/lib/tutorial/keep'
+import { formulaUnderWay } from '@/lib/teach/keep'
 import { cubeShape, stateKey } from '@/lib/core/cube'
-import { arrowedSubjects, tonesOf, type Tone } from '@/lib/tutorial/scene'
+import { arrowedSubjects, tonesOf, type Tone } from '@/lib/teach/scene'
 import {
   alreadyDoneStep,
+  termStep,
   type Tutorial,
   type TutorialPick,
   type TutorialStep,
-} from '@/lib/tutorial/tutorial'
+} from '@/lib/teach/tutorial'
 import { tutorialFor } from '@/lib/tutorials/registry'
 import { selectBusy, useCube } from '@/store/cubeStore'
 import { useTutorialStore } from '@/store/tutorialStore'
@@ -48,6 +49,11 @@ export interface TutorialView {
   /** A piece clicked on the puzzle: picked, or the place for the piece
    *  picked. */
   click: (index: number) => void
+  /** On a word of the glossary (step 0): where to look at its pieces from
+   *  (null: where the view is), and how many words there are. */
+  term?: { from: Vec3 | null; count: number }
+  /** How many words its glossary shows on this rendering. */
+  glossary: number
 }
 
 const OFF = {
@@ -58,6 +64,7 @@ const OFF = {
   hold: null,
   frame: CUBE_HOLDS,
   stages: 0,
+  glossary: 0,
   moves: null,
   shown: null,
   tones: null,
@@ -78,6 +85,8 @@ export function useTutorial(): TutorialView {
   const stageShown = useTutorialTrack((s) => s.stageShown)
   const method = useCube((s) => s.method)
   const reviewing = useTutorialStore((s) => s.review)
+  const variant = useCube((s) => s.variant)
+  const termsShown = useTutorialTrack((s) => s.termsShown)
   const last = played[played.length - 1]
   // The formula just played, while it plays and until a turn by hand.
   const review = reviewing && !!last && (busy || stateKey(cube) === last.after)
@@ -117,6 +126,26 @@ export function useTutorial(): TutorialView {
     // Played: the piece that stood in the way only moved like the others.
     return review ? tones.map((t) => (t === 'slot' ? 'moved' : t)) : tones
   }, [step, moves, busy, read, pick, review])
+  // The glossary first (step 0): each word's pieces lit, one at a time,
+  // those of this rendering only.
+  const terms = tutorial?.glossary.filter((term) => !term.only || term.only === variant) ?? []
+  const term = active && !review ? terms[termsShown] : undefined
+  if (tutorial && term) {
+    const step = termStep(tutorial, term, termsShown, terms.length, cube)
+    return {
+      ...OFF,
+      cube,
+      frame: tutorial.frame,
+      stages: tutorial.stages,
+      tutorial,
+      step,
+      progress: step.progress ?? null,
+      moves: [],
+      tones: busy ? null : tonesOf(cube, [], null, [], step.focus),
+      term: { from: term.from?.(cube) ?? null, count: terms.length },
+      glossary: terms.length,
+    }
+  }
   // A stage skipped over (the puzzle meeting it already): shown in passing
   // before the step, nothing to play.
   const reached = step ? step.stage : tutorial && active ? tutorial.stages + 1 : undefined
@@ -176,6 +205,7 @@ export function useTutorial(): TutorialView {
     hold: step.hold(pick),
     frame: tutorial?.frame ?? CUBE_HOLDS,
     stages: tutorial?.stages ?? 0,
+    glossary: terms.length,
     ...(tutorial && { tutorial }),
     moves,
     shown,

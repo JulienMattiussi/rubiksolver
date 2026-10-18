@@ -14,7 +14,7 @@ import {
 import { homeOf } from '../../methods/standard/pieces3'
 import { centersHome, recenter } from '../../methods/standard/recenter'
 import { OUTER_GENERATORS, search, SIDES } from '../../solve/solverKit'
-import { tutorialOf, type Kept, type Target } from '../../tutorial/kit'
+import { tutorialOf, type Kept, type Target } from '../../teach/kit'
 import {
   cornerFormula,
   cornerPairAt,
@@ -25,7 +25,8 @@ import {
   type Pair,
 } from './cornerTrigger'
 import { LAST_LAYER } from './cube3LastLayer'
-import type { TutorialPick } from '../../tutorial/tutorial'
+import { CENTER, CLOCKWISE, CORNER, COUNTERCLOCKWISE, EDGE, THICKNESSES } from './terms'
+import type { TutorialPick } from '../../teach/tutorial'
 
 /**
  * The 3x3's tutorial, layer by layer (the beginner method, its frame: yellow
@@ -159,6 +160,7 @@ const isMiddleEdge = (cube: Cube, i: number) =>
 const pairOf = (slot: Vec3) => (cornerPairAt(slot) ?? middlePairAt(slot))!
 
 export const CUBE3_TUTORIAL = tutorialOf({
+  glossary: [CENTER, EDGE, CORNER, CLOCKWISE, COUNTERCLOCKWISE, ...THICKNESSES],
   stages: [
     // The centers put back first: all the steps read them as their frame.
     {

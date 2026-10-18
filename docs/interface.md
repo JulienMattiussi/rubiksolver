@@ -123,7 +123,7 @@ l'animation), sauf pendant une animation ou si le coup est bloqué. Dans le
 tutoriel, l'aperçu l'emporte sur la pièce visée tant qu'un bouton est
 survolé.
 
-**Tutoriel** (moteur `lib/tutorial/`, tutoriels `lib/tutorials/`, état
+**Tutoriel** (moteur `lib/teach/`, tutoriels `lib/tutorials/`, état
 `store/tutorialStore.ts` et `store/tutorialTrack.ts`, `hooks/useTutorial.ts`,
 `components/tutorial/`). Sur un puzzle qui en a un pour la méthode choisie
 (`tutorialFor(forme, méthode)` ; aujourd'hui le 3x3 et le 2x2, méthode par
@@ -151,6 +151,12 @@ R D` répété, un seul pas, la première couche se défaisant en route).
   et la tenue choisis par la plus courte chaîne ; les coins blancs placés
   d'un tour du haut, ou d'une permutation : deux voisins échangés (T-perm)
   ou deux en diagonale (Y-perm, la parité du 2x2).
+- **Le vocabulaire** (« Étape 0 ») : avant les étapes, un pas par terme
+  (centre, arête, coin ; sur un miroir, les six épaisseurs), ses pièces en
+  bleu et la vue tournée vers elles ; « Suivant » passe au terme suivant,
+  « Passer » va à l'étape 1. Sur un miroir, tous les textes nomment les
+  faces et les pièces par leur épaisseur, de très fine à très épaisse
+  (« l'arête aux faces fine et moins épaisse »).
 - **Le panneau** : l'étape (« Étape 4 sur 7 », son but, son avancement,
   sa consigne, la légende des hachures), puis quatre **consignes
   numérotées** : tenir le centre de face (un clic tourne la vue vers lui),

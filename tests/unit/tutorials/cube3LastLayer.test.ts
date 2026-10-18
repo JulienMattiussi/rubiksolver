@@ -3,7 +3,7 @@ import { solvedCube } from '@/lib/core/cube'
 import { parseMoves } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
 import { CUBE_HOLDS } from '@/lib/core/hold'
-import { arrowsOf } from '@/lib/tutorial/scene'
+import { arrowsOf } from '@/lib/teach/scene'
 import { tutorialFor } from '@/lib/tutorials/registry'
 import { stepOf } from './cube3Fixture'
 

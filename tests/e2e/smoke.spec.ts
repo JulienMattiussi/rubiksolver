@@ -430,6 +430,11 @@ test('tutorial: a formula applied, looked at, undone; a move by hand finished', 
   await tutorial.click()
 
   const panel = page.getByRole('region', { name: 'Tutoriel' })
+  // The words first (step 0): one on, then past them.
+  await expect(panel.getByText('Le vocabulaire')).toBeVisible()
+  await panel.getByRole('button', { name: 'Suivant' }).click()
+  await expect(panel.getByText(/^Une arête/)).toBeVisible()
+  await panel.getByRole('button', { name: 'Passer' }).click()
   await expect(panel.getByText('Construire la croix jaune')).toBeVisible()
   // The cube it follows cannot be replaced meanwhile.
   await expect(page.getByRole('button', { name: 'Mélanger' })).toBeDisabled()

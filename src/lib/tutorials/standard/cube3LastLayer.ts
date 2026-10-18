@@ -6,7 +6,7 @@ import { colorAt, hasColors } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Face, Move, Vec3 } from '../../core/types'
 import { homeOf } from '../../methods/standard/pieces3'
-import type { FigureStage } from '../../tutorial/kit'
+import type { FigureStage } from '../../teach/kit'
 
 /**
  * The 3x3 tutorial's last layer, the white one on top, by figures (no piece

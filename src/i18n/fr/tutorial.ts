@@ -1,5 +1,5 @@
 /** Names in a sentence: « a, b et c ». */
-const listFr = (names: readonly string[]) =>
+export const listFr = (names: readonly string[]) =>
   names.length > 1 ? `${names.slice(0, -1).join(', ')} et ${names.at(-1)}` : (names[0] ?? '')
 
 /** The tutorial's texts (the source; English mirrors it). */
@@ -23,12 +23,8 @@ export const TUTORIAL_FR = {
   facingFace: (color: string) => `Place le côté ${color} face à toi.`,
   facingTitle: 'Tourner la vue pour l’avoir face à toi',
   /** A piece named by its kind (its stickers' count) and colors. */
-  piece: (stickers: number, colors: string) =>
-    stickers === 1
-      ? `le centre ${colors}`
-      : stickers === 2
-        ? `l’arête ${colors}`
-        : `le coin ${colors}`,
+  piece: (stickers: number, colors: readonly string[]) =>
+    `${stickers === 1 ? 'le centre' : stickers === 2 ? 'l’arête' : 'le coin'} ${colors.join('-')}`,
   spot: (piece: string) => `Repère ${piece}.`,
   spotSwap: (piece: string, other: string) => `Repère ${piece}, et ${other} qui occupe sa place.`,
   /** None left: turns by hand have done the step's formula. */
@@ -108,6 +104,25 @@ export const TUTORIAL_FR = {
       'Deux coins voisins sont à échanger : amenés à droite, la formule échange les deux coins de droite.',
     figureCornersDiagonal:
       'Deux coins en diagonale sont à échanger : c’est la parité du 2x2, qu’une formule à part corrige.',
+  } as Record<string, string>,
+  /** The glossary (step 0): its heading, how far along, the button past
+   *  it, and each word, by its key (the word defined between `**`, in
+   *  bold). */
+  glossary: 'Le vocabulaire',
+  glossaryIntro:
+    'La première étape, préliminaire, est d’acquérir et de comprendre le vocabulaire qui sera utilisé pour décrire et manipuler le cube.',
+  termCount: (n: number, total: number) => `Mot ${n} sur ${total}`,
+  skipTerms: 'Passer',
+  backToGlossary: 'Revenir au vocabulaire',
+  terms: {
+    termCenter:
+      'Un **centre** : la pièce au milieu d’une face, une seule face visible. Les centres ne changent pas de place : chacun donne la couleur de sa face.',
+    termEdge: 'Une **arête** : une pièce à deux faces visibles, entre deux centres.',
+    termCorner: 'Un **coin** : une pièce à trois faces visibles, à un sommet du cube.',
+    termClockwise:
+      'Le **sens horaire** : c’est le sens des aiguilles d’une montre, en regardant la face qui tourne.',
+    termCounterclockwise:
+      'Le **sens anti-horaire** : c’est le sens inverse des aiguilles d’une montre, en regardant toujours la face qui tourne.',
   } as Record<string, string>,
   /** The legend of the hatched pieces, under the step's hint. */
   legendMoved:

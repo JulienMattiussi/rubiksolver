@@ -4,8 +4,10 @@ import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { PLACE as ARROW } from './colors'
 
-/** A face's center, from its cell's (half a cell out, a hair over it). */
+/** A face's center, from its cell's (half a cell out, a hair over it); a
+ *  hair over a face's own center. */
 const FACE = 0.52
+const HAIR = 0.02
 /** The lengths below are a 3x3's, in cells: a puzzle drawn with another
  *  longest side has them in proportion (`k`), so they keep their size on
  *  screen. How far off the puzzle's box the line keeps at least. */
@@ -171,15 +173,19 @@ export function TutorialArrow({
   fromNormal,
   to,
   toNormal,
-  dims,
+  half,
+  onFace = false,
   fade,
 }: {
   from: V3
   fromNormal: V3
   to: V3
   toNormal: V3
-  /** The puzzle's sides, in cells. */
-  dims: V3
+  /** The puzzle's box, half its sides (a cube's in cells). */
+  half: V3
+  /** `from` and `to` are the faces' centers already (a puzzle drawn in
+   *  polygons), not their pieces' (a cubie's, half a cell in). */
+  onFace?: boolean
   /** How much it shows (0 to 1) at a time in seconds. */
   fade?: (seconds: number) => number
 }) {
@@ -204,14 +210,15 @@ export function TutorialArrow({
     .toArray()
     .map((v) => v.toFixed(1))
     .join()
-  const [dx, dy, dz] = dims
-  const k = Math.max(dx, dy, dz) / 3
+  const [hx, hy, hz] = half
+  const k = Math.max(hx, hy, hz) / 1.5
   const { start, points, head, quaternion } = useMemo(() => {
-    const box = { half: new THREE.Vector3(dx, dy, dz).multiplyScalar(0.5), k }
+    const box = { half: new THREE.Vector3(hx, hy, hz), k }
+    const out = onFace ? HAIR : FACE
     const n1 = new THREE.Vector3(...fromNormal)
     const n2 = new THREE.Vector3(...toNormal)
-    const start = new THREE.Vector3(...from).addScaledVector(n1, FACE)
-    const end = new THREE.Vector3(...to).addScaledVector(n2, FACE)
+    const start = new THREE.Vector3(...from).addScaledVector(n1, out)
+    const end = new THREE.Vector3(...to).addScaledVector(n2, out)
     // The head: its tip on the face's center, pointing in; the line ends at
     // its base's center.
     const head = end.clone().addScaledVector(n2, (HEAD * k) / 2)
@@ -223,7 +230,7 @@ export function TutorialArrow({
     const points = arrowLine(start, n1, end, base, n2, view, box)
     return { start, points, head, quaternion }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `viewKey` stands for `view`
-  }, [from, fromNormal, to, toNormal, dx, dy, dz, k, viewKey])
+  }, [from, fromNormal, to, toNormal, hx, hy, hz, k, onFace, viewKey])
   const curve = { points, color: ARROW, lineWidth: 4 }
   return (
     <group ref={groupRef}>

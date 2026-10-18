@@ -9,7 +9,7 @@ let texture: THREE.CanvasTexture | null = null
 
 /** The hatching laid over a sticker (its color shows between dark
  *  diagonal stripes): a tutorial's pieces that move but are not placed yet
- *  (a formula's, see lib/tutorial/tutorial.ts). One texture, made on first
+ *  (a formula's, see lib/teach/tutorial.ts). One texture, made on first
  *  use. */
 export function hatchTexture(): THREE.CanvasTexture {
   if (texture) return texture
@@ -28,5 +28,7 @@ export function hatchTexture(): THREE.CanvasTexture {
   }
   texture = new THREE.CanvasTexture(canvas)
   texture.colorSpace = THREE.SRGBColorSpace
+  // Repeated over a polygon wider than a tile (a puzzle drawn in polygons).
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping
   return texture
 }

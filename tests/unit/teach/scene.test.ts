@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { hasColors } from '@/lib/core/pieces'
-import { markerPath, occupantOf, pieceColors, tonesOf } from '@/lib/tutorial/scene'
-import { Y, scrambled, stepOf } from './cube3Fixture'
+import { markerPath, occupantOf, pieceColors, tonesOf } from '@/lib/teach/scene'
+import { Y, scrambled, stepOf } from '../tutorials/cube3Fixture'
 
 describe('what a formula does to the pieces', () => {
   const step = stepOf(scrambled)

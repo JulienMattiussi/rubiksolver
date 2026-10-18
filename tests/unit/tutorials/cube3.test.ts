@@ -11,7 +11,7 @@ import {
   secondLayerDone,
 } from '@/lib/methods/standard/layers3'
 import { centersHome } from '@/lib/methods/standard/recenter'
-import { formulaUnderWay, keepsPlaced } from '@/lib/tutorial/keep'
+import { formulaUnderWay, keepsPlaced } from '@/lib/teach/keep'
 import { CUBE_HOLDS } from '@/lib/core/hold'
 import { SIDES } from '@/lib/solve/solverKit'
 import { tutorialFor } from '@/lib/tutorials/registry'

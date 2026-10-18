@@ -9,8 +9,8 @@ import { PLL_T, PLL_Y, SUNE } from '../../methods/standard/algs'
 import { frame2, topFaceDone2 } from '../../methods/standard/cube2'
 import { CORNER_PAIRS, cornerPlacedIn } from '../../methods/standard/layers3'
 import { search } from '../../solve/solverKit'
-import { tutorialOf, type Target } from '../../tutorial/kit'
-import { firstGesture, type Gesture } from '../../tutorial/macros'
+import { tutorialOf, type Target } from '../../teach/kit'
+import { firstGesture, type Gesture } from '../../teach/macros'
 import {
   cornerFormula,
   cornerPairAt,
@@ -19,6 +19,7 @@ import {
   sameAt,
   TRIGGER,
 } from './cornerTrigger'
+import { CLOCKWISE, CORNER, COUNTERCLOCKWISE, THICKNESSES } from './terms'
 
 /**
  * The 2x2's tutorial, layer by layer, declared for the tutorial kit. No
@@ -200,6 +201,7 @@ const permFigure = (key: string, tag: string) => ({
 const pairHold = (slot: Vec3): Hold => (cornerPairAt(slot)?.[0] ?? CUBE_HOLDS.holds[0]!) as Hold
 
 export const CUBE2_TUTORIAL = tutorialOf({
+  glossary: [CORNER, CLOCKWISE, COUNTERCLOCKWISE, ...THICKNESSES],
   // No centers: a side's color read on the landmark corner.
   faceColor: (cube, normal) => {
     const face = facesAt(normal)[0]

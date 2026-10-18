@@ -1,7 +1,7 @@
 import type { TUTORIAL_FR } from '../fr/tutorial'
 
 /** Names in a sentence: "a, b and c". */
-const listEn = (names: readonly string[]) =>
+export const listEn = (names: readonly string[]) =>
   names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : (names[0] ?? '')
 
 export const TUTORIAL_EN: typeof TUTORIAL_FR = {
@@ -19,12 +19,8 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   facing: (color: string) => `Hold the ${color} center facing you.`,
   facingFace: (color: string) => `Hold the ${color} side facing you.`,
   facingTitle: 'Turn the view to face it',
-  piece: (stickers: number, colors: string) =>
-    stickers === 1
-      ? `the ${colors} center`
-      : stickers === 2
-        ? `the ${colors} edge`
-        : `the ${colors} corner`,
+  piece: (stickers: number, colors: readonly string[]) =>
+    `the ${colors.join('-')} ${stickers === 1 ? 'center' : stickers === 2 ? 'edge' : 'corner'}`,
   spot: (piece: string) => `Spot ${piece}.`,
   spotSwap: (piece: string, other: string) =>
     `Spot ${piece}, and ${other} which stands in its place.`,
@@ -94,6 +90,22 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
       'Two neighboring corners must be swapped: brought to the right, the formula swaps the two right corners.',
     figureCornersDiagonal:
       'Two corners across must be swapped: that is the 2x2 parity, which a formula of its own fixes.',
+  },
+  glossary: 'The words',
+  glossaryIntro:
+    'This first, preliminary step is to learn and understand the words used to describe and handle the cube.',
+  termCount: (n, total) => `Word ${n} of ${total}`,
+  skipTerms: 'Skip',
+  backToGlossary: 'Back to the words',
+  terms: {
+    termCenter:
+      'A **center**: the piece in the middle of a side, one face showing. Centers never move: each gives its side’s color.',
+    termEdge: 'An **edge**: a piece with two faces showing, between two centers.',
+    termCorner: 'A **corner**: a piece with three faces showing, at a corner of the cube.',
+    termClockwise:
+      '**Clockwise**: it is the way a clock’s hands go, looking at the side that turns.',
+    termCounterclockwise:
+      '**Counterclockwise**: it is the opposite way to a clock’s hands, still looking at the side that turns.',
   },
   legendMoved:
     'The hatched cubes will be moved by the formula, with no effect on the expected result.',

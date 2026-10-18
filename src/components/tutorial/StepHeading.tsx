@@ -1,7 +1,10 @@
-import type { TutorialStep } from '@/lib/tutorial/tutorial'
+import type { TutorialStep } from '@/lib/teach/tutorial'
 import { stepName } from '@/i18n/translations'
 import { useI18n } from '@/i18n/i18nStore'
+import { Bolded } from './Bolded'
 import { HatchedCubie } from './HatchedCubie'
+import { TermDemo } from './TermDemo'
+import { useTutorialTexts } from './useTutorialTexts'
 
 /** A tutorial step's heading: its rank among the stages, its goal, how far
  *  it has come (dots and words), what it asks, and the hatched pieces'
@@ -21,14 +24,17 @@ export function StepHeading({
   progress: { done: number; total: number } | null
 }) {
   const t = useI18n((s) => s.t)
-  const told = t.tutorial.progress[step.key]
+  const tx = useTutorialTexts()
+  // A word of the glossary (step 0): its words in place of a hint.
+  const term = step.kind === 'term'
+  const told = term ? tx.termCount : tx.progress[step.key]
   return (
     <div>
       <p className="text-[11px] font-semibold tracking-wide text-amber-300 uppercase">
-        {step.stage ? t.tutorial.stage(step.stage, stages) : t.tutorial.beforeStages}
+        {step.stage !== undefined ? tx.stage(step.stage, stages) : tx.beforeStages}
       </p>
       <h3 className="text-sm font-semibold text-white">
-        {t.tutorial.titles[step.key] ?? stepName(t, step.key)}
+        {term ? tx.glossary : (tx.titles[step.key] ?? stepName(t, step.key))}
       </h3>
       {progress && told && (
         <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-300">
@@ -43,11 +49,21 @@ export function StepHeading({
           {told(progress.done, progress.total)}
         </div>
       )}
-      <p className="mt-1 text-xs leading-relaxed text-slate-400">{t.tutorial.hints[step.key]}</p>
+      {term ? (
+        <>
+          <p className="mt-1 text-xs leading-relaxed text-slate-400">{tx.glossaryIntro}</p>
+          <p className="mt-2 text-sm leading-relaxed text-slate-200">
+            <Bolded text={tx.term(step.key)} />
+          </p>
+          {step.demo && <TermDemo turn={step.demo} />}
+        </>
+      ) : (
+        <p className="mt-1 text-xs leading-relaxed text-slate-400">{tx.hints[step.key]}</p>
+      )}
       {hatched && (step.kind === 'pieces' || step.kind === 'figure' || step.kind === 'formula') && (
         <p className="mt-2 flex items-center gap-2 text-xs text-slate-400">
           <HatchedCubie className="size-6 shrink-0" />
-          {t.tutorial.legendMoved}
+          {tx.legendMoved}
         </p>
       )}
     </div>

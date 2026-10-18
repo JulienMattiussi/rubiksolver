@@ -23,6 +23,11 @@ interface TutorialTrack {
    *  words beside it. */
   learnt: readonly string[]
   learn: (turns: readonly string[]) => void
+  /** How many of the glossary's words are shown (step 0), on to the next,
+   *  or so many (past them all, or back to the first). */
+  termsShown: number
+  showTerm: () => void
+  setTermsShown: (count: number) => void
   /** Back to a tutorial's start (the counters kept: they only count up). */
   reset: () => void
 }
@@ -36,5 +41,8 @@ export const useTutorialTrack = create<TutorialTrack>((set) => ({
   cheer: () => set((s) => ({ cheers: s.cheers + 1 })),
   learnt: [],
   learn: (turns) => set((s) => ({ learnt: [...new Set([...s.learnt, ...turns])] })),
-  reset: () => set({ stageShown: 0, learnt: [] }),
+  termsShown: 0,
+  showTerm: () => set((s) => ({ termsShown: s.termsShown + 1 })),
+  setTermsShown: (count) => set({ termsShown: count }),
+  reset: () => set({ stageShown: 0, learnt: [], termsShown: 0 }),
 }))

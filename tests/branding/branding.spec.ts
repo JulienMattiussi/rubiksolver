@@ -76,6 +76,7 @@ test('README screenshots', async ({ page }) => {
   await page.screenshot({ path: 'docs/images/solve.png' })
   // The tutorial on that scramble: its first step, its arrow.
   await page.getByRole('button', { name: 'Tutorial', exact: true }).click()
+  await page.getByRole('button', { name: 'Skip' }).click() // the words, known
   await page.waitForTimeout(2000) // the view turns to the center to hold
   await page.screenshot({ path: 'docs/images/tutorial.png' })
   await page.getByRole('button', { name: 'Leave the tutorial' }).click()

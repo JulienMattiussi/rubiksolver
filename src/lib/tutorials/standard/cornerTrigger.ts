@@ -5,7 +5,7 @@ import { applyMoves } from '../../core/turn'
 import type { Color, Cube, Move, Vec3 } from '../../core/types'
 import { CORNER_PAIRS } from '../../methods/standard/layers3'
 import { homeOf } from '../../methods/standard/pieces3'
-import type { TutorialPick } from '../../tutorial/tutorial'
+import type { TutorialPick } from '../../teach/tutorial'
 
 /**
  * What the cube tutorials share (the 3x3's, the 2x2's): slots named by

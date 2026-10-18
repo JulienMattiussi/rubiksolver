@@ -1,4 +1,4 @@
-import type { TutorialStep } from '@/lib/tutorial/tutorial'
+import type { TutorialStep } from '@/lib/teach/tutorial'
 
 /** How the view looks at a step's front: raised toward the side the step
  *  works on (`side`: the last layer's top, its figure in sight), else the

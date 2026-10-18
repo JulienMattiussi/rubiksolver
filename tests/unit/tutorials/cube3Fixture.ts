@@ -2,7 +2,7 @@ import { FACE_COLOR, solvedCube } from '@/lib/core/cube'
 import { parseMoves } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cube } from '@/lib/core/types'
-import type { TutorialStep } from '@/lib/tutorial/tutorial'
+import type { TutorialStep } from '@/lib/teach/tutorial'
 import { tutorialFor } from '@/lib/tutorials/registry'
 
 /** The 3x3 tutorial's tests' shared ground: yellow, a fixed scramble, and

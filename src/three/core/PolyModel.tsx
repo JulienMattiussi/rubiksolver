@@ -20,7 +20,17 @@ const INSIDE: Cubie = { position: [0, 0, 0], stickers: [] }
  *  the frame its turns are in, `orient`), and what the turn opens stays
  *  still outside it (the Jing's cut sphere). Shared by the scene and the
  *  move guide. */
-export function PolyModel({ cube, groupRef, isTurning, highlighted = NO_PIECES }: ModelProps) {
+export function PolyModel({
+  cube,
+  groupRef,
+  isTurning,
+  highlighted = NO_PIECES,
+  hatched = NO_PIECES,
+  marked = NO_PIECES,
+  pulse = false,
+  onPick,
+  children,
+}: ModelProps) {
   const drawing = polyDrawing(cubeShape(cube))
   const moving = cube.filter((_, i) => isTurning(i))
   const cut = drawing.cut && moving.length > 0 ? drawing.cut(moving) : null
@@ -34,7 +44,16 @@ export function PolyModel({ cube, groupRef, isTurning, highlighted = NO_PIECES }
       <group quaternion={drawing.orient ?? IDENTITY} position={drawing.offset ?? ORIGIN}>
         {cube.map((c, i) =>
           isTurning(i) ? null : (
-            <PolyPiece key={i} cubie={c} drawing={drawing} highlighted={highlighted(i)} />
+            <PolyPiece
+              key={i}
+              cubie={c}
+              drawing={drawing}
+              highlighted={highlighted(i)}
+              hatched={hatched(i)}
+              marked={marked(i)}
+              pulse={pulse}
+              onPick={onPick && (() => onPick(i))}
+            />
           ),
         )}
         {cube.map((c, i) =>
@@ -43,9 +62,18 @@ export function PolyModel({ cube, groupRef, isTurning, highlighted = NO_PIECES }
           ) : null,
         )}
         {inside && <PolyPiece cubie={INSIDE} drawing={inside} />}
+        {children}
         <group ref={groupRef}>
           {cube.map((c, i) =>
-            isTurning(i) ? <PolyPiece key={i} cubie={c} drawing={drawing} /> : null,
+            isTurning(i) ? (
+              <PolyPiece
+                key={i}
+                cubie={c}
+                drawing={drawing}
+                highlighted={highlighted(i)}
+                hatched={hatched(i)}
+              />
+            ) : null,
           )}
           {cube.map((c, i) =>
             drawing.decal?.on(i, c) && isTurning(i) ? (

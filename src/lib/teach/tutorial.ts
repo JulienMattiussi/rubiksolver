@@ -1,5 +1,5 @@
 import type { Hold, HoldFrame } from '../core/hold'
-import type { Color, Cube, Turn, Vec3 } from '../core/types'
+import type { Color, Cube, CubeVariant, Turn, Vec3 } from '../core/types'
 
 /**
  * The tutorial: a puzzle solved a step at a time by the user, each step a
@@ -28,9 +28,24 @@ export type Sequence = readonly (readonly Turn[])[]
  * What a step is: pieces placed one at a time, a picked one (`pieces`); a
  * formula of its own, no pick (`formula`); a figure recognized, no pick
  * (`figure`); a stage the puzzle already meets, shown in passing, nothing
- * to play (`alreadyDone`); a stage not taught yet (`toCome`).
+ * to play (`alreadyDone`); a stage not taught yet (`toCome`); a word the
+ * tutorial uses, shown on the puzzle before its stages (`term`).
  */
-type StepKind = 'pieces' | 'formula' | 'figure' | 'alreadyDone' | 'toCome'
+type StepKind = 'pieces' | 'formula' | 'figure' | 'alreadyDone' | 'toCome' | 'term'
+
+/** A word a tutorial uses (an edge, a thin face), shown first: the pieces
+ *  it names, lit, and where to look at them from. */
+export interface Term {
+  /** Its name (a key of the glossary's texts). */
+  readonly key: string
+  readonly pieces: (cube: Cube) => number[]
+  /** Where the view looks from (none: where it is). */
+  readonly from?: (cube: Cube) => Vec3 | null
+  /** Only on this rendering (a thickness: on a mirror cube). */
+  readonly only?: CubeVariant
+  /** A turn shown playing (a way of turning: clockwise). */
+  readonly demo?: Turn
+}
 
 /** Where the tutorial stands on a state: its step, what it suggests. */
 export interface TutorialStep {
@@ -78,6 +93,8 @@ export interface TutorialStep {
    *  following the marker only when it comes there), and the view looks at
    *  it. */
   readonly side?: Vec3
+  /** On a word of the glossary: a turn shown playing. */
+  readonly demo?: Turn
   /** The side its stage finishes (its outward normal: a cross, a face),
    *  shown once the formula ending the stage is played. */
   readonly shows?: Vec3
@@ -104,7 +121,32 @@ export interface Tutorial {
    *  shows it (the 3x3's) or the pieces' frame only (a 2x2's, from its
    *  anchor corner): what the user is told to hold in front. */
   readonly faceColor: (cube: Cube, normal: Vec3) => { color: Color; center: boolean } | null
+  /** The words it uses, shown before its stages (step 0). */
+  readonly glossary: readonly Term[]
 }
+
+/** A word of the glossary, shown before the stages (step 0): its pieces
+ *  lit, `index` of `count`. */
+export const termStep = (
+  tutorial: Tutorial,
+  term: Term,
+  index: number,
+  count: number,
+  cube: Cube,
+): TutorialStep => ({
+  kind: 'term',
+  key: term.key,
+  stage: 0,
+  progress: { done: index + 1, total: count },
+  hold: () => tutorial.frame.holds[0]!,
+  focus: term.pieces(cube),
+  ...(term.demo && { demo: term.demo }),
+  placed: [],
+  suggestion: null,
+  pickable: [],
+  slots: () => [],
+  formula: () => null,
+})
 
 /** A stage the puzzle already meets when the tutorial comes to it: shown
  *  all the same, held the usual way, nothing to play. */
