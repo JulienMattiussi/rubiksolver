@@ -151,6 +151,14 @@ R D` répété, un seul pas, la première couche se défaisant en route).
   et la tenue choisis par la plus courte chaîne ; les coins blancs placés
   d'un tour du haut, ou d'une permutation : deux voisins échangés (T-perm)
   ou deux en diagonale (Y-perm, la parité du 2x2).
+- **Le parcours du Pyraminx** (méthode Centres d'abord), cinq étapes,
+  la pyramide tenue à plat (« Place la pyramide à plat, la face rouge face
+  à toi », trois tenues autour du sommet) : les centres, chacun d'un tour
+  de sa couche ; les pointes, chacune d'un tour seule ; les arêtes du bas,
+  chacune par le crochet `[gd']` (un tour du haut avant au besoin), tenue
+  l'emplacement devant ; les arêtes du haut placées par `d h d' h d h d'` ;
+  les arêtes retournées deux à deux par `[gd'][h'd]`. Son vocabulaire :
+  pointe, centre, arête, couche, sens horaire et anti-horaire.
 - **Le vocabulaire** (« Étape 0 ») : avant les étapes, un pas par terme
   (centre, arête, coin ; sur un miroir, les six épaisseurs), ses pièces en
   bleu et la vue tournée vers elles ; « Suivant » passe au terme suivant,

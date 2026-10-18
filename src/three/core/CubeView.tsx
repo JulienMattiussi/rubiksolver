@@ -1,6 +1,8 @@
 import { cubeDims } from '@/lib/core/cube'
 import { useCube } from '@/store/cubeStore'
+import { useMemo } from 'react'
 import { CubeModel } from './CubeModel'
+import { boxHull } from './hull'
 import { visualPosition } from './layout'
 import { TutorialArrow } from './TutorialArrow'
 import { useTurnAnimation } from './useTurnAnimation'
@@ -18,7 +20,8 @@ export function CubeView() {
   const { groupRef, isTurning, halfRef, isHalfTurning, turnSpin, progress } = useTurnAnimation()
   const { model, arrows, fade } = useTutorialScene(cube)
   const dims = cubeDims(cube)
-  const half = dims.map((d) => d / 2) as [number, number, number]
+  const [dx, dy, dz] = dims
+  const hull = useMemo(() => boxHull([dx / 2, dy / 2, dz / 2]), [dx, dy, dz])
   return (
     <CubeModel
       cube={cube}
@@ -38,7 +41,7 @@ export function CubeView() {
           fromNormal={path.fromNormal}
           to={visualPosition(path.to, dims)}
           toNormal={path.toNormal}
-          half={half}
+          hull={hull}
           fade={fade?.(i)}
         />
       ))}

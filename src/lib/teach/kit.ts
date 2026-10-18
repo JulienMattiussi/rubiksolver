@@ -1,6 +1,6 @@
 import { applyMoves } from '../core/turn'
 import { CUBE_HOLDS, type Hold, type HoldFrame } from '../core/hold'
-import type { Color, Cube, Turn, Vec3 } from '../core/types'
+import type { Color, Cube, Cubie, Turn, Vec3 } from '../core/types'
 import { keepsPlaced } from './keep'
 import type { Sequence, Term, Tutorial, TutorialPick, TutorialStep } from './tutorial'
 
@@ -120,6 +120,9 @@ export interface TutorialPlan {
   readonly faceColor?: (cube: Cube, normal: Vec3) => Color | null
   /** The words its steps use, shown first (see `Tutorial.glossary`). */
   readonly glossary?: readonly Term[]
+  /** See `Tutorial.pieceKind` (by default, a cube's) and `holding`. */
+  readonly pieceKind?: (cubie: Cubie) => string
+  readonly holding?: string
   /** The stage still to come, shown not taught yet; none once the plan
    *  solves the puzzle (the tutorial then over). */
   readonly next?: { readonly key: string; readonly stage: number; readonly hold: Hold }
@@ -209,6 +212,10 @@ function pieceStep(def: PieceStage, cube: Cube, begun: Cube, kept: number[]): Tu
   }
 }
 
+/** A cube's piece by its stickers: one a center, two an edge, three a corner. */
+const cubeKind = (cubie: Cubie) =>
+  cubie.stickers.length === 1 ? 'center' : cubie.stickers.length === 2 ? 'edge' : 'corner'
+
 /** The tutorial a plan makes: the first stage not done where the step
  *  began is the step (the pieces of the stages before kept), and once they
  *  are all done, the stage still to come. */
@@ -236,6 +243,8 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
     stages,
     stageKeys,
     glossary: plan.glossary ?? [],
+    pieceKind: plan.pieceKind ?? cubeKind,
+    ...(plan.holding && { holding: plan.holding }),
     faceColor: (cube, normal) => {
       const center = centerColor(cube, normal)
       if (center) return { color: center, center: true }

@@ -29,6 +29,8 @@ export function PolyModel({
   marked = NO_PIECES,
   pulse = false,
   onPick,
+  pickable = NO_PIECES,
+  onPickHover,
   children,
 }: ModelProps) {
   const drawing = polyDrawing(cubeShape(cube))
@@ -52,7 +54,8 @@ export function PolyModel({
               hatched={hatched(i)}
               marked={marked(i)}
               pulse={pulse}
-              onPick={onPick && (() => onPick(i))}
+              onPick={onPick && pickable(i) ? () => onPick(i) : undefined}
+              onPickHover={onPickHover && ((on) => onPickHover(i, on))}
             />
           ),
         )}

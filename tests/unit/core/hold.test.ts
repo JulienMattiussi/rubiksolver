@@ -12,6 +12,9 @@ describe('the ways a cube is held', () => {
   it('finds the sides round any axis of a model from its faces alone', () => {
     // Held with the right side up: the sides round it, the top first.
     expect(ringHolds(FACE_NORMAL, 'R', 'U').holds).toEqual(['U', 'F', 'D', 'B'])
+    // Held down: the side across from the top, whatever the hold.
+    expect(CUBE_HOLDS.down).toEqual(FACE_NORMAL.D)
+    expect(ringHolds(FACE_NORMAL, 'R', 'U').down).toEqual(FACE_NORMAL.L)
   })
 
   it('names each side where it stands, the top and bottom kept', () => {

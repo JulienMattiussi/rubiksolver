@@ -127,7 +127,8 @@ src/
 │   │                    #   (la plus courte chaîne de gestes appris vers un but)
 │   ├── tutorials/       # Les tutoriels : registry (par forme, un par méthode), un dossier par catégorie :
 │   │                    #   standard/cube3 et cube3LastLayer (le 3x3), cube2 (le 2x2), cornerTrigger (les
-│   │                    #   coins jaunes, partagés), tous en méthode débutant
+│   │                    #   coins jaunes, partagés), terms (vocabulaire des cubes), en méthode débutant ;
+│   │                    #   pyramid/pyraminx (Centres d'abord), pyraHolds (ses tenues), pyraTerms
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
 │                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
@@ -491,10 +492,15 @@ choisie qui en a un. **Ajouter un tutoriel** : sa définition dans
 `lib/tutorials/<catégorie>/<puzzle>.ts` et sa ligne au registre (sa
 méthode) ; les titres, consignes, figures, vérifications et phrases
 d'avancement de ses étapes dans `i18n/{fr,en}/tutorial.ts`, leurs noms
-dans `steps.ts` ; ses tests dans `tests/unit/tutorials/` (ceux du moteur dans `tests/unit/teach/`). Le rendu des tons
-et des flèches n'existe aujourd'hui que pour les puzzles à grille
-(`CubeView`) ; un puzzle en polygones (`PolyView`) l'ajoutera avec son
-premier tutoriel. Le comportement du tutoriel du 3x3 est figé pas à pas
+dans `steps.ts` ; ses tests dans `tests/unit/tutorials/` (ceux du moteur dans `tests/unit/teach/`). Le rendu des tons,
+du clic et des flèches est commun aux deux vues (`useTutorialScene`, pour
+`CubeView` et `PolyView`) : la flèche contourne les plans des faces du
+puzzle (`three/core/hull.ts`), et sur un puzzle en polygones part du centre
+dessiné du sticker ; la vue se tourne vers une direction du modèle par
+`sceneDirection` (le dessin la convertit, `PolyDrawing.direction`). Un
+tutoriel déclare aussi le nom de ses sortes de pièces (`pieceKind` : les
+pointes du Pyraminx) et sa façon de dire la tenue (`holding` : « Place la
+pyramide à plat »), et ses termes peuvent porter un coup animé (`demo`). Le comportement du tutoriel du 3x3 est figé pas à pas
 par `golden.test.ts` (référence `golden/cube3.json`, écrite par le test :
 `-u` pour la réécrire, seulement sur un changement voulu).
 

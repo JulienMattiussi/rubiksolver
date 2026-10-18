@@ -3,6 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { PLACE as ARROW } from './colors'
+import type { Hull } from './hull'
 
 /** A face's center, from its cell's (half a cell out, a hair over it); a
  *  hair over a face's own center. */
@@ -32,18 +33,16 @@ const JOIN = Math.PI / 4
 
 const v = () => new THREE.Vector3()
 
-/** The puzzle's box in cells (its drawing's sides), and the lengths'
- *  proportion to a 3x3's. */
+/** The puzzle's outside (its faces' planes), and the lengths' proportion
+ *  to a 3x3's. */
 interface Box {
-  readonly half: THREE.Vector3
+  readonly hull: Hull
   readonly k: number
 }
 
-/** Whether a point is off the puzzle's box by the gap. */
-const clear = (p: THREE.Vector3, { half, k }: Box) =>
-  Math.abs(p.x) >= half.x + GAP * k ||
-  Math.abs(p.y) >= half.y + GAP * k ||
-  Math.abs(p.z) >= half.z + GAP * k
+/** Whether a point is off the puzzle by the gap: beyond one of its faces. */
+const clear = (p: THREE.Vector3, { hull, k }: Box) =>
+  hull.some(({ normal: [x, y, z], offset }) => p.x * x + p.y * y + p.z * z >= offset + GAP * k)
 
 /** A curve from `p` leaving along `dp` to `q` arriving along `dq`. */
 function joining(p: THREE.Vector3, dp: THREE.Vector3, q: THREE.Vector3, dq: THREE.Vector3) {
@@ -173,7 +172,7 @@ export function TutorialArrow({
   fromNormal,
   to,
   toNormal,
-  half,
+  hull,
   onFace = false,
   fade,
 }: {
@@ -181,8 +180,8 @@ export function TutorialArrow({
   fromNormal: V3
   to: V3
   toNormal: V3
-  /** The puzzle's box, half its sides (a cube's in cells). */
-  half: V3
+  /** The puzzle's outside, its faces' planes (a cube's box, in cells). */
+  hull: Hull
   /** `from` and `to` are the faces' centers already (a puzzle drawn in
    *  polygons), not their pieces' (a cubie's, half a cell in). */
   onFace?: boolean
@@ -210,10 +209,10 @@ export function TutorialArrow({
     .toArray()
     .map((v) => v.toFixed(1))
     .join()
-  const [hx, hy, hz] = half
-  const k = Math.max(hx, hy, hz) / 1.5
+  // A 3x3's faces lie a cell and a half out.
+  const k = Math.max(...hull.map((h) => h.offset)) / 1.5
   const { start, points, head, quaternion } = useMemo(() => {
-    const box = { half: new THREE.Vector3(hx, hy, hz), k }
+    const box = { hull, k }
     const out = onFace ? HAIR : FACE
     const n1 = new THREE.Vector3(...fromNormal)
     const n2 = new THREE.Vector3(...toNormal)
@@ -230,7 +229,7 @@ export function TutorialArrow({
     const points = arrowLine(start, n1, end, base, n2, view, box)
     return { start, points, head, quaternion }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `viewKey` stands for `view`
-  }, [from, fromNormal, to, toNormal, hx, hy, hz, k, onFace, viewKey])
+  }, [from, fromNormal, to, toNormal, hull, k, onFace, viewKey])
   const curve = { points, color: ARROW, lineWidth: 4 }
   return (
     <group ref={groupRef}>

@@ -3,10 +3,10 @@ import type { PolyDrawing } from '../../core/polyDrawing'
 import { jingCut, jingPolygons, jingThumbnail } from './jingGeometry'
 import { mmorphPolygons, mmorphThumbnail } from './mmorphGeometry'
 import { MORPH_ORIENT, morphPolygons } from './morphGeometry'
-import { PYRA_YAW, pyraPolygons } from './pyraGeometry'
+import { PYRA_YAW, pyraDirection, pyraPolygons } from './pyraGeometry'
 
 export const PYRAMID_DRAWINGS = {
-  pyra: { polygons: pyraPolygons(3), yaw: PYRA_YAW },
+  pyra: { polygons: pyraPolygons(3), yaw: PYRA_YAW, direction: pyraDirection },
   // The Pyraminx's cells, its cut tips colored.
   tetra: { polygons: pyraPolygons(3, true), yaw: PYRA_YAW },
   pyra4: { polygons: pyraPolygons(4), yaw: PYRA_YAW },

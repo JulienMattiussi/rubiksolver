@@ -4,6 +4,14 @@ import type { TUTORIAL_FR } from '../fr/tutorial'
 export const listEn = (names: readonly string[]) =>
   names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : (names[0] ?? '')
 
+/** The kinds of pieces, named. */
+export const PIECES_EN: Record<string, string> = {
+  center: 'center',
+  edge: 'edge',
+  corner: 'corner',
+  tip: 'tip',
+}
+
 export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   button: 'Tutorial',
   buttonTitle: 'Learn to solve it step by step, picking the pieces to move',
@@ -16,11 +24,16 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   alreadyDone: 'As things stand, the cubes this step moves are already in the right place.',
   alreadyDoneNext: 'On to the next step.',
   locked: 'Unavailable during the tutorial: leave it first',
-  facing: (color: string) => `Hold the ${color} center facing you.`,
-  facingFace: (color: string) => `Hold the ${color} side facing you.`,
+  facing: (color: string, down: string) =>
+    `Hold the ${color} center facing you, the ${down} center down.`,
+  facingFace: (color: string, down: string) =>
+    `Hold the ${color} side facing you, the ${down} side down.`,
+  holding: {
+    flat: (color: string, down: string) =>
+      `Lay the pyramid flat on its ${down} side, the ${color} side facing you.`,
+  },
   facingTitle: 'Turn the view to face it',
-  piece: (stickers: number, colors: readonly string[]) =>
-    `the ${colors.join('-')} ${stickers === 1 ? 'center' : stickers === 2 ? 'edge' : 'corner'}`,
+  piece: (kind, colors) => `the ${colors.join('-')} ${PIECES_EN[kind] ?? 'piece'}`,
   spot: (piece: string) => `Spot ${piece}.`,
   spotSwap: (piece: string, other: string) =>
     `Spot ${piece}, and ${other} which stands in its place.`,
@@ -61,6 +74,14 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
           : pieces.length > 1
             ? `Check ${listEn(pieces)} now have their white up.`
             : `Check ${done} corners now have their white up.`,
+    stepTutorialPyraTop: (done: number) =>
+      done === 3
+        ? 'Check the three top edges are between their sides, even flipped.'
+        : `Check ${done} top edge${done > 1 ? 's are' : ' is'} now between its sides.`,
+    stepTutorialPyraFlip: (done: number) =>
+      done === 6
+        ? 'Check every edge is the right way round: the Pyraminx is solved.'
+        : 'Check two more edges are now the right way round.',
     stepTutorialTopCorners2: () => 'Check every corner is in its place: the cube is solved.',
   },
   figures: {
@@ -84,6 +105,9 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
     figureTopTwo: 'Spot the top corners: two have their white up.',
     figureTopTwoDetour:
       'Spot the top corners: two have their white up. Here no formula as short keeps them: this one leaves only one, but leads straight to the white face.',
+    figurePyraCycle:
+      'Spot the top edges not between their sides: the formula turns the three round.',
+    figurePyraFlip: 'Spot the edges the wrong way round: the formula flips two at a time.',
     figureCornersTurn:
       'The white corners already follow each other in the right order: one turn of the top places them.',
     figureCornersAdjacent:
@@ -102,6 +126,17 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
       'A **center**: the piece in the middle of a side, one face showing. Centers never move: each gives its side’s color.',
     termEdge: 'An **edge**: a piece with two faces showing, between two centers.',
     termCorner: 'A **corner**: a piece with three faces showing, at a corner of the cube.',
+    termTip:
+      'A **tip**: the small piece at the end of each corner. It turns alone, taking nothing along.',
+    termPyraCenter:
+      'A **center**: the piece just under the tip, with three faces. It never leaves its corner: the centers tell each side’s color.',
+    termPyraEdge: 'An **edge**: a piece with two faces, between two corners.',
+    termLayer:
+      'A **layer**: all that turns with a corner, its tip, its center and the three edges around.',
+    termPyraClockwise:
+      '**Clockwise**: it is the way a clock’s hands go, looking at the corner that turns, from in front of it.',
+    termPyraCounterclockwise:
+      '**Counterclockwise**: it is the opposite way to a clock’s hands, still looking at the corner that turns.',
     termClockwise:
       '**Clockwise**: it is the way a clock’s hands go, looking at the side that turns.',
     termCounterclockwise:
@@ -132,6 +167,16 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
       `${done} of ${total} corner${total > 1 ? 's' : ''} placed`,
     stepTutorialTopFace2: (done: number, total: number) =>
       `${done} of ${total} corner${total > 1 ? 's' : ''} white up`,
+    stepTutorialPyraCenters: (done: number, total: number) =>
+      `${done} of ${total} center${total > 1 ? 's' : ''} in place`,
+    stepTutorialPyraTips: (done: number, total: number) =>
+      `${done} of ${total} tip${total > 1 ? 's' : ''} in place`,
+    stepTutorialPyraBottom: (done: number, total: number) =>
+      `${done} of ${total} edge${total > 1 ? 's' : ''} in place`,
+    stepTutorialPyraTop: (done: number, total: number) =>
+      `${done} of ${total} edge${total > 1 ? 's' : ''} between their sides`,
+    stepTutorialPyraFlip: (done: number, total: number) =>
+      `${done} of ${total} edge${total > 1 ? 's' : ''} the right way round`,
     stepTutorialTopCorners2: (done: number, total: number) =>
       `${done} of ${total} corner${total > 1 ? 's' : ''} in place`,
   },
@@ -147,6 +192,11 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
     stepTutorialTurnOver2: 'Turn the cube over, yellow down',
     stepTutorialCorner2: 'Place the yellow corners',
     stepTutorialTopFace2: 'Build the white face',
+    stepTutorialPyraCenters: 'Turn the centers',
+    stepTutorialPyraTips: 'Turn the tips',
+    stepTutorialPyraBottom: 'Place the bottom edges',
+    stepTutorialPyraTop: 'Place the top edges',
+    stepTutorialPyraFlip: 'Flip the edges',
     stepTutorialTopCorners2: 'Place the white corners',
   },
   hints: {
@@ -166,6 +216,14 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
     stepTutorialCorner2:
       'A 2x2 has no centers: a yellow corner already yellow down is the landmark, and the sides’ colors are read on it. Place the other yellow corners one by one around it, yellow down.',
     stepTutorialTopFace2: 'Turn the top corners so their white is up.',
+    stepTutorialPyraCenters:
+      'Turn each corner’s layer until its center wears the colors of the three sides around it.',
+    stepTutorialPyraTips: 'Turn each tip alone so it wears its center’s colors.',
+    stepTutorialPyraBottom:
+      'Place the three edges of the bottom side one by one, each between its two colors.',
+    stepTutorialPyraTop: 'Place the three top edges between their sides, even flipped.',
+    stepTutorialPyraFlip:
+      'Flip the edges the wrong way round, two at a time: the Pyraminx is then solved.',
     stepTutorialTopCorners2:
       'Place each white corner in its place. Two corners across to swap is the 2x2 parity: it has a formula of its own.',
   },

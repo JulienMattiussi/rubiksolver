@@ -1,5 +1,5 @@
 import type { TUTORIAL_MIRROR_FR } from '../fr/tutorialMirror'
-import { listEn } from './tutorial'
+import { listEn, PIECES_EN } from './tutorial'
 
 export const TUTORIAL_MIRROR_EN: typeof TUTORIAL_MIRROR_FR = {
   thickness: {
@@ -10,17 +10,17 @@ export const TUTORIAL_MIRROR_EN: typeof TUTORIAL_MIRROR_FR = {
     W: 'thick',
     R: 'very thick',
   },
-  piece: (stickers, names) =>
-    stickers === 1
+  piece: (kind, names) =>
+    kind === 'center'
       ? `the center of the ${names[0]} face`
-      : `the ${stickers === 2 ? 'edge' : 'corner'} with ${listEn(names)} faces`,
+      : `the ${PIECES_EN[kind] ?? 'piece'} with ${listEn(names)} faces`,
   terms: {
     termCenter:
       'A **center**: the piece in the middle of a side, one face showing. Centers never move: each gives its side’s thickness.',
   },
   thicknessTerm: (name, first) =>
     `${first ? 'On a mirror cube every face has the same color: you tell them by their thickness, from very thin to very thick. ' : ''}In blue, the pieces with a **${name}** face.`,
-  facing: (name) => `Turn the ${name} face toward you.`,
+  facing: (name, down) => `Turn the ${name} face toward you, the ${down} face down.`,
   checkFigure: 'Check the new figure the thick faces draw on top.',
   checks: {
     stepTutorialTurnOver2: () => 'Check a corner now has its thin face down.',

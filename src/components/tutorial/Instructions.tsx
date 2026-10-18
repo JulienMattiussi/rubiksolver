@@ -31,8 +31,13 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
   // pieces' frame's on a puzzle with no centers).
   const frontNormal = frame.front(hold)
   const front = view.tutorial?.faceColor(cube, frontNormal) ?? null
+  // And the side held down (the holds turn round the top).
+  const down = view.tutorial?.faceColor(cube, frame.down) ?? null
   const name = (index: number) =>
-    tx.piece(cube[index]!.stickers.length, pieceColors(cube, index, step.marker).map(tx.colorName))
+    tx.piece(
+      view.tutorial?.pieceKind(cube[index]!) ?? 'piece',
+      pieceColors(cube, index, step.marker).map(tx.colorName),
+    )
   const occupant = pick ? occupantOf(cube, pick, view.moves ?? []) : null
   // The formula cut as taught (moves one by one, sequences learnt, a
   // sequence repeated told once with its count); followed by hand, the
@@ -111,7 +116,11 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
             className="rounded text-left underline decoration-dotted underline-offset-2 hover:text-white focus-visible:outline-2 focus-visible:outline-sky-400"
           >
             <Toned colors={[tx.swatch(front.color)]}>
-              {tx.facing(tx.colorName(front.color), front.center)}
+              {tx.facing(
+                tx.colorName(front.color),
+                down ? tx.colorName(down.color) : '',
+                view.tutorial?.holding ?? (front.center ? 'center' : 'side'),
+              )}
             </Toned>
           </button>,
         ]

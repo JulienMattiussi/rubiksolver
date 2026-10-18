@@ -1,5 +1,5 @@
 import type * as THREE from 'three'
-import type { Color, CubeShape, Cubie } from '@/lib/core/types'
+import type { Color, CubeShape, Cubie, Vec3 } from '@/lib/core/types'
 import type { Joint } from '@/lib/editor/jointsEditor'
 import type { DecalPlace, PiecePolygon } from './polygons'
 import { BANDAGED_DRAWINGS } from '../puzzles/bandaged/drawings'
@@ -37,6 +37,10 @@ export interface PolyDrawing {
     readonly place: (cubie: Cubie) => DecalPlace
     readonly picture: (cubie: Cubie) => THREE.Texture
   }
+  /** A direction of the model (a face's normal) in the drawing's frame,
+   *  when its cells are mapped there (the Pyraminx's, `pyraToCartesian`);
+   *  none: the same. The view turns toward the model's sides by it. */
+  readonly direction?: (v: Vec3) => [number, number, number]
   /** The one color of every sticker, when the puzzle wears a single one
    *  (the Floppy Ghost's silver): its pieces are told apart by shape. */
   readonly skin?: string
@@ -89,6 +93,15 @@ export function polyDrawing(shape: CubeShape): PolyDrawing {
   const drawing = DRAWINGS[shape]
   if (!drawing) throw new Error(`polyDrawing: ${shape} is drawn from cubies`)
   return drawing
+}
+
+/** A direction of a puzzle's model (a face's normal, where a tutorial
+ *  looks from) as it stands in the scene: a grid puzzle's as is, a puzzle
+ *  in polygons through its drawing's frame. */
+export function sceneDirection(shape: CubeShape, v: Vec3): [number, number, number] {
+  if (!isPolyDrawn(shape)) return [v[0], v[1], v[2]]
+  const drawing = polyDrawing(shape)
+  return inScene(drawing, drawing.direction?.(v) ?? v)
 }
 
 /** A vector of a drawing's polygons as it stands in the scene: turned by

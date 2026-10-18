@@ -28,7 +28,8 @@ const STICKER_SCALE = 0.82
 
 const CORNERS: readonly Vec3[] = PYRA_VERTICES.map((v) => PYRA_CORNERS[v])
 
-const unit = (v: Vec3): P3 => {
+/** A model direction in the drawing's frame (a unit vector). */
+export const pyraDirection = (v: Vec3): P3 => {
   const p = pyraToCartesian(v)
   const length = Math.hypot(...p)
   return p.map((x) => x / length) as P3
@@ -54,7 +55,7 @@ function polygonsOf(cubie: Cubie, size: number, faces: CellFace[]): PiecePolygon
     if (!split) {
       return face(
         corners.map(shrink),
-        unit(normal),
+        pyraDirection(normal),
         cubie,
         TET_INDEX.get(normal.join()),
         STICKER_SCALE,
@@ -69,9 +70,13 @@ function polygonsOf(cubie: Cubie, size: number, faces: CellFace[]): PiecePolygon
     )
     const color = PYRA_FACE_COLOR[PYRA_VERTICES[(home + 1) % PYRA_VERTICES.length]!]
     const tip: Cubie = { position: cubie.position, stickers: [{ normal, color }] }
-    return face(corners.map(shrink), unit(normal), tip, normalIndex(normal), STICKER_SCALE).map(
-      (polygon) => ({ ...polygon, ni: undefined }),
-    )
+    return face(
+      corners.map(shrink),
+      pyraDirection(normal),
+      tip,
+      normalIndex(normal),
+      STICKER_SCALE,
+    ).map((polygon) => ({ ...polygon, ni: undefined }))
   })
 }
 

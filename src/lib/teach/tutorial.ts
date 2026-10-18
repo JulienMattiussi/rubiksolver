@@ -1,5 +1,5 @@
 import type { Hold, HoldFrame } from '../core/hold'
-import type { Color, Cube, CubeVariant, Turn, Vec3 } from '../core/types'
+import type { Color, Cube, Cubie, CubeVariant, Turn, Vec3 } from '../core/types'
 
 /**
  * The tutorial: a puzzle solved a step at a time by the user, each step a
@@ -123,6 +123,12 @@ export interface Tutorial {
   readonly faceColor: (cube: Cube, normal: Vec3) => { color: Color; center: boolean } | null
   /** The words it uses, shown before its stages (step 0). */
   readonly glossary: readonly Term[]
+  /** What kind of piece a piece is, its name's key (a cube's by its
+   *  stickers: center, edge, corner; a Pyraminx's tips told apart). */
+  readonly pieceKind: (cubie: Cubie) => string
+  /** Its own way to say how to hold the puzzle (a text's key: the
+   *  Pyraminx laid flat); none: by the center in front, or the side. */
+  readonly holding?: string
 }
 
 /** A word of the glossary, shown before the stages (step 0): its pieces

@@ -1,5 +1,5 @@
 import type { CubeColor } from '@/lib/core/types'
-import { listFr } from './tutorial'
+import { listFr, PIECES_FR } from './tutorial'
 
 /**
  * The tutorial's texts on a mirror cube, where a color is a thickness: each
@@ -16,10 +16,10 @@ export const TUTORIAL_MIRROR_FR = {
     W: 'épaisse',
     R: 'très épaisse',
   } as Record<CubeColor, string>,
-  piece: (stickers: number, names: readonly string[]) =>
-    stickers === 1
+  piece: (kind: string, names: readonly string[]) =>
+    kind === 'center'
       ? `le centre de la face ${names[0]}`
-      : `${stickers === 2 ? 'l’arête' : 'le coin'} aux faces ${listFr(names)}`,
+      : `${PIECES_FR[kind] ?? 'la pièce'} aux faces ${listFr(names)}`,
   /** The words that change on a mirror cube, and a thickness's (the first
    *  telling what thicknesses are). */
   terms: {
@@ -29,7 +29,8 @@ export const TUTORIAL_MIRROR_FR = {
   thicknessTerm: (name: string, first: boolean) =>
     `${first ? 'Sur un cube miroir, toutes les faces ont la même couleur : on les reconnaît à leur épaisseur, de très fine à très épaisse. ' : ''}En bleu, les pièces qui ont une face **${name}**.`,
   /** A side to hold in front, center or not. */
-  facing: (name: string) => `Tourne vers toi la face ${name}.`,
+  facing: (name: string, down: string) =>
+    `Tourne vers toi la face ${name}, la face ${down} en bas.`,
   checkFigure: 'Vérifie la nouvelle figure que dessinent les faces épaisses en haut.',
   checks: {
     stepTutorialTurnOver2: () => 'Vérifie qu’un coin a maintenant sa face fine en bas.',

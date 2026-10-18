@@ -19,6 +19,9 @@ export interface HoldFrame {
   /** The outward normal of the side a hold has in front (the view turns
    *  toward it). */
   readonly front: (hold: Hold) => Vec3
+  /** The outward normal of the side held down, whatever the hold (the
+   *  holds turn round the top). */
+  readonly down: Vec3
   /** A turn as read in a hold (named where its side now stands). */
   readonly inHold: (hold: Hold, turn: Turn) => Turn
   /** The turn of the puzzle a turn read in a hold makes. */
@@ -63,6 +66,8 @@ export function ringHolds(
   return {
     holds: ring,
     front: (hold) => normals[hold as Face],
+    // 0 - v: no -0 for a zero.
+    down: [0 - normals[up][0], 0 - normals[up][1], 0 - normals[up][2]],
     /** The side of the puzzle seen as `face` in a hold. */
     faceAt: (hold, face) => step(hold, face, 1),
     inHold: relabel(-1),

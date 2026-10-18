@@ -2,6 +2,14 @@
 export const listFr = (names: readonly string[]) =>
   names.length > 1 ? `${names.slice(0, -1).join(', ')} et ${names.at(-1)}` : (names[0] ?? '')
 
+/** The kinds of pieces (`Tutorial.pieceKind`), named. */
+export const PIECES_FR: Record<string, string> = {
+  center: 'le centre',
+  edge: 'l’arête',
+  corner: 'le coin',
+  tip: 'la pointe',
+}
+
 /** The tutorial's texts (the source; English mirrors it). */
 export const TUTORIAL_FR = {
   button: 'Tutoriel',
@@ -18,13 +26,20 @@ export const TUTORIAL_FR = {
   alreadyDoneNext: 'On peut passer à l’étape suivante.',
   /** Why the actions replacing the cube are off. */
   locked: 'Indisponible pendant le tutoriel : quitte-le d’abord',
-  facing: (color: string) => `Place le centre ${color} face à toi.`,
+  facing: (color: string, down: string) =>
+    `Place le centre ${color} face à toi, le centre ${down} en bas.`,
   /** A side with no center (a 2x2's), told by its color. */
-  facingFace: (color: string) => `Place le côté ${color} face à toi.`,
+  facingFace: (color: string, down: string) =>
+    `Place le côté ${color} face à toi, le côté ${down} en bas.`,
+  /** A tutorial's own way to say how to hold its puzzle (`Tutorial.holding`). */
+  holding: {
+    flat: (color: string, down: string) =>
+      `Place la pyramide à plat sur sa face ${down}, la face ${color} face à toi.`,
+  } as Record<string, (color: string, down: string) => string>,
   facingTitle: 'Tourner la vue pour l’avoir face à toi',
   /** A piece named by its kind (its stickers' count) and colors. */
-  piece: (stickers: number, colors: readonly string[]) =>
-    `${stickers === 1 ? 'le centre' : stickers === 2 ? 'l’arête' : 'le coin'} ${colors.join('-')}`,
+  piece: (kind: string, colors: readonly string[]) =>
+    `${PIECES_FR[kind] ?? 'la pièce'} ${colors.join('-')}`,
   spot: (piece: string) => `Repère ${piece}.`,
   spotSwap: (piece: string, other: string) => `Repère ${piece}, et ${other} qui occupe sa place.`,
   /** None left: turns by hand have done the step's formula. */
@@ -74,6 +89,14 @@ export const TUTORIAL_FR = {
           : pieces.length > 1
             ? `Vérifie que ${listFr(pieces)} ont maintenant leur blanc en haut.`
             : `Vérifie que ${done} coins ont maintenant leur blanc en haut.`,
+    stepTutorialPyraTop: (done: number) =>
+      done === 3
+        ? 'Vérifie que les trois arêtes du haut sont entre leurs bonnes faces, même retournées.'
+        : `Vérifie que ${done} arête${done > 1 ? 's' : ''} du haut ${done > 1 ? 'sont' : 'est'} maintenant entre ses bonnes faces.`,
+    stepTutorialPyraFlip: (done: number) =>
+      done === 6
+        ? 'Vérifie que chaque arête est à l’endroit : le Pyraminx est résolu.'
+        : 'Vérifie que deux arêtes de plus sont maintenant à l’endroit.',
     stepTutorialTopCorners2: () => 'Vérifie que chaque coin est à sa place : le cube est résolu.',
   } as Record<string, (done: number, pieces?: readonly string[]) => string>,
   /** The figures the top's white draws, by their key. */
@@ -98,6 +121,9 @@ export const TUTORIAL_FR = {
     figureTopTwo: 'Repère les coins du haut : deux ont leur blanc en haut.',
     figureTopTwoDetour:
       'Repère les coins du haut : deux ont leur blanc en haut. Ici, aucune formule aussi courte ne les garde : celle-ci n’en laisse qu’un, mais mène tout droit à la face blanche.',
+    figurePyraCycle:
+      'Repère les arêtes du haut qui ne sont pas entre leurs bonnes faces : la formule fait tourner les trois.',
+    figurePyraFlip: 'Repère les arêtes à l’envers : la formule en retourne deux à la fois.',
     figureCornersTurn:
       'Les coins blancs se suivent déjà dans le bon ordre : un tour du haut les met en place.',
     figureCornersAdjacent:
@@ -119,6 +145,17 @@ export const TUTORIAL_FR = {
       'Un **centre** : la pièce au milieu d’une face, une seule face visible. Les centres ne changent pas de place : chacun donne la couleur de sa face.',
     termEdge: 'Une **arête** : une pièce à deux faces visibles, entre deux centres.',
     termCorner: 'Un **coin** : une pièce à trois faces visibles, à un sommet du cube.',
+    termTip:
+      'Une **pointe** : la petite pièce au bout de chaque sommet. Elle tourne seule, sans rien entraîner.',
+    termPyraCenter:
+      'Un **centre** : la pièce juste sous la pointe, à trois faces. Il ne quitte jamais son sommet : les centres disent la couleur de chaque face.',
+    termPyraEdge: 'Une **arête** : une pièce à deux faces, entre deux sommets.',
+    termLayer:
+      'Une **couche** : tout ce qui tourne avec un sommet, sa pointe, son centre et les trois arêtes autour.',
+    termPyraClockwise:
+      'Le **sens horaire** : c’est le sens des aiguilles d’une montre, en regardant le sommet qui tourne, d’en face.',
+    termPyraCounterclockwise:
+      'Le **sens anti-horaire** : c’est le sens inverse des aiguilles d’une montre, en regardant toujours le sommet qui tourne.',
     termClockwise:
       'Le **sens horaire** : c’est le sens des aiguilles d’une montre, en regardant la face qui tourne.',
     termCounterclockwise:
@@ -152,6 +189,16 @@ export const TUTORIAL_FR = {
       `${done} coin${done > 1 ? 's' : ''} sur ${total} en place`,
     stepTutorialTopFace2: (done: number, total: number) =>
       `${done} coin${done > 1 ? 's' : ''} sur ${total} blanc en haut`,
+    stepTutorialPyraCenters: (done: number, total: number) =>
+      `${done} centre${done > 1 ? 's' : ''} sur ${total} en place`,
+    stepTutorialPyraTips: (done: number, total: number) =>
+      `${done} pointe${done > 1 ? 's' : ''} sur ${total} en place`,
+    stepTutorialPyraBottom: (done: number, total: number) =>
+      `${done} arête${done > 1 ? 's' : ''} sur ${total} en place`,
+    stepTutorialPyraTop: (done: number, total: number) =>
+      `${done} arête${done > 1 ? 's' : ''} sur ${total} entre ses faces`,
+    stepTutorialPyraFlip: (done: number, total: number) =>
+      `${done} arête${done > 1 ? 's' : ''} sur ${total} à l’endroit`,
     stepTutorialTopCorners2: (done: number, total: number) =>
       `${done} coin${done > 1 ? 's' : ''} sur ${total} à sa place`,
   } as Record<string, (done: number, total: number) => string>,
@@ -168,6 +215,11 @@ export const TUTORIAL_FR = {
     stepTutorialTurnOver2: 'Retourner le cube, jaune en bas',
     stepTutorialCorner2: 'Placer les coins jaunes',
     stepTutorialTopFace2: 'Construire la face blanche',
+    stepTutorialPyraCenters: 'Tourner les centres',
+    stepTutorialPyraTips: 'Tourner les pointes',
+    stepTutorialPyraBottom: 'Placer les arêtes du bas',
+    stepTutorialPyraTop: 'Placer les arêtes du haut',
+    stepTutorialPyraFlip: 'Retourner les arêtes',
     stepTutorialTopCorners2: 'Placer les coins blancs',
   } as Record<string, string>,
   /** What each step asks, by its key. */
@@ -190,6 +242,15 @@ export const TUTORIAL_FR = {
     stepTutorialCorner2:
       'Le 2x2 n’a pas de centres : un coin jaune déjà jaune en bas sert de repère, et les couleurs des faces se lisent sur lui. Place un à un les autres coins jaunes autour de lui, jaune vers le bas.',
     stepTutorialTopFace2: 'Tourne les coins du haut pour que leur blanc soit en haut.',
+    stepTutorialPyraCenters:
+      'Tourne la couche de chaque sommet jusqu’à ce que son centre ait les couleurs des trois faces autour de lui.',
+    stepTutorialPyraTips: 'Tourne chaque pointe seule pour qu’elle ait les couleurs de son centre.',
+    stepTutorialPyraBottom:
+      'Place une à une les trois arêtes de la face du dessous, chacune entre ses deux couleurs.',
+    stepTutorialPyraTop:
+      'Place les trois arêtes du haut entre leurs bonnes faces, même si elles sont retournées.',
+    stepTutorialPyraFlip:
+      'Retourne les arêtes à l’envers, deux à la fois : le Pyraminx est alors résolu.',
     stepTutorialTopCorners2:
       'Place chaque coin blanc à sa place. Deux coins en diagonale à échanger, c’est la parité du 2x2 : elle a sa propre formule.',
   } as Record<string, string>,

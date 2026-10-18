@@ -14,18 +14,21 @@ import { LayerTabs } from './LayerTabs'
 import { PadButton } from './PadButton'
 import { PadGroups } from './PadGroups'
 import { PadHeader } from './PadHeader'
+import { useHeldTurn } from './useHeldTurn'
 
 /**
  * Rotation pad of a Pyraminx: each corner, a third of a turn either way, of
  * each layer (stacked when they fit, otherwise in two tabs, outer and
  * inner): the whole layer or the tip alone on the Pyraminx;
  * the tip, the first or second slice, or the opposite face on the Master;
- * the Jing has its halves only (see PadButton).
+ * the Jing has its halves only (see PadButton). In the tutorial, it reads
+ * as the puzzle is held (useHeldTurn).
  */
 export function PyraPad({ disabled }: { disabled: boolean }) {
   const t = useI18n((s) => s.t)
   const labels = useI18n(selectMoveLabels)
   const shape = useCube((s) => cubeShape(s.cube))
+  const held = useHeldTurn()
   const layers = isPyraminx(shape) ? PYRA_LAYERS[shape] : []
   // The last slice of a Master or a Professor is the face opposite the corner.
   const nameOf = (k: PyraLayer) => (isPyraminx(shape) && isOppositeFace(shape, k) ? 'faces' : k)
@@ -37,7 +40,8 @@ export function PyraPad({ disabled }: { disabled: boolean }) {
     const button = (move: PyraMove, ghost: boolean) => (
       <PadButton
         key={formatMove(move)}
-        move={move}
+        // Held another way (the tutorial): the corner where it stands.
+        move={held(move)}
         label={formatMove(move, labels)}
         title={t.pyraTurnTitle(move.vertex, nameOf(shown), move.amount === 1)}
         disabled={disabled}

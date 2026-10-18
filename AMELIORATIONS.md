@@ -16,6 +16,18 @@ les formules de chaque méthode avec leur effet testé, et la recherche par
 pièces (`solvePieces`) pour proposer le coup suivant. Commencer par les étapes
 intuitives (croix, premiers coins) du 3x3 et du 2x2, puis par les 3-cycles.
 
+## Tutoriel : les flèches sur un cube miroir
+
+**Constat.** Sur un miroir, la flèche du tutoriel part du centre de la case
+de la pièce, une demi-case plus loin (`TutorialArrow`, `FACE`) : elle
+s'arrête avant une face fine et traverse une face très épaisse, et son
+contournement suppose la boîte d'un cube plein, que les bosses dépassent.
+
+**Pistes.** Faire comme pour les puzzles en polygones (`PolyView`, `onFace`) :
+prendre pour bouts le centre réel du sticker, lu sur la boîte de la pièce
+(`lib/core/shape.ts`), et pour boîte à contourner celle du cube miroir avec
+ses bosses.
+
 ## Fuites mémoire : ce qui a été mesuré
 
 **Mesuré** (Playwright, tampons et textures WebGL comptés à leur création et

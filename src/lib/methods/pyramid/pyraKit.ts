@@ -29,7 +29,7 @@ const relabel = (moves: readonly PyraMove[], to: Record<PyraVertex, PyraVertex>)
   moves.map((m) => ({ ...m, vertex: to[m.vertex] }))
 
 /** The puzzle turned a third about its top: the same formula from the next side. */
-const AROUND_TOP: Record<PyraVertex, PyraVertex> = { U: 'U', L: 'R', R: 'B', B: 'L' }
+export const AROUND_TOP: Record<PyraVertex, PyraVertex> = { U: 'U', L: 'R', R: 'B', B: 'L' }
 /** ... and a third about its left corner. */
 const AROUND_LEFT: Record<PyraVertex, PyraVertex> = { U: 'R', L: 'L', R: 'B', B: 'U' }
 

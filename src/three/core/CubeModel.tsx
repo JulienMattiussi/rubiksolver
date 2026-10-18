@@ -27,8 +27,11 @@ export interface ModelProps {
   marked?: (index: number) => boolean
   /** The highlighted and marked pieces' glow pulsing (the tutorial's). */
   pulse?: boolean
-  /** A click on a piece (the tutorial's). */
+  /** A click on a piece (the tutorial's), on those it takes
+   *  (`pickable`), and the pointer coming onto one and leaving it. */
   onPick?: (index: number) => void
+  pickable?: (index: number) => boolean
+  onPickHover?: (index: number, on: boolean) => void
   /** Drawn in the pieces' frame (the tutorial's arrow). */
   children?: ReactNode
 }
@@ -50,6 +53,8 @@ export function CubeModel({
   marked = NO_PIECES,
   pulse = false,
   onPick,
+  pickable = NO_PIECES,
+  onPickHover,
   children,
 }: ModelProps & { variant: CubeVariant }) {
   const dims = cubeDims(cube)
@@ -72,7 +77,8 @@ export function CubeModel({
               hatched={hatched(i)}
               marked={marked(i)}
               pulse={pulse}
-              onPick={onPick && (() => onPick(i))}
+              onPick={onPick && pickable(i) ? () => onPick(i) : undefined}
+              onPickHover={onPickHover && ((on) => onPickHover(i, on))}
               smallCenter={gear}
             />
           ),

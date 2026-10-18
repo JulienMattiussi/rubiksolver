@@ -28,7 +28,10 @@ export function useTutorialTexts() {
         ...usual,
         colorName: (c: Color) => t.colors[c].toLowerCase(),
         swatch: (c: Color) => COLOR_HEX[c],
-        facing: (name: string, center: boolean) => (center ? usual.facing : usual.facingFace)(name),
+        /** How to hold the puzzle: by its center in front, its side, or the
+         *  tutorial's own way (`Tutorial.holding`). */
+        facing: (name: string, down: string, how: string) =>
+          (how === 'center' ? usual.facing : (usual.holding[how] ?? usual.facingFace))(name, down),
         term: (key: string) => usual.terms[key] ?? key,
       }
     }
@@ -44,7 +47,8 @@ export function useTutorialTexts() {
       hints: { ...usual.hints, ...m.hints },
       colorName: (c: Color) => m.thickness[c as CubeColor] ?? t.colors[c].toLowerCase(),
       swatch: () => MIRROR_STICKER,
-      facing: (name: string) => m.facing(name),
+      facing: (name: string, down: string, how: string) =>
+        (usual.holding[how] ?? m.facing)(name, down),
       term: (key: string) => {
         const color = THICKNESS_OF[key]
         return color

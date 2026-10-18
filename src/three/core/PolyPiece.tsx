@@ -69,6 +69,7 @@ interface PolyPieceProps {
   marked?: boolean
   pulse?: boolean
   onPick?: () => void
+  onPickHover?: (on: boolean) => void
   /** Edit mode: the hex shown by the sticker of normal index `ni` (gray
    *  while unpainted; none: its own color), and what a click on it does. */
   stickerHex?: (ni: number) => string | undefined
@@ -134,6 +135,7 @@ export function PolyPiece({
   marked = false,
   pulse = false,
   onPick,
+  onPickHover,
   stickerHex,
   onSelect,
   onHover,
@@ -172,7 +174,7 @@ export function PolyPiece({
                     (at) => onSelect(ni, at),
                     onHover ? (over: boolean) => onHover(ni, over) : undefined,
                   )
-                : paintable(onPick && (() => onPick()))
+                : paintable(onPick && (() => onPick()), onPick && onPickHover)
             }
           />
         )

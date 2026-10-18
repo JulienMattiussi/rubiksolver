@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Cube, Turn } from '@/lib/core/types'
 import { arrowsOf, type Arrow } from '@/lib/teach/scene'
 import { useTutorial } from '@/hooks/useTutorial'
@@ -15,7 +16,10 @@ import { usePreviewed } from './usePreviewed'
  * tutorial, a pad button hovered lights its turn's pieces.
  */
 export function useTutorialScene(cube: Cube): {
-  model: Pick<ModelProps, 'highlighted' | 'hatched' | 'marked' | 'pulse' | 'onPick'>
+  model: Pick<
+    ModelProps,
+    'highlighted' | 'hatched' | 'marked' | 'pulse' | 'onPick' | 'pickable' | 'onPickHover'
+  >
   arrows: readonly Arrow[]
   /** The formula the arrows are for (where they land). */
   moves: readonly Turn[] | null
@@ -36,6 +40,13 @@ export function useTutorialScene(cube: Cube): {
     tutorial.review && !pick && step && moves
       ? new Set(arrowsOf(tutorial.cube, moves, step, null).map((p) => p.piece))
       : null
+  // The piece under the pointer, when a click takes it: one to pick (lit
+  // blue), or a place for the piece picked (lit amber).
+  const [hovered, setHovered] = useState<number | null>(null)
+  const slots = step && pick ? step.slots(pick.piece).map((s) => s.join()) : []
+  const isSlot = (i: number) => slots.includes(cube[i]!.position.join())
+  const pickable = (i: number) => !!step?.pickable.includes(i) || isSlot(i)
+  const over = (i: number) => hovered === i && !tutorial.review
   const lands = (i: number) =>
     !!shown && i !== shown.piece && cube[i]!.position.join() === shown.to.join()
   return {
@@ -43,7 +54,11 @@ export function useTutorialScene(cube: Cube): {
       // A pad button hovered (the tutorial's too) shows its turn's pieces.
       highlighted:
         tones && !previewing
-          ? (i) => tones[i] === 'target' || i === shown?.piece || !!moved?.has(i)
+          ? (i) =>
+              tones[i] === 'target' ||
+              i === shown?.piece ||
+              !!moved?.has(i) ||
+              (over(i) && !isSlot(i) && pickable(i))
           : previewed,
       // The piece standing where the pick goes is moved aside too: hatched
       // as well as marked. On a word of the glossary, every piece it does
@@ -53,10 +68,14 @@ export function useTutorialScene(cube: Cube): {
           step?.kind === 'term'
             ? tones[i] !== 'target'
             : tones[i] === 'moved' || tones[i] === 'slot',
-        marked: (i: number) => tones[i] === 'slot' || lands(i),
+        marked: (i: number) => tones[i] === 'slot' || lands(i) || (over(i) && isSlot(i)),
       }),
       pulse: !!tones,
-      ...(tutorial.step && { onPick: tutorial.click }),
+      ...(tutorial.step && {
+        onPick: tutorial.click,
+        pickable,
+        onPickHover: (i: number, on: boolean) => setHovered((h) => (on ? i : h === i ? null : h)),
+      }),
     },
     arrows,
     moves,

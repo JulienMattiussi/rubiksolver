@@ -23,6 +23,7 @@ export function Cubie({
   marked = false,
   pulse = false,
   onPick,
+  onPickHover,
   spinning,
   progress,
   smallCenter = false,
@@ -47,6 +48,8 @@ export function Cubie({
   pulse?: boolean
   /** A click on it (the tutorial picks pieces so). */
   onPick?: () => void
+  /** The pointer coming onto the piece, clickable, and leaving it. */
+  onPickHover?: (on: boolean) => void
   /** A Gear Cube's gear in a turning slice: the sixths it spins, and how far
    *  along the turn is. */
   spinning?: number
@@ -142,6 +145,7 @@ export function Cubie({
           glow={highlighted || marked}
           pulse={pulse && (highlighted || marked)}
           onSelect={onPick}
+          onHover={onPick && onPickHover}
         />
       ))}
     </group>

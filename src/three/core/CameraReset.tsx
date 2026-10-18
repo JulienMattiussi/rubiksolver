@@ -4,6 +4,9 @@ import * as THREE from 'three'
 import { easeInOut } from '@/lib/app/easing'
 import { useView, type Lift } from '@/store/viewStore'
 import { useEditor } from '@/store/editorStore'
+import { useCube } from '@/store/cubeStore'
+import { cubeShape } from '@/lib/core/cube'
+import { sceneDirection } from './polyDrawing'
 import { FACE_ON_POSITION, HOME_POSITION, HOME_TARGET } from './camera'
 
 const RECENTER_SECONDS = 0.5
@@ -66,10 +69,16 @@ export function CameraReset() {
 
   useEffect(() => {
     if (!toward || facing || !controls) return
+    // Read when asked: another puzzle chosen does not ask again.
+    const shape = cubeShape(useCube.getState().cube)
     anim.current = {
       from: from.copy(camera.position),
       fromTarget: fromTarget.copy(controls.target),
-      to: facingFrom(toward.normal, toward.lift),
+      // The model's directions as the puzzle stands in the scene.
+      to: facingFrom(
+        sceneDirection(shape, toward.normal),
+        toward.lift && { ...toward.lift, toward: sceneDirection(shape, toward.lift.toward) },
+      ),
       t: 0,
     }
   }, [toward, facing, controls, camera, from, fromTarget])
