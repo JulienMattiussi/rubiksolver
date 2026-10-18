@@ -111,6 +111,22 @@ export function arrowsOf(
   })
 }
 
+/** The subjects a formula moves with an arrow (the others it moves, the
+ *  white taken off the top, are hatched as any piece moved). */
+export const arrowedSubjects = (cube: Cube, moves: readonly Turn[], step: TutorialStep) =>
+  arrowsOf(cube, moves, step, null).map((a) => a.piece)
+
+/** The subjects whose marker sticker a formula leaves on the step's side
+ *  (the corners white up once it is played), by index. */
+export function markedOn(cube: Cube, moves: readonly Turn[], step: TutorialStep): number[] {
+  const { side, marker, subjects = [] } = step
+  if (!side || !marker) return []
+  const after = applyMoves(cube, moves)
+  return subjects.filter((i) =>
+    after[i]!.stickers.some((s) => s.color === marker && s.normal.join() === side.join()),
+  )
+}
+
 /** A piece's colors, the marker's first (the yellow edge's: yellow-green). */
 export function pieceColors(cube: Cube, index: number, marker?: Color): Color[] {
   return [...cube[index]!.stickers]

@@ -1,3 +1,7 @@
+/** Names in a sentence: « a, b et c ». */
+const listFr = (names: readonly string[]) =>
+  names.length > 1 ? `${names.slice(0, -1).join(', ')} et ${names.at(-1)}` : (names[0] ?? '')
+
 /** The tutorial's texts (the source; English mirrors it). */
 export const TUTORIAL_FR = {
   button: 'Tutoriel',
@@ -50,8 +54,8 @@ export const TUTORIAL_FR = {
   checkAll: 'Vérifie les nouvelles positions : les pièces sont à leur place.',
   checkFigure: 'Vérifie la nouvelle figure que dessine le blanc en haut.',
   /** The check of a stage played by figures, by its key, given how far
-   *  its formula takes it (else `checkFigure`); or of a formula stage
-   *  (else `checkAll`). */
+   *  its formula takes it and the pieces it leaves marked on its side,
+   *  named (else `checkFigure`); or of a formula stage (else `checkAll`). */
   checks: {
     stepTutorialTurnOver2: () => 'Vérifie qu’un coin jaune a maintenant son jaune en bas.',
     // The white center counted with the edges.
@@ -66,14 +70,16 @@ export const TUTORIAL_FR = {
         ? 'Vérifie qu’un coin blanc est maintenant à sa place.'
         : `Vérifie que ${done} coins blancs sont maintenant à leur place.`,
     stepTutorialTopTwist: () => 'Vérifie que chaque coin a son blanc en haut : le cube est résolu.',
-    stepTutorialTopFace2: (done: number) =>
+    stepTutorialTopFace2: (done: number, pieces: readonly string[] = []) =>
       done === 0
         ? 'Aucun coin n’a encore son blanc en haut : la formule suivante s’en charge.'
-        : done === 1
-          ? 'Vérifie qu’un coin a maintenant son blanc en haut.'
-          : `Vérifie que ${done} coins ont maintenant leur blanc en haut.`,
+        : pieces.length === 1
+          ? `Vérifie que ${pieces[0]} a maintenant son blanc en haut.`
+          : pieces.length > 1
+            ? `Vérifie que ${listFr(pieces)} ont maintenant leur blanc en haut.`
+            : `Vérifie que ${done} coins ont maintenant leur blanc en haut.`,
     stepTutorialTopCorners2: () => 'Vérifie que chaque coin est à sa place : le cube est résolu.',
-  } as Record<string, (done: number) => string>,
+  } as Record<string, (done: number, pieces?: readonly string[]) => string>,
   /** The figures the top's white draws, by their key. */
   figures: {
     figureDot: 'Repère le blanc du haut : un point au centre, aucune arête blanche dessus.',
@@ -91,7 +97,11 @@ export const TUTORIAL_FR = {
       'Repère les coins blancs dont le blanc n’est pas en haut : chacun passe devant à droite pour être tourné.',
     figureTopNone: 'Repère les coins du haut : aucun n’a son blanc en haut.',
     figureTopOne: 'Repère les coins du haut : un seul a son blanc en haut.',
+    figureTopOneDetour:
+      'Repère les coins du haut : un seul a son blanc en haut. Ici, aucune formule aussi courte ne le garde : celle-ci le défait, mais mène tout droit à la face blanche.',
     figureTopTwo: 'Repère les coins du haut : deux ont leur blanc en haut.',
+    figureTopTwoDetour:
+      'Repère les coins du haut : deux ont leur blanc en haut. Ici, aucune formule aussi courte ne les garde : celle-ci n’en laisse qu’un, mais mène tout droit à la face blanche.',
     figureCornersTurn:
       'Les coins blancs se suivent déjà dans le bon ordre : un tour du haut les met en place.',
     figureCornersAdjacent:

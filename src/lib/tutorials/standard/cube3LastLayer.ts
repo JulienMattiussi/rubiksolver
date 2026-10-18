@@ -77,6 +77,8 @@ const whiteEdgesUp = (cube: Cube) =>
 const TOP_CROSS_STAGE: FigureStage = {
   kind: 'figures',
   side: FACE_NORMAL.U,
+  // The white cross, shown done.
+  shows: FACE_NORMAL.U,
   key: 'stepTutorialTopCross',
   stage: 4,
   done: (cube) => whiteEdgesUp(cube).length === 4,

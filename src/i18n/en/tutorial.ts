@@ -1,5 +1,9 @@
 import type { TUTORIAL_FR } from '../fr/tutorial'
 
+/** Names in a sentence: "a, b and c". */
+const listEn = (names: readonly string[]) =>
+  names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : (names[0] ?? '')
+
 export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   button: 'Tutorial',
   buttonTitle: 'Learn to solve it step by step, picking the pieces to move',
@@ -53,12 +57,14 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
         ? 'Check one white corner is now in its place.'
         : `Check ${done} white corners are now in their place.`,
     stepTutorialTopTwist: () => 'Check every corner has its white up: the cube is solved.',
-    stepTutorialTopFace2: (done: number) =>
+    stepTutorialTopFace2: (done: number, pieces: readonly string[] = []) =>
       done === 0
         ? 'No corner has its white up yet: the next formula sees to it.'
-        : done === 1
-          ? 'Check one corner now has its white up.'
-          : `Check ${done} corners now have their white up.`,
+        : pieces.length === 1
+          ? `Check ${pieces[0]} now has its white up.`
+          : pieces.length > 1
+            ? `Check ${listEn(pieces)} now have their white up.`
+            : `Check ${done} corners now have their white up.`,
     stepTutorialTopCorners2: () => 'Check every corner is in its place: the cube is solved.',
   },
   figures: {
@@ -77,7 +83,11 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
       'Spot the white corners whose white is not up: each comes front right to be turned.',
     figureTopNone: 'Spot the top corners: none has its white up.',
     figureTopOne: 'Spot the top corners: only one has its white up.',
+    figureTopOneDetour:
+      'Spot the top corners: only one has its white up. Here no formula as short keeps it: this one undoes it, but leads straight to the white face.',
     figureTopTwo: 'Spot the top corners: two have their white up.',
+    figureTopTwoDetour:
+      'Spot the top corners: two have their white up. Here no formula as short keeps them: this one leaves only one, but leads straight to the white face.',
     figureCornersTurn:
       'The white corners already follow each other in the right order: one turn of the top places them.',
     figureCornersAdjacent:

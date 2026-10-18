@@ -55,7 +55,9 @@ export function CubeView() {
           ? (i) => tones[i] === 'target' || i === shown?.piece || !!moved?.has(i)
           : previewed
       }
-      hatched={tones ? (i) => tones[i] === 'moved' : undefined}
+      // The piece standing where the pick goes is moved aside too: hatched
+      // as well as marked.
+      hatched={tones ? (i) => tones[i] === 'moved' || tones[i] === 'slot' : undefined}
       marked={tones ? (i) => tones[i] === 'slot' || lands(i) : undefined}
       pulse={!!tones}
       onPick={tutorial.step ? tutorial.click : undefined}

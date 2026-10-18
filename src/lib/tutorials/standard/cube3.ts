@@ -1,4 +1,5 @@
 import { FACE_COLOR } from '../../core/cube'
+import { FACE_NORMAL } from '../../core/geometry'
 import { CUBE_HOLDS, type Hold } from '../../core/hold'
 import { parseMoves } from '../../core/moves'
 import { colorAt, hasColors } from '../../core/pieces'
@@ -171,6 +172,8 @@ export const CUBE3_TUTORIAL = tutorialOf({
       kind: 'pieces',
       key: 'stepTutorialCross',
       stage: 1,
+      // The yellow cross, shown done.
+      shows: FACE_NORMAL.D,
       targets: SIDES.map(crossTarget),
       marker: Y,
       words: true,
@@ -181,6 +184,7 @@ export const CUBE3_TUTORIAL = tutorialOf({
       kind: 'pieces',
       key: 'stepTutorialCorner',
       stage: 2,
+      shows: FACE_NORMAL.D,
       targets: CORNER_PAIRS.map(cornerTarget),
       marker: Y,
       words: true,

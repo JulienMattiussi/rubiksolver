@@ -49,6 +49,8 @@ interface PieceStage {
   /** Its moves one by one with their words beside them (see
    *  `TutorialStep.words`). */
   readonly words?: true
+  /** The side it finishes (see `TutorialStep.shows`). */
+  readonly shows?: Vec3
   /** The sequences its formulas end on, read in its hold. */
   readonly algorithms?: readonly Sequence[]
   /** The pieces one may pick, the placed ones given (by default, its
@@ -99,6 +101,8 @@ export interface FigureStage {
   readonly marker?: Color
   /** The side it works on, its outward normal (see `TutorialStep.side`). */
   readonly side?: Vec3
+  /** The side it finishes (see `TutorialStep.shows`). */
+  readonly shows?: Vec3
   readonly progress: (cube: Cube) => { done: number; total: number }
   readonly algorithms?: readonly Sequence[]
 }
@@ -163,6 +167,7 @@ function figureStep(
     ...(def.subjects && { subjects: def.subjects(cube) }),
     ...(def.marker && { marker: def.marker }),
     ...(def.side && { side: def.side }),
+    ...(def.shows && { shows: def.shows }),
     placed: kept,
     suggestion: null,
     pickable: [],
@@ -188,6 +193,7 @@ function pieceStep(def: PieceStage, cube: Cube, begun: Cube, kept: number[]): Tu
     hold: (pick) => def.hold(begun, pick, next),
     ...(def.marker && { marker: def.marker }),
     ...(def.words && { words: def.words }),
+    ...(def.shows && { shows: def.shows }),
     ...(def.algorithms && { algorithms: def.algorithms }),
     placed,
     suggestion: { piece: next.piece(cube), slot: next.slot },

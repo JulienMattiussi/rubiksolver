@@ -1,7 +1,7 @@
 import { Check } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { Turn } from '@/lib/core/types'
-import { occupantOf, pieceColors } from '@/lib/tutorial/scene'
+import { markedOn, occupantOf, pieceColors } from '@/lib/tutorial/scene'
 import { formulaSegments } from '@/lib/tutorial/segments'
 import type { TutorialView } from '@/hooks/useTutorial'
 import { useI18n } from '@/i18n/i18nStore'
@@ -142,7 +142,11 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
     pick
       ? t.tutorial.check(name(pick.piece))
       : step.figure
-        ? (t.tutorial.checks[step.key]?.(step.outcome?.done ?? 0) ?? t.tutorial.checkFigure)
+        ? (t.tutorial.checks[step.key]?.(
+            step.outcome?.done ?? 0,
+            // Which pieces it leaves marked on the side, named.
+            markedOn(cube, view.moves ?? [], step).map(name),
+          ) ?? t.tutorial.checkFigure)
         : (t.tutorial.checks[step.key]?.(0) ?? t.tutorial.checkAll),
   ]
   return (

@@ -166,17 +166,22 @@ R D` répété, un seul pas, la première couche se défaisant en route).
 - **La tenue** : chaque pas dit comment tenir le puzzle, une tenue du cadre
   du tutoriel (`HoldFrame` ; pour un cube, `lib/core/hold.ts` le déduit
   de ses faces). La vue tourne vers le centre à tenir quand la tenue
-  change (plus haut pour une étape qui travaille le dessus, `side`), les
+  change (plus haut pour une étape qui travaille le dessus, `side`) ; la
+  formule qui achève une croix ou une face la montre (`shows`) jusqu'au
+  clic sur « Suivant », qui revient à la tenue suivante ; les
   coups de la formule s'écrivent et se décrivent dans cette tenue, et le
   pavé de coups aussi pendant le tutoriel : `R` tourne la face qu'on voit
   à droite.
 - **Sur le cube** : la pièce visée scintille en bleu et l'emplacement en
   ambre (`usePulse`), les pièces que la formule déplace sans les placer
-  sont hachurées (`hatchTexture`), et une flèche va de la face du sticker
+  sont hachurées (`hatchTexture`, celle qui occupe l'emplacement aussi),
+  et une flèche va de la face du sticker
   repère à celle où il arrive (`TutorialArrow` : un demi-cercle autour du
   milieu des deux faces, élargi jusqu'à passer au large du cube, en
   pointillés là où il est caché). Aux étapes par figures, les pièces
-  travaillées (`subjects`) gardent leurs couleurs, une flèche chacune ;
+  travaillées (`subjects`) gardent leurs couleurs, une flèche chacune
+  (celles qu'elle déplace sans flèche, un blanc qui quitte le dessus, sont
+  hachurées) ;
   plusieurs flèches défilent une à une (`useArrowTurns`), la pièce de
   départ de celle qu'on voit en bleu, celle de son arrivée en ambre.
 - **Jouer** : un clic sur une autre pièce la choisit, puis sur un

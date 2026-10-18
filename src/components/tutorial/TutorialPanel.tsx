@@ -48,13 +48,19 @@ export function TutorialPanel() {
   }, [step, showStage])
   const lift = liftFor(step)
   const viewToward = useView((s) => s.viewToward)
+  // The formula played ended its stage (all its pieces placed): the side it
+  // finished, shown until on to the next step.
+  const finished =
+    review && !busy && progress !== null && progress.done === progress.total
+      ? (step?.shows ?? null)
+      : null
   // A new way to hold the puzzle: the pad follows it, and the view turns to
-  // the side held in front.
+  // the side held in front (or to the side just finished).
   useEffect(() => {
     setHold(hold)
-    if (!hold) return
-    viewToward(frame.front(hold), lift)
-  }, [hold, frame, lift, setHold, viewToward])
+    if (finished) viewToward(finished)
+    else if (hold) viewToward(frame.front(hold), lift)
+  }, [hold, frame, lift, finished, setHold, viewToward])
   return (
     <section aria-label={t.tutorial.button} className={SECTION_BOX}>
       <div className="flex items-center justify-between">

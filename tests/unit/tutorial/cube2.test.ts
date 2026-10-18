@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { FACE_COLOR, isSolved, solvedCube } from '@/lib/core/cube'
+import { FACE_COLOR, isSolved, solvedCube, stateKey } from '@/lib/core/cube'
 import { FACE_NORMAL } from '@/lib/core/geometry'
+import { CUBE_HOLDS } from '@/lib/core/hold'
 import { invertMoves, parseMoves, scramble } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
 import { isFaceMove, type Cube } from '@/lib/core/types'
 import { PLL_T, PLL_Y, SUNE } from '@/lib/methods/standard/algs'
 import { topFaceDone2 } from '@/lib/methods/standard/cube2'
+import { markedOn } from '@/lib/tutorial/scene'
 import { tutorialFor } from '@/lib/tutorials/registry'
 import { TUTORIAL_EN } from '@/i18n/en/tutorial'
 import { TUTORIAL_FR } from '@/i18n/fr/tutorial'
@@ -99,6 +101,35 @@ describe('2x2 tutorial', () => {
     const { cube: solved } = walk(cube)
     expect(topFaceDone2(solved)).toBe(true)
   })
+
+  it('takes a white corner down only on a detour, and says so', () => {
+    // Every white face the Sunes lead to, three deep.
+    const sunes = CUBE_HOLDS.holds.flatMap((hold) =>
+      ['', 'U ', 'U2 ', "U' "].map((pre) =>
+        parseMoves(pre + SUNE).map((m) => CUBE_HOLDS.played(hold, m)),
+      ),
+    )
+    let states = [solvedCube('2')]
+    for (let d = 0; d < 3; d++)
+      states = states.flatMap((c) => sunes.map((s) => applyMoves(c, invertMoves(s))))
+    const up = (cube: Cube) => tutorial.stepOf(cube)?.progress?.done ?? 4
+    // Each white face once: every figure, every way it may be held.
+    const distinct = [...new Map(states.map((c) => [stateKey(c), c])).values()]
+    for (const start of distinct.slice(0, 30)) {
+      let cube = start
+      while (tutorial.stepOf(cube)?.key === 'stepTutorialTopFace2') {
+        const step = stepOf(cube)
+        const after = applyMoves(cube, step.formula(null)!)
+        // A step back only where no Sune as short goes forward: the figure
+        // says so.
+        // The corners the check names: those it leaves white up.
+        expect(markedOn(cube, step.formula(null)!, step)).toHaveLength(step.outcome!.done)
+        const back = !topFaceDone2(after) && up(after) < up(cube)
+        expect(back).toBe(step.figure!.endsWith('Detour'))
+        cube = after
+      }
+    }
+  }, 30000) // A search per step: slow on a loaded machine.
 
   it('swaps two corners side by side, or across: the parity', () => {
     // The corners in their place counted as they stand: none a turn off,

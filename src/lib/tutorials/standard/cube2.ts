@@ -1,5 +1,6 @@
 import { FACE_COLOR, isSolved, OPPOSITE_COLOR } from '../../core/cube'
 import { FACE_NORMAL } from '../../core/geometry'
+import { applyMoves } from '../../core/turn'
 import { CUBE_HOLDS, type Hold } from '../../core/hold'
 import { parseMoves } from '../../core/moves'
 import { colorAt, hasColors } from '../../core/pieces'
@@ -137,14 +138,33 @@ const PERM_GESTURES: Tagged[] = [
   ...gestures('diagonal', Y_PERM, true),
 ]
 
-/** A figure of the white face, by how many corners show white up: the
- *  Sune's chain from there. */
-const faceFigure = (key: string, up: number) => ({
+/** The Sune to play on a white face: the first of the shortest chain to
+ *  the face done, the one keeping the most white up (once per state: each
+ *  figure asks). */
+const SUNE_OF = new WeakMap<Cube, Gesture | null>()
+function suneFor(cube: Cube): Gesture | null {
+  if (!SUNE_OF.has(cube)) {
+    const rank = (c: Cube) => whiteUp(c).length
+    SUNE_OF.set(cube, firstGesture(cube, FACE_GESTURES, topFaceDone2, 3, CUBE_HOLDS, rank))
+  }
+  return SUNE_OF.get(cube)!
+}
+
+/** A figure of the white face, by how many corners show white up, and
+ *  whether its Sune takes some down (`detour`: no Sune as short keeps them,
+ *  the way to the figure it finishes). */
+const faceFigure = (key: string, up: number, detour: boolean) => ({
   key,
-  match: (cube: Cube) =>
-    whiteUp(cube).length === up
-      ? firstGesture(cube, FACE_GESTURES, topFaceDone2, 3, CUBE_HOLDS)
-      : null,
+  match: (cube: Cube) => {
+    if (whiteUp(cube).length !== up) return null
+    const sune = suneFor(cube)
+    if (!sune) return null
+    const after = applyMoves(
+      cube,
+      sune.moves.map((m) => CUBE_HOLDS.played(sune.hold, m)),
+    )
+    return (whiteUp(after).length < up && !topFaceDone2(after)) === detour ? sune : null
+  },
 })
 
 /** The sides a position touches. */
@@ -199,6 +219,8 @@ export const CUBE2_TUTORIAL = tutorialOf({
       kind: 'pieces',
       key: 'stepTutorialCorner2',
       stage: 1,
+      // The yellow face, shown done.
+      shows: FACE_NORMAL.D,
       targets: cornerTargets,
       marker: Y,
       words: true,
@@ -212,12 +234,15 @@ export const CUBE2_TUTORIAL = tutorialOf({
       kind: 'figures',
       key: 'stepTutorialTopFace2',
       stage: 2,
+      shows: FACE_NORMAL.U,
       side: FACE_NORMAL.U,
       done: topFaceDone2,
       figures: [
-        faceFigure('figureTopNone', 0),
-        faceFigure('figureTopOne', 1),
-        faceFigure('figureTopTwo', 2),
+        faceFigure('figureTopNone', 0, false),
+        faceFigure('figureTopOne', 1, false),
+        faceFigure('figureTopOneDetour', 1, true),
+        faceFigure('figureTopTwo', 2, false),
+        faceFigure('figureTopTwoDetour', 2, true),
       ],
       subjects: topCorners,
       marker: W,

@@ -20,7 +20,9 @@ export interface Gesture {
 /**
  * The first gesture of the shortest chain of `gestures` (at most `depth`
  * long) that brings the puzzle to `goal`: null if none does, or if it is
- * there already.
+ * there already. Of the gestures starting a shortest chain, the one leaving
+ * the puzzle best by `rank` (how far along it looks: never a step back
+ * when a chain as short goes forward).
  */
 export function firstGesture(
   cube: Cube,
@@ -28,23 +30,38 @@ export function firstGesture(
   goal: (cube: Cube) => boolean,
   depth: number,
   frame: HoldFrame,
+  rank: (cube: Cube) => number = () => 0,
 ): Gesture | null {
   if (goal(cube)) return null
   const played = gestures.map((g) => g.moves.map((m) => frame.played(g.hold, m)))
-  const seen = new Set([stateKey(cube)])
-  let frontier = played.map((moves, i) => ({ cube: applyMoves(cube, moves), first: i }))
-  for (let level = 1; level <= depth && frontier.length; level++) {
-    const found = frontier.find((n) => goal(n.cube))
-    if (found) return gestures[found.first]!
-    if (level === depth) break
-    const next: typeof frontier = []
-    for (const n of frontier) {
-      const key = stateKey(n.cube)
-      if (seen.has(key)) continue
-      seen.add(key)
-      for (const moves of played) next.push({ cube: applyMoves(n.cube, moves), first: n.first })
+  /** How many gestures from a state to the goal, at most `limit`. */
+  const distance = (start: Cube, limit: number) => {
+    const seen = new Set([stateKey(start)])
+    let frontier = [start]
+    for (let level = 0; level <= limit; level++) {
+      if (frontier.some(goal)) return level
+      if (level === limit) break
+      frontier = frontier.flatMap((c) =>
+        played.flatMap((moves) => {
+          const next = applyMoves(c, moves)
+          const key = stateKey(next)
+          if (seen.has(key)) return []
+          seen.add(key)
+          return [next]
+        }),
+      )
     }
-    frontier = next
+    return Infinity
   }
-  return null
+  let best: { gesture: Gesture; length: number; rank: number } | null = null
+  for (const [i, gesture] of gestures.entries()) {
+    const after = applyMoves(cube, played[i]!)
+    const length = 1 + distance(after, depth - 1)
+    if (length > depth) continue
+    const ranked = rank(after)
+    if (!best || length < best.length || (length === best.length && ranked > best.rank)) {
+      best = { gesture, length, rank: ranked }
+    }
+  }
+  return best?.gesture ?? null
 }

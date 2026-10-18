@@ -464,10 +464,13 @@ repère). Une formule qui ne fait que tourner le cube entier (un `Move`
 `whole`, noté `x y z` : le 2x2 retourné, jaune en bas) ne montre ni pièce
 gênante ni hachures. Une figure peut se résoudre par la plus courte chaîne de
 gestes appris (`firstGesture`, `lib/tutorial/macros.ts` : tenue, tour du
-haut, algorithme), dont chaque pas joue le premier geste.
+haut, algorithme), dont chaque pas joue le premier geste ; à longueur égale,
+celui qui avance le plus (`rank`), et une figure « détour » dit quand aucun
+n'avance (le 2x2 et ses Sunes).
 
 Chaque étape déclare aussi la face qu'elle travaille (`side`, une normale :
-flèches et vue) et si ses coups gardent leur description (`words`) : aucune
+flèches et vue), celle qu'elle achève (`shows` : une croix, une face, vers
+laquelle la vue se tourne quand la formule qui finit l'étape est jouée) et si ses coups gardent leur description (`words`) : aucune
 règle d'affichage ne dépend d'un numéro d'étape, d'une face ni d'une sorte
 de coup écrite dans le code commun. Les **tenues** (`TutorialPlan.frame`,
 un `HoldFrame`) disent comment tenir le modèle et lire un coup dans une

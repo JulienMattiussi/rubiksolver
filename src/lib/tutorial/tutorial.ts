@@ -78,6 +78,9 @@ export interface TutorialStep {
    *  following the marker only when it comes there), and the view looks at
    *  it. */
   readonly side?: Vec3
+  /** The side its stage finishes (its outward normal: a cross, a face),
+   *  shown once the formula ending the stage is played. */
+  readonly shows?: Vec3
   /** Whether its moves one by one keep their words beside them (the first
    *  steps, the letters being learnt); else they show in a row, their
    *  words in tooltips, but for those not shown yet. */

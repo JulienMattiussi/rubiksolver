@@ -5,7 +5,7 @@ import { invertMoves } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
 import { formulaUnderWay } from '@/lib/tutorial/keep'
 import { cubeShape, stateKey } from '@/lib/core/cube'
-import { tonesOf, type Tone } from '@/lib/tutorial/scene'
+import { arrowedSubjects, tonesOf, type Tone } from '@/lib/tutorial/scene'
 import {
   alreadyDoneStep,
   type Tutorial,
@@ -106,7 +106,14 @@ export function useTutorial(): TutorialView {
   const shown = underWay?.shown ? { moves: underWay.shown, done: underWay.done } : null
   const tones = useMemo(() => {
     if (!step || !moves || busy) return null
-    const tones = tonesOf(read, moves, pick, step.placed, step.focus, step.subjects)
+    const tones = tonesOf(
+      read,
+      moves,
+      pick,
+      step.placed,
+      step.focus,
+      arrowedSubjects(read, moves, step),
+    )
     // Played: the piece that stood in the way only moved like the others.
     return review ? tones.map((t) => (t === 'slot' ? 'moved' : t)) : tones
   }, [step, moves, busy, read, pick, review])

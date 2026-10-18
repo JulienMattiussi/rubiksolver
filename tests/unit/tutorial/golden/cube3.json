@@ -5379,7 +5379,7 @@
     "suggestion": null,
     "moves": "F R U R' U' F'",
     "formulas": {},
-    "tones": "ppppspmsmpspssssssppppspmsm",
+    "tones": "ppppspmsmpspssssssppppspmmm",
     "arrows": [
      {
       "piece": 15,
@@ -5468,7 +5468,7 @@
     "suggestion": null,
     "moves": "B L U L' U' B'",
     "formulas": {},
-    "tones": "ppppspmsmpspssssssppppspmsm",
+    "tones": "ppppspmmmpspsssssmppppspmsm",
     "arrows": [
      {
       "piece": 25,
