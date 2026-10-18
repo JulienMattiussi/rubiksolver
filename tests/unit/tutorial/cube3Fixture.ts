@@ -10,4 +10,4 @@ import { tutorialFor } from '@/lib/tutorials/registry'
 export const Y = FACE_COLOR.D
 export const scrambled = applyMoves(solvedCube('3'), parseMoves("R U F' L2 D B' R2 U' F L D2 B"))
 export const stepOf = (cube: Cube, begun?: Cube): TutorialStep =>
-  tutorialFor('3')!.stepOf(cube, begun)!
+  tutorialFor('3', 'beginner')!.stepOf(cube, begun)!

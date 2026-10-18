@@ -1,5 +1,5 @@
 import { applyMoves } from '../core/turn'
-import type { Color, Cube, Turn, Vec3 } from '../core/types'
+import { isFaceMove, type Color, type Cube, type Turn, type Vec3 } from '../core/types'
 import type { TutorialPick, TutorialStep } from './tutorial'
 
 /**
@@ -15,6 +15,11 @@ import type { TutorialPick, TutorialStep } from './tutorial'
 export type Tone = 'target' | 'slot' | 'placed' | 'subject' | 'moved' | 'still'
 
 /** Each piece's tone (by index) under a formula. */
+/** Whether a formula only turns the whole puzzle (x, y, z): held another
+ *  way, no piece moves on it, none stands in the way. */
+export const turnsWhole = (moves: readonly Turn[]) =>
+  moves.length > 0 && moves.every((m) => isFaceMove(m) && m.whole)
+
 export function tonesOf(
   cube: Cube,
   moves: readonly Turn[],
@@ -23,6 +28,7 @@ export function tonesOf(
   focus: readonly number[] = [],
   subjects: readonly number[] = [],
 ): Tone[] {
+  if (turnsWhole(moves)) return cube.map((_, i) => (pick && i === pick.piece ? 'target' : 'still'))
   const after = applyMoves(cube, moves)
   return cube.map((c, i) => {
     if ((pick && i === pick.piece) || focus.includes(i)) return 'target'
@@ -112,8 +118,14 @@ export function pieceColors(cube: Cube, index: number, marker?: Color): Color[] 
     .map((s) => s.color)
 }
 
-/** The piece standing where a pick goes (null: none, or the pick's own). */
-export function occupantOf(cube: Cube, pick: TutorialPick): number | null {
+/** The piece standing where a pick goes (null: none, the pick's own, or
+ *  the formula only turning the whole puzzle). */
+export function occupantOf(
+  cube: Cube,
+  pick: TutorialPick,
+  moves: readonly Turn[] = [],
+): number | null {
+  if (turnsWhole(moves)) return null
   const at = cube.findIndex((c, i) => i !== pick.piece && c.position.join() === pick.slot.join())
   return at < 0 ? null : at
 }

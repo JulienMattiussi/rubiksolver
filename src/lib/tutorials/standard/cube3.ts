@@ -1,9 +1,9 @@
 import { FACE_COLOR } from '../../core/cube'
 import { CUBE_HOLDS, type Hold } from '../../core/hold'
-import { parseMoves, simplifyMoves } from '../../core/moves'
+import { parseMoves } from '../../core/moves'
 import { colorAt, hasColors } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
-import type { Color, Cube, Face, Move, Vec3 } from '../../core/types'
+import type { Cube, Face, Move, Vec3 } from '../../core/types'
 import {
   CORNER_PAIRS,
   cornerPlaced,
@@ -14,6 +14,15 @@ import { homeOf } from '../../methods/standard/pieces3'
 import { centersHome, recenter } from '../../methods/standard/recenter'
 import { OUTER_GENERATORS, search, SIDES } from '../../solve/solverKit'
 import { tutorialOf, type Kept, type Target } from '../../tutorial/kit'
+import {
+  cornerFormula,
+  cornerPairAt,
+  cornerSlot,
+  pieceWith,
+  sameAt,
+  TRIGGER,
+  type Pair,
+} from './cornerTrigger'
 import { LAST_LAYER } from './cube3LastLayer'
 import type { TutorialPick } from '../../tutorial/tutorial'
 
@@ -36,16 +45,6 @@ import type { TutorialPick } from '../../tutorial/tutorial'
 
 const Y = FACE_COLOR.D
 const W = FACE_COLOR.U
-
-/** A side slot, by its two sides: the second the first's right (seen with
- *  the first in front), as its corners and middle edges are named. */
-type Pair = (typeof CORNER_PAIRS)[number]
-
-const sameAt = (a: Vec3, b: Vec3) => a.join() === b.join()
-
-/** The index of the piece carrying these colors. */
-const pieceWith = (cube: Cube, colors: readonly Color[]) =>
-  cube.findIndex((c) => hasColors(c, colors))
 
 // ---------------------------------------------------------------------------
 // 1. The cross
@@ -70,51 +69,11 @@ function crossFormula(cube: Cube, pick: TutorialPick, kept: Kept): Move[] {
 // 2. The yellow corners
 // ---------------------------------------------------------------------------
 
-const cornerSlot = ([a, b]: Pair): Vec3 => homeOf(`D${a}${b}`)
-const cornerPairAt = (at: Vec3) => CORNER_PAIRS.find((p) => sameAt(cornerSlot(p), at)) ?? null
-
 const cornerTarget = (pair: Pair): Target => ({
   piece: (cube) => pieceWith(cube, [Y, FACE_COLOR[pair[0]], FACE_COLOR[pair[1]]]),
   slot: cornerSlot(pair),
   placed: (cube) => cornerPlaced(cube, pair[0], pair[1]),
 })
-
-/** The corners' trigger, read with the slot front right. */
-const TRIGGER = parseMoves("R U R' U'")
-
-/** A slot's trigger as played: held with its first side in front. */
-const triggerAt = ([a]: Pair) => TRIGGER.map((m) => CUBE_HOLDS.played(a, m) as Move)
-
-/**
- * A corner to a slot, yellow down: out of the bottom layer if it stands in
- * another slot (that slot's trigger lifts it), the top turned to bring it
- * above the slot, then the slot's trigger until it lands. The trigger
- * leaves the bottom layer as it was but for its slot.
- */
-function cornerFormula(cube: Cube, pick: TutorialPick): Move[] | null {
-  const pair = cornerPairAt(pick.slot)
-  if (!pair) return null
-  const lands = (c: Cube) =>
-    sameAt(c[pick.piece]!.position, pick.slot) && colorAt(c[pick.piece]!, 'D') === Y
-  const moves: Move[] = []
-  const play = (more: Move[]) => {
-    moves.push(...more)
-    cube = applyMoves(cube, more)
-  }
-  const from = cornerPairAt(cube[pick.piece]!.position)
-  if (from && from !== pair) play(triggerAt(from))
-  if (!sameAt(cube[pick.piece]!.position, pick.slot)) {
-    const above = homeOf(`U${pair[0]}${pair[1]}`)
-    const turns = ([1, 2, 3] as const).find((amount) =>
-      sameAt(applyMoves(cube, [{ face: 'U', amount }])[pick.piece]!.position, above),
-    )
-    if (turns) play([{ face: 'U', amount: turns }])
-  }
-  for (let k = 0; k < 6 && !lands(cube); k++) play(triggerAt(pair))
-  // The trigger lifting it out ends on the top, as the turn above starts:
-  // one turn of the top.
-  return lands(cube) ? simplifyMoves(moves) : null
-}
 
 // ---------------------------------------------------------------------------
 // 3. The middle edges
@@ -228,7 +187,7 @@ export const CUBE3_TUTORIAL = tutorialOf({
       algorithms: [[TRIGGER]],
       // Held with the slot front right: its trigger reads R U R' U'.
       hold: (_, pick, next) => pairOf(pick?.slot ?? next.slot)[0] as Hold,
-      formula: (cube, pick) => cornerFormula(cube, pick),
+      formula: (cube, pick) => cornerFormula(cube, pick, Y),
       checked: true,
     },
     {

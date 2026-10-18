@@ -310,6 +310,9 @@ export interface Move {
   readonly depth?: 2 | 3
   /** Wide turn: layers 1..depth turn together. Requires `depth`. */
   readonly wide?: true
+  /** The whole puzzle turned as `face` turns (x, y, z: held another way,
+   *  nothing moved on it). Kept on R, U or F. */
+  readonly whole?: true
 }
 
 /** A turn of a star prism's top (`U`) or bottom (`D`) layer, or of the 4-star's

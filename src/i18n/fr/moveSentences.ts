@@ -229,6 +229,7 @@ export function describeFr(d: MoveDescription): string {
     wide: d.halfPuzzle
       ? `toute ${HALF_NAMES_FR[d.face]} du puzzle`
       : `la ${face} et la tranche interne voisine ensemble`,
+    whole: 'tout le cube dans tes mains',
   }[d.kind]
   const how =
     d.turn === 'half'
@@ -327,6 +328,7 @@ export function describeShortFr(d: MoveDescription): string {
       ? `de la troisième couche depuis la ${face}`
       : `de la tranche interne voisine de la ${face}`,
     wide: d.halfPuzzle ? of(HALF_NAMES_FR[d.face]) : `de la ${face} et de sa tranche voisine`,
+    whole: 'du cube entier',
   }[d.kind]
   if (d.turn === 'half') return `Rotation ${what} deux fois (demi-tour)`
   const seen = d.kind === 'face' ? 'en la regardant' : `vu depuis la ${face}`

@@ -90,7 +90,8 @@ export interface GuideGroup {
 /** What a turn does, for its sentence (see the translations). */
 export type MoveDescription =
   | {
-      readonly kind: 'face' | 'middle' | 'slice' | 'wide'
+      /** `whole`: the puzzle itself turned (x, y, z), as `face` turns. */
+      readonly kind: 'face' | 'middle' | 'slice' | 'wide' | 'whole'
       readonly face: Face
       readonly turn: 'cw' | 'ccw' | 'half'
       /** A wide turn taking half the mechanism (a 4x4's Rw, a 6x6's 3Rw). */
@@ -435,7 +436,7 @@ export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
     return { kind: 'ring', ring: turn.ring, pieces, clockwise: turn.amount <= 3 }
   }
   const direction = turn.amount === 2 ? 'half' : turn.amount === 1 ? 'cw' : 'ccw'
-  const kind = kindOf(turn, SHAPE_DIMS[shape])
+  const kind = turn.whole ? 'whole' : kindOf(turn, SHAPE_DIMS[shape])
   // Two layers out of the mechanism's four (three of six): half of it.
   const depth = turn.depth ?? 1
   const halfPuzzle = kind === 'wide' && 2 * depth === faceLayers(turnDims(shape), turn.face)

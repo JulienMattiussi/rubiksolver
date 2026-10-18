@@ -97,6 +97,10 @@ export interface Tutorial {
    *  each one's key (the first stage's first). */
   readonly stages: number
   readonly stageKeys: readonly string[]
+  /** The color of the side of this outward normal, and whether a center
+   *  shows it (the 3x3's) or the pieces' frame only (a 2x2's, from its
+   *  anchor corner): what the user is told to hold in front. */
+  readonly faceColor: (cube: Cube, normal: Vec3) => { color: Color; center: boolean } | null
 }
 
 /** A stage the puzzle already meets when the tutorial comes to it: shown

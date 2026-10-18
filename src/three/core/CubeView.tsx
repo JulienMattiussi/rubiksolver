@@ -67,6 +67,7 @@ export function CubeView() {
           fromNormal={path.fromNormal}
           to={visualPosition(path.to, dims)}
           toNormal={path.toNormal}
+          dims={dims}
           fade={fade?.(i)}
         />
       ))}

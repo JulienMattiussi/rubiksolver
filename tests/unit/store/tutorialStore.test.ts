@@ -17,7 +17,7 @@ function drain() {
 
 /** The step and suggested formula on the cube as it is. */
 function current() {
-  const step = tutorialFor('3')!.stepOf(useCube.getState().cube)!
+  const step = tutorialFor('3', 'beginner')!.stepOf(useCube.getState().cube)!
   const pick = step.suggestion!
   return { step, pick, moves: step.formula(pick)! }
 }
@@ -83,7 +83,7 @@ describe('tutorial store', () => {
     const { pick } = current()
     byHand('U')
     // The formula from there, for the same pick.
-    const rest = tutorialFor('3')!.stepOf(useCube.getState().cube)!
+    const rest = tutorialFor('3', 'beginner')!.stepOf(useCube.getState().cube)!
     useTutorialStore.getState().apply({ key: rest.key, moves: rest.formula(pick)! }, pick)
     drain()
     expect(useTutorialStore.getState().played[0]!.manual).toHaveLength(1)

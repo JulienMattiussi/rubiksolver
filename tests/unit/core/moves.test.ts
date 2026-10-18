@@ -14,6 +14,9 @@ import {
   simplifyMoves,
 } from '@/lib/core/moves'
 import { seededRng } from '../../helpers'
+import { describeMove } from '@/lib/app/moveGuide'
+import { isSolved, solvedCube } from '@/lib/core/cube'
+import { applyMoves } from '@/lib/core/turn'
 
 describe('moves notation', () => {
   it('formats each amount', () => {
@@ -130,5 +133,27 @@ describe('layered moves notation (4x4)', () => {
     expect(moves.some((m) => !m.depth)).toBe(true)
     for (let i = 1; i < moves.length; i++) expect(moves[i]!.face).not.toBe(moves[i - 1]!.face)
     expect(scramble('3', 30, seededRng(7)).every((m) => !m.depth && !m.wide)).toBe(true)
+  })
+})
+
+describe('whole-puzzle rotations', () => {
+  it('reads and writes x, y, z, on any face they are kept', () => {
+    expect(parseMoves("x y2 z'")).toEqual([
+      { face: 'R', amount: 1, whole: true },
+      { face: 'U', amount: 2, whole: true },
+      { face: 'F', amount: 3, whole: true },
+    ])
+    expect(formatMoves(parseMoves("x y2 z'"))).toBe("x y2 z'")
+    // Held another way, L turns the whole puzzle as x' does.
+    expect(formatMove({ face: 'L', amount: 1, whole: true })).toBe("x'")
+  })
+
+  it('moves every piece, keeping the puzzle as it is', () => {
+    const cube = applyMoves(solvedCube('2'), parseMoves("R U F'"))
+    const turned = applyMoves(cube, parseMoves('x'))
+    expect(turned.every((c, i) => c.position.join() !== cube[i]!.position.join())).toBe(true)
+    // Solved stays solved: held another way.
+    expect(isSolved(applyMoves(solvedCube('2'), parseMoves("x y' z2")))).toBe(true)
+    expect(describeMove(parseMove('y')!, '2').kind).toBe('whole')
   })
 })

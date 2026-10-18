@@ -27,7 +27,9 @@ describe('the white cross, by its figures', () => {
     expect(arrows.length).toBeGreaterThanOrEqual(2)
     for (const arrow of arrows) expect(arrow.toNormal).toEqual([0, 1, 0])
     // Played, the line becomes the cross: the stage is done.
-    const after = tutorialFor('3')!.stepOf(applyMoves(line.cube, line.step.formula(null)!))
+    const after = tutorialFor('3', 'beginner')!.stepOf(
+      applyMoves(line.cube, line.step.formula(null)!),
+    )
     expect(after?.key).not.toBe('stepTutorialTopCross')
   })
 

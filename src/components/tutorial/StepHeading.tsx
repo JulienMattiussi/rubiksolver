@@ -10,8 +10,12 @@ export function StepHeading({
   step,
   progress,
   stages,
+  hatched,
 }: {
   step: TutorialStep
+  /** Whether its formula moves pieces aside (not when it only turns the
+   *  whole puzzle): the hatches' legend shows. */
+  hatched: boolean
   /** How many stages the tutorial has. */
   stages: number
   progress: { done: number; total: number } | null
@@ -40,7 +44,7 @@ export function StepHeading({
         </div>
       )}
       <p className="mt-1 text-xs leading-relaxed text-slate-400">{t.tutorial.hints[step.key]}</p>
-      {(step.kind === 'pieces' || step.kind === 'figure' || step.kind === 'formula') && (
+      {hatched && (step.kind === 'pieces' || step.kind === 'figure' || step.kind === 'formula') && (
         <p className="mt-2 flex items-center gap-2 text-xs text-slate-400">
           <HatchedCubie className="size-6 shrink-0" />
           {t.tutorial.legendMoved}

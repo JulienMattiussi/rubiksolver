@@ -13,6 +13,7 @@ import { Instructions } from './Instructions'
 import { GoldTrophy } from './GoldTrophy'
 import { StepHeading } from './StepHeading'
 import { liftFor } from './liftFor'
+import { turnsWhole } from '@/lib/tutorial/scene'
 
 /** In place of the solve block while the tutorial is on: its step
  *  (`StepHeading`) and its instructions (`Instructions`), applying the
@@ -48,16 +49,11 @@ export function TutorialPanel() {
   const lift = liftFor(step)
   const viewToward = useView((s) => s.viewToward)
   // A new way to hold the puzzle: the pad follows it, and the view turns to
-  // its front center (the cube's, wherever it stands).
+  // the side held in front.
   useEffect(() => {
     setHold(hold)
     if (!hold) return
-    const front = useCube
-      .getState()
-      .cube.find(
-        (c) => c.stickers.length === 1 && c.stickers[0]!.normal.join() === frame.front(hold).join(),
-      )
-    if (front) viewToward(front.stickers[0]!.normal, lift)
+    viewToward(frame.front(hold), lift)
   }, [hold, frame, lift, setHold, viewToward])
   return (
     <section aria-label={t.tutorial.button} className={SECTION_BOX}>
@@ -76,7 +72,14 @@ export function TutorialPanel() {
           <X className="size-4" aria-hidden />
         </button>
       </div>
-      {step && <StepHeading step={step} progress={progress} stages={view.stages} />}
+      {step && (
+        <StepHeading
+          step={step}
+          progress={progress}
+          stages={view.stages}
+          hatched={!turnsWhole(view.moves ?? [])}
+        />
+      )}
       {/* Every stage done: the puzzle solved. */}
       {!step && (
         <div className="flex flex-col items-center gap-3 py-4 text-center">

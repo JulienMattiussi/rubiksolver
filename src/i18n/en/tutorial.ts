@@ -13,6 +13,7 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   alreadyDoneNext: 'On to the next step.',
   locked: 'Unavailable during the tutorial: leave it first',
   facing: (color: string) => `Hold the ${color} center facing you.`,
+  facingFace: (color: string) => `Hold the ${color} side facing you.`,
   facingTitle: 'Turn the view to face it',
   piece: (stickers: number, colors: string) =>
     stickers === 1
@@ -41,6 +42,7 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   checkAll: 'Check the new positions: the pieces are in their place.',
   checkFigure: 'Check the new figure the white draws on top.',
   checks: {
+    stepTutorialTurnOver2: () => 'Check a yellow corner now has its yellow down.',
     stepTutorialTopCross: (done: number) => `Check there are now ${done + 1} white faces up.`,
     stepTutorialTopEdges: (done: number) =>
       done === 1
@@ -51,6 +53,13 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
         ? 'Check one white corner is now in its place.'
         : `Check ${done} white corners are now in their place.`,
     stepTutorialTopTwist: () => 'Check every corner has its white up: the cube is solved.',
+    stepTutorialTopFace2: (done: number) =>
+      done === 0
+        ? 'No corner has its white up yet: the next formula sees to it.'
+        : done === 1
+          ? 'Check one corner now has its white up.'
+          : `Check ${done} corners now have their white up.`,
+    stepTutorialTopCorners2: () => 'Check every corner is in its place: the cube is solved.',
   },
   figures: {
     figureDot: 'Spot the white on top: a dot in the middle, no white edge up.',
@@ -66,6 +75,15 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
     figureCornersNone: 'No white corner is in its place yet: the formula will place one.',
     figureCornersTwist:
       'Spot the white corners whose white is not up: each comes front right to be turned.',
+    figureTopNone: 'Spot the top corners: none has its white up.',
+    figureTopOne: 'Spot the top corners: only one has its white up.',
+    figureTopTwo: 'Spot the top corners: two have their white up.',
+    figureCornersTurn:
+      'The white corners already follow each other in the right order: one turn of the top places them.',
+    figureCornersAdjacent:
+      'Two neighboring corners must be swapped: brought to the right, the formula swaps the two right corners.',
+    figureCornersDiagonal:
+      'Two corners across must be swapped: that is the 2x2 parity, which a formula of its own fixes.',
   },
   legendMoved:
     'The hatched cubes will be moved by the formula, with no effect on the expected result.',
@@ -88,6 +106,12 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
       `${done} of ${total} corner${total > 1 ? 's' : ''} in place`,
     stepTutorialTopTwist: (done: number, total: number) =>
       `${done} of ${total} corner${total > 1 ? 's' : ''} white up`,
+    stepTutorialCorner2: (done: number, total: number) =>
+      `${done} of ${total} corner${total > 1 ? 's' : ''} placed`,
+    stepTutorialTopFace2: (done: number, total: number) =>
+      `${done} of ${total} corner${total > 1 ? 's' : ''} white up`,
+    stepTutorialTopCorners2: (done: number, total: number) =>
+      `${done} of ${total} corner${total > 1 ? 's' : ''} in place`,
   },
   titles: {
     stepRecenter: 'Put the centers back in place',
@@ -98,6 +122,10 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
     stepTutorialTopEdges: 'Place the white edges',
     stepTutorialTopCorners: 'Place the white corners',
     stepTutorialTopTwist: 'Turn the white corners',
+    stepTutorialTurnOver2: 'Turn the cube over, yellow down',
+    stepTutorialCorner2: 'Place the yellow corners',
+    stepTutorialTopFace2: 'Build the white face',
+    stepTutorialTopCorners2: 'Place the white corners',
   },
   hints: {
     stepRecenter:
@@ -111,5 +139,12 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
     stepTutorialTopCorners: 'Place each white corner between its three centers, even turned wrong.',
     stepTutorialTopTwist:
       'Turn each white corner so its white is up. The first layer comes apart on the way: go on, it comes back at the end.',
+    stepTutorialTurnOver2:
+      'A 2x2 has no centers: a yellow corner with its yellow down is the landmark. None has its yellow down: turn the cube over to bring one. No face turns.',
+    stepTutorialCorner2:
+      'A 2x2 has no centers: a yellow corner already yellow down is the landmark, and the sides’ colors are read on it. Place the other yellow corners one by one around it, yellow down.',
+    stepTutorialTopFace2: 'Turn the top corners so their white is up.',
+    stepTutorialTopCorners2:
+      'Place each white corner in its place. Two corners across to swap is the 2x2 parity: it has a formula of its own.',
   },
 }

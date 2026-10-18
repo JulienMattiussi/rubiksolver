@@ -48,6 +48,7 @@ interface Slab {
  * the same side of the same cut, so its face still carries it along.
  */
 export function moveSlab(move: Move, mechanism: Dims): Slab {
+  if (move.whole) return { lo: -Infinity, hi: Infinity }
   const spec = FACE_SPEC[move.face]
   const coords = layerCoords(mechanism[spec.coordIndex])
   const outermost = spec.dir > 0 ? coords.length - 1 : 0
@@ -120,6 +121,7 @@ export function turnAllowed(cube: Cube, move: Turn): boolean {
   if (isPyraMove(move) || isGhostMove(move) || isPuckMove(move)) return true
   if (isRainbowMove(move) || isGearMove(move) || isMegaMove(move)) return true
   if (isCopterMove(move)) return true
+  if (move.whole) return true
   const shape = cubeShape(cube)
   const own = MODELS[shape]?.turnAllowed
   if (own) return own(cube, move)

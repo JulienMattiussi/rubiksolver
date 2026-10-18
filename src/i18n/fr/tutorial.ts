@@ -15,6 +15,8 @@ export const TUTORIAL_FR = {
   /** Why the actions replacing the cube are off. */
   locked: 'Indisponible pendant le tutoriel : quitte-le d’abord',
   facing: (color: string) => `Place le centre ${color} face à toi.`,
+  /** A side with no center (a 2x2's), told by its color. */
+  facingFace: (color: string) => `Place le côté ${color} face à toi.`,
   facingTitle: 'Tourner la vue pour l’avoir face à toi',
   /** A piece named by its kind (its stickers' count) and colors. */
   piece: (stickers: number, colors: string) =>
@@ -48,8 +50,10 @@ export const TUTORIAL_FR = {
   checkAll: 'Vérifie les nouvelles positions : les pièces sont à leur place.',
   checkFigure: 'Vérifie la nouvelle figure que dessine le blanc en haut.',
   /** The check of a stage played by figures, by its key, given how far
-   *  its formula takes it (else `checkFigure`). */
+   *  its formula takes it (else `checkFigure`); or of a formula stage
+   *  (else `checkAll`). */
   checks: {
+    stepTutorialTurnOver2: () => 'Vérifie qu’un coin jaune a maintenant son jaune en bas.',
     // The white center counted with the edges.
     stepTutorialTopCross: (done: number) =>
       `Vérifie qu’il y a maintenant ${done + 1} faces blanches vers le haut.`,
@@ -62,6 +66,13 @@ export const TUTORIAL_FR = {
         ? 'Vérifie qu’un coin blanc est maintenant à sa place.'
         : `Vérifie que ${done} coins blancs sont maintenant à leur place.`,
     stepTutorialTopTwist: () => 'Vérifie que chaque coin a son blanc en haut : le cube est résolu.',
+    stepTutorialTopFace2: (done: number) =>
+      done === 0
+        ? 'Aucun coin n’a encore son blanc en haut : la formule suivante s’en charge.'
+        : done === 1
+          ? 'Vérifie qu’un coin a maintenant son blanc en haut.'
+          : `Vérifie que ${done} coins ont maintenant leur blanc en haut.`,
+    stepTutorialTopCorners2: () => 'Vérifie que chaque coin est à sa place : le cube est résolu.',
   } as Record<string, (done: number) => string>,
   /** The figures the top's white draws, by their key. */
   figures: {
@@ -78,6 +89,15 @@ export const TUTORIAL_FR = {
     figureCornersNone: 'Aucun coin blanc n’est encore à sa place : la formule en placera un.',
     figureCornersTwist:
       'Repère les coins blancs dont le blanc n’est pas en haut : chacun passe devant à droite pour être tourné.',
+    figureTopNone: 'Repère les coins du haut : aucun n’a son blanc en haut.',
+    figureTopOne: 'Repère les coins du haut : un seul a son blanc en haut.',
+    figureTopTwo: 'Repère les coins du haut : deux ont leur blanc en haut.',
+    figureCornersTurn:
+      'Les coins blancs se suivent déjà dans le bon ordre : un tour du haut les met en place.',
+    figureCornersAdjacent:
+      'Deux coins voisins sont à échanger : amenés à droite, la formule échange les deux coins de droite.',
+    figureCornersDiagonal:
+      'Deux coins en diagonale sont à échanger : c’est la parité du 2x2, qu’une formule à part corrige.',
   } as Record<string, string>,
   /** The legend of the hatched pieces, under the step's hint. */
   legendMoved:
@@ -103,6 +123,12 @@ export const TUTORIAL_FR = {
       `${done} coin${done > 1 ? 's' : ''} sur ${total} à sa place`,
     stepTutorialTopTwist: (done: number, total: number) =>
       `${done} coin${done > 1 ? 's' : ''} sur ${total} blanc en haut`,
+    stepTutorialCorner2: (done: number, total: number) =>
+      `${done} coin${done > 1 ? 's' : ''} sur ${total} en place`,
+    stepTutorialTopFace2: (done: number, total: number) =>
+      `${done} coin${done > 1 ? 's' : ''} sur ${total} blanc en haut`,
+    stepTutorialTopCorners2: (done: number, total: number) =>
+      `${done} coin${done > 1 ? 's' : ''} sur ${total} à sa place`,
   } as Record<string, (done: number, total: number) => string>,
   /** Each step's goal, by its key: the panel's heading. */
   titles: {
@@ -114,6 +140,10 @@ export const TUTORIAL_FR = {
     stepTutorialTopEdges: 'Placer les arêtes blanches',
     stepTutorialTopCorners: 'Placer les coins blancs',
     stepTutorialTopTwist: 'Tourner les coins blancs',
+    stepTutorialTurnOver2: 'Retourner le cube, jaune en bas',
+    stepTutorialCorner2: 'Placer les coins jaunes',
+    stepTutorialTopFace2: 'Construire la face blanche',
+    stepTutorialTopCorners2: 'Placer les coins blancs',
   } as Record<string, string>,
   /** What each step asks, by its key. */
   hints: {
@@ -130,5 +160,12 @@ export const TUTORIAL_FR = {
       'Place chaque coin blanc entre ses trois centres, même s’il est mal tourné.',
     stepTutorialTopTwist:
       'Tourne chaque coin blanc pour que son blanc soit en haut. La première couche se défait en route : continue, elle se refait à la fin.',
+    stepTutorialTurnOver2:
+      'Le 2x2 n’a pas de centres : un coin jaune dont le jaune est en bas sert de repère. Aucun n’a son jaune en bas : retourne le cube pour en amener un. Aucune face ne tourne.',
+    stepTutorialCorner2:
+      'Le 2x2 n’a pas de centres : un coin jaune déjà jaune en bas sert de repère, et les couleurs des faces se lisent sur lui. Place un à un les autres coins jaunes autour de lui, jaune vers le bas.',
+    stepTutorialTopFace2: 'Tourne les coins du haut pour que leur blanc soit en haut.',
+    stepTutorialTopCorners2:
+      'Place chaque coin blanc à sa place. Deux coins en diagonale à échanger, c’est la parité du 2x2 : elle a sa propre formule.',
   } as Record<string, string>,
 }

@@ -6,9 +6,9 @@ import { PLACE as ARROW } from './colors'
 
 /** A face's center, from its cell's (half a cell out, a hair over it). */
 const FACE = 0.52
-/** The puzzle's half side (its drawing's), and how far off it the line
- *  keeps at least. */
-const HALF = 1.5
+/** The lengths below are a 3x3's, in cells: a puzzle drawn with another
+ *  longest side has them in proportion (`k`), so they keep their size on
+ *  screen. How far off the puzzle's box the line keeps at least. */
 const GAP = 0.2
 /** The head's length, and the margin: the straight run out of each face,
  *  and how much wider than the way between the faces the circle is. */
@@ -30,9 +30,18 @@ const JOIN = Math.PI / 4
 
 const v = () => new THREE.Vector3()
 
-/** Whether a point is off the puzzle by the gap (its box, exactly). */
-const clear = (p: THREE.Vector3) =>
-  Math.max(Math.abs(p.x), Math.abs(p.y), Math.abs(p.z)) >= HALF + GAP
+/** The puzzle's box in cells (its drawing's sides), and the lengths'
+ *  proportion to a 3x3's. */
+interface Box {
+  readonly half: THREE.Vector3
+  readonly k: number
+}
+
+/** Whether a point is off the puzzle's box by the gap. */
+const clear = (p: THREE.Vector3, { half, k }: Box) =>
+  Math.abs(p.x) >= half.x + GAP * k ||
+  Math.abs(p.y) >= half.y + GAP * k ||
+  Math.abs(p.z) >= half.z + GAP * k
 
 /** A curve from `p` leaving along `dp` to `q` arriving along `dq`. */
 function joining(p: THREE.Vector3, dp: THREE.Vector3, q: THREE.Vector3, dq: THREE.Vector3) {
@@ -73,7 +82,9 @@ function arrowLine(
   base: THREE.Vector3,
   n2: THREE.Vector3,
   view: THREE.Vector3,
+  box: Box,
 ): THREE.Vector3[] {
+  const margin = MARGIN * box.k
   const m = v().addVectors(a, b).multiplyScalar(0.5)
   const u = a.distanceTo(b) > 1e-6 ? v().subVectors(a, m).normalize() : across(n1, n1, view)
   // Its side: away from the center, unless the middle sits near it (faces
@@ -81,12 +92,12 @@ function arrowLine(
   // rather than edge on, a line through the puzzle.
   const flat = across(v().crossVectors(view, u), u, view)
   const out =
-    m.length() < NEAR_CENTER
+    m.length() < NEAR_CENTER * box.k
       ? flat.multiplyScalar(flat.dot(m) < 0 ? -1 : 1)
       : across(m.clone().addScaledVector(view, LEAN), u, view)
-  const leaveFrom = a.clone().addScaledVector(n1, MARGIN)
-  const landAt = base.clone().addScaledVector(n2, MARGIN)
-  let radius = a.distanceTo(m) + MARGIN
+  const leaveFrom = a.clone().addScaledVector(n1, margin)
+  const landAt = base.clone().addScaledVector(n2, margin)
+  let radius = a.distanceTo(m) + margin
   let line: THREE.Vector3[] = [a, leaveFrom, landAt, base]
   for (let k = 0; k < TRIES; k++, radius *= WIDER) {
     // From beside a (angle 0) over the top (a quarter) to beside b (a half).
@@ -105,7 +116,7 @@ function arrowLine(
     line = [a, ...leave, ...middle.slice(1, -1), ...land, base]
     // The ends sit on their faces: only what lies past their straight runs
     // must clear.
-    if (line.slice(1, -1).every(clear)) return line
+    if (line.slice(1, -1).every((p) => clear(p, box))) return line
   }
   return line
 }
@@ -119,11 +130,13 @@ function Marks({
   quaternion,
   start,
   hidden,
+  k,
 }: {
   head: THREE.Vector3
   quaternion: THREE.Quaternion
   start: THREE.Vector3
   hidden: boolean
+  k: number
 }) {
   const material = hidden ? (
     <meshBasicMaterial color={ARROW} depthTest={false} transparent opacity={0.35} />
@@ -133,11 +146,11 @@ function Marks({
   return (
     <>
       <mesh position={head} quaternion={quaternion} renderOrder={hidden ? 9 : 10}>
-        <coneGeometry args={[0.15, HEAD, 16]} />
+        <coneGeometry args={[0.15 * k, HEAD * k, 16]} />
         {material}
       </mesh>
       <mesh position={start} renderOrder={hidden ? 9 : 10}>
-        <sphereGeometry args={[0.09, 16, 8]} />
+        <sphereGeometry args={[0.09 * k, 16, 8]} />
         {material}
       </mesh>
     </>
@@ -158,12 +171,15 @@ export function TutorialArrow({
   fromNormal,
   to,
   toNormal,
+  dims,
   fade,
 }: {
   from: V3
   fromNormal: V3
   to: V3
   toNormal: V3
+  /** The puzzle's sides, in cells. */
+  dims: V3
   /** How much it shows (0 to 1) at a time in seconds. */
   fade?: (seconds: number) => number
 }) {
@@ -188,31 +204,41 @@ export function TutorialArrow({
     .toArray()
     .map((v) => v.toFixed(1))
     .join()
+  const [dx, dy, dz] = dims
+  const k = Math.max(dx, dy, dz) / 3
   const { start, points, head, quaternion } = useMemo(() => {
+    const box = { half: new THREE.Vector3(dx, dy, dz).multiplyScalar(0.5), k }
     const n1 = new THREE.Vector3(...fromNormal)
     const n2 = new THREE.Vector3(...toNormal)
     const start = new THREE.Vector3(...from).addScaledVector(n1, FACE)
     const end = new THREE.Vector3(...to).addScaledVector(n2, FACE)
     // The head: its tip on the face's center, pointing in; the line ends at
     // its base's center.
-    const head = end.clone().addScaledVector(n2, HEAD / 2)
-    const base = end.clone().addScaledVector(n2, HEAD)
+    const head = end.clone().addScaledVector(n2, (HEAD * k) / 2)
+    const base = end.clone().addScaledVector(n2, HEAD * k)
     const quaternion = new THREE.Quaternion().setFromUnitVectors(
       new THREE.Vector3(0, 1, 0),
       n2.clone().negate(),
     )
-    const points = arrowLine(start, n1, end, base, n2, view)
+    const points = arrowLine(start, n1, end, base, n2, view, box)
     return { start, points, head, quaternion }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `viewKey` stands for `view`
-  }, [from, fromNormal, to, toNormal, viewKey])
+  }, [from, fromNormal, to, toNormal, dx, dy, dz, k, viewKey])
   const curve = { points, color: ARROW, lineWidth: 4 }
   return (
     <group ref={groupRef}>
       {/* Dotted through the puzzle, plain over it where nothing hides it. */}
-      <Line {...curve} dashed dashSize={0.08} gapSize={0.1} depthTest={false} renderOrder={9} />
+      <Line
+        {...curve}
+        dashed
+        dashSize={0.08 * k}
+        gapSize={0.1 * k}
+        depthTest={false}
+        renderOrder={9}
+      />
       <Line {...curve} renderOrder={10} />
-      <Marks head={head} quaternion={quaternion} start={start} hidden />
-      <Marks head={head} quaternion={quaternion} start={start} hidden={false} />
+      <Marks head={head} quaternion={quaternion} start={start} k={k} hidden />
+      <Marks head={head} quaternion={quaternion} start={start} k={k} hidden={false} />
     </group>
   )
 }

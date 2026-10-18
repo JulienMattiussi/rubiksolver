@@ -19,8 +19,8 @@ import { Y, scrambled, stepOf } from './cube3Fixture'
 
 describe('tutorial registry', () => {
   it('counts its stages, to the last', () => {
-    expect(tutorialFor('3')!.stages).toBe(7)
-    expect(tutorialFor('3')!.stageKeys).toEqual([
+    expect(tutorialFor('3', 'beginner')!.stages).toBe(7)
+    expect(tutorialFor('3', 'beginner')!.stageKeys).toEqual([
       'stepTutorialCross',
       'stepTutorialCorner',
       'stepTutorialMiddle',
@@ -31,10 +31,13 @@ describe('tutorial registry', () => {
     ])
   })
 
-  it('has the 3x3 only', () => {
-    expect(tutorialFor('3')).toBeDefined()
-    expect(tutorialFor('2')).toBeUndefined()
-    expect(tutorialFor('4')).toBeUndefined()
+  it('has the 3x3, for its layer-by-layer method only', () => {
+    expect(tutorialFor('3', 'beginner')).toBeDefined()
+    // Bound to the method it teaches: none for the 3x3's others.
+    expect(tutorialFor('3', 'roux')).toBeUndefined()
+    expect(tutorialFor('3', 'cfop')).toBeUndefined()
+    expect(tutorialFor('2', 'optimal')).toBeUndefined()
+    expect(tutorialFor('4', 'reduction')).toBeUndefined()
   })
 })
 
@@ -104,7 +107,7 @@ describe('3x3 tutorial', () => {
     const step = stepOf(cube)
     const pick = step.suggestion!
     const moves = step.formula(pick)!
-    const tutorial = tutorialFor('3')!
+    const tutorial = tutorialFor('3', 'beginner')!
     const underWay = (manual: Turn[]) => {
       const now = applyMoves(cube, manual)
       return formulaUnderWay(tutorial, stepOf(now, cube), pick, now, cube, manual)
@@ -130,7 +133,7 @@ describe('3x3 tutorial', () => {
     const walk = (cube: Cube, key: string) => {
       for (let guard = 0; ; guard++) {
         expect(guard).toBeLessThan(5)
-        const step = tutorialFor('3')!.stepOf(cube)
+        const step = tutorialFor('3', 'beginner')!.stepOf(cube)
         if (step?.key !== key) return cube
         cube = applyMoves(cube, step.formula(step.suggestion)!)
       }
@@ -152,13 +155,13 @@ describe('3x3 tutorial', () => {
       ['stepTutorialTopCorners', 6],
       ['stepTutorialTopTwist', 7],
     ] as const) {
-      const step = tutorialFor('3')!.stepOf(top)
+      const step = tutorialFor('3', 'beginner')!.stepOf(top)
       if (step?.key === key) expect(step.stage).toBe(stage)
       top = walk(top, key)
     }
     expect(isSolved(top)).toBe(true)
-    expect(tutorialFor('3')!.stepOf(top)).toBeNull()
-    expect(tutorialFor('3')!.stepOf(solvedCube('3'))).toBeNull()
+    expect(tutorialFor('3', 'beginner')!.stepOf(top)).toBeNull()
+    expect(tutorialFor('3', 'beginner')!.stepOf(solvedCube('3'))).toBeNull()
   })
 
   it('takes any middle edge to any free slot, the first layer kept', () => {

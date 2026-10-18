@@ -27,11 +27,10 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
   const { cube, step, pick, hold, frame, shown, review } = view
   if (!step || !hold) return null
   // Where the center to face stands: the view turns toward it.
-  // The center to hold in front: the one on that side.
-  const front = cube.find(
-    (c) => c.stickers.length === 1 && c.stickers[0]!.normal.join() === frame.front(hold).join(),
-  )!
-  const frontColor = front.stickers[0]!.color
+  // The side to hold in front, told by its color (its center's, or the
+  // pieces' frame's on a puzzle with no centers).
+  const frontNormal = frame.front(hold)
+  const front = view.tutorial?.faceColor(cube, frontNormal) ?? null
   const name = (index: number) =>
     t.tutorial.piece(
       cube[index]!.stickers.length,
@@ -39,7 +38,7 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
         .map((c) => t.colors[c].toLowerCase())
         .join('-'),
     )
-  const occupant = pick ? occupantOf(cube, pick) : null
+  const occupant = pick ? occupantOf(cube, pick, view.moves ?? []) : null
   // The formula cut as taught (moves one by one, sequences learnt, a
   // sequence repeated told once with its count); followed by hand, the
   // moves played so far checked off, the next one standing out, a repeat's
@@ -106,17 +105,24 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
     })
   }
   const instructions: ReactNode[] = [
-    <button
-      key="hold"
-      type="button"
-      onClick={() => viewToward(front.stickers[0]!.normal, liftFor(step))}
-      title={t.tutorial.facingTitle}
-      className="rounded text-left underline decoration-dotted underline-offset-2 hover:text-white focus-visible:outline-2 focus-visible:outline-sky-400"
-    >
-      <Toned colors={[COLOR_HEX[frontColor]]}>
-        {t.tutorial.facing(t.colors[frontColor].toLowerCase())}
-      </Toned>
-    </button>,
+    // No side to name (a 2x2 before its anchor corner): any way will do.
+    ...(front
+      ? [
+          <button
+            key="hold"
+            type="button"
+            onClick={() => viewToward(frontNormal, liftFor(step))}
+            title={t.tutorial.facingTitle}
+            className="rounded text-left underline decoration-dotted underline-offset-2 hover:text-white focus-visible:outline-2 focus-visible:outline-sky-400"
+          >
+            <Toned colors={[COLOR_HEX[front.color]]}>
+              {(front.center ? t.tutorial.facing : t.tutorial.facingFace)(
+                t.colors[front.color].toLowerCase(),
+              )}
+            </Toned>
+          </button>,
+        ]
+      : []),
     ...(step.figure
       ? [
           <Toned key="figure" framed colors={[HIGHLIGHT]}>
@@ -137,7 +143,7 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
       ? t.tutorial.check(name(pick.piece))
       : step.figure
         ? (t.tutorial.checks[step.key]?.(step.outcome?.done ?? 0) ?? t.tutorial.checkFigure)
-        : t.tutorial.checkAll,
+        : (t.tutorial.checks[step.key]?.(0) ?? t.tutorial.checkAll),
   ]
   return (
     <ol className="flex flex-col gap-2.5 text-xs leading-snug text-slate-300">

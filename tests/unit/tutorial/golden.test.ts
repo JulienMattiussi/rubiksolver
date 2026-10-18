@@ -21,7 +21,7 @@ import { seededRng } from '../../helpers'
  */
 
 const SEEDS = [3, 11, 27, 42]
-const tutorial = tutorialFor('3')!
+const tutorial = tutorialFor('3', 'beginner')!
 
 const notation = (moves: readonly Turn[] | null) => (moves ? formatMoves(moves) : null)
 const at = (pick: TutorialPick) => `${pick.piece}>${pick.slot.join()}`

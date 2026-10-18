@@ -6,7 +6,12 @@ import { applyMoves } from '@/lib/core/turn'
 import { formulaUnderWay } from '@/lib/tutorial/keep'
 import { cubeShape, stateKey } from '@/lib/core/cube'
 import { tonesOf, type Tone } from '@/lib/tutorial/scene'
-import { alreadyDoneStep, type TutorialPick, type TutorialStep } from '@/lib/tutorial/tutorial'
+import {
+  alreadyDoneStep,
+  type Tutorial,
+  type TutorialPick,
+  type TutorialStep,
+} from '@/lib/tutorial/tutorial'
 import { tutorialFor } from '@/lib/tutorials/registry'
 import { selectBusy, useCube } from '@/store/cubeStore'
 import { useTutorialStore } from '@/store/tutorialStore'
@@ -30,8 +35,9 @@ export interface TutorialView {
    *  the ways it may be held. */
   hold: Hold | null
   frame: HoldFrame
-  /** How many stages the tutorial has. */
+  /** How many stages the tutorial has, and the tutorial itself. */
   stages: number
+  tutorial?: Tutorial
   /** The formula for it, what is left to play (null: none). */
   moves: Turn[] | null
   /** The formula shown, and how many of its moves are played by hand
@@ -120,6 +126,7 @@ export function useTutorial(): TutorialView {
       cube,
       frame: tutorial.frame,
       stages: tutorial.stages,
+      tutorial,
       step: alreadyDoneStep(tutorial, stage),
       moves: [],
     }
@@ -162,6 +169,7 @@ export function useTutorial(): TutorialView {
     hold: step.hold(pick),
     frame: tutorial?.frame ?? CUBE_HOLDS,
     stages: tutorial?.stages ?? 0,
+    ...(tutorial && { tutorial }),
     moves,
     shown,
     tones,

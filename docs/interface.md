@@ -126,8 +126,8 @@ survolé.
 **Tutoriel** (moteur `lib/tutorial/`, tutoriels `lib/tutorials/`, état
 `store/tutorialStore.ts` et `store/tutorialTrack.ts`, `hooks/useTutorial.ts`,
 `components/tutorial/`). Sur un puzzle qui en a un pour la méthode choisie
-(`tutorialFor(forme, méthode)`, sinon son premier ; aujourd'hui le 3x3,
-méthode débutant), le bouton Tutoriel (grisé sur un puzzle résolu) remplace
+(`tutorialFor(forme, méthode)` ; aujourd'hui le 3x3 et le 2x2, méthode par
+couches : rien pour Roux, CFOP ou l'optimale), le bouton Tutoriel (grisé sur un puzzle résolu) remplace
 le bloc de résolution par un panneau où l'on résout soi-même, un **pas** à
 la fois.
 
@@ -140,6 +140,17 @@ la fois.
   arêtes blanches au-dessus de leur centre (`R U R' U R U2 R'`) ; coins
   blancs à leur place (`U R U' L' U R' U' L`) ; coins blancs tournés (`R' D'
 R D` répété, un seul pas, la première couche se défaisant en route).
+- **Le parcours du 2x2**, trois étapes. Sans centres, le repère est un
+  coin jaune dont le jaune est déjà en bas, là où il se trouve (celui qui
+  a le plus de coins jaunes placés autour de lui) : rien ne tourne pour le
+  choisir, les couleurs des faces se lisent sur lui (« Place le côté vert
+  face à toi »). Si aucun jaune n'est en bas, on retourne d'abord le cube
+  (« Avant de commencer », une rotation `x` ou `z`, sans pièce gênante ni
+  hachures). Puis les autres coins jaunes autour du repère, par la recette
+  des coins du 3x3 ; la face blanche par des Sunes (`R U R' U R U2 R'`), le haut tourné
+  et la tenue choisis par la plus courte chaîne ; les coins blancs placés
+  d'un tour du haut, ou d'une permutation : deux voisins échangés (T-perm)
+  ou deux en diagonale (Y-perm, la parité du 2x2).
 - **Le panneau** : l'étape (« Étape 4 sur 7 », son but, son avancement,
   sa consigne, la légende des hachures), puis quatre **consignes
   numérotées** : tenir le centre de face (un clic tourne la vue vers lui),

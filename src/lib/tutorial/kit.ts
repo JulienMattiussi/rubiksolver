@@ -41,7 +41,9 @@ interface PieceStage {
   readonly key: string
   /** Its rank among the method's stages. */
   readonly stage: number
-  readonly targets: readonly Target[]
+  /** Its targets, or how to read them where the step began (a 2x2's: round
+   *  its landmark corner, wherever it stands). */
+  readonly targets: readonly Target[] | ((begun: Cube) => readonly Target[])
   /** The sticker the arrow follows (the cross's yellow). */
   readonly marker?: Color
   /** Its moves one by one with their words beside them (see
@@ -108,6 +110,10 @@ export interface TutorialPlan {
   /** The ways to hold the puzzle (a cube's sides round its top, unless
    *  told). */
   readonly frame?: HoldFrame
+  /** The color of a side (its outward normal), for a puzzle with no
+   *  center there (a 2x2: from its anchor corner); by default, the center's
+   *  there. */
+  readonly faceColor?: (cube: Cube, normal: Vec3) => Color | null
   /** The stage still to come, shown not taught yet; none once the plan
    *  solves the puzzle (the tutorial then over). */
   readonly next?: { readonly key: string; readonly stage: number; readonly hold: Hold }
@@ -115,8 +121,12 @@ export interface TutorialPlan {
 
 type Stage = PieceStage | FormulaStage | FigureStage
 
+/** A piece stage's targets, read on a state. */
+const targetsOf = (stage: PieceStage, cube: Cube) =>
+  typeof stage.targets === 'function' ? stage.targets(cube) : stage.targets
+
 const isDone = (stage: Stage, cube: Cube) =>
-  stage.kind === 'pieces' ? stage.targets.every((t) => t.placed(cube)) : stage.done(cube)
+  stage.kind === 'pieces' ? targetsOf(stage, cube).every((t) => t.placed(cube)) : stage.done(cube)
 
 /** A figure stage's step: the figure found where the step began, held its
  *  way, its formula played from the puzzle's own frame and checked to keep
@@ -164,8 +174,9 @@ function figureStep(
 /** A piece stage's step on a state (`cube`), the step having begun at
  *  `begun`, the pieces earlier stages placed kept (`kept`). */
 function pieceStep(def: PieceStage, cube: Cube, begun: Cube, kept: number[]): TutorialStep {
-  const done = def.targets.filter((t) => t.placed(begun))
-  const free = def.targets.filter((t) => !done.includes(t))
+  const targets = targetsOf(def, begun)
+  const done = targets.filter((t) => t.placed(begun))
+  const free = targets.filter((t) => !done.includes(t))
   const next = free[0]!
   const placed = [...kept, ...done.map((t) => t.piece(cube))]
   const targetsKept = (c: Cube) => done.every((t) => t.placed(c))
@@ -173,7 +184,7 @@ function pieceStep(def: PieceStage, cube: Cube, begun: Cube, kept: number[]): Tu
     kind: 'pieces',
     key: def.key,
     stage: def.stage,
-    progress: { done: done.length, total: def.targets.length },
+    progress: { done: done.length, total: targets.length },
     hold: (pick) => def.hold(begun, pick, next),
     ...(def.marker && { marker: def.marker }),
     ...(def.words && { words: def.words }),
@@ -208,10 +219,20 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
     { length: stages },
     (_, i) => numbered.find((s) => s.stage === i + 1)?.key ?? '',
   )
+  /** The center sticker facing that way, if the puzzle has one. */
+  const centerColor = (cube: Cube, normal: Vec3) =>
+    cube.find((c) => c.stickers.length === 1 && c.stickers[0]!.normal.join() === normal.join())
+      ?.stickers[0]!.color ?? null
   return {
     frame,
     stages,
     stageKeys,
+    faceColor: (cube, normal) => {
+      const center = centerColor(cube, normal)
+      if (center) return { color: center, center: true }
+      const color = plan.faceColor?.(cube, normal) ?? null
+      return color ? { color, center: false } : null
+    },
     stepOf: (cube, begun = cube) => {
       let kept: number[] = []
       for (const stage of plan.stages) {
@@ -230,7 +251,9 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
               }
             : pieceStep(stage, cube, begun, kept)
         }
-        if (stage.kind === 'pieces') kept = [...kept, ...stage.targets.map((t) => t.piece(cube))]
+        if (stage.kind === 'pieces') {
+          kept = [...kept, ...targetsOf(stage, begun).map((t) => t.piece(cube))]
+        }
       }
       const { next } = plan
       if (!next) return null

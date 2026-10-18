@@ -223,6 +223,7 @@ export function describeEn(d: MoveDescription): string {
     wide: d.halfPuzzle
       ? `${HALF_NAMES_EN[d.face]} of the puzzle`
       : `the ${face} and the inner slice next to it together`,
+    whole: 'the whole cube in your hands',
   }[d.kind]
   const how =
     d.turn === 'half'
@@ -309,6 +310,7 @@ export function describeShortEn(d: MoveDescription): string {
     middle: `the middle slice (parallel to the ${face})`,
     slice: d.third ? `the third layer from the ${face}` : `the inner slice next to the ${face}`,
     wide: d.halfPuzzle ? HALF_NAMES_EN[d.face] : `the ${face} and the slice next to it`,
+    whole: 'the whole cube',
   }[d.kind]
   if (d.turn === 'half') return `Turn ${what} twice (a half turn)`
   const seen = d.kind === 'face' ? 'facing it' : `seen from the ${face}`

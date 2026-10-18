@@ -53,7 +53,7 @@ plus souvent celle de fan2cube (voir leur fiche dans `docs/puzzles/`).
 > sur le 3x3 ; de deux en deux sur un nombre pair de couches, `{-3,-1,1,3}`
 > sur le 4x4, pour rester entier). **Rien n'y suppose un cube** : une forme
 > n'est qu'un triplet de nombres de couches (`SHAPE_DIMS`). Un `Move` désigne une face + éventuellement
-> `depth: 2` (tranche interne ; `3` : la troisième couche, tranche du milieu d'un 5x5 ou `3R` du 6x6) et `wide` (couches 1 à `depth`) ; `moveSlab` en déduit
+> `depth: 2` (tranche interne ; `3` : la troisième couche, tranche du milieu d'un 5x5 ou `3R` du 6x6) et `wide` (couches 1 à `depth`), ou `whole` (le puzzle entier tenu autrement, `x y z`) ; `moveSlab` en déduit
 > la tranche tournée (l'intervalle entre deux plans de coupe), source unique
 > partagée par `applyMove`, l'animation et l'aperçu (`turnedBy`). Les coups
 > agissent sur le **mécanisme** (`turnDims`) : le puzzle lui-même, sauf un
@@ -123,9 +123,11 @@ src/
 │   │                    #   roadblockEditor, validate
 │   ├── tutorial/        # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
 │   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), scene (tons, flèches), segments
-│   │                    #   (formule lue en gestes), keep (pièces gardées, formule en cours de pas)
+│   │                    #   (formule lue en gestes), keep (pièces gardées, formule en cours de pas), macros
+│   │                    #   (la plus courte chaîne de gestes appris vers un but)
 │   ├── tutorials/       # Les tutoriels : registry (par forme, un par méthode), un dossier par catégorie :
-│   │                    #   standard/cube3 et cube3LastLayer (le 3x3, méthode débutant)
+│   │                    #   standard/cube3 et cube3LastLayer (le 3x3), cube2 (le 2x2), cornerTrigger (les
+│   │                    #   coins jaunes, partagés), tous en méthode débutant
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
 │                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
@@ -453,6 +455,17 @@ liste d'étapes, et `tutorialOf` en fait le pas où en est un état (sa sorte,
 - après les étapes, `next` peut annoncer celle qui vient (un tutoriel
   partiel) ; sans `next`, le tutoriel finit sur le puzzle résolu.
 
+Un puzzle sans centres (le 2x2) dit la couleur d'une face autrement
+(`TutorialPlan.faceColor` : lue sur son coin repère, là où il se
+trouve), et la consigne de tenue nomme alors la face plutôt que le centre
+(aucune sans repère). Les cibles d'une étape de pièces peuvent se lire sur
+l'état où le pas commence (`targets` en fonction : les coins autour du
+repère). Une formule qui ne fait que tourner le cube entier (un `Move`
+`whole`, noté `x y z` : le 2x2 retourné, jaune en bas) ne montre ni pièce
+gênante ni hachures. Une figure peut se résoudre par la plus courte chaîne de
+gestes appris (`firstGesture`, `lib/tutorial/macros.ts` : tenue, tour du
+haut, algorithme), dont chaque pas joue le premier geste.
+
 Chaque étape déclare aussi la face qu'elle travaille (`side`, une normale :
 flèches et vue) et si ses coups gardent leur description (`words`) : aucune
 règle d'affichage ne dépend d'un numéro d'étape, d'une face ni d'une sorte
@@ -461,8 +474,8 @@ un `HoldFrame`) disent comment tenir le modèle et lire un coup dans une
 tenue : celles d'un cube se déduisent de ses faces (`ringHolds`,
 `CUBE_HOLDS` par défaut) ; un modèle aux coups d'une autre sorte donne les
 siennes. Le **registre** (`lib/tutorials/registry.ts`) liste par forme un
-tutoriel par méthode ; le tutoriel montré suit la méthode choisie, sinon le
-premier. **Ajouter un tutoriel** : sa définition dans
+tutoriel par méthode ; le bouton Tutoriel n'est offert que pour la méthode
+choisie qui en a un. **Ajouter un tutoriel** : sa définition dans
 `lib/tutorials/<catégorie>/<puzzle>.ts` et sa ligne au registre (sa
 méthode) ; les titres, consignes, figures, vérifications et phrases
 d'avancement de ses étapes dans `i18n/{fr,en}/tutorial.ts`, leurs noms

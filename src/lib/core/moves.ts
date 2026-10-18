@@ -192,6 +192,11 @@ export function formatMove(
   if (isRainbowMove(move)) return formatRainbowMove(move, labels)
   if (isMegaMove(move)) return formatMegaMove(move, labels)
   if (isGearMove(move)) return formatGearMove(move, labels)
+  if (move.whole) {
+    // Held another way, L turns as x' does.
+    const back = 'LDB'.includes(move.face)
+    return ROTATION_OF[move.face] + AMOUNT_SUFFIX[back ? invertMove(move).amount : move.amount]
+  }
   const own = shape && MODELS[shape]?.format
   if (own) return own(move, labels)
   if (dims && move.depth && !move.wide && faceLayers(dims, move.face) === 3) {
@@ -205,6 +210,9 @@ export function formatMove(
   const wide = move.wide ? 'w' : ''
   return slice + labels[move.face] + wide + suffix
 }
+
+/** The whole puzzle's rotations, by the face they turn as: x, y, z. */
+const ROTATION_OF: Record<Face, string> = { R: 'x', L: 'x', U: 'y', D: 'y', F: 'z', B: 'z' }
 
 /** Format a sequence, space-separated. */
 export function formatMoves(
@@ -232,6 +240,12 @@ function faceOfLabel(labels: FaceLabels, label: string): Face | undefined {
  * turn is `Rw`, never `2Rw` (`3Rw` takes three layers). M, E and S are the middle slices of a 3x3.
  */
 export function parseMove(token: string, labels: FaceLabels = NOTATION_US): Move | undefined {
+  const rotation = /^([xyz])(2|')?$/.exec(token.trim())
+  if (rotation) {
+    const face = (['R', 'U', 'F'] as const)[['x', 'y', 'z'].indexOf(rotation[1]!)]!
+    const amount = rotation[2] === '2' ? 2 : rotation[2] === "'" ? 3 : 1
+    return { face, amount, whole: true }
+  }
   let t = token.trim()
   let depth: 2 | 3 | undefined
   if (t.length > 1 && (t.startsWith('2') || t.startsWith('3'))) {
@@ -296,7 +310,7 @@ export function sameLayer(a: Turn, b: Turn): boolean {
   if (isMegaMove(a) || isMegaMove(b)) {
     return isMegaMove(a) && isMegaMove(b) && a.megaFace === b.megaFace
   }
-  return a.face === b.face && a.depth === b.depth && a.wide === b.wide
+  return a.face === b.face && a.depth === b.depth && a.wide === b.wide && a.whole === b.whole
 }
 
 /** The move that undoes `move` (same layers, opposite amount). */
