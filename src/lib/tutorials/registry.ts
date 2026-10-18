@@ -3,6 +3,7 @@ import type { MethodId } from '../solve/solver'
 import type { Tutorial } from '../teach/tutorial'
 import { CUBE2_TUTORIAL } from './standard/cube2'
 import { CUBE3_TUTORIAL } from './standard/cube3'
+import { MORPH_TUTORIAL } from './pyramid/morph'
 import { PYRAMINX_TUTORIAL } from './pyramid/pyraminx'
 
 /**
@@ -20,6 +21,7 @@ interface TutorialEntry {
 const TUTORIALS: Partial<Record<CubeShape, readonly TutorialEntry[]>> = {
   '2': [{ method: 'beginner', tutorial: CUBE2_TUTORIAL }],
   pyra: [{ method: 'centersFirst', tutorial: PYRAMINX_TUTORIAL }],
+  morph: [{ method: 'asPocket', tutorial: MORPH_TUTORIAL }],
   '3': [{ method: 'beginner', tutorial: CUBE3_TUTORIAL }],
 }
 

@@ -1,10 +1,6 @@
 import type { TutorialTexts } from '../../tutorialTexts'
 
 export const PYRAMINX_EN: TutorialTexts = {
-  holding: {
-    flat: (color: string, down: string) =>
-      `Lay the pyramid flat on its ${down} side, the ${color} side facing you.`,
-  },
   checks: {
     stepTutorialPyraTop: (done: number) =>
       done === 3

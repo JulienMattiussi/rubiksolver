@@ -2,10 +2,6 @@ import type { TutorialTexts } from '../../tutorialTexts'
 
 /** The Pyraminx tutorial's texts (lib/tutorials/pyramid/), by key. */
 export const PYRAMINX_FR: TutorialTexts = {
-  holding: {
-    flat: (color: string, down: string) =>
-      `Place la pyramide à plat sur sa face ${down}, la face ${color} face à toi.`,
-  },
   checks: {
     stepTutorialPyraTop: (done: number) =>
       done === 3

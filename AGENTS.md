@@ -128,7 +128,8 @@ src/
 │   ├── tutorials/       # Les tutoriels : registry (par forme, un par méthode), un dossier par catégorie :
 │   │                    #   standard/cube3 et cube3LastLayer (le 3x3), cube2 (le 2x2), cornerTrigger (les
 │   │                    #   coins jaunes, partagés), terms (vocabulaire des cubes), en méthode débutant ;
-│   │                    #   pyramid/pyraminx (Centres d'abord), pyraHolds (ses tenues), pyraTerms
+│   │                    #   pyramid/pyraminx (Centres d'abord), pyraHolds (ses tenues), pyraTerms ;
+│   │                    #   pyramid/morph (le Pyramorphinx, Comme un Pocket), morphTerms
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
 │                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)

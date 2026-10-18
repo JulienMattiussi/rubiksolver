@@ -2,10 +2,12 @@ import type { TUTORIAL_FR } from '../fr/tutorial'
 import { CUBE3_EN } from './tutorials/cube3'
 import { CUBE2_EN } from './tutorials/cube2'
 import { CUBES_EN } from './tutorials/cubes'
+import { MORPH_EN } from './tutorials/morph'
+import { PYRAMIDS_EN } from './tutorials/pyramids'
 import { PYRAMINX_EN } from './tutorials/pyraminx'
 import { mergeTexts } from '../tutorialTexts'
 
-const TEXTS = mergeTexts([CUBES_EN, CUBE3_EN, CUBE2_EN, PYRAMINX_EN])
+const TEXTS = mergeTexts([CUBES_EN, CUBE3_EN, CUBE2_EN, PYRAMIDS_EN, PYRAMINX_EN, MORPH_EN])
 
 /** The kinds of pieces, named. */
 export const PIECES_EN: Record<string, string> = {
@@ -13,6 +15,7 @@ export const PIECES_EN: Record<string, string> = {
   edge: 'edge',
   corner: 'corner',
   tip: 'tip',
+  middle: 'middle',
 }
 
 export const TUTORIAL_EN: typeof TUTORIAL_FR = {

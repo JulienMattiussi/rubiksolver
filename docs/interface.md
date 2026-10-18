@@ -159,6 +159,17 @@ R D` répété, un seul pas, la première couche se défaisant en route).
   l'emplacement devant ; les arêtes du haut placées par `d h d' h d h d'` ;
   les arêtes retournées deux à deux par `[gd'][h'd]`. Son vocabulaire :
   pointe, centre, arête, couche, sens horaire et anti-horaire.
+- **Le parcours du Pyramorphinx** (méthode Comme un Pocket), trois
+  étapes, posé à plat d'une seule façon (ses moitiés restent les couches
+  du 2x2 qu'il cache, et les formules gardent la première moitié) : un
+  pointe de la moitié du bas sert de repère (amenée d'un coup « avant de
+  commencer » s'il n'y en a pas) ; la première moitié, ses deux pointes et
+  deux milieux, une pièce à la fois ; les deux pointes de l'autre moitié
+  tournés par des Sunes ; l'autre moitié placée d'un tour du haut, ou par
+  T-perm ou Y-perm. La vrille d'un milieu ne se voit pas : rien ne la
+  demande. Son vocabulaire (sur une pyramide, on parle de pointes, pas de coins) :
+  pointe, milieu, moitié, sens horaire et
+  anti-horaire.
 - **Le vocabulaire** (« Étape 0 ») : avant les étapes, un pas par terme
   (centre, arête, coin ; sur un miroir, les six épaisseurs), ses pièces en
   bleu et la vue tournée vers elles ; « Suivant » passe au terme suivant,
