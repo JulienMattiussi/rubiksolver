@@ -14,6 +14,10 @@ export const SUNE = "R U R' U R U2 R'"
 export const ANTISUNE = "R U2 R' U' R U' R'"
 /** Aa-perm: pure 3-cycle of last-layer corners. */
 export const PLL_AA = "R' F R' B2 R F' R' B2 R2"
+/** Ab-perm, as the 2x2's manual writes it: the three last-layer corners
+ *  but the back left one cycled (front left, front right, back right), each
+ *  its top color up. */
+export const PLL_AB = "R B' R F2 R' B R F2 R2"
 /** Ua-perm: pure 3-cycle of last-layer edges. */
 export const PLL_UA = "R U' R U R U R U' R' U' R2"
 /** T-perm: swaps two adjacent corners (and two edges). */

@@ -4,7 +4,7 @@ Détail des puzzles de la catégorie (modèles : `src/lib/puzzles/standard/`, m�
 
 ## Le 2x2, le 3x3 et le 4x4
 
-**Repère du 2x2** : sans centres, pas de repère fixe. Le coin en **DBL**
+**Repère du 2x2** (solveur optimal, et le Void Cube lu comme un 2x2) : sans centres, pas de repère fixe. Le coin en **DBL**
 (position `[-1,-1,-1]`) joue ce rôle : ses stickers définissent les couleurs
 D/L/B (opposées déduites du schéma standard). Les prédicats **recalculent ce
 repère sur l'état qu'ils examinent**, donc les algorithmes qui déplacent le
@@ -15,6 +15,20 @@ l'orientation du cube résolu qui partage son coin DBL ; la borne de profondeur
 rapide, ce qu'exploite la validation. Elle garde sa propre boucle (et non
 `solvePieces`) parce qu'elle continue après la première rencontre pour
 garantir l'optimalité.
+
+**Le 2x2 par couches** (son tutoriel, `lib/tutorials/standard/cube2.ts`,
+d'où sa méthode) suit le manuel du 2x2 (QiYi) : quatre étapes, trois
+formules. (1) La face jaune, construite en haut, un coin à la fois, côtés
+ignorés (la plus courte suite qui garde les coins déjà jaune en haut,
+cherchée sur les quatre coins jaunes seuls) ; (2) sa couche, toujours en
+haut, par la formule 1 `R B' R F2 R' B R F2 R2` (`PLL_AB` : trois coins du
+haut en cycle, l'arrière gauche fixe), une ou deux fois ; (3) le cube
+retourné (`x2`), puis la face blanche : sept cas, chacun joué par la
+formule 2 (Antisune) et la formule 3 (Sune) comme le manuel les combine
+(2 ; 3 ; 2+2 ; 2+U'+2 ; 2+U2+3 ; 2+U+3 ; 2+U'+3), reconnu en essayant
+chaque combinaison depuis chaque tenue et chaque tour du haut ; (4) sa
+couche par la formule 1. Les couleurs des côtés se lisent sur la couche
+jaune une fois en bas. Environ 42 coups en moyenne.
 
 **Le 4x4 par réduction** (`src/lib/methods/standard/solver4/`) : repère absolu = `FACE_COLOR`
 (les centres d'une couleur étant indiscernables, le schéma standard est

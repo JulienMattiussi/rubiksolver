@@ -74,6 +74,11 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   termCount: (n, total) => `Word ${n} of ${total}`,
   skipTerms: 'Skip',
   backToGlossary: 'Back to the words',
+  recap: 'Cheat sheet',
+  recapTitle: (n: number) =>
+    n === 1 ? 'The formula to remember' : `The ${n} formulas to remember`,
+  recapByHand: 'No formula, by hand',
+  recapBack: 'Back to the tutorial',
   terms: TEXTS.terms,
   legendMoved:
     'The hatched cubes will be moved by the formula, with no effect on the expected result.',

@@ -69,8 +69,8 @@ export function crossDone(cube: Cube): boolean {
 }
 
 /** The corner carrying `frame`'s (D, s1, s2) colors sits at its slot, correctly
- *  oriented. Shared by the 3x3 (fixed frame) and the 2x2 (DBL-anchored frame). */
-export function cornerPlacedIn(
+ *  oriented. */
+function cornerPlacedIn(
   cube: Cube,
   frame: Record<Face, Color>,
   s1: Face,

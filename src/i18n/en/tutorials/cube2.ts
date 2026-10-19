@@ -3,7 +3,9 @@ import { listEn } from '../list'
 
 export const CUBE2_EN: TutorialTexts = {
   checks: {
-    stepTutorialTurnOver2: () => 'Check a yellow corner now has its yellow down.',
+    stepTutorialFace2: () => 'Check one more yellow corner now has its yellow up.',
+    stepTutorialLayer2: () =>
+      'Check the yellow corners follow each other: two neighbors show the same color on the side they share.',
     stepTutorialTopFace2: (done: number, pieces: readonly string[] = []) =>
       done === 0
         ? 'No corner has its white up yet: the next formula sees to it.'
@@ -15,41 +17,57 @@ export const CUBE2_EN: TutorialTexts = {
     stepTutorialTopCorners2: () => 'Check every corner is in its place: the cube is solved.',
   },
   figures: {
-    figureTopNone: 'Spot the top corners: none has its white up.',
-    figureTopOne: 'Spot the top corners: only one has its white up.',
-    figureTopOneDetour:
-      'Spot the top corners: only one has its white up. Here no formula as short keeps it: this one undoes it, but leads straight to the white face.',
-    figureTopTwo: 'Spot the top corners: two have their white up.',
-    figureTopTwoDetour:
-      'Spot the top corners: two have their white up. Here no formula as short keeps them: this one leaves only one, but leads straight to the white face.',
-    figureCornersTurn:
-      'The white corners already follow each other in the right order: one turn of the top places them.',
-    figureCornersAdjacent:
-      'Two neighboring corners must be swapped: brought to the right, the formula swaps the two right corners.',
-    figureCornersDiagonal:
-      'Two corners across must be swapped: that is the 2x2 parity, which a formula of its own fixes.',
+    figureLayer2Once:
+      'Spot the yellow corners: formula 1 cycles three of them and keeps the back left one. Once is enough here.',
+    figureLayer2Twice:
+      'Spot the yellow corners: formula 1 cycles three of them and keeps the back left one. It will take two.',
+    figureTurnOver2:
+      'The yellow face is done: turn the cube over, yellow down. White is now on top.',
+    figureFace2Case1:
+      'Case 1: only one corner has its white up. Hold the cube as shown: formula 2.',
+    figureFace2Case2:
+      'Case 2: only one corner has its white up, the others turned the other way. Hold the cube as shown: formula 3.',
+    figureFace2Case3:
+      'Case 3: no corner has its white up, two whites in front and two at the back. Formula 2 twice.',
+    figureFace2Case4:
+      'Case 4: no corner has its white up, two whites on one side only. Formula 2, a quarter turn of the top, then formula 2.',
+    figureFace2Case5:
+      'Case 5: two corners across have their white up. Formula 2, a half turn of the top, then formula 3.',
+    figureFace2Case6:
+      'Case 6: two neighboring corners have their white up, the other two turn it to opposite sides. Formula 2, a quarter turn of the top, then formula 3.',
+    figureFace2Case7:
+      'Case 7: two neighboring corners have their white up, the other two turn it to the same side. Formula 2, a quarter turn of the top, then formula 3.',
+    figureCorners2Turn:
+      'The white corners already follow each other: one turn of the top places them.',
+    figureCorners2Once:
+      'Spot the white corners: formula 1 cycles three of them and keeps the back left one. Once is enough here.',
+    figureCorners2Twice:
+      'Spot the white corners: formula 1 cycles three of them and keeps the back left one. It will take two.',
   },
   progress: {
-    stepTutorialCorner2: (done: number, total: number) =>
-      `${done} of ${total} corner${total > 1 ? 's' : ''} placed`,
+    stepTutorialFace2: (done: number, total: number) =>
+      `${done} of ${total} corner${total > 1 ? 's' : ''} yellow up`,
+    stepTutorialLayer2: (done: number, total: number) =>
+      `${done} of ${total} corner${total > 1 ? 's' : ''} in place`,
     stepTutorialTopFace2: (done: number, total: number) =>
       `${done} of ${total} corner${total > 1 ? 's' : ''} white up`,
     stepTutorialTopCorners2: (done: number, total: number) =>
       `${done} of ${total} corner${total > 1 ? 's' : ''} in place`,
   },
   titles: {
-    stepTutorialTurnOver2: 'Turn the cube over, yellow down',
-    stepTutorialCorner2: 'Place the yellow corners',
+    stepTutorialFace2: 'Build the yellow face',
+    stepTutorialLayer2: 'Place the yellow corners',
     stepTutorialTopFace2: 'Build the white face',
     stepTutorialTopCorners2: 'Place the white corners',
   },
   hints: {
-    stepTutorialTurnOver2:
-      'A 2x2 has no centers: a yellow corner with its yellow down is the landmark. None has its yellow down: turn the cube over to bring one. No face turns.',
-    stepTutorialCorner2:
-      'A 2x2 has no centers: a yellow corner already yellow down is the landmark, and the sides’ colors are read on it. Place the other yellow corners one by one around it, yellow down.',
-    stepTutorialTopFace2: 'Turn the top corners so their white is up.',
+    stepTutorialFace2:
+      'Hold the cube yellow up. Bring the yellow corners up one by one, their yellow up, never mind the sides.',
+    stepTutorialLayer2:
+      'The yellow face still on top, place its corners with formula 1: it cycles three top corners without turning them, the back left one staying put.',
+    stepTutorialTopFace2:
+      'Turn the cube over, yellow down, then turn the top corners so their white is up: seven cases, each with formula 2 or formula 3, or both.',
     stepTutorialTopCorners2:
-      'Place each white corner in its place. Two corners across to swap is the 2x2 parity: it has a formula of its own.',
+      'Place each white corner in its place with formula 1, as the yellow ones.',
   },
 }

@@ -1,14 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { FACE_COLOR, isSolved, solvedCube, stateKey } from '@/lib/core/cube'
+import { FACE_COLOR, isSolved, solvedCube } from '@/lib/core/cube'
 import { FACE_NORMAL } from '@/lib/core/geometry'
-import { CUBE_HOLDS } from '@/lib/core/hold'
 import { invertMoves, scramble } from '@/lib/core/moves'
-import { parseMoves } from '@/lib/core/notation'
+import { formatMoves, parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 import { isFaceMove, type Cube } from '@/lib/core/types'
-import { PLL_T, PLL_Y, SUNE } from '@/lib/methods/standard/algs'
-import { topFaceDone2 } from '@/lib/methods/standard/cube2'
-import { markedOn } from '@/lib/teach/scene'
+import { ANTISUNE, PLL_AB, PLL_Y, SUNE } from '@/lib/methods/standard/algs'
 import { tutorialFor } from '@/lib/tutorials/registry'
 import { TUTORIAL_EN } from '@/i18n/en/tutorial'
 import { TUTORIAL_FR } from '@/i18n/fr/tutorial'
@@ -31,13 +28,15 @@ function walk(cube: Cube) {
 }
 
 describe('2x2 tutorial', () => {
-  it('has three stages, for its layer-by-layer method', () => {
-    expect(tutorial.stages).toBe(3)
+  it('has four stages, as its manual (four steps, three formulas)', () => {
+    expect(tutorial.stages).toBe(4)
     expect(tutorial.stageKeys).toEqual([
-      'stepTutorialCorner2',
+      'stepTutorialFace2',
+      'stepTutorialLayer2',
       'stepTutorialTopFace2',
       'stepTutorialTopCorners2',
     ])
+    expect(tutorial.opening).toBeUndefined()
   })
 
   it('walks every scramble to the solve, stage after stage', () => {
@@ -48,10 +47,11 @@ describe('2x2 tutorial', () => {
       expect(isSolved(cube)).toBe(true)
       const stages = steps.map((s) => s.stage ?? 0)
       expect(stages).toEqual([...stages].sort())
-      // Nothing turns the whole cube but turning it over, before the stages.
-      for (const step of steps.filter((s) => s.stage)) {
-        expect(step.formula(step.suggestion)!.some((m) => isFaceMove(m) && m.whole)).toBe(false)
-      }
+      // The whole cube turned once only: over, its yellow face done.
+      const whole = steps.filter((s) =>
+        s.formula(s.suggestion)!.some((m) => isFaceMove(m) && m.whole),
+      )
+      expect(whole.map((s) => s.figure)).toEqual(['figureTurnOver2'])
       steps.forEach((s) => s.figure && figures.add(s.figure))
     }
     // Every figure met is told in both languages.
@@ -71,83 +71,78 @@ describe('2x2 tutorial', () => {
     }
   })
 
-  it('reads the landmark where it stands: a yellow corner, yellow down', () => {
-    // Its left side untouched: two yellow corners placed side by side.
-    const cube = applyMoves(solvedCube('2'), parseMoves("U R U'"))
+  it('builds the yellow face on top, a corner at a time, keeping those up', () => {
+    // Yellow on top, two of its corners lifted off.
+    const cube = applyMoves(solvedCube('2'), parseMoves('x2 R'))
     const step = stepOf(cube)
-    expect(step.key).toBe('stepTutorialCorner2')
+    expect(step.key).toBe('stepTutorialFace2')
     expect(step.progress).toEqual({ done: 2, total: 4 })
-    // The sides' colors read on it: the solved cube's, nothing turned.
-    expect(tutorial.faceColor(cube, FACE_NORMAL.L)).toEqual({ color: FACE_COLOR.L, center: false })
+    // One more up, or the face done (a later stage).
+    const next = stepOf(applyMoves(cube, step.formula(step.suggestion)!))
+    expect(next.stage! > 1 || next.progress!.done > 2).toBe(true)
   })
 
-  it('turns the cube over first when no yellow is down', () => {
-    const cube = applyMoves(solvedCube('2'), parseMoves('x2 R U'))
+  it('puts the yellow layer right by formula 1, still on top', () => {
+    const yellowUp = applyMoves(solvedCube('2'), parseMoves('x2'))
+    const cube = applyMoves(yellowUp, parseMoves(PLL_AB))
     const step = stepOf(cube)
-    expect(step.key).toBe('stepTutorialTurnOver2')
-    expect(step.stage).toBeUndefined()
+    expect(step.key).toBe('stepTutorialLayer2')
+    expect(step.figure).toBe('figureLayer2Once')
+    // Its sides' colors: none read before the layer is down.
     expect(tutorial.faceColor(cube, FACE_NORMAL.F)).toBeNull()
-    const moves = step.formula(null)!
-    expect(moves).toHaveLength(1)
-    expect(moves.every((m) => isFaceMove(m) && m.whole)).toBe(true)
-    expect(stepOf(applyMoves(cube, moves)).key).toBe('stepTutorialCorner2')
+    const done = applyMoves(cube, step.formula(null)!)
+    expect(stepOf(done).figure).toBe('figureTurnOver2')
   })
 
-  it('turns the white corners up by Sunes, the top turned first', () => {
-    // Two Sunes undone, the top turned between: one corner white up.
-    const cube = applyMoves(solvedCube('2'), invertMoves(parseMoves(`${SUNE} U ${SUNE}`)))
+  it('turns the cube over, then reads its sides on the yellow layer', () => {
+    const cube = applyMoves(solvedCube('2'), parseMoves('x2'))
     const step = stepOf(cube)
-    expect(step.key).toBe('stepTutorialTopFace2')
-    expect(step.figure).toMatch(/^figureTop/)
-    const { cube: solved } = walk(cube)
-    expect(topFaceDone2(solved)).toBe(true)
+    expect(step.figure).toBe('figureTurnOver2')
+    const over = applyMoves(cube, step.formula(null)!)
+    expect(isSolved(over)).toBe(true)
+    expect(tutorial.faceColor(over, FACE_NORMAL.L)).toEqual({ color: FACE_COLOR.L, center: false })
   })
 
-  it('takes a white corner down only on a detour, and says so', () => {
-    // Every white face the Sunes lead to, three deep.
-    const sunes = CUBE_HOLDS.holds.flatMap((hold) =>
-      ['', 'U ', 'U2 ', "U' "].map((pre) =>
-        parseMoves(pre + SUNE).map((m) => CUBE_HOLDS.played(hold, m)),
-      ),
-    )
-    let states = [solvedCube('2')]
-    for (let d = 0; d < 3; d++)
-      states = states.flatMap((c) => sunes.map((s) => applyMoves(c, invertMoves(s))))
-    const up = (cube: Cube) => tutorial.stepOf(cube)?.progress?.done ?? 4
-    // Each white face once: every figure, every way it may be held.
-    const distinct = [...new Map(states.map((c) => [stateKey(c), c])).values()]
-    for (const start of distinct.slice(0, 30)) {
-      let cube = start
-      while (tutorial.stepOf(cube)?.key === 'stepTutorialTopFace2') {
-        const step = stepOf(cube)
-        const after = applyMoves(cube, step.formula(null)!)
-        // A step back only where no Sune as short goes forward: the figure
-        // says so.
-        // The corners the check names: those it leaves white up.
-        expect(markedOn(cube, step.formula(null)!, step)).toHaveLength(step.outcome!.done)
-        const back = !topFaceDone2(after) && up(after) < up(cube)
-        expect(back).toBe(step.figure!.endsWith('Detour'))
-        cube = after
-      }
-    }
-  }, 30000) // A search per step: slow on a loaded machine.
+  it('tells the white face’s seven cases, each by the manual’s formulas', () => {
+    const A = ANTISUNE
+    const S = SUNE
+    const cases = [A, S, `${A} ${A}`, `${A} U' ${A}`, `${A} U2 ${S}`, `${A} U ${S}`, `${A} U' ${S}`]
+    cases.forEach((moves, i) => {
+      const cube = applyMoves(solvedCube('2'), invertMoves(parseMoves(moves)))
+      const step = stepOf(cube)
+      expect(step.key).toBe('stepTutorialTopFace2')
+      expect(step.figure).toBe(`figureFace2Case${i + 1}`)
+      // The white face done: its corners next, or the cube solved already.
+      const next = tutorial.stepOf(applyMoves(cube, step.formula(null)!))
+      expect(next === null || next.key === 'stepTutorialTopCorners2').toBe(true)
+    })
+  })
 
-  it('swaps two corners side by side, or across: the parity', () => {
-    // The corners in their place counted as they stand: none a turn off,
-    // two of the four swapped.
+  it('places the white corners by formula 1: a turn, once or twice', () => {
     const cases = [
-      ['U', 'figureCornersTurn', 0],
-      [PLL_T, 'figureCornersAdjacent', 2],
-      [PLL_Y, 'figureCornersDiagonal', 2],
+      ['U', 'figureCorners2Turn'],
+      [PLL_AB, 'figureCorners2Once'],
+      [PLL_Y, 'figureCorners2Twice'],
     ] as const
-    for (const [setup, figure, placed] of cases) {
-      const cube = applyMoves(solvedCube('2'), parseMoves(setup))
+    for (const [setup, figure] of cases) {
+      let cube = applyMoves(solvedCube('2'), parseMoves(setup))
       const step = stepOf(cube)
       expect(step.key).toBe('stepTutorialTopCorners2')
       expect(step.figure).toBe(figure)
-      expect(step.progress).toEqual({ done: placed, total: 4 })
-      expect(step.outcome).toEqual({ done: 4, total: 4 })
-      expect(isSolved(applyMoves(cube, step.formula(null)!))).toBe(true)
+      cube = walk(cube).cube
+      expect(isSolved(cube)).toBe(true)
     }
+  })
+})
+
+describe('2x2 tutorial reminder', () => {
+  it('lists its stages and their three formulas, the first taught twice', () => {
+    const recap = tutorial.recap.map((s) => [s.key, s.formulas.map((f) => formatMoves(f))])
+    expect(recap).toEqual([
+      ['stepTutorialFace2', []],
+      ['stepTutorialLayer2', [PLL_AB]],
+      ['stepTutorialTopFace2', [ANTISUNE, SUNE]],
+      ['stepTutorialTopCorners2', [PLL_AB]],
+    ])
   })
 })

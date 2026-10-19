@@ -40,7 +40,6 @@ export const TUTORIAL_MIRROR_FR = {
     `Tourne vers toi la face ${name}, la face ${down} en bas.`,
   checkFigure: 'Vérifie la nouvelle figure que dessinent les faces épaisses en haut.',
   checks: {
-    stepTutorialTurnOver2: () => 'Vérifie qu’un coin a maintenant sa face fine en bas.',
     stepTutorialTopCross: (done: number) =>
       `Vérifie qu’il y a maintenant ${done + 1} faces épaisses vers le haut.`,
     stepTutorialTopEdges: (done: number) =>
@@ -53,6 +52,9 @@ export const TUTORIAL_MIRROR_FR = {
         : `Vérifie que ${done} coins du haut sont maintenant à leur place.`,
     stepTutorialTopTwist: () =>
       'Vérifie que chaque coin a sa face épaisse en haut : le cube est résolu.',
+    stepTutorialFace2: () => 'Vérifie qu’un coin de plus a maintenant sa face fine en haut.',
+    stepTutorialLayer2: () =>
+      'Vérifie que les coins de la face fine se suivent : deux voisins ont la même épaisseur sur leur côté commun.',
     stepTutorialTopFace2: (done: number, pieces: readonly string[] = []) =>
       done === 0
         ? 'Aucun coin n’a encore sa face épaisse en haut : la formule suivante s’en charge.'
@@ -77,21 +79,39 @@ export const TUTORIAL_MIRROR_FR = {
     figureCornersNone: 'Aucun coin du haut n’est encore à sa place : la formule en placera un.',
     figureCornersTwist:
       'Repère les coins du haut dont la face épaisse n’est pas en haut : chacun passe devant à droite pour être tourné.',
-    figureTopNone: 'Repère les coins du haut : aucun n’a sa face épaisse en haut.',
-    figureTopOne: 'Repère les coins du haut : un seul a sa face épaisse en haut.',
-    figureTopOneDetour:
-      'Repère les coins du haut : un seul a sa face épaisse en haut. Ici, aucune formule aussi courte ne le garde : celle-ci le défait, mais mène tout droit à la face épaisse.',
-    figureTopTwo: 'Repère les coins du haut : deux ont leur face épaisse en haut.',
-    figureTopTwoDetour:
-      'Repère les coins du haut : deux ont leur face épaisse en haut. Ici, aucune formule aussi courte ne les garde : celle-ci n’en laisse qu’un, mais mène tout droit à la face épaisse.',
-    figureCornersTurn:
-      'Les coins du haut se suivent déjà dans le bon ordre : un tour du haut les met en place.',
+    figureLayer2Once:
+      'Repère les coins de la face fine : la formule 1 en fait tourner trois et garde celui de derrière à gauche. Une fois suffit ici.',
+    figureLayer2Twice:
+      'Repère les coins de la face fine : la formule 1 en fait tourner trois et garde celui de derrière à gauche. Il faudra la jouer deux fois.',
+    figureTurnOver2:
+      'La face fine est faite : retourne le cube, face fine en bas. La face épaisse est maintenant en haut.',
+    figureFace2Case1:
+      'Cas 1 : un seul coin a sa face épaisse en haut. Tiens le cube comme indiqué : la formule 2.',
+    figureFace2Case2:
+      'Cas 2 : un seul coin a sa face épaisse en haut, les autres tournés dans l’autre sens. Tiens le cube comme indiqué : la formule 3.',
+    figureFace2Case3:
+      'Cas 3 : aucun coin n’a sa face épaisse en haut, deux faces épaisses devant et deux derrière. Deux fois la formule 2.',
+    figureFace2Case4:
+      'Cas 4 : aucun coin n’a sa face épaisse en haut, deux faces épaisses d’un seul côté. La formule 2, un quart de tour du haut, puis la formule 2.',
+    figureFace2Case5:
+      'Cas 5 : deux coins en diagonale ont leur face épaisse en haut. La formule 2, un demi-tour du haut, puis la formule 3.',
+    figureFace2Case6:
+      'Cas 6 : deux coins voisins ont leur face épaisse en haut, les deux autres la tournent vers des côtés opposés. La formule 2, un quart de tour du haut, puis la formule 3.',
+    figureFace2Case7:
+      'Cas 7 : deux coins voisins ont leur face épaisse en haut, les deux autres la tournent du même côté. La formule 2, un quart de tour du haut, puis la formule 3.',
+    figureCorners2Once:
+      'Repère les coins du haut : la formule 1 en fait tourner trois et garde celui de derrière à gauche. Une fois suffit ici.',
+    figureCorners2Twice:
+      'Repère les coins du haut : la formule 1 en fait tourner trois et garde celui de derrière à gauche. Il faudra la jouer deux fois.',
+    figureCorners2Turn: 'Les coins du haut se suivent déjà : un tour du haut les met en place.',
   } as Record<string, string>,
   progress: {
     stepTutorialTopCross: (done: number, total: number) =>
       `${done} arête${done > 1 ? 's' : ''} sur ${total} face épaisse vers le haut`,
     stepTutorialTopTwist: (done: number, total: number) =>
       `${done} coin${done > 1 ? 's' : ''} sur ${total} face épaisse en haut`,
+    stepTutorialFace2: (done: number, total: number) =>
+      `${done} coin${done > 1 ? 's' : ''} sur ${total} face fine en haut`,
     stepTutorialTopFace2: (done: number, total: number) =>
       `${done} coin${done > 1 ? 's' : ''} sur ${total} face épaisse en haut`,
   } as Record<string, (done: number, total: number) => string>,
@@ -102,8 +122,8 @@ export const TUTORIAL_MIRROR_FR = {
     stepTutorialTopEdges: 'Placer les arêtes du haut',
     stepTutorialTopCorners: 'Placer les coins du haut',
     stepTutorialTopTwist: 'Tourner les coins du haut',
-    stepTutorialTurnOver2: 'Retourner le cube, face fine en bas',
-    stepTutorialCorner2: 'Placer les coins de la face fine',
+    stepTutorialFace2: 'Construire la face fine',
+    stepTutorialLayer2: 'Placer les coins de la face fine',
     stepTutorialTopFace2: 'Construire la face épaisse',
     stepTutorialTopCorners2: 'Placer les coins du haut',
   } as Record<string, string>,
@@ -127,12 +147,13 @@ export const TUTORIAL_MIRROR_FR = {
       'Place chaque coin du haut entre ses trois centres, même s’il est mal tourné.',
     stepTutorialTopTwist:
       'Tourne chaque coin du haut pour que sa face épaisse soit en haut. La première couche se défait en route : continue, elle se refait à la fin.',
-    stepTutorialTurnOver2:
-      'Le 2x2 n’a pas de centres : un coin dont la face fine est en bas sert de repère. Aucun n’a sa face fine en bas : retourne le cube pour en amener un. Aucune face ne tourne.',
-    stepTutorialCorner2:
-      'Le 2x2 n’a pas de centres : un coin déjà face fine en bas sert de repère, et les épaisseurs des faces se lisent sur lui. Place un à un les autres coins qui ont une face fine autour de lui, cette face en bas.',
-    stepTutorialTopFace2: 'Tourne les coins du haut pour que leur face épaisse soit en haut.',
+    stepTutorialFace2:
+      'Tiens le cube face fine en haut. Amène un à un les coins qui ont une face fine en haut, cette face vers le haut, sans t’occuper des côtés.',
+    stepTutorialLayer2:
+      'La face fine toujours en haut, place ses coins avec la formule 1 : elle fait tourner trois coins du haut sans les retourner, celui de derrière à gauche ne bougeant pas.',
+    stepTutorialTopFace2:
+      'Retourne le cube, face fine en bas, puis tourne les coins du haut pour que leur face épaisse soit en haut : sept cas, chacun avec la formule 2 ou la formule 3, ou les deux.',
     stepTutorialTopCorners2:
-      'Place chaque coin du haut à sa place. Deux coins en diagonale à échanger, c’est la parité du 2x2 : elle a sa propre formule.',
+      'Place chaque coin du haut à sa place avec la formule 1, comme ceux de la face fine.',
   } as Record<string, string>,
 }

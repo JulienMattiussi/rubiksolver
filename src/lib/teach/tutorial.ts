@@ -25,6 +25,13 @@ export interface TutorialPick {
  *  middle edges' insertion: out of the way, then back), shown apart. */
 export type Sequence = readonly (readonly Turn[])[]
 
+/** A stage as the reminder shows it: its key and the formulas it teaches,
+ *  whole (none: a stage solved by hand). */
+export interface RecapStage {
+  readonly key: string
+  readonly formulas: readonly (readonly Turn[])[]
+}
+
 /**
  * What a step is: pieces placed one at a time, a picked one (`pieces`); a
  * formula of its own, no pick (`formula`); a figure recognized, no pick
@@ -118,6 +125,9 @@ export interface Tutorial {
    *  each one's key (the first stage's first). */
   readonly stages: number
   readonly stageKeys: readonly string[]
+  /** Its stages taught and their formulas, for the reminder (the end, the
+   *  « Aide-mémoire »). */
+  readonly recap: readonly RecapStage[]
   /** The step it plays before its stages, if it has one (the 3x3's
    *  centers put back, the 2x2 turned over): its key. */
   readonly opening?: string

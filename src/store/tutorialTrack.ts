@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { readStored, writeStored } from '@/lib/app/storage'
 
 /**
  * How far the tutorial has gone, apart from playing it (tutorialStore):
@@ -28,9 +29,21 @@ interface TutorialTrack {
   termsShown: number
   showTerm: () => void
   setTermsShown: (count: number) => void
+  /** The tutorials played through (`puzzle/method`), kept between visits:
+   *  their reminder offered from the start. */
+  playedThrough: readonly string[]
+  playThrough: (id: string) => void
+  /** Whether the reminder is shown in place of the step. */
+  recapShown: boolean
+  showRecap: (shown: boolean) => void
   /** Back to a tutorial's start (the counters kept: they only count up). */
   reset: () => void
 }
+
+const PLAYED_KEY = 'rubiksolver.tutorialsPlayed'
+
+const isIds = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((v) => typeof v === 'string')
 
 export const useTutorialTrack = create<TutorialTrack>((set) => ({
   stageShown: 0,
@@ -44,5 +57,15 @@ export const useTutorialTrack = create<TutorialTrack>((set) => ({
   termsShown: 0,
   showTerm: () => set((s) => ({ termsShown: s.termsShown + 1 })),
   setTermsShown: (count) => set({ termsShown: count }),
-  reset: () => set({ stageShown: 0, learnt: [], termsShown: 0 }),
+  playedThrough: readStored(PLAYED_KEY, isIds, []),
+  playThrough: (id) =>
+    set((s) => {
+      if (s.playedThrough.includes(id)) return s
+      const playedThrough = [...s.playedThrough, id]
+      writeStored(PLAYED_KEY, playedThrough)
+      return { playedThrough }
+    }),
+  recapShown: false,
+  showRecap: (shown) => set({ recapShown: shown }),
+  reset: () => set({ stageShown: 0, learnt: [], termsShown: 0, recapShown: false }),
 }))

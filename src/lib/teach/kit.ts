@@ -9,7 +9,7 @@ import {
   type FormulaStage,
   type PieceStage,
 } from './stages'
-import type { Term, Tutorial } from './tutorial'
+import type { RecapStage, Term, Tutorial } from './tutorial'
 
 export type { FigureStage, Kept, Target } from './stages'
 
@@ -76,6 +76,12 @@ const isDone = (stage: Stage, cube: Cube): boolean =>
 const keyOf = (stage?: { key: string } | ProjectedStage) =>
   !stage ? '' : 'inner' in stage ? stage.inner.key : stage.key
 
+/** A stage's formulas, each sequence whole. */
+function recapOf(stage: PieceStage | FigureStage | ProjectedStage): RecapStage {
+  const own = 'inner' in stage ? stage.inner : stage
+  return { key: own.key, formulas: (own.algorithms ?? []).map((sequence) => sequence.flat()) }
+}
+
 /** A cube's piece by its stickers: one a center, two an edge, three a corner. */
 const cubeKind = (cubie: Cubie) =>
   cubie.stickers.length === 1 ? 'center' : cubie.stickers.length === 2 ? 'edge' : 'corner'
@@ -106,6 +112,7 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
     frame,
     stages,
     stageKeys,
+    recap: plan.stages.flatMap((s) => (s.kind === 'formula' ? [] : [recapOf(s)])),
     ...(opening && { opening }),
     glossary: plan.glossary ?? [],
     pieceKind: plan.pieceKind ?? cubeKind,

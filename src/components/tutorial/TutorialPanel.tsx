@@ -1,6 +1,16 @@
-import { ArrowRight, GraduationCap, SkipForward, Sparkles, Undo2, X } from 'lucide-react'
+import {
+  ArrowRight,
+  GraduationCap,
+  NotebookText,
+  SkipForward,
+  Sparkles,
+  Undo2,
+  X,
+} from 'lucide-react'
 import { useEffect } from 'react'
+import { cubeShape } from '@/lib/core/cube'
 import { formatMove } from '@/lib/core/notation'
+import { tutorialFor } from '@/lib/tutorials/registry'
 import { useI18n } from '@/i18n/i18nStore'
 import { useView } from '@/store/viewStore'
 import { selectBusy, useCube } from '@/store/cubeStore'
@@ -10,6 +20,7 @@ import { useTutorial } from '@/hooks/useTutorial'
 import { Button } from '@/components/ui/Button'
 import { SECTION_BOX, SECTION_LABEL } from '@/components/ui/styles'
 import { Instructions } from './Instructions'
+import { FormulaRecap } from './FormulaRecap'
 import { GoldTrophy } from './GoldTrophy'
 import { StepHeading } from './StepHeading'
 import { liftFor } from './liftFor'
@@ -37,12 +48,24 @@ export function TutorialPanel() {
   const cheer = useTutorialTrack((s) => s.cheer)
   const showTerm = useTutorialTrack((s) => s.showTerm)
   const setTermsShown = useTutorialTrack((s) => s.setTermsShown)
+  // The tutorial played, its reminder offered from the start once it has
+  // been played through.
+  const shape = useCube((s) => cubeShape(s.cube))
+  const method = useCube((s) => s.method)
+  const tutorial = tutorialFor(shape, method)
+  const id = `${shape}/${method}`
+  const playedThrough = useTutorialTrack((s) => s.playedThrough.includes(id))
+  const playThrough = useTutorialTrack((s) => s.playThrough)
+  const recapShown = useTutorialTrack((s) => s.recapShown)
+  const showRecap = useTutorialTrack((s) => s.showRecap)
   // The end come (every stage shown, the puzzle solved): the cup, and the
   // fireworks with it, not before.
   const over = !step
   useEffect(() => {
-    if (over) cheer()
-  }, [over, cheer])
+    if (!over) return
+    cheer()
+    playThrough(id)
+  }, [over, cheer, playThrough, id])
   // The stage of the step shown, noted (a stage skipped over is then shown
   // in passing, see useTutorial).
   useEffect(() => {
@@ -68,23 +91,39 @@ export function TutorialPanel() {
     } else if (finished) viewToward(finished)
     else if (hold) viewToward(frame.front(hold), lift)
   }, [hold, frame, lift, finished, termFrom, setHold, viewToward])
+  const header = (
+    <div className="flex items-center justify-between">
+      <h2 className={`${SECTION_LABEL} flex items-center gap-2`}>
+        <GraduationCap className="size-4" aria-hidden />
+        {t.tutorial.button}
+      </h2>
+      <button
+        type="button"
+        onClick={exit}
+        title={t.tutorial.exit}
+        aria-label={t.tutorial.exit}
+        className="rounded p-1 text-slate-400 hover:text-white focus-visible:outline-2 focus-visible:outline-sky-400"
+      >
+        <X className="size-4" aria-hidden />
+      </button>
+    </div>
+  )
+  // The reminder asked for: shown in place of the step, until back.
+  if (recapShown && tutorial) {
+    return (
+      <section aria-label={t.tutorial.button} className={SECTION_BOX}>
+        {header}
+        <FormulaRecap tutorial={tutorial} />
+        <Button onClick={() => showRecap(false)}>
+          <Undo2 className="size-4" aria-hidden />
+          {t.tutorial.recapBack}
+        </Button>
+      </section>
+    )
+  }
   return (
     <section aria-label={t.tutorial.button} className={SECTION_BOX}>
-      <div className="flex items-center justify-between">
-        <h2 className={`${SECTION_LABEL} flex items-center gap-2`}>
-          <GraduationCap className="size-4" aria-hidden />
-          {t.tutorial.button}
-        </h2>
-        <button
-          type="button"
-          onClick={exit}
-          title={t.tutorial.exit}
-          aria-label={t.tutorial.exit}
-          className="rounded p-1 text-slate-400 hover:text-white focus-visible:outline-2 focus-visible:outline-sky-400"
-        >
-          <X className="size-4" aria-hidden />
-        </button>
-      </div>
+      {header}
       {step && (
         <StepHeading
           step={step}
@@ -98,6 +137,7 @@ export function TutorialPanel() {
         <div className="flex flex-col items-center gap-3 py-4 text-center">
           <GoldTrophy className="size-32 drop-shadow-[0_0_18px_rgba(251,191,36,0.45)]" />
           <p className="text-lg font-bold text-emerald-300">{t.tutorial.solved}</p>
+          {tutorial && <FormulaRecap tutorial={tutorial} />}
           <Button onClick={exit} className="mt-2 w-full">
             <X className="size-4" aria-hidden />
             {t.tutorial.close}
@@ -129,6 +169,12 @@ export function TutorialPanel() {
             <SkipForward className="size-4" aria-hidden />
             {t.tutorial.skipTerms}
           </Button>
+          {playedThrough && (
+            <Button onClick={() => showRecap(true)}>
+              <NotebookText className="size-4" aria-hidden />
+              {t.tutorial.recap}
+            </Button>
+          )}
         </div>
       )}
       {step && step.kind !== 'toCome' && step.kind !== 'alreadyDone' && step.kind !== 'term' && (

@@ -186,7 +186,10 @@ R D` répété, un seul pas, la première couche se défaisant en route).
 - **Le vocabulaire** (« Étape 0 ») : avant les étapes, un pas par terme
   (centre, arête, coin ; sur un miroir, les six épaisseurs), ses pièces en
   bleu et la vue tournée vers elles ; « Suivant » passe au terme suivant,
-  « Passer » va à l'étape 1. Sur un miroir, tous les textes nomment les
+  « Passer » va à l'étape 1. Un tutoriel déjà mené à son terme (gardé
+  entre deux visites, `tutorialTrack.playedThrough`) offre en dessous un
+  « Aide-mémoire » : ses étapes et leurs formules, à la place du pas,
+  jusqu'à « Revenir au tutoriel ». Sur un miroir, tous les textes nomment les
   faces et les pièces par leur épaisseur, de très fine à très épaisse
   (« l'arête aux faces fine et moins épaisse »).
 - **Le panneau** : l'étape (« Étape 4 sur 7 », son but, son avancement,
@@ -236,7 +239,10 @@ R D` répété, un seul pas, la première couche se défaisant en route).
   à cette étape sont déjà dans la bonne position » et un bouton « Suivant »
   (`tutorialTrack.stageShown`). Une étape finie fait apparaître un 💪 devant
   le cube (`StageCheer`) ; la fin du tutoriel, une coupe, « Résolu, bravo ! »,
-  un bouton pour le fermer, et le feu d'artifice.
+  « Les N formules à retenir » (`FormulaRecap` : chaque étape et ses
+  formules, lues dans les `algorithms` qu'elle déclare, écrites dans la
+  notation choisie, une formule enseignée deux fois comptée une fois), un
+  bouton pour le fermer, et le feu d'artifice.
 - **Autour** : la solution précalculée de la méthode n'est pas montrée
   (`useAutoPlan` s'en abstient) ; ce qui remplacerait le cube suivi est
   grisé (mélange, réinitialisation, saisie, restauration) ; choisir un

@@ -29,7 +29,9 @@ export const TUTORIAL_MIRROR_EN: typeof TUTORIAL_MIRROR_FR = {
   facing: (name, down) => `Turn the ${name} face toward you, the ${down} face down.`,
   checkFigure: 'Check the new figure the thick faces draw on top.',
   checks: {
-    stepTutorialTurnOver2: () => 'Check a corner now has its thin face down.',
+    stepTutorialFace2: () => 'Check one more corner now has its thin face up.',
+    stepTutorialLayer2: () =>
+      'Check the thin face’s corners follow each other: two neighbors show the same thickness on the side they share.',
     stepTutorialTopCross: (done: number) => `Check there are now ${done + 1} thick faces up.`,
     stepTutorialTopEdges: (done: number) =>
       done === 1
@@ -62,21 +64,40 @@ export const TUTORIAL_MIRROR_EN: typeof TUTORIAL_MIRROR_FR = {
     figureCornersNone: 'No top corner is in its place yet: the formula will place one.',
     figureCornersTwist:
       'Spot the top corners whose thick face is not up: each comes front right to be turned.',
-    figureTopNone: 'Spot the top corners: none has its thick face up.',
-    figureTopOne: 'Spot the top corners: only one has its thick face up.',
-    figureTopOneDetour:
-      'Spot the top corners: only one has its thick face up. Here no formula as short keeps it: this one undoes it, but leads straight to the thick face.',
-    figureTopTwo: 'Spot the top corners: two have their thick face up.',
-    figureTopTwoDetour:
-      'Spot the top corners: two have their thick face up. Here no formula as short keeps them: this one leaves only one, but leads straight to the thick face.',
-    figureCornersTurn:
-      'The top corners already follow each other in the right order: one turn of the top places them.',
+    figureLayer2Once:
+      'Spot the thin face’s corners: formula 1 cycles three of them and keeps the back left one. Once is enough here.',
+    figureLayer2Twice:
+      'Spot the thin face’s corners: formula 1 cycles three of them and keeps the back left one. It will take two.',
+    figureTurnOver2:
+      'The thin face is done: turn the cube over, thin face down. The thick face is now on top.',
+    figureFace2Case1:
+      'Case 1: only one corner has its thick face up. Hold the cube as shown: formula 2.',
+    figureFace2Case2:
+      'Case 2: only one corner has its thick face up, the others turned the other way. Hold the cube as shown: formula 3.',
+    figureFace2Case3:
+      'Case 3: no corner has its thick face up, two thick faces in front and two at the back. Formula 2 twice.',
+    figureFace2Case4:
+      'Case 4: no corner has its thick face up, two thick faces on one side only. Formula 2, a quarter turn of the top, then formula 2.',
+    figureFace2Case5:
+      'Case 5: two corners across have their thick face up. Formula 2, a half turn of the top, then formula 3.',
+    figureFace2Case6:
+      'Case 6: two neighboring corners have their thick face up, the other two turn it to opposite sides. Formula 2, a quarter turn of the top, then formula 3.',
+    figureFace2Case7:
+      'Case 7: two neighboring corners have their thick face up, the other two turn it to the same side. Formula 2, a quarter turn of the top, then formula 3.',
+    figureCorners2Turn:
+      'The top corners already follow each other: one turn of the top places them.',
+    figureCorners2Once:
+      'Spot the top corners: formula 1 cycles three of them and keeps the back left one. Once is enough here.',
+    figureCorners2Twice:
+      'Spot the top corners: formula 1 cycles three of them and keeps the back left one. It will take two.',
   },
   progress: {
     stepTutorialTopCross: (done: number, total: number) =>
       `${done} of ${total} edge${total > 1 ? 's' : ''} thick face up`,
     stepTutorialTopTwist: (done: number, total: number) =>
       `${done} of ${total} corner${total > 1 ? 's' : ''} thick face up`,
+    stepTutorialFace2: (done: number, total: number) =>
+      `${done} of ${total} corner${total > 1 ? 's' : ''} thin face up`,
     stepTutorialTopFace2: (done: number, total: number) =>
       `${done} of ${total} corner${total > 1 ? 's' : ''} thick face up`,
   },
@@ -87,8 +108,8 @@ export const TUTORIAL_MIRROR_EN: typeof TUTORIAL_MIRROR_FR = {
     stepTutorialTopEdges: 'Place the top edges',
     stepTutorialTopCorners: 'Place the top corners',
     stepTutorialTopTwist: 'Turn the top corners',
-    stepTutorialTurnOver2: 'Turn the cube over, thin face down',
-    stepTutorialCorner2: 'Place the corners of the thin face',
+    stepTutorialFace2: 'Build the thin face',
+    stepTutorialLayer2: 'Place the corners of the thin face',
     stepTutorialTopFace2: 'Build the thick face',
     stepTutorialTopCorners2: 'Place the top corners',
   },
@@ -109,12 +130,13 @@ export const TUTORIAL_MIRROR_EN: typeof TUTORIAL_MIRROR_FR = {
     stepTutorialTopCorners: 'Place each top corner between its three centers, even turned wrong.',
     stepTutorialTopTwist:
       'Turn each top corner so its thick face is up. The first layer comes apart on the way: go on, it comes back at the end.',
-    stepTutorialTurnOver2:
-      'A 2x2 has no centers: a corner with its thin face down is the landmark. None has its thin face down: turn the cube over to bring one. No face turns.',
-    stepTutorialCorner2:
-      'A 2x2 has no centers: a corner already thin face down is the landmark, and the sides’ thicknesses are read on it. Place the other corners with a thin face one by one around it, that face down.',
-    stepTutorialTopFace2: 'Turn the top corners so their thick face is up.',
+    stepTutorialFace2:
+      'Hold the cube thin face up. Bring the corners with a thin face up one by one, that face up, never mind the sides.',
+    stepTutorialLayer2:
+      'The thin face still on top, place its corners with formula 1: it cycles three top corners without turning them, the back left one staying put.',
+    stepTutorialTopFace2:
+      'Turn the cube over, thin face down, then turn the top corners so their thick face is up: seven cases, each with formula 2 or formula 3, or both.',
     stepTutorialTopCorners2:
-      'Place each top corner in its place. Two corners across to swap is the 2x2 parity: it has a formula of its own.',
+      'Place each top corner in its place with formula 1, as those of the thin face.',
   },
 }

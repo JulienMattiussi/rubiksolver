@@ -95,6 +95,12 @@ export const TUTORIAL_FR = {
   termCount: (n: number, total: number) => `Mot ${n} sur ${total}`,
   skipTerms: 'Passer',
   backToGlossary: 'Revenir au vocabulaire',
+  /** The reminder: the stages and their formulas (at the end, or asked for
+   *  once the tutorial played through). */
+  recap: 'Aide-mémoire',
+  recapTitle: (n: number) => (n === 1 ? 'La formule à retenir' : `Les ${n} formules à retenir`),
+  recapByHand: 'Sans formule, à la main',
+  recapBack: 'Revenir au tutoriel',
   terms: TEXTS.terms,
   /** The legend of the hatched pieces, under the step's hint. */
   legendMoved:

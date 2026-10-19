@@ -5,11 +5,11 @@ import { invertMoves } from '../../core/moves'
 import { OUTER_TURNS } from '../../core/moveSet'
 import type { MethodPlan } from '../../solve/solverKit'
 import type { Color, Cube, CubeColor, Face, Move } from '../../core/types'
-import { cornerPlacedIn } from './layers3'
 
 // ---------------------------------------------------------------------------
-// The 2x2's frame (its layer-by-layer method is its tutorial's,
-// lib/tutorials/standard/cube2.ts)
+// The 2x2's frame, for the puzzles solved as one (the Void Cube's corners);
+// its own layer-by-layer method is its tutorial's
+// (lib/tutorials/standard/cube2.ts)
 // ---------------------------------------------------------------------------
 //
 // A 2x2 has no centers, so there is no fixed color frame. The corner sitting
@@ -29,31 +29,6 @@ export function frame2(cube: Cube): Record<Face, Color> {
   const b = colorAt(dbl, 'B') as CubeColor | undefined
   if (!d || !l || !b) throw new Error('frame2: DBL corner is missing stickers')
   return { D: d, L: l, B: b, U: OPPOSITE_COLOR[d], R: OPPOSITE_COLOR[l], F: OPPOSITE_COLOR[b] }
-}
-
-/** The three bottom corners to place around the DBL anchor (which is the BL one). */
-const BOTTOM_PAIRS_2: ReadonlyArray<readonly [Face, Face]> = [
-  ['L', 'F'],
-  ['F', 'R'],
-  ['R', 'B'],
-]
-
-function bottomCornerPlaced2(cube: Cube, s1: Face, s2: Face): boolean {
-  return cornerPlacedIn(cube, frame2(cube), s1, s2)
-}
-
-function bottomLayerDone2(cube: Cube): boolean {
-  return BOTTOM_PAIRS_2.every(([a, b]) => bottomCornerPlaced2(cube, a, b))
-}
-
-/** Bottom layer done and every U sticker shows the frame's U color. */
-export function topFaceDone2(cube: Cube): boolean {
-  if (!bottomLayerDone2(cube)) return false
-  const u = frame2(cube).U
-  return cube.every((c) => {
-    const color = colorAt(c, 'U')
-    return color === undefined || color === u
-  })
 }
 
 // ---------------------------------------------------------------------------

@@ -15,6 +15,7 @@ import {
   NIKLAS,
   OLL_EDGE,
   PLL_AA,
+  PLL_AB,
   PLL_T,
   PLL_UA,
   PLL_Y,
@@ -53,6 +54,22 @@ describe('algorithm catalogue', () => {
     for (const alg of [SUNE, ANTISUNE, PLL_AA, PLL_UA, NIKLAS]) {
       expect(edgesOriented(run(alg))).toBe(true)
     }
+  })
+
+  it('Ab-perm cycles the top corners but the back left one, white kept up', () => {
+    const cube = run(PLL_AB)
+    expect(piecesHome(cube, F2L)).toBe(true)
+    expect(piecesHome(cube, pieces('UBL UF UR UB UL'))).toBe(true)
+    // Front left to front right to back right: each where the next was.
+    expect(['ULF', 'UFR', 'URB'].map((n) => pieceInSlot(cube, n))).toEqual([false, false, false])
+    expect(
+      cube
+        .filter((c) => c.position[1] === 1)
+        .every(
+          (c) =>
+            c.stickers.some((s) => s.color === 'W' && s.normal[1] === 1) || c.stickers.length === 1,
+        ),
+    ).toBe(true)
   })
 
   it('Aa-perm moves corners between slots, Ua-perm only edges', () => {

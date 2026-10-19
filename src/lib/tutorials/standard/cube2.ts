@@ -1,263 +1,292 @@
-import { FACE_COLOR, isSolved, OPPOSITE_COLOR } from '../../core/cube'
+import { FACE_COLOR, isSolved } from '../../core/cube'
 import { FACE_NORMAL } from '../../core/geometry'
 import { applyMoves } from '../../core/turn'
 import { CUBE_HOLDS, type Hold } from '../../core/hold'
+import { FACES } from '../../core/moves'
 import { parseMoves } from '../../core/notation'
-import { colorAt, hasColors, sameAt } from '../../core/pieces'
-import type { Color, Cube, CubeColor, Face, Move, Vec3 } from '../../core/types'
-import { PLL_T, PLL_Y, SUNE } from '../../methods/standard/algs'
-import { frame2, topFaceDone2 } from '../../methods/standard/cube2'
-import { CORNER_PAIRS, cornerPlacedIn } from '../../methods/standard/layers3'
-import { search } from '../../solve/solverKit'
+import { colorAt, colorsOf, sameAt } from '../../core/pieces'
+import type { Color, Cube, Cubie, Face, Move, Turn, Vec3 } from '../../core/types'
+import { ANTISUNE, PLL_AB, SUNE } from '../../methods/standard/algs'
+import { searchFormulas } from '../../solve/formulaSearch'
 import { tutorialOf, type Target } from '../../teach/kit'
 import { firstGesture, type Gesture } from '../../teach/macros'
-import { cornerFormula, cornerPairAt, cornerSlot, pieceWith, TRIGGER } from './cornerTrigger'
 import { CLOCKWISE, CORNER, COUNTERCLOCKWISE, THICKNESSES } from './terms'
 
 /**
- * The 2x2's tutorial, layer by layer, declared for the tutorial kit. No
- * centers: a yellow corner with its yellow down is the landmark, wherever
- * it stands, and the sides' colors are read on it (nothing turns to choose
- * it: the way the puzzle is held is the view's). Then:
- *   - the puzzle turned over first if no yellow is down (x or z);
- *   1. the three other yellow corners round the landmark, by the 3x3's
- *      trigger (`R U R' U'` held with the slot front right);
- *   2. the white face: `R U R' U R U2 R'` (the Sune), the top turned and
- *      the cube held the way the shortest chain of them asks;
- *   3. the white corners in their place: two side by side swapped
- *      (`R U R' U' R' F R2 U' R' U' R U R' F'`) or two across
- *      (`F R U' R' U' R U R' F' R U R' U' R' F R F'`), the 2x2's parity.
+ * The 2x2's tutorial, layer by layer as its manual teaches it (QiYi: four
+ * steps, three formulas), declared for the tutorial kit. No centers: its
+ * layers are told by their own corners. Its first color (yellow, the
+ * app's first layer) is built on top, where one sees it, then the cube is
+ * turned over:
+ *   1. the yellow face: the yellow corners brought up one at a time, their
+ *      yellow up, the sides as they come (the shortest way keeping those
+ *      up);
+ *   2. the yellow layer, still on top: its corners put in their places by
+ *      formula 1, `R B' R F2 R' B R F2 R2` (three corners cycled, the back
+ *      left one kept), once or twice;
+ *   3. the white face: the cube turned over (yellow down), then one of
+ *      seven cases, each played by formula 2 `R U2 R' U' R U' R'` and
+ *      formula 3 `R U R' U R U2 R'` (the Antisune and the Sune);
+ *   4. the white layer: formula 1 again.
  */
 
-const Y = FACE_COLOR.D
-const W = FACE_COLOR.U
+/** Its first color (its first layer's) and its last. */
+const FIRST = FACE_COLOR.D
+const LAST = FACE_COLOR.U
 
-/** The faces across from each. */
-const ACROSS: Record<Face, Face> = { U: 'D', D: 'U', L: 'R', R: 'L', F: 'B', B: 'F' }
+const CYCLE = parseMoves(PLL_AB)
+const FORMULA_2 = parseMoves(ANTISUNE)
+const FORMULA_3 = parseMoves(SUNE)
 
-/** The sides' colors, read on a bottom corner with its yellow down: the two
- *  sides it touches wear its colors there, the others the colors across. */
-function frameAt(cube: Cube, piece: number): Record<Face, Color> {
-  const corner = cube[piece]!
-  const [x, , z] = corner.position
-  const frame = { D: Y, U: OPPOSITE_COLOR[Y as CubeColor] } as Record<Face, Color>
-  for (const face of [x! > 0 ? 'R' : 'L', z! > 0 ? 'F' : 'B'] as const) {
-    const color = colorAt(corner, face) as CubeColor
-    frame[face] = color
-    frame[ACROSS[face]] = OPPOSITE_COLOR[color]
-  }
-  return frame
+/** The top corners, and those showing `color` up. */
+const topCorners = (cube: Cube) => cube.flatMap((c, i) => (c.position[1] === 1 ? [i] : []))
+const showingUp = (cube: Cube, color: Color) =>
+  topCorners(cube).filter((i) => colorAt(cube[i]!, 'U') === color)
+
+/** The side faces a position touches. */
+const sidesAt = (at: Vec3) =>
+  (['F', 'R', 'B', 'L'] as const).filter(
+    (f) => FACE_NORMAL[f].reduce((dot, n, k) => dot + n * at[k]!, 0) > 0,
+  )
+
+/** Whether a layer (its height, `y`) is one: its four corners showing
+ *  `color` on its outer face, two corners side by side the same color on
+ *  the side they share. */
+function layerDone(cube: Cube, y: 1 | -1, color: Color): boolean {
+  const face: Face = y === 1 ? 'U' : 'D'
+  const corners = cube.filter((c) => c.position[1] === y)
+  if (!corners.every((c) => colorAt(c, face) === color)) return false
+  return (['F', 'R', 'B', 'L'] as const).every((side) => {
+    const shown = corners.filter((c) => sidesAt(c.position).includes(side))
+    return shown.length === 2 && colorAt(shown[0]!, side) === colorAt(shown[1]!, side)
+  })
 }
 
-/** The bottom corners with their yellow down. */
-const yellowDown = (cube: Cube) =>
-  cube.flatMap((c, i) => (c.position[1]! < 0 && colorAt(c, 'D') === Y ? [i] : []))
+const yellowLayerUp = (cube: Cube) => layerDone(cube, 1, FIRST)
+/** The yellow layer done, and turned over already (down): the first two
+ *  steps stay done then. */
+const yellowLayerDown = (cube: Cube) => layerDone(cube, -1, FIRST)
+/** The yellow layer done, down, and the white face up. */
+const whiteFaceDone = (cube: Cube) =>
+  layerDone(cube, -1, FIRST) && showingUp(cube, LAST).length === 4
 
-/** The landmark: of the bottom corners with yellow down, the one with the
- *  most yellow corners already placed round it (the first, on a tie); null
- *  if no yellow is down. */
-function landmarkOf(cube: Cube): number | null {
-  const around = (piece: number) => {
-    const frame = frameAt(cube, piece)
-    return CORNER_PAIRS.filter(([a, b]) => cornerPlacedIn(cube, frame, a, b)).length
-  }
-  const down = yellowDown(cube)
-  return down.length ? down.reduce((best, i) => (around(i) > around(best) ? i : best)) : null
-}
+// ---------------------------------------------------------------------------
+// 1. The yellow face, on top
+// ---------------------------------------------------------------------------
 
-/** The sides' colors, read on the landmark (null: none yet). */
-const frameOf = (cube: Cube) => {
-  const landmark = landmarkOf(cube)
-  return landmark === null ? null : frameAt(cube, landmark)
-}
+/** The top slots. */
+const TOP_SLOTS: readonly Vec3[] = [
+  [-1, 1, 1],
+  [1, 1, 1],
+  [1, 1, -1],
+  [-1, 1, -1],
+]
 
-/** Turned over, held another way (x or z, each way): nothing moves on it. */
-const TURN_OVER: Move[] = (['R', 'F'] as const).flatMap((face) =>
-  ([1, 2, 3] as const).map((amount) => ({ face, amount, whole: true as const })),
+const isFirst = (c: Cubie) => c.stickers.some((s) => s.color === FIRST)
+
+/** Each top slot, filled once any yellow corner shows its yellow up there
+ *  (they are alike to this step: the next ones place them). */
+const faceTargets: readonly Target[] = TOP_SLOTS.map((slot) => ({
+  piece: (cube) => {
+    // The yellow corner suggested: one not yet up on top.
+    const up = (c: Cubie) => c.position[1] === 1 && colorAt(c, 'U') === FIRST
+    return cube.findIndex((c) => isFirst(c) && !up(c))
+  },
+  slot,
+  placed: (cube) => {
+    const there = cube.find((c) => sameAt(c.position, slot))
+    return (there !== undefined && colorAt(there, 'U') === FIRST) || yellowLayerDown(cube)
+  },
+  interchangeable: true,
+}))
+
+/** Every turn of a face, one at a time (the shortest way, intuitive). */
+const SINGLE_TURNS: Move[][] = FACES.flatMap((face) =>
+  ([1, 2, 3] as const).map((amount) => [{ face, amount }]),
 )
 
-/** The yellow corners, read round the landmark where the step began: the
- *  landmark itself first (placed while it stays where it is, yellow down),
- *  then each other bottom slot, its colors those of the sides there. */
-function cornerTargets(begun: Cube): Target[] {
-  const landmark = landmarkOf(begun)
-  if (landmark === null) return []
-  const at = begun[landmark]!.position
-  const frame = frameAt(begun, landmark)
-  const held = (cube: Cube) =>
-    sameAt(cube[landmark]!.position, at) && colorAt(cube[landmark]!, 'D') === Y
-  const pairs = CORNER_PAIRS.filter((p) => !sameAt(cornerSlot(p), at))
-  return [
-    { piece: () => landmark, slot: at, placed: held },
-    ...pairs.map(([a, b]) => ({
-      piece: (cube: Cube) => pieceWith(cube, [Y, frame[a], frame[b]]),
-      slot: cornerSlot([a, b]),
-      placed: (cube: Cube) => held(cube) && cornerPlacedIn(cube, frame, a, b),
-    })),
-  ]
+/** The fewest turns taking a yellow corner to a top slot, its yellow up,
+ *  keeping the yellow ones already up there: a search over the four yellow
+ *  corners alone. */
+function faceFormula(cube: Cube, piece: number, slot: Vec3, kept: readonly Vec3[]): Turn[] | null {
+  const colors = colorsOf(cube[piece]!)
+  const up = (c: Cubie | undefined) => c !== undefined && colorAt(c, 'U') === FIRST
+  const at = (pieces: Cube, p: Vec3) => pieces.find((c) => sameAt(c.position, p))
+  const goal = (pieces: Cube) => {
+    const mine = pieces.find((c) => colorsOf(c) === colors)!
+    return sameAt(mine.position, slot) && up(mine) && kept.every((p) => up(at(pieces, p)))
+  }
+  const key = (pieces: Cube) =>
+    pieces
+      .map((c) => c.position.join() + c.stickers.map((s) => s.normal.join()).join(';'))
+      .sort()
+      .join('|')
+  return searchFormulas(cube.filter(isFirst), SINGLE_TURNS, goal, {
+    key,
+    depth: 7,
+    mechanism: [2, 2, 2],
+  })
 }
 
-/** The top corners, and those with white up. */
-const topCorners = (cube: Cube) => cube.flatMap((c, i) => (c.position[1] === 1 ? [i] : []))
-const whiteUp = (cube: Cube) => topCorners(cube).filter((i) => colorAt(cube[i]!, 'U') === W)
+// ---------------------------------------------------------------------------
+// 2-4. Figures, by the manual's three formulas
+// ---------------------------------------------------------------------------
 
 /** A turn of the top (none: no move). */
 const top = (amount: number): Move[] =>
   amount % 4 === 0 ? [] : [{ face: 'U', amount: (amount % 4) as 1 | 2 | 3 }]
 
-/** A gesture named by what it does (the figure it answers). */
-type Tagged = Gesture & { readonly tag: string }
+/** Formula 1 from each hold, the top turned before and after it. */
+const CYCLES: Gesture[] = CUBE_HOLDS.holds.flatMap((hold) =>
+  [0, 1, 2, 3].flatMap((before) =>
+    [0, 1, 2, 3].map((after) => ({ hold, moves: [...top(before), ...CYCLE, ...top(after)] })),
+  ),
+)
+/** The top turned alone. */
+const TOP_TURNS: Gesture[] = [1, 2, 3].map((t) => ({ hold: 'F', moves: top(t) }))
 
-/** Each hold, the top turned each way, then a formula (and, `after`, the
- *  top turned after it), named `tag`. */
-const gestures = (tag: string, formula: readonly Move[], after = false): Tagged[] =>
-  CUBE_HOLDS.holds.flatMap((hold) =>
-    [0, 1, 2, 3].flatMap((before) =>
-      (after ? [0, 1, 2, 3] : [0]).map((end) => ({
-        tag,
-        hold,
-        moves: [...top(before), ...formula, ...top(end)],
-      })),
-    ),
-  )
-
-const SUNE_MOVES = parseMoves(SUNE)
-const T_PERM = parseMoves(PLL_T)
-const Y_PERM = parseMoves(PLL_Y)
-const FACE_GESTURES = gestures('sune', SUNE_MOVES)
-const PERM_GESTURES: Tagged[] = [
-  // The top only turned.
-  ...[1, 2, 3].map((t) => ({ tag: 'turn', hold: 'F', moves: top(t) })),
-  ...gestures('adjacent', T_PERM, true),
-  ...gestures('diagonal', Y_PERM, true),
-]
-
-/** The Sune to play on a white face: the first of the shortest chain to
- *  the face done, the one keeping the most white up (once per state: each
- *  figure asks). */
-const SUNE_OF = new WeakMap<Cube, Gesture | null>()
-function suneFor(cube: Cube): Gesture | null {
-  if (!SUNE_OF.has(cube)) {
-    const rank = (c: Cube) => whiteUp(c).length
-    SUNE_OF.set(cube, firstGesture(cube, FACE_GESTURES, topFaceDone2, 3, CUBE_HOLDS, rank))
-  }
-  return SUNE_OF.get(cube)!
-}
-
-/** A figure of the white face, by how many corners show white up, and
- *  whether its Sune takes some down (`detour`: no Sune as short keeps them,
- *  the way to the figure it finishes). */
-const faceFigure = (key: string, up: number, detour: boolean) => ({
+/** A layer's corners by formula 1: the one formula to play, held its way,
+ *  when one or two of them put the layer right (`times`), the top turned
+ *  alone when that is all (`times` 0). */
+const cycleFigure = (key: string, done: (cube: Cube) => boolean, times: 0 | 1 | 2) => ({
   key,
   match: (cube: Cube) => {
-    if (whiteUp(cube).length !== up) return null
-    const sune = suneFor(cube)
-    if (!sune) return null
-    const after = applyMoves(
-      cube,
-      sune.moves.map((m) => CUBE_HOLDS.played(sune.hold, m)),
-    )
-    return (whiteUp(after).length < up && !topFaceDone2(after)) === detour ? sune : null
+    const turn = firstGesture(cube, TOP_TURNS, done, 1, CUBE_HOLDS)
+    if (times === 0) return turn
+    if (turn) return null
+    const once = firstGesture(cube, CYCLES, done, 1, CUBE_HOLDS)
+    if (times === 1) return once
+    return once ? null : firstGesture(cube, CYCLES, done, 2, CUBE_HOLDS)
   },
 })
 
-/** The sides a position touches. */
-const facesAt = (at: Vec3) =>
-  (Object.keys(FACE_NORMAL) as Face[]).filter(
-    (f) => FACE_NORMAL[f].reduce((dot, n, k) => dot + n * at[k]!, 0) > 0,
-  )
+/** The white face's seven cases, as the manual plays them: formula 2 or
+ *  3, or two of them, the top turned between (each case the one its
+ *  formulas solve, seen from its hold, the top turned first). */
+const CASES: readonly (readonly Move[])[] = [
+  FORMULA_2,
+  FORMULA_3,
+  [...FORMULA_2, ...FORMULA_2],
+  [...FORMULA_2, ...top(3), ...FORMULA_2],
+  [...FORMULA_2, ...top(2), ...FORMULA_3],
+  [...FORMULA_2, ...top(1), ...FORMULA_3],
+  [...FORMULA_2, ...top(3), ...FORMULA_3],
+]
 
-/** How many top corners stand in their place (their colors those of the
- *  sides there, read in the anchor's frame). */
-function placedOnTop(cube: Cube): number {
-  const frame = frame2(cube)
-  return topCorners(cube).filter((i) =>
-    hasColors(
-      cube[i]!,
-      facesAt(cube[i]!.position).map((f) => frame[f]),
-    ),
+const played = (hold: Hold, moves: readonly Move[]) => moves.map((m) => CUBE_HOLDS.played(hold, m))
+
+/** The white face's case `n` (1 to 7): how to hold it and what to play. */
+const caseFigure = (n: number) => ({
+  key: `figureFace2Case${n}`,
+  match: (cube: Cube) => {
+    if (!layerDone(cube, -1, FIRST)) return null
+    for (const hold of CUBE_HOLDS.holds) {
+      for (const before of [0, 1, 2, 3]) {
+        const moves = [...top(before), ...CASES[n - 1]!]
+        if (whiteFaceDone(applyMoves(cube, played(hold, moves)))) return { hold, moves }
+      }
+    }
+    return null
+  },
+})
+
+/** The whole cube turned over (x2): the yellow layer goes down. */
+const TURN_OVER: Move[] = [{ face: 'R', amount: 2, whole: true }]
+
+/** How many corners of the layer at `y` stand right by their neighbors
+ *  (each pair side by side matching on its side): what a layer's step
+ *  shows of its progress. */
+function matched(cube: Cube, y: 1 | -1): number {
+  const corners = cube.filter((c) => c.position[1] === y)
+  return corners.filter((c) =>
+    sidesAt(c.position).every((side) => {
+      const mate = corners.find((o) => o !== c && sidesAt(o.position).includes(side))
+      return mate !== undefined && colorAt(mate, side) === colorAt(c, side)
+    }),
   ).length
 }
 
-/** A figure of the white corners: the one gesture solving them, if it is
- *  of that kind (a turn of the top; two side by side swapped; two across,
- *  the 2x2's parity). */
-const permFigure = (key: string, tag: string) => ({
-  key,
-  match: (cube: Cube) => {
-    const gesture = firstGesture(cube, PERM_GESTURES, isSolved, 1, CUBE_HOLDS) as Tagged | null
-    return gesture?.tag === tag ? gesture : null
-  },
-})
-
-/** A slot's hold: its first side in front (its second on the right). */
-const pairHold = (slot: Vec3): Hold => (cornerPairAt(slot)?.[0] ?? CUBE_HOLDS.holds[0]!) as Hold
+/** A side's color, read on the yellow layer once it is down (its corner
+ *  there); none before. */
+function sideColor(cube: Cube, normal: Vec3): Color | null {
+  const face = sidesAt(normal)[0]
+  if (!face || !layerDone(cube, -1, FIRST)) return null
+  const corner = cube.find((c) => c.position[1] === -1 && sidesAt(c.position).includes(face))
+  return corner ? (colorAt(corner, face) ?? null) : null
+}
 
 export const CUBE2_TUTORIAL = tutorialOf({
   glossary: [CORNER, CLOCKWISE, COUNTERCLOCKWISE, ...THICKNESSES],
-  // No centers: a side's color read on the landmark corner.
-  faceColor: (cube, normal) => {
-    const face = facesAt(normal)[0]
-    return face ? (frameOf(cube)?.[face] ?? null) : null
-  },
+  // No centers: a side's color read on the yellow layer, once down.
+  faceColor: (cube, normal) => sideColor(cube, normal),
   stages: [
-    // Turned over first if no yellow is down: the landmark is a corner
-    // with its yellow down.
-    {
-      kind: 'formula',
-      key: 'stepTutorialTurnOver2',
-      done: (cube) => landmarkOf(cube) !== null,
-      hold: 'F',
-      formula: (cube) => search(cube, (c) => landmarkOf(c) !== null, TURN_OVER, 1),
-    },
     {
       kind: 'pieces',
-      key: 'stepTutorialCorner2',
+      key: 'stepTutorialFace2',
       stage: 1,
-      // The yellow face, shown done.
-      shows: FACE_NORMAL.D,
-      targets: cornerTargets,
-      marker: Y,
+      shows: FACE_NORMAL.U,
+      targets: faceTargets,
+      marker: FIRST,
       words: true,
-      algorithms: [[TRIGGER]],
-      // Held with the slot front right: its trigger reads R U R' U'.
-      hold: (_, pick, next) => pairHold(pick?.slot ?? next.slot),
-      formula: (cube, pick) => cornerFormula(cube, pick, Y),
-      checked: true,
+      hold: () => 'F',
+      // The slots showing yellow up where the step began kept so (alike,
+      // they are kept by their places, not by which corner is there).
+      formula: (cube, pick, kept) =>
+        faceFormula(
+          cube,
+          pick.piece,
+          pick.slot,
+          faceTargets.filter((t) => t.placed(kept.begun)).map((t) => t.slot),
+        ),
+    },
+    {
+      kind: 'figures',
+      key: 'stepTutorialLayer2',
+      stage: 2,
+      side: FACE_NORMAL.U,
+      done: (cube) => yellowLayerUp(cube) || yellowLayerDown(cube),
+      figures: [
+        cycleFigure('figureLayer2Once', yellowLayerUp, 1),
+        cycleFigure('figureLayer2Twice', yellowLayerUp, 2),
+      ],
+      subjects: topCorners,
+      progress: (cube) => ({ done: matched(cube, 1), total: 4 }),
+      algorithms: [[CYCLE]],
     },
     {
       kind: 'figures',
       key: 'stepTutorialTopFace2',
-      stage: 2,
+      stage: 3,
       shows: FACE_NORMAL.U,
       side: FACE_NORMAL.U,
-      done: topFaceDone2,
+      done: whiteFaceDone,
       figures: [
-        faceFigure('figureTopNone', 0, false),
-        faceFigure('figureTopOne', 1, false),
-        faceFigure('figureTopOneDetour', 1, true),
-        faceFigure('figureTopTwo', 2, false),
-        faceFigure('figureTopTwoDetour', 2, true),
+        // The yellow layer still up: turned over first.
+        {
+          key: 'figureTurnOver2',
+          match: (cube: Cube) => (yellowLayerUp(cube) ? { hold: 'F', moves: TURN_OVER } : null),
+        },
+        ...[1, 2, 3, 4, 5, 6, 7].map(caseFigure),
       ],
       subjects: topCorners,
-      marker: W,
-      progress: (cube) => ({ done: whiteUp(cube).length, total: 4 }),
-      algorithms: [[SUNE_MOVES]],
+      marker: LAST,
+      progress: (cube) => ({ done: showingUp(cube, LAST).length, total: 4 }),
+      algorithms: [[FORMULA_2], [FORMULA_3]],
     },
     {
       kind: 'figures',
       key: 'stepTutorialTopCorners2',
-      stage: 3,
+      stage: 4,
       side: FACE_NORMAL.U,
       done: isSolved,
       figures: [
-        permFigure('figureCornersTurn', 'turn'),
-        permFigure('figureCornersAdjacent', 'adjacent'),
-        permFigure('figureCornersDiagonal', 'diagonal'),
+        cycleFigure('figureCorners2Turn', isSolved, 0),
+        cycleFigure('figureCorners2Once', isSolved, 1),
+        cycleFigure('figureCorners2Twice', isSolved, 2),
       ],
       subjects: topCorners,
-      progress: (cube) => ({ done: placedOnTop(cube), total: 4 }),
-      algorithms: [[T_PERM], [Y_PERM], [SUNE_MOVES]],
+      progress: (cube) => ({ done: matched(cube, 1), total: 4 }),
+      algorithms: [[CYCLE]],
     },
   ],
 })
