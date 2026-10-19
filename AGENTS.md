@@ -127,7 +127,8 @@ src/
 │   ├── solve/           # Briques des solveurs : solver (registre des méthodes, solve), solverKit (MethodPlan,
 │   │                    #   buildSteps), pieceSearch, cycleLibrary / cycleTable (3-cycles), centerCycles,
 │   │                    #   wingPairing, exhaustive (optimal par recherche exhaustive), progress, formulaSearch
-│   │                    #   (la plus courte suite de formules vers un but, found), everyWay (une formule vue
+│   │                    #   (la plus courte suite de formules vers un but, found ; searchChain : la même,
+│   │                    #   formule par formule), everyWay (une formule vue
 │   │                    #   de chaque côté), holdings (le puzzle tenu de chaque façon), permutation (parité),
 │   │                    #   once (mémoïsation paresseuse), placeTable (places, macros et Dijkstra :
 │   │                    #   Megaminx, AI Cube)
@@ -139,11 +140,14 @@ src/
 │   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), stages (sortes d'étapes et leurs
 │   │                    #   pas), project (étape d'un petit puzzle relevée sur un grand), scene (tons, flèches),
 │   │                    #   segments (formule lue en gestes), keep (pièces gardées, formule en cours de pas),
-│   │                    #   macros (la plus courte chaîne de gestes appris vers un but), method (la méthode
+│   │                    #   macros (la plus courte chaîne de gestes appris vers un but, jouée par une étape :
+│   │                    #   gestureChain, chainFigure, chainedPieces), method (la méthode
 │   │                    #   qu'un tutoriel enseigne, en MethodPlan)
 │   ├── tutorials/       # Les tutoriels : registry (par forme, un par méthode), un dossier par catégorie :
-│   │                    #   standard/cube3 et cube3LastLayer (le 3x3), cube2 (le 2x2), cornerTrigger (les
-│   │                    #   coins jaunes, partagés), terms (vocabulaire des cubes), en méthode débutant ;
+│   │                    #   standard/cube3 et cube3LastLayer (le 3x3), cube2 (le 2x2), cornerTrigger (ce que
+│   │                    #   partagent les cubes : coins jaunes, tour du haut, formule lue dans une tenue),
+│   │                    #   terms (vocabulaire des cubes), en méthode débutant ; ofapel, ofapelKit et
+│   │                    #   ofapelEnd (le 3x3 par Ofapel) ;
 │   │                    #   cube4 (réduction, puis les étapes du 3x3 projetées), project4, terms4 ;
 │   │                    #   pyramid/pyraminx (Centres d'abord), pyraHolds (ses tenues), pyraTerms ;
 │   │                    #   pyramid/morph (le Pyramorphinx, Comme un Pocket), morphTerms

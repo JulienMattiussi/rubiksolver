@@ -128,9 +128,9 @@ export interface Tutorial {
   /** Its stages taught and their formulas, for the reminder (the end, the
    *  « Aide-mémoire »). */
   readonly recap: readonly RecapStage[]
-  /** The step it plays before its stages, if it has one (the 3x3's
-   *  centers put back, the 2x2 turned over): its key. */
-  readonly opening?: string
+  /** The steps it plays before its stages, in order (the 3x3's: the cube
+   *  held its way, then the centers put back): their keys. */
+  readonly openings: readonly string[]
   /** The color of the side of this outward normal, and whether a center
    *  shows it (the 3x3's) or the pieces' frame only (a 2x2's, from its
    *  anchor corner): what the user is told to hold in front. */

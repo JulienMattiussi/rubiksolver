@@ -30,6 +30,26 @@ chaque combinaison depuis chaque tenue et chaque tour du haut ; (4) sa
 couche par la formule 1. Les couleurs des côtés se lisent sur la couche
 jaune une fois en bas. Environ 42 coups en moyenne.
 
+**Le 3x3 par Ofapel** (son tutoriel, `lib/tutorials/standard/ofapel.ts`,
+d'où sa méthode) suit la page de francocube.com/ofapel, dont chaque
+formule est vérifiée : les minuscules y sont des coups larges (`u` =
+`Uw`). Repère du débutant (jaune en bas). (1) La croix, celle du tutoriel
+débutant ; (2) les coins du bas, chacun par une des trois formules de la
+page (`R U R'`, `R U2 R' U' R U R'`, `R U R' U' R U R'`) ou leur symétrie ;
+(3) les coins du haut placés deux par deux (`L' U R U' L U R' U2` ou sa
+symétrie, deux fois sans son `U2` quand aucun n'est placé) ; (4) tournés
+par l'Antisune ou sa symétrie, puis un tour du haut ; (5) les arêtes du
+haut remontées de la couronne du milieu (`R U' R' U u' R U R'`, sa
+symétrie, leurs inverses, le haut tourné avant et rendu après) : la
+couronne du milieu et ses centres tournent avec ; (6) le cube basculé
+(`z`), la couronne devenue la tranche `M`, ses arêtes et ses centres par
+les formules en `M` et `U` de la page. Chaque pas joue la plus courte
+suite de ses formules, cherchée sur les seules pièces en jeu
+(`gestureChain`, `lib/teach/macros.ts`, chacune lue depuis sa tenue) : c'est le « combinez les
+formules » de la page. Les étapes 1 à 5 lisent le cube remis debout une
+fois basculé, et une rotation du cube entier ne compte pas comme un
+dérangement (`keepsPlaced`). Environ 120 coups.
+
 **Le 4x4 par réduction** (`src/lib/methods/standard/solver4/`) : repère absolu = `FACE_COLOR`
 (les centres d'une couleur étant indiscernables, le schéma standard est
 toujours constructible). (1) **Centres** : par comptage, pièce par pièce (D,
@@ -56,9 +76,14 @@ des étapes.
 `E`, `S` et les coups larges, jouables depuis l'onglet « Avancé » du pad,
 jamais mélangés (`movesFor`, donc le mélange et les tables de saisie, ne les
 voient pas). Ils déplacent les centres, qui servent de repère à toutes les
-méthodes 3x3 : chacune commence donc par **Centres remis en place**
-(`withCentersHome`, recherche en `<M, E, S>` sur les 6 centres), étape vide
-et retirée quand ils n'ont pas bougé. La saisie « depuis l'état actuel »
+méthodes 3x3 : chacune commence donc par **Cube tenu comme il faut**
+(`stepHoldCube` : `withCentersHome` et `holdStep` pour les méthodes,
+`holdStage` pour les tutoriels), étape vide et retirée quand ils n'ont pas
+bougé. Les centres gardent leurs places les uns par rapport aux autres, une
+tranche les déplaçant comme une rotation du cube entier : tourner le cube
+dans ses mains suffit donc toujours (`turnHome`, deux rotations au plus,
+aucune face tournée) ; le tutoriel le dit comme une tenue, sans coup à
+jouer. La saisie « depuis l'état actuel »
 tourne d'abord le cube entier pour que ses centres (pré-remplis, fixes)
 retrouvent leur couleur : même position, vue autrement.
 
@@ -87,9 +112,9 @@ tranche y déplace trois centres d'un coup, et la dernière pièce d'une face
 demande un commutateur. La méthode est donc celle des cubeurs, par
 **3-cycles purs** (`cycleLibrary`, voir AGENTS.md).
 
-0. **Centres remis en place** (`stepRecenter`, si nécessaire) : tenu autrement,
-   ses centres du milieu ramenés au repère absolu par les tranches du milieu
-   (le `M`, `E`, `S` du 3x3), que la phase 3x3 suppose.
+0. **Cube tenu comme il faut** (`stepHoldCube`, si nécessaire) : tenu
+   autrement, le cube tourné en entier pour ramener ses centres du milieu au
+   repère absolu (`holdStep`), que la phase 3x3 suppose.
 1. **Centres** (`centers.ts`) : face par face (D, U, F, R, B ; L forcée),
    deux coups (une tranche, un tour) quand ça suffit, sinon un 3-cycle :
    `[2R, X 2L X']` pour les diagonaux, `[3R, X 2L X']` pour ceux en croix,

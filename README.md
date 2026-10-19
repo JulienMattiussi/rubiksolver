@@ -18,7 +18,7 @@ real methods, or learn to solve the 3x3, the 2x2, the 4x4, the Pyraminx or the P
 
 <sub>
   100% front-end &nbsp;·&nbsp; React 19 + React Three Fiber &nbsp;·&nbsp; TypeScript strict &nbsp;·&nbsp;
-  integer-only puzzle engine &nbsp;·&nbsp; 47 solving methods &nbsp;·&nbsp; 5 guided tutorials &nbsp;·&nbsp;
+  integer-only puzzle engine &nbsp;·&nbsp; 48 solving methods &nbsp;·&nbsp; 6 guided tutorials &nbsp;·&nbsp;
   French and English &nbsp;·&nbsp; MIT license
 </sub>
 
@@ -38,7 +38,7 @@ Up / Page Down and the arrows.
 
 <img src="docs/images/solve.png" width="820" alt="A scrambled 3x3 with the layer-by-layer method: its seven named steps on the right, each with its moves.">
 
-On the 3x3 alone: **layer by layer, CFOP, Roux, Petrus and ZZ**. The 4x4, 5x5 and 6x6
+On the 3x3 alone: **layer by layer, Ofapel, CFOP, Roux, Petrus and ZZ**. The 4x4, 5x5 and 6x6
 are solved by **reduction** (centers, edge pairing, parity, then as a 3x3), small
 puzzles also get an **optimal** solution, and every other puzzle has a method of its
 own.
@@ -53,9 +53,11 @@ which center to hold in front, which piece to move and where to (an arrow shows 
 way, the pieces in play shine), and the formula to play, its moves explained in words
 while the letters are new. Play it with a button, or by hand on the move pad: the
 tutorial follows your moves, adapts when you stray, and can take you back to where the
-step began. Pick another piece if you like, and the formula changes with it. The 2x2
-has its own, in three stages: with no centers, a yellow corner with its yellow down is the
-landmark, read where it stands, and the last stage tells apart the 2x2 parity (two corners to swap across).
+step began. Pick another piece if you like, and the formula changes with it. The 3x3 has
+a second one, Ofapel's method from francocube: the first face, then the top corners before
+the edges, the cube tipped on its side to end in the middle slice. The 2x2 has its own, the
+four steps and three formulas of its maker's manual: the yellow face built on top, its
+corners placed, then the cube turned over for the white face and its corners.
 The Pyraminx has one too, laid flat, in five stages from the centers to the flipped edges, and
 the Pyramorphinx, solved as the 2x2 it hides. The 4x4 gathers its centers and pairs its edges, then
 plays the 3x3's stages on the reduced cube, its two parities fixed where they show.

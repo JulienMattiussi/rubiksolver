@@ -1,6 +1,9 @@
 import { Fragment, useEffect, useRef } from 'react'
 import { Check } from 'lucide-react'
-import { cubeDims, cubeShape } from '@/lib/core/cube'
+import { cubeDims, cubeShape, FACE_COLOR } from '@/lib/core/cube'
+import { tellsSizes } from '@/lib/core/shape'
+import type { CubeColor } from '@/lib/core/types'
+import { turnsWhole } from '@/lib/teach/scene'
 import { formatMove } from '@/lib/core/notation'
 import { solveProgress, walkFocus } from '@/lib/solve/progress'
 import type { SolveStep } from '@/lib/solve/solver'
@@ -22,6 +25,12 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
   const rewinding = useCube((s) => s.rewinding)
   const dims = useCube((s) => cubeDims(s.cube))
   const shape = useCube((s) => cubeShape(s.cube))
+  const variant = useCube((s) => s.variant)
+  // A step turning the whole cube only (the cube held its way first): the
+  // way to hold it once turned, its frame's (yellow down, green in front).
+  const sizes = tellsSizes(variant)
+  const name = (c: CubeColor) => (sizes ? t.tutorialMirror.thickness[c] : t.colors[c].toLowerCase())
+  const heldAs = (sizes ? t.heldAsMirror : t.heldAs)(name(FACE_COLOR.D), name(FACE_COLOR.F))
 
   const pending = queue.length + (active ? 1 : 0)
   const { played, focus } = walkFocus(dispatched, pending, rewinding)
@@ -31,6 +40,8 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
     0,
   )
   const firstOf = steps.map((_, i) => steps.slice(0, i).reduce((n, s) => n + s.moves.length, 0))
+  const holding = (i: number) =>
+    focus >= firstOf[i]! && focus < firstOf[i]! + steps[i]!.moves.length
 
   // Keep the step in focus in sight, all of it (down to its last moves) when
   // it fits, and at least its move in focus; within the list only.
@@ -80,23 +91,37 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
               <p
                 className={`mt-0.5 font-mono leading-relaxed text-slate-400 ${current ? 'text-[13px]' : 'text-[11px]'}`}
               >
-                {step.moves.map((move, k) => {
-                  const at = firstOf[i]! + k
-                  // The space between two moves stays outside both: a
-                  // highlighted move is boxed on itself alone.
-                  return (
-                    <Fragment key={k}>
-                      {k > 0 && ' '}
-                      <span
-                        ref={at === focus ? focused : undefined}
-                        className={moveClass(at, focus, played)}
-                        aria-current={at === focus ? 'step' : undefined}
-                      >
-                        {formatMove(move, labels, dims, shape)}
+                {turnsWhole(step.moves) ? (
+                  // Its turns told as one: in focus while any of them is.
+                  <span
+                    ref={holding(i) ? focused : undefined}
+                    className={`inline-block font-sans ${moveClass(holding(i) ? focus : firstOf[i]!, focus, played)}`}
+                  >
+                    {heldAs.map((line) => (
+                      <span key={line} className="block">
+                        {line}
                       </span>
-                    </Fragment>
-                  )
-                })}
+                    ))}
+                  </span>
+                ) : (
+                  step.moves.map((move, k) => {
+                    const at = firstOf[i]! + k
+                    // The space between two moves stays outside both: a
+                    // highlighted move is boxed on itself alone.
+                    return (
+                      <Fragment key={k}>
+                        {k > 0 && ' '}
+                        <span
+                          ref={at === focus ? focused : undefined}
+                          className={moveClass(at, focus, played)}
+                          aria-current={at === focus ? 'step' : undefined}
+                        >
+                          {formatMove(move, labels, dims, shape)}
+                        </span>
+                      </Fragment>
+                    )
+                  })
+                )}
               </p>
             </li>
           )

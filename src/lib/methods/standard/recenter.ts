@@ -1,36 +1,46 @@
 import { moveSet } from '../../core/moveSet'
-import { solvePieces } from '../../solve/pieceSearch'
-import type { MethodPlan } from '../../solve/solverKit'
+import { found, searchFormulas } from '../../solve/formulaSearch'
+import type { MethodPlan, StepSpec } from '../../solve/solverKit'
 import type { Cube, Move } from '../../core/types'
-import { homeOf, piecesHome } from './pieces3'
+import { piecesHome } from './pieces3'
 
 /**
  * The 3x3's methods all take the centers as their frame (yellow down, white
- * up). The middle slices (M, E, S, on the pad's advanced tab) move them, so a
- * 3x3 plan starts by putting them back, with those slices: an empty step,
- * dropped, when they never moved.
+ * up). The middle slices (M, E, S, on the pad's advanced tab) move them,
+ * but only as a turn of the whole cube does: the centers keep their places
+ * one to another. So a plan starts by turning the cube in one's hands until
+ * they are home (no face turned): an empty step, dropped, when they are.
  */
 
 const CENTERS = ['U', 'D', 'L', 'R', 'F', 'B']
-const SLICE_TURNS = moveSet('M E S')
 
 export const centersHome = (cube: Cube): boolean => piecesHome(cube, CENTERS)
 
-/** The slice turns putting the centers back. */
-export function recenter(cube: Cube): Move[] {
-  return solvePieces(cube, { track: CENTERS.map(homeOf), moves: SLICE_TURNS, maxDepth: 6 })
+/** The whole cube turned (x, y, z), each way. */
+const ROTATIONS = moveSet('x y z')
+
+/** The fewest rotations of the whole cube bringing a frame home (none
+ *  needed: empty); any way to hold a cube is two rotations away at most
+ *  (null: no rotation does, the frame being no rigid one). */
+export function turnHome(cube: Cube, home: (cube: Cube) => boolean = centersHome): Move[] | null {
+  return searchFormulas(
+    cube,
+    ROTATIONS.turns.map((t) => [t as Move]),
+    home,
+    { depth: 2 },
+  )
 }
 
-/** A 3x3 plan, preceded by the centers put back in place. */
+/** A plan's first step: the cube turned until its frame (`home`) holds. */
+export const holdStep = (home: (cube: Cube) => boolean): StepSpec => ({
+  key: 'stepHoldCube',
+  goal: home,
+  moves: ROTATIONS,
+  phases: [(cube) => found(turnHome(cube, home), 'its frame cannot be turned home')],
+  optional: true,
+})
+
+/** A 3x3 plan, preceded by the cube held with its centers home. */
 export function withCentersHome(plan: MethodPlan): MethodPlan {
-  return [
-    {
-      key: 'stepRecenter',
-      goal: centersHome,
-      moves: SLICE_TURNS,
-      phases: [recenter],
-      optional: true,
-    },
-    ...plan,
-  ]
+  return [holdStep(centersHome), ...plan]
 }

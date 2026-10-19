@@ -4,6 +4,7 @@ import { CUBE4_EN } from './tutorials/cube4'
 import { CUBE2_EN } from './tutorials/cube2'
 import { CUBES_EN } from './tutorials/cubes'
 import { MORPH_EN } from './tutorials/morph'
+import { OFAPEL_EN } from './tutorials/ofapel'
 import { PYRAMIDS_EN } from './tutorials/pyramids'
 import { PYRAMINX_EN } from './tutorials/pyraminx'
 import { mergeTexts } from '../tutorialTexts'
@@ -16,6 +17,7 @@ const TEXTS = mergeTexts([
   PYRAMIDS_EN,
   PYRAMINX_EN,
   MORPH_EN,
+  OFAPEL_EN,
 ])
 
 /** The kinds of pieces, named. */

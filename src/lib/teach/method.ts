@@ -1,9 +1,10 @@
 import { stateKey } from '../core/cube'
-import { advancedMovesFor } from '../core/moves'
+import { faceLayers } from '../core/geometry'
+import { advancedMovesFor, invertMove, SLICES } from '../core/moves'
 import { allTurnsOf, type MoveSet } from '../core/moveSet'
-import type { CubeShape } from '../core/shapes'
+import { SHAPE_DIMS, type CubeShape } from '../core/shapes'
 import { applyMoves } from '../core/turn'
-import type { Cube, Turn } from '../core/types'
+import { isFaceMove, type Cube, type Turn } from '../core/types'
 import type { MethodPlan } from '../solve/solverKit'
 import type { Tutorial } from './tutorial'
 
@@ -26,18 +27,34 @@ function teachableTurns(shape: CubeShape): MoveSet {
   const whole = (['R', 'U', 'F'] as const).flatMap((face) =>
     ([1, 2, 3] as const).map((amount): Turn => ({ face, amount, whole: true })),
   )
+  const advanced = advancedMovesFor(shape)
   // Its own turns name it (the guide shows them); the others are let
-  // through only.
-  return { generators: own.generators, turns: [...own.turns, ...advancedMovesFor(shape), ...whole] }
+  // through only, a middle slice named from either side (M, read held
+  // from the back, is 2R').
+  return {
+    generators: own.generators,
+    turns: [...own.turns, ...advanced, ...advanced.flatMap((t) => otherSide(shape, t)), ...whole],
+  }
 }
 
-/** A tutorial's method on a puzzle: a step a stage, after its opening, if
- *  it has one (the 3x3's centers put back, optional). */
+/** The middle slice of a 3-layer axis, named from the other side. */
+function otherSide(shape: CubeShape, turn: Turn): Turn[] {
+  if (!isFaceMove(turn) || turn.depth !== 2 || turn.wide || turn.whole) return []
+  if (faceLayers(SHAPE_DIMS[shape], turn.face) !== 3) return []
+  const slice = SLICES.find((s) => s.face === turn.face)
+  return slice ? [{ ...invertMove(turn), face: slice.opposite }] : []
+}
+
+/** A tutorial's method on a puzzle: a step a stage, after its openings,
+ *  each optional (the 3x3's cube held its way, its centers put back). */
 export function methodOf(tutorial: Tutorial, shape: CubeShape): MethodPlan {
   const moves = teachableTurns(shape)
+  const { openings } = tutorial
+  // Where a state stands: an opening (by its rank), or a stage after them.
   const stageAt = (cube: Cube) => {
     const step = tutorial.stepOf(cube)
-    return !step || step.kind === 'toCome' ? Infinity : (step.stage ?? 0)
+    if (!step || step.kind === 'toCome') return Infinity
+    return step.stage === undefined ? openings.indexOf(step.key) : openings.length + step.stage - 1
   }
   const past = (stage: number) => (cube: Cube) => stageAt(cube) > stage
   const play = (stage: number) => (cube: Cube) => {
@@ -57,14 +74,18 @@ export function methodOf(tutorial: Tutorial, shape: CubeShape): MethodPlan {
     }
     return out
   }
+  const opening = openings.map((key, i) => ({
+    key,
+    goal: past(i),
+    moves,
+    phases: [play(i)],
+    optional: true,
+  }))
   const stages = tutorial.stageKeys.map((key, i) => ({
     key,
-    goal: past(i + 1),
+    goal: past(openings.length + i),
     moves,
-    phases: [play(i + 1)],
+    phases: [play(openings.length + i)],
   }))
-  const { opening } = tutorial
-  return opening
-    ? [{ key: opening, goal: past(0), moves, phases: [play(0)], optional: true }, ...stages]
-    : stages
+  return [...opening, ...stages]
 }

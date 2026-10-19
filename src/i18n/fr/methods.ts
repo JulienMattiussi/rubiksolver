@@ -6,6 +6,10 @@ export const METHODS_FR = {
     name: 'Par couches',
     desc: 'La méthode des débutants : étage par étage, avec peu de formules.',
   },
+  ofapel: {
+    name: 'Ofapel',
+    desc: 'Les coins avant les arêtes : la première face, les coins du haut, les arêtes du haut, puis la fin en tranche du milieu.',
+  },
   cfop: {
     name: 'Fridrich (CFOP)',
     desc: 'La méthode des speedcubers : deux couches par paires coin-arête, la dernière en deux algorithmes.',

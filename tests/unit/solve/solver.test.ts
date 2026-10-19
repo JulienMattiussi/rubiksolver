@@ -101,7 +101,8 @@ describe('3x3 methods with the centers moved (M, E, S on the advanced tab)', () 
       )
       for (const method of methodsFor('3')) {
         const steps = method.solve(start)
-        expect(steps[0]!.key).toBe('stepRecenter')
+        expect(steps[0]!.key).toBe('stepHoldCube')
+        expect(steps[0]!.moves.every((m) => 'whole' in m && m.whole)).toBe(true)
         let state = start
         for (const step of steps) state = applyMoves(state, step.moves)
         expect(isSolved(state)).toBe(true)

@@ -47,12 +47,12 @@ describe('method registry', () => {
         .find((m) => m.id === id)!
         .outline()
         .map((s) => `${s.key}${s.optional ? '?' : ''}`)
-    expect(outline('3', 'roux')[0]).toBe('stepRecenter?')
+    expect(outline('3', 'roux')[0]).toBe('stepHoldCube?')
     // Given the cube: the centers step only once a slice moved them.
     const roux = methodsFor('3').find((m) => m.id === 'roux')!
     const scrambled = applyMoves(solvedCube('3'), parseMoves("R U F' L2 D"))
-    expect(roux.outline(scrambled)[0]!.key).not.toBe('stepRecenter')
-    expect(roux.outline(applyMoves(scrambled, parseMoves('M')))[0]!.key).toBe('stepRecenter')
+    expect(roux.outline(scrambled)[0]!.key).not.toBe('stepHoldCube')
+    expect(roux.outline(applyMoves(scrambled, parseMoves('M')))[0]!.key).toBe('stepHoldCube')
     expect(outline('3', 'roux')).toContain('stepLSEMiddle')
     // Taught: its tutorial's stages (teach/method.ts).
     expect(outline('4', 'reduction').slice(0, 2)).toEqual([
@@ -66,11 +66,12 @@ describe('method registry', () => {
     ])
   })
 
-  it('offers Roux, Petrus and ZZ on the 3x3 only', () => {
+  it('offers Ofapel, Roux, Petrus and ZZ on the 3x3 only', () => {
     const ids = (shape: CubeShape) => methodsFor(shape).map((m) => m.id)
-    expect(ids('3')).toEqual(['beginner', 'cfop', 'roux', 'petrus', 'zz'])
+    expect(ids('3')).toEqual(['beginner', 'ofapel', 'cfop', 'roux', 'petrus', 'zz'])
     for (const shape of ['2', '4', '123'] as const) {
       expect(ids(shape)).not.toContain('roux')
+      expect(ids(shape)).not.toContain('ofapel')
     }
   })
 })

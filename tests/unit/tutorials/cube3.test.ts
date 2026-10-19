@@ -42,12 +42,25 @@ describe('tutorial registry', () => {
 })
 
 describe('3x3 tutorial', () => {
-  it('puts the centers back first, when a slice moved them', () => {
+  it('has the cube held its way first when it is merely turned, no slice played', () => {
+    // On its side (as Ofapel leaves it), then a turn of the top.
+    const cube = applyMoves(scrambled, parseMoves('z y'))
+    const step = stepOf(cube)
+    expect(step.key).toBe('stepHoldCube')
+    const turns = step.formula(null)!
+    expect(turns.length).toBeGreaterThan(0)
+    expect(turns.every((m) => 'whole' in m && m.whole)).toBe(true)
+    expect(centersHome(applyMoves(cube, turns))).toBe(true)
+  })
+
+  it('puts the centers back by turning the cube, when a slice moved them', () => {
     const cube = applyMoves(scrambled, parseMoves('M'))
     const step = stepOf(cube)
-    expect(step.key).toBe('stepRecenter')
+    expect(step.key).toBe('stepHoldCube')
     expect(step.stage).toBeUndefined()
-    expect(centersHome(applyMoves(cube, step.formula(null)!))).toBe(true)
+    const turns = step.formula(null)!
+    expect(turns.every((m) => 'whole' in m && m.whole)).toBe(true)
+    expect(centersHome(applyMoves(cube, turns))).toBe(true)
   })
 
   it('builds the yellow cross an edge at a time, its suggestion first', () => {

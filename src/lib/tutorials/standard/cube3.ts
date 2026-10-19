@@ -1,26 +1,22 @@
 import { FACE_COLOR } from '../../core/cube'
 import { FACE_NORMAL } from '../../core/geometry'
-import { CUBE_HOLDS, type Hold } from '../../core/hold'
+import type { Hold } from '../../core/hold'
 import { parseMoves } from '../../core/notation'
 import { colorAt, hasColors, sameAt } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Face, Move, Vec3 } from '../../core/types'
-import {
-  CORNER_PAIRS,
-  cornerPlaced,
-  edgePlaced,
-  middleEdgePlaced,
-} from '../../methods/standard/layers3'
+import { CORNER_PAIRS, edgePlaced, middleEdgePlaced } from '../../methods/standard/layers3'
 import { homeOf } from '../../methods/standard/pieces3'
-import { centersHome, recenter } from '../../methods/standard/recenter'
+import { turnHome } from '../../methods/standard/recenter'
 import { OUTER_GENERATORS, search, SIDES } from '../../solve/solverKit'
 import { tutorialOf, type Kept, type Target } from '../../teach/kit'
-import type { PieceStage } from '../../teach/stages'
+import type { FormulaStage, PieceStage } from '../../teach/stages'
 import {
   cornerFormula,
   cornerPairAt,
-  cornerSlot,
+  cornerTarget,
   pieceWith,
+  playedIn,
   TRIGGER,
   type Pair,
 } from './cornerTrigger'
@@ -72,12 +68,6 @@ function crossFormula(cube: Cube, pick: TutorialPick, kept: Kept): Move[] {
 // 2. The yellow corners
 // ---------------------------------------------------------------------------
 
-const cornerTarget = (pair: Pair): Target => ({
-  piece: (cube) => pieceWith(cube, [Y, FACE_COLOR[pair[0]], FACE_COLOR[pair[1]]]),
-  slot: cornerSlot(pair),
-  placed: (cube) => cornerPlaced(cube, pair[0], pair[1]),
-})
-
 // ---------------------------------------------------------------------------
 // 3. The middle edges
 // ---------------------------------------------------------------------------
@@ -99,8 +89,7 @@ const LEFT_PARTS = [parseMoves("U' L' U L"), parseMoves(COMM_UF)]
 const RIGHT = RIGHT_PARTS.flat()
 const LEFT = LEFT_PARTS.flat()
 
-const inserted = (front: Face, moves: readonly Move[]) =>
-  moves.map((m) => CUBE_HOLDS.played(front, m) as Move)
+const inserted = (front: Face, moves: readonly Move[]) => playedIn(front, moves)
 
 /** Whether the picked edge, at its own slot, shows its colors on their
  *  sides (at another slot, either way does). */
@@ -205,18 +194,22 @@ export const FIRST_LAYERS: readonly PieceStage[] = [
   },
 ]
 
+/**
+ * Before the stages, the centers home, all the steps reading them as their
+ * frame: the cube turned in one's hands, nothing played (the centers keep
+ * their places one to another, a middle slice moving them as a turn of the
+ * whole cube does). Not once `built` (a tutorial whose stages turn the
+ * middle layer or the cube on purpose: Ofapel's).
+ */
+export const holdStage = (built: (cube: Cube) => boolean = () => false): FormulaStage => ({
+  kind: 'formula',
+  key: 'stepHoldCube',
+  done: (cube) => built(cube) || (turnHome(cube)?.length ?? 0) === 0,
+  hold: 'F',
+  formula: (cube) => turnHome(cube) ?? [],
+})
+
 export const CUBE3_TUTORIAL = tutorialOf({
   glossary: [CENTER, EDGE, CORNER, CLOCKWISE, COUNTERCLOCKWISE, ...THICKNESSES],
-  stages: [
-    // The centers put back first: all the steps read them as their frame.
-    {
-      kind: 'formula',
-      key: 'stepRecenter',
-      done: centersHome,
-      hold: 'F',
-      formula: recenter,
-    },
-    ...FIRST_LAYERS,
-    ...LAST_LAYER,
-  ],
+  stages: [holdStage(), ...FIRST_LAYERS, ...LAST_LAYER],
 })

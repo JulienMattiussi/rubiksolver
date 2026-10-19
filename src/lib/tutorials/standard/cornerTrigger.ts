@@ -1,19 +1,22 @@
-import { CUBE_HOLDS } from '../../core/hold'
+import { FACE_COLOR } from '../../core/cube'
+import { CUBE_HOLDS, type Hold } from '../../core/hold'
 import { simplifyMoves } from '../../core/moves'
 import { parseMoves } from '../../core/notation'
 import { colorAt, hasColors, sameAt } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
 import type { Color, Cube, Move, Vec3 } from '../../core/types'
-import { CORNER_PAIRS } from '../../methods/standard/layers3'
+import { CORNER_PAIRS, cornerPlaced } from '../../methods/standard/layers3'
 import { homeOf } from '../../methods/standard/pieces3'
+import type { Target } from '../../teach/kit'
 import type { TutorialPick } from '../../teach/tutorial'
 
 /**
- * What the cube tutorials share (the 3x3's, the 2x2's): slots named by
- * their two sides, and the beginner's corner recipe: a corner brought above
- * its bottom slot then dropped in by the slot's trigger (`R U R' U'` held
- * with the slot front right), once, three or five times. The trigger leaves
- * the bottom layer as it was but for its slot.
+ * What the cube tutorials share (the 3x3's, the 2x2's, Ofapel's): slots
+ * named by their two sides, a turn of the top, a formula read in a hold,
+ * the yellow corners as targets, and the beginner's corner recipe: a
+ * corner brought above its bottom slot then dropped in by the slot's
+ * trigger (`R U R' U'` held with the slot front right), once, three or five
+ * times. The trigger leaves the bottom layer as it was but for its slot.
  */
 
 /** A side slot, by its two sides: the second the first's right (seen with
@@ -25,15 +28,30 @@ export const pieceWith = (cube: Cube, colors: readonly Color[]) =>
   cube.findIndex((c) => hasColors(c, colors))
 
 /** A bottom corner slot, and the slot at a position (null: none). */
-export const cornerSlot = ([a, b]: Pair): Vec3 => homeOf(`D${a}${b}`)
+const cornerSlot = ([a, b]: Pair): Vec3 => homeOf(`D${a}${b}`)
 export const cornerPairAt = (at: Vec3) =>
   CORNER_PAIRS.find((p) => sameAt(cornerSlot(p), at)) ?? null
+
+/** A yellow corner as a target: its bottom slot, placed there yellow down. */
+export const cornerTarget = (pair: Pair): Target => ({
+  piece: (cube) => pieceWith(cube, [FACE_COLOR.D, FACE_COLOR[pair[0]], FACE_COLOR[pair[1]]]),
+  slot: cornerSlot(pair),
+  placed: (cube) => cornerPlaced(cube, pair[0], pair[1]),
+})
+
+/** A turn of the top, `amount` quarters (none: no move). */
+export const topTurn = (amount: number): Move[] =>
+  amount % 4 === 0 ? [] : [{ face: 'U', amount: (amount % 4) as 1 | 2 | 3 }]
+
+/** A formula read in a hold, as played. */
+export const playedIn = (hold: Hold, moves: readonly Move[]): Move[] =>
+  moves.map((m) => CUBE_HOLDS.played(hold, m) as Move)
 
 /** The corners' trigger, read with the slot front right. */
 export const TRIGGER = parseMoves("R U R' U'")
 
 /** A slot's trigger as played: held with its first side in front. */
-const triggerAt = ([a]: Pair) => TRIGGER.map((m) => CUBE_HOLDS.played(a, m) as Move)
+const triggerAt = ([a]: Pair) => playedIn(a, TRIGGER)
 
 /**
  * A corner to a bottom slot, its `bottom` color down: out of the bottom

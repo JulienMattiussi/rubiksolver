@@ -8,6 +8,7 @@ import type { Cube, Face, Move, Vec3 } from '../../core/types'
 import { homeOf } from '../../methods/standard/pieces3'
 import type { FigureStage } from '../../teach/kit'
 import { OLL_EDGE, SUNE } from '../../methods/standard/algs'
+import { playedIn, topTurn } from './cornerTrigger'
 
 /**
  * The 3x3 tutorial's last layer, the white one on top, by figures (no piece
@@ -32,16 +33,9 @@ const SIDES = CUBE_HOLDS.holds as readonly Face[]
 
 const at = (cube: Cube, where: Vec3) => cube.find((c) => sameAt(c.position, where))!
 
-/** A turn of the top, `amount` quarters (none: no move). */
-const topTurn = (amount: number): Move[] =>
-  amount % 4 === 0 ? [] : [{ face: 'U', amount: (amount % 4) as 1 | 2 | 3 }]
-
 /** The top layer's edges (2 stickers) or corners (3). */
 const topPieces = (cube: Cube, stickers: number) =>
   cube.flatMap((c, i) => (c.stickers.length === stickers && c.position[1] === 1 ? [i] : []))
-
-/** A formula read in a hold, as played. */
-const played = (hold: Hold, moves: readonly Move[]) => moves.map((m) => CUBE_HOLDS.played(hold, m))
 
 // ---------------------------------------------------------------------------
 // 4. The white cross
@@ -125,7 +119,7 @@ function edgesFormula(cube: Cube): { hold: Hold; moves: Move[]; home: number } {
   for (const before of [0, 1, 2, 3]) {
     for (const hold of SIDES) {
       const moves = [...topTurn(before), ...EDGES]
-      const after = lineUp(applyMoves(cube, played(hold, moves)))
+      const after = lineUp(applyMoves(cube, playedIn(hold, moves)))
       if (after.home > best.home) {
         best = {
           hold,
@@ -189,7 +183,7 @@ function cornersFormula(cube: Cube): { hold: Hold; moves: Move[] } {
   for (const hold of SIDES) {
     for (const times of [1, 2]) {
       const moves = Array.from({ length: times }, () => CORNERS).flat()
-      const home = cornersHome(applyMoves(cube, played(hold, moves))).length
+      const home = cornersHome(applyMoves(cube, playedIn(hold, moves))).length
       if (home > best.home) best = { hold, moves, home }
     }
   }

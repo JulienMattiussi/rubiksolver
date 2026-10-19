@@ -38,6 +38,10 @@ export const UI_FR = {
   statusPlaying: 'Animation en cours',
   statusSolving: 'Résolution',
   solutionCount: (n: number) => `${n} rotation${n > 1 ? 's' : ''}`,
+  /** A step turning the whole cube only, told as the way to hold it (on
+   *  a mirror cube, its faces by their thickness). */
+  heldAs: (down: string, front: string) => [`Centre ${down} en bas`, `Centre ${front} en face`],
+  heldAsMirror: (down: string, front: string) => [`Face ${down} en bas`, `Face ${front} en face`],
   language: 'Langue',
   notation: 'Notation',
   recenter: 'Recentrer la vue',

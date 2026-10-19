@@ -1,7 +1,7 @@
 import { FACE_COLOR } from '../../../core/cube'
 import { faceOfNormal } from '../../../core/geometry'
 import { allTurnsOf, type MoveSet } from '../../../core/moveSet'
-import type { Cube, Move } from '../../../core/types'
+import type { Cube } from '../../../core/types'
 import { isFixedCenter } from './kinds'
 import { projectOuterPlan } from '../solver4/steps'
 import type { MethodPlan } from '../../../solve/solverKit'
@@ -9,7 +9,7 @@ import { centersDone, solveCenters } from './centers'
 import { MIDDLES } from '../../../solve/cycleLibrary'
 import { fixEdgeParity, pairEdges, pairedOrParity } from './edges'
 import { isReduced, to3x3 } from './project'
-import { found, searchFormulas } from '../../../solve/formulaSearch'
+import { holdStep } from '../recenter'
 
 /**
  * 5x5 reduction methods, like the 4x4's (solver4/steps.ts): the centers,
@@ -34,33 +34,10 @@ const middlesHome = (cube: Cube) =>
     .filter(isFixedCenter)
     .every((c) => c.stickers[0]!.color === FACE_COLOR[faceOfNormal(c.stickers[0]!.normal)])
 
-/** The fewest middle slices putting them there (the puzzle held another
- *  way: the 3x3's M, E, S; 24 ways at most). */
-function recenter(cube: Cube): Move[] {
-  return found(
-    searchFormulas(
-      cube.filter(isFixedCenter),
-      MIDDLES.map((move) => [move]),
-      middlesHome,
-      {
-        key: (c) => c.map((p) => p.position.join() + p.stickers[0]!.color).join('|'),
-        depth: 3,
-        mechanism: [5, 5, 5],
-      },
-    ),
-    'reduction5: the middle centers cannot go home',
-  )
-}
-
 export function reduction5Plan(plan3x3: MethodPlan): MethodPlan {
   return [
-    {
-      key: 'stepRecenter',
-      goal: middlesHome,
-      moves: WITH_MIDDLES,
-      phases: [recenter],
-      optional: true,
-    },
+    // Held with them home: they keep their places one to another.
+    holdStep(middlesHome),
     { key: 'stepCenters', goal: centersDone, moves: WITH_MIDDLES, phases: [solveCenters] },
     { key: 'stepPairEdges', goal: pairedOrParity, moves: ALL_5, phases: [pairEdges] },
     {

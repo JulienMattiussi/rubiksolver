@@ -2,6 +2,7 @@ import type { TutorialTexts } from '../../tutorialTexts'
 
 export const CUBE3_EN: TutorialTexts = {
   checks: {
+    stepHoldCube: () => 'Check you hold the cube as shown.',
     stepTutorialTopCross: (done: number) => `Check there are now ${done + 1} white faces up.`,
     stepTutorialTopEdges: (done: number) =>
       done === 1
@@ -45,7 +46,7 @@ export const CUBE3_EN: TutorialTexts = {
       `${done} of ${total} corner${total > 1 ? 's' : ''} white up`,
   },
   titles: {
-    stepRecenter: 'Put the centers back in place',
+    stepHoldCube: 'Hold the cube',
     stepTutorialCross: 'Build the yellow cross',
     stepTutorialCorner: 'Place the yellow corners',
     stepTutorialMiddle: 'Place the middle edges',
@@ -55,8 +56,8 @@ export const CUBE3_EN: TutorialTexts = {
     stepTutorialTopTwist: 'Turn the white corners',
   },
   hints: {
-    stepRecenter:
-      'A middle slice moved the centers: they go back first, everything else is placed around them.',
+    stepHoldCube:
+      'The centers are not where the tutorial expects them: turn the cube in your hands to put them there, turning no face.',
     stepTutorialCross: 'Place the cube’s four yellow edges one by one.',
     stepTutorialCorner: 'Place the four yellow corners one by one, yellow down.',
     stepTutorialMiddle:

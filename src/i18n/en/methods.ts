@@ -5,6 +5,10 @@ export const METHODS_EN: typeof METHODS_FR = {
     name: 'Layer by layer',
     desc: 'The beginner’s method: layer by layer, with few formulas.',
   },
+  ofapel: {
+    name: 'Ofapel',
+    desc: 'Corners before edges: the first face, the top corners, the top edges, then the end in the middle slice.',
+  },
   cfop: {
     name: 'Fridrich (CFOP)',
     desc: 'The speedcubers’ method: two layers by corner-edge pairs, the last one in two algorithms.',

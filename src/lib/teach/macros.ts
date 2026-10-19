@@ -1,20 +1,25 @@
 import { stateKey } from '../core/cube'
 import type { Hold, HoldFrame } from '../core/hold'
 import { applyMoves } from '../core/turn'
-import type { Cube, Turn } from '../core/types'
+import type { Cube, Cubie, Dims, Turn } from '../core/types'
+import { searchChain } from '../solve/formulaSearch'
+import type { Kept, PieceStage } from './stages'
+import type { TutorialPick } from './tutorial'
 
 /**
  * A formula found as a chain of gestures learnt (a figure stage's: a turn of
  * the top then an algorithm, from one hold or another), the shortest that
  * reaches a goal. Each step of a figure stage plays the first gesture of the
- * chain; the next step looks again. The puzzle's own frame of holds turns
- * each gesture into the turns it plays.
+ * chain; the next step looks again; a piece stage plays it all. The
+ * puzzle's own frame of holds turns each gesture into the turns it plays.
  */
 
-/** A gesture: turns read in a hold. */
+/** A gesture: turns read in a hold, and what kind of formula it plays
+ *  (the figure telling what it does, when a stage says it). */
 export interface Gesture {
   readonly hold: Hold
   readonly moves: readonly Turn[]
+  readonly kind?: string
 }
 
 /**
@@ -64,4 +69,78 @@ export function firstGesture(
     }
   }
   return best?.gesture ?? null
+}
+
+/** Memoized by state (a step asks again and again). */
+export function perState<T>(compute: (cube: Cube) => T): (cube: Cube) => T {
+  const memo = new WeakMap<Cube, T>()
+  return (cube) => {
+    if (!memo.has(cube)) memo.set(cube, compute(cube))
+    return memo.get(cube)!
+  }
+}
+
+/** A chain of gestures' turns, as played. */
+const turnsOf = (chain: readonly Gesture[], frame: HoldFrame): Turn[] =>
+  chain.flatMap((g) => g.moves.map((m) => frame.played(g.hold, m)))
+
+/**
+ * The shortest chain of gestures bringing some pieces (`keep`) to a goal,
+ * the others left out of the search (the gestures keep them, which keeps
+ * it small): null if none does within the depth. The whole chain, unlike
+ * `firstGesture`: a piece stage plays it all, a figure stage its first.
+ */
+export function gestureChain(
+  cube: Cube,
+  gestures: readonly Gesture[],
+  goal: (pieces: Cube) => boolean,
+  options: {
+    keep: (c: Cubie) => boolean
+    depth: number
+    mechanism: Dims
+    frame: HoldFrame
+  },
+): Gesture[] | null {
+  const formulas = gestures.map((g) => turnsOf([g], options.frame))
+  const chain = searchChain(cube.filter(options.keep), formulas, goal, options)
+  return chain && chain.map((i) => gestures[i]!)
+}
+
+/** A chain's first gesture as a figure's formula (null: no chain, or
+ *  nothing to play). */
+export function leading(chain: readonly Gesture[] | null) {
+  const first = chain?.[0]
+  return first ? { hold: first.hold, moves: first.moves } : null
+}
+
+/** A figure seen on the first gesture of a chain: there when that gesture
+ *  is of its kind. */
+export const chainFigure = (
+  chainOf: (cube: Cube) => Gesture[] | null,
+  kind: string,
+  key: string,
+) => ({
+  key,
+  match: (cube: Cube) => {
+    const chain = chainOf(cube)
+    return chain?.[0]?.kind === kind ? leading(chain) : null
+  },
+})
+
+/** A piece stage played by chains of gestures: held as the first one, its
+ *  formula the whole chain (`chainFor`: from a state, for a pick, the step
+ *  having begun at `begun`). */
+export function chainedPieces(
+  chainFor: (cube: Cube, pick: TutorialPick, begun: Cube) => Gesture[] | null,
+  frame: HoldFrame,
+): Pick<PieceStage, 'hold' | 'formula'> {
+  return {
+    hold: (begun, pick, next) =>
+      chainFor(begun, pick ?? { piece: next.piece(begun), slot: next.slot }, begun)?.[0]?.hold ??
+      frame.holds[0]!,
+    formula: (cube: Cube, pick: TutorialPick, kept: Kept) => {
+      const chain = chainFor(cube, pick, kept.begun)
+      return chain && turnsOf(chain, frame)
+    },
+  }
 }

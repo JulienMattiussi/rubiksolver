@@ -107,13 +107,12 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
   const centerColor = (cube: Cube, normal: Vec3) =>
     cube.find((c) => c.stickers.length === 1 && c.stickers[0]!.normal.join() === normal.join())
       ?.stickers[0]!.color ?? null
-  const opening = plan.stages.find((s) => s.kind === 'formula')?.key
   return {
     frame,
     stages,
     stageKeys,
     recap: plan.stages.flatMap((s) => (s.kind === 'formula' ? [] : [recapOf(s)])),
-    ...(opening && { opening }),
+    openings: plan.stages.flatMap((s) => (s.kind === 'formula' ? [s.key] : [])),
     glossary: plan.glossary ?? [],
     pieceKind: plan.pieceKind ?? cubeKind,
     ...(plan.holding && { holding: plan.holding }),

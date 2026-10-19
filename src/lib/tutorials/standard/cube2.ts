@@ -1,7 +1,7 @@
 import { FACE_COLOR, isSolved } from '../../core/cube'
 import { FACE_NORMAL } from '../../core/geometry'
 import { applyMoves } from '../../core/turn'
-import { CUBE_HOLDS, type Hold } from '../../core/hold'
+import { CUBE_HOLDS } from '../../core/hold'
 import { FACES } from '../../core/moves'
 import { parseMoves } from '../../core/notation'
 import { colorAt, colorsOf, sameAt } from '../../core/pieces'
@@ -10,6 +10,7 @@ import { ANTISUNE, PLL_AB, SUNE } from '../../methods/standard/algs'
 import { searchFormulas } from '../../solve/formulaSearch'
 import { tutorialOf, type Target } from '../../teach/kit'
 import { firstGesture, type Gesture } from '../../teach/macros'
+import { playedIn, topTurn } from './cornerTrigger'
 import { CLOCKWISE, CORNER, COUNTERCLOCKWISE, THICKNESSES } from './terms'
 
 /**
@@ -132,18 +133,17 @@ function faceFormula(cube: Cube, piece: number, slot: Vec3, kept: readonly Vec3[
 // 2-4. Figures, by the manual's three formulas
 // ---------------------------------------------------------------------------
 
-/** A turn of the top (none: no move). */
-const top = (amount: number): Move[] =>
-  amount % 4 === 0 ? [] : [{ face: 'U', amount: (amount % 4) as 1 | 2 | 3 }]
-
 /** Formula 1 from each hold, the top turned before and after it. */
 const CYCLES: Gesture[] = CUBE_HOLDS.holds.flatMap((hold) =>
   [0, 1, 2, 3].flatMap((before) =>
-    [0, 1, 2, 3].map((after) => ({ hold, moves: [...top(before), ...CYCLE, ...top(after)] })),
+    [0, 1, 2, 3].map((after) => ({
+      hold,
+      moves: [...topTurn(before), ...CYCLE, ...topTurn(after)],
+    })),
   ),
 )
 /** The top turned alone. */
-const TOP_TURNS: Gesture[] = [1, 2, 3].map((t) => ({ hold: 'F', moves: top(t) }))
+const TOP_TURNS: Gesture[] = [1, 2, 3].map((t) => ({ hold: 'F', moves: topTurn(t) }))
 
 /** A layer's corners by formula 1: the one formula to play, held its way,
  *  when one or two of them put the layer right (`times`), the top turned
@@ -167,13 +167,11 @@ const CASES: readonly (readonly Move[])[] = [
   FORMULA_2,
   FORMULA_3,
   [...FORMULA_2, ...FORMULA_2],
-  [...FORMULA_2, ...top(3), ...FORMULA_2],
-  [...FORMULA_2, ...top(2), ...FORMULA_3],
-  [...FORMULA_2, ...top(1), ...FORMULA_3],
-  [...FORMULA_2, ...top(3), ...FORMULA_3],
+  [...FORMULA_2, ...topTurn(3), ...FORMULA_2],
+  [...FORMULA_2, ...topTurn(2), ...FORMULA_3],
+  [...FORMULA_2, ...topTurn(1), ...FORMULA_3],
+  [...FORMULA_2, ...topTurn(3), ...FORMULA_3],
 ]
-
-const played = (hold: Hold, moves: readonly Move[]) => moves.map((m) => CUBE_HOLDS.played(hold, m))
 
 /** The white face's case `n` (1 to 7): how to hold it and what to play. */
 const caseFigure = (n: number) => ({
@@ -182,8 +180,8 @@ const caseFigure = (n: number) => ({
     if (!layerDone(cube, -1, FIRST)) return null
     for (const hold of CUBE_HOLDS.holds) {
       for (const before of [0, 1, 2, 3]) {
-        const moves = [...top(before), ...CASES[n - 1]!]
-        if (whiteFaceDone(applyMoves(cube, played(hold, moves)))) return { hold, moves }
+        const moves = [...topTurn(before), ...CASES[n - 1]!]
+        if (whiteFaceDone(applyMoves(cube, playedIn(hold, moves)))) return { hold, moves }
       }
     }
     return null

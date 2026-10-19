@@ -3,6 +3,7 @@ import type { TutorialTexts } from '../../tutorialTexts'
 /** The 3x3 tutorial's texts (lib/tutorials/standard/cube3.ts), by key. */
 export const CUBE3_FR: TutorialTexts = {
   checks: {
+    stepHoldCube: () => 'Vérifie que tu tiens le cube comme indiqué.',
     // The white center counted with the edges.
     stepTutorialTopCross: (done: number) =>
       `Vérifie qu’il y a maintenant ${done + 1} faces blanches vers le haut.`,
@@ -48,7 +49,7 @@ export const CUBE3_FR: TutorialTexts = {
       `${done} coin${done > 1 ? 's' : ''} sur ${total} blanc en haut`,
   },
   titles: {
-    stepRecenter: 'Remettre les centres en place',
+    stepHoldCube: 'Tenir le cube',
     stepTutorialCross: 'Construire la croix jaune',
     stepTutorialCorner: 'Placer les coins jaunes',
     stepTutorialMiddle: 'Placer les arêtes du milieu',
@@ -58,8 +59,8 @@ export const CUBE3_FR: TutorialTexts = {
     stepTutorialTopTwist: 'Tourner les coins blancs',
   },
   hints: {
-    stepRecenter:
-      'Une tranche du milieu a déplacé les centres : on les remet d’abord en place, ils servent de repère à tout le reste.',
+    stepHoldCube:
+      'Les centres ne sont pas là où le tutoriel les attend : tourne le cube dans tes mains pour les y remettre, sans tourner aucune face.',
     stepTutorialCross: 'Place une à une les quatre arêtes jaunes du cube.',
     stepTutorialCorner: 'Place un à un les quatre coins jaunes, jaune vers le bas.',
     stepTutorialMiddle:

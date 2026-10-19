@@ -36,7 +36,7 @@ describe('2x2 tutorial', () => {
       'stepTutorialTopFace2',
       'stepTutorialTopCorners2',
     ])
-    expect(tutorial.opening).toBeUndefined()
+    expect(tutorial.openings).toEqual([])
   })
 
   it('walks every scramble to the solve, stage after stage', () => {

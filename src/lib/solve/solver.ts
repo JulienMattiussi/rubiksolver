@@ -114,6 +114,8 @@ const SOLVE_METHODS = [
       squarebik: SQUAREBIK_PLAN,
     },
   },
+  // A corners first variant, the end in the M slice (francocube's Ofapel).
+  { id: 'ofapel', plans: { '3': taught('3', 'ofapel') } },
   {
     id: 'cfop',
     plans: {

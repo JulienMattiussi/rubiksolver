@@ -33,10 +33,14 @@ export function FormulaRecap({ tutorial }: { tutorial: Tutorial }) {
             {stage.formulas.length === 0 ? (
               <span className="text-xs text-slate-400 italic">{t.tutorial.recapByHand}</span>
             ) : (
+              // Each its own bullet: a long one wrapping reads as one.
               stage.formulas.map((formula) => (
-                <code key={write(formula)} className="font-mono text-sm text-amber-200">
-                  {write(formula)}
-                </code>
+                <div key={write(formula)} className="flex gap-1.5">
+                  <span className="text-slate-500" aria-hidden>
+                    •
+                  </span>
+                  <code className="font-mono text-sm text-amber-200">{write(formula)}</code>
+                </div>
               ))
             )}
           </li>

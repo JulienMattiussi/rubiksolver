@@ -1,7 +1,8 @@
 import { Check } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { Turn } from '@/lib/core/types'
-import { markedOn, occupantOf, pieceColors } from '@/lib/teach/scene'
+import { markedOn, occupantOf, pieceColors, turnsWhole } from '@/lib/teach/scene'
+import { applyMoves } from '@/lib/core/turn'
 import { formulaSegments } from '@/lib/teach/segments'
 import type { TutorialView } from '@/hooks/useTutorial'
 import { useView } from '@/store/viewStore'
@@ -31,9 +32,13 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
   // The side to hold in front, told by its color (its center's, or the
   // pieces' frame's on a puzzle with no centers).
   const frontNormal = frame.front(hold)
-  const front = view.tutorial?.faceColor(cube, frontNormal) ?? null
+  // A formula turning the whole puzzle only (the cube held another way):
+  // told as the way to hold it once turned, nothing to play.
+  const turning = shown !== null && turnsWhole(shown.moves)
+  const held = turning && !review ? applyMoves(cube, shown.moves) : cube
+  const front = view.tutorial?.faceColor(held, frontNormal) ?? null
   // And the side held down (the holds turn round the top).
-  const down = view.tutorial?.faceColor(cube, frame.down) ?? null
+  const down = view.tutorial?.faceColor(held, frame.down) ?? null
   const name = (index: number) =>
     tx.piece(
       view.tutorial?.pieceKind(cube[index]!) ?? 'piece',
@@ -141,7 +146,9 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
             </Toned>,
           ]
         : []),
-    shown ? <div key="play">{play(shown.moves, shown.done)}</div> : tx.noFormula,
+    ...(turning
+      ? []
+      : [shown ? <div key="play">{play(shown.moves, shown.done)}</div> : tx.noFormula]),
     pick
       ? tx.check(name(pick.piece))
       : step.figure

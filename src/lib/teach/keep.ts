@@ -1,11 +1,12 @@
 import { invertMoves, simplifyMoves } from '../core/moves'
 import { applyMoves } from '../core/turn'
-import type { Cube, Turn } from '../core/types'
+import { isFaceMove, type Cube, type Turn } from '../core/types'
 import { sameTurn } from './segments'
 import type { Tutorial, TutorialPick, TutorialStep } from './tutorial'
 
 /** Whether a formula leaves the pieces a step keeps (`placed`) as they
- *  stood where it began (`begun`). */
+ *  stood where it began (`begun`): seen as it leaves the puzzle, its turns
+ *  of the whole puzzle (`x y z`) being a change of viewpoint, not a move. */
 export function keepsPlaced(
   cube: Cube,
   moves: readonly Turn[],
@@ -13,8 +14,12 @@ export function keepsPlaced(
   begun: Cube,
 ): boolean {
   const after = applyMoves(cube, moves)
+  const seen = applyMoves(
+    begun,
+    moves.filter((m) => isFaceMove(m) && m.whole),
+  )
   return placed.every((p) => {
-    const [a, b] = [after[p]!, begun[p]!]
+    const [a, b] = [after[p]!, seen[p]!]
     return (
       a.position.join() === b.position.join() &&
       a.stickers.every((s, k) => s.normal.join() === b.stickers[k]!.normal.join())

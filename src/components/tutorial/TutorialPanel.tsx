@@ -96,6 +96,10 @@ export function TutorialPanel() {
       <h2 className={`${SECTION_LABEL} flex items-center gap-2`}>
         <GraduationCap className="size-4" aria-hidden />
         {t.tutorial.button}
+        {/* The method it teaches, seen all along. */}
+        <span className="font-normal tracking-normal text-slate-300 normal-case">
+          {t.methods[method].name}
+        </span>
       </h2>
       <button
         type="button"

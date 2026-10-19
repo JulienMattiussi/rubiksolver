@@ -36,23 +36,34 @@ export function searchFormulas<T extends Turn>(
   cube: Cube,
   formulas: readonly (readonly T[])[],
   goal: (cube: Cube) => boolean,
-  { key = stateKey, depth = Infinity, mechanism, allowed }: FormulaSearch<T> = {},
+  options: FormulaSearch<T> = {},
 ): T[] | null {
+  return searchChain(cube, formulas, goal, options)?.flatMap((i) => formulas[i]!) ?? null
+}
+
+/** The same search, as the formulas played (their indices, in order): what
+ *  a tutorial shows one at a time, each held its own way. */
+export function searchChain<T extends Turn>(
+  cube: Cube,
+  formulas: readonly (readonly T[])[],
+  goal: (cube: Cube) => boolean,
+  { key = stateKey, depth = Infinity, mechanism, allowed }: FormulaSearch<T> = {},
+): number[] | null {
   if (goal(cube)) return []
   const seen = new Set([key(cube)])
-  let frontier: { state: Cube; moves: T[] }[] = [{ state: cube, moves: [] }]
+  let frontier: { state: Cube; chain: number[] }[] = [{ state: cube, chain: [] }]
   for (let level = 1; level <= depth && frontier.length; level++) {
     const next: typeof frontier = []
-    for (const { state, moves } of frontier) {
-      for (const formula of formulas) {
+    for (const { state, chain } of frontier) {
+      for (const [i, formula] of formulas.entries()) {
         if (allowed && !allowed(state, formula)) continue
         const after = applyMoves(state, formula, mechanism)
         const k = key(after)
         if (seen.has(k)) continue
         seen.add(k)
-        const path = [...moves, ...formula]
+        const path = [...chain, i]
         if (goal(after)) return path
-        next.push({ state: after, moves: path })
+        next.push({ state: after, chain: path })
       }
     }
     frontier = next

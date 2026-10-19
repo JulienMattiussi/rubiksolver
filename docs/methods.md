@@ -6,7 +6,7 @@ Chaque méthode, ses puzzles et ses étapes (registre : `src/lib/solve/solver.ts
 enseigne est ce tutoriel joué jusqu'au bout (`lib/teach/method.ts`) : ses
 étapes sont celles du tutoriel, chacune résolue par les formules qu'il
 propose l'une après l'autre ; la solution affichée est donc ce qu'il
-enseigne. C'est le cas de **Par couches** sur le 3x3 et le 2x2, de la
+enseigne. C'est le cas de **Par couches** sur le 3x3 et le 2x2, d'**Ofapel** sur le 3x3, de la
 **Réduction** du 4x4, de **Centres d'abord** sur le Pyraminx et de **Comme
 un Pocket** sur le Pyramorphinx ; leurs étapes sont décrites avec leur
 tutoriel ([standard](puzzles/standard.md), [pyramid](puzzles/pyramid.md)).
@@ -17,8 +17,8 @@ du Void Cube, du 5x5...) gardent leur plan déclaré.
 
 Sur le 3x3, le Fisher Cube, le Windmill et le Master Morphinx (pas le
 Z-Twist, le Barrel ni le Void Cube, sans centres : voir
-[holey](puzzles/holey.md)), toutes les méthodes 3x3 commencent par **Centres remis
-en place** (`withCentersHome`, voir « Coups avancés du 3x3 »,
+[holey](puzzles/holey.md)), toutes les méthodes 3x3 commencent par **Cube tenu comme
+il faut** (une rotation du cube entier, `withCentersHome`, voir « Coups avancés du 3x3 »,
 [standard](puzzles/standard.md)), étape retirée quand elle est vide ; les
 nombres d'étapes ci-dessous ne la comptent pas.
 
@@ -28,6 +28,10 @@ nombres d'étapes ci-dessous ne la comptent pas.
   orientation coins, permutation coins, permutation arêtes) - 7 étapes,
   celles de son plan déclaré, que suivent les autres puzzles ; le 3x3 et
   le 2x2 jouent leur tutoriel (voir plus haut).
+- **Ofapel** (`ofapel`, 3x3, d'après francocube.com/ofapel) : une variante
+  « coins d'abord » qui joue son tutoriel (voir plus haut) : croix, coins
+  du bas, coins du haut placés puis tournés, arêtes du haut remontées de la
+  couronne du milieu, puis la fin en tranche `M` - 6 étapes.
 - **Fridrich / CFOP** (`cfop`, 3x3, Void Cube, Z-Twist, Barrel, Fisher Cube, Windmill et Master Morphinx) : Croix, puis **F2L** (paires coin+arête
   par colonne), puis **OLL**, puis **PLL** - 4 étapes.
 - **Réduction** (`reduction` et `reductionCfop`, 4x4, 5x5 et 6x6, Super

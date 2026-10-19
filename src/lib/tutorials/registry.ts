@@ -2,6 +2,7 @@ import type { CubeShape } from '../core/shapes'
 import type { MethodId } from '../solve/solver'
 import type { Tutorial } from '../teach/tutorial'
 import { CUBE2_TUTORIAL } from './standard/cube2'
+import { OFAPEL_TUTORIAL } from './standard/ofapel'
 import { CUBE3_TUTORIAL } from './standard/cube3'
 import { CUBE4_TUTORIAL } from './standard/cube4'
 import { MORPH_TUTORIAL } from './pyramid/morph'
@@ -24,7 +25,10 @@ const TUTORIALS: Partial<Record<CubeShape, readonly TutorialEntry[]>> = {
   '4': [{ method: 'reduction', tutorial: CUBE4_TUTORIAL }],
   pyra: [{ method: 'centersFirst', tutorial: PYRAMINX_TUTORIAL }],
   morph: [{ method: 'asPocket', tutorial: MORPH_TUTORIAL }],
-  '3': [{ method: 'beginner', tutorial: CUBE3_TUTORIAL }],
+  '3': [
+    { method: 'beginner', tutorial: CUBE3_TUTORIAL },
+    { method: 'ofapel', tutorial: OFAPEL_TUTORIAL },
+  ],
 }
 
 /** The tutorial of a puzzle teaching a method (none if there is none). */

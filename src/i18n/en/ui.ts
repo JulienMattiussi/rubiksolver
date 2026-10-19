@@ -17,6 +17,9 @@ import {
 import type { StarLayer } from '../fr/moveSentences'
 import type { UI_FR } from '../fr/ui'
 
+/** A line's first letter, capitalized. */
+const cap = (word: string) => word.charAt(0).toUpperCase() + word.slice(1)
+
 export const UI_EN: typeof UI_FR = {
   title: 'Rubik Solver',
   pageTitle: 'Rubik Solver: learn to solve the Rubik’s Cube and dozens of twisty puzzles',
@@ -36,6 +39,14 @@ export const UI_EN: typeof UI_FR = {
   statusPlaying: 'Animating',
   statusSolving: 'Solving',
   solutionCount: (n: number) => `${n} turn${n > 1 ? 's' : ''}`,
+  heldAs: (down: string, front: string) => [
+    `${cap(down)} center down`,
+    `${cap(front)} center in front`,
+  ],
+  heldAsMirror: (down: string, front: string) => [
+    `${cap(down)} face down`,
+    `${cap(front)} face in front`,
+  ],
   language: 'Language',
   notation: 'Notation',
   recenter: 'Recenter view',

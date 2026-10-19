@@ -70,3 +70,23 @@ export const THICKNESSES: readonly Term[] = byThickness(LAYER_THICKNESS.mirror).
   pieces: (cube) => cube.flatMap((c, i) => (c.stickers.some((s) => s.color === color) ? [i] : [])),
   from: (cube) => sideOf(cube, color),
 }))
+
+/** The turns Ofapel's method adds: the middle slice (M, between the left
+ *  and right sides, turning as the left one) and the top two layers
+ *  together (Uw, written u), their pieces lit, shown turning. */
+const sliceTerm = (key: string, turn: Move, from: Vec3): Term => ({
+  key,
+  pieces: (cube) => cube.flatMap((_, i) => (turnedBy(cube, turn)(i) ? [i] : [])),
+  from: () => from,
+  demo: turn,
+})
+export const MIDDLE_SLICE = sliceTerm(
+  'termMiddleSlice',
+  { face: 'L', amount: 1, depth: 2 },
+  FRONT_RIGHT_TOP,
+)
+export const WIDE_TOP = sliceTerm(
+  'termWideTop',
+  { face: 'U', amount: 1, depth: 2, wide: true },
+  FRONT_RIGHT_TOP,
+)
