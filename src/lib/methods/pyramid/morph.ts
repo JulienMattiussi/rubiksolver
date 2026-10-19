@@ -1,13 +1,13 @@
-import { FACE_COLOR, isSolved, solvedCube } from '../../core/cube'
+import { FACE_COLOR, solvedCube } from '../../core/cube'
 import { AXIS_ROTATIONS, mapVec } from '../../core/geometry'
-import { allTurnsOf } from '../../core/moveSet'
 import { PYRA_CORNERS, PYRA_FACE_COLOR, PYRA_VERTICES } from '../../puzzles/pyramid/pyraminx'
-import type { MethodPlan } from '../../solve/solverKit'
 import type { Cube, Cubie, Move, Vec3 } from '../../core/types'
 import { solveOptimal2 } from '../standard/cube2'
 
 /**
- * Pyramorphinx, "as a Pocket", as fan2cube.fr (pyramorphinx3) shows it: its
+ * Pyramorphinx, "as a Pocket", as fan2cube.fr (pyramorphinx3) shows it (its
+ * method is its tutorial's, lib/tutorials/pyramid/morph.ts; this, the proof
+ * that a state can be solved): its
  * 8 pieces are the 8 corners of a 2x2 and its turns a 2x2's, so it is read
  * as the 2x2 it is (each piece given its cubie's colors, turned as it
  * stands), solved by the optimal 2x2 search, and the same turns solve it.
@@ -84,8 +84,10 @@ function asPocket(cube: Cube, choice: number): Cube | null {
   return pocket
 }
 
-/** The turns solving a Pyramorphinx (throws when none: an impossible one). */
-function solveMorph(cube: Cube): Move[] {
+/** The turns solving a Pyramorphinx (throws when none: an impossible one):
+ *  the proof that validation asks for (solve/solver.ts), quick where its
+ *  tutorial's searches would go through every state. */
+export function solveMorph(cube: Cube): Move[] {
   for (let choice = 0; choice < 81; choice++) {
     const pocket = asPocket(cube, choice)
     if (!pocket) break
@@ -94,7 +96,3 @@ function solveMorph(cube: Cube): Move[] {
   }
   throw new Error('solveMorph: not a Pyramorphinx one can solve')
 }
-
-export const MORPH_PLAN: MethodPlan = [
-  { key: 'stepAsPocket', goal: isSolved, moves: allTurnsOf('morph'), phases: [solveMorph] },
-]

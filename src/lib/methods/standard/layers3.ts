@@ -160,7 +160,7 @@ export function solveCross(cube: Cube): Move[] {
 
 // Insertion triggers, tried at every side so the search can extract a piece
 // from a wrong slot and drop it into the right one.
-export const CORNER_TRIGGERS = [...atEverySide("R U R'"), ...atEverySide("R U' R'")]
+const CORNER_TRIGGERS = [...atEverySide("R U R'"), ...atEverySide("R U' R'")]
 const MIDDLE_TRIGGERS = [
   ...atEverySide(INSERT_RIGHT), // insert edge into the front-right slot
   ...atEverySide("U' L' U L U F U' F'"), // insert edge into the front-left slot

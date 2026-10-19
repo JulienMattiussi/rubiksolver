@@ -17,7 +17,9 @@ import {
 } from './pyraKit'
 
 /**
- * Pyraminx, "centers first", as taught on fan2cube.fr (pyraminx2):
+ * Pyraminx, "centers first", as taught on fan2cube.fr (pyraminx2), the
+ * page's formulas; the Pyraminx's own method is its tutorial played to the
+ * end (lib/tutorials/pyramid/pyraminx.ts), this plan the Tetraminx's:
  *
  *   1. Centers         turn each corner's layer until its center piece
  *                      matches the others (the "nuclear hazard" sign on
@@ -29,7 +31,8 @@ import {
  *                      (AG)->(AD)->(GD) of the top
  *   5. Edges flipped   two at a time, with [gd'][h'd]: (AG)° (AD)°
  *
- * The Tetraminx is a Pyraminx without its tips: the same, step 2 gone.
+ * The Tetraminx is a Pyraminx without its tips: the same, step 2 gone (the
+ * plan below).
  *
  * The center pieces and tips never leave their corner, so they say which
  * color each face takes: the face opposite a corner wears the one color its
@@ -65,7 +68,6 @@ const TOP_CYCLE = aroundTop(PYRA_CYCLE)
 const FLIP_TWO = aroundTop(PYRA_FLIP)
 
 const LAYERS = pyraSet((vertex) => ({ vertex }))
-const TIPS = pyraSet((vertex) => ({ vertex, tip: true }))
 const faceColors = (cube: Cube) => pyraFaceColors(cube, 3)
 const cornersDone = (cube: Cube, tips: boolean) => pyraCornersDone(cube, 3, tips)
 
@@ -99,39 +101,27 @@ const edgesGoal = (top: 'any' | 'placed' | 'home', tips: boolean) => (cube: Cube
   cornersDone(cube, tips) &&
   edgesDone(faceColors(cube), top)(cube.filter((c) => c.stickers.length === 2))
 
-/** The plan, with its tips step on the Pyraminx (the Tetraminx has none). */
-const centersFirst = (tips: boolean): MethodPlan => [
+/** The Tetraminx (fan2cube.fr/tetraminx1): solved as the Pyraminx is,
+ *  without its tips (the Pyraminx's own method is its tutorial's,
+ *  lib/tutorials/pyramid/pyraminx.ts). */
+export const TETRAMINX_PLAN: MethodPlan = [
   {
     key: 'stepPyraCenters',
     goal: (c) => cornersDone(c, false),
     moves: LAYERS,
     phases: [alignCorners(3, false, (vertex) => ({ vertex }))],
   },
-  ...(tips
-    ? [
-        {
-          key: 'stepPyraTips',
-          goal: (c: Cube) => cornersDone(c, true),
-          moves: TIPS,
-          phases: [alignCorners(3, true, (vertex) => ({ vertex, tip: true }))],
-        },
-      ]
-    : []),
   {
     key: 'stepBottomEdges',
-    goal: edgesGoal('any', tips),
+    goal: edgesGoal('any', false),
     moves: LAYERS,
     phases: [solveEdges(DOWN_SET_UP, 'any')],
   },
   {
     key: 'stepPyraTopEdges',
-    goal: edgesGoal('placed', tips),
+    goal: edgesGoal('placed', false),
     moves: LAYERS,
     phases: [solveEdges(TOP_CYCLE, 'placed')],
   },
   { key: 'stepFlipEdges', goal: isSolved, moves: LAYERS, phases: [solveEdges(FLIP_TWO, 'home')] },
 ]
-
-export const PYRAMINX_PLAN = centersFirst(true)
-/** The Tetraminx (fan2cube.fr/tetraminx1): solved as the Pyraminx is. */
-export const TETRAMINX_PLAN = centersFirst(false)

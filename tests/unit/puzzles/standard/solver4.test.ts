@@ -128,9 +128,10 @@ describe('4x4 parities', () => {
     const rng = seededRng(31)
     for (const base of [ollParityCube(), pllParityCube()]) {
       const cube = applyMoves(base, scramble('3', 15, rng))
+      // The tutorial's method: each parity a step of its own.
       const method = methodsFor('4').find((m) => m.id === 'reduction')!
       const steps = method.solve(cube)
-      expect(steps.some((s) => s.key === 'stepParity' && s.moves.length > 0)).toBe(true)
+      expect(steps.some((s) => /Parity4$/.test(s.key) && s.moves.length > 0)).toBe(true)
       expect(
         isSolved(
           applyMoves(

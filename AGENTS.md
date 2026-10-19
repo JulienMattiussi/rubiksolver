@@ -139,7 +139,8 @@ src/
 │   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), stages (sortes d'étapes et leurs
 │   │                    #   pas), project (étape d'un petit puzzle relevée sur un grand), scene (tons, flèches),
 │   │                    #   segments (formule lue en gestes), keep (pièces gardées, formule en cours de pas),
-│   │                    #   macros (la plus courte chaîne de gestes appris vers un but)
+│   │                    #   macros (la plus courte chaîne de gestes appris vers un but), method (la méthode
+│   │                    #   qu'un tutoriel enseigne, en MethodPlan)
 │   ├── tutorials/       # Les tutoriels : registry (par forme, un par méthode), un dossier par catégorie :
 │   │                    #   standard/cube3 et cube3LastLayer (le 3x3), cube2 (le 2x2), cornerTrigger (les
 │   │                    #   coins jaunes, partagés), terms (vocabulaire des cubes), en méthode débutant ;
@@ -311,6 +312,17 @@ Les briques de résolution sont partagées et **correctes par construction** :
   chaque formule est vérifié dans le fichier de test du puzzle
   (`tests/unit/puzzles/<catégorie>/`) ; les fiches ne signalent que les
   exceptions.
+
+**Méthode enseignée** : sur un puzzle qui a un tutoriel, la méthode qu'il
+enseigne est déclarée une seule fois, par le tutoriel : `methodOf`
+(`lib/teach/method.ts`) en fait un `MethodPlan`, une étape par étape du
+tutoriel, résolue par les formules qu'il propose l'une après l'autre (son
+ouverture, `Tutorial.opening`, en étape facultative) ; le registre les
+branche (`taught`, `solver.ts`). Une étape qui tourne en rond (un état
+revu) abandonne : un puzzle impossible. Comme les recherches d'un tutoriel
+ne sont pas faites pour prouver qu'un état est impossible, la validation
+peut demander une preuve propre à la forme (`PROOFS` : le 4x4, le
+Pyramorphinx lu comme un 2x2).
 
 **Ajouter une méthode à un puzzle** : (1) écrire son plan dans
 `src/lib/methods/<catégorie>/<méthode>.ts` (étapes avec objectif, jeu de coups et phases ;
@@ -503,7 +515,8 @@ tenue : celles d'un cube se déduisent de ses faces (`ringHolds`,
 `CUBE_HOLDS` par défaut) ; un modèle aux coups d'une autre sorte donne les
 siennes. Le **registre** (`lib/tutorials/registry.ts`) liste par forme un
 tutoriel par méthode ; le bouton Tutoriel n'est offert que pour la méthode
-choisie qui en a un. **Ajouter un tutoriel** : sa définition dans
+choisie qui en a un. Sa méthode de résolution est alors ce tutoriel joué jusqu'au bout
+(voir « Méthode enseignée »). **Ajouter un tutoriel** : sa définition dans
 `lib/tutorials/<catégorie>/<puzzle>.ts` et sa ligne au registre (sa
 méthode) ; les titres, consignes, figures, vérifications, phrases
 d'avancement et termes de ses étapes dans son module de textes

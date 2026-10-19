@@ -2,6 +2,17 @@
 
 Chaque méthode, ses puzzles et ses étapes (registre : `src/lib/solve/solver.ts`). Les principes communs (plans déclarés, contrat des étapes, briques) sont dans [AGENTS.md](../AGENTS.md).
 
+**Méthodes enseignées.** Sur un puzzle qui a un tutoriel, la méthode qu'il
+enseigne est ce tutoriel joué jusqu'au bout (`lib/teach/method.ts`) : ses
+étapes sont celles du tutoriel, chacune résolue par les formules qu'il
+propose l'une après l'autre ; la solution affichée est donc ce qu'il
+enseigne. C'est le cas de **Par couches** sur le 3x3 et le 2x2, de la
+**Réduction** du 4x4, de **Centres d'abord** sur le Pyraminx et de **Comme
+un Pocket** sur le Pyramorphinx ; leurs étapes sont décrites avec leur
+tutoriel ([standard](puzzles/standard.md), [pyramid](puzzles/pyramid.md)).
+Les mêmes méthodes sur les autres puzzles (le 3x3 par couches comme phase
+du Void Cube, du 5x5...) gardent leur plan déclaré.
+
 ## Les méthodes du 3x3 et des cubes
 
 Sur le 3x3, le Fisher Cube, le Windmill et le Master Morphinx (pas le
@@ -14,16 +25,18 @@ nombres d'étapes ci-dessous ne la comptent pas.
 - **Par couches** (`beginner`, 3x3, Void Cube, Z-Twist, Fisher Cube, Windmill, Master Morphinx et 2x2 ; aussi
   le Fused et le Squarebik, voir [bandaged](puzzles/bandaged.md)) : sur 3x3, 1re couche entière
   (croix + coins), puis arêtes du milieu, puis dernière couche (croix,
-  orientation coins, permutation coins, permutation arêtes) - 7 étapes. Sur
-  2x2 (pas d'arêtes ni de centres) : coins du bas, orientation du haut,
-  permutation du haut - 3 étapes.
+  orientation coins, permutation coins, permutation arêtes) - 7 étapes,
+  celles de son plan déclaré, que suivent les autres puzzles ; le 3x3 et
+  le 2x2 jouent leur tutoriel (voir plus haut).
 - **Fridrich / CFOP** (`cfop`, 3x3, Void Cube, Z-Twist, Barrel, Fisher Cube, Windmill et Master Morphinx) : Croix, puis **F2L** (paires coin+arête
   par colonne), puis **OLL**, puis **PLL** - 4 étapes.
 - **Réduction** (`reduction` et `reductionCfop`, 4x4, 5x5 et 6x6, Super
   Revenge et Super Professor) : Centres, Appariement des arêtes, Correction
   de parité (étape émise seulement si nécessaire), puis la phase 3x3 de la
   méthode choisie (par couches ou CFOP) ; sur les super cubes, leurs centres
-  ensuite ([standard](puzzles/standard.md)).
+  ensuite ([standard](puzzles/standard.md)). La réduction par couches du
+  4x4 joue son tutoriel (ses parités, chacune son étape, là où elles se
+  voient).
 - **Roux** (`roux`, 3x3, Void Cube) : premier bloc 1x2x3 à gauche (arête DL, paire
   avant, paire arrière), second bloc à droite en `<U, R, M, r>` seulement,
   CMLL en 2 temps (orienter avec Sune/Antisune, permuter), puis les six

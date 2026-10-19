@@ -1,8 +1,11 @@
 import { cubeShape } from '../core/cube'
-import { BEGINNER_2_PLAN, OPTIMAL_2_PLAN, solveOptimal2 } from '../methods/standard/cube2'
+import { OPTIMAL_2_PLAN, solveOptimal2 } from '../methods/standard/cube2'
 import { DOMINO_PLAN } from '../methods/tower/domino'
 import { optimalPlan } from './exhaustive'
+import { methodOf } from '../teach/method'
+import { tutorialFor } from '../tutorials/registry'
 import { proveFourByFour } from '../methods/standard/solver4/proof'
+import { solveMorph } from '../methods/pyramid/morph'
 import { FLOPPY_PLAN } from '../methods/flat/floppy'
 import { GHOST_PLAN } from '../methods/flat/ghost'
 import { BARREL_PLAN } from '../methods/round/barrel'
@@ -33,11 +36,10 @@ import { QUAD_PLAN } from '../methods/bandaged/quad'
 import { QUAD_STRIPE_PLAN } from '../methods/bandaged/quadStripe'
 import { STRIPE_PLAN } from '../methods/bandaged/stripe'
 import { PETRUS_PLAN } from '../methods/standard/petrus'
-import { PYRAMINX_PLAN, TETRAMINX_PLAN } from '../methods/pyramid/pyraminx'
+import { TETRAMINX_PLAN } from '../methods/pyramid/pyraminx'
 import { PYRAMINX4_PLAN } from '../methods/pyramid/pyraminx4'
 import { PYRAMINX5_PLAN } from '../methods/pyramid/pyraminx5'
 import { JING_PLAN } from '../methods/pyramid/jing'
-import { MORPH_PLAN } from '../methods/pyramid/morph'
 import { OCT4_PLAN } from '../methods/polyhedron/oct4'
 import { GEM_PLAN, VTO_PLAN } from '../methods/polyhedron/vto'
 import { RAINBOW_PLAN } from '../methods/polyhedron/rainbow'
@@ -89,14 +91,20 @@ export type { SolveStep } from './solverKit'
  * `buildSteps` enforces each step's goal and turns, and the registry-wide
  * test solves scrambles with every entry, so nothing else needs touching.
  */
+/** The method a puzzle's tutorial teaches, declared once: the tutorial
+ *  played to the end (teach/method.ts), so the solution shown is what it
+ *  teaches. */
+const taught = (shape: CubeShape, method: string): MethodPlan =>
+  methodOf(tutorialFor(shape, method)!, shape)
+
 const SOLVE_METHODS = [
   // The Barrel's layer by layer, its middle edges' way round unseen.
   { id: 'barrelLayers', plans: { barrel: BARREL_PLAN } },
   {
     id: 'beginner',
     plans: {
-      '2': BEGINNER_2_PLAN,
-      '3': withCentersHome(BEGINNER_PLAN),
+      '2': taught('2', 'beginner'),
+      '3': taught('3', 'beginner'),
       void: voidPlan(BEGINNER_PLAN),
       twist: twistPlan(BEGINNER_PLAN),
       fisher: fisherPlan(withCentersHome(BEGINNER_PLAN)),
@@ -146,7 +154,7 @@ const SOLVE_METHODS = [
   {
     id: 'reduction',
     plans: {
-      '4': reductionPlan(BEGINNER_PLAN),
+      '4': taught('4', 'reduction'),
       super4: super4Plan(reductionPlan(BEGINNER_PLAN)),
       '5': reduction5Plan(BEGINNER_PLAN),
       super5: super5Plan(reduction5Plan(BEGINNER_PLAN)),
@@ -189,10 +197,10 @@ const SOLVE_METHODS = [
     },
   },
   { id: 'equatorFirst', plans: { '223': SLIM_TOWER_PLAN } },
-  { id: 'centersFirst', plans: { pyra: PYRAMINX_PLAN, tetra: TETRAMINX_PLAN } },
+  { id: 'centersFirst', plans: { pyra: taught('pyra', 'centersFirst'), tetra: TETRAMINX_PLAN } },
   { id: 'wingsFirst', plans: { pyra4: PYRAMINX4_PLAN, pyra5: PYRAMINX5_PLAN } },
   { id: 'jingCornersFirst', plans: { jing: JING_PLAN } },
-  { id: 'asPocket', plans: { morph: MORPH_PLAN } },
+  { id: 'asPocket', plans: { morph: taught('morph', 'asPocket') } },
   { id: 'octCornersFirst', plans: { oct4: OCT4_PLAN } },
   { id: 'vtoCentersFirst', plans: { vto: VTO_PLAN } },
   { id: 'gemCentersFirst', plans: { gem: GEM_PLAN } },
@@ -268,8 +276,12 @@ export function methodTurns(shape: CubeShape): Turn[] {
 const QUICKEST: Partial<Record<CubeShape, (cube: Cube) => Turn[]>> = { '2': solveOptimal2 }
 
 /** A shape's own proof of solvability, throwing on an impossible state,
- *  when quicker than solving it (the 4x4's, solver4/proof.ts). */
-const PROOFS: Partial<Record<CubeShape, (cube: Cube) => void>> = { '4': proveFourByFour }
+ *  when quicker than solving it (the 4x4's, solver4/proof.ts; the
+ *  Pyramorphinx's, read as a 2x2). */
+const PROOFS: Partial<Record<CubeShape, (cube: Cube) => void>> = {
+  '4': proveFourByFour,
+  morph: solveMorph,
+}
 
 /** Throws when a state cannot be solved: its shape's proof, else its
  *  solve (validation, editor/validate.ts). */

@@ -3,13 +3,13 @@ import { colorAt, cubieAt, listedAs } from '../../core/pieces'
 import { applyMove } from '../../core/turn'
 import { invertMoves } from '../../core/moves'
 import { OUTER_TURNS } from '../../core/moveSet'
-import { atEverySide, solveWithAlgs, type MethodPlan } from '../../solve/solverKit'
+import type { MethodPlan } from '../../solve/solverKit'
 import type { Color, Cube, CubeColor, Face, Move } from '../../core/types'
-import { PLL_T, PLL_Y, SUNE } from './algs'
-import { CORNER_TRIGGERS, cornerPlacedIn, placePieces } from './layers3'
+import { cornerPlacedIn } from './layers3'
 
 // ---------------------------------------------------------------------------
-// 2x2 layer-by-layer solver
+// The 2x2's frame (its layer-by-layer method is its tutorial's,
+// lib/tutorials/standard/cube2.ts)
 // ---------------------------------------------------------------------------
 //
 // A 2x2 has no centers, so there is no fixed color frame. The corner sitting
@@ -42,7 +42,7 @@ function bottomCornerPlaced2(cube: Cube, s1: Face, s2: Face): boolean {
   return cornerPlacedIn(cube, frame2(cube), s1, s2)
 }
 
-export function bottomLayerDone2(cube: Cube): boolean {
+function bottomLayerDone2(cube: Cube): boolean {
   return BOTTOM_PAIRS_2.every(([a, b]) => bottomCornerPlaced2(cube, a, b))
 }
 
@@ -54,21 +54,6 @@ export function topFaceDone2(cube: Cube): boolean {
     const color = colorAt(c, 'U')
     return color === undefined || color === u
   })
-}
-
-export function solveBottomLayer2(cube: Cube): Move[] {
-  return placePieces(cube, BOTTOM_PAIRS_2, bottomCornerPlaced2, () => true, CORNER_TRIGGERS)
-}
-
-export function solveTopFace2(cube: Cube): Move[] {
-  return solveWithAlgs(cube, atEverySide(SUNE), topFaceDone2, 8)
-}
-
-// Last-layer corner permutation: T-perm swaps two adjacent U corners, Y-perm
-// two diagonal ones (their edge cycles are irrelevant on a 2x2). Both keep the
-// D layer intact, so with an AUF one application reaches every case.
-export function solvePermuteTop2(cube: Cube): Move[] {
-  return solveWithAlgs(cube, [...atEverySide(PLL_T), ...atEverySide(PLL_Y)], isSolved, 3)
 }
 
 // ---------------------------------------------------------------------------
@@ -161,18 +146,6 @@ export function solveOptimal2(entered: Cube): Move[] {
   if (!best) throw new Error('solveOptimal2: no solution (unsolvable cube)')
   return best
 }
-
-/** 2x2 layer by layer: bottom corners, orient the top, permute the top. */
-export const BEGINNER_2_PLAN: MethodPlan = [
-  {
-    key: 'stepBottomCorners',
-    goal: bottomLayerDone2,
-    moves: OUTER_TURNS,
-    phases: [solveBottomLayer2],
-  },
-  { key: 'stepOrientCorners', goal: topFaceDone2, moves: OUTER_TURNS, phases: [solveTopFace2] },
-  { key: 'stepPermuteCorners', goal: isSolved, moves: OUTER_TURNS, phases: [solvePermuteTop2] },
-]
 
 /** 2x2 optimal solution, as a single step. */
 export const OPTIMAL_2_PLAN: MethodPlan = [

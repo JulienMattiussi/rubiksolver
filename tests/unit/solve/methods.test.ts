@@ -54,7 +54,12 @@ describe('method registry', () => {
     expect(roux.outline(scrambled)[0]!.key).not.toBe('stepRecenter')
     expect(roux.outline(applyMoves(scrambled, parseMoves('M')))[0]!.key).toBe('stepRecenter')
     expect(outline('3', 'roux')).toContain('stepLSEMiddle')
-    expect(outline('4', 'reduction').slice(0, 3)).toEqual([
+    // Taught: its tutorial's stages (teach/method.ts).
+    expect(outline('4', 'reduction').slice(0, 2)).toEqual([
+      'stepTutorialCenters4',
+      'stepTutorialPair4',
+    ])
+    expect(outline('4', 'reductionCfop').slice(0, 3)).toEqual([
       'stepCenters',
       'stepPairEdges',
       'stepParity?',

@@ -18,14 +18,7 @@ import {
   topCrossDone,
   topFaceDone,
 } from '@/lib/methods/standard/layers3'
-import {
-  bottomLayerDone2,
-  solveBottomLayer2,
-  solveOptimal2,
-  solvePermuteTop2,
-  solveTopFace2,
-  topFaceDone2,
-} from '@/lib/methods/standard/cube2'
+import { solveOptimal2 } from '@/lib/methods/standard/cube2'
 import { methodsFor, solve } from '@/lib/solve/solver'
 import { seededRng, twistedCorner2 } from '../../helpers'
 
@@ -77,19 +70,6 @@ describe('2x2 solver', () => {
     expect(solve(solvedCube('2'))).toEqual([])
     expect(solveOptimal2(solvedCube('2'))).toEqual([])
   })
-
-  it('layer method reaches each phase goal in order', () => {
-    const rng = seededRng(4242)
-    for (let i = 0; i < 8; i++) {
-      let state = applyMoves(solvedCube('2'), scramble('2', 11, rng))
-      state = applyMoves(state, solveBottomLayer2(state))
-      expect(bottomLayerDone2(state)).toBe(true)
-      state = applyMoves(state, solveTopFace2(state))
-      expect(topFaceDone2(state)).toBe(true)
-      state = applyMoves(state, solvePermuteTop2(state))
-      expect(isSolved(state)).toBe(true)
-    }
-  }, 120000)
 
   it('optimal solver solves random scrambles in at most 11 moves', () => {
     const rng = seededRng(99)

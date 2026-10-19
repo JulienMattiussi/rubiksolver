@@ -31,14 +31,20 @@ export function PadButton({ move, label, title, disabled, ghost, compact, dense 
   const show = () => setPreview(move)
   const hide = () => setPreview(null)
   return (
-    <div className="flex flex-1" onPointerEnter={show} onPointerLeave={hide}>
+    // In a pair, both halves as wide whatever their labels (U, Uw'): no
+    // width from their text (min-w-0); a formula's moves keep theirs.
+    <div
+      className={`flex flex-1 ${dense ? '' : 'min-w-0'}`}
+      onPointerEnter={show}
+      onPointerLeave={hide}
+    >
       <Button
         disabled={disabled || !move}
         onFocus={show}
         onBlur={hide}
         onClick={() => move && pushMove(move)}
         variant={ghost ? 'ghost' : undefined}
-        className={`flex-1 rounded-none whitespace-nowrap ${
+        className={`flex-1 rounded-none whitespace-nowrap ${dense ? '' : 'min-w-0'} ${
           dense ? 'h-7 px-0 py-0! text-xs' : compact ? 'px-0 text-xs tracking-tight' : 'px-2'
         }`}
         aria-label={title}
