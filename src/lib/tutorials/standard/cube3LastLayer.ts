@@ -1,7 +1,7 @@
 import { FACE_COLOR, isSolved } from '../../core/cube'
 import { FACE_NORMAL } from '../../core/geometry'
 import { CUBE_HOLDS, type Hold } from '../../core/hold'
-import { parseMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import { colorAt, hasColors, sameAt } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Face, Move, Vec3 } from '../../core/types'

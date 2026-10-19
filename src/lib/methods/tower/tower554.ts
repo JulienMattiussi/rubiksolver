@@ -1,5 +1,5 @@
 import { moveSet } from '../../core/moveSet'
-import { parseMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import { projectPlan, type MethodPlan } from '../../solve/solverKit'
 import type { Cube, Cubie } from '../../core/types'
 import { TOWER334_PLAN } from './tower334'

@@ -1,6 +1,6 @@
 import { isSolved } from '../../core/cube'
 import { homeAt, homesOf, withStickers } from '../../core/pieces'
-import { formatMoves, parseMoves } from '../../core/moves'
+import { formatMoves, parseMoves } from '../../core/notation'
 import { moveSet } from '../../core/moveSet'
 import { solvePieces } from '../../solve/pieceSearch'
 import { atEverySide, type MethodPlan } from '../../solve/solverKit'

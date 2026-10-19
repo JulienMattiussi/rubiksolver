@@ -1,7 +1,7 @@
 import { backToBox, loopsBack } from '../../puzzles/tower/camoShape'
 import { isBoxed, solvedCube } from '../../core/cube'
 import { AXIS_ROTATIONS, faceOfNormal } from '../../core/geometry'
-import { formatMoves, parseMoves } from '../../core/moves'
+import { formatMoves, parseMoves } from '../../core/notation'
 import { allTurnsOf, moveSet } from '../../core/moveSet'
 import { homesOf, withStickers } from '../../core/pieces'
 import { solvePieces } from '../../solve/pieceSearch'

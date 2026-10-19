@@ -1,18 +1,13 @@
 import { describe, expect, it } from 'vitest'
+import { FACES, invertMove, invertMoves, movesFor, scramble, simplifyMoves } from '@/lib/core/moves'
 import {
-  FACES,
   formatMove,
   formatMoves,
-  invertMove,
-  invertMoves,
-  movesFor,
   NOTATION_FR,
   NOTATION_US,
   parseMove,
   parseMoves,
-  scramble,
-  simplifyMoves,
-} from '@/lib/core/moves'
+} from '@/lib/core/notation'
 import { seededRng } from '../../helpers'
 import { describeMove } from '@/lib/app/moveGuide'
 import { isSolved, solvedCube } from '@/lib/core/cube'

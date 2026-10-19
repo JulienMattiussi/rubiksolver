@@ -1,6 +1,7 @@
 import { isBoxed, isSolved, solvedCube } from '../../core/cube'
 import { normalIndex } from '../../core/geometry'
-import { invertMoves, parseMoves } from '../../core/moves'
+import { invertMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import { allTurnsOf, moveSet } from '../../core/moveSet'
 import { atHome, homesOf } from '../../core/pieces'
 import { solvePieces } from '../../solve/pieceSearch'

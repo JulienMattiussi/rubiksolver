@@ -5,15 +5,8 @@ import { allTurnsOf } from '../../core/moveSet'
 import { invertMoves } from '../../core/moves'
 import { found, searchFormulas } from '../../solve/formulaSearch'
 import type { MethodPlan } from '../../solve/solverKit'
-import {
-  hasColoredClips,
-  type Cube,
-  type Cubie,
-  type CubeShape,
-  type Face,
-  type GearMove,
-  type Turn,
-} from '../../core/types'
+import { type Cube, type Cubie, type Face, type GearMove, type Turn } from '../../core/types'
+import { hasColoredClips, type CubeShape } from '../../core/shapes'
 import { heldEveryWay, turnedFace } from '../../solve/everyWay'
 import { holdingsShowing } from '../../solve/holdings'
 

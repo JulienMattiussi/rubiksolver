@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { applyMoves } from '@/lib/core/turn'
-import { formatMoves, parseMoves, scramble } from '@/lib/core/moves'
+import { scramble } from '@/lib/core/moves'
+import { formatMoves, parseMoves } from '@/lib/core/notation'
 import {
   crossDone,
   firstLayerDone,

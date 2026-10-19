@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import type { CubeShape } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import { useI18n } from '@/i18n/i18nStore'
 import { SegmentedToggle } from '@/components/ui/SegmentedToggle'
 import { PadSection } from './PadSection'

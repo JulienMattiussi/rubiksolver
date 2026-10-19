@@ -5,11 +5,11 @@ import type {
   Cubie,
   Dims,
   PyraMove,
-  PyraShape,
   PyraVertex,
   Sticker,
   Vec3,
 } from '../../core/types'
+import type { PyraShape } from '../../core/shapes'
 
 /**
  * The Pyraminx and the Master Pyraminx (its 4x4 version): tetrahedra whose

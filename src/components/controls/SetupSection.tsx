@@ -1,7 +1,7 @@
 import { ArchiveRestore, Bookmark, RotateCcw, Square } from 'lucide-react'
 import { useState } from 'react'
 import { cubeShape } from '@/lib/core/cube'
-import { SHAPE_LABEL } from '@/lib/core/types'
+import { SHAPE_LABEL } from '@/lib/core/shapes'
 import { encodeCube } from '@/lib/app/snapshot'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'

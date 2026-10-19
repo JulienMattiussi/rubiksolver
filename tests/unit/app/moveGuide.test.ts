@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { describeMove, moveGuide } from '@/lib/app/moveGuide'
-import { formatMove, NOTATION_US } from '@/lib/core/moves'
+import { formatMove, NOTATION_US } from '@/lib/core/notation'
 import { LOCALES } from '@/i18n/translations'
-import { SHAPE_DIMS, type CubeShape } from '@/lib/core/types'
+import { SHAPE_DIMS, type CubeShape } from '@/lib/core/shapes'
 
 /** The guide as notation: one string per section, rows separated by `|`. */
 function written(shape: CubeShape): Record<string, string> {

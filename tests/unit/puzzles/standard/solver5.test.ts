@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
-import { formatMoves, parseMoves, scrambleTurns } from '@/lib/core/moves'
+import { scrambleTurns } from '@/lib/core/moves'
+import { formatMoves, parseMoves } from '@/lib/core/notation'
 import { methodsFor } from '@/lib/solve/solver'
 import { centersDone, solveCenters } from '@/lib/methods/standard/solver5/centers'
 import {

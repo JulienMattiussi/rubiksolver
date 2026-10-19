@@ -1,4 +1,4 @@
-import type { FaceLabels } from '../../core/moves'
+import type { FaceLabels } from '../../core/notation'
 import type { Color, Cube, Cubie, MegaFace, MegaMove, Vec3 } from '../../core/types'
 
 /**

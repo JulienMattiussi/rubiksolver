@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { cubeDims, solvedCube } from '@/lib/core/cube'
 import { applyMoves } from '@/lib/core/turn'
-import { parseMoves } from '@/lib/core/moves'
-import type { CubeShape } from '@/lib/core/types'
+import { parseMoves } from '@/lib/core/notation'
+import type { CubeShape } from '@/lib/core/shapes'
 import { visualPosition } from '@/three/core/layout'
 
 const cellsOf = (shape: CubeShape, moves = '') => {

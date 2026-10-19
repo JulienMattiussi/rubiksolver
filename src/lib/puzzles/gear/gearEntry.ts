@@ -3,7 +3,8 @@ import { withFixedHome } from '../../editor/edit'
 import type { EditStickers, EntryMarks, Parts, PartsSpec, TogglesSpec } from '../../editor/entry'
 import { gearAt, shownSpin, withEnteredGears } from './gear'
 import { normalIndex, parseVecKey } from '../../core/geometry'
-import { hasColoredClips, type Color, type Cube, type CubeShape } from '../../core/types'
+import { type Color, type Cube } from '../../core/types'
+import { hasColoredClips, type CubeShape } from '../../core/shapes'
 
 /**
  * How a Gear Cube is entered (lib/editor/entry.ts): its gears' pivots

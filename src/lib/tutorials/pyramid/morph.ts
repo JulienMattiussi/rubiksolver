@@ -1,7 +1,7 @@
 import { isSolved } from '../../core/cube'
 import { mapVec, TET_NORMALS } from '../../core/geometry'
 import type { HoldFrame } from '../../core/hold'
-import { parseMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import { hasColors, sameAt } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
 import type { Color, Cube, Cubie, Move, Vec3 } from '../../core/types'

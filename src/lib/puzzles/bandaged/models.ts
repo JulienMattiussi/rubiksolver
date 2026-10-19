@@ -1,4 +1,5 @@
-import type { Cube, CubeShape, Move } from '../../core/types'
+import type { Cube, Move } from '../../core/types'
+import type { CubeShape } from '../../core/shapes'
 import { colorsSolved, isSolved, solvedCube } from '../../core/cube'
 import type { PuzzleModel } from '../model'
 import { aiTurns, scrambleAi, solvedAi } from './ai'

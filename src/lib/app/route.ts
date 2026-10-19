@@ -1,4 +1,4 @@
-import { CUBE_KINDS, cubeKindId, SHAPE_SLUG, type CubeKind, type CubeVariant } from '../core/types'
+import { CUBE_KINDS, cubeKindId, SHAPE_SLUG, type CubeKind, type CubeVariant } from '../core/shapes'
 
 /**
  * The app's address: `#/<language>/<puzzle>`, e.g. `#/fr/floppy-ghost` or

@@ -1,6 +1,7 @@
 import { FACE_COLOR, faceColorsOf, solvedCube } from './cube'
 import { AXIS_ROTATIONS, faceOfNormal } from './geometry'
-import type { Color, Cube, CubeShape, Cubie, Face, Sticker, Vec3 } from './types'
+import type { Color, Cube, Cubie, Face, Sticker, Vec3 } from './types'
+import type { CubeShape } from './shapes'
 
 /**
  * Queries on a puzzle's pieces (pure): their colors, where one stands,

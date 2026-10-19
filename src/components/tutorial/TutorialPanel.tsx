@@ -1,6 +1,6 @@
 import { ArrowRight, GraduationCap, SkipForward, Sparkles, Undo2, X } from 'lucide-react'
 import { useEffect } from 'react'
-import { formatMove } from '@/lib/core/moves'
+import { formatMove } from '@/lib/core/notation'
 import { useI18n } from '@/i18n/i18nStore'
 import { useView } from '@/store/viewStore'
 import { selectBusy, useCube } from '@/store/cubeStore'

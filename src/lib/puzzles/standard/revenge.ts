@@ -1,4 +1,4 @@
-import { AMOUNT_SUFFIX, type FaceLabels } from '../../core/moves'
+import { AMOUNT_SUFFIX, type FaceLabels } from '../../core/notation'
 import type { Move } from '../../core/types'
 
 /**

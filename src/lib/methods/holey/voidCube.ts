@@ -1,6 +1,7 @@
 import { FACE_COLOR, solvedCube } from '../../core/cube'
 import { homeAt, homesOf, recolored, withStickers } from '../../core/pieces'
-import { invertMoves, parseMoves } from '../../core/moves'
+import { invertMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import { allTurnsOf, moveSet } from '../../core/moveSet'
 import { applyMoves } from '../../core/turn'
 import { atEverySide, projectPlan, type MethodPlan } from '../../solve/solverKit'

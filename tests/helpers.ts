@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
-import type { Cube, CubeShape } from '@/lib/core/types'
+import type { Cube } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 
 /**
  * Deterministic PRNG (mulberry32) for reproducible scramble/solve tests.

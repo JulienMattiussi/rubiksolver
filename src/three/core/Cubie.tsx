@@ -1,6 +1,7 @@
 import type { ComponentType, RefObject } from 'react'
 import { cubieBox, LAYER_THICKNESS } from '@/lib/core/shape'
-import type { CubeVariant, Cubie as CubieType, Dims } from '@/lib/core/types'
+import type { Cubie as CubieType, Dims } from '@/lib/core/types'
+import type { CubeVariant } from '@/lib/core/shapes'
 import { COLOR_HEX, HIGHLIGHT, PLACE, PLASTIC, VARIANT_SKIN } from './colors'
 import { CUBIE_GAP, visualPosition } from './layout'
 import { Sticker } from './Sticker'

@@ -12,7 +12,7 @@ import {
   TOP_FLIP,
   TOP_TWIST,
 } from '@/lib/methods/polyhedron/megaminxFormulas'
-import { formatMove, NOTATION_FR } from '@/lib/core/moves'
+import { formatMove, NOTATION_FR } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 import type { MegaMove } from '@/lib/core/types'
 

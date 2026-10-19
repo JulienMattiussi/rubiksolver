@@ -10,19 +10,10 @@ import {
   rotateN,
 } from './geometry'
 import { MODELS } from '../puzzles/models'
-import { ALL_COLORS, MARK, SHAPE_DIMS, SHAPE_SCHEME, SHAPE_SHIFTS } from './types'
-import type {
-  Axis,
-  Color,
-  Cube,
-  CubeColor,
-  CubeShape,
-  Cubie,
-  Dims,
-  Face,
-  Sticker,
-  Vec3,
-} from './types'
+import { ALL_COLORS, MARK } from './types'
+import { SHAPE_DIMS, SHAPE_SCHEME, SHAPE_SHIFTS } from './shapes'
+import type { Axis, Color, Cube, CubeColor, Cubie, Dims, Face, Sticker, Vec3 } from './types'
+import type { CubeShape } from './shapes'
 
 /**
  * The puzzle as cubies at integer positions: {-1,0,1}^3 for a 3x3, {-1,1}^3

@@ -1,7 +1,7 @@
 import { cubeOrientations, isSolved, solvedCube } from '../../core/cube'
 import { buildLibrary, OUTER, placeAll, SLICES } from '../../solve/cycleLibrary'
 import { allTurnsOf } from '../../core/moveSet'
-import { parseMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import type { MethodPlan } from '../../solve/solverKit'
 import type { Color, Cube, Cubie, Move } from '../../core/types'
 import { once } from '../../solve/once'

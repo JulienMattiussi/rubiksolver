@@ -6,7 +6,8 @@ import {
   pyraTurn,
   type PyraLayer,
 } from '@/lib/puzzles/pyramid/pyraminx'
-import { isPyraminx, type PyraMove } from '@/lib/core/types'
+import { type PyraMove } from '@/lib/core/types'
+import { isPyraminx } from '@/lib/core/shapes'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { LayerTabs } from './LayerTabs'

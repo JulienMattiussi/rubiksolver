@@ -1,6 +1,6 @@
 import { faceColorsOf, solvedCube } from '../../core/cube'
 import { allTurnsOf } from '../../core/moveSet'
-import { parseMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import type { MethodPlan, StepSpec } from '../../solve/solverKit'
 import type { Cube, Cubie } from '../../core/types'
 import { innerDomino, middleLayer, outerDomino } from './towerLayers'

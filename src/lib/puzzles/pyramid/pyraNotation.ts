@@ -1,4 +1,4 @@
-import type { FaceLabels } from '../../core/moves'
+import type { FaceLabels } from '../../core/notation'
 import { invertPyraMove, PYRA_VERTICES } from './pyraminx'
 import type { PyraMove, PyraVertex } from '../../core/types'
 

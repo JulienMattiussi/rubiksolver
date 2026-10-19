@@ -1,4 +1,4 @@
-import type { CubeShape } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import type { PolyDrawing } from '../../core/polyDrawing'
 import { jingCut, jingPolygons, jingThumbnail } from './jingGeometry'
 import { mmorphPolygons, mmorphThumbnail } from './mmorphGeometry'

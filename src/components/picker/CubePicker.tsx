@@ -10,7 +10,7 @@ import {
   SHAPE_LABEL,
   type CubeCategory,
   type CubeKind,
-} from '@/lib/core/types'
+} from '@/lib/core/shapes'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { goTo } from '@/store/router'

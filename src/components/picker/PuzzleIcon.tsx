@@ -1,4 +1,5 @@
-import { type Cube, type CubeShape, type CubeVariant } from '@/lib/core/types'
+import { type Cube } from '@/lib/core/types'
+import { type CubeShape, type CubeVariant } from '@/lib/core/shapes'
 import { COLOR_HEX, VARIANT_SKIN, PLASTIC } from '@/three/core/colors'
 import { formDrawing, isometricDrawing } from '@/three/core/isometric'
 import { isPolyDrawn, polyDrawing } from '@/three/core/polyDrawing'

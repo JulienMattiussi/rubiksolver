@@ -1,6 +1,6 @@
 import { isSolved } from '../../core/cube'
 import { moveSet, OUTER_TURNS } from '../../core/moveSet'
-import { parseMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import { relMoves, solveWithAlgs, type MethodPlan } from '../../solve/solverKit'
 import type { Cube, Move } from '../../core/types'
 import { ANTISUNE, NIKLAS, SUNE } from './algs'

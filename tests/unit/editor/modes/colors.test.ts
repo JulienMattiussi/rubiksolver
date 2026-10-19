@@ -12,7 +12,8 @@ import {
   slotsFor,
 } from '@/lib/editor/edit'
 import { canPaint, paint, paletteColors } from '@/lib/editor/modes/colors'
-import { parseMoves, scramble } from '@/lib/core/moves'
+import { scramble } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import type { Cube } from '@/lib/core/types'
 import { seededRng } from '../../../helpers'
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
-import { NOTATION_FR, scrambleTurns } from '@/lib/core/moves'
+import { scrambleTurns } from '@/lib/core/moves'
+import { NOTATION_FR } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 import { formatRainbowMove, parseDinoMoves } from '@/lib/puzzles/shared/rainbow'
 import { EDGE_CYCLES, MASTER_SKEWB_PLAN, PETAL_CYCLES } from '@/lib/methods/diagonal/masterSkewb'

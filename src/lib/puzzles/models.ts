@@ -1,4 +1,4 @@
-import type { CubeShape } from '../core/types'
+import type { CubeShape } from '../core/shapes'
 import { BANDAGED_MODELS } from './bandaged/models'
 import { DIAGONAL_MODELS } from './diagonal/models'
 import { FLAT_MODELS } from './flat/models'

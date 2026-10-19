@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { NOTATION_FR, NOTATION_US, type FaceLabels } from '@/lib/core/moves'
+import { NOTATION_FR, NOTATION_US, type FaceLabels } from '@/lib/core/notation'
 import { readStored, writeStored } from '@/lib/app/storage'
 import { LOCALES, type Locale, type Translations } from './translations'
 

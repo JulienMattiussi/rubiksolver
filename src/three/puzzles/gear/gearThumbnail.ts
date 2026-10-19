@@ -1,5 +1,5 @@
 import { faceColorsOf } from '@/lib/core/cube'
-import { hasColoredClips, type CubeShape } from '@/lib/core/types'
+import { hasColoredClips, type CubeShape } from '@/lib/core/shapes'
 import { gearAt } from '@/lib/puzzles/gear/gear'
 import OUTLINES from '@/assets/gear/outlines.json'
 import {

@@ -1,4 +1,4 @@
-import type { CubeShape, StarShape } from '../../core/types'
+import type { CubeShape, StarShape } from '../../core/shapes'
 import { dinoGuide, puckGuide, starGuide } from '../guides'
 import { solvedCube } from '../../core/cube'
 import type { PuzzleModel } from '../model'

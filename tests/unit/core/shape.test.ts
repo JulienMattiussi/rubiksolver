@@ -4,8 +4,9 @@ import { faceAxis, layerCoords, rotateN } from '@/lib/core/geometry'
 import { applyMove, turnedBy, turnRotation } from '@/lib/core/turn'
 import { scramble } from '@/lib/core/moves'
 import { byThickness, centeringOffset, cubieBox, LAYER_THICKNESS, UNIT_BOX } from '@/lib/core/shape'
-import { SHAPE_DIMS } from '@/lib/core/types'
-import type { CubeColor, CubeShape, CubeVariant } from '@/lib/core/types'
+import { SHAPE_DIMS } from '@/lib/core/shapes'
+import type { CubeColor } from '@/lib/core/types'
+import type { CubeShape, CubeVariant } from '@/lib/core/shapes'
 import { seededRng } from '../../helpers'
 
 /** The mirror variant only applies where every axis has layers to thicken. */

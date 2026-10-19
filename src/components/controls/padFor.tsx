@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { SHAPE_PAD, type CubeShape } from '@/lib/core/types'
+import { SHAPE_PAD, type CubeShape } from '@/lib/core/shapes'
 import type { PadKind } from '@/lib/puzzles/entry'
 import { FtoPad } from './FtoPad'
 import { GearPad } from './GearPad'

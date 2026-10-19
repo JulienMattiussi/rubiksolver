@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { cubeShape, isSolved, solvedCube } from '@/lib/core/cube'
 import { PLACE_LEFT, PLACE_RIGHT } from '@/lib/methods/polyhedron/rainbow'
-import { formatMoves, NOTATION_FR, NOTATION_US } from '@/lib/core/moves'
+import { formatMoves, NOTATION_FR, NOTATION_US } from '@/lib/core/notation'
 import { parseDinoMoves, RAINBOW_TURNS } from '@/lib/puzzles/shared/rainbow'
 import { colorsOf } from '@/lib/core/pieces'
 import { applyMoves } from '@/lib/core/turn'

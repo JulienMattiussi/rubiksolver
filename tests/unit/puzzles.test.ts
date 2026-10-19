@@ -12,19 +12,13 @@ import { stickerId, tablesFor } from '@/lib/editor/editorTables'
 import { formOf } from '@/lib/editor/modes/form'
 import { normalIndex } from '@/lib/core/geometry'
 import { describeMove, moveGuide } from '@/lib/app/moveGuide'
-import {
-  formatMove,
-  invertMoves,
-  layerTurnsOf,
-  sameLayer,
-  NOTATION_FR,
-  NOTATION_US,
-  scrambleTurns,
-} from '@/lib/core/moves'
+import { invertMoves, layerTurnsOf, sameLayer, scrambleTurns } from '@/lib/core/moves'
+import { formatMove, NOTATION_FR, NOTATION_US } from '@/lib/core/notation'
 import { methodsFor } from '@/lib/solve/solver'
 import { decodeCube, encodeCube } from '@/lib/app/snapshot'
 import { applyMoves, turnAllowed } from '@/lib/core/turn'
-import type { Cube, CubeShape, Turn } from '@/lib/core/types'
+import type { Cube, Turn } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import { settingsOf } from '@/lib/editor/steps'
 import { validateCube } from '@/lib/editor/validate'
 import { LOCALES } from '@/i18n/translations'

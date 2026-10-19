@@ -1,4 +1,4 @@
-import type { CubeShape } from '../../core/types'
+import type { CubeShape } from '../../core/shapes'
 import { solvedCube } from '../../core/cube'
 import type { PuzzleModel } from '../model'
 import { withBorders } from './superCube'

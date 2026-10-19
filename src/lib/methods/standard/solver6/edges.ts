@@ -1,6 +1,6 @@
 import { FACE_COLOR, solvedCube } from '../../../core/cube'
 import { FACE_NORMAL, faceOfNormal, mapVec, vecKey } from '../../../core/geometry'
-import { parseMoves } from '../../../core/moves'
+import { parseMoves } from '../../../core/notation'
 import { applyMove, applyMoves } from '../../../core/turn'
 import type { Color, Cube, Cubie, Dims, Face, Move, Vec3 } from '../../../core/types'
 import { buildLibrary, DEEP, OUTER, SLICES } from '../../../solve/cycleLibrary'

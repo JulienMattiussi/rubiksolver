@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { asSeenThin, isThinEdge, withRealThinEdges } from '@/lib/puzzles/shared/thinEdges'
 import { validateCube } from '@/lib/editor/validate'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 
 const TWIST = solvedCube('twist')

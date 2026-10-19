@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isBoxed, solvedCube } from '@/lib/core/cube'
-import { parseMoves, scrambleTurns } from '@/lib/core/moves'
+import { scrambleTurns } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { applyMoves, turnAllowed } from '@/lib/core/turn'
 import type { Move } from '@/lib/core/types'
 import { backToBox } from '@/lib/methods/twisted/fashionShape'

@@ -2,7 +2,8 @@ import { faceColorsOf } from '../../core/cube'
 import { FACE_SPEC, mapVec } from '../../core/geometry'
 import { applyMove } from '../../core/turn'
 import { BLOCK_TURNS } from '../../puzzles/twisted/fashion'
-import type { Cube, CubeShape, Move, Vec3 } from '../../core/types'
+import type { Cube, Move, Vec3 } from '../../core/types'
+import type { CubeShape } from '../../core/shapes'
 import { once } from '../../solve/once'
 
 /**

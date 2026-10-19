@@ -1,5 +1,6 @@
 import { solvedCube } from '@/lib/core/cube'
-import type { CubeShape, Cubie } from '@/lib/core/types'
+import type { Cubie } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import { entersJoints, withJoints } from '@/lib/editor/modes/joints'
 import { turnedKeys } from '@/lib/editor/modes/toggles'
 import { BLOCKS } from '@/lib/puzzles/bandaged/blocks'

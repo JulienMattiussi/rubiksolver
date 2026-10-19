@@ -1,5 +1,5 @@
 import { FACE_COLOR, solvedCube } from '@/lib/core/cube'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cube } from '@/lib/core/types'
 import type { TutorialStep } from '@/lib/teach/tutorial'

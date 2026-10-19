@@ -16,12 +16,12 @@ import {
   type Move,
   type PuckMove,
   type PyraMove,
-  type PyraShape,
   type RainbowMove,
   type StarMove,
   type Turn,
   type Vec3,
 } from '../core/types'
+import { type PyraShape } from '../core/shapes'
 import { turnDims, cubeShape } from '../core/cube'
 import {
   applyCopterMove,

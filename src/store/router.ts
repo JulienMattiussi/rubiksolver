@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { cubeShape } from '@/lib/core/cube'
 import { parseRoute, routeHash, sameKind } from '@/lib/app/route'
-import type { CubeKind } from '@/lib/core/types'
+import type { CubeKind } from '@/lib/core/shapes'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, useCube } from './cubeStore'
 import { useEditor } from './editorStore'

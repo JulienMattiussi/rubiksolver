@@ -4,7 +4,8 @@ import { stickerId, tablesFor, type Slot } from './editorTables'
 import { entersByPieces, NO_MARKS, type EditStickers, type EntryMarks } from './entry'
 import { piecesCube } from './modes/pieces'
 import { MODELS } from '../puzzles/models'
-import type { Color, Cube, CubeShape } from '../core/types'
+import type { Color, Cube } from '../core/types'
+import type { CubeShape } from '../core/shapes'
 
 /**
  * What every entry fills, whatever its mode: a map of stickers, by id, on

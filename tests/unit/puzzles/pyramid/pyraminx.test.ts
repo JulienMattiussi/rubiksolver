@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube, stateKey } from '@/lib/core/cube'
-import { formatMoves, NOTATION_FR, NOTATION_US, simplifyMoves } from '@/lib/core/moves'
+import { simplifyMoves } from '@/lib/core/moves'
+import { formatMoves, NOTATION_FR, NOTATION_US } from '@/lib/core/notation'
 import { pyraTurnsOf } from '@/lib/puzzles/pyramid/pyraminx'
 import { parsePyraMoves } from '@/lib/puzzles/pyramid/pyraNotation'
 import { applyMoves, turnedBy } from '@/lib/core/turn'

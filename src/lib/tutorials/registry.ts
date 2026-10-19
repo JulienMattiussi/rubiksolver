@@ -1,4 +1,4 @@
-import type { CubeShape } from '../core/types'
+import type { CubeShape } from '../core/shapes'
 import type { MethodId } from '../solve/solver'
 import type { Tutorial } from '../teach/tutorial'
 import { CUBE2_TUTORIAL } from './standard/cube2'

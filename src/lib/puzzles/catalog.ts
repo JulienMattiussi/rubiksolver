@@ -1,4 +1,4 @@
-import type { CubeCategory, CubeShape } from '../core/types'
+import type { CubeCategory, CubeShape } from '../core/shapes'
 import { STANDARD } from './standard/catalog'
 import { TOWER } from './tower/catalog'
 import { FLAT } from './flat/catalog'

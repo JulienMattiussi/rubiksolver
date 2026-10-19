@@ -2,7 +2,7 @@ import { cubeShape, turnDims } from './cube'
 import { MODELS } from '../puzzles/models'
 import { FACE_SPEC, layerCoords, rotateN } from './geometry'
 import { isFaceTurn, kindOf, type TurnRotation } from './moveKind'
-import { SHAPE_DIMS, SHAPE_SHIFTS } from './types'
+import { SHAPE_DIMS, SHAPE_SHIFTS } from './shapes'
 import type { Cube, Dims, Move, Turn } from './types'
 
 /**

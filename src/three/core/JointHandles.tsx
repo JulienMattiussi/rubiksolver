@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { handlesOf, type Handle } from '@/lib/editor/modes/joints'
-import type { CubeShape } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import { useEditor } from '@/store/editorStore'
 
 const WIDTH = 0.14

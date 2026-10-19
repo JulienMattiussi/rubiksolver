@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { FACE_NORMAL } from '@/lib/core/geometry'
 import { CUBE_HOLDS, ringHolds } from '@/lib/core/hold'
-import { formatMoves, parseMoves } from '@/lib/core/moves'
+import { formatMoves, parseMoves } from '@/lib/core/notation'
 
 describe('the ways a cube is held', () => {
   it('finds its sides round the top from its faces', () => {

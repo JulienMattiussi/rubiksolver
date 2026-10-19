@@ -2,7 +2,8 @@ import { cubeShape, solvedCube, turnDims } from '../../core/cube'
 import { AXIS_ROTATIONS, normalIndex } from '../../core/geometry'
 import { layerTurnsOf } from '../../core/moves'
 import { applyMove, turnAllowed } from '../../core/turn'
-import { SHAPE_SHIFTS, type Cube, type CubeShape } from '../../core/types'
+import { type Cube } from '../../core/types'
+import { SHAPE_SHIFTS, type CubeShape } from '../../core/shapes'
 
 /**
  * Entry by choosing the form (a model's `form` step): the forms a

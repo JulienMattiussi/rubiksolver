@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { FTO_TURNS, parseFtoMoves } from '@/lib/puzzles/polyhedron/fto'
 import { FTO_FORMULAS } from '@/lib/methods/polyhedron/fto'
-import { formatMove, NOTATION_FR, NOTATION_US } from '@/lib/core/moves'
+import { formatMove, NOTATION_FR, NOTATION_US } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cubie } from '@/lib/core/types'
 

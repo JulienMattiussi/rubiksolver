@@ -1,5 +1,5 @@
 import { CUBE_HOLDS, type HoldFrame } from '../core/hold'
-import { formatMove } from '../core/moves'
+import { formatMove } from '../core/notation'
 import type { Turn } from '../core/types'
 import type { Sequence } from './tutorial'
 

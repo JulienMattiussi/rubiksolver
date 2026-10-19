@@ -1,5 +1,6 @@
 import { solvedCube } from '../../core/cube'
-import type { Cube, CubeShape, Vec3 } from '../../core/types'
+import type { Cube, Vec3 } from '../../core/types'
+import type { CubeShape } from '../../core/shapes'
 import { isMark, MARK } from '../../core/types'
 import { mapVec, normalOfIndex, parseVecKey } from '../../core/geometry'
 import { stepOf, type PaintTogether } from '../entry'

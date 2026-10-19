@@ -1,4 +1,5 @@
-import type { Color, CubeVariant, Dims, Face, InnerTurn } from '../core/types'
+import type { Color, Dims, Face } from '../core/types'
+import type { CubeVariant, InnerTurn } from '../core/shapes'
 
 /** The families of puzzles turning by their own kind of moves (see
  *  core/moveKind.ts). */

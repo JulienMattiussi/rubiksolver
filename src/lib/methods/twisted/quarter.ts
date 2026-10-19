@@ -1,5 +1,5 @@
 import { FACE_NORMAL, faceOfNormal, vecKey } from '../../core/geometry'
-import { parseMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import { allTurnsOf, moveSet } from '../../core/moveSet'
 import { homesOf, withStickers } from '../../core/pieces'
 import { solvePieces } from '../../solve/pieceSearch'

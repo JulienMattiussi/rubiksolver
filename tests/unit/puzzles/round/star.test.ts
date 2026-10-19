@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube, stateKey } from '@/lib/core/cube'
-import { NOTATION_FR, NOTATION_US } from '@/lib/core/moves'
+import { NOTATION_FR, NOTATION_US } from '@/lib/core/notation'
 import { formatStarMove, parseStarMoves, simplifyStarMoves } from '@/lib/puzzles/round/star'
 import { applyMoves, turnedBy } from '@/lib/core/turn'
 import type { Cube } from '@/lib/core/types'

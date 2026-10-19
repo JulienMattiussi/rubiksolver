@@ -1,6 +1,7 @@
 import { isSolved, stateKey } from '../core/cube'
 import { applyMove, applyMoves, turnAllowed } from '../core/turn'
-import { formatMove, parseMoves, simplifyMoves } from '../core/moves'
+import { simplifyMoves } from '../core/moves'
+import { formatMove, parseMoves } from '../core/notation'
 import { allows, type MoveSet } from '../core/moveSet'
 import type { Cube, Face, Move, Turn } from '../core/types'
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { solvedCube, stateKey } from '@/lib/core/cube'
 import { applyMoves } from '@/lib/core/turn'
 import { DODECA_NORMALS, HEX_NORMALS, normalIndex, normalOfIndex } from '@/lib/core/geometry'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { decodeCube, encodeCube } from '@/lib/app/snapshot'
 
 describe('cube snapshots', () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { SWAPS } from '@/lib/methods/round/puck'
-import { formatMoves, NOTATION_FR, NOTATION_US } from '@/lib/core/moves'
+import { formatMoves, NOTATION_FR, NOTATION_US } from '@/lib/core/notation'
 import { parsePuckMoves, puckNumber, puckPlace } from '@/lib/puzzles/round/puck'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cube, PuckMove } from '@/lib/core/types'

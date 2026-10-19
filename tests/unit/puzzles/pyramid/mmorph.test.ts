@@ -3,7 +3,7 @@ import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/core/cube'
 import { buildCube, cubeToEdit } from '@/lib/editor/edit'
 import { CENTER_HALF, CENTERS_TWO } from '@/lib/methods/pyramid/mmorph'
 import { isSmallCorner } from '@/lib/puzzles/pyramid/mmorph'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 import { validateCube } from '@/lib/editor/validate'
 

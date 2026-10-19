@@ -1,6 +1,7 @@
 import { solvedCube } from '@/lib/core/cube'
 import { applyMoves, turnAllowed } from '@/lib/core/turn'
-import type { CubeShape, Move, Vec3 } from '@/lib/core/types'
+import type { Move, Vec3 } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 
 /** fan2cube's names of the faces: H B A P G D = U D F B L R. */
 const LETTER: Record<string, string> = {

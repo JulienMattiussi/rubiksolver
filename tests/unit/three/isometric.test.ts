@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { FACE_COLOR, faceColorsOf, stickersOfColor } from '@/lib/core/cube'
-import { isGear, SHAPE_DIMS, type CubeShape, type CubeVariant } from '@/lib/core/types'
+import { isGear, SHAPE_DIMS, type CubeShape, type CubeVariant } from '@/lib/core/shapes'
 import { isPolyDrawn } from '@/three/core/polyDrawing'
 import { isometricDrawing } from '@/three/core/isometric'
 

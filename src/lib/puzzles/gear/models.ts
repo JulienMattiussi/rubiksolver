@@ -1,6 +1,6 @@
 import { faceColorsOf, solvedCube } from '../../core/cube'
 import { faceOfNormal } from '../../core/geometry'
-import { hasColoredClips, type CubeShape } from '../../core/types'
+import { hasColoredClips, type CubeShape } from '../../core/shapes'
 import type { PuzzleModel } from '../model'
 import { gearGuide } from '../guides'
 import { gearTurnsOf, plainFaces, scrambleGear, withGears } from './gear'

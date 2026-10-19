@@ -1,5 +1,5 @@
 import { isSolved } from '../../core/cube'
-import { parseMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import { moveSet } from '../../core/moveSet'
 import type { MethodPlan } from '../../solve/solverKit'
 import type { Cube } from '../../core/types'

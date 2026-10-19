@@ -4,7 +4,8 @@ import { solvePieces } from '../../solve/pieceSearch'
 import { parseDinoMoves, RAINBOW_CORNERS, RAINBOW_TRIANGLES } from '../../puzzles/shared/rainbow'
 import { canonicalSlice } from '../../puzzles/shared/skewbs'
 import { applyMoves as applyMovesTo } from '../../core/turn'
-import type { Cube, CubeShape, Cubie, RainbowMove, Turn, Vec3 } from '../../core/types'
+import type { Cube, Cubie, RainbowMove, Turn, Vec3 } from '../../core/types'
+import type { CubeShape } from '../../core/shapes'
 import { colorsOf } from '../../core/pieces'
 
 /**

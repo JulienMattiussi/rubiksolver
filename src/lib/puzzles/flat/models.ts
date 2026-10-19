@@ -1,4 +1,4 @@
-import type { CubeShape } from '../../core/types'
+import type { CubeShape } from '../../core/shapes'
 import type { PuzzleModel } from '../model'
 import { BY_PIECES } from '../../editor/entry'
 import { GHOST_TURNS, scrambleGhost, solvedGhost } from './ghost'

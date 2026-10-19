@@ -1,9 +1,7 @@
 import { FACE_SPEC, rotateN } from '../../core/geometry'
 import {
-  hasColoredClips,
   isGearMove,
   type Cube,
-  type CubeShape,
   type Cubie,
   type Face,
   type GearMove,
@@ -11,6 +9,7 @@ import {
   type Turn,
   type Vec3,
 } from '../../core/types'
+import { hasColoredClips, type CubeShape } from '../../core/shapes'
 
 /**
  * The Gear Cubes (Oskar van Deventer, 2009-2010, fan2cube.fr/gearcube1):

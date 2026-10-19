@@ -1,6 +1,6 @@
 import { cubeShape } from '@/lib/core/cube'
 import { STAR_RINGS } from '@/lib/puzzles/round/star'
-import { isStar } from '@/lib/core/types'
+import { isStar } from '@/lib/core/shapes'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { TURN_PAIR } from '@/components/ui/styles'

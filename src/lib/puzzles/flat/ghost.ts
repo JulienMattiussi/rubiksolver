@@ -1,5 +1,5 @@
 import { FACE_NORMAL, PLANE_NORMALS } from '../../core/geometry'
-import type { FaceLabels } from '../../core/moves'
+import type { FaceLabels } from '../../core/notation'
 import type { Color, Cube, Cubie, Face, GhostMove, GhostSide, Vec3 } from '../../core/types'
 
 /**

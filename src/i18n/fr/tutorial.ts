@@ -66,7 +66,7 @@ export const TUTORIAL_FR = {
         ? 'Effectue ce mouvement :'
         : `Effectue ces ${count} mouvements :`,
   /** A block the formula repeats: after its lead, or the whole of it. */
-  repeat: (times: number) => `Puis répète ${times} fois ces mouvements :`,
+  repeat: (times: number) => `Puis répète **${times} fois** ces mouvements :`,
   /** The round of a repeated block under way, followed by hand. */
   round: (n: number, times: number) => `(${n === 1 ? '1re' : `${n}e`} fois sur ${times})`,
   /** Moves after a sequence, one by one. */
@@ -76,7 +76,7 @@ export const TUTORIAL_FR = {
   thenSequence: 'Puis effectue cet enchaînement :',
   sequence: (count: number) => `Effectue cet enchaînement de ${count} mouvements :`,
   repeatAll: (count: number, times: number) =>
-    `Effectue ces ${count} mouvements, ${times} fois de suite :`,
+    `Effectue ces ${count} mouvements, **${times} fois** de suite :`,
   check: (piece: string) => `Vérifie les nouvelles positions : ${piece} est à sa place.`,
   checkAll: 'Vérifie les nouvelles positions : les pièces sont à leur place.',
   checkFigure: 'Vérifie la nouvelle figure que dessine le blanc en haut.',

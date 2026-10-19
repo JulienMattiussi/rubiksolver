@@ -1,7 +1,7 @@
 import { isSolved } from '../../core/cube'
 import { homesOf, withStickers } from '../../core/pieces'
 import { normalIndex } from '../../core/geometry'
-import { parseMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import { allTurnsOf } from '../../core/moveSet'
 import { solvePieces } from '../../solve/pieceSearch'
 import type { MethodPlan } from '../../solve/solverKit'

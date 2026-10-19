@@ -1,5 +1,6 @@
 import { FACE_COLOR } from './cube'
-import type { CubeColor, CubeVariant, Face, Sticker } from './types'
+import type { CubeColor, Face, Sticker } from './types'
+import type { CubeVariant } from './shapes'
 
 /**
  * Piece shapes: what turns a cube into a mirror cube.

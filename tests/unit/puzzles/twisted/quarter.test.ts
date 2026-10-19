@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { CORNER_CYCLE, CORNER_TWIST, EDGE_CYCLE, EDGE_FLIP } from '@/lib/methods/twisted/quarter'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { applyMoves, turnAllowed } from '@/lib/core/turn'
 import type { Cube, Move } from '@/lib/core/types'
 

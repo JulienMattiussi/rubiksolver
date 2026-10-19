@@ -1,4 +1,4 @@
-import type { FaceLabels } from '../core/moves'
+import type { FaceLabels } from '../core/notation'
 import type { Cube, Dims, Face, Move, Turn, Vec3 } from '../core/types'
 import type { GuideGroup, MoveDescription } from '../core/guide'
 import type { EntryMarks, EntryStep, PaintSpec } from '../editor/entry'

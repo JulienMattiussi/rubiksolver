@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { CUBE_HOLDS } from '@/lib/core/hold'
 import { formulaSegments } from '@/lib/teach/segments'
 

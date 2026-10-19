@@ -4,14 +4,8 @@ import { lookOf } from './modes/form'
 import { AXIS_ROTATIONS, normalIndex, vecKey } from '../core/geometry'
 import { layerTurnsOf } from '../core/moves'
 import { applyMove } from '../core/turn'
-import {
-  SHAPE_SHIFTS,
-  type Color,
-  type Cube,
-  type CubeShape,
-  type Cubie,
-  type Vec3,
-} from '../core/types'
+import { type Color, type Cube, type Cubie, type Vec3 } from '../core/types'
+import { SHAPE_SHIFTS, type CubeShape } from '../core/shapes'
 
 /**
  * Slot and placement tables backing the guided editor (see editor.ts).

@@ -1,4 +1,4 @@
-import type { CubeShape } from '../../core/types'
+import type { CubeShape } from '../../core/shapes'
 import { turnDims } from '../../core/cube'
 import { FACE_SPEC, faceAxis } from '../../core/geometry'
 import { moveSlab } from '../../core/turn'

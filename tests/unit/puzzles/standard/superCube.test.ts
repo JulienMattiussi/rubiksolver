@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { cubeShape, isSolved, solvedCube } from '@/lib/core/cube'
 import { O_CORNER, O_EDGE, TURN_PAIR } from '@/lib/methods/standard/superCube'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { withoutBorders } from '@/lib/puzzles/standard/superCube'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cube, Move } from '@/lib/core/types'

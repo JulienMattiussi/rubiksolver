@@ -1,6 +1,6 @@
 import { FACE_SPEC } from '../../core/geometry'
 import { applyMove } from '../../core/turn'
-import { AMOUNT_SUFFIX, type FaceLabels } from '../../core/moves'
+import { AMOUNT_SUFFIX, type FaceLabels } from '../../core/notation'
 import type { Cube, Face, Move } from '../../core/types'
 import type { MoveDescription } from '../../core/guide'
 

@@ -1,6 +1,7 @@
 import { solvedCube } from '../../core/cube'
 import { applyMove } from '../../core/turn'
-import { SHAPE_DIMS, type Cube, type Face, type Move } from '../../core/types'
+import { type Cube, type Face, type Move } from '../../core/types'
+import { SHAPE_DIMS } from '../../core/shapes'
 import { purpleBoxed, purpleTurns } from './purple'
 
 /**

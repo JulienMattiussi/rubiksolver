@@ -9,7 +9,7 @@ import {
   parseCopterMoves,
 } from '@/lib/puzzles/diagonal/copter'
 import { COPTER3_FORMULAS, COPTER_FORMULAS } from '@/lib/methods/diagonal/copter'
-import { NOTATION_FR, NOTATION_US } from '@/lib/core/moves'
+import { NOTATION_FR, NOTATION_US } from '@/lib/core/notation'
 
 /** fan2cube's face letters. */
 const FACE: Record<string, string> = {

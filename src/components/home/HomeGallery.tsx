@@ -1,4 +1,4 @@
-import { CUBE_KINDS, cubeCategory, HOME_KINDS, SHAPE_LABEL, type CubeKind } from '@/lib/core/types'
+import { CUBE_KINDS, cubeCategory, HOME_KINDS, SHAPE_LABEL, type CubeKind } from '@/lib/core/shapes'
 import { useI18n } from '@/i18n/i18nStore'
 import { goTo } from '@/store/router'
 import { PuzzleIcon } from '@/components/picker/PuzzleIcon'

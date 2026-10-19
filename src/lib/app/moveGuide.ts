@@ -5,8 +5,10 @@ import { isFaceTurn, kindOf } from '../core/moveKind'
 import { advancedMovesFor, FACES, movesFor, sameLayer } from '../core/moves'
 import { MODELS } from '../puzzles/models'
 import { methodTurns } from '../solve/solver'
-import { isFaceMove, SHAPE_DIMS } from '../core/types'
-import type { CubeShape, Dims, Face, Move, Turn } from '../core/types'
+import { isFaceMove } from '../core/types'
+import { SHAPE_DIMS } from '../core/shapes'
+import type { Dims, Face, Move, Turn } from '../core/types'
+import type { CubeShape } from '../core/shapes'
 
 /**
  * The move guide: every turn a puzzle has, laid out to be learned. Each

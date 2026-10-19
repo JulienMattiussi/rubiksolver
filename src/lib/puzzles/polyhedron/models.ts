@@ -1,4 +1,4 @@
-import type { CubeShape } from '../../core/types'
+import type { CubeShape } from '../../core/shapes'
 import type { PuzzleModel } from '../model'
 import { FTO_TURNS, scrambleFto, solvedFto } from './fto'
 import {

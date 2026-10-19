@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 import { CUBE_HOLDS } from '@/lib/core/hold'
 import { arrowsOf } from '@/lib/teach/scene'

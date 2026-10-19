@@ -1,5 +1,6 @@
 import { COPTER_TURNS, scrambleCopter, solvedCurvyCopter, solvedCurvyCopter3 } from './copter'
-import type { CopterMove, CubeShape } from '../../core/types'
+import type { CopterMove } from '../../core/types'
+import type { CubeShape } from '../../core/shapes'
 import { isSolved, solvedCube } from '../../core/cube'
 import type { PuzzleModel } from '../model'
 import { BY_PIECES } from '../../editor/entry'

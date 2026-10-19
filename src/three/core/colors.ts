@@ -1,4 +1,5 @@
-import type { Color, CubeVariant } from '@/lib/core/types'
+import type { Color } from '@/lib/core/types'
+import type { CubeVariant } from '@/lib/core/shapes'
 
 /** Sticker colors of the physical cube (standard Western scheme). */
 export const COLOR_HEX: Record<Color, string> = {

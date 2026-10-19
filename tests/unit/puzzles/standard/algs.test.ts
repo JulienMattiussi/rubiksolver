@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
 import { applyMoves } from '@/lib/core/turn'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import {
   ANTISUNE,
   CMLL_ADJACENT,

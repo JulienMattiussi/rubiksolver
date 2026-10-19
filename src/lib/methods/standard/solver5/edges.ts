@@ -1,6 +1,6 @@
 import { solvedCube } from '../../../core/cube'
 import { faceOfNormal, mapVec, vecKey } from '../../../core/geometry'
-import { parseMoves } from '../../../core/moves'
+import { parseMoves } from '../../../core/notation'
 import { applyMove, applyMoves } from '../../../core/turn'
 import type { Color, Cube, Cubie, Face, Move, Vec3 } from '../../../core/types'
 import { centersDone } from './centers'

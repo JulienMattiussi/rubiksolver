@@ -1,5 +1,6 @@
 import { isSolved, solvedCube } from '../../core/cube'
-import { invertMoves, parseMoves } from '../../core/moves'
+import { invertMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import { allTurnsOf, moveSet } from '../../core/moveSet'
 import { applyMoves } from '../../core/turn'
 import type { MethodPlan } from '../../solve/solverKit'

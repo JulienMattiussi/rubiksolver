@@ -1,6 +1,7 @@
 import type { LayerKind } from '@/lib/core/moves'
 import type { PyraLayer } from '@/lib/puzzles/pyramid/pyraminx'
-import type { GhostSide, MegaFace, PyraVertex, RainbowCorner, CubeVariant } from '@/lib/core/types'
+import type { GhostSide, MegaFace, PyraVertex, RainbowCorner } from '@/lib/core/types'
+import type { CubeVariant } from '@/lib/core/shapes'
 import {
   CORNER_NAMES_FR,
   describeFr,

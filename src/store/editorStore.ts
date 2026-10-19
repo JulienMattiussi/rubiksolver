@@ -28,7 +28,8 @@ import {
 import { tablesFor } from '@/lib/editor/editorTables'
 import { findFaces } from '@/workers/findFaces'
 import { validateCube, type ValidationError } from '@/lib/editor/validate'
-import type { Color, Cube, CubeShape, Vec3 } from '@/lib/core/types'
+import type { Color, Cube, Vec3 } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import { useCube } from './cubeStore'
 
 /** Shape of the cube being edited (the game's cube). */

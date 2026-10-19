@@ -1,7 +1,7 @@
 import { solvedCube } from '../../../core/cube'
 import { colorsOf } from '../../../core/pieces'
 import { applyMoves } from '../../../core/turn'
-import { parseMoves } from '../../../core/moves'
+import { parseMoves } from '../../../core/notation'
 import { edgeOriented } from '../pieces3'
 import { to3x3 } from './project'
 import type { Color, Cube, Cubie, Move } from '../../../core/types'

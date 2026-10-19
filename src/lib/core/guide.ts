@@ -1,7 +1,6 @@
 import { amountsFor } from './moves'
 import type {
   CopterEdge,
-  CubeShape,
   Face,
   GhostSide,
   MegaFace,
@@ -11,6 +10,7 @@ import type {
   RingMove,
   Turn,
 } from './types'
+import type { CubeShape } from './shapes'
 import type { PyraLayer } from '../puzzles/pyramid/pyraminx'
 
 /**

@@ -1,5 +1,6 @@
 import { AXIS_ROTATIONS, FACE_NORMAL, faceOfNormal } from '../core/geometry'
-import { formatMoves, invertMoves } from '../core/moves'
+import { invertMoves } from '../core/moves'
+import { formatMoves } from '../core/notation'
 import type { Face, Turn, Vec3 } from '../core/types'
 
 /**

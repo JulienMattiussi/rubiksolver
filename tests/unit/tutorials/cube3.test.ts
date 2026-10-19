@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
-import { formatMoves, parseMoves } from '@/lib/core/moves'
+import { formatMoves, parseMoves } from '@/lib/core/notation'
 import { colorAt } from '@/lib/core/pieces'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cube, Turn } from '@/lib/core/types'

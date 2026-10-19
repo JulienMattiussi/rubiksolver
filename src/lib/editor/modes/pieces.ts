@@ -4,7 +4,8 @@ import { stickerId, tablesFor } from '../editorTables'
 import { normalIndex } from '../../core/geometry'
 import { layerTurnsOf } from '../../core/moves'
 import { applyMove } from '../../core/turn'
-import type { Color, Cube, CubeShape, Cubie } from '../../core/types'
+import type { Color, Cube, Cubie } from '../../core/types'
+import type { CubeShape } from '../../core/shapes'
 
 /**
  * Entry piece by piece (a model's paint `by: 'pieces'`), for a puzzle whose

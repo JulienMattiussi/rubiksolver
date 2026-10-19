@@ -1,7 +1,7 @@
 import { isSolved } from '../../core/cube'
 import { homesOf } from '../../core/pieces'
 import { normalIndex } from '../../core/geometry'
-import { NOTATION_FR } from '../../core/moves'
+import { NOTATION_FR } from '../../core/notation'
 import type { MoveSet } from '../../core/moveSet'
 import { solvePieces } from '../../solve/pieceSearch'
 import type { MethodPlan } from '../../solve/solverKit'

@@ -9,7 +9,8 @@ import { sightOf } from '@/lib/editor/modes/faceViews'
 const camoViewsOf = (cube: Parameters<typeof sightOf>[0]) => sightOf(cube, CAMO_FACE_ENTRY.grid)
 import { entryOf } from '@/lib/editor/entry'
 import { EXCHANGE, evenWings, WING_PARITY } from '@/lib/methods/tower/camo'
-import { formatMove, layerTurnsOf, parseMoves, scrambleTurns } from '@/lib/core/moves'
+import { layerTurnsOf, scrambleTurns } from '@/lib/core/moves'
+import { formatMove, parseMoves } from '@/lib/core/notation'
 import { applyMoves, turnAllowed } from '@/lib/core/turn'
 import { seededRng } from '../../../helpers'
 

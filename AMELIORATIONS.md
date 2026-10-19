@@ -52,3 +52,24 @@ saisie) marche, mais il a de nombreuses lacunes, jamais passées en revue.
 **Piste.** Faire le tour de l'app sur un petit écran (accueil, sélecteur,
 pad de coups, guide, saisie et ses phases, résolution), lister ce qui gêne,
 puis reprendre la mise en page écran par écran.
+
+## Les puzzles « Rainbow » : la coupe dans le coup
+
+**Constat.** Le Rainbow, le Dino Cube, le Rex Cube, le Skewb, le Master
+Skewb et le FTO tournent tous d'un tiers de tour autour d'une diagonale et
+partagent un type de coup (`RainbowMove`) et un moteur
+(`lib/puzzles/shared/rainbow.ts`). Ce qui les distingue, la profondeur de
+la coupe, est écrit dans chaque coup par des drapeaux (`dino`, `rex`,
+`skewb`, `master`, `fto`), que lisent le moteur (`rainbowTurns`), la
+notation, le pad Rainbow, le guide et ses phrases : la dernière trace du
+« quel puzzle est-ce ? » dans le code commun, cachée dans la donnée. Un
+nouveau puzzle de cette famille demande un drapeau de plus et de toucher
+une douzaine de fichiers.
+
+**Piste.** Un coup neutre (`{ triangle, amount, slice? }`) et la coupe
+déclarée par le modèle (`cut`), que le moteur lit sur le puzzle :
+`applyRainbowMove` et `rainbowTurns` recevraient le puzzle (ou sa coupe).
+Coût : réécrire les formules et les tests des six méthodes (l'effet de
+chaque formule fan2cube), la notation (les lettres du Dino), le pad et le
+guide. Aucun gain visible ; à faire avant d'ajouter un puzzle de cette
+famille.

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
-import { formatMoves, parseMoves, scramble } from '@/lib/core/moves'
+import { scramble } from '@/lib/core/moves'
+import { formatMoves, parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cube, Turn } from '@/lib/core/types'
 import { formulaUnderWay } from '@/lib/teach/keep'

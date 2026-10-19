@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { cubeShape, isSolved, solvedCube } from '@/lib/core/cube'
 import { CENTER_TURN } from '@/lib/methods/diagonal/fisher'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 
 const SOLVED = solvedCube('fisher')

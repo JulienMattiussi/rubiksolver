@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { TOWER443_PLAN, TOWER445_PLAN } from '@/lib/methods/tower/tower44'
 import { TOWER554_PLAN } from '@/lib/methods/tower/tower554'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { buildSteps, type MethodPlan } from '@/lib/solve/solverKit'
 import { applyMoves } from '@/lib/core/turn'
-import type { CubeShape } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 
 /** The big towers' parities: an inner layer's half turn, alone or after a
  *  face's, leaves them where reducing cannot reach without one. */

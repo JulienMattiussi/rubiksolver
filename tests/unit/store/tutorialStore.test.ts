@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { stateKey } from '@/lib/core/cube'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { tutorialFor } from '@/lib/tutorials/registry'
 import { selectBusy, useCube } from '@/store/cubeStore'
 import { useTutorialStore } from '@/store/tutorialStore'

@@ -1,5 +1,6 @@
 import { applyMoves } from '../../../core/turn'
-import { invertMoves, parseMoves } from '../../../core/moves'
+import { invertMoves } from '../../../core/moves'
+import { parseMoves } from '../../../core/notation'
 import { colorAt, hasColors } from '../../../core/pieces'
 import { faceGenerators, OUTER_GENERATORS, search, solveWithAlgs } from '../../../solve/solverKit'
 import { centersDone } from './centers'

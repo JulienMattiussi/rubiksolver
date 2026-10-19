@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef } from 'react'
 import { Check } from 'lucide-react'
 import { cubeDims, cubeShape } from '@/lib/core/cube'
-import { formatMove } from '@/lib/core/moves'
+import { formatMove } from '@/lib/core/notation'
 import { solveProgress, walkFocus } from '@/lib/solve/progress'
 import type { SolveStep } from '@/lib/solve/solver'
 import { stepName } from '@/i18n/translations'

@@ -55,14 +55,14 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
       : count === 1
         ? 'Play this move:'
         : `Play these ${count} moves:`,
-  repeat: (times: number) => `Then play these moves ${times} times:`,
+  repeat: (times: number) => `Then play these moves **${times} times**:`,
   round: (n: number, times: number) => `(round ${n} of ${times})`,
   thenPlay: (count: number) =>
     count === 1 ? 'Then play this move:' : `Then play these ${count} moves:`,
   thenSequence: 'Then play this sequence:',
   sequence: (count: number) => `Play this sequence of ${count} moves:`,
   repeatAll: (count: number, times: number) =>
-    `Play these ${count} moves, ${times} times in a row:`,
+    `Play these ${count} moves, **${times} times** in a row:`,
   check: (piece: string) => `Check the new positions: ${piece} is in its place.`,
   checkAll: 'Check the new positions: the pieces are in their place.',
   checkFigure: 'Check the new figure the white draws on top.',

@@ -1,6 +1,6 @@
 import { describeMove } from '@/lib/app/moveGuide'
 import { cubeDims, cubeShape } from '@/lib/core/cube'
-import { formatMove } from '@/lib/core/moves'
+import { formatMove } from '@/lib/core/notation'
 import type { Hold, HoldFrame } from '@/lib/core/hold'
 import type { Cube, Turn } from '@/lib/core/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'

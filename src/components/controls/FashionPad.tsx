@@ -1,5 +1,5 @@
 import { cubeDims, cubeShape } from '@/lib/core/cube'
-import { formatMove } from '@/lib/core/moves'
+import { formatMove } from '@/lib/core/notation'
 import { describeMove } from '@/lib/app/moveGuide'
 import { turnAllowed } from '@/lib/core/turn'
 import type { Face, Move } from '@/lib/core/types'

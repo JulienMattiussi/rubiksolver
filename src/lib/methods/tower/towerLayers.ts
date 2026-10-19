@@ -1,19 +1,14 @@
 import { faceColorsOf, isSolved, solvedCube } from '../../core/cube'
 import { normalIndex, vecKey } from '../../core/geometry'
-import { invertMoves, parseMoves } from '../../core/moves'
+import { invertMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import { allTurnsOf, moveSet, type MoveSet } from '../../core/moveSet'
 import { atHome, homesOf } from '../../core/pieces'
 import { solvePieces } from '../../solve/pieceSearch'
 import type { MethodPlan, StepSpec } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
-import {
-  SHAPE_SHIFTS,
-  type Cube,
-  type Cubie,
-  type CubeShape,
-  type Move,
-  type Vec3,
-} from '../../core/types'
+import { type Cube, type Cubie, type Move, type Vec3 } from '../../core/types'
+import { SHAPE_SHIFTS, type CubeShape } from '../../core/shapes'
 import {
   CYCLE_EDGES,
   DESCEND_CORNER,

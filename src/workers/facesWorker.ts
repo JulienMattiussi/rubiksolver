@@ -3,7 +3,7 @@
 import '@/lib/core/cube'
 import { stepOf } from '@/lib/editor/entry'
 import type { Found, Views } from '@/lib/editor/modes/faceViews'
-import type { CubeShape } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 
 /** A puzzle's four faces entered, to find its state from. */
 export interface FacesRequest {

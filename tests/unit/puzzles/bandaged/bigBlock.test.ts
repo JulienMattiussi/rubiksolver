@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
-import { formatMove, scrambleTurns } from '@/lib/core/moves'
+import { scrambleTurns } from '@/lib/core/moves'
+import { formatMove } from '@/lib/core/notation'
 import { applyMoves, turnAllowed } from '@/lib/core/turn'
 import type { Face, Move } from '@/lib/core/types'
 import { formsOfBlocks } from '@/lib/puzzles/bandaged/bonds'

@@ -1,4 +1,5 @@
-import type { CubeShape, Cubie } from '@/lib/core/types'
+import type { Cubie } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import type { PolyDrawing } from '../../core/polyDrawing'
 import { barrelPolygons, barrelThumbnail } from './barrelGeometry'
 import { dinoCylPolygons, dinoCylThumbnail } from './dinoCylGeometry'

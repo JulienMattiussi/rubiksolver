@@ -3,7 +3,8 @@ import { homesOf } from '../core/pieces'
 import { allTurnsOf } from '../core/moveSet'
 import { solvePieces } from './pieceSearch'
 import type { MethodPlan } from './solverKit'
-import type { Cube, CubeShape, Turn } from '../core/types'
+import type { Cube, Turn } from '../core/types'
+import type { CubeShape } from '../core/shapes'
 
 /**
  * Optimal solving of the puzzles small enough to search whole: the 1x2x3

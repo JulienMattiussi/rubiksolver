@@ -1,5 +1,6 @@
 import { CUBE_HOLDS } from '../../core/hold'
-import { parseMoves, simplifyMoves } from '../../core/moves'
+import { simplifyMoves } from '../../core/moves'
+import { parseMoves } from '../../core/notation'
 import { colorAt, hasColors, sameAt } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
 import type { Color, Cube, Move, Vec3 } from '../../core/types'

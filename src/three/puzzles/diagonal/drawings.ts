@@ -1,4 +1,4 @@
-import type { CubeShape } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import type { PolyDrawing } from '../../core/polyDrawing'
 import { dinoPolygons } from '../shared/dinoGeometry'
 import { fisherPolygons, fisherThumbnail } from './fisherGeometry'

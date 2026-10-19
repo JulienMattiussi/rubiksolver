@@ -69,7 +69,8 @@ import { reduction5Plan } from '../methods/standard/solver5/steps'
 import { super4Plan, super5Plan } from '../methods/standard/superCube'
 import { reduction6Plan } from '../methods/standard/solver6/steps'
 import { buildSteps, planOutline, type MethodPlan, type SolveStep } from './solverKit'
-import type { Cube, CubeShape, Turn } from '../core/types'
+import type { Cube, Turn } from '../core/types'
+import type { CubeShape } from '../core/shapes'
 
 export type { SolveStep } from './solverKit'
 

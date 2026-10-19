@@ -1,4 +1,4 @@
-import type { CubeShape } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import type { PolyDrawing } from '../../core/polyDrawing'
 import { camoPolygons } from './camoGeometry'
 import { tower234Polygons } from './tower234Geometry'

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { isBoxed, isSolved, solvedCube } from '@/lib/core/cube'
 import { applyMove, turnAllowed } from '@/lib/core/turn'
-import { formatMove, invertMoves } from '@/lib/core/moves'
+import { invertMoves } from '@/lib/core/moves'
+import { formatMove } from '@/lib/core/notation'
 import { DESCEND, PIVOT, SWAP, TOWER_PLAN } from '@/lib/methods/tower/tower'
 import type { Cube, Turn } from '@/lib/core/types'
 

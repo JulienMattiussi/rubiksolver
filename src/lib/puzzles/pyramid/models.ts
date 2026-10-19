@@ -1,5 +1,6 @@
 import { cubeOrientations, solvedCube } from '../../core/cube'
-import type { Cube, CubeShape, PyraShape } from '../../core/types'
+import type { Cube } from '../../core/types'
+import type { CubeShape, PyraShape } from '../../core/shapes'
 import type { PuzzleModel } from '../model'
 import { pyraGuide } from '../guides'
 import { BY_PIECES, PICK_FORM } from '../../editor/entry'

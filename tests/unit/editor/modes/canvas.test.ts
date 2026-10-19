@@ -16,7 +16,7 @@ import {
 } from '@/lib/editor/modes/canvas'
 import { heldAs } from '@/lib/editor/modes/faceViews'
 import { stepOf } from '@/lib/editor/entry'
-import type { CubeShape } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import { seededRng } from '../../../helpers'
 
 const entryOf = (shape: CubeShape) => stepOf(shape, 'canvas')!.faces

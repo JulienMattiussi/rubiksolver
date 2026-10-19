@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/core/cube'
 import { wingCycles } from '@/lib/methods/pyramid/pyraminx4'
-import { formatMoves, NOTATION_FR, NOTATION_US } from '@/lib/core/moves'
+import { formatMoves, NOTATION_FR, NOTATION_US } from '@/lib/core/notation'
 import { pyraTurnsOf } from '@/lib/puzzles/pyramid/pyraminx'
 import { parsePyraMoves } from '@/lib/puzzles/pyramid/pyraNotation'
 import { applyMoves, turnedBy } from '@/lib/core/turn'

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { isBoxed, solvedCube } from '@/lib/core/cube'
 import { TOWER234_FORMULAS as F } from '@/lib/methods/tower/tower234'
-import { formatMove, movesFor, NOTATION_US, parseMoves } from '@/lib/core/moves'
+import { movesFor } from '@/lib/core/moves'
+import { formatMove, NOTATION_US, parseMoves } from '@/lib/core/notation'
 import { applyMoves, turnAllowed } from '@/lib/core/turn'
 import type { Cube, Move } from '@/lib/core/types'
 

@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react'
-import type { CubeShape } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import { piecesLeft } from '@/lib/editor/modes/joints'
 import { useI18n } from '@/i18n/i18nStore'
 import { useEditor } from '@/store/editorStore'

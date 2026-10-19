@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
 import { FACE_NORMAL } from '@/lib/core/geometry'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 import { termStep } from '@/lib/teach/tutorial'
 import { tutorialFor } from '@/lib/tutorials/registry'

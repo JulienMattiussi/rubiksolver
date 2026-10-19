@@ -1,6 +1,6 @@
 import { FACE_COLOR } from '../../core/cube'
 import { FACE_NORMAL, mapVec } from '../../core/geometry'
-import type { FaceLabels } from '../../core/moves'
+import type { FaceLabels } from '../../core/notation'
 import type { CopterEdge, CopterMove, Cube, Cubie, Face, Vec3 } from '../../core/types'
 
 /**

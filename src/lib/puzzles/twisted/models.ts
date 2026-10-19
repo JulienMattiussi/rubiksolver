@@ -1,6 +1,7 @@
 import { describeFashionMove, fashionTurns, formatFashionMove, scrambleFashion } from './fashion'
 import { latchTurns, scrambleLatch, withLatchMark, withoutLatchMark } from './latch'
-import type { CubeShape, Move } from '../../core/types'
+import type { Move } from '../../core/types'
+import type { CubeShape } from '../../core/shapes'
 import { colorsSolved, solvedCube } from '../../core/cube'
 import type { PuzzleModel } from '../model'
 import { quarterTurns, scrambleQuarter, withFaceMarks, withTurnedFaces } from './quarter'

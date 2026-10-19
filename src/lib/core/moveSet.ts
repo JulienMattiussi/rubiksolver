@@ -1,6 +1,8 @@
 import { MODELS } from '../puzzles/models'
-import { movesFor, parseMoves, sameLayer } from './moves'
-import type { CubeShape, Move, Turn } from './types'
+import { movesFor, sameLayer } from './moves'
+import { parseMoves } from './notation'
+import type { Move, Turn } from './types'
+import type { CubeShape } from './shapes'
 
 /**
  * The turns a solving step is allowed to use, e.g. `<M, U>` for the end of

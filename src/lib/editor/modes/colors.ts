@@ -9,7 +9,8 @@ import {
 } from '../editorTables'
 import { cubeToEdit, emptyEdit, progress } from '../edit'
 import type { EditStickers } from '../entry'
-import type { Color, Cube, CubeShape } from '../../core/types'
+import type { Color, Cube } from '../../core/types'
+import type { CubeShape } from '../../core/shapes'
 
 /**
  * Entry by colors (pure, no React / three.js): the stickers painted one by

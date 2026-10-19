@@ -6,11 +6,12 @@ import { formulaSegments } from '@/lib/teach/segments'
 import type { TutorialView } from '@/hooks/useTutorial'
 import { useView } from '@/store/viewStore'
 import { useTutorialTrack } from '@/store/tutorialTrack'
-import { formatMove } from '@/lib/core/moves'
+import { formatMove } from '@/lib/core/notation'
 import { HIGHLIGHT, PLACE } from '@/three/core/colors'
 import { FormulaMoves } from './FormulaMoves'
 import { Toned } from './Toned'
 import { liftFor } from './liftFor'
+import { Bolded } from './Bolded'
 import { useTutorialTexts } from './useTutorialTexts'
 
 /**
@@ -88,7 +89,7 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
               : tx.thenSequence
       return (
         <div key={k} className={k > 0 ? 'mt-1.5' : ''}>
-          {text}
+          <Bolded text={text} />
           {round}
           <FormulaMoves
             cube={cube}

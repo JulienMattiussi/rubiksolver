@@ -1,5 +1,6 @@
 import type { Hold, HoldFrame } from '../core/hold'
-import type { Color, Cube, Cubie, CubeVariant, Turn, Vec3 } from '../core/types'
+import type { Color, Cube, Cubie, Turn, Vec3 } from '../core/types'
+import type { CubeVariant } from '../core/shapes'
 
 /**
  * The tutorial: a puzzle solved a step at a time by the user, each step a

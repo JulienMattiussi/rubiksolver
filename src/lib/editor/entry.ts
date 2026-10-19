@@ -1,4 +1,5 @@
-import type { Color, Cube, CubeShape, Cubie, Vec3 } from '../core/types'
+import type { Color, Cube, Cubie, Vec3 } from '../core/types'
+import type { CubeShape } from '../core/shapes'
 import type { FaceEntry } from './modes/faceViews'
 import { MODELS } from '../puzzles/models'
 

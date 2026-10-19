@@ -5,7 +5,8 @@ import { buildCube, cubeToEdit } from '@/lib/editor/edit'
 import { scramble } from '@/lib/core/moves'
 import { solve } from '@/lib/solve/solver'
 import { validateCube } from '@/lib/editor/validate'
-import type { Color, CubeShape } from '@/lib/core/types'
+import type { Color } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import { seededRng, twistedCorner, twistedCorner2 } from '../../helpers'
 
 /** Rebuild a cube from solved with some stickers recolored. */

@@ -6,14 +6,8 @@ import { applyMove } from '@/lib/core/turn'
 import { invertMoves, scrambleTurns } from '@/lib/core/moves'
 import { stepEnd, stepStart } from '@/lib/solve/progress'
 import { methodsFor, type MethodId, type SolveStep } from '@/lib/solve/solver'
-import {
-  SHAPE_SCRAMBLE,
-  supportsMirror,
-  type Cube,
-  type CubeShape,
-  type CubeVariant,
-  type Turn,
-} from '@/lib/core/types'
+import { type Cube, type Turn } from '@/lib/core/types'
+import { SHAPE_SCRAMBLE, supportsMirror, type CubeShape, type CubeVariant } from '@/lib/core/shapes'
 
 interface CubeStore {
   /** Logical cube state; its shape is derived via `cubeShape(cube)`. */

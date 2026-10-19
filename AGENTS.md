@@ -96,9 +96,11 @@ gardent `Move`.
 ```
 src/
 ├── lib/                 # Logique pure, zéro React / zéro three.js (entièrement testée)
-│   ├── core/            # Le moteur : types (CubeShape, Move, Turn...), geometry (normales, rotations entières),
+│   ├── core/            # Le moteur : types (Move, Turn, Cubie...), shapes (CubeShape et les tables lues sur les
+│   │                    #   cartes : SHAPE_DIMS, variantes, choix du sélecteur), geometry (normales, rotations entières),
 │   │                    #   cube (construction, reconnaissance, résolu, boîte, orientations), pieces, turn (coups,
-│   │                    #   coups permis, animation), moves (notation, coups d'une forme, mélange), moveSet,
+│   │                    #   coups permis, animation), moves (coups d'une forme, mélange), notation (écrire et lire
+│   │                    #   un coup : US, FR), moveSet,
 │   │                    #   moveKind (les sortes de coups, MoveKind), shape (miroir), pieces (poseOf, sameAt,
 │   │                    #   withStickers : prédicats de pièces), guide (sections du guide, MoveDescription), hold (les tenues d'un modèle, HoldFrame, déduites de ses faces : un coup lu depuis
 │   │                    #   la face tenue devant)
@@ -213,7 +215,7 @@ Holey Megaminx du Megaminx, reprend simplement celui de son parent) :
   et/ou coups larges, sur tout axe d'au moins 3 couches) ; le pad grise les
   faces sans cette sorte de couche. Sa clé est l'identifiant de forme
   (`CubeShape` est l'ensemble des clés du catalogue) ; les tables de
-  `core/types.ts` (`SHAPE_DIMS`, `SHAPE_LABEL`...) en sont dérivées ;
+  `core/shapes.ts` (`SHAPE_DIMS`, `SHAPE_LABEL`...) en sont dérivées ;
 - **son modèle** (`lib/puzzles/<catégorie>/models.ts`, type `PuzzleModel`),
   s'il s'écarte d'un cuboïde sur sa grille : construction, mécanisme, coups
   permis, boîte, test de résolution, symétries, coups et mélange d'un puzzle

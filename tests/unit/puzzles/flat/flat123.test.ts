@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube, stateKey } from '@/lib/core/cube'
 import { applyMove, applyMoves } from '@/lib/core/turn'
-import { formatMoves, movesFor } from '@/lib/core/moves'
+import { movesFor } from '@/lib/core/moves'
+import { formatMoves } from '@/lib/core/notation'
 import { solveExhaustively } from '@/lib/solve/exhaustive'
 import { validateCube } from '@/lib/editor/validate'
 

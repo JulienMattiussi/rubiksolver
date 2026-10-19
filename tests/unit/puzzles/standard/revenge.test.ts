@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatMove, NOTATION_FR, NOTATION_US } from '@/lib/core/moves'
+import { formatMove, NOTATION_FR, NOTATION_US } from '@/lib/core/notation'
 import type { Move } from '@/lib/core/types'
 
 const R: Move = { face: 'R', amount: 1 }

@@ -4,7 +4,6 @@ import { turnAllowed } from '@/lib/core/turn'
 import { FACE_NORMAL, faceOfNormal, mapVec } from '@/lib/core/geometry'
 import {
   advancedMovesFor,
-  formatMove,
   FACES,
   layerKindOf,
   layerMove,
@@ -12,6 +11,7 @@ import {
   sameLayer,
   type LayerKind,
 } from '@/lib/core/moves'
+import { formatMove } from '@/lib/core/notation'
 import type { Face, Move } from '@/lib/core/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'

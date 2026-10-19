@@ -1,5 +1,6 @@
 import { cubeShape, solvedCube } from '../core/cube'
-import type { Cube, CubeShape } from '../core/types'
+import type { Cube } from '../core/types'
+import type { CubeShape } from '../core/shapes'
 import {
   entryOf,
   stepOf,

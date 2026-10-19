@@ -1,5 +1,6 @@
 import type * as THREE from 'three'
-import type { Color, CubeShape, Cubie, Vec3 } from '@/lib/core/types'
+import type { Color, Cubie, Vec3 } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import type { Joint } from '@/lib/editor/modes/joints'
 import type { Toggles } from '@/lib/editor/entry'
 import type { DecalPlace, PiecePolygon } from './polygons'

@@ -1,6 +1,7 @@
 import { MOVE_KINDS } from '../puzzles/moveKinds'
-import type { FaceLabels } from './moves'
-import type { Cube, CubeShape, Dims, Move, Turn } from './types'
+import type { FaceLabels } from './notation'
+import type { Cube, Dims, Move, Turn } from './types'
+import type { CubeShape } from './shapes'
 import type { GuideSight, MoveDescription } from './guide'
 
 /**

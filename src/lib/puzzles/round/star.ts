@@ -1,15 +1,7 @@
 import { HEX_NORMALS } from '../../core/geometry'
-import type { FaceLabels } from '../../core/moves'
-import type {
-  Color,
-  Cube,
-  Cubie,
-  RingMove,
-  StarMove,
-  StarShape,
-  Sticker,
-  Vec3,
-} from '../../core/types'
+import type { FaceLabels } from '../../core/notation'
+import type { Color, Cube, Cubie, RingMove, StarMove, Sticker, Vec3 } from '../../core/types'
+import type { StarShape } from '../../core/shapes'
 
 /**
  * The 2-Super Star Prism (a Rubik's UFO shaped as a six-pointed star): two

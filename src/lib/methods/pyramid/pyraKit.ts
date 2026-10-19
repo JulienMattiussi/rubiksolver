@@ -1,7 +1,7 @@
 import { colorsOf, cubieAt, homesOf } from '../../core/pieces'
 import { solvePieces } from '../../solve/pieceSearch'
 import { mapVec, normalIndex, TET_NORMALS } from '../../core/geometry'
-import { NOTATION_FR } from '../../core/moves'
+import { NOTATION_FR } from '../../core/notation'
 import type { MoveSet } from '../../core/moveSet'
 import { PYRA_CORNERS, PYRA_VERTICES } from '../../puzzles/pyramid/pyraminx'
 import { parsePyraMoves } from '../../puzzles/pyramid/pyraNotation'

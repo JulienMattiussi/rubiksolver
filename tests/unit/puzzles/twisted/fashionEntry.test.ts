@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isBoxed, solvedCube } from '@/lib/core/cube'
-import { parseMoves } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 import { lookOf } from '@/lib/editor/modes/form'
 import { stepOf } from '@/lib/editor/entry'

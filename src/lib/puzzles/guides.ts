@@ -1,20 +1,18 @@
 import { layerRows, type GuideGroup } from '../core/guide'
 import { FACES } from '../core/moves'
 import type {
-  CubeShape,
   Face,
   GearMove,
   MegaMove,
   PuckMove,
   PuckSteps,
   PyraMove,
-  PyraShape,
   RainbowCorner,
   RainbowMove,
   RingMove,
   StarMove,
-  StarShape,
 } from '../core/types'
+import type { CubeShape, PyraShape, StarShape } from '../core/shapes'
 import { COPTER_TURNS } from './diagonal/copter'
 import { GHOST_TURNS } from './flat/ghost'
 import { FTO_TURNS } from './polyhedron/fto'

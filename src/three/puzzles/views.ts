@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react'
-import type { CubeShape } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import type { IsoDrawing } from '@/three/core/isoKit'
 import type { OwnPieceProps } from '@/three/core/Cubie'
 import { GearEditView } from './gear/GearEditView'

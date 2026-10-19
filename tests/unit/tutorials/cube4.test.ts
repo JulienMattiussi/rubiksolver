@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
-import { parseMoves, scramble } from '@/lib/core/moves'
+import { scramble } from '@/lib/core/moves'
+import { parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cube } from '@/lib/core/types'
 import { OLL_PARITY, PLL_PARITY } from '@/lib/methods/standard/solver4/parity'

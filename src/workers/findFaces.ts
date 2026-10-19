@@ -1,6 +1,6 @@
 import { stepOf } from '@/lib/editor/entry'
 import type { Found, Views } from '@/lib/editor/modes/faceViews'
-import type { CubeShape } from '@/lib/core/types'
+import type { CubeShape } from '@/lib/core/shapes'
 import type { FacesRequest, FacesResponse } from './facesWorker'
 
 let worker: Worker | null = null
