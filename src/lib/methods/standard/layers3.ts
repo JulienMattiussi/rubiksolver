@@ -70,12 +70,7 @@ export function crossDone(cube: Cube): boolean {
 
 /** The corner carrying `frame`'s (D, s1, s2) colors sits at its slot, correctly
  *  oriented. */
-function cornerPlacedIn(
-  cube: Cube,
-  frame: Record<Face, Color>,
-  s1: Face,
-  s2: Face,
-): boolean {
+function cornerPlacedIn(cube: Cube, frame: Record<Face, Color>, s1: Face, s2: Face): boolean {
   const corner = findCorner(cube, frame.D, frame[s1], frame[s2])
   return (
     colorAt(corner, 'D') === frame.D &&

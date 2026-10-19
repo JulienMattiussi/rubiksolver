@@ -24,7 +24,9 @@ mobile et en saisie, une seule carte) :
   **Mémoriser / Restaurer** (un état par forme, gardé entre deux visites,
   pour comparer deux méthodes sur le même mélange ; remplacer un autre état
   mémorisé demande confirmation dans une modale), vitesse
-  d'animation, **recentrage caméra animé** et **bascule de notation FR/US**.
+  d'animation (au plus lent, une pause aussi longue qu'un coup sépare deux
+  coups, le temps de le refaire sur un vrai puzzle : `pauseBetweenTurns`),
+  **recentrage caméra animé** et **bascule de notation FR/US**.
 - **Pad de rotations**, construit à partir des coups que la
   forme autorise, lus dans `movesFor` (une gâchette horaire + une anti-horaire
   par face ; un seul bouton de demi-tour là où la forme n'a pas de quart de

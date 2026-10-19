@@ -21,3 +21,12 @@ export function sliderFromDuration(duration: number): number {
     (Math.log(duration / MAX_TURN_DURATION) / Math.log(MIN_TURN_DURATION / MAX_TURN_DURATION)) * 100
   return Math.max(0, Math.min(100, position))
 }
+
+/**
+ * The pause between two turns: at the slowest speed only, as long as a turn
+ * (time to play it by hand on a real puzzle); none otherwise, so a scramble
+ * or a step back stay brisk.
+ */
+export function pauseBetweenTurns(duration: number): number {
+  return duration >= MAX_TURN_DURATION ? duration : 0
+}

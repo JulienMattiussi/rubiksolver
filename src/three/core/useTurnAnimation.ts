@@ -4,6 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { halfTurnedBy, turnRotation, turnedBy } from '@/lib/core/turn'
 import { easeInOut } from '@/lib/app/easing'
+import { pauseBetweenTurns } from '@/lib/app/speed'
 import { useCube } from '@/store/cubeStore'
 import { NO_PIECES } from './noPieces'
 
@@ -23,7 +24,8 @@ interface TurnAnimation {
 /**
  * Drives the face-turn animation from the store's queue: it pulls the next move
  * when idle, rotates the active layer's group from 0 to the move's angle, then
- * commits the move so the cubies snap to their new logical positions. Rendering
+ * commits the move so the cubies snap to their new logical positions (at the
+ * slowest speed, it then waits as long again before the next). Rendering
  * stays a pure function of the (integer, drift-free) engine state.
  */
 /** Scratch axis of the running turn (reused every frame). */
@@ -41,8 +43,11 @@ export function useTurnAnimation(): TurnAnimation {
   const halfRef = useRef<THREE.Group>(null)
   const progress = useRef(0)
   const elapsed = useRef(0)
+  // Time idle since the last turn ended (long, before any turn).
+  const idle = useRef(Infinity)
 
   useEffect(() => {
+    if (!active) idle.current = 0
     elapsed.current = 0
     progress.current = 0
     groupRef.current?.rotation.set(0, 0, 0)
@@ -51,7 +56,8 @@ export function useTurnAnimation(): TurnAnimation {
 
   useFrame((_, delta) => {
     if (!active) {
-      if (queueLength > 0) startNext()
+      idle.current += delta
+      if (queueLength > 0 && idle.current >= pauseBetweenTurns(turnDuration)) startNext()
       return
     }
     const geo = turnRotation(active)

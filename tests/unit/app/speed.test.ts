@@ -3,6 +3,7 @@ import {
   durationFromSlider,
   MAX_TURN_DURATION,
   MIN_TURN_DURATION,
+  pauseBetweenTurns,
   sliderFromDuration,
 } from '@/lib/app/speed'
 
@@ -26,5 +27,13 @@ describe('speed mapping', () => {
     for (const pos of [0, 25, 50, 75, 100]) {
       expect(sliderFromDuration(durationFromSlider(pos))).toBeCloseTo(pos)
     }
+  })
+})
+
+describe('pause between turns', () => {
+  it('waits as long as a turn at the slowest speed only', () => {
+    expect(pauseBetweenTurns(durationFromSlider(0))).toBe(MAX_TURN_DURATION)
+    expect(pauseBetweenTurns(durationFromSlider(1))).toBe(0)
+    expect(pauseBetweenTurns(MIN_TURN_DURATION)).toBe(0)
   })
 })
