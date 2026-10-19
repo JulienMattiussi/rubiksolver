@@ -3,7 +3,7 @@ import type { METHODS_FR } from '../fr/methods'
 export const METHODS_EN: typeof METHODS_FR = {
   beginner: {
     name: 'Layer by layer',
-    desc: 'The beginner’s method: one floor at a time, bottom to top, with few formulas.',
+    desc: 'The beginner’s method: layer by layer, with few formulas.',
   },
   cfop: {
     name: 'Fridrich (CFOP)',

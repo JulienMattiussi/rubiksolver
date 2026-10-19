@@ -127,7 +127,7 @@ de la couleur du sticker qu'il regarde le plus. Tenu un sommet devant,
 comme la page. **Saisie** pièce par pièce (ses formes, des centaines de
 milliers, ne tiendraient pas en vignettes).
 
-**Résolution** (`methods/round/dinoCyl.ts`, méthode **Étage par étage**, d'après
+**Résolution** (`methods/round/dinoCyl.ts`, méthode **Par couches**, d'après
 la page) : les trois étages du Dino par [GA'] (`dinoLayers` de
 `methods/diagonal/dino.ts` : deux arêtes d'un étage restées échangées, il se finit
 avec celles d'en dessous), la cible donnée par les sommets (qui ne bougent

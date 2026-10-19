@@ -4,7 +4,7 @@
 export const METHODS_FR = {
   beginner: {
     name: 'Par couches',
-    desc: 'La méthode des débutants : un étage à la fois, du bas vers le haut, avec peu de formules.',
+    desc: 'La méthode des débutants : étage par étage, avec peu de formules.',
   },
   cfop: {
     name: 'Fridrich (CFOP)',
@@ -159,11 +159,11 @@ export const METHODS_FR = {
     desc: 'L’équateur d’abord, à l’intuition, puis chaque sorte de pièce, les engrenages en dernier.',
   },
   dinoCylLayers: {
-    name: 'Étage par étage',
+    name: 'Par couches',
     desc: 'Étage par étage avec un 3-cycle d’arêtes ; les sommets, fixes, disent comment le tenir.',
   },
   dinoLayers: {
-    name: 'Étage par étage',
+    name: 'Par couches',
     desc: 'Étage par étage avec une seule formule, un 3-cycle d’arêtes qui ne dérange rien d’autre.',
   },
   rexEdgesFirst: {

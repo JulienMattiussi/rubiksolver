@@ -14,7 +14,7 @@ en anglais). Rendu (`three/puzzles/shared/dinoGeometry.ts`) :
 chaque arête est la part du cube où ses deux coordonnées sont les plus
 grandes.
 
-**Résolution** (`methods/diagonal/dino.ts`, méthode **Étage par étage**) : une seule
+**Résolution** (`methods/diagonal/dino.ts`, méthode **Par couches**) : une seule
 formule, [GA'] = GA'G'A ((HA)->(HD)->(HG)) : le haut, l'équateur,
 le bas. Rien n'est fixe : la cible est la tenue du puzzle résolu la plus
 proche ; et il se résout de deux façons (gauche et droite échangées, un
