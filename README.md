@@ -5,7 +5,7 @@
 # Rubik Solver
 
 **Turn, scramble or enter 75 twisty puzzles in 3D, then solve them step by step with
-real methods, or learn to solve the 3x3, the 2x2, the Pyraminx or the Pyramorphinx yourself with a guided tutorial.**
+real methods, or learn to solve the 3x3, the 2x2, the 4x4, the Pyraminx or the Pyramorphinx yourself with a guided tutorial.**
 
 [**Try it**](https://rubiksolver.yavadeus.dev) &nbsp;·&nbsp;
 [The puzzles](#75-puzzles-12-families) &nbsp;·&nbsp;
@@ -18,7 +18,7 @@ real methods, or learn to solve the 3x3, the 2x2, the Pyraminx or the Pyramorphi
 
 <sub>
   100% front-end &nbsp;·&nbsp; React 19 + React Three Fiber &nbsp;·&nbsp; TypeScript strict &nbsp;·&nbsp;
-  integer-only puzzle engine &nbsp;·&nbsp; 47 solving methods &nbsp;·&nbsp; 4 guided tutorials &nbsp;·&nbsp;
+  integer-only puzzle engine &nbsp;·&nbsp; 47 solving methods &nbsp;·&nbsp; 5 guided tutorials &nbsp;·&nbsp;
   French and English &nbsp;·&nbsp; MIT license
 </sub>
 
@@ -57,7 +57,8 @@ step began. Pick another piece if you like, and the formula changes with it. The
 has its own, in three stages: with no centers, a yellow corner with its yellow down is the
 landmark, read where it stands, and the last stage tells apart the 2x2 parity (two corners to swap across).
 The Pyraminx has one too, laid flat, in five stages from the centers to the flipped edges, and
-the Pyramorphinx, solved as the 2x2 it hides.
+the Pyramorphinx, solved as the 2x2 it hides. The 4x4 gathers its centers and pairs its edges, then
+plays the 3x3's stages on the reduced cube, its two parities fixed where they show.
 Every tutorial starts with its words (an edge, a tip, clockwise...), shown on the puzzle.
 
 <img src="docs/images/tutorial.png" width="820" alt="The 3x3 tutorial: an arrow from a yellow edge to its place, and the step's numbered instructions on the right.">

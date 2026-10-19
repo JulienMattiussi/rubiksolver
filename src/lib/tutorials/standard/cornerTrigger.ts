@@ -1,6 +1,6 @@
 import { CUBE_HOLDS } from '../../core/hold'
 import { parseMoves, simplifyMoves } from '../../core/moves'
-import { colorAt, hasColors } from '../../core/pieces'
+import { colorAt, hasColors, sameAt } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
 import type { Color, Cube, Move, Vec3 } from '../../core/types'
 import { CORNER_PAIRS } from '../../methods/standard/layers3'
@@ -18,8 +18,6 @@ import type { TutorialPick } from '../../teach/tutorial'
 /** A side slot, by its two sides: the second the first's right (seen with
  *  the first in front), as its corners and middle edges are named. */
 export type Pair = (typeof CORNER_PAIRS)[number]
-
-export const sameAt = (a: Vec3, b: Vec3) => a.join() === b.join()
 
 /** The index of the piece carrying these colors. */
 export const pieceWith = (cube: Cube, colors: readonly Color[]) =>

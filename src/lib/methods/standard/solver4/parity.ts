@@ -18,10 +18,10 @@ import type { Color, Cube, Cubie, Move } from '../../../core/types'
 
 // Flips the UF composite edge in place (wings swapped), everything else -
 // centers included - restored. Slice form of r2 B2 U2 l U2 r' U2 r U2 F2 r F2 l' B2 r2.
-const OLL_PARITY = parseMoves("2R2 B2 U2 2L U2 2R' U2 2R U2 F2 2R F2 2L' B2 2R2")
+export const OLL_PARITY = parseMoves("2R2 B2 U2 2L U2 2R' U2 2R U2 F2 2R F2 2L' B2 2R2")
 // Swaps the UF and UB composite edges without flipping them. Slice form of
 // r2 U2 r2 Uw2 r2 u2.
-const PLL_PARITY = parseMoves('2R2 U2 2R2 Uw2 2R2 2U2')
+export const PLL_PARITY = parseMoves('2R2 U2 2R2 Uw2 2R2 2U2')
 
 function isWY(color: Color): boolean {
   return color === 'W' || color === 'Y'

@@ -3,12 +3,18 @@ import { normalIndex } from '../../core/geometry'
 import { invertMoves } from '../../core/moves'
 import { applyMoves } from '../../core/turn'
 import type { Cube } from '../../core/types'
-import { seamsOf, sightLines, type FaceEntry, type FaceGrid, type Views } from '../shared/faceViews'
+import {
+  seamsOf,
+  sightLines,
+  type FaceEntry,
+  type FaceGrid,
+  type Views,
+} from '../../editor/modes/faceViews'
 import { camoBox } from './camo'
 import { CELLS, shapeToBox, type Shape } from './camoShape'
 
 /**
- * The Camouflage entered face by face (shared/faceViews.ts): four faces
+ * The Camouflage entered face by face (lib/editor/modes/faceViews.ts): four faces
  * around one axis tell its shape, always (of its 2 421 009 shapes, no two
  * look alike from these four sides, measured), and the shape is found again
  * from them alone (`shapeFromViews`). In half units (its thin layers'
@@ -167,7 +173,6 @@ export const CAMO_FACE_ENTRY: FaceEntry = {
   grid: CAMO_GRID,
   canvas: N,
   framed: true,
-  first: false,
   find: (views) => {
     const cube = stateFromViews(views)
     return cube ? [{ cube, turn: 0 }] : []

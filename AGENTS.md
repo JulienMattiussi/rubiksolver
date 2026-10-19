@@ -18,7 +18,9 @@ Application **100% front-end**, sans backend. Interface **en français par
 défaut** (bascule anglais), langue détectée depuis le navigateur ; notation
 des mouvements **internationale (U D L R F B) par défaut, ou française
 (H B G D F Ar)** : préfixe `2` pour une tranche interne (`2R`), suffixe `w`
-pour un coup large (`Rw`), `M`, `E`, `S` pour les tranches du milieu du 3x3.
+pour un coup large (`Rw`), `M`, `E`, `S` pour les tranches du milieu du 3x3 ;
+le 4x4 suit le guide officiel de Rubik's (`r` pour la tranche, `Rr` pour les
+deux couches).
 Les puzzles qui ne tournent pas comme un cube ont leur propre notation, le
 plus souvent celle de fan2cube (voir leur fiche dans `docs/puzzles/`).
 
@@ -83,8 +85,11 @@ indiscernables ainsi font échouer le chargement du module (`core/cube.ts`).
 **Les coups** : un coup est un `Turn`, l'union de `Move` (les cubes) et des
 coups des puzzles qui ne tournent pas comme un cube (`StarMove`, `PyraMove`,
 `GhostMove`, `PuckMove`, `RainbowMove`, `GearMove`, `MegaMove`, `CopterMove`) ; le code
-générique (file d'animation, rendu, notation) prend un `Turn`, et `turn.ts`
-et `moves.ts` aiguillent selon sa sorte. L'animation tourne autour d'un axe
+générique (file d'animation, rendu, notation) prend un `Turn` et demande
+à la sorte du coup (`kindOf`, `core/moveKind.ts` : un `MoveKind` dit comment
+écrire, inverser, fusionner, jouer et animer ses coups ; les sortes sont
+rassemblées par les puzzles dans `puzzles/moveKinds.ts`, comme leurs
+modèles), et fait sinon ce que fait un cube. L'animation tourne autour d'un axe
 quelconque (`turnRotation` renvoie un vecteur) ; les solveurs des cubes
 gardent `Move`.
 
@@ -93,13 +98,16 @@ src/
 ├── lib/                 # Logique pure, zéro React / zéro three.js (entièrement testée)
 │   ├── core/            # Le moteur : types (CubeShape, Move, Turn...), geometry (normales, rotations entières),
 │   │                    #   cube (construction, reconnaissance, résolu, boîte, orientations), pieces, turn (coups,
-│   │                    #   coups permis, animation), moves (notation, coups d'une forme, mélange), moveSet, shape (miroir),
-│   │                    #   hold (les tenues d'un modèle, HoldFrame, déduites de ses faces : un coup lu depuis
+│   │                    #   coups permis, animation), moves (notation, coups d'une forme, mélange), moveSet,
+│   │                    #   moveKind (les sortes de coups, MoveKind), shape (miroir), pieces (poseOf, sameAt,
+│   │                    #   withStickers : prédicats de pièces), guide (sections du guide, MoveDescription), hold (les tenues d'un modèle, HoldFrame, déduites de ses faces : un coup lu depuis
 │   │                    #   la face tenue devant)
 │   ├── puzzles/         # Les puzzles, un dossier par catégorie (voir « La fiche d'un puzzle ») :
 │   │   ├── catalog.ts   #   tous les puzzles, dans l'ordre du sélecteur (catalog.ts de chaque catégorie)
 │   │   ├── entry.ts     #   PuzzleEntry : nom, adresse, dimensions, mélange, couches, miroir, couleurs, pad, consigne
 │   │   ├── models.ts    #   tous les modèles (models.ts de chaque catégorie)
+│   │   ├── moveKinds.ts #   toutes les sortes de coups (celles des familles de puzzles sans grille)
+│   │   ├── guides.ts    #   les guides des mouvements de ces familles (le `guide` de leur modèle)
 │   │   ├── model.ts     #   PuzzleModel : construction, mécanisme, coups permis, boîte, résolu, symétries,
 │   │   │                #     coups et mélange (sans grille), saisie
 │   │   ├── <catégorie>/ #   standard, tower, flat, pyramid, polyhedron, round, gear, diagonal, holey, twisted,
@@ -109,39 +117,45 @@ src/
 │   │                    #     et leur notation ; dinoRex et skewbs : les puzzles qui en dérivent ;
 │   │                    #     thinEdges : les arêtes sans sens visible)
 │   ├── methods/         # Les méthodes, un dossier par catégorie, un fichier par méthode ou famille
-│   │   ├── standard/    #   3x3 (algs, layers3, roux, petrus, zz, recenter, pieces3), 2x2 (cube2), super cubes,
+│   │   ├── standard/    #   3x3 (algs : le catalogue des formules des cubes, layers3, roux, petrus, zz, recenter, pieces3), 2x2 (cube2), super cubes,
 │   │   │                #     solver4/ solver5/ solver6/ (réductions des 4x4, 5x5 et 6x6)
 │   │   ├── <catégorie>/ #   les autres (towerLayers et towerReduce : briques des tours, pyraKit,
-│   │   │                #     roadblockKit / Bars / Edges : les étapes du RoadBlock...)
+│   │   │                #     roadblockKit / Bars / Edges : les étapes du RoadBlock, megaminxFormulas...)
 │   │   └── shared/      #   ce qui sert à plusieurs catégories (rainbowKit, skewbKit)
 │   ├── solve/           # Briques des solveurs : solver (registre des méthodes, solve), solverKit (MethodPlan,
 │   │                    #   buildSteps), pieceSearch, cycleLibrary / cycleTable (3-cycles), centerCycles,
-│   │                    #   wingPairing, exhaustive (optimal par recherche exhaustive), progress
-│   ├── editor/          # La saisie : editor, editorTables, pieceEditor, forms (formes d'un déformable),
-│   │                    #   setup (réglages avant peinture), jointsEditor (soudures), cutsEditor
-│   │                    #   (demi-cubies du Fashion-V), faceCanvases (forme face par face), gearEditor,
-│   │                    #   roadblockEditor, validate
+│   │                    #   wingPairing, exhaustive (optimal par recherche exhaustive), progress, formulaSearch
+│   │                    #   (la plus courte suite de formules vers un but, found), everyWay (une formule vue
+│   │                    #   de chaque côté), holdings (le puzzle tenu de chaque façon), permutation (parité),
+│   │                    #   once (mémoïsation paresseuse), placeTable (places, macros et Dijkstra :
+│   │                    #   Megaminx, AI Cube)
+│   ├── editor/          # La saisie : entry (ce que le modèle déclare : étapes, peinture), steps (leur
+│   │                    #   enchaînement), edit (la table de stickers, buildCube), editorTables, validate,
+│   │                    #   modes/ (un mode par fichier : form, canvas et faceViews, joints, toggles,
+│   │                    #   colors, pieces)
 │   ├── teach/           # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
-│   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), scene (tons, flèches), segments
-│   │                    #   (formule lue en gestes), keep (pièces gardées, formule en cours de pas), macros
-│   │                    #   (la plus courte chaîne de gestes appris vers un but)
+│   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), stages (sortes d'étapes et leurs
+│   │                    #   pas), project (étape d'un petit puzzle relevée sur un grand), scene (tons, flèches),
+│   │                    #   segments (formule lue en gestes), keep (pièces gardées, formule en cours de pas),
+│   │                    #   macros (la plus courte chaîne de gestes appris vers un but)
 │   ├── tutorials/       # Les tutoriels : registry (par forme, un par méthode), un dossier par catégorie :
 │   │                    #   standard/cube3 et cube3LastLayer (le 3x3), cube2 (le 2x2), cornerTrigger (les
 │   │                    #   coins jaunes, partagés), terms (vocabulaire des cubes), en méthode débutant ;
+│   │                    #   cube4 (réduction, puis les étapes du 3x3 projetées), project4, terms4 ;
 │   │                    #   pyramid/pyraminx (Centres d'abord), pyraHolds (ses tenues), pyraTerms ;
 │   │                    #   pyramid/morph (le Pyramorphinx, Comme un Pocket), morphTerms
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
 │                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
 │   ├── core/            # Scene, CubeView / Cubie / Sticker (puzzles à grille), PolyView / PolyModel / PolyPiece
-│   │                    #   (puzzles en polygones), EditView / PolyEditView (saisie), polyDrawing (registre des
+│   │                    #   (puzzles en polygones), EditView / PolyEditView / CutsView (saisie), polyDrawing (registre des
 │   │                    #   dessins), polyhedron, cutSolid, layout, isometric (vignettes), useTurnAnimation,
 │   │                    #   TutorialArrow, hatchTexture et usePulse (le tutoriel)...
 │   ├── guide/           # Le guide des mouvements : GuideCanvas, GuideTile, guideCamera
 │   └── puzzles/         # Les dessins, un dossier par catégorie : drawings.ts et la géométrie de chaque puzzle
-│                        #   (gear/ : pas de drawings.ts, les pièces du Gear Cube sont des composants que dessine
-│                        #   Cubie) ; shared/ : dinoGeometry (Dino Cube, Edge Only)
-├── components/          # UI : ui/ (primitives), controls/ (panneau, pads de coups, padFor), picker/, guide/, edit/,
+│                        #   (gear/ : pas de drawings.ts, ses pièces, sa vue de saisie et sa vignette sont à lui,
+│                        #   déclarées dans views.ts) ; shared/ : dinoGeometry (Dino Cube, Edge Only)
+├── components/          # UI : ui/ (primitives), controls/ (panneau, pads de coups faits de useTurnButton, padFor), picker/, guide/, edit/,
 │                        #   solve/ (SolveArea : la résolution ou le tutoriel), tutorial/, home/, celebration/
 ├── store/               # Zustand : cubeStore (cube, file de coups, solution), editorStore, savedStore,
 │                        #   viewStore, router, tutorialStore (pick, formules jouées, coups à la main, arrêt),
@@ -189,8 +203,12 @@ Holey Megaminx du Megaminx, reprend simplement celui de son parent) :
 
 - **sa carte** (`lib/puzzles/<catégorie>/catalog.ts`, type `PuzzleEntry`) :
   nom, adresse, dimensions, longueur de mélange, couches intérieures, coups
-  avancés, déformation, miroir, couleurs, pavé de coups (`pad`) et consigne
-  de saisie (`editHint`), que l'interface traduit (`padFor`, `EditPanel`).
+  avancés, déformation, miroir, couleurs, sorte de coups (`moves`, d'où
+  `isStar`, `isPyraminx`, `isGridless`...), clips colorés d'un Gear Cube,
+  vignette en tête de sa catégorie (`cover`), pavé de coups (`pad`) et
+  consigne de saisie (`editHint`), que l'interface traduit (`padFor`,
+  `EditPanel`). Aucun code commun ne teste le nom d'un puzzle : ce qui le
+  distingue est un champ de sa carte ou un crochet de son modèle.
   `inner` déclare les couches intérieures que tourne son mécanisme (tranches
   et/ou coups larges, sur tout axe d'au moins 3 couches) ; le pad grise les
   faces sans cette sorte de couche. Sa clé est l'identifiant de forme
@@ -199,7 +217,10 @@ Holey Megaminx du Megaminx, reprend simplement celui de son parent) :
 - **son modèle** (`lib/puzzles/<catégorie>/models.ts`, type `PuzzleModel`),
   s'il s'écarte d'un cuboïde sur sa grille : construction, mécanisme, coups
   permis, boîte, test de résolution, symétries, coups et mélange d'un puzzle
-  sans grille, saisie. Le cœur (`cube.ts`, `turn.ts`, `moves.ts`,
+  sans grille, saisie (`entry` : ses étapes et sa peinture, voir « La
+  saisie d'un puzzle », ce que montre l'éditeur, stickers cachés `hidden`,
+  tranches qui tournent entières `wholeSlices`), guide des mouvements
+  (`guide`, `describe`). Le cœur (`cube.ts`, `turn.ts`, `moves.ts`,
   `moveSet.ts`, `editor.ts`) demande d'abord au modèle et fait sinon ce que
   fait un cuboïde. Un crochet appelle ce que définit le cœur au moment où il
   est appelé, jamais au chargement (import circulaire) ;
@@ -214,13 +235,12 @@ sa méthode et sa ligne au registre ; le nom de la méthode et de ses étapes
 dans les deux langues (`i18n/fr/` et `i18n/en/`, `methods.ts` et
 `steps.ts`) ; une ligne à la suite de conformance et ses tests dans
 `tests/unit/puzzles/<catégorie>/` ; sa fiche dans
-`docs/puzzles/<catégorie>.md`. Restent hors de la fiche les distinctions par
-sorte de coup (étoile, Pyraminx, Rainbow...) dans le cœur, qui ne sont pas
-propres à un puzzle, les pads dédiés (`StarPad`, `PyraPad`... dans
-`components/controls/`, choisis par le `pad` de la carte) et quelques détails
-de saisie (`PolyEditView`, `lib/editor/gearEditor.ts`,
-`lib/editor/roadblockEditor.ts`, `lib/editor/jointsEditor.ts`,
-`lib/editor/cutsEditor.ts`).
+`docs/puzzles/<catégorie>.md`. Restent hors de la fiche les sortes de coups
+(étoile, Pyraminx, Rainbow..., `puzzles/moveKinds.ts`) et leurs guides
+(`puzzles/guides.ts`), qui ne sont pas propres à un puzzle, les pads dédiés (`StarPad`, `PyraPad`... dans
+`components/controls/`, choisis par le `pad` de la carte) et les vues des
+puzzles dessinés de leurs propres pièces (`three/puzzles/views.ts` : vue de
+saisie, pièce, vignette du Gear Cube).
 
 **Tests d'un puzzle** : ce que tout puzzle doit vérifier est écrit une fois,
 dans la suite de conformance `tests/unit/puzzles.test.ts`, qui parcourt un
@@ -301,128 +321,113 @@ coups (voir `tests/unit/solve/methods.test.ts`). Une méthode 3x3 n'utilisant qu
 coups externes peut aussi servir de phase 3x3 au 4x4 (`reductionPlan`, qui
 refuse les tranches : `M` sur un 3x3 n'est pas un coup du 4x4 réduit).
 
-### La saisie d'un cube (`src/lib/editor/editor.ts`, `validate.ts`)
+### La saisie d'un puzzle (`src/lib/editor/`)
 
-On peint les stickers sur le rendu 3D (en épaisseurs sur un cube miroir, même
-code : « Le cube miroir » dans
+**Le modèle déclare sa saisie, le code de saisie ne connaît que des modes.**
+Un modèle liste ses étapes (`entry.steps`), chacune un mode, puis dit comment
+on entre ses couleurs (`entry.paint`) ; la déclaration et ses types sont dans
+`lib/editor/entry.ts` (`entryOf`, `stepOf`), l'enchaînement des étapes dans
+`lib/editor/steps.ts` (ce que chacune tient, `startSettings` / `settingsOf`,
+l'étape suivante). Le store (`editorStore`), le panneau (`EditPanel`, une
+étape par mode, `stepTexts`) et les vues 3D (`EditView`, `PolyEditView`,
+`CutsView`) déroulent ces étapes sans jamais nommer un puzzle. Les modes,
+chacun son module de `lib/editor/modes/` :
+
+| Mode                                   | Ce qu'on fait                                             | Puzzles                                                                        |
+| -------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `form` (`form.ts`)                     | choisir la forme parmi des vignettes                      | tours 2x2x4 et 2x3x4, Pyramorphinx, AI Cube                                    |
+| `canvas` (`canvas.ts`, `faceViews.ts`) | dire sa forme face par face sur des canevas               | Purple, Camouflage                                                             |
+| `cuts`                                 | poser ses demi-cubies case par case                       | Fashion-V                                                                      |
+| `joints` (`joints.ts`)                 | souder ses pièces joint par joint                         | soudés dont les blocs bougent                                                  |
+| `toggles` (`toggles.ts`)               | tourner quelque chose d'un clic (barres, pivots, centres) | RoadBlock-I, Gear Cubes ; Z-Twist et Quarter pendant la peinture               |
+| peinture `colors` (`colors.ts`)        | peindre sticker par sticker                               | par défaut                                                                     |
+| peinture `pieces` (`pieces.ts`)        | poser les pièces une à une                                | Ghost, Puck, Dino Cylinder, Barrel, Master Morphinx, Z-Twist, Fisher, Windmill |
+
+La peinture peut aussi déclarer des bascules à elle (`paint.toggles`), une
+façon de peindre plusieurs stickers d'un coup (`paint.together` : une barre
+du RoadBlock-I ; le mode joints peint une face de bloc d'un seul tenant) et
+des parties peintes à part (`paint.parts` : les engrenages d'un Gear Cube,
+à côté de leurs clips). Ce qui est propre à un puzzle (ses cases, ses
+barres, ses engrenages) est dans son dossier et passé au mode
+(`fashionEntry.ts`, `roadblockEntry.ts`, `gearEntry.ts`) ; le modèle
+reconstruit son état de ce qu'on a saisi (`entry.built`, avec ses bascules
+et ses parties ; il peut le refuser, `MarksRefused`). Une étape peut n'être
+offerte qu'ensuite (`later` : les faces du Camouflage, son pavé peint
+d'abord). Les boutons sont les mêmes partout : le bouton principal avance,
+un « Changer... » par étape revient à elle depuis la peinture (les couleurs
+gardées tant que la forme ne change pas), « Annuler » quitte la saisie sans
+rien appliquer. Un puzzle dessiné de ses propres pièces a sa vue de saisie
+(`three/puzzles/views.ts` : le Gear Cube).
+
+On peint les stickers sur le rendu 3D (en épaisseurs sur une variante dont
+les stickers disent une taille, le cube miroir : `STICKERS_TELL` dans
+`lib/core/shape.ts`, « Le cube miroir » dans
 [docs/puzzles/standard.md](docs/puzzles/standard.md)). Deux garde-fous :
 
-- **Saisie guidée** : on précalcule, à partir de toutes les orientations du
-  puzzle résolu, tous les placements de pièce valides par emplacement, chacun
-  étiqueté par l'**identité de la pièce physique** qu'il représente (coins et
-  arêtes uniques ; les deux ailes d'une paire de couleurs du 4x4 distinguées
-  par leur chiralité ; les 4 centres d'une couleur partagent une identité à
-  **budget 4**). Un clic n'est accepté que s'il reste compatible avec un
-  placement dont la pièce a encore du budget ; dès qu'une pièce est déterminée
-  (2 stickers d'un coin), les stickers restants se complètent automatiquement.
-  Le dernier clic l'emporte : une pièce (ou une couleur) déjà toute utilisée
-  ailleurs y est reprise, son emplacement vidé, à repeindre (`takeBack`) ;
-  la palette reste donc toujours cliquable (une couleur épuisée est juste
-  atténuée), ce qui permet de corriger une saisie complète, « depuis l'état
-  actuel » compris. Impossible donc de créer une pièce, un doublon ou un
-  compte de couleurs incohérent pendant la saisie.
-- **Validation finale** : `validateCube` vérifie le comptage des couleurs puis
-  la solubilité. Sur toutes les formes sauf le 4x4, en demandant une
-  résolution bornée (`solve`) : sur un cube
-  impossible, le solveur épuise sa recherche bornée et lève une exception,
-  qu'on intercepte. Sur 4x4, par **invariants exacts** (les centres
-  indiscernables absorbent toute contrainte de parité de permutation, c'est
-  d'ailleurs pourquoi les parités OLL/PLL y sont des états légaux) : chaque
-  emplacement porte une vraie pièce aux multiplicités exactes
-  (`usesRealPieces`), et la vrille des coins est vérifiée en résolvant les 8
-  coins renormalisés comme un 2x2 (`solveOptimal2`), rapide et borné. Quand
-  la résolution échoue sur une étape, le message dit laquelle (`StepFailure`
-  de `buildSteps`, lu par `validateCube`).
+- **Saisie guidée** (`modes/colors.ts`) : on précalcule, à partir de toutes
+  les orientations du puzzle résolu, tous les placements de pièce valides par
+  emplacement, chacun étiqueté par l'**identité de la pièce physique** qu'il
+  représente (coins et arêtes uniques ; les deux ailes d'une paire de
+  couleurs du 4x4 distinguées par leur chiralité ; les 4 centres d'une
+  couleur partagent une identité à **budget 4**). Un clic n'est accepté que
+  s'il reste compatible avec un placement dont la pièce a encore du budget ;
+  dès qu'une pièce est déterminée (2 stickers d'un coin), les stickers
+  restants se complètent automatiquement. Le dernier clic l'emporte : une
+  pièce (ou une couleur) déjà toute utilisée ailleurs y est reprise, son
+  emplacement vidé, à repeindre (`takeBack`) ; la palette reste donc
+  toujours cliquable (une couleur épuisée est juste atténuée), ce qui permet
+  de corriger une saisie complète, « depuis l'état actuel » compris.
+- **Validation finale** (`validate.ts`) : `validateCube` vérifie le comptage
+  des couleurs puis la solubilité (`proveSolvable`, `solve/solver.ts`) : une
+  résolution bornée, qui sur un puzzle impossible épuise sa recherche et
+  lève une exception, ou la preuve propre à une forme quand elle est plus
+  rapide (celle du 4x4, `methods/standard/solver4/proof.ts` : ses centres
+  indiscernables absorbent toute contrainte de parité, donc il suffit que
+  chaque emplacement porte une vraie pièce, `usesRealPieces`, et que la
+  vrille des coins tienne, vérifiée comme un 2x2). Quand la résolution
+  échoue sur une étape, le message dit laquelle (`StepFailure`).
 
-**Puzzles déformables (tours 2x2x4 et 2x3x4, Purple, Pyramorphinx, AI Cube ;
-le Camouflage par ses faces ; le Fashion-V par ses demi-cubies)** : on saisit le puzzle dans la forme où il
-se trouve physiquement. La saisie commence par **choisir sa forme**
-(`FormPicker`) parmi celles qu'il peut prendre (`lib/editor/forms.ts`) : un
-parcours en largeur sur l'état sans ses couleurs (où sont les pièces, quelles
-faces portent un sticker), puis les formes qui ne
-diffèrent que par la façon de tenir le puzzle (rotation entière, miroirs à
-part) sont fusionnées, proposées en vignettes (voir
-[docs/interface.md](docs/interface.md)). La forme suffit à dire où sont les stickers. Les
-fonctions de saisie prennent cette forme (`form`, un état de cette forme) ;
-ses emplacements sont les siens, et un emplacement accepte toute pièce de
-son type tournée pour présenter ses stickers sur ses faces (aucune
-orientation du puzzle entier ne l'y met, la boîte étant rompue), pourvu
-que la parité de ses coordonnées soit celle de l'emplacement (aucun coup ne
-la change : un gros cube du Purple ne va jamais où va un mini-cube) : la
-validation dit ensuite si l'état est atteignable. Il en va de même dans sa
-boîte : un puzzle déformable peut y revenir avec des pièces tournées sur
-elles-mêmes (le coin de A du Purple), que les seules rotations du puzzle
-entier n'y mettraient pas. « Modifier »
-saisit un puzzle déformé dans sa forme, sans passer par le choix. Un futur
-puzzle déformable n'a rien à ajouter : `formsOf` se déduit de ses coups.
-
-Les tables de saisie (emplacements + placements étiquetés + budgets) sont
-**dérivées par forme** du puzzle résolu correspondant et mémoïsées
-(`tablesFor`, dans `src/lib/editor/editorTables.ts`) ; toutes les fonctions de saisie
-prennent la forme avec l'état. Une saisie est complète quand chaque emplacement
-est peint (`isComplete`), ceux de sa forme pour un puzzle déformable. Une
-pièce qu'aucun coup ne déplace ni ne retourne reste pré-remplie
+Ce que toute saisie remplit, quel que soit son mode, est une table de
+stickers (`lib/editor/edit.ts` : progression, `isComplete`, `buildCube`,
+`cubeToEdit` pour « depuis l'état actuel »). Les tables de saisie
+(emplacements, placements étiquetés, budgets) sont **dérivées par forme** du
+puzzle résolu et mémoïsées (`tablesFor`, `editorTables.ts`). Une pièce
+qu'aucun coup ne déplace ni ne retourne reste pré-remplie
 (`Slot.paintable`), comme les centres du 3x3 ; des pièces qui ne bougent
-qu'ensemble aussi (`fixedPieces`, les centres du Gear Cube).
+qu'ensemble aussi (`fixedPieces`, les centres du Gear Cube, `wholeSlices`).
 Les comptes de couleurs se déduisent du puzzle résolu (`stickersOfColor`,
-`shapeColors`), pas des faces d'un cube : la saisie marche sur toutes les
-formes, étoiles comprises (voir « Le Star Prism » dans
-[docs/puzzles/round.md](docs/puzzles/round.md)).
+`shapeColors`) : la saisie marche sur toutes les formes, étoiles comprises
+(voir « Le Star Prism » dans [docs/puzzles/round.md](docs/puzzles/round.md)).
 
-**Réglage avant peinture** (`lib/editor/setup.ts`) : quelques puzzles
-règlent quelque chose avant leurs couleurs, en cliquant le puzzle en 3D,
-puis le valident : les soudures d'un soudé, les demi-cubies du Fashion-V,
-les faces du Camouflage, le sens des barres du RoadBlock-I, le pivot des
-engrenages d'un Gear Cube.
-Une même mécanique : `setupOf` dit lequel, `settingsOf` le lit sur un état
-(« Modifier »), `setupTargets` dit ce qu'un clic fait tourner (le survol
-l'allume en entier), `acceptSetup` / `editSetup` y entrent et en sortent,
-et un même panneau (`PhasePanel`, la table `SETUPS` d'`EditPanel`). Les
-boutons sont les mêmes sur toutes les saisies : le bouton principal avance,
-« Changer... » revient d'une étape depuis la peinture (les couleurs
-gardées tant que l'étape ne change pas), « Annuler » quitte la saisie sans
-rien appliquer, quelle que soit l'étape.
+**Un puzzle déformable** se saisit dans la forme où il se trouve. Ses
+formes (`formsOf`, `modes/form.ts`) viennent d'un parcours en largeur sur
+l'état sans ses couleurs, celles qui ne diffèrent que par la façon de tenir
+le puzzle fusionnées, proposées en vignettes (voir
+[docs/interface.md](docs/interface.md)) ; un futur puzzle déformable n'a
+qu'à déclarer l'étape `form`. Les fonctions de saisie prennent cette forme
+(`form`, un état de cette forme) ; un emplacement y accepte toute pièce de
+son type tournée pour présenter ses stickers sur ses faces, pourvu que la
+parité de ses coordonnées soit celle de l'emplacement (un gros cube du
+Purple ne va jamais où va un mini-cube) : la validation dit ensuite si
+l'état est atteignable. « Modifier » saisit un puzzle déformé dans sa forme.
 
-**Saisie face par face** (`lib/puzzles/shared/faceViews.ts`,
-`lib/editor/faceCanvases.ts`), pour un puzzle fait de boîtes aux formes
-trop nombreuses ou trop difficiles à distinguer en vignettes (le
-Camouflage, le Purple) : quatre canevas (ses faces) sur un cube qui
-bascule vers soi d'une face à l'autre (`FaceCanvases`), vu de face sans
-rotation à la souris (`CameraReset`), deux boutons au-dessus et en dessous
-du canevas pour revenir à la face précédente ou saisir la suivante
-(`FaceArrows`) ; on y peint chaque case d'une couleur ou « absent », et on
-joint les cases d'une même face de pièce. Le puzzle le déclare dans son
-modèle (`entry.faces`, un `FaceEntry`) : sa grille (la boîte de cases de
-chaque pièce, ce que chaque face montre), la taille du canevas, si un
-dessin se place où il est sur la grille (`framed` : le Camouflage) ou
-n'importe où (le Purple, comparé au dessin près), s'il commence par ses
-faces (`first` : le Purple ; le Camouflage peint d'abord son pavé, « Changer
-la forme » les ouvre), et comment retrouver ses états (`find`, dans un
-worker : une recherche case par case pour le Camouflage, `camoViews.ts` ;
-la comparaison avec ses 1 160 formes tenues des 24 façons pour le Purple,
-`purpleViews.ts`). La peinture commence ensuite avec les stickers que les
-faces montrent ; voir [docs/puzzles/tower.md](docs/puzzles/tower.md) et
-[docs/puzzles/twisted.md](docs/puzzles/twisted.md).
-
-**Saisie par les demi-cubies** (`lib/editor/cutsEditor.ts`), pour le
-Fashion-V, aux formes trop nombreuses : un clic sur une case fait défiler la
-position de ses demi-cubies (couchés, debout, ou une arête pleine), puis la
-recherche de forme (`methods/twisted/fashionShape.ts`) en trouve un état,
-sur lequel on peint ; voir [docs/puzzles/twisted.md](docs/puzzles/twisted.md).
-
-**Saisie par les soudures** (`lib/editor/jointsEditor.ts`), pour un soudé
-dont les blocs bougent : on clique d'abord ses joints (validés contre ses
-formes), puis on peint ses couleurs, les pièces dessinées soudées ; voir
-[docs/puzzles/bandaged.md](docs/puzzles/bandaged.md).
-
-**Saisie pièce par pièce** (`entry.byPieces` dans le modèle,
-`lib/editor/pieceEditor.ts`), pour un puzzle aux formes trop nombreuses pour
-des vignettes : un clic sur un emplacement y pose la pose suivante qui s'y
-loge (autre pièce, ou la même retournée), en sautant les pièces déjà posées
-ailleurs ; un emplacement vide montre sa pièce d'origine en gris. Les poses
-se trouvent en tournant chaque pièce seule depuis chez elle. La saisie reste
-la table de stickers habituelle, donc `isComplete`, `buildCube`, « Depuis
-l'état actuel » et la validation marchent tels quels.
+**Sur canevas** : quatre canevas (ses faces) sur un cube qui bascule vers
+soi d'une face à l'autre (`FaceCanvases`, vu de face, `CameraReset`,
+`FaceArrows`) ; on peint chaque case d'une couleur ou « absent » et on joint
+les cases d'une même face de pièce. L'étape porte le `FaceEntry` du puzzle :
+sa grille, la taille du canevas, si un dessin se place où il est (`framed` :
+le Camouflage) ou n'importe où (le Purple), et comment retrouver ses états
+(`find`, dans un worker : `camoViews.ts`, `purpleViews.ts`) ; voir
+[docs/puzzles/tower.md](docs/puzzles/tower.md) et
+[docs/puzzles/twisted.md](docs/puzzles/twisted.md). **Par les demi-cubies** :
+un clic fait défiler la position des demi-cubies d'une case, puis la
+recherche de forme (`methods/twisted/fashionShape.ts`) en trouve un état ;
+voir [docs/puzzles/twisted.md](docs/puzzles/twisted.md). **Par les
+soudures** : les joints cliqués sont validés contre les formes que l'étape
+porte ; voir [docs/puzzles/bandaged.md](docs/puzzles/bandaged.md). **Pièce
+par pièce** : un clic pose la pose suivante qui loge (autre pièce, ou la
+même retournée), en sautant les pièces déjà posées ; les poses se trouvent
+en tournant chaque pièce seule depuis chez elle.
 
 ### Interface
 
@@ -457,6 +462,12 @@ liste d'étapes, et `tutorialOf` en fait le pas où en est un état (sa sorte,
 - une étape de **formule** (`FormulaStage`) joue la sienne (le recentrage) ;
 - après les étapes, `next` peut annoncer celle qui vient (un tutoriel
   partiel) ; sans `next`, le tutoriel finit sur le puzzle résolu ;
+- une étape **projetée** (`projected`, `teach/project.ts`) joue l'étape
+  d'un petit puzzle sur la projection d'un grand (celles du 3x3 sur un 4x4
+  réduit) : ses pièces, places, flèches et tons sont relevés sur le grand
+  (une arête pour ses deux ailes, un centre pour ses quatre), ses coups
+  restent les mêmes ; une cible `interchangeable` (un des quatre centres
+  d'une couleur) est gardée par ce que montre sa place, pas par sa pièce ;
 - avant les étapes, le **vocabulaire** (`glossary`, l'étape 0) : chaque
   terme (`Term`) allume ses pièces et dit d'où les regarder, un pas par
   terme, « Passer » les saute ; un terme peut être réservé à un rendu

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube, stateKey } from '@/lib/core/cube'
-import { emptyEdit, slotsFor } from '@/lib/editor/editor'
+import { emptyEdit, slotsFor } from '@/lib/editor/edit'
 import { FLIP_EDGES } from '@/lib/methods/flat/floppy'
 import { solveExhaustively } from '@/lib/solve/exhaustive'
 import { formatMoves, movesFor } from '@/lib/core/moves'
@@ -45,7 +45,7 @@ describe('Floppy (3x3x1)', () => {
 
   it('solves every state optimally', () => {
     for (const { cube, depth } of stateSpace().values()) {
-      const moves = solveExhaustively(cube)
+      const moves = solveExhaustively(cube, 9)
       expect(moves).toHaveLength(depth)
       expect(isSolved(applyMoves(cube, moves))).toBe(true)
     }

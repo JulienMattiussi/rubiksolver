@@ -1,14 +1,15 @@
 import { isSolved, solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS, vecKey } from '../../core/geometry'
+import { vecKey } from '../../core/geometry'
 import { allTurnsOf } from '../../core/moveSet'
 import { invertMoves } from '../../core/moves'
-import { colorsOf } from '../../core/pieces'
+import { colorsOf, withStickers } from '../../core/pieces'
 import { parseDinoMoves } from '../../puzzles/shared/rainbow'
 import type { MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, RainbowMove } from '../../core/types'
 import { dinoLayers } from '../diagonal/dino'
 import { fromEverySide } from '../shared/rainbowKit'
+import { holdingsOf, holdingsShowing } from '../../solve/holdings'
 
 /**
  * Dino Cylinder, as fan2cube.fr teaches it (dinocylinder2), "à peine
@@ -26,27 +27,19 @@ import { fromEverySide } from '../shared/rainbowKit'
 
 const SOLVED = solvedCube('dinoCyl')
 const TURNS = allTurnsOf('dinoCyl')
-const isCorner = (c: Cubie) => c.stickers.length === 3
+const isCorner = withStickers(3)
 const isEdge = (c: Cubie) => !isCorner(c)
 
 /** The page's corner turn: (A)+, the corner A a third clockwise. */
 export const CORNER_TURN = parseDinoMoves("[AD]A'[DA']")
 
 /** The solved puzzle held every way. */
-const HELD: readonly Cube[] = AXIS_ROTATIONS.map((turn) =>
-  SOLVED.map((c) => ({
-    position: turn(c.position),
-    stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
-  })),
-)
+const HELD: readonly Cube[] = holdingsOf(SOLVED)
 
 /** The way of holding it the corners say (they never move), as each
  *  piece's home by its colors. */
 function targetOf(state: Cube): Map<string, string> {
-  const at = new Map(state.filter(isCorner).map((c) => [vecKey(c.position), colorsOf(c)]))
-  const held = HELD.find((h) =>
-    h.filter(isCorner).every((c) => at.get(vecKey(c.position)) === colorsOf(c)),
-  )
+  const held = holdingsShowing(HELD, state, isCorner, colorsOf)[0]
   if (!held) throw new Error('dinoCyl: its corners are not a puzzle held any way')
   return new Map(held.map((c) => [colorsOf(c), vecKey(c.position)]))
 }

@@ -5,6 +5,7 @@ import type { MethodPlan } from '../../solve/solverKit'
 import type { Cube } from '../../core/types'
 import { pieces } from '../standard/pieces3'
 import { bothWays, home, placing, reaching, TOP, topCornersPlaced, topEdgesUp } from './kit'
+import { PLL_UB, SUNE_BACK } from '../standard/algs'
 
 /**
  * Fused, as taught on fan2cube.fr (fused2), "un mélange entre Pétrus
@@ -28,9 +29,9 @@ export const FLIP = parseMoves("F U R U' R' F'")
 /** (HDA) (HPD), and two top edges: V = HDH²A.H'D'HD.HA'HD' */
 export const SWAP = parseMoves("U R U2 F U' R' U R U F' U R'")
 /** (HDA)+ (HPD)+ (HGP)+, and three top edges: DHD'H.DH²D'H² */
-export const TWIST = parseMoves("R U R' U R U2 R' U2")
+export const TWIST = parseMoves(SUNE_BACK)
 /** (HG) -> (HD) -> (HA): E = D.(DH)²(D'H')².D'HD' */
-export const CYCLE = parseMoves("R R U R U R' U' R' U' R' U R'")
+export const CYCLE = parseMoves(PLL_UB)
 
 const URF = moveSet('U R F')
 const U = moveSet('U')

@@ -1,9 +1,10 @@
-import { normalIndex, normalOfIndex } from '../core/geometry'
-import type { Color, Cube } from '../core/types'
+import { normalIndex, normalOfIndex } from '../../core/geometry'
+import type { Color, Cube } from '../../core/types'
 import {
   boundsOf,
   drawingKey,
   FACE_TOWARD,
+  FACES,
   heldAs,
   neighborsOf,
   sightOf,
@@ -11,13 +12,13 @@ import {
   type FaceEntry,
   type Found,
   type Views,
-} from '../puzzles/shared/faceViews'
-import { stickerId } from './editorTables'
-import type { EditStickers } from './editor'
+} from './faceViews'
+import { stickerId } from '../editorTables'
+import type { EditStickers } from '../entry'
 
 /**
- * Entering a puzzle's shape face by face (puzzles/shared/faceViews.ts, its
- * model's `entry.faces`): four canvases of square cells, its front, then
+ * Entry on canvases (a model's `canvas` step, its `FaceEntry`, see
+ * faceViews.ts): a puzzle's shape told face by face, four canvases of square cells, its front, then
  * what was its top, its back, its bottom as it tilts toward us. Each cell
  * is painted a color, or "absent" (nothing shows there: a piece's plastic,
  * or a hole); joints between two colored cells tell they are one piece's
@@ -39,6 +40,9 @@ export interface Canvas {
 
 /** The four canvases, in `FACES` order. */
 export type Canvases = readonly Canvas[]
+
+/** How many canvases an entry fills, one a face. */
+export const CANVAS_COUNT = FACES.length
 
 /** A joint's key, between two neighboring cells (in either order). */
 export const joinKey = (a: number, b: number): string => (a < b ? `${a}-${b}` : `${b}-${a}`)

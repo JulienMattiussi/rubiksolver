@@ -1,12 +1,11 @@
 import { cubeShape } from '@/lib/core/cube'
-import { formatMove } from '@/lib/core/moves'
 import { STAR_RINGS } from '@/lib/puzzles/round/star'
-import { isStar, type StarMove } from '@/lib/core/types'
-import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
+import { isStar } from '@/lib/core/types'
+import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { TURN_PAIR } from '@/components/ui/styles'
-import { PadButton } from './PadButton'
 import { PadHeader } from './PadHeader'
+import { useTurnButton } from './useTurnButton'
 
 /**
  * Rotation pad of a star prism: each of its layers (two, or four on the
@@ -14,19 +13,8 @@ import { PadHeader } from './PadHeader'
  */
 export function StarPad({ disabled }: { disabled: boolean }) {
   const t = useI18n((s) => s.t)
-  const labels = useI18n(selectMoveLabels)
   const shape = useCube((s) => cubeShape(s.cube))
-
-  const button = (move: StarMove, title: string, ghost = false) => (
-    <PadButton
-      key={formatMove(move)}
-      move={move}
-      label={formatMove(move, labels)}
-      title={title}
-      disabled={disabled}
-      ghost={ghost}
-    />
-  )
+  const button = useTurnButton(disabled)
   return (
     <div>
       <PadHeader />
@@ -34,7 +22,7 @@ export function StarPad({ disabled }: { disabled: boolean }) {
         {(isStar(shape) ? STAR_RINGS[shape] : []).map((ring) => (
           <div key={ring} className={TURN_PAIR}>
             {button({ ring, amount: 1 }, t.starTurnTitle(ring, true))}
-            {button({ ring, amount: 5 }, t.starTurnTitle(ring, false), true)}
+            {button({ ring, amount: 5 }, t.starTurnTitle(ring, false), { ghost: true })}
           </div>
         ))}
         <div className={`col-span-2 ${TURN_PAIR}`}>{button({ slash: true }, t.slashTitle)}</div>

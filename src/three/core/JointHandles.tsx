@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { handlesOf, type Handle } from '@/lib/editor/jointsEditor'
+import { handlesOf, type Handle } from '@/lib/editor/modes/joints'
 import type { CubeShape } from '@/lib/core/types'
 import { useEditor } from '@/store/editorStore'
 

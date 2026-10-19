@@ -1,19 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube, stateKey } from '@/lib/core/cube'
-import { buildCube, cubeToEdit, emptyEdit, withFixedHome } from '@/lib/editor/editor'
+import { buildCube, cubeToEdit, emptyEdit, MarksRefused, withFixedHome } from '@/lib/editor/edit'
 import { tablesFor } from '@/lib/editor/editorTables'
 import { applyGearMove, GEAR_TURNS, parseGearFormula } from '@/lib/puzzles/gear/gear'
 import { applyMoves } from '@/lib/core/turn'
-import {
-  completeGears,
-  gearColorsOf,
-  gearFaces,
-  gearsPainted,
-  nextSpin,
-  paintGear,
-  spinsOf,
-  turnedOf,
-} from '@/lib/editor/gearEditor'
+import { entryOf, stepOf } from '@/lib/editor/entry'
+import { nextToggle } from '@/lib/editor/modes/toggles'
 import type { Cube, Face, GearMove } from '@/lib/core/types'
 import { validateCube } from '@/lib/editor/validate'
 import { GEAR_SLOTS, twists } from '@/lib/methods/gear/gearExtreme'
@@ -21,6 +13,9 @@ import { spinEffect, spinsHome } from '@/lib/methods/gear/spinSearch'
 import { seededRng, twistedCorner } from '../../../helpers'
 
 const SOLVED = solvedCube('gearU')
+/** Its gears, painted apart; its pivots, set first (gearEntry.ts). */
+const PARTS = entryOf('gearU').paint.parts!
+const pivots = (shape: 'gearU' | 'gearX') => stepOf(shape, 'toggles')!.toggles
 
 /** A state however its pieces and their stickers are listed. */
 const look = (cube: Cube) =>
@@ -120,7 +115,7 @@ describe('Gear Cube entry', () => {
   const clips = { [a.id]: a.solvedColor, [b.id]: b.solvedColor }
 
   it('counts the gear faces left in each color: four per face', () => {
-    const { remaining, painted, total } = gearFaces({}, 'gearU')
+    const { remaining, painted, total } = PARTS.count({})
     expect([painted, total]).toEqual([0, 24])
     expect(Object.values(remaining).every((n) => n === 4)).toBe(true)
   })
@@ -132,54 +127,53 @@ describe('Gear Cube entry', () => {
   })
 
   it('paints a gear apart from its clips, alone while they are not painted', () => {
-    const gear = paintGear({}, emptyEdit('gearU'), 'gearU', slot.key, a.ni, b.solvedColor)
+    const gear = PARTS.paint({}, emptyEdit('gearU'), slot.key, a.ni, b.solvedColor)
     expect(gear).toEqual({ [a.id]: b.solvedColor })
   })
 
   it('completes a gear from its clips, and refuses a color not theirs', () => {
     const edit = { ...emptyEdit('gearU'), ...clips }
-    const turned = paintGear({}, edit, 'gearU', slot.key, a.ni, b.solvedColor)
+    const turned = PARTS.paint({}, edit, slot.key, a.ni, b.solvedColor)
     expect(turned).toEqual({ [a.id]: b.solvedColor, [b.id]: a.solvedColor })
     const other = SOLVED.flatMap((c) => c.stickers).find(
       (s) => s.color !== a.solvedColor && s.color !== b.solvedColor,
     )!.color
-    expect(paintGear({}, edit, 'gearU', slot.key, a.ni, other)).toEqual({})
+    expect(PARTS.paint({}, edit, slot.key, a.ni, other)).toEqual({})
     // Painted before its clips, a gear's other face follows them.
-    expect(completeGears({ [a.id]: a.solvedColor }, edit, 'gearU')).toEqual(clips)
+    expect(PARTS.complete({ [a.id]: a.solvedColor }, edit)).toEqual(clips)
   })
 
   it('tells the gears turned over on their clips, or a gear not theirs', () => {
     const cube = play('R R R')
     const edit = cubeToEdit(cube)
-    const gear = gearColorsOf(cube)
-    expect(gearsPainted(gear, 'gearU')).toEqual({ painted: 12, total: 12 })
-    expect(turnedOf(gear, edit, 'gearU')).toHaveLength(4)
-    expect(
-      look(
-        buildCube(edit, 'gearU', undefined, { turned: turnedOf(gear, edit, 'gearU')!, spins: {} }),
-      ),
-    ).toEqual(
-      look(withFixedHome(cube)), // held as entered: its centers home
+    const gear = PARTS.of(cube)
+    expect(PARTS.count(gear)).toMatchObject({ done: 12, pieces: 12 })
+    // Four turned over, read from their colors: held as entered, its
+    // centers home.
+    expect(look(buildCube(edit, 'gearU', undefined, { toggles: {}, parts: gear }))).toEqual(
+      look(withFixedHome(cube)),
     )
-    expect(turnedOf({ ...gear, [a.id]: 'V' }, edit, 'gearU')).toBeNull()
+    expect(() =>
+      buildCube(edit, 'gearU', undefined, { toggles: {}, parts: { ...gear, [a.id]: 'V' } }),
+    ).toThrow(MarksRefused)
   })
 
   it("pivots a slice's four gears together, the Extreme's one at a time", () => {
-    const slice = nextSpin({}, 'gearU', '1,1,0')
+    const slice = nextToggle({}, pivots('gearU'), '1,1,0')
     expect(slice).toEqual({ '1,1,0': 1, '1,-1,0': 1, '-1,1,0': 1, '-1,-1,0': 1 })
     // Three clicks: a half turn, which looks the same: back to none.
-    expect(nextSpin(nextSpin(slice, 'gearU', '-1,1,0'), 'gearU', '1,-1,0')).toEqual({})
-    expect(nextSpin({}, 'gearX', '1,1,0')).toEqual({ '1,1,0': 1 })
+    const twice = nextToggle(slice, pivots('gearU'), '-1,1,0')
+    expect(nextToggle(twice, pivots('gearU'), '1,-1,0')).toEqual({})
+    expect(nextToggle({}, pivots('gearX'), '1,1,0')).toEqual({ '1,1,0': 1 })
   })
 
   it('is entered with its gears askew, their pivots read from its state', () => {
     // One move: its slice's gears five sixths round, showing two.
     const cube = play('R')
-    const spins = spinsOf(cube)
+    const spins = pivots('gearU').of(cube)
     expect(Object.values(spins)).toEqual([2, 2, 2, 2])
     const edit = cubeToEdit(cube)
-    const turned = turnedOf(gearColorsOf(cube), edit, 'gearU')!
-    const built = buildCube(edit, 'gearU', undefined, { turned, spins })
+    const built = buildCube(edit, 'gearU', undefined, { toggles: spins, parts: PARTS.of(cube) })
     expect(look(built)).toEqual(look(withFixedHome(cube)))
     expect(validateCube(built)).toEqual({ ok: true })
   })

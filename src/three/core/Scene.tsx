@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { cubeShape } from '@/lib/core/cube'
 import { isPolyDrawn } from './polyDrawing'
+import { ownViewsOf } from '@/three/puzzles/views'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { HOME_POSITION } from './camera'
@@ -14,9 +15,12 @@ import { PolyView } from './PolyView'
 /** The 3D canvas: camera, lighting, the cube (play or edit), orbit controls. */
 export function Scene() {
   const editing = useEditor((s) => s.mode === 'edit')
-  const gridless = useCube((s) => isPolyDrawn(cubeShape(s.cube)))
+  const shape = useCube((s) => cubeShape(s.cube))
+  const gridless = isPolyDrawn(shape)
+  // A puzzle drawn from its own pieces is entered on its own view.
+  const OwnEdit = ownViewsOf(shape)?.edit
   // A face being copied stays straight in front: no orbiting meanwhile.
-  const facing = useEditor((s) => s.mode === 'edit' && s.phase === 'faces')
+  const facing = useEditor((s) => s.mode === 'edit' && s.phase === 'canvas')
   return (
     <Canvas camera={{ position: HOME_POSITION.toArray(), fov: 42 }} dpr={[1, 2]}>
       <color attach="background" args={['#0f172a']} />
@@ -26,7 +30,9 @@ export function Scene() {
       <directionalLight position={[6, 9, 7]} intensity={0.5} />
       <directionalLight position={[-6, -7, -6]} intensity={0.45} />
       {editing ? (
-        gridless ? (
+        OwnEdit ? (
+          <OwnEdit />
+        ) : gridless ? (
           <PolyEditView />
         ) : (
           <EditView />

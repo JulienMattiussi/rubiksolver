@@ -6,7 +6,6 @@ import type { Cube } from '../../core/types'
 import { pieces } from '../standard/pieces3'
 import {
   bothWays,
-  conjugated,
   cornerPlaces,
   home,
   placing,
@@ -15,6 +14,8 @@ import {
   TOP_CORNERS,
   topCornersPlaced,
 } from './kit'
+import { PLL_UB, SUNE_BACK } from '../standard/algs'
+import { conjugated } from '../../solve/everyWay'
 
 /**
  * Squarebik, as taught on fan2cube.fr (squarebik2): its equator jammed, as
@@ -36,11 +37,11 @@ import {
 /** (HDA) -> (BAD): [DH] */
 export const DOWN = parseMoves("R U R' U'")
 /** (HG) -> (HD) -> (HA): E = D².HDHD'.(H'D')².HD' */
-export const CYCLE = parseMoves("R2 U R U R' U' R' U' R' U R'")
+export const CYCLE = parseMoves(PLL_UB)
 /** (HAG) (HDA), and three top edges: H²DHD²B.D'HDB'.(D'H')².D'H */
 export const SWAP = parseMoves("U2 R U R2 D R' U R D' R' U' R' U' R' U")
 /** (HDA)+ (HPD)+ (HGP)+, and three top edges: DHD'H.DH²D'H² */
-export const TWIST = parseMoves("R U R' U R U2 R' U2")
+export const TWIST = parseMoves(SUNE_BACK)
 
 const UDR = moveSet('U D R')
 const U = moveSet('U')

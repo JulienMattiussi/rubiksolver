@@ -6,6 +6,7 @@ import type { MethodPlan } from '../../solve/solverKit'
 import { colorsOf } from '../../core/pieces'
 import type { Cubie } from '../../core/types'
 import { asIn, blocksAt, bothWays, inPlaces, phaseAs, toStart } from './kit'
+import { COMM_UR, INSERT_RIGHT, INSERT_RIGHT_BACK, PLL_UB, SUNE_BACK } from '../standard/algs'
 
 /**
  * Stripe, as taught on fan2cube.fr (stripe2): three bars in a Y. Held at
@@ -31,18 +32,18 @@ import { asIn, blocksAt, bothWays, inPlaces, phaseAs, toStart } from './kit'
 /** ABA': START from solved. */
 export const START = parseMoves("F D F'")
 /** (HDA) -> (BAD): [HD] */
-export const DOWN = parseMoves("U R U' R'")
+export const DOWN = parseMoves(COMM_UR)
 /** (HA) -> (AD): [HD][H'A']; (HD) -> (AD): [H'A'][HD]. */
-export const MIDDLE = [parseMoves("U R U' R' U' F' U F"), parseMoves("U' F' U F U R U' R'")]
+export const MIDDLE = [parseMoves(INSERT_RIGHT), parseMoves(INSERT_RIGHT_BACK)]
 /** (HAG) (HGP): T = D[PH']PHP'D'H²; (HAG) -> (HPD) -> (HDA): D[PH']PHP'D'H' */
 export const SWAP = parseMoves("R B U' B' U B U B' R' U2")
 export const CYCLE_CORNERS = parseMoves("R B U' B' U B U B' R' U'")
 /** The top cross: D[PH]²D', top edges turned over as three cycle. */
 export const FLIP = parseMoves("R B U B' U' B U B' U' R'")
 /** (HDA)+ (HPD)+ (HGP)+: DHD'H.DH²D'H² */
-export const TWIST = parseMoves("R U R' U R U2 R' U2")
+export const TWIST = parseMoves(SUNE_BACK)
 /** (HG) -> (HD) -> (HA): D².HDHD'.(H'D')².HD' */
-export const CYCLE = parseMoves("R2 U R U R' U' R' U' R' U R'")
+export const CYCLE = parseMoves(PLL_UB)
 
 const AT_START = applyMoves(solvedCube('stripe'), START)
 const ALL = allTurnsOf('stripe')

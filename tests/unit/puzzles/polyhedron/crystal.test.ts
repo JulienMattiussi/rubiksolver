@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { CRYSTAL_TURNS, megaSlotAt } from '@/lib/puzzles/polyhedron/megaminx'
-import { CRYSTAL_FORMULAS, megaFormula } from '@/lib/methods/polyhedron/megaminx'
+import { megaFormula } from '@/lib/methods/polyhedron/megaminxFormulas'
+import { CRYSTAL_FORMULAS } from '@/lib/methods/polyhedron/megaminxFormulas'
 import { applyMoves, turnedBy } from '@/lib/core/turn'
 
 const SOLVED = solvedCube('crystal')

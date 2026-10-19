@@ -154,10 +154,10 @@ pour des vignettes (2 421 009, jusqu'à 10 coups de la boîte), mais quatre
 de ses faces autour d'un axe la disent toujours : de ses 2 421 009 formes,
 aucune ne montre les mêmes quatre faces qu'une autre (mesuré ; avec trois
 faces, 61 % seulement, jusqu'à 6 formes possibles). « Changer la forme »
-ouvre donc quatre canevas (`lib/editor/faceCanvases.ts`, réglage `faces` de
-`setup.ts`) : sa face devant soi, puis, basculé vers soi à chaque fois, ce
+ouvre donc quatre canevas (`lib/editor/modes/canvas.ts`, l'étape `canvas`
+de son modèle, offerte ensuite seulement) : sa face devant soi, puis, basculé vers soi à chaque fois, ce
 qui était son dessus, son derrière, son dessous (`FACES`,
-`lib/puzzles/shared/faceViews.ts`). Chaque
+`lib/editor/modes/faceViews.ts`). Chaque
 canevas a 6x6 cases d'une demi-unité ; on peint chacune d'une couleur, ou
 « absent » là où l'on ne voit pas de sticker (le plastique d'une pièce en
 retrait, ou un trou : trop difficile à recopier à plat, il ne dit rien), et

@@ -1,17 +1,7 @@
 import type { FaceLabels } from '../core/moves'
-import type { Cube, Dims, Face, Move, Turn } from '../core/types'
-import type { FaceEntry } from './shared/faceViews'
-
-/** What an entry says of a puzzle besides its colors: the slots `turned`
- *  (a gear over on its clips, a center a quarter off, a face's bars across)
- *  and the gears' pivots (`spins`, by slot, as they show: see gear.ts). */
-export interface EntryMarks {
-  readonly turned: readonly string[]
-  readonly spins: Readonly<Record<string, number>>
-}
-
-/** No marks: a puzzle entered by its colors alone. */
-export const NO_MARKS: EntryMarks = { turned: [], spins: {} }
+import type { Cube, Dims, Face, Move, Turn, Vec3 } from '../core/types'
+import type { GuideGroup, MoveDescription } from '../core/guide'
+import type { EntryMarks, EntryStep, PaintSpec } from '../editor/entry'
 
 /**
  * How a puzzle departs from a plain cuboid on its grid, each hook optional:
@@ -46,18 +36,32 @@ export interface PuzzleModel {
   readonly layers?: (face: Face) => readonly Pick<Move, 'depth' | 'wide'>[]
   /** How a turn is written, when not as a cube's (the Fashion-V's blocks). */
   readonly format?: (move: Move, labels: FaceLabels) => string
-  /** How it is entered, when not by painting its stickers (editor.ts). */
+  /** Its move guide, when not a cube's layers (core/guide.ts). */
+  readonly guide?: () => readonly GuideGroup[]
+  /** What a turn does, when not what its kind of moves says (the Fashion-V's
+   *  layers, the Curvy Copter III's edges). */
+  readonly describe?: (turn: Turn) => MoveDescription
+  /** How it is entered (lib/editor/entry.ts), when not by painting its
+   *  stickers alone. */
   readonly entry?: {
-    /** Piece by piece, a click on a slot putting the next piece that fits
-     *  (pieceEditor.ts). */
-    readonly byPieces?: true
-    /** Its shape told face by face, too many to offer as thumbnails
-     *  (shared/faceViews.ts). */
-    readonly faces?: FaceEntry
+    /** Its steps before its colors, each a mode of entry (its form, its
+     *  faces on canvases, its half-cubies, its joints, toggles), worked out
+     *  when first needed. */
+    readonly steps?: () => readonly EntryStep[]
+    /** How its colors are entered, when not painted sticker by sticker. */
+    readonly paint?: PaintSpec
     /** What the editor shows of a state, from the state `held` as the
      *  editor holds it (what entering cannot see set aside). */
     readonly seen?: (cube: Cube, held: (cube: Cube) => Cube) => Cube
-    /** The state an entry builds, from what was entered and its marks. */
-    readonly built?: (cube: Cube, marks: EntryMarks) => Cube
+    /** The state an entry builds, from what was entered and its marks;
+     *  null when they cannot go together (a gear not its clips' colors). */
+    readonly built?: (cube: Cube, marks: EntryMarks) => Cube | null
+    /** Its stickers entering fills in rather than paints (a 4-star's inner
+     *  points' faces up or down, under the outer layer). */
+    readonly hidden?: (position: Vec3, normal: Vec3) => boolean
+    /** Its slices turn whole: its centers move only together, so they stay
+     *  home as the editor holds it, and a slice's gears share their pivot
+     *  (a Gear Cube's, an Ultimate's; not the Extreme's). */
+    readonly wholeSlices?: true
   }
 }

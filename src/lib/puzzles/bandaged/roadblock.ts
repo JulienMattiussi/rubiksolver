@@ -167,6 +167,11 @@ export const toStart = (cube: Cube): Move[] =>
 /** Whether every bar lies as at START. */
 export const barsAtStart = (cube: Cube): boolean => barsTurned(cube).length === 0
 
+/** Whether a RoadBlock-I's slot is a center (one coordinate at the edge of
+ *  its 5x5x5): a click on it turns its face's bars. */
+export const isBarCenter = (position: readonly number[]): boolean =>
+  position.filter((v) => Math.abs(v) === 2).length === 1
+
 /** The key of the face a center slot is on (`withBars`), from its place. */
 export const faceKeyAt = (position: Vec3): string => {
   const axis = position.findIndex((v) => Math.abs(v) === 2)

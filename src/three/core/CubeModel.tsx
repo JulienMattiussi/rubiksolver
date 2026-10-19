@@ -1,11 +1,12 @@
 import type { ReactNode, RefObject } from 'react'
 import type * as THREE from 'three'
-import { cubeDims } from '@/lib/core/cube'
+import { cubeDims, cubeShape } from '@/lib/core/cube'
 import { centeringOffset, LAYER_THICKNESS } from '@/lib/core/shape'
 import type { Cube, CubeVariant } from '@/lib/core/types'
 import { Cubie } from './Cubie'
 import { cubeScale, drawnIn } from './layout'
 import { NO_PIECES } from './noPieces'
+import { ownViewsOf } from '@/three/puzzles/views'
 
 export interface ModelProps {
   cube: Cube
@@ -58,8 +59,9 @@ export function CubeModel({
   children,
 }: ModelProps & { variant: CubeVariant }) {
   const dims = cubeDims(cube)
-  // A Gear Cube: small center squares, the edges' clips around them.
-  const gear = cube.some((c) => c.spin !== undefined)
+  // A puzzle drawn from its own pieces (a Gear Cube's: small center
+  // squares, the edges' clips around them).
+  const own = ownViewsOf(cubeShape(cube))?.piece
   const drawn = drawnIn(cube)
   const shown = (i: number) => drawn(cube[i]!)
   const [ox, oy, oz] = centeringOffset(LAYER_THICKNESS[variant])
@@ -79,7 +81,7 @@ export function CubeModel({
               pulse={pulse}
               onPick={onPick && pickable(i) ? () => onPick(i) : undefined}
               onPickHover={onPickHover && ((on) => onPickHover(i, on))}
-              smallCenter={gear}
+              own={own}
             />
           ),
         )}
@@ -93,7 +95,7 @@ export function CubeModel({
                 variant={variant}
                 highlighted={highlighted(i)}
                 hatched={hatched(i)}
-                smallCenter={gear}
+                own={own}
               />
             ) : null,
           )}
@@ -109,7 +111,7 @@ export function CubeModel({
                 variant={variant}
                 spinning={turnSpin}
                 progress={progress}
-                smallCenter={gear}
+                own={own}
               />
             ) : null,
           )}

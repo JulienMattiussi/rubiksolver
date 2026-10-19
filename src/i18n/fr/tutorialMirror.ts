@@ -25,7 +25,13 @@ export const TUTORIAL_MIRROR_FR = {
    *  telling what thicknesses are). */
   terms: {
     termCenter:
-      'Un **centre** : la pièce au milieu d’une face, une seule face visible. Les centres ne changent pas de place : chacun donne l’épaisseur de sa face.',
+      'Un **centre** : la pièce au milieu d’une face, ils ont une seule face visible. Les centres ne changent pas de place : chacun donne l’épaisseur de sa face.',
+    termCenter4:
+      'Un **centre** : une des quatre pièces au milieu d’une face, ils ont une seule face visible.',
+    termWing:
+      'Une **arête** : une pièce à deux faces, sur un bord. Chaque couple d’épaisseurs en a deux.',
+    termEdge4:
+      'Une **paire** : les deux arêtes de mêmes épaisseurs, côte à côte et dans le même sens.',
   } as Record<string, string>,
   thicknessTerm: (name: string, first: boolean) =>
     `${first ? 'Sur un cube miroir, toutes les faces ont la même couleur : on les reconnaît à leur épaisseur, de très fine à très épaisse. ' : ''}En bleu, les pièces qui ont une face **${name}**.`,
@@ -102,6 +108,12 @@ export const TUTORIAL_MIRROR_FR = {
     stepTutorialTopCorners2: 'Placer les coins du haut',
   } as Record<string, string>,
   hints: {
+    stepTutorialOllParity4:
+      'Sur un 4x4, une paire peut se retrouver seule à l’envers, ce qu’aucun 3x3 ne permet. On la retourne avant de construire la croix de la face épaisse.',
+    stepTutorialPllParity4:
+      'Sur un 4x4, deux paires peuvent se retrouver échangées seules, ce qu’aucun 3x3 ne permet. On les échange avant de placer les arêtes du haut.',
+    stepTutorialCenters4:
+      'Regroupe un à un les quatre centres de chaque épaisseur sur leur face : la face fine en bas, la face épaisse en haut, puis les quatre autres autour.',
     stepTutorialCross:
       'Place une à une les quatre arêtes qui ont une face fine, cette face en bas.',
     stepTutorialCorner: 'Place un à un les quatre coins qui ont une face fine, cette face en bas.',

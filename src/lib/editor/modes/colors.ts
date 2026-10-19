@@ -1,12 +1,4 @@
-import {
-  countColors,
-  cubeOrientations,
-  cubeShape,
-  shapeColors,
-  solvedCube,
-  stickersTotal,
-} from '../core/cube'
-import { normalIndex } from '../core/geometry'
+import { cubeShape, shapeColors } from '../../core/cube'
 import {
   stickerId,
   tablesFor,
@@ -14,14 +6,14 @@ import {
   type PlacementOption,
   type Slot,
   type SlotTables,
-} from './editorTables'
-import { entersByPieces, piecesCube } from './pieceEditor'
-import { MODELS } from '../puzzles/models'
-import { NO_MARKS, type EntryMarks } from '../puzzles/model'
-import type { Color, Cube, CubeShape } from '../core/types'
+} from '../editorTables'
+import { cubeToEdit, emptyEdit, progress } from '../edit'
+import type { EditStickers } from '../entry'
+import type { Color, Cube, CubeShape } from '../../core/types'
 
 /**
- * Constraint-guided cube editor logic (pure, no React / three.js).
+ * Entry by colors (pure, no React / three.js): the stickers painted one by
+ * one, guided by what real pieces can show.
  *
  * The user paints sticker colors onto the fixed slots. To make it impossible
  * to enter an inconsistent piece, we precompute - from every orientation of
@@ -43,16 +35,10 @@ import type { Color, Cube, CubeShape } from '../core/types'
  * checked separately, see validate.ts.
  *
  * A shape-shifting puzzle is entered in the form it stands in: every function
- * here takes that `form` (a state of it, see forms.ts), the box by default.
- * The Floppy Ghost and the Z-Twist are entered piece by piece instead
- * (`entersByPieces`, pieceEditor.ts), into
- * the same map of stickers.
+ * here takes that `form` (a state of it, see modes/form.ts), the box by
+ * default. A puzzle put piece by piece fills the same map of stickers
+ * (modes/pieces.ts).
  */
-
-/** The slots a cube of `shape` exposes to the editor. */
-export function slotsFor(shape: CubeShape, form?: Cube): readonly Slot[] {
-  return tablesFor(shape, form).slots
-}
 
 /** The colors to pick from: the shape's, but one its pre-filled stickers
  *  all take (the Purple's violet). */
@@ -65,99 +51,6 @@ export function paletteColors(shape: CubeShape, form?: Cube): Color[] {
 export function canPaint(shape: CubeShape, slotKey: string, form?: Cube): boolean {
   const slot = tablesFor(shape, form).byKey.get(slotKey)
   return slot?.paintable ?? false
-}
-
-/** Painted stickers, keyed by sticker id. Absent id = not yet painted. */
-export type EditStickers = Record<string, Color>
-
-/** A blank slate: only the fixed pieces are set (see `Slot.paintable`),
- *  and any sticker every piece that fits its slot shows in one color (the
- *  Purple's big cubes, violet all over). */
-export function emptyEdit(shape: CubeShape, form?: Cube): EditStickers {
-  const tables = tablesFor(shape, form)
-  const edit: EditStickers = {}
-  for (const slot of tables.slots) {
-    if (!slot.paintable) {
-      for (const s of slot.stickers) edit[s.id] = s.solvedColor
-      continue
-    }
-    // Entered piece by piece (Floppy Ghost, Z-Twist): each piece is put whole.
-    if (entersByPieces(shape)) continue
-    const options = tables.placements.get(slot.key) ?? []
-    for (const s of slot.stickers) {
-      const colors = new Set(options.map((option) => option.colors[s.ni]))
-      const [only] = colors
-      if (colors.size === 1 && only) edit[s.id] = only
-    }
-  }
-  return edit
-}
-
-/** Extract a paintable state from an existing cube (e.g. the current one). */
-export function cubeToEdit(cube: Cube): EditStickers {
-  const edit: EditStickers = {}
-  const own = MODELS[cubeShape(cube)]?.entry?.seen
-  const seen = own ? own(cube, withFixedHome) : withFixedHome(cube)
-  for (const cubie of seen) {
-    for (const s of cubie.stickers) edit[stickerId(cubie.position, normalIndex(s.normal))] = s.color
-  }
-  return edit
-}
-
-/**
- * The cube turned as a whole so its fixed pieces show their solved colors
- * (the editor keeps them still): only the 3x3's middle slices (M, E, S)
- * move its centers, and the centers they leave always match a whole-cube
- * rotation. Turning the cube that way is the same position, seen otherwise.
- */
-export function withFixedHome(cube: Cube): Cube {
-  const fixed = tablesFor(cubeShape(cube)).slots.filter((s) => !s.paintable && s.stickers.length)
-  const home = (c: Cube) =>
-    fixed.every((slot) => {
-      const cubie = c.find((p) => p.position.join() === slot.position.join())
-      return slot.stickers.every(
-        (st) =>
-          cubie?.stickers.find((x) => normalIndex(x.normal) === st.ni)?.color === st.solvedColor,
-      )
-    })
-  if (!fixed.length || home(cube)) return cube
-  return cubeOrientations(cube).find(home) ?? cube
-}
-
-/** Number of painted stickers, hidden ones included (see `progress`). */
-export function filledCount(edit: EditStickers): number {
-  return Object.keys(edit).length
-}
-
-/** Painted stickers out of those one can see (a 4-star's hidden faces left
- *  out: they fill in by themselves), and what each color has left. */
-export function progress(
-  edit: EditStickers,
-  shape: CubeShape,
-  form?: Cube,
-): { filled: number; total: number; remaining: Record<Color, number> } {
-  if (entersByPieces(shape)) {
-    // Each piece placed brings its own stickers.
-    const remaining = countColors(solvedCube(shape).flatMap((c) => c.stickers.map((s) => s.color)))
-    for (const color of Object.values(edit)) remaining[color]--
-    return { filled: Object.keys(edit).length, total: stickersTotal(shape), remaining }
-  }
-  const shown = slotsFor(shape, form).flatMap((slot) => slot.stickers.filter((s) => !s.hidden))
-  const remaining = countColors(shown.map((s) => s.solvedColor))
-  let filled = 0
-  for (const s of shown) {
-    const color = edit[s.id]
-    if (!color) continue
-    filled++
-    remaining[color]--
-  }
-  return { filled, total: shown.length, remaining }
-}
-
-/** Every sticker slot of the shape (in that form) is painted. */
-export function isComplete(edit: EditStickers, shape: CubeShape, form?: Cube): boolean {
-  if (entersByPieces(shape)) return piecesCube(edit, shape) !== undefined
-  return slotsFor(shape, form).every((slot) => slot.stickers.every((s) => edit[s.id] !== undefined))
 }
 
 /** Painted colors of a slot, as a normal-index -> color map. */
@@ -315,30 +208,4 @@ export function usesRealPieces(cube: Cube): boolean {
     if (count > (tables.budgets.get(key) ?? 0)) return false
   }
   return true
-}
-
-/** Build a full Cube from a complete edit state (throws if incomplete). */
-export function buildCube(
-  edit: EditStickers,
-  shape: CubeShape,
-  form?: Cube,
-  /** What was entered besides the colors (see `EntryMarks`). */
-  marks: EntryMarks = NO_MARKS,
-): Cube {
-  const own = MODELS[shape]?.entry?.built
-  const built = (cube: Cube) => (own ? own(cube, marks) : cube)
-  if (entersByPieces(shape)) {
-    const cube = piecesCube(edit, shape)
-    if (!cube) throw new Error('buildCube: a slot holds no piece')
-    return built(cube)
-  }
-  const cube = slotsFor(shape, form).map((slot) => ({
-    position: slot.position,
-    stickers: slot.stickers.map((s) => {
-      const color = edit[s.id]
-      if (!color) throw new Error(`Missing sticker ${s.id}`)
-      return { normal: s.normal, color }
-    }),
-  }))
-  return built(cube)
 }

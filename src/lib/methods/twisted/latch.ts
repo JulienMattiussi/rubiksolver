@@ -3,12 +3,13 @@ import { isMark } from '../../core/types'
 import { AXIS_ROTATIONS, FACE_NORMAL, faceOfNormal, normalIndex, vecKey } from '../../core/geometry'
 import { formatMoves, invertMoves, parseMoves } from '../../core/moves'
 import { moveSet, OUTER_TURNS } from '../../core/moveSet'
-import { colorsOf, homesOf } from '../../core/pieces'
+import { colorsOf, homesOf, withStickers } from '../../core/pieces'
 import { applyMove, applyMoves } from '../../core/turn'
 import { arrowOn, faceWays, latchTurns } from '../../puzzles/twisted/latch'
 import { solvePieces } from '../../solve/pieceSearch'
 import { cycleTable, placeByCycles, uniqueHomes } from '../../solve/cycleTable'
 import { atEverySide, type MethodPlan } from '../../solve/solverKit'
+import { conjugated } from '../../solve/everyWay'
 import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
 import {
   CYCLE,
@@ -50,8 +51,8 @@ export const CORNER_CYCLE = "R U R' U' L' U R U' R' L"
 export const CORNER_TWIST = "R U R' U' R U R' U' L' U R U' R' U R U' R' L"
 
 const SOLVED = solvedCube('latch')
-const isEdge = (c: Cubie) => c.stickers.length === 2
-const isCorner = (c: Cubie) => c.stickers.length === 3
+const isEdge = withStickers(2)
+const isCorner = withStickers(3)
 const EDGES = homesOf('latch', isEdge)
 
 /** Whether a face is locked: arrows of both kinds on it (faceWays reads
@@ -228,9 +229,7 @@ function variants(formula: string): Move[][] {
     ...singles.map((m) => [m]),
     ...singles.flatMap((a) => singles.filter((b) => b.face !== a.face).map((b) => [a, b])),
   ]
-  return setups.flatMap((s) =>
-    held.map((f) => [...s, ...f, ...invertMoves(s)]).filter((seq) => goes(SOLVED, seq)),
-  )
+  return conjugated(held, setups).filter((seq) => goes(SOLVED, seq))
 }
 
 /** Whether a sequence goes from `cube`, no face locked on the way. */

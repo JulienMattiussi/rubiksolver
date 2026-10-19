@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowUp, Cog, Search } from 'lucide-react'
-import { FACES } from '@/lib/puzzles/shared/faceViews'
+import { CANVAS_COUNT } from '@/lib/editor/modes/canvas'
 import { useI18n } from '@/i18n/i18nStore'
 import { useEditor } from '@/store/editorStore'
 
@@ -16,12 +16,12 @@ const ARROW =
  *  toward us to the next face, or past the last, its shape searched. */
 export function FaceArrows() {
   const t = useI18n((s) => s.t)
-  const copying = useEditor((s) => s.mode === 'edit' && s.phase === 'faces')
+  const copying = useEditor((s) => s.mode === 'edit' && s.phase === 'canvas')
   const faceAt = useEditor((s) => s.faceAt)
   const finding = useEditor((s) => s.finding)
   const tiltFace = useEditor((s) => s.tiltFace)
   if (!copying) return null
-  const last = faceAt === FACES.length - 1
+  const last = faceAt === CANVAS_COUNT - 1
   const Next = finding ? Cog : last ? Search : ArrowDown
   return (
     <div className="pointer-events-none absolute inset-0">

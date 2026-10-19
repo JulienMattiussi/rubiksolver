@@ -1,7 +1,7 @@
 // Domain types for the cube engine. Pure data, zero React / three.js.
 
 import { CATALOG, CATEGORY_OF } from '../puzzles/catalog'
-import type { EditHint, PadKind, PuzzleEntry } from '../puzzles/entry'
+import type { EditHint, MoveFamily, PadKind, PuzzleEntry } from '../puzzles/entry'
 
 /** Number of layers along x, y and z. Everything geometric derives from it. */
 export type Dims = readonly [number, number, number]
@@ -30,67 +30,45 @@ const each = <T>(read: (entry: PuzzleEntry) => T): Record<CubeShape, T> =>
  */
 export const SHAPE_DIMS: Record<CubeShape, Dims> = each((e) => e.dims)
 
+/** Each puzzle's own kind of moves (none: a grid's face layers). */
+const SHAPE_MOVES: Record<CubeShape, MoveFamily | undefined> = each((e) => e.moves)
+
+/** The puzzles turning by a family's moves, read on their cards. */
+type Moving<F extends MoveFamily> = {
+  [S in CubeShape]: (typeof CATALOG)[S] extends { readonly moves: F } ? S : never
+}[CubeShape]
+
 /** The star prisms: 2 or 4 layers. */
-export type StarShape = 'star' | 'star4'
+export type StarShape = Moving<'star'>
 
 /** Whether a shape is a star prism, which turns by rings and slash (star.ts)
  *  rather than by face layers. */
-export const isStar = (shape: CubeShape): shape is StarShape =>
-  shape === 'star' || shape === 'star4'
+export const isStar = (shape: CubeShape): shape is StarShape => SHAPE_MOVES[shape] === 'star'
 
 /** The Pyraminx, the Master Pyraminx (its 4x4 version) and the Pyraminx
- *  Jing (its deep-cut cousin). */
-export type PyraShape = 'pyra' | 'tetra' | 'pyra4' | 'pyra5' | 'jing'
+ *  Jing (its deep-cut cousin), the Tetraminx and the Professor. */
+export type PyraShape = Moving<'pyra'>
 
 /** Whether a shape is a Pyraminx, which turns about its corners (pyraminx.ts). */
-export const isPyraminx = (shape: CubeShape): shape is PyraShape =>
-  shape === 'pyra' ||
-  shape === 'tetra' ||
-  shape === 'pyra4' ||
-  shape === 'pyra5' ||
-  shape === 'jing'
+export const isPyraminx = (shape: CubeShape): shape is PyraShape => SHAPE_MOVES[shape] === 'pyra'
 
 /** The Gear Cubes (gear.ts): a 3x3x3's cubies, turned by gear moves. */
-export const isGear = (shape: CubeShape): boolean =>
-  shape === 'gearCube' || shape === 'gearU' || shape === 'gearX'
+export const isGear = (shape: CubeShape): boolean => SHAPE_MOVES[shape] === 'gear'
 
 /** Whether a Gear Cube's clips bear colors (the Ultimate, the Extreme):
  *  then they turn over apart from their gears, which the plain Gear Cube
  *  does not show. */
-export const hasColoredClips = (shape: CubeShape): boolean => shape === 'gearU' || shape === 'gearX'
+const SHAPE_CLIPS: Record<CubeShape, boolean> = each((e) => !!e.coloredClips)
+export const hasColoredClips = (shape: CubeShape): boolean => SHAPE_CLIPS[shape]
 
-/** The Rainbow, the Dino Cube, the Rex Cube, the Skewb, the Skewb Ultimate
- *  and the FTO: the same mechanism (rainbow.ts), turning by thirds about the cube's
- *  diagonals. */
-const isRainbowLike = (shape: CubeShape): boolean =>
-  shape === 'rainbow' ||
-  shape === 'dino' ||
-  shape === 'dinoCyl' ||
-  shape === 'rex' ||
-  shape === 'skewb' ||
-  shape === 'masterSkewb' ||
-  shape === 'skewbU' ||
-  shape === 'fto'
-
-/** The Curvy Copters (copter.ts): half turns about the cube's edges. */
-export const isCopter = (shape: CubeShape): boolean => shape === 'copter' || shape === 'copter3'
-
-/** The Megaminx and its holey cousin (megaminx.ts). */
-export const isMegaminx = (shape: CubeShape): boolean =>
-  shape === 'megaminx' || shape === 'holey' || shape === 'crystal'
+const SHAPE_COVER: Record<CubeShape, boolean> = each((e) => !!e.cover)
+/** Whether a puzzle is shown in front of its category's tile. */
+export const isCover = (shape: CubeShape): boolean => SHAPE_COVER[shape]
 
 /** Whether a shape builds and turns in its own module rather than on a grid
- *  of layers (the star prisms, the Pyraminx, the Floppy Ghost): drawn from
- *  polygons, turned by its own pad. */
-export const isGridless = (shape: CubeShape): boolean =>
-  isStar(shape) ||
-  isPyraminx(shape) ||
-  shape === 'ghost' ||
-  shape === 'puck' ||
-  isMegaminx(shape) ||
-  isRainbowLike(shape) ||
-  isGear(shape) ||
-  isCopter(shape)
+ *  of layers (any with its own kind of moves): drawn from polygons, turned
+ *  by its own pad. */
+export const isGridless = (shape: CubeShape): boolean => SHAPE_MOVES[shape] !== undefined
 
 /**
  * Shapes that leave their box: their mechanism is a bigger cube with pieces
@@ -200,9 +178,10 @@ export const CUBE_CATEGORIES = [
 ] as const
 export type CubeCategory = (typeof CUBE_CATEGORIES)[number]
 
-/** Picker group of a cube choice: its catalog folder's, or the mirrors'. */
+/** Picker group of a cube choice: its catalog folder's, or its variant's
+ *  own (the mirrors'). */
 export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
-  return variant === 'mirror' ? 'mirror' : CATEGORY_OF[shape]
+  return variant === 'classic' ? CATEGORY_OF[shape] : variant
 }
 
 /** Cube choices exposed in the UI (the picker groups them by `cubeCategory`). */
@@ -211,10 +190,21 @@ export const CUBE_KINDS: readonly CubeKind[] = [
   ...SHAPES.filter(supportsMirror).map((shape): CubeKind => ({ shape, variant: 'mirror' })),
 ]
 
+/** What a variant adds to a cube choice's id (`4m`). */
+const VARIANT_ID: Record<CubeVariant, string> = { classic: '', mirror: 'm' }
+
 /** Stable id of a cube choice, used as the picker's option value. */
 export function cubeKindId({ shape, variant }: CubeKind): string {
-  return variant === 'mirror' ? `${shape}m` : shape
+  return shape + VARIANT_ID[variant]
 }
+
+/** The home page's gallery: the puzzles whose card shows them there, each
+ *  in its variant. */
+const SHAPE_HOME: Record<CubeShape, CubeVariant | undefined> = each((e) => e.home)
+export const HOME_KINDS: readonly CubeKind[] = SHAPES.flatMap((shape) => {
+  const variant = SHAPE_HOME[shape]
+  return variant ? [{ shape, variant }] : []
+})
 
 /** A face of the cube, named with the standard Singmaster letters. */
 export type Face = 'U' | 'D' | 'L' | 'R' | 'F' | 'B'

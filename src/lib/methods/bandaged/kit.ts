@@ -4,10 +4,10 @@ import { invertMoves, sameLayer } from '../../core/moves'
 import { allTurnsOf, type MoveSet } from '../../core/moveSet'
 import { solvePieces } from '../../solve/pieceSearch'
 import { colorsOf } from '../../core/pieces'
-import { applyMove } from '../../core/turn'
 import type { Cube, Cubie, Move, Turn, Vec3 } from '../../core/types'
 import { cutsNoBlock } from '../../puzzles/bandaged/bonds'
 import { homeOf, pieceInSlot, piecesHome } from '../standard/pieces3'
+import { found, searchFormulas } from '../../solve/formulaSearch'
 
 /**
  * Bricks of the bandaged puzzles' methods (lib/puzzles/bandaged): their
@@ -34,12 +34,6 @@ const beside = (moves: MoveSet, formulas: readonly (readonly Move[])[]): Move[][
     while (end > 0 && moves.turns.some((t) => sameLayer(t, f[end - 1]!))) end--
     return f.slice(0, end)
   })
-
-/** Each formula conjugated by each setup (X F X'): it acts elsewhere. */
-export const conjugated = (
-  formulas: readonly (readonly Move[])[],
-  setups: readonly (readonly Move[])[],
-): Move[][] => setups.flatMap((x) => formulas.map((f) => [...x, ...f, ...invertMoves(x)]))
 
 /** A phase bringing the named pieces home (the earlier ones listed again,
  *  so nothing goes back), with `moves` and the `formulas`. */
@@ -133,27 +127,19 @@ export function toStart(start: Cube, identity: boolean) {
   const goal = blocksKey(start, identity)
   return (cube: Cube): Move[] => {
     const turns = allTurnsOf(cubeShape(cube)).turns as Move[]
-    const blocks = cube.filter(marked)
-    if (blocksKey(blocks, identity) === goal) return []
-    const seen = new Set([blocksKey(blocks, identity)])
-    let frontier: { blocks: Cube; moves: Move[] }[] = [{ blocks, moves: [] }]
-    while (frontier.length) {
-      const next: typeof frontier = []
-      for (const node of frontier) {
-        for (const turn of turns) {
-          if (!cutsNoBlock(node.blocks, turn)) continue
-          const moved = applyMove(node.blocks, turn, [3, 3, 3])
-          const key = blocksKey(moved, identity)
-          if (seen.has(key)) continue
-          const moves = [...node.moves, turn]
-          if (key === goal) return moves
-          seen.add(key)
-          next.push({ blocks: moved, moves })
-        }
-      }
-      frontier = next
-    }
-    throw new Error('toStart: the blocks cannot get there')
+    return found(
+      searchFormulas(
+        cube.filter(marked),
+        turns.map((turn) => [turn]),
+        (blocks) => blocksKey(blocks, identity) === goal,
+        {
+          key: (blocks) => blocksKey(blocks, identity),
+          mechanism: [3, 3, 3],
+          allowed: (blocks, [turn]) => cutsNoBlock(blocks, turn!),
+        },
+      ),
+      'toStart: the blocks cannot get there',
+    )
   }
 }
 

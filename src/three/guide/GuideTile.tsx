@@ -2,10 +2,10 @@ import { useMemo, useRef, useState } from 'react'
 import { createPortal, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { easeInOut } from '@/lib/app/easing'
-import { gearSpinOf } from '@/lib/puzzles/gear/gear'
+import { turnSpinOf } from '@/lib/core/moveKind'
 import { halfTurnedBy, turnAllowed, turnedBy, turnRotation } from '@/lib/core/turn'
 import { cubeShape } from '@/lib/core/cube'
-import { isGearMove, type Cube, type CubeVariant, type Turn } from '@/lib/core/types'
+import type { Cube, CubeVariant, Turn } from '@/lib/core/types'
 import { CubeModel } from '../core/CubeModel'
 import { guideCameraPosition } from './guideCamera'
 import { NO_PIECES } from '../core/noPieces'
@@ -105,7 +105,7 @@ export function GuideTile({ track, cube, variant, turn, playing }: GuideTileProp
     gl.render(scene, camera)
   }, 2)
 
-  const turnSpin = isGearMove(turn) ? gearSpinOf(turn) : 0
+  const turnSpin = turnSpinOf(turn)
   const model = { cube, groupRef, isTurning, halfRef, isHalfTurning, turnSpin, progress }
   return createPortal(
     <>

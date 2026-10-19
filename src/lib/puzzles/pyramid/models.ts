@@ -1,13 +1,18 @@
 import { cubeOrientations, solvedCube } from '../../core/cube'
-import type { Cube, CubeShape } from '../../core/types'
+import type { Cube, CubeShape, PyraShape } from '../../core/types'
 import type { PuzzleModel } from '../model'
+import { pyraGuide } from '../guides'
+import { BY_PIECES, PICK_FORM } from '../../editor/entry'
 import { asSeenMorphinx, mmorphSolved, withCenterMarks, withRealCorners } from './mmorph'
 import { solvedMorph } from './morph'
-import { PYRA_SYMMETRIES, solvedPyra } from './pyraminx'
+import { PYRA_SYMMETRIES, pyraTurnsOf, scramblePyraminx, solvedPyra } from './pyraminx'
 
-const pyra = (shape: 'pyra' | 'tetra' | 'pyra4' | 'pyra5' | 'jing'): PuzzleModel => ({
+const pyra = (shape: PyraShape): PuzzleModel => ({
   solved: () => solvedPyra(shape),
   symmetries: PYRA_SYMMETRIES,
+  turns: () => pyraTurnsOf(shape),
+  scramble: (length, rng) => scramblePyraminx(shape, length, rng),
+  guide: () => pyraGuide(shape),
 })
 
 let MMORPH_HELD: Cube[] | undefined
@@ -18,7 +23,8 @@ export const PYRAMID_MODELS = {
   pyra4: pyra('pyra4'),
   pyra5: pyra('pyra5'),
   jing: pyra('jing'),
-  morph: { solved: solvedMorph },
+  // Entered in the form it stands in.
+  morph: { solved: solvedMorph, entry: { steps: PICK_FORM } },
   // Its small corners' twist never shows; held any way.
   mmorph: {
     solved: () => withCenterMarks(solvedCube('3')),
@@ -27,7 +33,7 @@ export const PYRAMID_MODELS = {
     // Piece by piece, its small corners one way round, the one making it
     // reachable.
     entry: {
-      byPieces: true,
+      paint: BY_PIECES,
       seen: (cube, held) => asSeenMorphinx(held(cube)),
       built: (cube) => withRealCorners(cube),
     },

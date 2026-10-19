@@ -1,5 +1,5 @@
 import { isSolved } from '../../core/cube'
-import { homeAt, homesOf } from '../../core/pieces'
+import { homeAt, homesOf, withStickers } from '../../core/pieces'
 import { parseMoves } from '../../core/moves'
 import { moveSet } from '../../core/moveSet'
 import { solvePieces } from '../../solve/pieceSearch'
@@ -35,8 +35,8 @@ export const SWAP_EDGES_RIGHT = parseMoves("R2 D B2 U2 R2 U2 R2 U2 R2 B2 D' R2")
 /** D: (HA) <-> (HP), (H2D)3 */
 export const SWAP_EDGES_BACK = parseMoves('U2 R2 U2 R2 U2 R2')
 
-const isCorner = (c: Cubie) => c.stickers.length === 3
-const isEdge = (c: Cubie) => c.stickers.length === 2
+const isCorner = withStickers(3)
+const isEdge = withStickers(2)
 const isBottom = (c: Cubie) => c.position[1] < 0
 
 const BOTTOM_CORNERS = homesOf('332', (c) => isCorner(c) && isBottom(c))

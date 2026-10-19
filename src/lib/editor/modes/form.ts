@@ -1,12 +1,13 @@
-import { cubeShape, solvedCube, turnDims } from '../core/cube'
-import { AXIS_ROTATIONS, normalIndex } from '../core/geometry'
-import { layerTurnsOf } from '../core/moves'
-import { applyMove, turnAllowed } from '../core/turn'
-import { SHAPE_SHIFTS, type Cube, type CubeShape } from '../core/types'
+import { cubeShape, solvedCube, turnDims } from '../../core/cube'
+import { AXIS_ROTATIONS, normalIndex } from '../../core/geometry'
+import { layerTurnsOf } from '../../core/moves'
+import { applyMove, turnAllowed } from '../../core/turn'
+import { SHAPE_SHIFTS, type Cube, type CubeShape } from '../../core/types'
 
 /**
- * The forms a shape-shifting puzzle takes (the 2x2x4 tower), for the editor:
- * one enters such a puzzle as it physically stands, so its form is chosen
+ * Entry by choosing the form (a model's `form` step): the forms a
+ * shape-shifting puzzle takes (the 2x2x4 tower), offered as thumbnails. One
+ * enters such a puzzle as it physically stands, so its form is chosen
  * first, then its colors painted on it.
  *
  * A form is what the puzzle looks like with its colors erased: where its
@@ -77,18 +78,13 @@ function heldLook(cube: Cube): string {
 
 const FORMS = new Map<CubeShape, readonly Form[]>()
 
-/** Shape-shifting puzzles with too many forms to offer, entered otherwise:
- *  the Fashion-V's (millions) cell by cell (cutsEditor.ts), the
- *  Camouflage's (2.4 million) face by face (faceCanvases.ts). */
-const NOT_OFFERED: readonly CubeShape[] = ['fashion', 'camo']
-
 /** The forms of a shape, the box first, then by tips and distance; a
- *  puzzle that keeps its box (or is entered otherwise) has that one only. */
+ *  puzzle that keeps its box has that one only. */
 export function formsOf(shape: CubeShape): readonly Form[] {
   let forms = FORMS.get(shape)
   if (forms) return forms
   const solved = solvedCube(shape)
-  if (!SHAPE_SHIFTS[shape] || NOT_OFFERED.includes(shape)) {
+  if (!SHAPE_SHIFTS[shape]) {
     forms = [{ cube: solved, distance: 0, tips: 0 }]
   } else {
     const turns = layerTurnsOf(shape)

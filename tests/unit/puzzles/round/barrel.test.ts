@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { cubeShape, isSolved, solvedCube } from '@/lib/core/cube'
-import { buildCube, cubeToEdit } from '@/lib/editor/editor'
+import { buildCube, cubeToEdit } from '@/lib/editor/edit'
 import { EDGE_CYCLE, EDGE_FLIP, EDGE_FLIP_ALONE, EQUATOR_INSERT } from '@/lib/methods/round/barrel'
 import { parseMoves } from '@/lib/core/moves'
 import { methodsFor } from '@/lib/solve/solver'

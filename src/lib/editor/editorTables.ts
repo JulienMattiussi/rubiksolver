@@ -1,12 +1,10 @@
 import { cubeOrientations, solvedCube } from '../core/cube'
 import { MODELS } from '../puzzles/models'
-import { lookOf } from './forms'
+import { lookOf } from './modes/form'
 import { AXIS_ROTATIONS, normalIndex, vecKey } from '../core/geometry'
 import { layerTurnsOf } from '../core/moves'
 import { applyMove } from '../core/turn'
 import {
-  isGear,
-  isStar,
   SHAPE_SHIFTS,
   type Color,
   type Cube,
@@ -62,11 +60,9 @@ function kindOf(stickerCount: number): SlotKind {
         : 'core'
 }
 
-/** The face of a 4-star inner point that faces up or down: covered by the
- *  outer layer, it only records which way up the piece sits (star.ts), so
- *  painting its two sides fills it in. */
+/** A sticker entering fills in rather than paints (the model says which). */
 function hiddenSticker(shape: CubeShape, position: Vec3, normal: Vec3): boolean {
-  return isStar(shape) && Math.abs(position[1]) === 1 && normal[1] !== 0
+  return MODELS[shape]?.entry?.hidden?.(position, normal) ?? false
 }
 
 /** The solved puzzle the editor works on, as it shows it: without the
@@ -111,14 +107,12 @@ export interface PlacementOption {
  * slash only turns the right one); never a 4x4 center, nor a Floppy edge
  * (a half turn flips it in place). A Gear Cube's centers too: its slices
  * move them, but always as a whole (a slice's quarter turn turns all six
- * about its axis), so holding the cube right puts them home, as the editor
+ * about its axis; `wholeSlices` in its model), so holding the cube right puts them home, as the editor
  * does (`withFixedHome`).
  */
 function fixedPieces(shape: CubeShape): Set<number> {
   const solved = entrySolved(shape)
-  // (Not the Extreme's: its slices move its centers off the top and bottom,
-  // which its middle layer, never moving, holds where they are.)
-  if (isGear(shape) && shape !== 'gearX') {
+  if (MODELS[shape]?.entry?.wholeSlices) {
     return new Set([...solved.keys()].filter((i) => solved[i]!.stickers.length === 1))
   }
   // Turns keep the sticker order, so each sticker's normal can be compared.

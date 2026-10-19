@@ -6,6 +6,8 @@ export const FLAT = {
   '331': { label: '3x3x1 (Floppy)', slug: 'floppy', dims: [3, 1, 3], scramble: 12 },
   // The Floppy Ghost (ghost.ts) is no grid: its slots sit within +-3 in its plane, all at z = 0.
   ghost: {
+    home: 'classic',
+    moves: 'ghost',
     label: 'Floppy Ghost',
     slug: 'floppy-ghost',
     dims: [7, 7, 1],

@@ -1,9 +1,15 @@
-import type { Color, Dims, Face, InnerTurn } from '../core/types'
+import type { Color, CubeVariant, Dims, Face, InnerTurn } from '../core/types'
+
+/** The families of puzzles turning by their own kind of moves (see
+ *  core/moveKind.ts). */
+export type MoveFamily = 'star' | 'pyra' | 'ghost' | 'puck' | 'rainbow' | 'mega' | 'gear' | 'copter'
 
 /** The pad of turns a puzzle shows (components/controls/padFor.tsx): its
- *  faces' unless it turns otherwise. */
+ *  faces' unless it turns otherwise ('vto': its faces' too, its corners,
+ *  wide, before its tips). */
 export type PadKind =
   | 'faces'
+  | 'vto'
   | 'star'
   | 'pyra'
   | 'ghost'
@@ -50,6 +56,17 @@ export interface PuzzleEntry {
   readonly scheme?: Partial<Record<Face, Color>>
   /** Its pad of turns, when not its faces'. */
   readonly pad?: PadKind
+  /** The kind of turns it makes, its own (none: a grid's face layers):
+   *  built and turned by its family's module, drawn from polygons. */
+  readonly moves?: MoveFamily
+  /** A Gear Cube whose clips bear colors (the Ultimate, the Extreme): they
+   *  turn over apart from their gears. */
+  readonly coloredClips?: true
+  /** Shown in front of its category's tile in the picker (else its
+   *  category's first puzzle). */
+  readonly cover?: true
+  /** Shown on the home page's gallery, in this variant. */
+  readonly home?: CubeVariant
   /** Its editor's hint, when not the usual one. */
   readonly editHint?: EditHint
 }

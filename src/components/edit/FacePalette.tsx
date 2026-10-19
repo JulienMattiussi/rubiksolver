@@ -1,5 +1,5 @@
 import { cubeShape, shapeColors } from '@/lib/core/cube'
-import type { FaceCell } from '@/lib/editor/faceCanvases'
+import type { FaceCell } from '@/lib/editor/modes/canvas'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'

@@ -2,6 +2,7 @@ import { cubeShape } from '../core/cube'
 import { BEGINNER_2_PLAN, OPTIMAL_2_PLAN, solveOptimal2 } from '../methods/standard/cube2'
 import { DOMINO_PLAN } from '../methods/tower/domino'
 import { optimalPlan } from './exhaustive'
+import { proveFourByFour } from '../methods/standard/solver4/proof'
 import { FLOPPY_PLAN } from '../methods/flat/floppy'
 import { GHOST_PLAN } from '../methods/flat/ghost'
 import { BARREL_PLAN } from '../methods/round/barrel'
@@ -221,9 +222,10 @@ const SOLVE_METHODS = [
     id: 'optimal',
     plans: {
       '2': OPTIMAL_2_PLAN,
-      '123': optimalPlan('123'),
-      '331': optimalPlan('331'),
-      ghost: optimalPlan('ghost'),
+      // Each searched one turn past its diameter (exhaustive.ts).
+      '123': optimalPlan('123', 7),
+      '331': optimalPlan('331', 9),
+      ghost: optimalPlan('ghost', 16),
       purple: PURPLE_OPTIMAL_PLAN,
     },
   },
@@ -260,14 +262,30 @@ export function methodTurns(shape: CubeShape): Turn[] {
   })
 }
 
+/** A shape's quickest solve, when not its first method's: on a 2x2 the
+ *  optimal search, the quickest to prove a cube impossible. */
+const QUICKEST: Partial<Record<CubeShape, (cube: Cube) => Turn[]>> = { '2': solveOptimal2 }
+
+/** A shape's own proof of solvability, throwing on an impossible state,
+ *  when quicker than solving it (the 4x4's, solver4/proof.ts). */
+const PROOFS: Partial<Record<CubeShape, (cube: Cube) => void>> = { '4': proveFourByFour }
+
+/** Throws when a state cannot be solved: its shape's proof, else its
+ *  solve (validation, editor/validate.ts). */
+export function proveSolvable(cube: Cube): void {
+  const prove = PROOFS[cubeShape(cube)]
+  if (prove) prove(cube)
+  else solve(cube)
+}
+
 /**
  * Default full solve, kept for validation and callers. Every branch throws on
  * an unsolvable cube after a bounded search, which is what validate.ts needs.
  */
 export function solve(cube: Cube): Turn[] {
   const shape = cubeShape(cube)
-  // On a 2x2 the optimal search is the quickest to prove a cube impossible.
-  if (shape === '2') return solveOptimal2(cube)
+  const quickest = QUICKEST[shape]
+  if (quickest) return quickest(cube)
   // Otherwise the shape's first method (beginner, reduction, ...).
   const method = methodsFor(shape)[0]
   if (!method) throw new Error(`solve: no method for shape ${shape}`)

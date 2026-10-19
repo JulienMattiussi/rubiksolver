@@ -1,7 +1,7 @@
 import { isSolved, solvedCube } from '../../core/cube'
 import { allTurnsOf } from '../../core/moveSet'
 import { invertMoves } from '../../core/moves'
-import { colorsOf } from '../../core/pieces'
+import { colorsOf, withStickers } from '../../core/pieces'
 import { parseDinoMoves } from '../../puzzles/shared/rainbow'
 import type { MethodPlan } from '../../solve/solverKit'
 import type { Cube, Cubie, RainbowMove } from '../../core/types'
@@ -30,7 +30,7 @@ const SOLVED = solvedCube('rex')
 const TURNS = allTurnsOf('rex')
 const SETUPS = TURNS.turns as RainbowMove[]
 
-const isEdge = (c: Cubie) => c.stickers.length === 2
+const isEdge = withStickers(2)
 const isCenter = (c: Cubie) =>
   c.stickers.length === 1 && c.position.filter((x) => x !== 0).length === 1
 const isPetal = (c: Cubie) => c.stickers.length === 1 && !isCenter(c)

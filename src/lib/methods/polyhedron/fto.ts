@@ -1,13 +1,16 @@
 import { isSolved, solvedCube } from '../../core/cube'
 import { namedSlice, parseFtoMoves } from '../../puzzles/polyhedron/fto'
 import { applyRainbowMove } from '../../puzzles/shared/rainbow'
-import { AXIS_ROTATIONS, vecKey } from '../../core/geometry'
+import { vecKey } from '../../core/geometry'
 import { allTurnsOf } from '../../core/moveSet'
 import type { MethodPlan } from '../../solve/solverKit'
 import type { Cube, Cubie, RainbowMove } from '../../core/types'
 import { alikeHomes, cycleTable, placeByCycles, uniqueHomes } from '../../solve/cycleTable'
 import { fromEverySide } from '../shared/rainbowKit'
 import { once } from '../../solve/once'
+import { found, searchFormulas } from '../../solve/formulaSearch'
+import { holdingsOf } from '../../solve/holdings'
+import { withStickers } from '../../core/pieces'
 
 /**
  * FTO, "méthode 2" of fan2cube.fr (FTO2): corners, then centers, then
@@ -29,9 +32,9 @@ const TURNS = allTurnsOf('fto')
 const SETUPS = TURNS.turns as RainbowMove[]
 const FACE_TURNS = SETUPS.filter((m) => !m.slice)
 
-const isCorner = (c: Cubie) => c.stickers.length === 4
-const isEdge = (c: Cubie) => c.stickers.length === 2
-const isCenter = (c: Cubie) => c.stickers.length === 1
+const isCorner = withStickers(4)
+const isEdge = withStickers(2)
+const isCenter = withStickers(1)
 
 /** A formula from every side, its slices named as the pad names them. */
 const everySide = (formula: string) =>
@@ -46,12 +49,7 @@ export const FTO_FORMULAS = {
 } as const
 
 /** The solved puzzle held every way (the corners tell which). */
-const HELD: readonly Cube[] = AXIS_ROTATIONS.map((turn) =>
-  SOLVED.map((c) => ({
-    position: turn(c.position),
-    stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
-  })),
-)
+const HELD: readonly Cube[] = holdingsOf(SOLVED)
 
 /** Where the corners stand and how they are turned. */
 const cornersKey = (cube: Cube) =>
@@ -77,25 +75,15 @@ const cornersDone = (cube: Cube) => targetOf(cube) !== undefined
 /** The fewest face turns bringing the corners home, held any way: a search
  *  on the six corners alone (a few thousand states). */
 function solveCorners(cube: Cube): RainbowMove[] {
-  let frontier: { corners: Cube; moves: RainbowMove[] }[] = [
-    { corners: cube.filter(isCorner), moves: [] },
-  ]
-  const seen = new Set([cornersKey(frontier[0]!.corners)])
-  for (let depth = 0; depth < 14; depth++) {
-    for (const node of frontier) if (cornersDone(node.corners)) return node.moves
-    const next: typeof frontier = []
-    for (const node of frontier) {
-      for (const turn of FACE_TURNS) {
-        const corners = applyRainbowMove(node.corners, turn)
-        const id = cornersKey(corners)
-        if (seen.has(id)) continue
-        seen.add(id)
-        next.push({ corners, moves: [...node.moves, turn] })
-      }
-    }
-    frontier = next
-  }
-  throw new Error('fto: the corners cannot go home')
+  return found(
+    searchFormulas(
+      cube.filter(isCorner),
+      FACE_TURNS.map((turn) => [turn]),
+      cornersDone,
+      { key: cornersKey, depth: 13 },
+    ),
+    'fto: the corners cannot go home',
+  )
 }
 
 const edgeCycles = once(() => cycleTable(SOLVED, isEdge, everySide(FTO_FORMULAS.O3), SETUPS))

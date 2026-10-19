@@ -1,10 +1,10 @@
 import { cubeOrientations, isSolved, solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS, FACE_NORMAL, faceOfNormal, normalIndex } from '../../core/geometry'
+import { normalIndex } from '../../core/geometry'
 import { GEAR_TURNS } from '../../puzzles/gear/gear'
 import { allTurnsOf } from '../../core/moveSet'
 import { invertMoves } from '../../core/moves'
+import { found, searchFormulas } from '../../solve/formulaSearch'
 import type { MethodPlan } from '../../solve/solverKit'
-import { applyMoves } from '../../core/turn'
 import {
   hasColoredClips,
   type Cube,
@@ -13,8 +13,9 @@ import {
   type Face,
   type GearMove,
   type Turn,
-  type Dims,
 } from '../../core/types'
+import { heldEveryWay, turnedFace } from '../../solve/everyWay'
+import { holdingsShowing } from '../../solve/holdings'
 
 /**
  * Gear Cube, "corners first", as taught on fan2cube.fr (gearcube2): each
@@ -58,42 +59,21 @@ const colors = (c: Cubie) =>
 const g = (gear: Face, amount: 1 | 3 = 1): GearMove => ({ gear, amount })
 
 /** A formula as seen from every way of holding the puzzle. */
-function fromEverySide(moves: readonly GearMove[]): GearMove[][] {
-  return AXIS_ROTATIONS.map((turn) =>
-    moves.map((m) => ({ ...m, gear: faceOfNormal(turn(FACE_NORMAL[m.gear])) })),
-  )
-}
+const fromEverySide = (moves: readonly GearMove[]): GearMove[][] =>
+  heldEveryWay(moves, (m, by) => ({ ...m, gear: turnedFace(m.gear, by) }))
 
 /** The fewest of `macros` (each a formula played whole) reaching `goal`,
- *  states told apart by `look` (what the goal reads). `mechanism` when
- *  `cube` holds some pieces only (cubeShape cannot tell its shape). */
-export function search<T extends Turn>(
+ *  states told apart by `look` (what the goal reads). */
+const search = <T extends Turn>(
   cube: Cube,
   macros: readonly (readonly T[])[],
   goal: (c: Cube) => boolean,
   look: (c: Cube) => string,
-  mechanism?: Dims,
-): T[] {
-  if (goal(cube)) return []
-  const seen = new Set([look(cube)])
-  let frontier: { state: Cube; moves: T[] }[] = [{ state: cube, moves: [] }]
-  while (frontier.length) {
-    const next: typeof frontier = []
-    for (const { state, moves } of frontier) {
-      for (const macro of macros) {
-        const after = applyMoves(state, macro, mechanism)
-        const k = look(after)
-        if (seen.has(k)) continue
-        seen.add(k)
-        const path = [...moves, ...macro]
-        if (goal(after)) return path
-        next.push({ state: after, moves: path })
-      }
-    }
-    frontier = next
-  }
-  throw new Error('gear: no formula reaches the goal (an impossible puzzle)')
-}
+): T[] =>
+  found(
+    searchFormulas(cube, macros, goal, { key: look }),
+    'gear: no formula reaches the goal (an impossible puzzle)',
+  )
 
 /** The plan for a Gear Cube shape. */
 function gearPlan(shape: CubeShape): MethodPlan {
@@ -101,10 +81,7 @@ function gearPlan(shape: CubeShape): MethodPlan {
   const all = allTurnsOf(shape)
 
   /** The ways of holding the solved puzzle its corners match. */
-  const matching = (cube: Cube) => {
-    const at = new Map(cube.filter(isCorner).map((c) => [key(c), pose(c)]))
-    return holdings.filter((h) => h.filter(isCorner).every((c) => at.get(key(c)) === pose(c)))
-  }
+  const matching = (cube: Cube) => holdingsShowing(holdings, cube, isCorner, pose)
   const held = (cube: Cube) => new Map(matching(cube)[0]!.map((c) => [key(c), c]))
   const cornersDone = (cube: Cube) => matching(cube).length > 0
   const edgesPlaced = (cube: Cube) => {

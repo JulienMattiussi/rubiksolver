@@ -1,10 +1,11 @@
 import { isSolved } from '../../core/cube'
-import { homeAt, homesOf } from '../../core/pieces'
+import { homeAt, homesOf, withStickers } from '../../core/pieces'
 import { formatMoves, parseMoves } from '../../core/moves'
 import { moveSet } from '../../core/moveSet'
 import { solvePieces } from '../../solve/pieceSearch'
 import { atEverySide, type MethodPlan } from '../../solve/solverKit'
 import type { Cube, Cubie, Move, Vec3 } from '../../core/types'
+import { COMM_UF_BACK, COMM_UR, PLL_UB, SUNE } from '../standard/algs'
 
 /**
  * Tori, "extended cross", as taught on fan2cube.fr (tori2): a Rubik's Cube
@@ -32,18 +33,18 @@ export const TURN_OVER = parseMoves("D R D' F")
 /** (AD) -> (HA): DHD' */
 export const RAISE = parseMoves("R U R'")
 /** (HA) -> (AD): [H'A'] */
-export const PLACE_LEFT = parseMoves("U' F' U F")
+export const PLACE_LEFT = parseMoves(COMM_UF_BACK)
 /** (HD) -> (AD): [HD] */
-export const PLACE_RIGHT = parseMoves("U R U' R'")
+export const PLACE_RIGHT = parseMoves(COMM_UR)
 /** Two adjacent top edges turned over (and swapped, set right by H):
  *  A[HD]A'H' */
 export const TURN_TWO = parseMoves("F U R U' R' F' U'")
 /** (HG) -> (HD) -> (HA): D.DHDH.D'H'D'H'.D'HD' */
-export const CYCLE = parseMoves("R R U R U R' U' R' U' R' U R'")
+export const CYCLE = parseMoves(PLL_UB)
 /** (HG) -> (HD) -> (HP): DHD'.H.DH²D' */
-export const CYCLE_BACK = parseMoves("R U R' U R U2 R'")
+export const CYCLE_BACK = parseMoves(SUNE)
 
-const isEdge = (c: Cubie) => c.stickers.length === 2
+const isEdge = withStickers(2)
 const BOTTOM = homesOf('tori', (c) => isEdge(c) && c.position[1] < 0)
 const MIDDLE = homesOf('tori', (c) => isEdge(c) && c.position[1] === 0)
 const TOP = homesOf('tori', (c) => isEdge(c) && c.position[1] > 0)

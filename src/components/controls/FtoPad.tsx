@@ -1,9 +1,8 @@
-import { formatMove } from '@/lib/core/moves'
 import type { RainbowCorner, RainbowMove } from '@/lib/core/types'
-import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
-import { PadButton } from './PadButton'
+import { useI18n } from '@/i18n/i18nStore'
 import { PadGroups } from './PadGroups'
 import { PadHeader } from './PadHeader'
+import { useTurnButton } from './useTurnButton'
 
 /** The FTO's layers (rainbow.ts, `FTO_LETTERS`): the top face and the three
  *  beside it, the bottom face and the three beside it, the four slices. */
@@ -21,17 +20,9 @@ const GROUPS: readonly {
  *  each slice (see PadButton). */
 export function FtoPad({ disabled }: { disabled: boolean }) {
   const t = useI18n((s) => s.t)
-  const labels = useI18n(selectMoveLabels)
-  const button = (move: RainbowMove, ghost: boolean) => (
-    <PadButton
-      key={formatMove(move)}
-      move={move}
-      label={formatMove(move, labels)}
-      title={t.ftoTurnTitle(move.triangle, move.amount === 1, !!move.slice)}
-      disabled={disabled}
-      ghost={ghost}
-    />
-  )
+  const turnButton = useTurnButton(disabled)
+  const button = (move: RainbowMove, ghost: boolean) =>
+    turnButton(move, t.ftoTurnTitle(move.triangle, move.amount === 1, !!move.slice), { ghost })
   return (
     <div>
       <PadHeader />

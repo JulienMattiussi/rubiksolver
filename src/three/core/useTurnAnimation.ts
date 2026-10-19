@@ -1,11 +1,10 @@
-import { gearSpinOf } from '@/lib/puzzles/gear/gear'
+import { turnSpinOf } from '@/lib/core/moveKind'
 import { useEffect, useRef, type RefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { halfTurnedBy, turnRotation, turnedBy } from '@/lib/core/turn'
 import { easeInOut } from '@/lib/app/easing'
 import { useCube } from '@/store/cubeStore'
-import { isGearMove } from '@/lib/core/types'
 import { NO_PIECES } from './noPieces'
 
 interface TurnAnimation {
@@ -73,7 +72,7 @@ export function useTurnAnimation(): TurnAnimation {
   const isTurning = active ? turnedBy(cube, active) : NO_PIECES
   const isHalfTurning = active ? halfTurnedBy(cube, active) : NO_PIECES
 
-  const turnSpin = active && isGearMove(active) ? gearSpinOf(active) : 0
+  const turnSpin = active ? turnSpinOf(active) : 0
 
   return { groupRef, isTurning, halfRef, isHalfTurning, turnSpin, progress }
 }

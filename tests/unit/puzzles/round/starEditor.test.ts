@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { emptyEdit, paint, progress } from '@/lib/editor/editor'
+import { emptyEdit, progress } from '@/lib/editor/edit'
+import { paint } from '@/lib/editor/modes/colors'
 import { tablesFor } from '@/lib/editor/editorTables'
 
 describe('star prism editor', () => {

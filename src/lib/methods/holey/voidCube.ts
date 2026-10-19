@@ -1,14 +1,15 @@
 import { FACE_COLOR, solvedCube } from '../../core/cube'
-import { homeAt, homesOf, recolored } from '../../core/pieces'
+import { homeAt, homesOf, recolored, withStickers } from '../../core/pieces'
 import { invertMoves, parseMoves } from '../../core/moves'
 import { allTurnsOf, moveSet } from '../../core/moveSet'
 import { applyMoves } from '../../core/turn'
 import { atEverySide, projectPlan, type MethodPlan } from '../../solve/solverKit'
 import { solvePieces } from '../../solve/pieceSearch'
-import type { Color, Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
+import type { Color, Cube, Face, Move, Vec3 } from '../../core/types'
 import { frame2 } from '../standard/cube2'
 import { BEGINNER_PLAN, secondLayerDone } from '../standard/layers3'
 import { regular } from './voidFrames'
+import { INSERT_RIGHT } from '../standard/algs'
 
 /**
  * Void Cube, as taught on fan2cube.fr (voidcube2): "comme un Rubik's Cube",
@@ -37,7 +38,7 @@ export const DOWN_EDGE = "U 2R U' 2R'"
 /** (HA)°: dHd'H */
 export const FLIP_EDGE = "2R U 2R' U"
 /** (AD) -> top: [HD][H'A'] */
-export const RAISE_EDGE = "U R U' R' U' F' U F"
+export const RAISE_EDGE = INSERT_RIGHT
 /** (HA) <-> (HD): (aH)²(aH')²aH²(aH')² */
 export const SWAP_EDGES = "2F U 2F U 2F U' 2F U' 2F U2 2F U' 2F U'"
 
@@ -58,8 +59,8 @@ const TURNS = allTurnsOf('void')
 /** H aligns the pieces under the formulas. */
 const H = moveSet('U')
 
-const isCorner = (c: Cubie) => c.stickers.length === 3
-const isEdge = (c: Cubie) => c.stickers.length === 2
+const isCorner = withStickers(3)
+const isEdge = withStickers(2)
 const BOTTOM_CORNERS = homesOf('3', (c) => isCorner(c) && c.position[1] < 0)
 const BOTTOM_EDGES = homesOf('3', (c) => isEdge(c) && c.position[1] < 0)
 const home = (positions: readonly Vec3[]) => (cube: Cube) => homeAt(cube, positions, '3')

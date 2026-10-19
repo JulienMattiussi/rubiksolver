@@ -1,6 +1,7 @@
 import { applyMoves } from '../core/turn'
 import type { Cube, Move } from '../core/types'
 import { borrow, findCycle, type Library } from './cycleLibrary'
+import { permutationIsOdd } from './permutation'
 
 /**
  * Wings brought where they are wanted by pure 3-cycles of wings (a slice
@@ -64,15 +65,5 @@ export function oddArrangement(
   wanted: ReadonlyMap<string, number>,
   at: ReadonlyMap<number, string>,
 ): boolean {
-  const seen = new Set<string>()
-  let swaps = 0
-  for (const start of wanted.keys()) {
-    let length = 0
-    for (let slot = start; !seen.has(slot); slot = at.get(wanted.get(slot)!)!) {
-      seen.add(slot)
-      length++
-    }
-    if (length > 0) swaps += length - 1
-  }
-  return swaps % 2 === 1
+  return permutationIsOdd(new Map([...wanted].map(([slot, wing]) => [slot, at.get(wing)!])))
 }

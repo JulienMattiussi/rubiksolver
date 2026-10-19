@@ -5,7 +5,7 @@ import { parseDinoMoves, RAINBOW_CORNERS } from '../../puzzles/shared/rainbow'
 import type { MethodPlan } from '../../solve/solverKit'
 import type { CubeShape, Cubie, RainbowMove, Vec3 } from '../../core/types'
 import { aroundTop, notPetal, skewbKit } from '../shared/skewbKit'
-import { colorsOf } from '../../core/pieces'
+import { colorsOf, withStickers } from '../../core/pieces'
 
 /**
  * Skewb, "le Haut d'abord", as taught on fan2cube.fr (skewb2 and skewb4):
@@ -62,7 +62,7 @@ export function skewbFirst(shape: CubeShape, kind: 'skewb' | 'master') {
         .every((c) => setOf(c.position) === setOf(corners.get(colorsOf(c))!)),
   )
   const { held, home, oneByOne } = kit
-  const isCorner = (c: Cubie) => c.stickers.length === 3
+  const isCorner = withStickers(3)
   const isCenter = (c: Cubie) => c.stickers.length === 1 && notPetal(c)
   const TOP_CORNERS = solved.filter((c) => isCorner(c) && c.position[1]! > 0).map((c) => c.position)
   const BOTTOM = solved.filter((c) => isCorner(c) && c.position[1]! < 0).map((c) => c.position)

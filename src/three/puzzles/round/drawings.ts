@@ -1,4 +1,4 @@
-import type { CubeShape } from '@/lib/core/types'
+import type { CubeShape, Cubie } from '@/lib/core/types'
 import type { PolyDrawing } from '../../core/polyDrawing'
 import { barrelPolygons, barrelThumbnail } from './barrelGeometry'
 import { dinoCylPolygons, dinoCylThumbnail } from './dinoCylGeometry'
@@ -12,9 +12,13 @@ import {
 } from './puckGeometry'
 import { STAR_YAW, starPolygons } from './starGeometry'
 
+/** A star prism's screw half disc: a piece of its middle layer. */
+const onScrew = (cubie: Cubie) => cubie.position[1] === 0
+
 export const ROUND_DRAWINGS = {
-  star: { polygons: (c) => starPolygons(c, false), yaw: STAR_YAW },
-  star4: { polygons: (c) => starPolygons(c, true), yaw: STAR_YAW },
+  // Its screw's half discs sit on top of the points around them.
+  star: { polygons: (c) => starPolygons(c, false), yaw: STAR_YAW, drawnOver: onScrew },
+  star4: { polygons: (c) => starPolygons(c, true), yaw: STAR_YAW, drawnOver: onScrew },
   // Lying flat, its numbers on its pieces' tops.
   puck: {
     polygons: puckPolygons,

@@ -6,10 +6,10 @@ import {
   CUBE_KINDS,
   cubeCategory,
   cubeKindId,
+  isCover,
   SHAPE_LABEL,
   type CubeCategory,
   type CubeKind,
-  type CubeShape,
 } from '@/lib/core/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
@@ -26,20 +26,17 @@ type Kind = CubeKind
 const kindsOf = (category: CubeCategory): Kind[] =>
   CUBE_KINDS.filter((kind) => cubeCategory(kind) === category)
 
-/** A category's tile picture: its 3x3 in front if it has one (else its first
- *  puzzle), with up to two others beside it. */
 /** A tile's width: two a row, three from `sm` (gaps of 0.5rem between);
  *  four past twelve tiles, in a wider dialog. */
 const TILE_WIDTH = 'flex w-[calc(50%-0.25rem)] flex-col *:flex-1 sm:w-[calc((100%-1rem)/3)]'
 const TILE_WIDTH_4 = 'flex w-[calc(50%-0.25rem)] flex-col *:flex-1 sm:w-[calc((100%-1.5rem)/4)]'
 const MANY = 12
 
-/** The puzzles shown in front of their category, where it has one. */
-const COVERS: readonly CubeShape[] = ['3', 'star4', 'megaminx']
-
+/** A category's tile picture: its cover in front if it has one (its card
+ *  says, else its first puzzle), with up to two others beside it. */
 function showcase(category: CubeCategory): { cover: Kind; others: Kind[] } {
   const kinds = kindsOf(category)
-  const cover = kinds.find((k) => COVERS.includes(k.shape)) ?? kinds[0]!
+  const cover = kinds.find((k) => isCover(k.shape)) ?? kinds[0]!
   return { cover, others: kinds.filter((k) => k !== cover).slice(0, 2) }
 }
 
@@ -65,7 +62,7 @@ export function CubePicker({
   const [category, setCategory] = useState<CubeCategory | null>(null)
   const titleId = useId()
 
-  const nameOf = (kind: Kind) => t.cubeKind(SHAPE_LABEL[kind.shape], kind.variant === 'mirror')
+  const nameOf = (kind: Kind) => t.cubeKind(SHAPE_LABEL[kind.shape], kind.variant)
   const current: Kind = { shape, variant }
   const isCurrent = (kind: Kind) => !home && cubeKindId(kind) === cubeKindId(current)
   const shown = home ? t.chooseModel : nameOf(current)

@@ -59,22 +59,23 @@ coups ; (2) arêtes placées, D⁴ et P²D⁴P'² ; (3) agrafes, (A²D²)³ (éc
 les agrafes des 8 arêtes du haut et du bas, engrenages revenus tels quels) ;
 (4) engrenages, D⁸ (pivote d'un tiers les 4 engrenages d'une tranche). Les
 centres suivent. **Saisie** dans tout état : d'abord le pivot des
-engrenages (`lib/editor/setup.ts`, `nextSpin` : un clic fait pivoter d'un
+engrenages (une étape de bascules, `lib/puzzles/gear/gearEntry.ts` : un clic fait pivoter d'un
 sixième les quatre engrenages d'une tranche, qui le partagent toujours ; ce
 qui se voit, `shownSpin`, un engrenage étant le même un demi-tour plus
 loin), puis les stickers comme un 3x3, centres pré-remplis
-(`fixedPieces`), sur ses propres pièces (`EditView` les
-dessine comme en jeu, un clic sur le corps d'une pièce la peint). Agrafes et engrenages se peignent à
+(`fixedPieces`), sur ses propres pièces (sa vue de saisie,
+`GearEditView`, les dessine comme en jeu, un clic sur le corps d'une pièce
+la peint). Agrafes et engrenages se peignent à
 part : les agrafes sont les stickers, les engrenages des couleurs gardées
-à côté (`gear`, par les mêmes identifiants ; `lib/editor/gearEditor.ts`). Un
+à côté (les parties de sa peinture, `parts`, par les mêmes identifiants). Un
 engrenage porte la paire de ses agrafes dans un sens ou dans l'autre : une
 fois celle-ci connue, une face de l'engrenage donne l'autre et une couleur
-hors de la paire est refusée (`paintGear`, `completeGears`). À la
-validation, `turnedOf` dit quels engrenages sont retournés sur leurs
-agrafes (ou qu'un engrenage n'a pas leurs couleurs), et `buildCube` les pose
-(`withTurnedGears` ; `gearColorsOf` en sens inverse). « Modifier » est grisé tant qu'un engrenage est
+hors de la paire est refusée (`completeGears`). À la validation, son
+modèle (`built`) dit quels engrenages sont retournés sur leurs agrafes (ou
+refuse un engrenage qui n'a pas leurs couleurs), et les pose
+(`withTurnedGears` ; ses parties lues sur un état en sens inverse, `of`). « Modifier » est grisé tant qu'un engrenage est
 de travers (`gearsAligned` : pivot nul ou d'un demi-tour). Le décompte et la palette comptent aussi les faces des
-engrenages (`gearFaces`).
+engrenages (le décompte des parties, `count`).
 
 **Le Gear Cube** (`gearCube`) : la même mécanique, agrafes sans couleur
 (noires) et couleurs standard. Seul l'engrenage se voit : des agrafes

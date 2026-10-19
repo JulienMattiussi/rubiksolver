@@ -15,6 +15,7 @@ import {
 } from './pyraKit'
 import { vecKey } from '../../core/geometry'
 import { once } from '../../solve/once'
+import { withStickers } from '../../core/pieces'
 
 /**
  * Master Pyraminx, "wings then midges", as taught on fan2cube.fr
@@ -54,7 +55,7 @@ const SLICES: typeof TIPS = {
 
 const isWing = (c: Cubie) => c.stickers.length === 2 && c.position.some((x) => Math.abs(x) === 3)
 const isMidge = (c: Cubie) => c.stickers.length === 2 && !isWing(c)
-const isCenter = (c: Cubie) => c.stickers.length === 1
+const isCenter = withStickers(1)
 
 const home = (cube: Cube, keep: (c: Cubie) => boolean) => {
   const right = showsFaces(faceColors(cube, SIZE))

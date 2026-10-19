@@ -1,25 +1,13 @@
-import {
-  Box,
-  Check,
-  Cog,
-  Eraser,
-  Layers,
-  Link2,
-  Rows3,
-  Shapes,
-  X,
-  type LucideIcon,
-} from 'lucide-react'
+import { Check, Eraser, X } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
-import { isComplete, progress } from '@/lib/editor/editor'
-import { formsOf } from '@/lib/editor/forms'
-import { wholeCount } from '@/lib/editor/cutsEditor'
-import { setupOf, type Setup } from '@/lib/editor/setup'
-import { gearFaces, gearsPainted } from '@/lib/editor/gearEditor'
-import { hasColoredClips, SHAPE_EDIT_HINT } from '@/lib/core/types'
+import { isComplete, progress } from '@/lib/editor/edit'
+import { entryOf, stepOf, type EntryStep } from '@/lib/editor/entry'
+import { placedCount } from '@/lib/editor/modes/pieces'
+import { partsDone } from '@/lib/editor/steps'
+import { SHAPE_EDIT_HINT } from '@/lib/core/types'
+import { tellsSizes } from '@/lib/core/shape'
 import type { EditHint } from '@/lib/puzzles/entry'
 import { stepName, type Translations } from '@/i18n/translations'
-import { entersByPieces, placedCount } from '@/lib/editor/pieceEditor'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -30,6 +18,7 @@ import { FacesPanel } from './FacesPanel'
 import { FormPicker } from './FormPicker'
 import { PhasePanel } from './PhasePanel'
 import { PiecesLeft } from './PiecesLeft'
+import { stepTexts } from './stepTexts'
 
 /** The editor's own hints, by kind (a puzzle's card says which). */
 const HINTS = (t: Translations): Record<EditHint, string> => ({
@@ -41,72 +30,33 @@ const HINTS = (t: Translations): Record<EditHint, string> => ({
   gearPlain: t.editHintGearPlain,
 })
 
-/** What each setup shows: its hint, its buttons' labels (accept it, come
- *  back to it from the colors) and icon, the error if refused. */
-const SETUPS = (
-  t: Translations,
-): Record<
-  Setup,
-  { hint: string; accept: string; change: string; icon: LucideIcon; error?: string }
-> => ({
-  joints: {
-    hint: t.editHintJoints,
-    accept: t.acceptJoints,
-    change: t.changeJoints,
-    icon: Link2,
-    error: t.errorJoints,
-  },
-  cuts: {
-    hint: t.editHintCuts,
-    accept: t.acceptCuts,
-    change: t.changeCuts,
-    icon: Layers,
-    error: t.errorCuts,
-  },
-  faces: { hint: t.editHintFaces, accept: t.findShape, change: t.changeFaces, icon: Box },
-  bars: { hint: t.editHintBars, accept: t.acceptBars, change: t.changeBars, icon: Rows3 },
-  gears: { hint: t.editHintGears, accept: t.acceptGears, change: t.changeGears, icon: Cog },
-})
-
-/** Why the entry is refused: the colors counted wrong (on a mirror cube,
- *  its sizes), the gears, the colors against the joints, or the state
- *  unsolvable (at the step the solver stopped, when it says). */
+/** Why the entry is refused: the colors counted wrong (its sizes, where
+ *  stickers tell sizes), parts not their pieces' colors, the colors against
+ *  the joints, or the state unsolvable (at the step the solver stopped,
+ *  when it says). */
 function errorText(
   t: Translations,
   error: string,
   failedStep: string | null,
-  mirror: boolean,
+  sizes: boolean,
 ): string {
-  if (error === 'gears') return t.errorGears
+  if (error === 'parts') return t.errorGears
   if (error === 'jointsColors') return t.errorJointsColors
-  if (error === 'counts') return mirror ? t.errorCountsMirror : t.errorCounts
+  if (error === 'counts') return sizes ? t.errorCountsMirror : t.errorCounts
   if (failedStep && failedStep in t.steps) return t.errorImpossibleAt(stepName(t, failedStep))
   return t.errorImpossible
 }
 
-/** Cube-entry panel: the form first on a shape-shifting puzzle (FormPicker),
- *  a setup first on some (setup.ts: joints, halves, bars, gears, clicked in
- *  3D), then hint, color palette, progress, validation error, actions. A puzzle
- *  entered piece by piece (Floppy Ghost, Z-Twist) has no palette: it counts its
- *  pieces placed. */
+/** Cube-entry panel: the steps the puzzle's model lists first, each its
+ *  mode's panel (lib/editor/entry.ts: its form, its faces, its halves, its
+ *  joints, toggles), then its colors: hint, palette (none when put piece
+ *  by piece: its pieces counted), progress, validation error, actions, and
+ *  a way back to each step. */
 export function EditPanel() {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
-  const mirror = useCube((s) => s.variant === 'mirror')
-  const edit = useEditor((s) => s.edit)
-  const clearAll = useEditor((s) => s.clearAll)
-  const cancel = useEditor((s) => s.cancel)
-  const apply = useEditor((s) => s.apply)
-  const error = useEditor((s) => s.error)
-  const failedStep = useEditor((s) => s.failedStep)
-  const gear = useEditor((s) => s.gear)
   const phase = useEditor((s) => s.phase)
-  const form = useEditor((s) => s.form)
-  const pickForm = useEditor((s) => s.pickForm)
-  const acceptSetup = useEditor((s) => s.acceptSetup)
-  const editSetup = useEditor((s) => s.editSetup)
-  const cuts = useEditor((s) => s.cuts)
-  const setup = setupOf(shape)
+  const cancel = useEditor((s) => s.cancel)
 
   if (phase === 'form') {
     return (
@@ -119,41 +69,62 @@ export function EditPanel() {
       </div>
     )
   }
+  if (phase === 'canvas') return <FacesPanel />
+  if (phase !== 'paint') return <StepPanel step={stepOf(shape, phase)!} />
+  return <PaintPanel />
+}
 
-  if (phase === 'faces') return <FacesPanel />
+/** A step clicked on the puzzle (its halves, its joints, toggles): its
+ *  hint, its count, then on. */
+function StepPanel({ step }: { step: EntryStep }) {
+  const t = useI18n((s) => s.t)
+  const shape = useCube((s) => cubeShape(s.cube))
+  const error = useEditor((s) => s.error)
+  const cuts = useEditor((s) => s.cuts)
+  const acceptStep = useEditor((s) => s.acceptStep)
+  const { hint, accept, error: refused } = stepTexts(t, step)
+  return (
+    <PhasePanel
+      hint={hint}
+      counter={
+        step.kind === 'joints' ? (
+          <PiecesLeft shape={shape} />
+        ) : step.kind === 'cuts' ? (
+          <span className="text-sm font-medium text-slate-200">
+            {t.wholeEdgesOf(step.cuts.wholes(cuts))}
+          </span>
+        ) : undefined
+      }
+      error={error === step.kind ? (refused ?? null) : null}
+      accept={accept}
+      onAccept={acceptStep}
+    />
+  )
+}
 
-  if (phase !== 'paint') {
-    const { hint, accept, error: refused } = SETUPS(t)[phase]
-    return (
-      <PhasePanel
-        hint={hint}
-        counter={
-          phase === 'joints' ? (
-            <PiecesLeft shape={shape} />
-          ) : phase === 'cuts' ? (
-            <span className="text-sm font-medium text-slate-200">
-              {t.wholeEdgesOf(wholeCount(cuts))}
-            </span>
-          ) : undefined
-        }
-        error={error === phase ? (refused ?? null) : null}
-        accept={accept}
-        onAccept={acceptSetup}
-      />
-    )
-  }
+/** The colors: painted, or put piece by piece. */
+function PaintPanel() {
+  const t = useI18n((s) => s.t)
+  const shape = useCube((s) => cubeShape(s.cube))
+  const sizes = useCube((s) => tellsSizes(s.variant))
+  const edit = useEditor((s) => s.edit)
+  const clearAll = useEditor((s) => s.clearAll)
+  const cancel = useEditor((s) => s.cancel)
+  const apply = useEditor((s) => s.apply)
+  const error = useEditor((s) => s.error)
+  const failedStep = useEditor((s) => s.failedStep)
+  const parts = useEditor((s) => s.parts)
+  const form = useEditor((s) => s.form)
+  const backTo = useEditor((s) => s.backTo)
+  const { steps, paint } = entryOf(shape)
 
-  const byPieces = entersByPieces(shape)
+  const byPieces = paint.by === 'pieces'
   const hint = SHAPE_EDIT_HINT[shape]
   const { filled, total } = progress(edit, shape, form)
   const { placed, total: slots } = byPieces ? placedCount(edit, shape) : { placed: 0, total: 0 }
-  // A Gear Cube's gears are painted apart from their clips.
-  const gears = hasColoredClips(shape) ? gearsPainted(gear, shape) : null
-  const complete = isComplete(edit, shape, form) && (!gears || gears.painted === gears.total)
-  // Counted with the stickers: every face to paint, clips and gears alike.
-  const faces = hasColoredClips(shape) ? gearFaces(gear, shape) : null
-  // Its forms to pick from, unless its shape is told face by face.
-  const shifts = formsOf(shape).length > 1 && setup !== 'faces'
+  const complete = isComplete(edit, shape, form) && partsDone(shape, parts)
+  // Parts painted apart count with the stickers: every face to paint.
+  const counted = paint.parts?.count(parts)
 
   return (
     <div className="flex flex-col gap-5">
@@ -162,7 +133,7 @@ export function EditPanel() {
           ? HINTS(t)[hint]
           : byPieces
             ? t.editHintPieces
-            : mirror
+            : sizes
               ? t.editHintMirror
               : t.editHint}
       </p>
@@ -173,14 +144,14 @@ export function EditPanel() {
         <span className="font-medium text-slate-200">
           {byPieces
             ? t.piecesOf(placed, slots)
-            : faces
-              ? t.facesOf(filled + faces.painted, total + faces.total)
+            : counted
+              ? t.facesOf(filled + counted.painted, total + counted.total)
               : t.filledOf(filled, total)}
         </span>
         {complete && <Check className="size-4 text-emerald-400" aria-hidden />}
       </div>
 
-      {error && <ErrorAlert>{errorText(t, error, failedStep, mirror)}</ErrorAlert>}
+      {error && <ErrorAlert>{errorText(t, error, failedStep, sizes)}</ErrorAlert>}
 
       <div className="grid grid-cols-2 gap-2">
         <Button variant="primary" onClick={apply} disabled={!complete} className="col-span-2">
@@ -195,26 +166,21 @@ export function EditPanel() {
           <X className="size-4" aria-hidden />
           {t.cancel}
         </Button>
-        {setup && <ChangeSetup setup={setup} onClick={editSetup} />}
-        {shifts && (
-          <Button onClick={() => pickForm(null)} variant="ghost" className="col-span-2">
-            <Shapes className="size-4" aria-hidden />
-            {t.changeForm}
-          </Button>
-        )}
+        {steps.map((step) => {
+          const { change, icon: Icon } = stepTexts(t, step)
+          return (
+            <Button
+              key={step.kind}
+              onClick={() => backTo(step.kind)}
+              variant="ghost"
+              className="col-span-2"
+            >
+              <Icon className="size-4" aria-hidden />
+              {change}
+            </Button>
+          )
+        })}
       </div>
     </div>
-  )
-}
-
-/** Back from the colors to the setup. */
-function ChangeSetup({ setup, onClick }: { setup: Setup; onClick: () => void }) {
-  const t = useI18n((s) => s.t)
-  const { change, icon: Icon } = SETUPS(t)[setup]
-  return (
-    <Button onClick={onClick} variant="ghost" className="col-span-2">
-      <Icon className="size-4" aria-hidden />
-      {change}
-    </Button>
   )
 }

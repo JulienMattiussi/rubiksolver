@@ -2,7 +2,7 @@ import { isSolved } from '../../core/cube'
 import { mapVec, TET_NORMALS } from '../../core/geometry'
 import type { HoldFrame } from '../../core/hold'
 import { parseMoves } from '../../core/moves'
-import { hasColors } from '../../core/pieces'
+import { hasColors, sameAt } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
 import type { Color, Cube, Cubie, Move, Vec3 } from '../../core/types'
 import { PLL_T, PLL_Y, SUNE } from '../../methods/standard/algs'
@@ -36,7 +36,6 @@ const MORPH_HOLD: HoldFrame = {
   inHold: (_, turn) => turn,
 }
 
-const sameAt = (a: Vec3, b: Vec3) => a.join() === b.join()
 const indexAt = (cube: Cube, at: Vec3) => cube.findIndex((c) => sameAt(c.position, at))
 
 /** The first half's places (the 2x2's bottom layer): two corners of the

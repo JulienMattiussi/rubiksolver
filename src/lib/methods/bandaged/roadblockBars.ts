@@ -22,6 +22,7 @@ import {
   slice,
   unit,
 } from './roadblockKit'
+import { found, searchFormulas } from '../../solve/formulaSearch'
 
 /**
  * RoadBlock-I's method (roadblock.ts), steps 0 and 2: the middle centers,
@@ -47,25 +48,15 @@ const MIDDLE_HOME = middleKey(SOLVED)
 
 /** The fewest middle slices bringing every face's middle center home. */
 export function middlesHome(cube: Cube): Move[] {
-  let frontier: { cube: Cube; moves: Move[] }[] = [
-    { cube: cube.filter((c) => c.position.filter((v) => v === 0).length === 2), moves: [] },
-  ]
-  const seen = new Set([middleKey(frontier[0]!.cube)])
-  for (let depth = 0; depth < 5; depth++) {
-    for (const node of frontier) if (middleKey(node.cube) === MIDDLE_HOME) return node.moves
-    const next: typeof frontier = []
-    for (const node of frontier) {
-      for (const moves of MIDDLES) {
-        const moved = applyMoves(node.cube, moves, MECHANISM)
-        const key = middleKey(moved)
-        if (seen.has(key)) continue
-        seen.add(key)
-        next.push({ cube: moved, moves: [...node.moves, ...moves] })
-      }
-    }
-    frontier = next
-  }
-  throw new Error('roadblock: the middle centers cannot go home')
+  return found(
+    searchFormulas(
+      cube.filter((c) => c.position.filter((v) => v === 0).length === 2),
+      MIDDLES,
+      (c) => middleKey(c) === MIDDLE_HOME,
+      { key: middleKey, depth: 4, mechanism: MECHANISM },
+    ),
+    'roadblock: the middle centers cannot go home',
+  )
 }
 
 export const middleDone = (cube: Cube) => middleKey(cube) === MIDDLE_HOME && barsAtStart(cube)

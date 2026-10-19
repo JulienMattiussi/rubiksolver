@@ -18,6 +18,24 @@ export function colorsOf(cubie: Cubie): string {
   return stickerColors(cubie.stickers)
 }
 
+/** How a piece stands: its stickers, each its face and color, sorted (its
+ *  place aside). */
+export const poseOf = (cubie: Cubie): string =>
+  cubie.stickers
+    .map((s) => s.normal.join() + s.color)
+    .sort()
+    .join('|')
+
+/** The pieces showing this many stickers (a kind, on a puzzle whose kinds
+ *  differ by it). */
+export const withStickers =
+  (count: number) =>
+  (cubie: Cubie): boolean =>
+    cubie.stickers.length === count
+
+/** Whether two places are the same. */
+export const sameAt = (a: readonly number[], b: readonly number[]) => a.join() === b.join()
+
 /** Some stickers' colors, sorted (a piece's own, its marks set aside). Each
  *  color is one letter, so they join with nothing between. */
 export function stickerColors(stickers: readonly Sticker[]): string {

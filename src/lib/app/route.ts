@@ -1,4 +1,4 @@
-import { CUBE_KINDS, cubeKindId, SHAPE_SLUG, type CubeKind } from '../core/types'
+import { CUBE_KINDS, cubeKindId, SHAPE_SLUG, type CubeKind, type CubeVariant } from '../core/types'
 
 /**
  * The app's address: `#/<language>/<puzzle>`, e.g. `#/fr/floppy-ghost` or
@@ -17,9 +17,12 @@ export interface Route {
   readonly kind?: CubeKind
 }
 
+/** What a variant adds to a puzzle's name in the address. */
+const VARIANT_SLUG: Record<CubeVariant, string> = { classic: '', mirror: '-mirror' }
+
 /** A puzzle's name in the address. */
 export function kindSlug(kind: CubeKind): string {
-  return SHAPE_SLUG[kind.shape] + (kind.variant === 'mirror' ? '-mirror' : '')
+  return SHAPE_SLUG[kind.shape] + VARIANT_SLUG[kind.variant]
 }
 
 const KIND_OF_SLUG = new Map(CUBE_KINDS.map((kind) => [kindSlug(kind), kind]))

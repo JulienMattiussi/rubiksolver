@@ -16,6 +16,7 @@ import { StarPad } from './StarPad'
 /** Each kind of pad (a puzzle's card says which it shows). */
 const PADS: Record<PadKind, (disabled: boolean) => ReactNode> = {
   faces: (disabled) => <MovePad disabled={disabled} />,
+  vto: (disabled) => <MovePad disabled={disabled} corners />,
   star: (disabled) => <StarPad disabled={disabled} />,
   pyra: (disabled) => <PyraPad disabled={disabled} />,
   ghost: (disabled) => <GhostPad disabled={disabled} />,

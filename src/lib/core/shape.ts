@@ -44,8 +44,18 @@ type Point = readonly [number, number, number]
  */
 export const LAYER_THICKNESS: Record<CubeVariant, Record<CubeColor, number>> = {
   classic: { W: 1, Y: 1, G: 1, B: 1, O: 1, R: 1 },
-  mirror: { O: 0.58, Y: 0.68, B: 0.78, G: 1.22, W: 1.32, R: 1.42 },
+  mirror: { O: 0.54, Y: 0.68, B: 0.78, G: 1.22, W: 1.32, R: 1.46 },
 }
+
+/** What a sticker tells on each variant: its color, or (all alike, a
+ *  mirror's) its layer's size, which the variant's thicknesses give. */
+const STICKERS_TELL: Record<CubeVariant, 'color' | 'size'> = {
+  classic: 'color',
+  mirror: 'size',
+}
+
+/** Whether a variant's stickers tell sizes rather than colors. */
+export const tellsSizes = (variant: CubeVariant): boolean => STICKERS_TELL[variant] === 'size'
 
 /** Colors ordered from the thinnest layer to the thickest. */
 export function byThickness(thickness: Record<CubeColor, number>): CubeColor[] {

@@ -5,9 +5,9 @@ import { turnAllowed } from '@/lib/core/turn'
 import type { Face, Move } from '@/lib/core/types'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
-import { PadButton } from './PadButton'
 import { PadGroups } from './PadGroups'
 import { PadHeader } from './PadHeader'
+import { useTurnButton } from './useTurnButton'
 
 /** The Fashion-V's turns, by group: its blocks (each side's column, each
  *  half), then its thin layers (H and h, b and B), which only go when their
@@ -34,16 +34,12 @@ export function FashionPad({ disabled }: { disabled: boolean }) {
   const cube = useCube((s) => s.cube)
   const shape = cubeShape(cube)
   const dims = cubeDims(cube)
-  const button = (move: Move, ghost: boolean) => (
-    <PadButton
-      key={formatMove(move, labels, dims, shape)}
-      move={move}
-      label={formatMove(move, labels, dims, shape)}
-      title={t.describeMove(describeMove(move, shape))}
-      disabled={disabled || !turnAllowed(cube, move)}
-      ghost={ghost}
-    />
-  )
+  const turnButton = useTurnButton(disabled)
+  const button = (move: Move, ghost: boolean) =>
+    turnButton(move, t.describeMove(describeMove(move, shape)), {
+      ghost,
+      off: !turnAllowed(cube, move),
+    })
   return (
     <div>
       <PadHeader />

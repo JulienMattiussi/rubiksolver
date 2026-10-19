@@ -3,7 +3,7 @@ import { OUTER_TURNS } from '../../core/moveSet'
 import { atEverySide, relMoves, SIDES, solveWithAlgs, type MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, Face, Move } from '../../core/types'
-import { PLL_AA, SUNE } from '../standard/algs'
+import { INSERT_RIGHT, PLL_AA, SUNE } from '../standard/algs'
 import {
   crossDone,
   firstLayerDone,
@@ -30,7 +30,7 @@ import { colorAt, hasColors } from '../../core/pieces'
  */
 
 /** 2: [HD].[H'A'], inserting the top front edge at front right. */
-export const EQUATOR_INSERT = "U R U' R' U' F' U F"
+export const EQUATOR_INSERT = INSERT_RIGHT
 /** 4: (HP) -> (HD) -> (HA) */
 export const EDGE_CYCLE = "R2 U F B' R2 B F' U R2"
 /** 5: HA and HD turned over. */

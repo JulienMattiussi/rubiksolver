@@ -1,9 +1,9 @@
 import { isSolved } from '../../core/cube'
-import { homeAt, homesOf } from '../../core/pieces'
+import { homeAt, homesOf, withStickers } from '../../core/pieces'
 import { allTurnsOf, moveSet } from '../../core/moveSet'
 import { solvePieces } from '../../solve/pieceSearch'
 import type { MethodPlan } from '../../solve/solverKit'
-import type { Cube, Cubie, Move, Vec3 } from '../../core/types'
+import type { Cube, Move, Vec3 } from '../../core/types'
 import { DESCEND_CORNER, SWAP_CORNERS } from './domino'
 
 /**
@@ -19,7 +19,7 @@ import { DESCEND_CORNER, SWAP_CORNERS } from './domino'
  *   III. Top corners     swapped two at a time
  */
 
-const isCorner = (c: Cubie) => c.stickers.length === 3
+const isCorner = withStickers(3)
 const EQUATOR = homesOf('223', (c) => c.position[1] === 0)
 const BOTTOM_CORNERS = homesOf('223', (c) => isCorner(c) && c.position[1] < 0)
 const CORNERS = homesOf('223', isCorner)

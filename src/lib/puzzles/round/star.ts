@@ -119,6 +119,12 @@ function times(map: (v: Vec3) => Vec3, n: number): (v: Vec3) => Vec3 {
 }
 
 /** Whether `move` turns the piece at `position`. */
+/** The face of an inner point that faces up or down: covered by the outer
+ *  layer, it only records which way up the piece sits, so painting its two
+ *  sides fills it in. */
+export const hiddenStarSticker = (position: Vec3, normal: Vec3): boolean =>
+  Math.abs(position[1]) === 1 && normal[1] !== 0
+
 export function starTurns(move: StarMove, position: Vec3): boolean {
   if ('slash' in move) return inRightHalf(position)
   return position[1] === RING_Y[move.ring]
@@ -193,6 +199,14 @@ export function starRotation(move: StarMove): {
 }
 
 /** A Square-1 style scramble: turn every layer, slash, again and again. */
+/** Every turn of a star prism: each ring by each amount, and the slash. */
+export const starTurnsOf = (shape: StarShape): StarMove[] => [
+  ...STAR_RINGS[shape].flatMap((ring) =>
+    ([1, 2, 3, 4, 5] as const).map((amount) => ({ ring, amount })),
+  ),
+  { slash: true },
+]
+
 export function scrambleStar(shape: StarShape, length: number, rng: () => number): StarMove[] {
   const moves: StarMove[] = []
   const amount = () => (1 + Math.floor(rng() * 5)) as RingMove['amount']

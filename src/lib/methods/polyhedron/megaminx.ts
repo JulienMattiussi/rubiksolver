@@ -2,20 +2,22 @@ import { cubeOrientations, solvedCube } from '../../core/cube'
 import {
   applyMegaMove,
   CRYSTAL_TURNS,
-  MEGA_FACES,
   MEGA_SLOTS,
   MEGA_TURNS,
-  megaAround,
   megaFaceOf,
   megaNormal,
   megaPosition,
   megaSlotAt,
 } from '../../puzzles/polyhedron/megaminx'
 import { allTurnsOf } from '../../core/moveSet'
+import { HOLDINGS, megaFormula } from './megaminxFormulas'
+import { CRYSTAL_STEPS, MEGA_STEPS, type Step } from './megaminxSteps'
 import { simplifyMoves } from '../../core/moves'
 import type { MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, MegaFace, MegaMove } from '../../core/types'
+import { colorsOf } from '../../core/pieces'
+import { macroOf, placesOf, route, type Macro } from '../../solve/placeTable'
 
 /**
  * Megaminx, "l'étoile prolongée", as taught on fan2cube.fr (megaminx2): the
@@ -45,115 +47,34 @@ import type { Cube, Cubie, MegaFace, MegaMove } from '../../core/types'
  * Each formula's effect is asserted in tests/unit/puzzles/polyhedron/megaminx.test.ts.
  */
 
-/** A formula in the page's letters (`A'2` the page's A'², `H3` its H³),
- *  played from one way of holding the puzzle. */
-type Letters = Record<'H' | 'A' | 'D' | 'G' | 'B' | 'P', MegaFace>
-
-/** The page's letters held with `top` up and `front` in front. */
-function holding(top: MegaFace, front: MegaFace): Letters {
-  const around = megaAround(front)
-  const at = around.indexOf(top)
-  const [H, D, B, , G] = [0, 1, 2, 3, 4].map((k) => around[(at + k) % 5]!)
-  // P: behind H and D, the third face at their far corner.
-  const ring = megaAround(top)
-  const i = ring.indexOf(D!)
-  const P = ring[(i + 1) % 5] === front ? ring[(i + 4) % 5]! : ring[(i + 1) % 5]!
-  return { H: H!, A: front, D: D!, G: G!, B: B!, P }
-}
-
-/** Every way of holding it: each face up, each of its neighbors in front. */
-const HOLDINGS: readonly Letters[] = MEGA_FACES.flatMap((top) =>
-  megaAround(top).map((front) => holding(top, front)),
-)
-
-/** A formula's turns, held one way. */
-export function megaFormula(formula: string, held: Letters = holding('U', 'F')): MegaMove[] {
-  return formula
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((token) => {
-      const match = /^([HADGBP])('?)([23]?)$/.exec(token)
-      if (!match) throw new Error(`megaFormula: ${token}`)
-      const n = match[3] ? Number(match[3]) : 1
-      const amount = (match[2] ? 5 - n : n) as MegaMove['amount']
-      return { megaFace: held[match[1] as keyof Letters], amount }
-    })
-}
-
-/** 1: A², A.H'DH */
-export const STAR = ['A2', "A H' D H"]
-/** 2: D'B'D = (BAD) -> (HDA); (HDA)° = D'BD.ABA' */
-export const CORNER = ["D' B' D", "D' B D A B A'"]
-/** 3, 5: (HD)->(AD) = [H'A'][HD]; (HA)->(AD) = [HD][H'A'] */
-export const EQUATOR = ["H' A' H A H D H' D'", "H D H' D' H' A' H A"]
-/** 4: the left corner, the right one, the last one (taken or twisted). */
-export const SIDE_CORNERS = ["H' A'2 H A2", "H' A' H2 A", "H D2 H' D'2", "H D H'2 D'", "H D H' D'"]
-/** 6: A[HD]A' = (HA)->(HP)->(HD) */
-export const TOP_EDGES = ["A H D H' D' A'"]
-/** 7: (HA)+(HD)+ = A[HD]HA'HA.H³A' */
-export const TOP_FLIP = ["A H D H' D' H A' H A H3 A'"]
-/** 8: (HDA)->(HPD)->(H B P) = [HA].P'[AH]P (B underlined) */
-export const TOP_CORNERS = ["H A H' A' P' A H A' H' P"]
-/** 9: (HAG)°(HDA)° = (D'BDABA').H'(AB'A'D'B'D)H */
-export const TOP_TWIST = ["D' B D A B A' H' A B' A' D' B' D H"]
-
 const SOLVED = solvedCube('megaminx')
 const keyOf = (faces: readonly MegaFace[]) => [...faces].sort().join()
-const SLOT_INDEX = new Map(MEGA_SLOTS.map((faces, i) => [keyOf(faces), i]))
-const slotIndex = (c: Cubie) => SLOT_INDEX.get(keyOf(megaSlotAt(c.position)))!
 
 /** A place: a slot and one of its faces, where a piece's first sticker (by
  *  color) lies; it says where the piece is and how it is turned. */
-const PLACES = MEGA_SLOTS.flatMap((faces, slot) => faces.map((face) => ({ slot, face })))
-const PLACE = new Map(PLACES.map((p, i) => [`${p.slot}:${p.face}`, i]))
+const PLACE_LIST = MEGA_SLOTS.flatMap((faces) =>
+  faces.map((face) => ({ faces, slot: keyOf(faces), face })),
+)
+const PLACE = new Map(PLACE_LIST.map((p, i) => [`${p.slot}:${p.face}`, i]))
 
 /** A piece's place. */
 function placeOf(c: Cubie): number {
   const first = c.stickers.reduce((m, s) => (s.color < m.color ? s : m))
-  return PLACE.get(`${slotIndex(c)}:${megaFaceOf(first.normal)}`)!
+  return PLACE.get(`${keyOf(megaSlotAt(c.position))}:${megaFaceOf(first.normal)}`)!
 }
 
-const turnKey = (m: MegaMove) => m.megaFace + m.amount + (m.crystal ? 'c' : '')
-
-/** Where every place goes as a turn is played (a probe piece carried). */
-const TURN_TABLES = new Map(
-  [...MEGA_TURNS, ...CRYSTAL_TURNS].map((move) => {
-    const table = new Int16Array(PLACES.length)
-    PLACES.forEach(({ slot, face }, i) => {
-      const probe: Cubie = {
-        position: megaPosition(MEGA_SLOTS[slot]!),
-        stickers: [{ normal: megaNormal(face), color: 'W' }],
-      }
-      table[i] = placeOf(applyMegaMove([probe], move)[0]!)
-    })
-    return [turnKey(move), table] as const
-  }),
-)
-
-/** What a sequence does, whatever the state: where each place goes, and
- *  which slots it changes. */
-interface Macro {
-  readonly moves: readonly MegaMove[]
-  readonly to: Int16Array
-  readonly moved: ReadonlySet<number>
-  /** The slots whose piece it takes elsewhere (not just turns). */
-  readonly displaced: ReadonlySet<number>
-}
-
-function macroOf(moves: readonly MegaMove[]): Macro {
-  const to = Int16Array.from(PLACES, (_, i) => i)
-  for (const move of moves) {
-    const table = TURN_TABLES.get(turnKey(move))!
-    for (let i = 0; i < to.length; i++) to[i] = table[to[i]!]!
-  }
-  const moved = new Set<number>()
-  const displaced = new Set<number>()
-  to.forEach((j, i) => {
-    if (j !== i) moved.add(PLACES[i]!.slot)
-    if (PLACES[j]!.slot !== PLACES[i]!.slot) displaced.add(PLACES[i]!.slot)
-  })
-  return { moves, to, moved, displaced }
-}
+const PLACES = placesOf<(typeof PLACE_LIST)[number], MegaMove>(PLACE_LIST, {
+  slot: (p) => p.slot,
+  // A probe piece carried.
+  follow: ({ faces, face }, move) => {
+    const probe: Cubie = {
+      position: megaPosition(faces),
+      stickers: [{ normal: megaNormal(face), color: 'W' }],
+    }
+    return placeOf(applyMegaMove([probe], move)[0]!)
+  },
+  key: (m) => m.megaFace + m.amount + (m.crystal ? 'c' : ''),
+})
 
 const inverse = (move: MegaMove): MegaMove => ({
   ...move,
@@ -162,19 +83,19 @@ const inverse = (move: MegaMove): MegaMove => ({
 
 /** Single turns, and every formula held every way, alone or set up by a
  *  turn undone after (X F X'): as macros, each once. */
-function macrosOf(formulas: readonly string[], crystal: boolean, top: boolean): Macro[] {
+function macrosOf(formulas: readonly string[], crystal: boolean, top: boolean): Macro<MegaMove>[] {
   const turns = crystal ? CRYSTAL_TURNS : MEGA_TURNS
   // On the top's steps, all else done: only the formulas held top up, set
   // up by a turn of the top, can leave it in place.
   const holdings = top ? HOLDINGS.filter((h) => h.H === 'U') : HOLDINGS
   const setups = top ? turns.filter((t) => t.megaFace === 'U') : turns
   const seen = new Set<string>()
-  const out: Macro[] = []
+  const out: Macro<MegaMove>[] = []
   const add = (moves: MegaMove[]) => {
     const key = moves.map((m) => m.megaFace + m.amount).join()
     if (seen.has(key)) return
     seen.add(key)
-    out.push(macroOf(moves))
+    out.push(macroOf(PLACES, moves))
   }
   for (const move of turns) add([move])
   for (const formula of formulas) {
@@ -189,164 +110,13 @@ function macrosOf(formulas: readonly string[], crystal: boolean, top: boolean): 
   return out
 }
 
-const MACROS = new Map<string, Macro[]>()
+const MACROS = new Map<string, Macro<MegaMove>[]>()
 const macrosFor = (formulas: readonly string[], crystal: boolean, top: boolean) => {
   const key = formulas.join('|') + crystal + top
   let macros = MACROS.get(key)
   if (!macros) MACROS.set(key, (macros = macrosOf(formulas, crystal, top)))
   return macros
 }
-
-/** The fewest turns taking a piece from its place home (or just to its
- *  slot), by macros that leave the done slots alone (Dijkstra on its
- *  places). */
-function route(from: number, home: number, macros: readonly Macro[], placed: boolean): MegaMove[] {
-  const goal = (p: number) => (placed ? PLACES[p]!.slot === PLACES[home]!.slot : p === home)
-  const cost = new Map<number, number>([[from, 0]])
-  const back = new Map<number, { from: number; macro: Macro }>()
-  const done = new Set<number>()
-  for (;;) {
-    let here = -1
-    for (const [p, c] of cost) if (!done.has(p) && (here < 0 || c < cost.get(here)!)) here = p
-    if (here < 0) throw new Error('megaminx: this piece cannot go home')
-    if (goal(here)) {
-      const moves: MegaMove[] = []
-      for (let p = here; p !== from; p = back.get(p)!.from)
-        moves.unshift(...back.get(p)!.macro.moves)
-      return moves
-    }
-    done.add(here)
-    const base = cost.get(here)!
-    for (const macro of macros) {
-      const next = macro.to[here]!
-      const c = base + macro.moves.length
-      if (!done.has(next) && c < (cost.get(next) ?? Infinity)) {
-        cost.set(next, c)
-        back.set(next, { from: here, macro })
-      }
-    }
-  }
-}
-
-/** The slots of a step, in the order they are filled. */
-type Slots = readonly (readonly MegaFace[])[]
-
-const LOWER = megaAround('D')
-const UPPER = megaAround('U')
-const has = (slot: readonly MegaFace[], faces: readonly MegaFace[]) =>
-  slot.filter((f) => faces.includes(f)).length
-const edges = MEGA_SLOTS.filter((s) => s.length === 2)
-const corners = MEGA_SLOTS.filter((s) => s.length === 3)
-
-const STAR_SLOTS = edges.filter((s) => s.includes('D'))
-const CORNER_SLOTS = corners.filter((s) => s.includes('D'))
-const LOW_SLOTS = edges.filter((s) => has(s, LOWER) === 2)
-/** Each face around the bottom finished in turn: the corner it shares
- *  with the next one down, its edges up, its top corner. */
-const SIDE_SLOTS: Slots = (() => {
-  const out: (readonly MegaFace[])[] = []
-  const listed = new Set<string>()
-  const add = (slot: readonly MegaFace[]) => {
-    if (!listed.has(keyOf(slot))) out.push(slot)
-    listed.add(keyOf(slot))
-  }
-  for (const face of LOWER) {
-    const mine = MEGA_SLOTS.filter((s) => s.includes(face) && !s.includes('D') && s.length > 1)
-    mine.filter((s) => s.length === 3 && has(s, LOWER) === 2).forEach(add)
-    mine.filter((s) => s.length === 2 && has(s, UPPER) === 1).forEach(add)
-    mine.filter((s) => s.length === 3 && has(s, UPPER) === 2).forEach(add)
-  }
-  return out
-})()
-const HIGH_SLOTS = edges.filter((s) => has(s, UPPER) === 2)
-const TOP_EDGE_SLOTS = edges.filter((s) => s.includes('U'))
-const TOP_CORNER_SLOTS = corners.filter((s) => s.includes('U'))
-
-interface Step {
-  readonly key: string
-  readonly slots: Slots
-  readonly formulas: readonly string[]
-  readonly placed?: true
-}
-
-const MEGA_STEPS: readonly Step[] = [
-  { key: 'stepMegaStar', slots: STAR_SLOTS, formulas: STAR },
-  { key: 'stepMegaCorners', slots: CORNER_SLOTS, formulas: CORNER },
-  { key: 'stepMegaLowEdges', slots: LOW_SLOTS, formulas: EQUATOR },
-  { key: 'stepMegaSides', slots: SIDE_SLOTS, formulas: [...SIDE_CORNERS, ...EQUATOR] },
-  { key: 'stepMegaHighEdges', slots: HIGH_SLOTS, formulas: EQUATOR },
-  { key: 'stepMegaTopEdges', slots: TOP_EDGE_SLOTS, formulas: TOP_EDGES, placed: true },
-  { key: 'stepMegaTopFlip', slots: TOP_EDGE_SLOTS, formulas: TOP_FLIP },
-  { key: 'stepMegaTopCorners', slots: TOP_CORNER_SLOTS, formulas: TOP_CORNERS, placed: true },
-  { key: 'stepMegaTopTwist', slots: TOP_CORNER_SLOTS, formulas: TOP_TWIST },
-]
-
-/** The Pyraminx Crystal's formulas (fan2cube.fr/pyraminxcrystal2): take a
- *  corner up D'BD, twist it D'BD.ABA', a low corner A'²HA'², a high one
- *  [HD], three top corners [HA].P'[AH]P, two twisted
- *  D'BDABA'.H'.AB'A'D'B'D.H, three top edges [G'P], two flipped
- *  ([G'P]H')².([PG']H)². */
-export const CRYSTAL_FORMULAS = [
-  "D' B D",
-  "D' B D A B A'",
-  "A'2 H A'2",
-  "H D H' D'",
-  "H A H' A' P' A H A' H' P",
-  "D' B D A B A' H' A B' A' D' B' D H",
-  "G' P G P'",
-  "G' P G P' H' G' P G P' H' P G' P' G H P G' P' G H",
-]
-
-/** The top's 3-cycles, then each followed by itself or its inverse a turn
- *  of the top further on: sharing two pieces, two 3-cycles make a 3-cycle
- *  of pieces side by side, which the formula alone cannot reach. */
-const EDGE_CYCLE = "G' P G P'"
-const EDGE_CYCLE_BACK = "P G' P' G"
-const CORNER_CYCLE = "H A H' A' P' A H A' H' P"
-const CORNER_CYCLE_BACK = "P' H A H' A' P A H A' H'"
-const withShifted = (cycle: string, back: string) => [
-  cycle,
-  ...[
-    ['H', "H'"],
-    ['H2', "H'2"],
-    ["H'2", 'H2'],
-    ["H'", 'H'],
-  ].flatMap(([k, undo]) => [cycle, back].map((then) => `${cycle} ${k} ${then} ${undo}`)),
-]
-const CRYSTAL_TOP_CORNERS = [...withShifted(CORNER_CYCLE, CORNER_CYCLE_BACK), CRYSTAL_FORMULAS[5]!]
-const CRYSTAL_TOP_EDGES = [...withShifted(EDGE_CYCLE, EDGE_CYCLE_BACK), CRYSTAL_FORMULAS[7]!]
-
-/** The Crystal, "les sommets d'abord": as the Megaminx, each layer's
- *  corners before its edges. */
-const CRYSTAL_STEPS: readonly Step[] = [
-  { key: 'stepCrystalCorners', slots: CORNER_SLOTS, formulas: CRYSTAL_FORMULAS },
-  { key: 'stepCrystalEdges', slots: STAR_SLOTS, formulas: CRYSTAL_FORMULAS },
-  {
-    key: 'stepCrystalLowCorners',
-    slots: corners.filter((s) => !s.includes('D') && has(s, LOWER) === 2),
-    formulas: CRYSTAL_FORMULAS,
-  },
-  {
-    key: 'stepCrystalHighCorners',
-    slots: corners.filter((s) => !s.includes('U') && has(s, UPPER) === 2),
-    formulas: CRYSTAL_FORMULAS,
-  },
-  {
-    key: 'stepMegaSides',
-    slots: edges.filter((s) => !s.includes('D') && has(s, LOWER) >= 1),
-    formulas: CRYSTAL_FORMULAS,
-  },
-  {
-    key: 'stepMegaTopCorners',
-    slots: TOP_CORNER_SLOTS,
-    formulas: CRYSTAL_TOP_CORNERS,
-    placed: true,
-  },
-  { key: 'stepMegaTopTwist', slots: TOP_CORNER_SLOTS, formulas: CRYSTAL_TOP_CORNERS },
-  { key: 'stepMegaHighEdges', slots: HIGH_SLOTS, formulas: CRYSTAL_FORMULAS },
-  { key: 'stepMegaTopEdges', slots: TOP_EDGE_SLOTS, formulas: CRYSTAL_TOP_EDGES, placed: true },
-  { key: 'stepMegaTopFlip', slots: TOP_EDGE_SLOTS, formulas: CRYSTAL_TOP_EDGES },
-]
 
 /** The solved puzzle held every way: the one aimed at is the one whose
  *  centers (which never move) the state shows; without centers (the Holey
@@ -385,12 +155,6 @@ function indexed(map: WeakMap<Cube, Map<string, Cubie>>, cube: Cube, key: (c: Cu
 const homeIn = (target: Cube, slot: readonly MegaFace[]) =>
   indexed(BY_POSITION, target, (c) => c.position.join()).get(megaPosition(slot).join())!
 
-const colorsOf = (c: Cubie) =>
-  c.stickers
-    .map((s) => s.color)
-    .sort()
-    .join()
-
 /** The piece a slot wants (found by its colors), where it stands. */
 const pieceOf = (cube: Cube, target: Cube, slot: readonly MegaFace[]) =>
   indexed(BY_COLORS, cube, colorsOf).get(colorsOf(homeIn(target, slot)))!
@@ -416,10 +180,8 @@ function phase(STEPS: readonly Step[], k: number, crystal: boolean) {
     const top = slots.every((slot) => slot.includes('U'))
     const macros = macrosFor(formulas, crystal, top)
     // Done: the steps before (and the centers, never moved).
-    const mine = new Set(slots.map((s) => SLOT_INDEX.get(keyOf(s))!))
-    const before = STEPS.slice(0, k).flatMap((step) =>
-      step.slots.map((s) => SLOT_INDEX.get(keyOf(s))!),
-    )
+    const mine = new Set(slots.map(keyOf))
+    const before = STEPS.slice(0, k).flatMap((step) => step.slots.map(keyOf))
     // Done: the steps before (the centers never move); this step's own
     // pieces, placed by the step before, only keep their slots.
     const done = new Set(before.filter((i) => !mine.has(i)))
@@ -428,15 +190,17 @@ function phase(STEPS: readonly Step[], k: number, crystal: boolean) {
     let state = cube
     const all: MegaMove[] = []
     for (const slot of slots) {
-      const index = SLOT_INDEX.get(keyOf(slot))!
+      const index = keyOf(slot)
       const safe = macros.filter(
         (m) => ![...m.moved].some((i) => done.has(i)) && ![...m.displaced].some((i) => kept.has(i)),
       )
+      // Home, or just in its slot when the step only places.
+      const home = placeOf(homeIn(target, slot))
       const moves = route(
         placeOf(pieceOf(state, target, slot)),
-        placeOf(homeIn(target, slot)),
+        (p) => (placed ? PLACES.slotOf(p) === index : p === home),
         safe,
-        !!placed,
+        'megaminx: this piece cannot go home',
       )
       state = applyMoves(state, moves)
       all.push(...moves)

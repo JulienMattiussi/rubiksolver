@@ -1,5 +1,5 @@
 import { cubeShape } from '@/lib/core/cube'
-import { formsOf, type Form } from '@/lib/editor/forms'
+import { formsOf, type Form } from '@/lib/editor/modes/form'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -8,7 +8,7 @@ import { PuzzleIcon } from '@/components/picker/PuzzleIcon'
 
 /**
  * First step of entering a shape-shifting puzzle (the tower): the forms it
- * can stand in (forms.ts), as thumbnails grouped by how many small cubes
+ * can stand in (modes/form.ts), as thumbnails grouped by how many small cubes
  * stick out alone (when that tells them apart). Hovering (or focusing) one shows it in 3D; picking one
  * goes on to its colors.
  */

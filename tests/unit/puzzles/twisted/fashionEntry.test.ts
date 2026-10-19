@@ -2,23 +2,25 @@ import { describe, expect, it } from 'vitest'
 import { isBoxed, solvedCube } from '@/lib/core/cube'
 import { parseMoves } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
-import { lookOf } from '@/lib/editor/forms'
-import {
-  boxCuts,
-  cutPieces,
-  cutsOf,
-  entersCuts,
-  formOfCuts,
-  nextCut,
-  wholeCount,
-} from '@/lib/editor/cutsEditor'
+import { lookOf } from '@/lib/editor/modes/form'
+import { stepOf } from '@/lib/editor/entry'
+import { FASHION_CUTS } from '@/lib/puzzles/twisted/fashionEntry'
+
+const {
+  start: boxCuts,
+  pieces: cutPieces,
+  of: cutsOf,
+  form: formOfCuts,
+  next: nextCut,
+  wholes: wholeCount,
+} = FASHION_CUTS
 
 const SOLVED = solvedCube('fashion')
 
-describe('cutsEditor (the Fashion-V entered by its halves)', () => {
+describe('the Fashion-V entered by its halves (its cuts step)', () => {
   it('starts from the box: every pair lying, four whole edges', () => {
-    expect(entersCuts('fashion')).toBe(true)
-    expect(entersCuts('3')).toBe(false)
+    expect(stepOf('fashion', 'cuts')?.cuts).toBe(FASHION_CUTS)
+    expect(stepOf('3', 'cuts')).toBeUndefined()
     expect(boxCuts()).toEqual(cutsOf(SOLVED))
     expect(wholeCount(boxCuts())).toBe(4)
     expect(isBoxed(formOfCuts(boxCuts())!)).toBe(true)
@@ -47,7 +49,7 @@ describe('cutsEditor (the Fashion-V entered by its halves)', () => {
     // Drawn while entered: a piece in every place of the form.
     expect(
       cutPieces(cutsOf(stood))
-        .map((c) => c.position.join())
+        .map((c) => c.cubie.position.join())
         .sort(),
     ).toEqual(
       stood

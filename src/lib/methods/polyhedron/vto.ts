@@ -1,12 +1,5 @@
 import { cubeOrientations, solvedCube } from '../../core/cube'
-import {
-  AXIS_ROTATIONS,
-  FACE_NORMAL,
-  faceOfNormal,
-  mapVec,
-  normalIndex,
-  vecKey,
-} from '../../core/geometry'
+import { faceOfNormal, mapVec, normalIndex, vecKey } from '../../core/geometry'
 import { allTurnsOf } from '../../core/moveSet'
 import { invertMoves, parseMoves } from '../../core/moves'
 import { colorsOf } from '../../core/pieces'
@@ -15,6 +8,8 @@ import { applyMoves } from '../../core/turn'
 import type { Cube, CubeShape, Cubie, Move, Vec3 } from '../../core/types'
 import { cycleTable, placeByCycles, uniqueHomes } from '../../solve/cycleTable'
 import { once } from '../../solve/once'
+import { heldEveryWay, turnedFace } from '../../solve/everyWay'
+import { COMM_FR, COMM_UR } from '../standard/algs'
 
 /**
  * Octahedron VTO and GEM-0, "centers then edges", as taught on fan2cube.fr
@@ -50,14 +45,14 @@ const isTip = (c: Cubie) => nonZero(c) === 1 && reach(c) === 2
 const isEdge = (c: Cubie) => nonZero(c) === 2
 
 /** The VTO page's formulas, in the cube's letters (P = U, G = F, D = R). */
-export const FACE_CYCLE = parseMoves("F R' F' R")
+export const FACE_CYCLE = parseMoves(COMM_FR)
 export const CORNER_CYCLE = parseMoves("F' U F U F' U2 F")
 export const EDGE_FLIP = parseMoves("F R' F' R U' R U R'")
 
 /** The GEM-0 page's 3-cycle (its letters are the cube's: A = F, D = R,
  *  H = U), (HP) -> (HD) -> (AD); its flip of (HA) and (HD), [A D'][H' D],
  *  is the VTO's held the same way. */
-export const GEM_CYCLE = parseMoves("U R U' R'")
+export const GEM_CYCLE = parseMoves(COMM_UR)
 
 /** A puzzle of the family: its solved state, its turns, its ways of being
  *  held, and the page's 3-cycles and flip. */
@@ -148,11 +143,8 @@ function centersThenEdges(
 
   /** A formula as seen from each way of holding the puzzle: its faces carried
    *  by the whole-puzzle turn. */
-  function fromEverySide(moves: readonly Move[]): Move[][] {
-    return AXIS_ROTATIONS.map((turn) =>
-      moves.map((m) => ({ ...m, face: faceOfNormal(turn(FACE_NORMAL[m.face])) })),
-    )
-  }
+  const fromEverySide = (moves: readonly Move[]): Move[][] =>
+    heldEveryWay(moves, (m, by) => ({ ...m, face: turnedFace(m.face, by) }))
 
   /** Every 3-cycle of edges, from the page's (built once). */
   const edgeCycles = once(() =>

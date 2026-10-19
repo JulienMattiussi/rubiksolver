@@ -171,7 +171,9 @@ où elle est ; pad dédié (`MegaPad` : moitié haute, moitié basse). **Saisie*
 des couleurs, comme les cubes : ses 60 tenues donnent les placements
 valides, ses centres restent pré-remplis.
 
-**Résolution** (`methods/polyhedron/megaminx.ts`, méthode **L'étoile prolongée**,
+**Résolution** (`methods/polyhedron/megaminx.ts`, ses étapes dans
+`megaminxSteps.ts`, ses formules et leur notation dans `megaminxFormulas.ts`,
+méthode **L'étoile prolongée**,
 d'après la page) : l'étoile du dessous (A², A.H'DH), ses sommets (D'B'D,
 tournés par D'BD.ABA'), l'équateur bas ([H'A'][HD], [HD][H'A']), les cinq
 faces voisines (H'A'²HA², H'A'H²A, HD²H'D'², HDH'²D', HDH'D'), l'équateur
@@ -182,7 +184,8 @@ préparée par un coup défait ensuite (X F X'), et son effet, qui ne dépend
 pas de l'état, est lu une fois sur le puzzle résolu sous forme de table
 (emplacement et face du premier sticker d'une pièce). Une pièce rentre par le
 plus court enchaînement de celles qui laissent en place tout ce qui est fait
-(Dijkstra sur ses places), pièce après pièce. La cible est la tenue que
+(Dijkstra sur ses places, `solve/placeTable.ts`, que partage l'AI Cube),
+pièce après pièce. La cible est la tenue que
 disent ses centres.
 
 Le **Pyraminx Crystal** (`crystal`, fan2cube.fr/pyraminxcrystal1 et 2) est le Megaminx coupé plus profond : chaque coupe passe par

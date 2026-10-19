@@ -57,9 +57,6 @@ export interface FaceEntry {
    *  its mechanism centered), or anywhere on the canvas, compared as drawn
    *  (the Purple, off its core). */
   readonly framed: boolean
-  /** Whether its entry starts with its faces (the Purple, seldom in its
-   *  box), or paints its box first (the Camouflage). */
-  readonly first: boolean
   /** The states the faces show (canvas regions, in `FACES` order), however
    *  held: none if none fits. Slow at worst: run in a worker. */
   readonly find: (views: Views) => Found[]

@@ -1,8 +1,7 @@
 import { cubeOrientations, isSolved, solvedCube } from '../../core/cube'
-import { FACE_NORMAL, faceOfNormal, rotateN } from '../../core/geometry'
+import { rotateN } from '../../core/geometry'
 import { gearTurnsOf, parseGearFormula } from '../../puzzles/gear/gear'
 import { allTurnsOf } from '../../core/moveSet'
-import { invertMoves } from '../../core/moves'
 import type { MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import {
@@ -13,8 +12,11 @@ import {
   type Turn,
   type Vec3,
 } from '../../core/types'
-import { search } from './gear'
+import { found, searchFormulas } from '../../solve/formulaSearch'
 import { spinMacros, spinsHome } from './spinSearch'
+import { holdingsShowing } from '../../solve/holdings'
+import { colorsOf, poseOf, withStickers } from '../../core/pieces'
+import { conjugated, heldEveryWay, turnedFace, type Rotation } from '../../solve/everyWay'
 
 /**
  * The Gear Cube Extreme, "equator then corners", as taught on fan2cube.fr
@@ -40,35 +42,24 @@ const MECHANISM: Dims = [3, 3, 3]
 const SOLVED = solvedCube('gearX')
 const HOLDINGS = cubeOrientations(SOLVED)
 
-const isCorner = (c: Cubie) => c.stickers.length === 3
+const isCorner = withStickers(3)
 const isGear = (c: Cubie) => c.spin !== undefined
 const isMiddle = (c: Cubie) => c.stickers.length === 2 && c.spin === undefined
-const isCenter = (c: Cubie) => c.stickers.length === 1
+const isCenter = withStickers(1)
 const at = (c: Cubie) => c.position.join()
-const pose = (c: Cubie) =>
-  c.stickers
-    .map((s) => s.normal.join() + s.color)
-    .sort()
-    .join('')
-const colors = (c: Cubie) =>
-  c.stickers
-    .map((s) => s.color)
-    .sort()
-    .join('')
 
 /** The ways of holding the puzzle that keep its top and bottom (a quarter
  *  about the vertical, and upside down): a formula is seen from each. */
-const HOLDS: ((v: Vec3) => Vec3)[] = [0, 2].flatMap((flip) =>
+const HOLDS: Rotation[] = [0, 2].flatMap((flip) =>
   [0, 1, 2, 3].map((k) => (v: Vec3) => rotateN(rotateN(v, 'x', flip), 'y', k)),
 )
-const seenFrom = (hold: (v: Vec3) => Vec3, moves: readonly Turn[]): Turn[] =>
-  moves.map((m) =>
-    isGearMove(m)
-      ? { ...m, gear: faceOfNormal(hold(FACE_NORMAL[m.gear])) }
-      : 'face' in m
-        ? { ...m, face: faceOfNormal(hold(FACE_NORMAL[m.face])) }
-        : m,
-  )
+/** A gear move or a face turn, carried by a rotation. */
+const turned = (m: Turn, by: Rotation): Turn =>
+  isGearMove(m)
+    ? { ...m, gear: turnedFace(m.gear, by) }
+    : 'face' in m
+      ? { ...m, face: turnedFace(m.face, by) }
+      : m
 
 /** Top and bottom turns to set a formula up (undone after it). */
 const quarters = (face: 'U' | 'D'): Turn[][] => [
@@ -82,15 +73,14 @@ const SETUPS = quarters('U').flatMap((u) => quarters('D').map((d) => [...u, ...d
 /** A formula seen from `holds`, both ways, each set up by `setups`. */
 function variants(
   formula: string,
-  holds: readonly ((v: Vec3) => Vec3)[] = HOLDS,
+  holds: readonly Rotation[] = HOLDS,
   setups: readonly Turn[][] = SETUPS,
 ): Turn[][] {
-  const moves = parseGearFormula(formula)
-  return holds.flatMap((hold) =>
-    [moves, invertMoves(moves)].flatMap((m) =>
-      setups.map((setup) => [...setup, ...seenFrom(hold, m), ...invertMoves(setup)]),
-    ),
-  )
+  const held = heldEveryWay(parseGearFormula(formula), turned, {
+    rotations: holds,
+    inverses: true,
+  })
+  return conjugated(held, setups)
 }
 
 const LOWER = '(D²H)(D²H).(D²H²)(D²H²)'
@@ -112,7 +102,10 @@ function solveOn(
   goal: (pieces: Cube) => boolean,
   look: (pieces: Cube) => string,
 ): Turn[] {
-  return search(cube.filter(track), macros, goal, look, MECHANISM)
+  return found(
+    searchFormulas(cube.filter(track), macros, goal, { key: look, mechanism: MECHANISM }),
+    'gear: no formula reaches the goal (an impossible puzzle)',
+  )
 }
 
 /** Pieces brought right one at a time, in `order` (by colors), each search
@@ -134,7 +127,7 @@ function oneAtATime(
       state,
       track,
       macros,
-      (p) => p.filter((c) => mine.has(colors(c))).every(ok),
+      (p) => p.filter((c) => mine.has(colorsOf(c))).every(ok),
       look,
     )
     state = applyMoves(state, path)
@@ -148,17 +141,13 @@ function oneAtATime(
 function extremePlan(): MethodPlan {
   const all = allTurnsOf('gearX')
   const frameOf = (cube: Cube) =>
-    HOLDINGS.find((h) =>
-      h
-        .filter((c) => isMiddle(c) || isCenter(c))
-        .every((c) => cube.some((p) => pose(p) === pose(c))),
-    )
-  const homeOf = (cube: Cube) => new Map(frameOf(cube)!.map((c) => [colors(c), c]))
-  const home = (h: Map<string, Cubie>, c: Cubie) => pose(h.get(colors(c))!) === pose(c)
-  const placed = (h: Map<string, Cubie>, c: Cubie) => at(h.get(colors(c))!) === at(c)
+    holdingsShowing(HOLDINGS, cube, (c) => isMiddle(c) || isCenter(c))[0]
+  const homeOf = (cube: Cube) => new Map(frameOf(cube)!.map((c) => [colorsOf(c), c]))
+  const home = (h: Map<string, Cubie>, c: Cubie) => poseOf(h.get(colorsOf(c))!) === poseOf(c)
+  const placed = (h: Map<string, Cubie>, c: Cubie) => at(h.get(colorsOf(c))!) === at(c)
   const lookOf = (show: (c: Cubie) => string) => (pieces: Cube) =>
     pieces
-      .map((c) => colors(c) + show(c))
+      .map((c) => colorsOf(c) + show(c))
       .sort()
       .join(' ')
   const done =
@@ -169,7 +158,7 @@ function extremePlan(): MethodPlan {
       return cube.filter(kind).every((c) => ok(h, c))
     }
   const bottom = (c: Cubie) => c.position[1] === -1
-  const homeBottom = (h: Map<string, Cubie>, c: Cubie) => bottom(h.get(colors(c))!)
+  const homeBottom = (h: Map<string, Cubie>, c: Cubie) => bottom(h.get(colorsOf(c))!)
   const equatorDone = (cube: Cube) => frameOf(cube) !== undefined
   // The bottom's edges first, then the top's (the page's formulas fix one
   // below and stir the top).
@@ -177,7 +166,7 @@ function extremePlan(): MethodPlan {
     [...h.values()]
       .filter(isGear)
       .sort((a, b) => a.position[1] - b.position[1])
-      .map(colors)
+      .map(colorsOf)
   const bottomCornersDone = (cube: Cube) =>
     equatorDone(cube) &&
     cube.filter(isCorner).every((c) => !homeBottom(homeOf(cube), c) || home(homeOf(cube), c))
@@ -202,9 +191,9 @@ function extremePlan(): MethodPlan {
               HOLDINGS.some((h) =>
                 h
                   .filter((c) => isMiddle(c) || isCenter(c))
-                  .every((c) => p.some((x) => pose(x) === pose(c))),
+                  .every((c) => p.some((x) => poseOf(x) === poseOf(c))),
               ),
-            lookOf(pose),
+            lookOf(poseOf),
           ),
       ],
     },
@@ -216,14 +205,14 @@ function extremePlan(): MethodPlan {
         // One corner at a time: brought over its place, lowered.
         (cube) => {
           const h = homeOf(cube)
-          const targets = [...h.values()].filter((c) => isCorner(c) && bottom(c)).map(colors)
+          const targets = [...h.values()].filter((c) => isCorner(c) && bottom(c)).map(colorsOf)
           return oneAtATime(
             cube,
             isCorner,
             targets,
             [...TOPS.slice(1), ...variants(LOWER, UPRIGHT, [[]])],
             (c) => home(h, c),
-            lookOf(pose),
+            lookOf(poseOf),
           )
         },
       ],
@@ -257,7 +246,7 @@ function extremePlan(): MethodPlan {
             isGear,
             variants(INJECT),
             (p) => p.every((c) => homeBottom(h, c) === bottom(c)),
-            (p) => p.filter(bottom).map(colors).sort().join(' '),
+            (p) => p.filter(bottom).map(colorsOf).sort().join(' '),
           )
         },
       ],
@@ -292,7 +281,7 @@ function extremePlan(): MethodPlan {
             edgeOrder(h),
             variants(CLIPS),
             (c) => home(h, c),
-            lookOf(pose),
+            lookOf(poseOf),
           )
         },
       ],

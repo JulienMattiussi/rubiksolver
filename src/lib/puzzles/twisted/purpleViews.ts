@@ -11,11 +11,11 @@ import {
   type FaceGrid,
   type Found,
   type Views,
-} from '../shared/faceViews'
+} from '../../editor/modes/faceViews'
 import { half, solvedPurple } from './purple'
 
 /**
- * The Purple entered face by face (shared/faceViews.ts): its 1 160 shapes,
+ * The Purple entered face by face (lib/editor/modes/faceViews.ts): its 1 160 shapes,
  * each held any of 24 ways, show four faces no other shape does (measured),
  * so the faces are simply looked up among them. A cell is a mini cube
  * (2 model units, purple.ts); off its core, the Purple stands anywhere on a
@@ -81,13 +81,12 @@ function byFaces(): Map<string, Found[]> {
   return (BY_FACES = index)
 }
 
-/** Entered face by face, its faces first (it seldom stands in its box), a
+/** Entered face by face (its faces first: it seldom stands in its box), a
  *  face drawn anywhere on its canvas; held any way. */
 export const PURPLE_FACE_ENTRY: FaceEntry = {
   grid: PURPLE_GRID,
   canvas: 5,
   framed: false,
-  first: true,
   find: (views: Views) =>
     views.length === FACES.length
       ? (byFaces().get(views.map((v) => drawingKey(v, 5)).join('|')) ?? [])

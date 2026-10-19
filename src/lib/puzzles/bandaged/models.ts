@@ -5,6 +5,7 @@ import { aiTurns, scrambleAi, solvedAi } from './ai'
 import { BLOCKS } from './blocks'
 import {
   cutsNoBlock,
+  formsOfBlocks,
   marksFromColors,
   scrambleBandaged,
   turnsEver,
@@ -12,6 +13,9 @@ import {
   withoutMarks,
   type Block,
 } from './bonds'
+import { BARS, paintBar } from './roadblockEntry'
+import { PICK_FORM } from '../../editor/entry'
+import { turnedKeys } from '../../editor/modes/toggles'
 import { roadblockTurns, scrambleRoadblock, withBars, withoutBars } from './roadblock'
 
 /**
@@ -33,6 +37,12 @@ function bandaged(blocks: readonly Block[]): PuzzleModel {
     turns: turnsOf,
     scramble: (length, rng, start) => scrambleBandaged(turnsOf())(length, rng, start),
     entry: {
+      // Its joints clicked first when its blocks move (its forms, more
+      // than one), then its colors.
+      steps: () => {
+        const forms = formsOfBlocks(solvedOne())
+        return forms.length > 1 ? [{ kind: 'joints', joints: { forms: () => forms } }] : []
+      },
       seen: (cube, held) => withoutMarks(held(cube)),
       built: (cube) => marksFromColors(cube, solvedOne()),
     },
@@ -44,7 +54,13 @@ export const BANDAGED_MODELS = {
     Object.entries(BLOCKS).map(([shape, blocks]) => [shape, bandaged(blocks)]),
   ) as Record<keyof typeof BLOCKS, PuzzleModel>),
   // Its big blocks jam what would cut them.
-  ai: { solved: () => solvedAi(solvedCube('4')), turnAllowed: aiTurns, scramble: scrambleAi },
+  // Entered in the form it stands in.
+  ai: {
+    solved: () => solvedAi(solvedCube('4')),
+    turnAllowed: aiTurns,
+    scramble: scrambleAi,
+    entry: { steps: PICK_FORM },
+  },
   // Its bars jam a slice along them; its colors only count, its bars may
   // lie either way.
   roadblock: {
@@ -55,9 +71,13 @@ export const BANDAGED_MODELS = {
     // Its bars' marks are not entered (it is, at START), and no center of
     // it is fixed: it is not held otherwise. Its bars lie as solved but on
     // the faces turned.
+    // Its bars set first, then its colors, a bar painted whole
+    // (roadblockEntry.ts).
     entry: {
+      steps: () => [{ kind: 'toggles', toggles: BARS }],
+      paint: { by: 'colors', together: paintBar },
       seen: (cube) => withoutBars(cube),
-      built: (cube, { turned }) => withBars(cube, turned),
+      built: (cube, { toggles }) => withBars(cube, turnedKeys(toggles)),
     },
   },
 } satisfies Partial<Record<CubeShape, PuzzleModel>>

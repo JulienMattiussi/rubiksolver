@@ -16,6 +16,7 @@ import {
 import { once } from '../../solve/once'
 import { permutationIsOdd } from '../../solve/permutation'
 import { uniqueHomes } from '../../solve/cycleTable'
+import { withStickers } from '../../core/pieces'
 
 /**
  * 4x4x3 and 4x4x5 towers, as fan2cube.fr solves them (tower4432,
@@ -41,7 +42,7 @@ function plan44(shape: '443' | '445'): MethodPlan {
   const isCenter = (c: Cubie) => abs(c)[1] === top && off(c) === '1,1'
   const isSideCenter = (c: Cubie) => top === 2 && abs(c)[1] === 1 && off(c) === '1,3'
   const isWing = (c: Cubie) => abs(c)[1] === top && off(c) === '1,3'
-  const isCorner = (c: Cubie) => c.stickers.length === 3
+  const isCorner = withStickers(3)
   const isMiddleEdge = (c: Cubie) => abs(c)[1] === 0 && off(c) === '3,3'
 
   const centerTable = once(() => towerCycles(shape, isCenter, (c) => !isCenter(c)))

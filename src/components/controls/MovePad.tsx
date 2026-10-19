@@ -39,9 +39,11 @@ type PadTab = LayerKind | 'advanced'
  * (a tower's incomplete end, see `turnAllowed`) stays disabled.
  * Hovering or focusing a button highlights the pieces it would turn. In the
  * tutorial, the pad reads as the puzzle is held for its step
- * (`tutorialStore.hold`): `R` turns the side on your right.
+ * (`tutorialStore.hold`): `R` turns the side on your right. With `corners`
+ * (the VTO, which turns its corners wide and its tips alone outer), those
+ * two come first, named so.
  */
-export function MovePad({ disabled }: { disabled: boolean }) {
+export function MovePad({ disabled, corners }: { disabled: boolean; corners?: boolean }) {
   const t = useI18n((s) => s.t)
   const labels = useI18n(selectMoveLabels)
   const shape = useCube((s) => cubeShape(s.cube))
@@ -50,11 +52,9 @@ export function MovePad({ disabled }: { disabled: boolean }) {
   const held = useHeldTurn()
   const moves = movesFor(shape)
   const advanced = advancedMovesFor(shape)
-  // The VTO turns its corners wide, its tips alone outer: corners first.
-  const vto = shape === 'vto'
   const kinds: PadTab[] = [
     ...(
-      (vto ? ['wide', 'outer'] : ['outer', 'slice', 'slice3', 'wide', 'wide3']) as LayerKind[]
+      (corners ? ['wide', 'outer'] : ['outer', 'slice', 'slice3', 'wide', 'wide3']) as LayerKind[]
     ).filter((k) => moves.some((m) => layerKindOf(m) === k)),
     ...(advanced.length ? (['advanced'] as const) : []),
   ]
@@ -70,7 +70,7 @@ export function MovePad({ disabled }: { disabled: boolean }) {
   /** The rows of buttons a tab shows, three layers a row. */
   const rowsOf = (k: PadTab) => Math.ceil((k === 'advanced' ? advancedLayers : faces).length / 3)
   const nameOf = (k: PadTab) =>
-    vto && (k === 'outer' || k === 'wide') ? t.vtoLayerKinds[k] : t.layerKinds[k]
+    corners && (k === 'outer' || k === 'wide') ? t.vtoLayerKinds[k] : t.layerKinds[k]
 
   /** A tab's buttons. */
   const grid = (tabShown: PadTab) => {
@@ -135,7 +135,7 @@ export function MovePad({ disabled }: { disabled: boolean }) {
       // Labels of four characters (a 6x6's 3Uw') want two pairs a row.
       <div
         className={`grid gap-2 ${
-          faces.some((f) => formatMove(turn(f, 3), labels, dims).length > 3)
+          faces.some((f) => formatMove(turn(f, 3), labels, dims, shape).length > 3)
             ? 'grid-cols-2'
             : 'grid-cols-3'
         }`}

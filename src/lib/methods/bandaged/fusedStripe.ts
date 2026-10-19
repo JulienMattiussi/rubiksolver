@@ -3,7 +3,9 @@ import { parseMoves } from '../../core/moves'
 import { allTurnsOf, moveSet } from '../../core/moveSet'
 import type { MethodPlan } from '../../solve/solverKit'
 import type { Cubie, Move } from '../../core/types'
-import { blocksAt, bothWays, conjugated, EVERY_PLACE, inPlaces, phaseAs, toStart } from './kit'
+import { blocksAt, bothWays, EVERY_PLACE, inPlaces, phaseAs, toStart } from './kit'
+import { conjugated } from '../../solve/everyWay'
+import { OLL_EDGE_TURN } from '../standard/algs'
 
 /**
  * FusedStripe, as taught on fan2cube.fr (fusedstripe2, "morphocode"): the
@@ -35,7 +37,7 @@ export const EDGES_BACK = parseMoves("R U2 F' U' F' U' F' U' F U F U F2 U2 R'")
 /** Up to state m: M = DHA'.DH²D' */
 export const M = parseMoves("R U F' R U2 R'")
 /** In state m: J = A[DH]A'H, J², J⁴; (HA) -> (HP) -> (HD) = A[DH]²A' */
-export const J = parseMoves("F R U R' U' F' U")
+export const J = parseMoves(OLL_EDGE_TURN)
 export const J2 = [...J, ...J]
 export const J4 = [...J2, ...J2]
 export const CYCLE_TOP = parseMoves("F R U R' U' R U R' U' F'")

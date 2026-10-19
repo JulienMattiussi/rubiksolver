@@ -2,7 +2,7 @@
 // sentences, built from its description (lib/app/moveGuide.ts): the move
 // guide's, long, and the tutorial's, short. Used by ui.ts.
 
-import type { MoveDescription } from '@/lib/app/moveGuide'
+import type { MoveDescription } from '@/lib/core/guide'
 import { fromAbove } from '@/lib/puzzles/round/star'
 import type {
   CopterEdge,

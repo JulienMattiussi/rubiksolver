@@ -1,15 +1,28 @@
 import { isBlock } from '../../puzzles/bandaged/ai'
 import { isSolved, solvedCube } from '../../core/cube'
 import { AXIS_ROTATIONS, mapVec } from '../../core/geometry'
-import { invertMoves, simplifyMoves } from '../../core/moves'
+import { simplifyMoves } from '../../core/moves'
 import { allTurnsOf } from '../../core/moveSet'
 import type { MethodPlan } from '../../solve/solverKit'
-import { applyMove, applyMoves, turnAllowed } from '../../core/turn'
-import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
+import {
+  centerRoute,
+  inner,
+  keyOf,
+  macroOf,
+  MECHANISM,
+  meet,
+  first,
+  PLACE,
+  placeOf,
+  standard,
+  wide,
+} from './aiFormulas'
+import { applyMove, applyMoves } from '../../core/turn'
+import type { Cube, Cubie, Move, Vec3 } from '../../core/types'
 import { solveOptimal2 } from '../standard/cube2'
-import { once } from '../../solve/once'
-import { colorsOf } from '../../core/pieces'
+import { colorsOf, withStickers } from '../../core/pieces'
 import { permutationIsOdd } from '../../solve/permutation'
+import { found, searchFormulas } from '../../solve/formulaSearch'
 
 /**
  * AI Cube, "méthode des Blocs", after fan2cube.fr (AIcube2): make it a
@@ -30,13 +43,6 @@ import { permutationIsOdd } from '../../solve/permutation'
  * the small corners, which say where each octant's pieces go).
  */
 
-const MECHANISM = [4, 4, 4] as const
-const SOLVED = solvedCube('ai')
-
-const wide = (face: Face, amount: 1 | 2 | 3): Move => ({ face, amount, depth: 2, wide: true })
-const top = (amount: 1 | 2 | 3): Move => ({ face: 'U', amount })
-const inner = (amount: 1 | 2 | 3): Move => ({ face: 'U', amount, depth: 2 })
-
 // ---------------------------------------------------------------------------
 // 0. The big blocks below
 // ---------------------------------------------------------------------------
@@ -51,242 +57,18 @@ const blocksOf = (cube: Cube) =>
     .map((c) => c.position.join())
     .sort()
     .join('|')
-const standard = (cube: Cube) => cube.filter(isBlock).every((c) => c.position[1] < 0)
 
 /** The fewest half turns bringing the big blocks below. */
 function toStandard(cube: Cube): Move[] {
-  const blocks = cube.filter(isBlock)
-  const seen = new Set([blocksOf(blocks)])
-  let frontier: { blocks: Cube; moves: Move[] }[] = [{ blocks, moves: [] }]
-  for (let depth = 0; depth < 8; depth++) {
-    for (const node of frontier) if (standard(node.blocks)) return node.moves
-    const next: typeof frontier = []
-    for (const node of frontier) {
-      for (const move of HALVES) {
-        const moved = applyMove(node.blocks, move, MECHANISM)
-        const key = blocksOf(moved)
-        if (seen.has(key)) continue
-        seen.add(key)
-        next.push({ blocks: moved, moves: [...node.moves, move] })
-      }
-    }
-    frontier = next
-  }
-  throw new Error('ai: the big blocks cannot go below')
-}
-
-// ---------------------------------------------------------------------------
-// Places and formulas
-// ---------------------------------------------------------------------------
-
-/** A place: a small piece's cell and the normal of its first sticker (by
- *  color), as `cell|normal`; every sticker of a 4x4x4's small cubie. */
-const keyOf = (position: readonly number[], normal: readonly number[]) =>
-  `${position.join()}|${normal.join()}`
-const PLACES: { position: Vec3; normal: Vec3 }[] = solvedCube('4').flatMap((c) =>
-  c.stickers.map((s) => ({ position: c.position, normal: s.normal })),
-)
-const PLACE = new Map(PLACES.map((p, i) => [keyOf(p.position, p.normal), i]))
-
-const first = (c: Cubie) => c.stickers.reduce((m, s) => (s.color < m.color ? s : m))
-const placeOf = (c: Cubie) => PLACE.get(keyOf(c.position, first(c).normal))!
-
-/** Where each place goes as a move is played (a one-sticker probe). */
-const TABLES = new Map<string, Int16Array>()
-const moveKey = (m: Move) => `${m.face}${m.amount}${m.depth ?? ''}${m.wide ? 'w' : ''}`
-function tableOf(move: Move): Int16Array {
-  const key = moveKey(move)
-  let table = TABLES.get(key)
-  if (table) return table
-  table = Int16Array.from(PLACES, ({ position, normal }) => {
-    const [probe] = applyMove([{ position, stickers: [{ normal, color: 'W' }] }], move, MECHANISM)
-    return PLACE.get(keyOf(probe!.position, probe!.stickers[0]!.normal))!
-  })
-  TABLES.set(key, table)
-  return table
-}
-
-interface Macro {
-  readonly moves: readonly Move[]
-  readonly to: Int16Array
-  /** The cells whose piece it moves (or turns). */
-  readonly moved: ReadonlySet<string>
-}
-
-function macroOf(moves: readonly Move[]): Macro {
-  const to = Int16Array.from(PLACES, (_, i) => i)
-  for (const move of moves) {
-    const table = tableOf(move)
-    for (let i = 0; i < to.length; i++) to[i] = table[to[i]!]!
-  }
-  const moved = new Set<string>()
-  to.forEach((j, i) => {
-    if (j !== i) moved.add(PLACES[i]!.position.join())
-  })
-  return { moves, to, moved }
-}
-
-/** The standard holding's blocks, to check a formula plays out from there
- *  and leaves them below. */
-const STANDARD_BLOCKS: Cube = SOLVED.filter(isBlock).map((c) => ({
-  ...c,
-  position: [c.position[0], -2, c.position[2]] as unknown as Vec3,
-}))
-function playable(moves: readonly Move[]): boolean {
-  let state = STANDARD_BLOCKS
-  for (const move of moves) {
-    // The blocks alone tell what jams (and they are what a turn could cut).
-    if (!turnAllowed([...state, ...SOLVED.filter((c) => !isBlock(c))], move)) return false
-    state = applyMove(state, move, MECHANISM)
-  }
-  return standard(state)
-}
-
-/** T = D'BD.ABA', pivoting the top front right octant, from each corner. */
-const T = [wide('R', 3), wide('D', 1), wide('R', 1), wide('F', 1), wide('D', 1), wide('F', 3)]
-const turnedBy = (k: number, moves: readonly Move[]): Move[] =>
-  k ? [wide('U', k as 1 | 2 | 3), ...moves, wide('U', (4 - k) as 1 | 2 | 3)] : [...moves]
-const PIVOTS = [0, 1, 2, 3].flatMap((k) => [turnedBy(k, T), turnedBy(k, invertMoves(T))])
-const LAYERS = ([1, 2, 3] as const).flatMap((a) => [[top(a)], [inner(a)]])
-
-/** C = Th².(Th²T'h²)².T'h².(T'h²Th²)²: three centers cycled, nothing else. */
-const h2 = [inner(2)]
-const Ti = invertMoves(T)
-export const C = [
-  ...T,
-  ...h2,
-  ...[...T, ...h2, ...Ti, ...h2, ...T, ...h2, ...Ti, ...h2],
-  ...Ti,
-  ...h2,
-  ...[...Ti, ...h2, ...T, ...h2, ...Ti, ...h2, ...T, ...h2],
-]
-
-type Generator = { forward: Macro; backward: Int16Array }
-/** The wings' search turns: the top's two layers, T from each corner. */
-const generators = once((): Generator[] =>
-  [...LAYERS, ...PIVOTS].map((moves) => {
-    const forward = macroOf(moves)
-    const backward = new Int16Array(forward.to.length)
-    forward.to.forEach((j, i) => (backward[j] = i))
-    return { forward, backward }
-  }),
-)
-
-/** States a search may hold before giving up (memory). */
-const MAX_STATES = 600_000
-
-/**
- * The fewest generators taking the tracked pieces from their places to
- * those wanted, the others untracked: from both ends at once, meeting in
- * the middle.
- */
-function meet(from: readonly number[], to: readonly number[]): Move[] {
-  const gens = generators()
-  type Seen = Map<string, { parent: string | null; gen: number }>
-  const grow = (frontier: number[][], seen: Seen, backward: boolean): number[][] => {
-    const next: number[][] = []
-    for (const state of frontier) {
-      const key = state.join()
-      gens.forEach((g, i) => {
-        const table = backward ? g.backward : g.forward.to
-        const moved = state.map((p) => table[p]!)
-        const k = moved.join()
-        if (seen.has(k)) return
-        seen.set(k, { parent: key, gen: i })
-        next.push(moved)
-      })
-    }
-    return next
-  }
-  const ahead: Seen = new Map([[from.join(), { parent: null, gen: -1 }]])
-  const behind: Seen = new Map([[to.join(), { parent: null, gen: -1 }]])
-  let fa = [[...from]]
-  let fb = [[...to]]
-  for (let depth = 0; depth < 12 && ahead.size + behind.size < MAX_STATES; depth++) {
-    const [small, large] = ahead.size <= behind.size ? [ahead, behind] : [behind, ahead]
-    const common = [...small.keys()].find((k) => large.has(k))
-    if (common !== undefined) {
-      const moves: Move[] = []
-      for (let k = common; ahead.get(k)!.parent !== null; k = ahead.get(k)!.parent!) {
-        moves.unshift(...gens[ahead.get(k)!.gen]!.forward.moves)
-      }
-      // Found from the goal by undoing a generator: played forward.
-      for (let k = common; behind.get(k)!.parent !== null; k = behind.get(k)!.parent!) {
-        moves.push(...gens[behind.get(k)!.gen]!.forward.moves)
-      }
-      return moves
-    }
-    if (fa.length <= fb.length) fa = grow(fa, ahead, false)
-    else fb = grow(fb, behind, true)
-  }
-  throw new Error('ai: this piece cannot go home')
-}
-
-let CYCLES: Macro[] | undefined
-/** C from every side, both ways, set up by up to two turns of the top or a
- *  pivot in any order, undone after: pure 3-cycles of centers. */
-function cycles(): Macro[] {
-  if (CYCLES) return CYCLES
-  const bases = [0, 1, 2, 3].flatMap((k) => [turnedBy(k, C), invertMoves(turnedBy(k, C))])
-  const singles: Move[][] = [[], ...LAYERS, ...PIVOTS]
-  const seen = new Set<string>()
-  const out: Macro[] = []
-  for (const base of bases) {
-    for (const a of singles) {
-      for (const b of singles) {
-        const setup = [...a, ...b]
-        const moves = simplifyMoves([...setup, ...base, ...invertMoves(setup)])
-        const macro = macroOf(moves)
-        const key = macro.to.join()
-        if (seen.has(key) || !playable(moves)) continue
-        seen.add(key)
-        out.push(macro)
-      }
-    }
-  }
-  // Two of them sharing centers: a 3-cycle of a new trio, when only three
-  // centers move in all.
-  const firsts = [...out]
-  for (const x of firsts) {
-    for (const y of firsts) {
-      if (![...x.moved].some((cell) => y.moved.has(cell))) continue
-      const macro = macroOf([...x.moves, ...y.moves])
-      const key = macro.to.join()
-      if (macro.moved.size !== 3 || seen.has(key)) continue
-      seen.add(key)
-      out.push(macro)
-    }
-  }
-  return (CYCLES = out)
-}
-
-/** The fewest turns taking a center from one place to another by 3-cycles
- *  that leave the kept cells alone (Dijkstra on its places). */
-function route(from: number, to: number, kept: ReadonlySet<string>): Move[] {
-  const safe = cycles().filter((m) => ![...m.moved].some((cell) => kept.has(cell)))
-  const cost = new Map([[from, 0]])
-  const back = new Map<number, { from: number; macro: Macro }>()
-  const done = new Set<number>()
-  for (;;) {
-    let here = -1
-    for (const [p, c] of cost) if (!done.has(p) && (here < 0 || c < cost.get(here)!)) here = p
-    if (here < 0) throw new Error('ai: this center cannot go home')
-    if (here === to) {
-      const moves: Move[] = []
-      for (let p = here; p !== from; p = back.get(p)!.from)
-        moves.unshift(...back.get(p)!.macro.moves)
-      return moves
-    }
-    done.add(here)
-    for (const macro of safe) {
-      const next = macro.to[here]!
-      const c = cost.get(here)! + macro.moves.length
-      if (!done.has(next) && c < (cost.get(next) ?? Infinity)) {
-        cost.set(next, c)
-        back.set(next, { from: here, macro })
-      }
-    }
-  }
+  return found(
+    searchFormulas(
+      cube.filter(isBlock),
+      HALVES.map((move) => [move]),
+      standard,
+      { key: blocksOf, depth: 7, mechanism: MECHANISM },
+    ),
+    'ai: the big blocks cannot go below',
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -322,7 +104,7 @@ function wanted(cube: Cube): { home: Cubie; position: Vec3; normal: Vec3 }[] {
   return out
 }
 
-const isWing = (c: Cubie) => c.stickers.length === 2
+const isWing = withStickers(2)
 const atPlace = (cube: Cube, w: { home: Cubie; position: Vec3; normal: Vec3 }) => {
   const piece = cube.find(
     (c) =>
@@ -382,7 +164,7 @@ function placeAll(kind: (c: Cubie) => boolean) {
       }
       let moves: Move[]
       if (assigned) {
-        moves = route(assigned[index]!, target, keptCells)
+        moves = centerRoute(assigned[index]!, target, keptCells)
         const table = macroOf(moves).to
         assigned = assigned.map((p) => table[p]!)
       } else {

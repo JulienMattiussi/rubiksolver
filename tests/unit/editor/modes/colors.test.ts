@@ -4,19 +4,17 @@ import { validateCube } from '@/lib/editor/validate'
 import { applyMoves } from '@/lib/core/turn'
 import {
   buildCube,
-  canPaint,
   cubeToEdit,
   emptyEdit,
   filledCount,
   progress,
   isComplete,
-  paint,
-  paletteColors,
   slotsFor,
-} from '@/lib/editor/editor'
+} from '@/lib/editor/edit'
+import { canPaint, paint, paletteColors } from '@/lib/editor/modes/colors'
 import { parseMoves, scramble } from '@/lib/core/moves'
 import type { Cube } from '@/lib/core/types'
-import { seededRng } from '../../helpers'
+import { seededRng } from '../../../helpers'
 
 describe('cube editor', () => {
   it('starts blank with only the six centers', () => {

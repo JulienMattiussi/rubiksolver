@@ -26,7 +26,7 @@ export function SetupSection() {
   const t = useI18n((s) => s.t)
   const cube = useCube((s) => s.cube)
   const shape = useCube((s) => cubeShape(s.cube))
-  const mirror = useCube((s) => s.variant === 'mirror')
+  const variant = useCube((s) => s.variant)
   const reset = useCube((s) => s.reset)
   const stop = useCube((s) => s.stop)
   const enterEdit = useEditor((s) => s.enter)
@@ -107,7 +107,7 @@ export function SetupSection() {
       {confirmReplace && (
         <ConfirmDialog
           title={t.replaceSavedTitle}
-          message={t.replaceSavedMessage(t.cubeKind(SHAPE_LABEL[shape], mirror), savedTime)}
+          message={t.replaceSavedMessage(t.cubeKind(SHAPE_LABEL[shape], variant), savedTime)}
           confirmLabel={t.replaceSaved}
           cancelLabel={t.cancel}
           onConfirm={() => {

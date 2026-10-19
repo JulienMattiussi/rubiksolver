@@ -1,4 +1,4 @@
-import type { Color } from '@/lib/core/types'
+import type { Color, CubeVariant } from '@/lib/core/types'
 
 /** Sticker colors of the physical cube (standard Western scheme). */
 export const COLOR_HEX: Record<Color, string> = {
@@ -35,7 +35,15 @@ export const PLACE = '#fbbf24'
 
 /** Mirror cube: every facelet wears the same gold, pieces are told apart by
  *  their size. */
-export const MIRROR_STICKER = '#d8a63f'
+const MIRROR_STICKER = '#d8a63f'
+
+/** The skin every sticker wears on a variant whose stickers tell sizes
+ *  (lib/core/shape.ts: a mirror's gold), metal; none where they tell
+ *  colors. */
+export const VARIANT_SKIN: Record<CubeVariant, string | undefined> = {
+  classic: undefined,
+  mirror: MIRROR_STICKER,
+}
 
 /** Floppy Ghost: every facelet silver, like the real one. */
 export const GHOST_STICKER = '#c8cfd8'
@@ -43,3 +51,6 @@ export const GHOST_STICKER = '#c8cfd8'
 /** A cell of a face being copied that shows no sticker (faceCanvases.ts): a piece's plastic or a hole, a little lighter than the
  *  plastic so it reads as painted. */
 export const ABSENT_HEX = '#1e293b'
+
+/** Gray shown on a not-yet-painted sticker slot. */
+export const EMPTY_COLOR = '#64748b'

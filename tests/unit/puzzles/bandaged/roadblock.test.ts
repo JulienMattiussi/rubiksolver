@@ -2,14 +2,28 @@ import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { parseMoves, scrambleTurns } from '@/lib/core/moves'
 import { barCells, barsAtStart, barsTurned } from '@/lib/puzzles/bandaged/roadblock'
-import { buildCube, cubeToEdit, emptyEdit } from '@/lib/editor/editor'
-import { paintBar, turnFace } from '@/lib/editor/roadblockEditor'
+import { buildCube, cubeToEdit, emptyEdit } from '@/lib/editor/edit'
+import { BARS, paintBar } from '@/lib/puzzles/bandaged/roadblockEntry'
+import { paint } from '@/lib/editor/modes/colors'
+import { togglesOfKeys } from '@/lib/editor/modes/toggles'
+import type { EditStickers } from '@/lib/editor/entry'
 import { validateCube } from '@/lib/editor/validate'
 import { applyMoves, turnAllowed } from '@/lib/core/turn'
 import type { Move } from '@/lib/core/types'
 import { seededRng } from '../../../helpers'
 
 const SOLVED = solvedCube('roadblock')
+
+/** A bar painted from a center (`paintBar`), the faces `turned` a quarter. */
+const barPaint = (edit: EditStickers, at: string, ni: number, turned: string[]) =>
+  paintBar(
+    (e, key, keep) => paint(e, 'roadblock', key, ni, 'W', undefined, keep),
+    edit,
+    at,
+    ni,
+    'W',
+    togglesOfKeys(turned),
+  )
 
 /** The cubies a sequence moves or turns, from solved. */
 const movedBy = (formula: string) => {
@@ -71,8 +85,8 @@ describe('RoadBlock-I', () => {
     const cube = applyMoves(SOLVED, parseMoves('R U'))
     expect(barsTurned(cube).sort()).toEqual(['0,2,0', '2,0,0'])
     const built = buildCube(cubeToEdit(cube), 'roadblock', undefined, {
-      turned: barsTurned(cube),
-      spins: {},
+      toggles: BARS.of(cube),
+      parts: {},
     })
     expect(validateCube(built)).toEqual({ ok: true })
     // The same position: undone, back to START.
@@ -84,7 +98,7 @@ describe('RoadBlock-I', () => {
     const top = emptyEdit('roadblock')
     // The top's bars along x at START, along z turned.
     const along = (turned: string[]) =>
-      Object.keys(paintBar(top, '0,2,1', 2, 'W', turned)).filter((id) => !(id in top))
+      Object.keys(barPaint(top, '0,2,1', 2, turned)).filter((id) => !(id in top))
     expect(barCells([0, 2, 1], [])).toEqual([
       [-1, 2, 1],
       [0, 2, 1],
@@ -96,14 +110,14 @@ describe('RoadBlock-I', () => {
 
   it("turns a face's bars with their colors, and back", () => {
     const edit = cubeToEdit(applyMoves(SOLVED, parseMoves('2U')))
-    const turned = turnFace(edit, '2,0,0', false)
+    const turned = BARS.carry!(edit, '2,0,0', 0)
     expect(turned).not.toEqual(edit)
-    expect(turnFace(turned, '2,0,0', true)).toEqual(edit)
+    expect(BARS.carry!(turned, '2,0,0', 1)).toEqual(edit)
   })
 
   it('takes a whole bar back when a paint needs its color', () => {
     // Solved, every white center used: a white bar on the front takes one back.
-    const edit = paintBar(cubeToEdit(SOLVED), '0,1,2', 4, 'W', [])
+    const edit = barPaint(cubeToEdit(SOLVED), '0,1,2', 4, [])
     expect(['-1,1,2:4', '0,1,2:4', '1,1,2:4'].map((id) => edit[id])).toEqual(['W', 'W', 'W'])
     const top = Object.keys(edit).filter((id) => id.endsWith(':2') && /^-?\d,2,-?\d/.test(id))
     const emptied = Object.keys(cubeToEdit(SOLVED)).filter((id) => edit[id] === undefined)

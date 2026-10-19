@@ -1,4 +1,5 @@
 import { CUBE3_FR } from './tutorials/cube3'
+import { CUBE4_FR } from './tutorials/cube4'
 import { CUBE2_FR } from './tutorials/cube2'
 import { CUBES_FR } from './tutorials/cubes'
 import { MORPH_FR } from './tutorials/morph'
@@ -7,7 +8,15 @@ import { PYRAMINX_FR } from './tutorials/pyraminx'
 import { mergeTexts } from '../tutorialTexts'
 
 /** Each tutorial's texts, by key, in one (see i18n/tutorialTexts.ts). */
-const TEXTS = mergeTexts([CUBES_FR, CUBE3_FR, CUBE2_FR, PYRAMIDS_FR, PYRAMINX_FR, MORPH_FR])
+const TEXTS = mergeTexts([
+  CUBES_FR,
+  CUBE3_FR,
+  CUBE2_FR,
+  CUBE4_FR,
+  PYRAMIDS_FR,
+  PYRAMINX_FR,
+  MORPH_FR,
+])
 
 /** The kinds of pieces (`Tutorial.pieceKind`), named. */
 export const PIECES_FR: Record<string, string> = {

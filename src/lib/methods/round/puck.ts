@@ -3,6 +3,7 @@ import { PUCK_COLORS, puckNumber, puckPlace, puckSolved } from '../../puzzles/ro
 import type { MethodPlan } from '../../solve/solverKit'
 import type { Cube, PuckMove, PuckSteps } from '../../core/types'
 import { once } from '../../solve/once'
+import { permutationIsOdd } from '../../solve/permutation'
 
 /**
  * Hockey Puck, "isolate, then permute" (the 2-Star Prism's way, starPrism.ts),
@@ -210,20 +211,7 @@ function sortTop(cube: Cube): PuckMove[] {
   let slots = slotsOf(cube)
   const top = () => slots.slice(0, 12)
   // The turn aimed at: one 3-cycles can reach (an even permutation away).
-  const even = (r: number) => {
-    const to = top().map((p) => mod(p - 1 - r, 12))
-    const seen = new Set<number>()
-    let swaps = 0
-    to.forEach((_, start) => {
-      let length = 0
-      for (let k = start; !seen.has(k); k = to[k]!) {
-        seen.add(k)
-        length++
-      }
-      if (length) swaps += length - 1
-    })
-    return swaps % 2 === 0
-  }
+  const even = (r: number) => !permutationIsOdd(top().map((p) => mod(p - 1 - r, 12)))
   const r = Array.from({ length: 12 }, (_, k) => k).find(even)!
   const want = (m: number) => mod(m + r, 12) + 1
   const all: PuckMove[] = []

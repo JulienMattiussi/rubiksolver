@@ -3,9 +3,25 @@ import type { PuzzleEntry } from '../entry'
 /** The tetrahedra: the Pyraminx family, the Morphinxes. In the picker's order. */
 export const PYRAMID = {
   // The Pyraminx family (pyraminx.ts) is no grid either: its pieces sit within +-2, +-3 and +-4 on every axis by size (see `pyraSize`).
-  pyra: { label: 'Pyraminx', slug: 'pyraminx', dims: [5, 5, 5], scramble: 11, pad: 'pyra' },
-  tetra: { label: 'Tetraminx', slug: 'tetraminx', dims: [5, 5, 5], scramble: 11, pad: 'pyra' },
+  pyra: {
+    home: 'classic',
+    moves: 'pyra',
+    label: 'Pyraminx',
+    slug: 'pyraminx',
+    dims: [5, 5, 5],
+    scramble: 11,
+    pad: 'pyra',
+  },
+  tetra: {
+    moves: 'pyra',
+    label: 'Tetraminx',
+    slug: 'tetraminx',
+    dims: [5, 5, 5],
+    scramble: 11,
+    pad: 'pyra',
+  },
   pyra4: {
+    moves: 'pyra',
     label: 'Master Pyraminx (4x4)',
     slug: 'master-pyraminx',
     dims: [7, 7, 7],
@@ -13,6 +29,7 @@ export const PYRAMID = {
     pad: 'pyra',
   },
   pyra5: {
+    moves: 'pyra',
     label: 'Professor Pyraminx (5x5)',
     slug: 'professor-pyraminx',
     dims: [9, 9, 9],
@@ -21,6 +38,7 @@ export const PYRAMID = {
   },
   // The Pyraminx Jing's pieces sit within +-1 (see pyraminx.ts).
   jing: {
+    moves: 'pyra',
     label: 'Pyraminx Jing',
     slug: 'pyraminx-jing',
     dims: [3, 3, 3],

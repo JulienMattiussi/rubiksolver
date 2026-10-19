@@ -2,18 +2,18 @@ import { Fragment, useState } from 'react'
 import { cubeShape } from '@/lib/core/cube'
 import { normalOfIndex } from '@/lib/core/geometry'
 import type { Cubie } from '@/lib/core/types'
-import { canPaint, slotsFor } from '@/lib/editor/editor'
+import { slotsFor } from '@/lib/editor/edit'
+import { entersByPieces, stepOf, togglesAt, type TogglesSpec } from '@/lib/editor/entry'
+import { canPaint } from '@/lib/editor/modes/colors'
 import { stickerId, type Slot } from '@/lib/editor/editorTables'
-import { entersByPieces, piecesIn } from '@/lib/editor/pieceEditor'
-import { splits, tileMates } from '@/lib/editor/jointsEditor'
-import { cutPieces } from '@/lib/editor/cutsEditor'
-import { FaceCanvases } from './FaceCanvases'
-import { faceKeyAt } from '@/lib/puzzles/bandaged/roadblock'
-import { isBarCenter, setupTargets } from '@/lib/editor/setup'
+import { piecesIn } from '@/lib/editor/modes/pieces'
+import { splits, tileMates } from '@/lib/editor/modes/joints'
+import { litSlots } from '@/lib/editor/modes/toggles'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
-import { COLOR_HEX } from './colors'
-import { EMPTY_COLOR } from './EditView'
+import { COLOR_HEX, EMPTY_COLOR } from './colors'
+import { CutsView } from './CutsView'
+import { FaceCanvases } from './FaceCanvases'
 import { JointHandles } from './JointHandles'
 import { Decal } from './Decal'
 import { PolyPiece } from './PolyPiece'
@@ -22,37 +22,38 @@ import { polyDrawing } from './polyDrawing'
 /** An empty border of a super cube's center: darker than an empty sticker. */
 const EMPTY_BORDER = '#334155'
 
+/** A slot as a toggle reads it. */
+const toggleSlot = (slot: Slot) => ({ ...slot, stickers: slot.stickers.length })
+
 /**
- * A gridless puzzle in edit mode: every slot drawn as its piece, each visible
- * sticker gray until painted and clickable when the slot is paintable (on a
- * star prism, all but the left screw half, which never moves). An inner
- * point of the 4-star shows its two sides only: once both are painted, their
- * order tells which way up it sits, and the editor completes its hidden face.
- * The Floppy Ghost and the Z-Twist are entered piece by piece: each slot
- * shows the piece put there, and a click puts the next one (pieceEditor.ts);
- * a click on a Z-Twist side center turns it a quarter. A RoadBlock-I's
- * centers are drawn as their bars lie; while its bars are set, a click on
- * a center turns its face's a quarter. A bandaged puzzle's pieces are
- * fused as solved.
+ * A puzzle drawn from polygons, in edit mode, as its entry's step says
+ * (lib/editor/entry.ts): its faces on canvases, its half-cubies, or every
+ * slot drawn as its piece, each visible sticker gray until painted and
+ * clickable when the slot is paintable. While its joints are clicked, its
+ * pieces are drawn plain, a click taking one apart; while toggles are set
+ * (or painting, its own), a click turns what the slot says round, the
+ * slots turning together lit up whole. Put piece by piece, each slot shows
+ * the piece put there, and a click puts the next one. An inner point of
+ * the 4-star shows its two sides only: once both are painted, their order
+ * tells which way up it sits, and the editor completes its hidden face.
  */
 export function PolyEditView() {
   const shape = useCube((s) => cubeShape(s.cube))
+  const phase = useEditor((s) => s.phase)
   const edit = useEditor((s) => s.edit)
   const paintAt = useEditor((s) => s.paintAt)
   const cycleAt = useEditor((s) => s.cycleAt)
-  const twistAt = useEditor((s) => s.twistAt)
-  const twisted = useEditor((s) => s.twisted)
+  const toggleAt = useEditor((s) => s.toggleAt)
+  const toggles = useEditor((s) => s.toggles)
   const joints = useEditor((s) => s.joints)
-  // A bandaged puzzle's joints being clicked: its pieces drawn plain.
-  const clickingJoints = useEditor((s) => s.phase === 'joints')
   const split = useEditor((s) => s.split)
-  // A RoadBlock-I's bars being set: its centers turn them, by face.
-  const clickingBars = useEditor((s) => s.phase === 'bars')
-  const turnBarsAt = useEditor((s) => s.turnBarsAt)
   // While a form is being chosen, the one hovered (the original otherwise).
   const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
   const drawing = polyDrawing(shape)
-  const pieces = entersByPieces(shape) ? piecesIn(edit, shape) : undefined
+  const clickingJoints = phase === 'joints'
+  const pieces = phase === 'paint' && entersByPieces(shape) ? piecesIn(edit, shape) : undefined
+  // What a click turns round now: the toggles step's, or the paint's own.
+  const turning: TogglesSpec | undefined = togglesAt(shape, phase)
   // The sticker under the pointer (its slot's key, then its normal index).
   const [hovered, setHovered] = useState<string | null>(null)
   const hover = (slotKey: string) => (ni: number, on: boolean) => {
@@ -61,95 +62,59 @@ export function PolyEditView() {
   }
   const litIn = (slotKey: string) =>
     hovered?.startsWith(`${slotKey}|`) ? Number(hovered.slice(slotKey.length + 1)) : null
-  const clickingCuts = useEditor((s) => s.phase === 'cuts')
-  const copyingFaces = useEditor((s) => s.phase === 'faces')
-  const cuts = useEditor((s) => s.cuts)
-  const cutAt = useEditor((s) => s.cutAt)
-  // The cell under the pointer: its halves light up together.
-  const [hoveredCell, setHoveredCell] = useState<string | null>(null)
 
-  // While the bars are set, the face a click turns lights up whole.
-  const hoveredSlot = hovered?.split('|')[0]
-  const barsLit =
-    clickingBars && hoveredSlot && isBarCenter(hoveredSlot.split(',').map(Number))
-      ? setupTargets('bars', shape, hoveredSlot)
+  if (phase === 'canvas') return <FaceCanvases />
+  const cuts = stepOf(shape, 'cuts')
+  if (phase === 'cuts' && cuts) return <CutsView spec={cuts.cuts} drawing={drawing} />
+
+  const slots = slotsFor(shape, form)
+  // While a toggles step is set, the slots a click turns light up whole.
+  const settingToggles = phase === 'toggles'
+  const lit =
+    settingToggles && turning
+      ? litSlots(turning, slots.map(toggleSlot), hovered?.split('|')[0])
       : []
-
-  /** A Z-Twist side center, a Quarter Cube's: a click turns it a quarter,
-   *  or back. */
-  const turnsOnClick = (slot: Slot) =>
-    slot.stickers.length === 1 && !!drawing.editTurns?.(slot.position)
+  /** The slot's key a click turns round, if it turns one. */
+  const toggleKey = (slot: Slot) => turning?.keyAt(toggleSlot(slot)) ?? null
 
   /** The slot's piece as drawn: as solved (its geometry lists every
    *  sticker), turned as entered, then as its drawing says (`editLook`). */
-  const lookOf = (slot: Slot, turns: boolean): Cubie => {
+  const lookOf = (slot: Slot): Cubie => {
+    const turns = phase === 'paint' && toggleKey(slot) !== null
     const plain = {
       position: slot.position,
       stickers: slot.stickers.map((s) => ({ normal: s.normal, color: s.solvedColor })),
-      ...(turns && { spin: twisted.includes(slot.key) ? 1 : 0 }),
+      ...(turns && { spin: toggles[slot.key] ?? 0 }),
     }
     if (!drawing.editLook) return plain
     const colors = slot.stickers.map((s) => edit[s.id])
-    return drawing.editLook(plain, { colors, twisted, joints })
+    return drawing.editLook(plain, { colors, toggles, joints })
   }
 
   /** What a click on the slot does: split it while the joints are entered,
-   *  turn its face's bars while they are set, turn it, or paint the sticker
-   *  clicked. */
-  const onSelectFor = (slot: Slot, turns: boolean) => {
-    if (clickingBars) {
-      return isBarCenter(slot.position) ? () => turnBarsAt(faceKeyAt(slot.position)) : undefined
-    }
+   *  turn it round while toggles are set (or the paint's own), or paint
+   *  the sticker clicked. */
+  const onSelectFor = (slot: Slot) => {
     if (clickingJoints) {
       if (!splits(shape, joints, slot.position)) return undefined
       return (ni: number, at: readonly number[]) =>
         split(slot.position, splitAxis(slot.position, ni, at))
     }
-    if (turns) return () => twistAt(slot.key)
+    if (toggleKey(slot)) return () => toggleAt(slot.key)
+    if (settingToggles) return undefined
     if (canPaint(shape, slot.key, form)) return (ni: number) => paintAt(slot.key, ni)
     return undefined
   }
 
-  // The Camouflage's faces being copied, one canvas each.
-  if (copyingFaces) return <FaceCanvases />
-  // The Fashion-V's halves being placed: drawn as its cells say, gray but
-  // its centers (which never move); a click turns a cell's halves round.
-  if (clickingCuts) {
-    return (
-      <group rotation={[0, drawing.yaw, 0]}>
-        {cutPieces(cuts).map((c) => {
-          const cell = c.position.map(Math.sign).join()
-          const center = c.position.filter((v) => v !== 0).length === 1
-          return (
-            <PolyPiece
-              key={c.position.join()}
-              cubie={c}
-              drawing={drawing}
-              stickerHex={center ? undefined : () => EMPTY_COLOR}
-              onSelect={center ? undefined : () => cutAt(cell)}
-              onHover={
-                center
-                  ? undefined
-                  : (_, on) =>
-                      setHoveredCell((current) => (on ? cell : current === cell ? null : current))
-              }
-              highlighted={hoveredCell === cell}
-            />
-          )
-        })}
-      </group>
-    )
-  }
   return (
     <group rotation={[0, drawing.yaw, 0]}>
       <group quaternion={drawing.orient ?? [0, 0, 0, 1]} position={drawing.offset ?? [0, 0, 0]}>
-        {slotsFor(shape, form).map((slot) => {
+        {slots.map((slot) => {
           const byNi = new Map(slot.stickers.map((s) => [s.ni, s.id]))
-          const turns = turnsOnClick(slot)
-          const solved = lookOf(slot, turns)
-          if (pieces && slot.paintable) {
-            // Entered piece by piece: the piece placed, or the slot's own in
-            // gray while empty; a click puts the next one.
+          const solved = lookOf(slot)
+          if (pieces && slot.paintable && !toggleKey(slot)) {
+            // Put piece by piece: the piece put, or the slot's own in gray
+            // while empty; a click puts the next one.
             const placed = pieces.get(slot.key)
             return (
               <Fragment key={slot.key}>
@@ -190,7 +155,7 @@ export function PolyEditView() {
               return color ? COLOR_HEX[color] : EMPTY_COLOR
             }
             // A face with no sticker to enter keeps its own (the Purple's),
-            // as does a piece that never moves, entered piece by piece (the
+            // as does a piece that never moves, put piece by piece (the
             // Z-Twist's centers).
             if (!byNi.has(ni) || (pieces && !slot.paintable)) return undefined
             const color = edit[byNi.get(ni)!]
@@ -204,10 +169,10 @@ export function PolyEditView() {
               cubie={solved}
               drawing={drawing}
               stickerHex={hex}
-              onSelect={onSelectFor(slot, turns)}
+              onSelect={onSelectFor(slot)}
               onHover={hover(slot.key)}
-              lit={clickingBars ? null : litIn(slot.key)}
-              highlighted={barsLit.includes(slot.key)}
+              lit={settingToggles ? null : litIn(slot.key)}
+              highlighted={lit.includes(slot.key)}
             />
           )
         })}

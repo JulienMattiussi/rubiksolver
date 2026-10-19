@@ -1,6 +1,5 @@
 import { FACE_COLOR, solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS, faceOfNormal, mapVec, vecKey } from '../../core/geometry'
-import { invertMoves } from '../../core/moves'
+import { faceOfNormal, mapVec, vecKey } from '../../core/geometry'
 import { allTurnsOf } from '../../core/moveSet'
 import {
   applyCopterMove,
@@ -14,7 +13,8 @@ import { cycleTable, placeByCycles, uniqueHomes } from '../../solve/cycleTable'
 import { projectPlan, type MethodPlan, type StepSpec } from '../../solve/solverKit'
 import type { CopterMove, Cube, Cubie, Vec3 } from '../../core/types'
 import { once } from '../../solve/once'
-import { colorRenames, colorsOf, recolored } from '../../core/pieces'
+import { colorRenames, colorsOf, recolored, withStickers } from '../../core/pieces'
+import { heldEveryWay } from '../../solve/everyWay'
 
 /**
  * The Curvy Copters, "les arêtes d'abord", as taught on fan2cube.fr
@@ -44,24 +44,19 @@ import { colorRenames, colorsOf, recolored } from '../../core/pieces'
 
 /** A formula seen from every side of the cube: each of its 24 holdings
  *  turning each edge's axis. */
-function fromEverySide(formula: string): CopterMove[][] {
-  const moves = parseCopterMoves(formula)
-  const seen = new Set<string>()
-  return AXIS_ROTATIONS.flatMap((turn) => {
-    const turned = moves.map(({ edge }) => {
-      const axis = turn(COPTER_AXES[edge]).join()
+const fromEverySide = (formula: string): CopterMove[][] =>
+  heldEveryWay(
+    parseCopterMoves(formula),
+    ({ edge }, by) => {
+      const axis = by(COPTER_AXES[edge]).join()
       return { edge: COPTER_EDGES.find((e) => COPTER_AXES[e].join() === axis)! }
-    })
-    const look = turned.map((m) => m.edge).join('')
-    if (seen.has(look)) return []
-    seen.add(look)
-    return [turned, invertMoves(turned)]
-  })
-}
+    },
+    { once: true, inverses: true },
+  )
 
 const nonZero = (c: Cubie) => c.position.filter((v) => v !== 0).length
-const isCorner = (c: Cubie) => c.stickers.length === 3
-const isEdge = (c: Cubie) => c.stickers.length === 2
+const isCorner = withStickers(3)
+const isEdge = withStickers(2)
 const isCenter = (c: Cubie) => c.stickers.length === 1 && nonZero(c) === 1
 const isPetal = (c: Cubie) => c.stickers.length === 1 && nonZero(c) === 2
 const isLeaf = (c: Cubie) => c.stickers.length === 1 && nonZero(c) === 3

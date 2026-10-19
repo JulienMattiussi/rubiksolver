@@ -3,7 +3,7 @@ import { FACE_NORMAL } from '../../core/geometry'
 import { applyMoves } from '../../core/turn'
 import { CUBE_HOLDS, type Hold } from '../../core/hold'
 import { parseMoves } from '../../core/moves'
-import { colorAt, hasColors } from '../../core/pieces'
+import { colorAt, hasColors, sameAt } from '../../core/pieces'
 import type { Color, Cube, CubeColor, Face, Move, Vec3 } from '../../core/types'
 import { PLL_T, PLL_Y, SUNE } from '../../methods/standard/algs'
 import { frame2, topFaceDone2 } from '../../methods/standard/cube2'
@@ -11,14 +11,7 @@ import { CORNER_PAIRS, cornerPlacedIn } from '../../methods/standard/layers3'
 import { search } from '../../solve/solverKit'
 import { tutorialOf, type Target } from '../../teach/kit'
 import { firstGesture, type Gesture } from '../../teach/macros'
-import {
-  cornerFormula,
-  cornerPairAt,
-  cornerSlot,
-  pieceWith,
-  sameAt,
-  TRIGGER,
-} from './cornerTrigger'
+import { cornerFormula, cornerPairAt, cornerSlot, pieceWith, TRIGGER } from './cornerTrigger'
 import { CLOCKWISE, CORNER, COUNTERCLOCKWISE, THICKNESSES } from './terms'
 
 /**

@@ -1,20 +1,8 @@
-import { CUBE_KINDS, cubeCategory, SHAPE_LABEL, type CubeKind } from '@/lib/core/types'
+import { CUBE_KINDS, cubeCategory, HOME_KINDS, SHAPE_LABEL, type CubeKind } from '@/lib/core/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { goTo } from '@/store/router'
 import { PuzzleIcon } from '@/components/picker/PuzzleIcon'
 import { FEATURE_CHIP, FEATURE_ICON, type Feature } from '@/components/ui/features'
-
-/** The gallery's models: one or two of each kind, for variety (the picker
- *  holds them all). */
-const SHOWCASE: readonly CubeKind[] = [
-  { shape: '3', variant: 'classic' },
-  { shape: 'pyra', variant: 'classic' },
-  { shape: 'ghost', variant: 'classic' },
-  { shape: '4', variant: 'mirror' },
-  { shape: '224', variant: 'classic' },
-  { shape: 'star', variant: 'classic' },
-  { shape: 'gearU', variant: 'classic' },
-]
 
 const FEATURES: readonly Feature[] = ['edit', 'guide', 'solve']
 
@@ -25,7 +13,7 @@ const FEATURES: readonly Feature[] = ['edit', 'guide', 'solve']
  */
 export function HomeGallery() {
   const t = useI18n((s) => s.t)
-  const nameOf = (kind: CubeKind) => t.cubeKind(SHAPE_LABEL[kind.shape], kind.variant === 'mirror')
+  const nameOf = (kind: CubeKind) => t.cubeKind(SHAPE_LABEL[kind.shape], kind.variant)
   return (
     <div className="absolute inset-0 overflow-auto">
       {/* Soft colored glows behind the gallery. */}
@@ -46,7 +34,7 @@ export function HomeGallery() {
           </h2>
 
           <ul className="flex flex-wrap justify-center gap-3">
-            {SHOWCASE.map((kind) => (
+            {HOME_KINDS.map((kind) => (
               <li key={`${kind.shape}${kind.variant}`}>
                 <button
                   type="button"

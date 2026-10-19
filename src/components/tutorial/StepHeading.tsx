@@ -6,6 +6,9 @@ import { HatchedCubie } from './HatchedCubie'
 import { TermDemo } from './TermDemo'
 import { useTutorialTexts } from './useTutorialTexts'
 
+/** The most progress dots a heading shows. */
+const MAX_DOTS = 12
+
 /** A tutorial step's heading: its rank among the stages, its goal, how far
  *  it has come (dots and words), what it asks, and the hatched pieces'
  *  legend. */
@@ -38,14 +41,17 @@ export function StepHeading({
       </h3>
       {progress && told && (
         <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-300">
-          <span className="flex gap-1" aria-hidden>
-            {Array.from({ length: progress.total }, (_, i) => (
-              <span
-                key={i}
-                className={`size-2 rounded-full ${i < progress.done ? 'bg-emerald-400' : 'bg-slate-600'}`}
-              />
-            ))}
-          </span>
+          {/* A dot a piece, while they fit (a 4x4's 24 centers: the words alone). */}
+          {progress.total <= MAX_DOTS && (
+            <span className="flex gap-1" aria-hidden>
+              {Array.from({ length: progress.total }, (_, i) => (
+                <span
+                  key={i}
+                  className={`size-2 rounded-full ${i < progress.done ? 'bg-emerald-400' : 'bg-slate-600'}`}
+                />
+              ))}
+            </span>
+          )}
           {told(progress.done, progress.total)}
         </div>
       )}

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { isBoxed, solvedCube } from '@/lib/core/cube'
-import { buildCube, cubeToEdit, emptyEdit, isComplete, progress } from '@/lib/editor/editor'
+import { buildCube, cubeToEdit, emptyEdit, isComplete, progress } from '@/lib/editor/edit'
 import { tablesFor } from '@/lib/editor/editorTables'
-import { formsOf, lookOf } from '@/lib/editor/forms'
+import { formsOf, lookOf } from '@/lib/editor/modes/form'
 import { scrambleTurns } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
 import { validateCube } from '@/lib/editor/validate'
-import { seededRng } from '../../helpers'
+import { seededRng } from '../../../helpers'
 
 describe('forms of a shape-shifting puzzle', () => {
   const forms = formsOf('224')

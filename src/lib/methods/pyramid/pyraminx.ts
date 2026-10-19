@@ -42,8 +42,16 @@ import {
 
 const formula = pyraFormula(3)
 
-const TOP = formula('h')
-const DOWN = aroundTop(formula("[gd']"))
+/** The page's formulas, as written for the front: a turn of the top; the
+ *  hook [gd'], (AG)->(BA)->(AD); the top's 3-cycle dhd'hdhd',
+ *  (AG)->(AD)->(GD); two edges flipped, [gd'][h'd]. */
+export const PYRA_TOP = formula('h')
+export const PYRA_HOOK = formula("[gd']")
+export const PYRA_CYCLE = formula("dhd'hdhd'")
+export const PYRA_FLIP = formula("[gd'][h'd]")
+
+const TOP = PYRA_TOP
+const DOWN = aroundTop(PYRA_HOOK)
 /** The hook, also after a top turn (undone after): the edge to bring down
  *  can stand anywhere on top. */
 const DOWN_SET_UP = [
@@ -53,8 +61,8 @@ const DOWN_SET_UP = [
     [...TOP.map(undo), ...m, ...TOP],
   ]),
 ]
-const TOP_CYCLE = aroundTop(formula("dhd'hdhd'"))
-const FLIP_TWO = aroundTop(formula("[gd'][h'd]"))
+const TOP_CYCLE = aroundTop(PYRA_CYCLE)
+const FLIP_TWO = aroundTop(PYRA_FLIP)
 
 const LAYERS = pyraSet((vertex) => ({ vertex }))
 const TIPS = pyraSet((vertex) => ({ vertex, tip: true }))

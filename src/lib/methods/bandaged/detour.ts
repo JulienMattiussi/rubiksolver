@@ -4,6 +4,15 @@ import { allTurnsOf, moveSet } from '../../core/moveSet'
 import { applyMoves } from '../../core/turn'
 import type { MethodPlan } from '../../solve/solverKit'
 import { asIn, blocksAt, bothWays, phaseAs, toStart } from './kit'
+import {
+  COMM_FR,
+  COMM_UR,
+  CORNER_CYCLE,
+  CORNER_TWIST_PAIR,
+  INSERT_RIGHT,
+  INSERT_RIGHT_BACK,
+  OLL_EDGE_TURN,
+} from '../standard/algs'
 
 /**
  * Detour, as taught on fan2cube.fr (detour2, "morphocode"): two bars and
@@ -27,16 +36,16 @@ import { asIn, blocksAt, bothWays, phaseAs, toStart } from './kit'
 /** D²H'D²HD: START from solved. */
 export const START = parseMoves("R2 U' R2 U R")
 /** (HDA) -> (BAD): [AD'] (and [AD']² turns it); [HD] the same. */
-export const DOWN = parseMoves("F R' F' R")
-export const DOWN_RIGHT = parseMoves("U R U' R'")
+export const DOWN = parseMoves(COMM_FR)
+export const DOWN_RIGHT = parseMoves(COMM_UR)
 /** (HA) -> (AD): [HD][H'A']; (HD) -> (AD): [H'A'][HD]. */
-export const MIDDLE = [parseMoves("U R U' R' U' F' U F"), parseMoves("U' F' U F U R U' R'")]
+export const MIDDLE = [parseMoves(INSERT_RIGHT), parseMoves(INSERT_RIGHT_BACK)]
 /** J = A[DH]A'H: the top edges placed (and J² turns them). */
-export const J = parseMoves("F R U R' U' F' U")
+export const J = parseMoves(OLL_EDGE_TURN)
 /** (HAG) -> (HGP) -> (HPD): [AD'].G[D'A]G' */
-export const CORNERS = parseMoves("F R' F' R L R' F R F' L'")
+export const CORNERS = parseMoves(CORNER_CYCLE)
 /** (HAG)- (HGP)+: [AD']².G[D'A]².G' */
-export const TWIST = parseMoves("F R' F' R F R' F' R L R' F R F' R' F R F' L'")
+export const TWIST = parseMoves(CORNER_TWIST_PAIR)
 
 const AT_START = applyMoves(solvedCube('detour'), START)
 const ALL = allTurnsOf('detour')

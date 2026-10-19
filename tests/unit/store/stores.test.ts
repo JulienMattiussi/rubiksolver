@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { applyMoves } from '@/lib/core/turn'
-import { cubeToEdit, emptyEdit } from '@/lib/editor/editor'
+import { cubeToEdit, emptyEdit } from '@/lib/editor/edit'
 import { parseMoves } from '@/lib/core/moves'
 import { planKey, selectBusy, selectScrambling, solvedByTurn, useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { useSaved } from '@/store/savedStore'
-import { jointsOf } from '@/lib/editor/jointsEditor'
+import { jointsOf } from '@/lib/editor/modes/joints'
 import { useI18n } from '@/i18n/i18nStore'
 import { useTutorialStore } from '@/store/tutorialStore'
 import { stubStorage } from '../../helpers'
@@ -278,30 +278,31 @@ describe('solvedByTurn', () => {
   })
 })
 
-describe('editor store: setting before the colors', () => {
+describe('editor store: steps before the colors', () => {
   it("sets a Gear Cube's gears first, their pivots kept through the colors", () => {
     useCube.getState().setShape('gearU')
     const editor = () => useEditor.getState()
     editor().enter()
-    expect(editor().phase).toBe('gears')
-    editor().spinAt('1,1,0')
-    expect(Object.keys(editor().spins)).toHaveLength(4)
-    expect(editor().acceptSetup()).toBe(true)
+    expect(editor().phase).toBe('toggles')
+    editor().toggleAt('1,1,0')
+    expect(Object.keys(editor().toggles)).toHaveLength(4)
+    expect(editor().acceptStep()).toBe(true)
     expect(editor().phase).toBe('paint')
-    editor().editSetup()
-    expect(editor().phase).toBe('gears')
-    expect(Object.keys(editor().spins)).toHaveLength(4)
+    editor().backTo('toggles')
+    expect(editor().phase).toBe('toggles')
+    expect(Object.keys(editor().toggles)).toHaveLength(4)
   })
 
   it("sets a RoadBlock-I's bars first, kept when its colors are cleared", () => {
     useCube.getState().setShape('roadblock')
     const editor = () => useEditor.getState()
     editor().enter()
-    expect(editor().phase).toBe('bars')
-    editor().turnBarsAt('2,0,0')
-    editor().acceptSetup()
+    expect(editor().phase).toBe('toggles')
+    // A click on the right face's middle center turns its bars.
+    editor().toggleAt('2,0,0')
+    editor().acceptStep()
     editor().clearAll()
-    expect(editor().twisted).toEqual(['2,0,0'])
+    expect(editor().toggles).toEqual({ '2,0,0': 1 })
   })
 })
 
@@ -311,8 +312,8 @@ describe('editor store: the Camouflage face by face', () => {
     const editor = () => useEditor.getState()
     editor().enter()
     expect(editor().phase).toBe('paint')
-    editor().editSetup()
-    expect(editor()).toMatchObject({ phase: 'faces', faceAt: 0 })
+    editor().backTo('canvas')
+    expect(editor()).toMatchObject({ phase: 'canvas', faceAt: 0 })
     // A face with an unpainted cell does not hold.
     useEditor.setState((s) => ({
       faces: s.faces.map((c, f) => (f === 0 ? { ...c, cells: [null, ...c.cells.slice(1)] } : c)),
@@ -342,7 +343,7 @@ describe('editor store: the Purple face by face', () => {
     useCube.getState().setShape('purple')
     const editor = () => useEditor.getState()
     editor().enter()
-    expect(editor()).toMatchObject({ phase: 'faces', faceAt: 0 })
+    expect(editor()).toMatchObject({ phase: 'canvas', faceAt: 0 })
     // Its box's faces, ready to change.
     expect(editor().faces).toHaveLength(4)
     expect(editor().faces[0]!.cells).toHaveLength(25)
@@ -356,14 +357,14 @@ describe('editor store: a bandaged puzzle', () => {
     editor().enter()
     expect(editor().phase).toBe('joints')
     // No form has these joints: refused.
-    expect(editor().acceptSetup()).toBe(false)
+    expect(editor().acceptStep()).toBe(false)
     expect(editor().error).toBe('joints')
     editor().join(jointsOf(solvedCube('stripe')))
-    expect(editor().acceptSetup()).toBe(true)
+    expect(editor().acceptStep()).toBe(true)
     expect(editor().phase).toBe('paint')
-    editor().editSetup()
+    editor().backTo('joints')
     expect(editor()).toMatchObject({ mode: 'edit', phase: 'joints' })
-    editor().acceptSetup()
+    editor().acceptStep()
     editor().cancel()
     expect(editor().mode).toBe('play')
   })

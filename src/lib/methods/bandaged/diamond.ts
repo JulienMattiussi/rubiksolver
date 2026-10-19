@@ -4,6 +4,15 @@ import { allTurnsOf, moveSet } from '../../core/moveSet'
 import { applyMoves } from '../../core/turn'
 import type { MethodPlan } from '../../solve/solverKit'
 import { asIn, blocksAt, bothWays, phaseAs, toStart } from './kit'
+import {
+  COMM_UF,
+  COMM_UR,
+  CORNER_CYCLE,
+  CORNER_TWIST_PAIR,
+  INSERT_RIGHT,
+  INSERT_RIGHT_BACK,
+  OLL_EDGE_TURN,
+} from '../standard/algs'
 
 /**
  * Diamond, as taught on fan2cube.fr (diamond2, "morphocode"): two squares
@@ -27,22 +36,22 @@ import { asIn, blocksAt, bothWays, phaseAs, toStart } from './kit'
 /** GD'A²: START from solved. */
 export const START = parseMoves("L R' F2")
 /** (HDA) -> (BAD): [HD]; held a quarter round, (HAG) -> (BGA): [HA]. */
-export const DOWN = parseMoves("U R U' R'")
-export const DOWN_LEFT = parseMoves("U F U' F'")
+export const DOWN = parseMoves(COMM_UR)
+export const DOWN_LEFT = parseMoves(COMM_UF)
 /** (HA) -> (AD): [HD][H'A']; (HD) -> (AD): [H'A'][HD]; and held a quarter
  *  round, to (AG). */
 export const MIDDLE = [
-  parseMoves("U R U' R' U' F' U F"),
-  parseMoves("U' F' U F U R U' R'"),
+  parseMoves(INSERT_RIGHT),
+  parseMoves(INSERT_RIGHT_BACK),
   parseMoves("U F U' F' U' L' U L"),
   parseMoves("U' L' U L U F U' F'"),
 ]
 /** J = A[DH]A'H: the top edges placed (and J² turns them). */
-export const J = parseMoves("F R U R' U' F' U")
+export const J = parseMoves(OLL_EDGE_TURN)
 /** (HAG) -> (HGP) -> (HPD): [AD'].G[D'A]G' */
-export const CORNERS = parseMoves("F R' F' R L R' F R F' L'")
+export const CORNERS = parseMoves(CORNER_CYCLE)
 /** (HAG)- (HGP)+: [AD']².G[D'A]².G' */
-export const TWIST = parseMoves("F R' F' R F R' F' R L R' F R F' R' F R F' L'")
+export const TWIST = parseMoves(CORNER_TWIST_PAIR)
 
 const AT_START = applyMoves(solvedCube('diamond'), START)
 const ALL = allTurnsOf('diamond')

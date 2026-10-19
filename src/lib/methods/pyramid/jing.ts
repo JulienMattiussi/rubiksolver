@@ -1,5 +1,5 @@
 import { isSolved } from '../../core/cube'
-import { colorsOf, homesOf } from '../../core/pieces'
+import { colorsOf, homesOf, withStickers } from '../../core/pieces'
 import { normalIndex } from '../../core/geometry'
 import { solvePieces } from '../../solve/pieceSearch'
 import type { MethodPlan } from '../../solve/solverKit'
@@ -39,8 +39,8 @@ const formula = pyraFormula(SIZE)
 const deep = (vertex: PyraMove['vertex']) => ({ vertex, deep: true as const })
 const TURNS = pyraSet(deep)
 
-const isEdge = (c: Cubie) => c.stickers.length === 2
-const isCenter = (c: Cubie) => c.stickers.length === 1
+const isEdge = withStickers(2)
+const isCenter = withStickers(1)
 
 const HOOKS = ['[DH]', "G[DH]G'"].flatMap((f) => fromEverySide(formula(f)))
 const FLIPS = fromEverySide(formula("[DH'][G'H]"))

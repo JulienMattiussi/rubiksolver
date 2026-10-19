@@ -148,6 +148,11 @@ export function gearTurnsOf(shape: CubeShape): readonly Turn[] {
   ]
 }
 
+/** The faces a Gear Cube shape turns as a 3x3's, not by gears (the
+ *  Extreme's top and bottom). */
+export const plainFaces = (shape: CubeShape): Face[] =>
+  FACES.filter((face) => gearTurnsOf(shape).some((t) => 'face' in t && t.face === face))
+
 /** Whether a move turns a piece fully (its face's layer). */
 export function gearFaceTurns(move: GearMove, position: Vec3): boolean {
   const { coordIndex, dir } = FACE_SPEC[move.gear]

@@ -1,15 +1,16 @@
-import { solvedCube } from '../core/cube'
-import type { Cube, CubeShape, Vec3 } from '../core/types'
-import { BLOCKS } from '../puzzles/bandaged/blocks'
-import { formsOfBlocks } from '../puzzles/bandaged/bonds'
-import { isMark, MARK } from '../core/types'
-import { mapVec, parseVecKey } from '../core/geometry'
+import { solvedCube } from '../../core/cube'
+import type { Cube, CubeShape, Vec3 } from '../../core/types'
+import { isMark, MARK } from '../../core/types'
+import { mapVec, normalOfIndex, parseVecKey } from '../../core/geometry'
+import { stepOf, type PaintTogether } from '../entry'
 
 /**
- * Entering a bandaged 3x3x3 (bonds.ts) whose blocks move: first where its
- * blocks are, a click on each joint between two pieces fused together,
- * checked against the forms the puzzle can take; then its colors, painted
- * as on a 3x3x3, the pieces drawn fused as the joints say. A joint is the
+ * Entry by joints (a model's `joints` step): a puzzle whose pieces fuse
+ * into blocks that move (a bandaged 3x3x3, puzzles/bandaged/bonds.ts) is
+ * entered first where its blocks are, a click on each joint between two
+ * pieces fused together, checked against the forms its step lists; then
+ * its colors, painted as on a 3x3x3, the pieces drawn fused as the joints
+ * say, a block's face painted as one tile (`tileMates`). A joint is the
  * pair of places it binds, written `x,y,z|x,y,z` (in order).
  */
 
@@ -79,7 +80,7 @@ const TABLES = new Map<CubeShape, JointTables>()
 function tablesOf(shape: CubeShape): JointTables {
   let tables = TABLES.get(shape)
   if (!tables) {
-    const forms = formsOfBlocks(solvedCube(shape)).map(jointsOf)
+    const forms = stepOf(shape, 'joints')!.joints.forms().map(jointsOf)
     const count = new Map<Joint, number>()
     for (const form of forms) for (const j of form) count.set(j, (count.get(j) ?? 0) + 1)
     const always = [...count].filter(([, n]) => n === forms.length).map(([j]) => j)
@@ -110,10 +111,8 @@ function tablesOf(shape: CubeShape): JointTables {
   return tables
 }
 
-/** Whether a puzzle is entered joints first: a bandaged 3x3x3 whose blocks
- *  move (one whose blocks never do has a single form, drawn as it is). */
-export const entersJoints = (shape: CubeShape): boolean =>
-  shape in BLOCKS && tablesOf(shape).forms.size > 1
+/** Whether a puzzle is entered joints first (its model says). */
+export const entersJoints = (shape: CubeShape): boolean => stepOf(shape, 'joints') !== undefined
 
 /** The joints an entry starts with: those every form has. */
 export const fixedJoints = (shape: CubeShape): readonly Joint[] => tablesOf(shape).always
@@ -304,3 +303,16 @@ export function tileMates(joints: readonly Joint[], cell: Vec3, normal: Vec3): V
     .map(cellOf)
     .filter((c) => c.join() !== cell.join() && c[axis] === cell[axis])
 }
+
+/** A block's face painted as one tile: a sticker's paint, the other cells
+ *  of its tile with it. */
+export const paintTile =
+  (joints: readonly Joint[]): PaintTogether =>
+  (paint, edit, slotKey, ni) => {
+    let next = paint(edit, slotKey)
+    if (next === edit) return edit
+    for (const mate of tileMates(joints, parseVecKey(slotKey), normalOfIndex(ni))) {
+      next = paint(next, mate.join(','))
+    }
+    return next
+  }

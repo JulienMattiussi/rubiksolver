@@ -1,25 +1,13 @@
-import { formatMove } from '@/lib/core/moves'
-import type { PuckMove } from '@/lib/core/types'
-import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
+import { useI18n } from '@/i18n/i18nStore'
 import { TURN_PAIR } from '@/components/ui/styles'
-import { PadButton } from './PadButton'
 import { PadHeader } from './PadHeader'
+import { useTurnButton } from './useTurnButton'
 
 /** Rotation pad of the Hockey Puck, as a star prism's: each disc a notch
  *  either way, and the slash (see PadButton). */
 export function PuckPad({ disabled }: { disabled: boolean }) {
   const t = useI18n((s) => s.t)
-  const labels = useI18n(selectMoveLabels)
-  const button = (move: PuckMove, title: string, ghost = false) => (
-    <PadButton
-      key={formatMove(move)}
-      move={move}
-      label={formatMove(move, labels)}
-      title={title}
-      disabled={disabled}
-      ghost={ghost}
-    />
-  )
+  const button = useTurnButton(disabled)
   return (
     <div>
       <PadHeader />
@@ -27,7 +15,7 @@ export function PuckPad({ disabled }: { disabled: boolean }) {
         {(['U', 'D'] as const).map((layer) => (
           <div key={layer} className={TURN_PAIR}>
             {button({ layer, steps: 1 }, t.puckTurnTitle(layer, true))}
-            {button({ layer, steps: 11 }, t.puckTurnTitle(layer, false), true)}
+            {button({ layer, steps: 11 }, t.puckTurnTitle(layer, false), { ghost: true })}
           </div>
         ))}
         <div className={`col-span-2 ${TURN_PAIR}`}>{button({ flip: true }, t.puckSlashTitle)}</div>

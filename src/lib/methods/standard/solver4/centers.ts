@@ -43,7 +43,7 @@ export function centersDone(cube: Cube): boolean {
 
 const COLOR_CODE: Record<CubeColor, number> = { W: 0, Y: 1, G: 2, B: 3, O: 4, R: 5 }
 
-function centerIndices(cube: Cube): number[] {
+export function centerIndices(cube: Cube): number[] {
   const idx: number[] = []
   cube.forEach((c, i) => {
     if (isCenter(c)) idx.push(i)
@@ -53,7 +53,7 @@ function centerIndices(cube: Cube): number[] {
 
 /** Canonical centers-only key: sorted position+color codes (same-color
  *  centers collapse, everything else is ignored). */
-function centersKeyFor(indices: readonly number[]): (cube: Cube) => string {
+export function centersKeyFor(indices: readonly number[]): (cube: Cube) => string {
   return (cube) => {
     const codes: number[] = []
     for (const i of indices) {
@@ -94,11 +94,11 @@ const outer = (face: Face): Move => ({ face, amount: 1 })
 /** For D and U: all outer turns plus two vertical inner slices. 2R reaches
  *  the F/B/U/D columns and 2F the R/L/U/D ones, so together with alignment
  *  turns (free, they never change a count) they reach every center. */
-const VERTICAL_GENERATORS: readonly Move[] = [...FACES.map(outer), slice('R'), slice('F')]
+export const VERTICAL_GENERATORS: readonly Move[] = [...FACES.map(outer), slice('R'), slice('F')]
 
 /** For the belt: side turns plus the two horizontal inner slices. U/D outer
  *  turns move no belt center, so they are left out to cut branching. */
-const BELT_GENERATORS: readonly Move[] = [
+export const BELT_GENERATORS: readonly Move[] = [
   ...(['F', 'R', 'B', 'L'] as const).map(outer),
   slice('U'),
   slice('D'),

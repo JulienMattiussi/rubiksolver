@@ -37,7 +37,7 @@ describe('tutorial registry', () => {
     expect(tutorialFor('3', 'roux')).toBeUndefined()
     expect(tutorialFor('3', 'cfop')).toBeUndefined()
     expect(tutorialFor('2', 'optimal')).toBeUndefined()
-    expect(tutorialFor('4', 'reduction')).toBeUndefined()
+    expect(tutorialFor('4', 'reductionCfop')).toBeUndefined()
   })
 })
 

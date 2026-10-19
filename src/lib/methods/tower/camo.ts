@@ -3,12 +3,13 @@ import { isBoxed, solvedCube } from '../../core/cube'
 import { AXIS_ROTATIONS, faceOfNormal } from '../../core/geometry'
 import { formatMoves, parseMoves } from '../../core/moves'
 import { allTurnsOf, moveSet } from '../../core/moveSet'
-import { homesOf } from '../../core/pieces'
+import { homesOf, withStickers } from '../../core/pieces'
 import { solvePieces } from '../../solve/pieceSearch'
 import { atEverySide, projectPlan, type MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, Move, Turn, Vec3 } from '../../core/types'
 import { DOMINO_PLAN } from './domino'
+import { permutationIsOdd } from '../../solve/permutation'
 
 /**
  * Camouflage 4x4x2, as taught on fan2cube.fr (camouflage4422):
@@ -30,8 +31,8 @@ import { DOMINO_PLAN } from './domino'
 /** C: (BPd) -> (HdA), D*²H'D²HD*² */
 export const EXCHANGE = parseMoves("Rw2 Uw' R2 Uw Rw2")
 
-const isWing = (c: Cubie) => c.stickers.length === 2
-const isCenter = (c: Cubie) => c.stickers.length === 1
+const isWing = withStickers(2)
+const isCenter = withStickers(1)
 
 const SOLVED = solvedCube('camo')
 const CENTERS = homesOf('camo', isCenter)
@@ -63,17 +64,7 @@ export function evenWings(cube: Cube): boolean {
   const slot = new Map(WING_HOMES.map((h, i) => [h.position.join(), i]))
   const to: number[] = []
   for (const c of cube) if (isWing(c)) to[wingHome(c)] = slot.get(c.position.join())!
-  const seen = new Set<number>()
-  let swaps = 0
-  to.forEach((_, start) => {
-    let length = 0
-    for (let k = start; !seen.has(k); k = to[k]!) {
-      seen.add(k)
-      length++
-    }
-    if (length) swaps += length - 1
-  })
-  return swaps % 2 === 0
+  return !permutationIsOdd(to)
 }
 
 /**

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
 import { applyMoves } from '@/lib/core/turn'
-import { emptyEdit } from '@/lib/editor/editor'
+import { emptyEdit } from '@/lib/editor/edit'
 import { formatMove, movesFor } from '@/lib/core/moves'
 import {
   CYCLE_EDGES,

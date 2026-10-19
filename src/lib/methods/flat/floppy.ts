@@ -1,5 +1,5 @@
 import { isSolved } from '../../core/cube'
-import { homesOf } from '../../core/pieces'
+import { homesOf, withStickers } from '../../core/pieces'
 import { normalIndex } from '../../core/geometry'
 import { parseMoves } from '../../core/moves'
 import { allTurnsOf } from '../../core/moveSet'
@@ -27,8 +27,8 @@ import type { Color, Cube, Cubie } from '../../core/types'
 export const FLIP_EDGES = parseMoves('F2 R2 F2 R2 F2 R2')
 
 const TURNS = allTurnsOf('331')
-const isCorner = (c: Cubie) => c.stickers.length === 4
-const isEdge = (c: Cubie) => c.stickers.length === 3
+const isCorner = withStickers(4)
+const isEdge = withStickers(3)
 const CORNERS = homesOf('331', isCorner)
 const PIECES = homesOf('331', (c) => isCorner(c) || isEdge(c))
 

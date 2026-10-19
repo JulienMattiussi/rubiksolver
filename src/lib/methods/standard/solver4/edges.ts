@@ -87,6 +87,13 @@ function edgePaired(cube: Cube, slot: EdgeSlot): boolean {
   })
 }
 
+/** The wings of the paired edges, by index. */
+export function pairedWings(cube: Cube): number[] {
+  return SLOTS.filter((s) => edgePaired(cube, s)).flatMap((s) =>
+    [s.top, s.bottom].map((p) => cube.findIndex((c) => c.position.join() === p.join())),
+  )
+}
+
 export function pairedCount(cube: Cube): number {
   return SLOTS.filter((s) => edgePaired(cube, s)).length
 }
@@ -131,12 +138,12 @@ function joinReadyP(cube: Cube): boolean {
 
 // "Slice, exchange, slice back": net effect verified empirically (see module
 // comment) and asserted after every application.
-const JOIN_U = parseMoves("2U R U R' F R' F' R 2U'")
-const JOIN_P = parseMoves("2U' R U R' F R' F' R 2U")
+export const JOIN_U = parseMoves("2U R U R' F R' F' R 2U'")
+export const JOIN_P = parseMoves("2U' R U R' F R' F' R 2U")
 
 // Last-two-edges flip: swaps the two wings of the FR slot in place, centers
 // preserved (the D slice comes back after mutually cancelling outer turns).
-const L2E = parseMoves("2D R F' U R' F 2D'")
+export const L2E = parseMoves("2D R F' U R' F 2D'")
 const L2E_WIDE = parseMoves("Dw R F' U R' F Dw'")
 const L2E_ALGS = [L2E, L2E_WIDE, invertMoves(L2E), invertMoves(L2E_WIDE)]
 

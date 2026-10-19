@@ -1,6 +1,7 @@
 import { solvedCube } from '@/lib/core/cube'
 import type { CubeShape, Cubie } from '@/lib/core/types'
-import { entersJoints, withJoints } from '@/lib/editor/jointsEditor'
+import { entersJoints, withJoints } from '@/lib/editor/modes/joints'
+import { turnedKeys } from '@/lib/editor/modes/toggles'
 import { BLOCKS } from '@/lib/puzzles/bandaged/blocks'
 import { fusedAs } from '@/lib/puzzles/bandaged/bonds'
 import { withBars } from '@/lib/puzzles/bandaged/roadblock'
@@ -42,11 +43,11 @@ export const BANDAGED_DRAWINGS = {
     ]),
   ) as Record<keyof typeof BLOCKS, PolyDrawing>),
   ai: { polygons: aiPolygons, yaw: 0, editLook: fusedLook('ai') },
-  // Entered, its centers drawn as their bars lie (`twisted`: its faces
+  // Entered, its centers drawn as their bars lie (its toggles: its faces
   // turned a quarter).
   roadblock: {
     polygons: roadblockPolygons,
     yaw: 0,
-    editLook: (plain, { twisted }) => withBars([plain], twisted)[0]!,
+    editLook: (plain, { toggles }) => withBars([plain], turnedKeys(toggles))[0]!,
   },
 } satisfies Partial<Record<CubeShape, PolyDrawing>>

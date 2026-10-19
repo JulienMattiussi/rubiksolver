@@ -102,7 +102,7 @@ mélange fixe puis sa résolution 3x3) retournent chacune certains centres ;
 assemblées (sur GF(2)), elles en retournent n'importe quel ensemble.
 **Saisie** pièce par pièce (ses
 pièces montrent les couleurs des côtés tordus, pas des stickers de 3x3) ;
-un clic sur un centre de côté le tourne d'un quart (`twisted` de l'éditeur).
+un clic sur un centre de côté le tourne d'un quart (les bascules de sa peinture, `centerToggles`).
 
 ## Le Quarter Cube (`quarter`)
 
@@ -120,7 +120,7 @@ pointe le repère (il tourne avec la face) et un quart d'anneau épais, de là
 vers le sens où la face peut aller (horaire au START, retour un quart plus
 loin). **Saisie**
 des stickers comme un 3x3, centres pré-remplis ; un clic sur un centre
-tourne son repère d'un quart (`twisted` de l'éditeur, comme le Z-Twist).
+tourne son repère d'un quart (les bascules de sa peinture, comme le Z-Twist).
 
 **Résolution** (`methods/twisted/quarter.ts`, méthode **Les arêtes d'abord**,
 d'après la page) : (0) chaque face ramenée au START ; (1) arêtes placées
@@ -186,7 +186,7 @@ tournent : ses centres ne bougent jamais, pré-remplis à la saisie. Mélange :
 d'abord dans sa boîte (couches fines, demi-tours des blocs de côté, qui
 séparent les paires et échangent haut et bas), puis tout coup qui passe.
 Saisie en deux temps, ses formes se comptant par millions
-(`lib/editor/cutsEditor.ts`) : d'abord ses demi-cubies, un clic sur une case
+(l'étape `cuts` de son modèle, `lib/puzzles/twisted/fashionEntry.ts`) : d'abord ses demi-cubies, un clic sur une case
 faisant défiler leur position (une paire couchée, debout d'un côté ou de
 l'autre, ou une arête pleine de l'équateur, quatre en tout), puis la
 recherche de forme en trouve un état (aucun : la saisie le dit), sur lequel

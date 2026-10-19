@@ -1,63 +1,58 @@
-import { copterAxis } from '@/lib/puzzles/diagonal/copter'
 import { FACE_NORMAL, FACE_SPEC } from '@/lib/core/geometry'
-import { MEGA_AXES } from '@/lib/puzzles/polyhedron/megaminx'
-import { pyraRotation } from '@/lib/puzzles/pyramid/pyraminx'
-import { RAINBOW_CORNERS } from '@/lib/puzzles/shared/rainbow'
+import type { GuideSight } from '@/lib/core/guide'
+import { isFaceTurn, kindOf } from '@/lib/core/moveKind'
 import type { Turn } from '@/lib/core/types'
 import { HOME_POSITION } from '../core/camera'
 import { inScene, type PolyDrawing } from '../core/polyDrawing'
-import { PYRA_YAW } from '../puzzles/pyramid/pyraGeometry'
 
 /** Closer than the scene: a tile is small, the puzzle should fill it. */
 const ZOOM = 0.78
 
 /**
- * Where the move guide looks from to show a turn: the scene's home framing,
- * mirrored so the turning layer faces the camera (from below for D, from
- * behind for B). A star prism's lower layers are seen from below, a
- * Pyraminx corner from its own side, at the home view's height; on a
- * puzzle drawn in its own frame, from where its turning face looks (a
- * Rainbow's triangle, a Megaminx face too); the Floppy Ghost from the front, where its sides
- * flip over.
+ * Where the move guide looks from to show a turn, as its kind says
+ * (`MoveKind.sight`, core/guide.ts): the scene's home framing, mirrored so
+ * the turning layer faces the camera (from below for D, from behind for
+ * B); on a puzzle drawn in its own frame, from where its turning part
+ * looks (a Rainbow's triangle, a Megaminx face); a Curvy Copter edge from
+ * beside it; a Pyraminx corner from its own side, at the home height.
  */
 export function guideCameraPosition(turn: Turn, drawing?: PolyDrawing): [number, number, number] {
   const [x, y, z] = HOME_POSITION.clone().multiplyScalar(ZOOM).toArray()
-  const turned = drawing?.orient && 'face' in turn ? FACE_NORMAL[turn.face] : undefined
-  const facing =
-    'triangle' in turn
-      ? RAINBOW_CORNERS[turn.triangle]
-      : 'megaFace' in turn
-        ? MEGA_AXES[turn.megaFace]
-        : turned
-  if (drawing && facing) {
-    // A face of a puzzle drawn in its own frame (the Pyramorphinx), a
-    // Rainbow's triangle: the home framing pulled toward where it looks.
-    const toward = inScene(drawing, facing)
-    const distance = Math.hypot(x, y, z)
-    const mix = [x, y, z].map((v, d) => v / distance + 1.2 * toward[d]!)
-    const length = Math.hypot(...mix)
-    return mix.map((v) => (v / length) * distance) as [number, number, number]
+  const sight: GuideSight = isFaceTurn(turn)
+    ? // A face of a puzzle drawn in its own frame (the Pyramorphinx): where it looks.
+      drawing?.orient
+      ? { kind: 'toward', direction: FACE_NORMAL[turn.face] }
+      : { kind: 'face', face: turn.face }
+    : kindOf(turn)!.sight(turn)
+  switch (sight.kind) {
+    case 'toward': {
+      if (!drawing) return [x, y, z]
+      // The home framing pulled toward where it looks.
+      const toward = inScene(drawing, sight.direction)
+      const distance = Math.hypot(x, y, z)
+      const mix = [x, y, z].map((v, d) => v / distance + 1.2 * toward[d]!)
+      const length = Math.hypot(...mix)
+      return mix.map((v) => (v / length) * distance) as [number, number, number]
+    }
+    case 'beside': {
+      // Seen from the axis's side, a little above it.
+      const [a, b, c] = sight.axis as [number, number, number]
+      const length = Math.hypot(x, y, z) / Math.hypot(a, b + 0.4, c)
+      return [a * length, (b + 0.4) * length, c * length]
+    }
+    case 'around': {
+      // The home framing swung round to the axis's side, as drawn.
+      const bearing = Math.atan2(sight.axis[0]!, sight.axis[2]!) + (drawing?.yaw ?? 0)
+      const across = Math.hypot(x, z)
+      return [Math.sin(bearing) * across, y, Math.cos(bearing) * across]
+    }
+    case 'face': {
+      const { coordIndex, dir } = FACE_SPEC[sight.face]
+      const position: [number, number, number] = [x, y, z]
+      position[coordIndex] = Math.abs(position[coordIndex]) * dir
+      return position
+    }
+    case 'home':
+      return [x, y, z]
   }
-  // A Floppy Ghost side flips over in front of the home framing.
-  if ('side' in turn || 'triangle' in turn || 'layer' in turn || 'flip' in turn) return [x, y, z]
-  if ('slash' in turn || 'megaFace' in turn) return [x, y, z]
-  if ('edge' in turn) {
-    // Seen from the edge's side, a little above it.
-    const [a, b, c] = copterAxis(turn.edge)
-    const length = Math.hypot(x, y, z) / Math.hypot(a, b + 0.4, c)
-    return [a * length, (b + 0.4) * length, c * length]
-  }
-  if ('ring' in turn) return turn.ring === 'D' || turn.ring === 'd' ? [x, -y, z] : [x, y, z]
-  if ('vertex' in turn) {
-    // The home framing swung round to the corner's side (the top one is in it).
-    if (turn.vertex === 'U') return [x, y, z]
-    const { axis } = pyraRotation(turn)
-    const bearing = Math.atan2(axis[0], axis[2]) + PYRA_YAW
-    const across = Math.hypot(x, z)
-    return [Math.sin(bearing) * across, y, Math.cos(bearing) * across]
-  }
-  const { coordIndex, dir } = FACE_SPEC['gear' in turn ? turn.gear : turn.face]
-  const position: [number, number, number] = [x, y, z]
-  position[coordIndex] = Math.abs(position[coordIndex]) * dir
-  return position
 }

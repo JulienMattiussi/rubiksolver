@@ -4,6 +4,7 @@ import type { PuzzleEntry } from '../entry'
 export const HOLEY = {
   // The Holey Megaminx: the Megaminx without its centers.
   holey: {
+    moves: 'mega',
     label: 'Holey Megaminx',
     slug: 'holey-megaminx',
     dims: [9, 9, 9],

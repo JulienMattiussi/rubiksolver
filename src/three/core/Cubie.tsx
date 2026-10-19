@@ -1,17 +1,29 @@
-import type { RefObject } from 'react'
+import type { ComponentType, RefObject } from 'react'
 import { cubieBox, LAYER_THICKNESS } from '@/lib/core/shape'
 import type { CubeVariant, Cubie as CubieType, Dims } from '@/lib/core/types'
-import { COLOR_HEX, HIGHLIGHT, MIRROR_STICKER, PLACE, PLASTIC } from './colors'
+import { COLOR_HEX, HIGHLIGHT, PLACE, PLASTIC, VARIANT_SKIN } from './colors'
 import { CUBIE_GAP, visualPosition } from './layout'
-import { GearCorner } from '../puzzles/gear/GearCorner'
-import { GearEdge } from '../puzzles/gear/GearEdge'
 import { Sticker } from './Sticker'
 import { usePulse } from './usePulse'
 
-/** A Gear Cube's core block: up to the pieces' bodies, which go 0.45 deep. */
-const GEAR_CORE = 2 * (1.5 - 0.47)
+/** What a puzzle's own piece is drawn from (three/puzzles/views.ts: a Gear
+ *  Cube's), in place of a cubie. */
+export interface OwnPieceProps {
+  cubie: CubieType
+  dims: Dims
+  highlighted: boolean
+  spinning?: number
+  progress?: RefObject<number>
+  colors?: readonly string[]
+  onSelect?: (sticker: number) => void
+  onSelectGear?: (sticker: number) => void
+  gearColors?: readonly string[]
+  onHover?: (face: string, on: boolean) => void
+  lit?: string | null
+}
 
-/** One small cube: a dark body plus a sticker on each exterior face. Its box
+/** One small cube: a dark body plus a sticker on each exterior face (a
+ *  puzzle with its own pieces draws them, `own`). Its box
  *  comes from the variant's thickness table (a mirror cubie is not a cube, see
  *  lib/core/shape.ts); `dims` maps logical coordinates to visual positions. */
 export function Cubie({
@@ -26,7 +38,7 @@ export function Cubie({
   onPickHover,
   spinning,
   progress,
-  smallCenter = false,
+  own: Own,
   colors,
   onSelect,
   onSelectGear,
@@ -54,9 +66,8 @@ export function Cubie({
    *  along the turn is. */
   spinning?: number
   progress?: RefObject<number>
-  /** On a Gear Cube: a small center square, its clips around it, and
-   *  corners notched by the gears. */
-  smallCenter?: boolean
+  /** The puzzle's own piece, drawn in its place (a Gear Cube's). */
+  own?: ComponentType<OwnPieceProps>
   /** In edit mode, a Gear Cube's piece: its colors, and a click painting
    *  one of its stickers (see GearCorner). */
   colors?: readonly string[]
@@ -69,58 +80,26 @@ export function Cubie({
   lit?: string | null
 }) {
   const glowRef = usePulse(pulse && (highlighted || marked), highlighted || marked ? 0.7 : 0)
-  // A Gear Cube's core: a black block filling the middle, so the gaps
-  // between the pieces' shaped bodies show no hole.
-  if (smallCenter && cubie.stickers.length === 0) {
+  if (Own) {
     return (
-      <mesh>
-        <boxGeometry args={[GEAR_CORE, GEAR_CORE, GEAR_CORE]} />
-        <meshStandardMaterial color={PLASTIC} roughness={0.65} metalness={0.1} />
-      </mesh>
-    )
-  }
-  // A Gear Cube's corner or center: plates cut to the agreed shape.
-  // (The Extreme's middle edges, no gears, are blocks drawn the same way.)
-  if (
-    smallCenter &&
-    (cubie.stickers.length === 3 ||
-      cubie.stickers.length === 1 ||
-      (cubie.stickers.length === 2 && cubie.spin === undefined))
-  ) {
-    return (
-      <group position={visualPosition(cubie.position, dims)}>
-        <GearCorner
-          cubie={cubie}
-          highlighted={highlighted}
-          colors={colors}
-          onSelect={onSelect}
-          onHover={onHover}
-          lit={lit}
-        />
-      </group>
-    )
-  }
-  // A Gear Cube's edge: its gear turns about the edge (GearEdge).
-  if (cubie.spin !== undefined) {
-    return (
-      <group position={visualPosition(cubie.position, dims)}>
-        <GearEdge
-          cubie={cubie}
-          highlighted={highlighted}
-          spinning={spinning}
-          progress={progress}
-          colors={colors}
-          onSelect={onSelect}
-          onSelectGear={onSelectGear}
-          gearColors={gearColors}
-          onHover={onHover}
-          lit={lit}
-        />
-      </group>
+      <Own
+        cubie={cubie}
+        dims={dims}
+        highlighted={highlighted}
+        spinning={spinning}
+        progress={progress}
+        colors={colors}
+        onSelect={onSelect}
+        onSelectGear={onSelectGear}
+        gearColors={gearColors}
+        onHover={onHover}
+        lit={lit}
+      />
     )
   }
   const { size, center } = cubieBox(cubie.stickers, LAYER_THICKNESS[variant])
-  const mirror = variant === 'mirror'
+  // One skin for every sticker on a variant whose stickers tell sizes.
+  const skin = VARIANT_SKIN[variant]
   return (
     <group position={visualPosition(cubie.position, dims)}>
       <mesh castShadow position={[center[0], center[1], center[2]]}>
@@ -138,10 +117,10 @@ export function Cubie({
         <Sticker
           key={i}
           normal={s.normal}
-          color={mirror ? MIRROR_STICKER : COLOR_HEX[s.color]}
+          color={skin ?? COLOR_HEX[s.color]}
           hatched={hatched}
           box={{ size, center }}
-          metal={mirror}
+          metal={skin !== undefined}
           glow={highlighted || marked}
           pulse={pulse && (highlighted || marked)}
           onSelect={onPick}

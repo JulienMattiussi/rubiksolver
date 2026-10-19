@@ -35,7 +35,7 @@ peintes.
   coup va ailleurs (avec si peu de coups possibles, une marche au hasard se
   défait sans cesse) ; la même face deux fois seulement quand elle seule
   tourne, ses coups alors fusionnés.
-- **Saisie** (`lib/editor/jointsEditor.ts`) : quand ses blocs bougent, on
+- **Saisie** (étape `joints` de son modèle, `lib/editor/modes/joints.ts`) : quand ses blocs bougent, on
   commence par ses **soudures**, sur le puzzle dessiné en gris (seules les
   pièces qui ne bougent jamais, le 2x2x2 de l'Alcatraz, le « ∟ » du Bandage
   Cube, déjà soudées et dans leurs couleurs). Une barre bleue sur chaque
@@ -233,7 +233,8 @@ tournerait presque que des moitiés), et finit les gros blocs dispersés, deux
 par moitié du cube sur chaque axe. Rendu (`three/puzzles/bandaged/aiGeometry.ts`) : des
 boîtes d'une case ou de deux.
 
-**Résolution** (`methods/bandaged/ai.ts`, méthode **des blocs**, d'après la page) :
+**Résolution** (`methods/bandaged/ai.ts`, ses places et formules dans
+`aiFormulas.ts`, méthode **des blocs**, d'après la page) :
 (0) les quatre gros blocs en bas, par demi-cubes (la position standard de la
 page : le haut tourne alors seul, H, et sa tranche, h) ; (1) chaque petit
 octant reconstitué autour de son petit sommet, les arêtes d'abord (recherche
@@ -244,6 +245,7 @@ Th².(Th²T'h²)².T'h².(T'h²Th²)², préparé de deux coups, et les produits
 deux d'entre eux qui ne bougent que trois centres (tous les trios), les deux
 centres d'une couleur affectés pour une permutation paire ; (3) les huit
 octants résolus comme un Pocket (solveur optimal du 2x2), par demi-cubes.
+Les places et leurs tables sont celles du Megaminx (`solve/placeTable.ts`).
 Les centres font l'essentiel de la longueur.
 
 ### Le RoadBlock-I (`roadblock`)
@@ -264,15 +266,14 @@ tranches tournent, et les mêmes quarts défaits ramènent START. « Résolu »
 ne regarde que les couleurs : une face unie l'est, ses barres dans un sens
 ou dans l'autre. Le mélange (`scrambleRoadblock`)
 joue surtout des tranches permises, et libère un axe quand aucune ne
-l'est. **Saisie** dans tout état (`lib/editor/roadblockEditor.ts`) : les stickers d'un
+l'est. **Saisie** dans tout état (`lib/puzzles/bandaged/roadblockEntry.ts`) : les stickers d'un
 5x5, sans centre fixe (les tranches du milieu les déplacent) ; un clic sur
-un centre peint sa barre entière (`paintBar`, `barCells`). Avant les
-couleurs, un réglage (`lib/editor/setup.ts`) dit quelles faces ont leurs
-barres tournées d'un quart par rapport à START : un clic sur un centre
-tourne les barres de sa face (l'état `twisted` de l'éditeur, par
-`faceKeyAt` ; la face entière s'allume au survol). Revenir y changer une
-face depuis les couleurs tourne ses centres d'un quart avec leurs couleurs
-(`turnFace`). « Depuis
+un centre peint sa barre entière (`paintBar`, sa peinture `together`,
+`barCells`). Avant les couleurs, une étape de bascules (`BARS`) dit
+quelles faces ont leurs barres tournées d'un quart par rapport à START :
+un clic sur un centre tourne les barres de sa face (sa clé, `faceKeyAt` ;
+la face entière s'allume au survol). Revenir y changer une face depuis les
+couleurs tourne ses centres d'un quart avec leurs couleurs (`carry`). « Depuis
 l'état actuel » les lit sur le cube (`barsTurned`), `buildCube` les pose
 (`withBars`) ; la validation refuse un sens des barres impossible. Rendu (`three/puzzles/bandaged/roadblockGeometry.ts`) : couches externes
 épaisses, un sticker par barre.

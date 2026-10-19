@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
 import { scrambleTurns } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
-import { cubeToEdit } from '@/lib/editor/editor'
+import { cubeToEdit } from '@/lib/editor/edit'
 import {
   canvasesOf,
   editOfCanvases,
@@ -13,13 +13,13 @@ import {
   toggleJoin,
   viewsOfCanvases,
   type Canvas,
-} from '@/lib/editor/faceCanvases'
-import { MODELS } from '@/lib/puzzles/models'
-import { heldAs } from '@/lib/puzzles/shared/faceViews'
+} from '@/lib/editor/modes/canvas'
+import { heldAs } from '@/lib/editor/modes/faceViews'
+import { stepOf } from '@/lib/editor/entry'
 import type { CubeShape } from '@/lib/core/types'
-import { seededRng } from '../../helpers'
+import { seededRng } from '../../../helpers'
 
-const entryOf = (shape: CubeShape) => MODELS[shape]!.entry!.faces!
+const entryOf = (shape: CubeShape) => stepOf(shape, 'canvas')!.faces
 const scrambled = (shape: CubeShape, seed: number) => {
   const solved = solvedCube(shape)
   return applyMoves(solved, scrambleTurns(shape, 40, seededRng(seed), solved))

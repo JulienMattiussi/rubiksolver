@@ -2,11 +2,12 @@ import { FACE_COLOR, isSolved } from '../../core/cube'
 import { FACE_NORMAL } from '../../core/geometry'
 import { CUBE_HOLDS, type Hold } from '../../core/hold'
 import { parseMoves } from '../../core/moves'
-import { colorAt, hasColors } from '../../core/pieces'
+import { colorAt, hasColors, sameAt } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Face, Move, Vec3 } from '../../core/types'
 import { homeOf } from '../../methods/standard/pieces3'
 import type { FigureStage } from '../../teach/kit'
+import { OLL_EDGE, SUNE } from '../../methods/standard/algs'
 
 /**
  * The 3x3 tutorial's last layer, the white one on top, by figures (no piece
@@ -28,8 +29,6 @@ const W = FACE_COLOR.U
 
 /** The sides round the top: a cube's holds, each a face. */
 const SIDES = CUBE_HOLDS.holds as readonly Face[]
-
-const sameAt = (a: Vec3, b: Vec3) => a.join() === b.join()
 
 const at = (cube: Cube, where: Vec3) => cube.find((c) => sameAt(c.position, where))!
 
@@ -54,7 +53,7 @@ const whiteUp = (cube: Cube, hold: Hold, side: Face) =>
 
 /** The white cross's one formula: a line becomes the cross, an L a line,
  *  a dot an L. */
-const TOP_CROSS = parseMoves("F R U R' U' F'")
+const TOP_CROSS = parseMoves(OLL_EDGE)
 
 /** A figure of the white cross, which sides show white up (front, right,
  *  back, left), seen from the first hold that shows it. */
@@ -112,7 +111,7 @@ function lineUp(cube: Cube): { home: number; turn: number } {
     .reduce((best, t) => (t.home > best.home ? t : best))
 }
 
-const EDGES = parseMoves("R U R' U R U2 R'")
+const EDGES = parseMoves(SUNE)
 
 /**
  * The white edges' formula: of the holds and turns of the top before it,

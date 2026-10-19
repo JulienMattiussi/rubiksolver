@@ -18,15 +18,17 @@ export default function App() {
   const home = useRoute((s) => s.home)
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
-  const mirror = useCube((s) => s.variant === 'mirror')
+  const variant = useCube((s) => s.variant)
   useEffect(() => {
     document.documentElement.lang = locale
     document.querySelector('meta[name="description"]')?.setAttribute('content', t.metaDescription)
   }, [locale, t])
   // The page's title names the puzzle shown.
   useEffect(() => {
-    document.title = home ? t.pageTitle : `Rubik Solver - ${t.cubeKind(SHAPE_LABEL[shape], mirror)}`
-  }, [home, t, shape, mirror])
+    document.title = home
+      ? t.pageTitle
+      : `Rubik Solver - ${t.cubeKind(SHAPE_LABEL[shape], variant)}`
+  }, [home, t, shape, variant])
 
   return (
     <main className="relative h-full w-full overflow-hidden">

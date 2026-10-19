@@ -4,6 +4,7 @@ import type { PuzzleEntry } from '../entry'
 export const GEAR = {
   // The Gear Cubes (gear.ts): a 3x3x3 whose edges are gears.
   gearCube: {
+    moves: 'gear',
     label: 'Gear Cube',
     slug: 'gear-cube',
     dims: [3, 3, 3],
@@ -13,6 +14,9 @@ export const GEAR = {
   },
   // Violet in place of red, red in place of orange, dark green.
   gearU: {
+    home: 'classic',
+    moves: 'gear',
+    coloredClips: true,
     label: 'Gear Cube Ultimate',
     slug: 'gear-cube-ultimate',
     dims: [3, 3, 3],
@@ -22,6 +26,8 @@ export const GEAR = {
     editHint: 'gear',
   },
   gearX: {
+    moves: 'gear',
+    coloredClips: true,
     label: 'Gear Cube Extreme',
     slug: 'gear-cube-extreme',
     dims: [3, 3, 3],

@@ -7,6 +7,7 @@ import { solvePieces } from '../../solve/pieceSearch'
 import type { MethodPlan } from '../../solve/solverKit'
 import { applyMoves, turnAllowed } from '../../core/turn'
 import type { Cube, Cubie, Move } from '../../core/types'
+import { found, searchFormulas } from '../../solve/formulaSearch'
 
 /**
  * 2x3x4 tower, as fan2cube.fr solves it (tower2342), in its box:
@@ -127,24 +128,15 @@ function standUp(cube: Cube): Move[] {
       .sort()
       .join(' ')
   const turns = allTurnsOf(SHAPE).turns as Move[]
-  const seen = new Set([shapeOf(cube)])
-  let frontier: { cube: Cube; moves: Move[] }[] = [{ cube, moves: [] }]
-  while (frontier.length) {
-    const next: typeof frontier = []
-    for (const at of frontier) {
-      if (isBoxed(at.cube)) return at.moves
-      for (const m of turns) {
-        if (!turnAllowed(at.cube, m)) continue
-        const after = applyMoves(at.cube, [m])
-        const id = shapeOf(after)
-        if (seen.has(id)) continue
-        seen.add(id)
-        next.push({ cube: after, moves: [...at.moves, m] })
-      }
-    }
-    frontier = next
-  }
-  throw new Error('tower234: it cannot stand back in its box')
+  return found(
+    searchFormulas(
+      cube,
+      turns.map((m) => [m]),
+      isBoxed,
+      { key: shapeOf, allowed: (c, [m]) => turnAllowed(c, m!) },
+    ),
+    'tower234: it cannot stand back in its box',
+  )
 }
 
 /** A step: its pieces home, those before kept, by the box's turns and its

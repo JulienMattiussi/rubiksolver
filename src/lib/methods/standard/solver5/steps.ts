@@ -1,7 +1,6 @@
 import { FACE_COLOR } from '../../../core/cube'
 import { faceOfNormal } from '../../../core/geometry'
 import { allTurnsOf, type MoveSet } from '../../../core/moveSet'
-import { applyMoves } from '../../../core/turn'
 import type { Cube, Move } from '../../../core/types'
 import { isFixedCenter } from './kinds'
 import { projectOuterPlan } from '../solver4/steps'
@@ -10,6 +9,7 @@ import { centersDone, solveCenters } from './centers'
 import { MIDDLES } from '../../../solve/cycleLibrary'
 import { fixEdgeParity, pairEdges, pairedOrParity } from './edges'
 import { isReduced, to3x3 } from './project'
+import { found, searchFormulas } from '../../../solve/formulaSearch'
 
 /**
  * 5x5 reduction methods, like the 4x4's (solver4/steps.ts): the centers,
@@ -37,23 +37,19 @@ const middlesHome = (cube: Cube) =>
 /** The fewest middle slices putting them there (the puzzle held another
  *  way: the 3x3's M, E, S; 24 ways at most). */
 function recenter(cube: Cube): Move[] {
-  let frontier: { cube: Cube; moves: Move[] }[] = [{ cube: cube.filter(isFixedCenter), moves: [] }]
-  const seen = new Set<string>()
-  for (let depth = 0; depth < 4; depth++) {
-    for (const node of frontier) if (middlesHome(node.cube)) return node.moves
-    const next: typeof frontier = []
-    for (const node of frontier) {
-      for (const move of MIDDLES) {
-        const moved = applyMoves(node.cube, [move], [5, 5, 5])
-        const id = moved.map((c) => c.position.join() + c.stickers[0]!.color).join('|')
-        if (seen.has(id)) continue
-        seen.add(id)
-        next.push({ cube: moved, moves: [...node.moves, move] })
-      }
-    }
-    frontier = next
-  }
-  throw new Error('reduction5: the middle centers cannot go home')
+  return found(
+    searchFormulas(
+      cube.filter(isFixedCenter),
+      MIDDLES.map((move) => [move]),
+      middlesHome,
+      {
+        key: (c) => c.map((p) => p.position.join() + p.stickers[0]!.color).join('|'),
+        depth: 3,
+        mechanism: [5, 5, 5],
+      },
+    ),
+    'reduction5: the middle centers cannot go home',
+  )
 }
 
 export function reduction5Plan(plan3x3: MethodPlan): MethodPlan {

@@ -13,10 +13,8 @@ export const TWISTED_DRAWINGS = {
     polygons: twistPolygons,
     yaw: 0,
     thumbnail: twistThumbnail,
-    // Its side centers turn a quarter on a click, entered.
-    editTurns: (position) => position[1] === 0,
   },
-  quarter: { polygons: quarterPolygons, yaw: 0, editTurns: () => true },
+  quarter: { polygons: quarterPolygons, yaw: 0 },
   latch: {
     polygons: latchPolygons,
     yaw: 0,

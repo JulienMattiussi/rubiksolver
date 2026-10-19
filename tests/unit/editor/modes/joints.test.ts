@@ -15,9 +15,9 @@ import {
   jointsToClick,
   matchesJoints,
   withJoints,
-} from '@/lib/editor/jointsEditor'
+} from '@/lib/editor/modes/joints'
 import { withoutMarks } from '@/lib/puzzles/bandaged/bonds'
-import { seededRng } from '../../helpers'
+import { seededRng } from '../../../helpers'
 
 describe('entering a bandaged puzzle by its joints', () => {
   it('is for the bandaged 3x3x3s whose blocks move', () => {

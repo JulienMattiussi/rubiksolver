@@ -1,65 +1,16 @@
-import { formatGearMove, invertGearMove, gearMovesCancel as cancels } from '../puzzles/gear/gear'
 import { solvedCube, turnDims } from './cube'
 import { MODELS } from '../puzzles/models'
+import { isFaceTurn, kindOf } from './moveKind'
 import { faceAxis, faceLayers, quarterTurnFits } from './geometry'
 import { applyMove, turnAllowed } from './turn'
 import {
-  invertPyraMove,
-  pyraTurnsOf,
-  samePyraLayer,
-  scramblePyraminx,
-  simplifyPyraMoves,
-} from '../puzzles/pyramid/pyraminx'
-import { formatPyraMove } from '../puzzles/pyramid/pyraNotation'
-import { formatGhostMove, simplifyGhostMoves } from '../puzzles/flat/ghost'
-import { formatCopterMove, simplifyCopterMoves } from '../puzzles/diagonal/copter'
-import { formatMegaMove, invertMegaMove, simplifyMegaMoves } from '../puzzles/polyhedron/megaminx'
-import { formatPuckMove, invertPuckMove, simplifyPuckMoves } from '../puzzles/round/puck'
-import {
-  formatRainbowMove,
-  invertRainbowMove,
-  simplifyRainbowMoves,
-} from '../puzzles/shared/rainbow'
-import {
-  formatStarMove,
-  invertStarMove,
-  scrambleStar,
-  simplifyStarMoves,
-  STAR_RINGS,
-} from '../puzzles/round/star'
-import {
   type InnerTurn,
-  isGearMove,
-  isCopterMove,
-  isGhostMove,
   isGridless,
-  isMegaMove,
-  isPuckMove,
-  isPyraminx,
-  isPyraMove,
-  isRainbowMove,
-  isStar,
-  isStarMove,
   SHAPE_ADVANCED_TURNS,
   SHAPE_INNER_TURNS,
   SHAPE_SHIFTS,
 } from './types'
-import type {
-  Cube,
-  CubeShape,
-  Dims,
-  Face,
-  CopterMove,
-  GhostMove,
-  MegaMove,
-  PuckMove,
-  Move,
-  PyraMove,
-  RainbowMove,
-  GearMove,
-  StarMove,
-  Turn,
-} from './types'
+import type { Cube, CubeShape, Dims, Face, Move, Turn } from './types'
 
 export const FACES: readonly Face[] = ['U', 'D', 'L', 'R', 'F', 'B']
 
@@ -170,7 +121,8 @@ const SLICES: ReadonlyArray<{ letter: string; face: Face; opposite: Face }> = [
   { letter: 'S', face: 'F', opposite: 'B' },
 ]
 
-const AMOUNT_SUFFIX = { 1: '', 2: '2', 3: "'" } as const
+/** How a turn's amount is written after its layer: R, R2, R'. */
+export const AMOUNT_SUFFIX = { 1: '', 2: '2', 3: "'" } as const
 
 /**
  * Human-readable notation for a move: `U`, `U2`, `U'`, `2U`, `Uw2`... Given
@@ -184,14 +136,7 @@ export function formatMove(
   dims?: Dims,
   shape?: CubeShape,
 ): string {
-  if (isStarMove(move)) return formatStarMove(move, labels)
-  if (isPyraMove(move)) return formatPyraMove(move, labels)
-  if (isGhostMove(move)) return formatGhostMove(move, labels)
-  if (isCopterMove(move)) return formatCopterMove(move, labels)
-  if (isPuckMove(move)) return formatPuckMove(move, labels)
-  if (isRainbowMove(move)) return formatRainbowMove(move, labels)
-  if (isMegaMove(move)) return formatMegaMove(move, labels)
-  if (isGearMove(move)) return formatGearMove(move, labels)
+  if (!isFaceTurn(move)) return kindOf(move)!.format(move, labels)
   if (move.whole) {
     // Held another way, L turns as x' does.
     const back = 'LDB'.includes(move.face)
@@ -289,28 +234,12 @@ export function parseMoves(input: string, labels: FaceLabels = NOTATION_US): Mov
 
 /** Whether two moves turn the same layers (whatever their amounts). */
 export function sameLayer(a: Turn, b: Turn): boolean {
-  if (isStarMove(a) || isStarMove(b)) {
-    if (!isStarMove(a) || !isStarMove(b)) return false
-    return 'ring' in a && 'ring' in b ? a.ring === b.ring : 'slash' in a && 'slash' in b
-  }
-  if (isPyraMove(a) || isPyraMove(b)) return isPyraMove(a) && isPyraMove(b) && samePyraLayer(a, b)
-  if (isGhostMove(a) || isGhostMove(b)) return isGhostMove(a) && isGhostMove(b) && a.side === b.side
-  if (isCopterMove(a) || isCopterMove(b))
-    return isCopterMove(a) && isCopterMove(b) && a.edge === b.edge
-  if (isPuckMove(a) || isPuckMove(b)) {
-    if (!isPuckMove(a) || !isPuckMove(b)) return false
-    return 'flip' in a ? 'flip' in b : 'layer' in b && a.layer === b.layer
-  }
-  if (isRainbowMove(a) || isRainbowMove(b)) {
-    return (
-      isRainbowMove(a) && isRainbowMove(b) && a.triangle === b.triangle && !a.slice === !b.slice
-    )
-  }
-  if (isGearMove(a) || isGearMove(b)) return isGearMove(a) && isGearMove(b) && a.gear === b.gear
-  if (isMegaMove(a) || isMegaMove(b)) {
-    return isMegaMove(a) && isMegaMove(b) && a.megaFace === b.megaFace
-  }
-  return a.face === b.face && a.depth === b.depth && a.wide === b.wide && a.whole === b.whole
+  const kind = kindOf(a)
+  // Of two kinds: never the same layers.
+  if (kind !== kindOf(b)) return false
+  if (kind) return kind.sameLayer(a, b)
+  const [m, n] = [a as Move, b as Move]
+  return m.face === n.face && m.depth === n.depth && m.wide === n.wide && m.whole === n.whole
 }
 
 /** The move that undoes `move` (same layers, opposite amount). */
@@ -321,24 +250,9 @@ export function invertMove(move: Move): Move {
 
 /** The sequence that undoes `moves` (reversed and each inverted). */
 export function invertMoves<T extends Turn>(moves: readonly T[]): T[] {
-  return [...moves].reverse().map(
-    (m) =>
-      (isStarMove(m)
-        ? invertStarMove(m)
-        : isPyraMove(m)
-          ? invertPyraMove(m)
-          : isGhostMove(m) || isCopterMove(m)
-            ? m // a half turn
-            : isPuckMove(m)
-              ? invertPuckMove(m)
-              : isRainbowMove(m)
-                ? invertRainbowMove(m)
-                : isGearMove(m)
-                  ? invertGearMove(m)
-                  : isMegaMove(m)
-                    ? invertMegaMove(m)
-                    : invertMove(m)) as T,
-  )
+  return [...moves]
+    .reverse()
+    .map((m) => (isFaceTurn(m) ? invertMove(m) : kindOf(m)!.invert(m)) as T)
 }
 
 /**
@@ -348,25 +262,18 @@ export function invertMoves<T extends Turn>(moves: readonly T[]): T[] {
  * generated solutions tidy without changing what they do.
  */
 export function simplifyMoves<T extends Turn>(moves: readonly T[]): T[] {
-  if (moves.some(isStarMove)) return simplifyStarMoves(moves as readonly StarMove[]) as T[]
-  if (moves.some(isPyraMove)) return simplifyPyraMoves(moves as readonly PyraMove[]) as T[]
-  if (moves.some(isGhostMove)) return simplifyGhostMoves(moves as readonly GhostMove[]) as T[]
-  if (moves.some(isCopterMove)) return simplifyCopterMoves(moves as readonly CopterMove[]) as T[]
-  if (moves.some(isPuckMove)) return simplifyPuckMoves(moves as readonly PuckMove[]) as T[]
-  if (moves.some(isRainbowMove)) {
-    return simplifyRainbowMoves(moves as readonly RainbowMove[]) as T[]
-  }
-  if (moves.some(isMegaMove)) return simplifyMegaMoves(moves as readonly MegaMove[]) as T[]
-  // Gear moves (and the Extreme's plain top and bottom turns among them).
-  const out: (Move | GearMove)[] = []
-  for (const move of moves as readonly (Move | GearMove)[]) {
+  // A list holding another kind's moves: that kind's (it may mix in face
+  // turns, as the Gear Cube Extreme does).
+  const kind = moves.map(kindOf).find((k) => k)
+  if (kind) return kind.simplify(moves) as T[]
+  return simplifyCubeMoves(moves as readonly Move[]) as T[]
+}
+
+/** Face turns merged, those of the same layers in a row (R R -> R2). */
+export function simplifyCubeMoves(moves: readonly Move[]): Move[] {
+  const out: Move[] = []
+  for (const move of moves) {
     const last = out[out.length - 1]
-    if (isGearMove(move) || (last && isGearMove(last))) {
-      // A gear move and its inverse cancel; two the same way stay (gear.ts).
-      if (last && isGearMove(last) && isGearMove(move) && cancels(last, move)) out.pop()
-      else out.push(move)
-      continue
-    }
     if (last && sameLayer(last, move)) {
       const total = (last.amount + move.amount) % 4
       out.pop()
@@ -375,7 +282,7 @@ export function simplifyMoves<T extends Turn>(moves: readonly T[]): T[] {
       out.push(move)
     }
   }
-  return out as T[]
+  return out
 }
 
 /**
@@ -434,16 +341,14 @@ export function scramble(
   return moves
 }
 
-/** A scramble of any puzzle, face moves or a star prism's, the Pyraminx's
- *  or the Floppy Ghost's turns (the store's). */
+/** A scramble of any puzzle, face moves or its own turns (its model's
+ *  scramble: a star prism's, the Pyraminx's, the Floppy Ghost's...). */
 export function scrambleTurns(
   shape: CubeShape,
   length: number,
   rng: () => number,
   start: Cube,
 ): Turn[] {
-  if (isStar(shape)) return scrambleStar(shape, length, rng)
-  if (isPyraminx(shape)) return scramblePyraminx(shape, length, rng)
   const own = MODELS[shape]?.scramble
   if (own) return own(length, rng, start)
   return scramble(shape, length, rng, start)
@@ -452,10 +357,6 @@ export function scrambleTurns(
 /** One turn of every layer a puzzle has, gridless ones included: what moves
  *  or turns its pieces at all (the editor's fixed pieces). */
 export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
-  if (isStar(shape)) {
-    return [...STAR_RINGS[shape].map((ring) => ({ ring, amount: 1 as const })), { slash: true }]
-  }
-  if (isPyraminx(shape)) return pyraTurnsOf(shape)
   const own = MODELS[shape]?.turns
   if (own) return own()
   return movesFor(shape)

@@ -3,7 +3,9 @@ import { parseMoves } from '../../core/moves'
 import { moveSet } from '../../core/moveSet'
 import type { MethodPlan } from '../../solve/solverKit'
 import { pieces } from '../standard/pieces3'
-import { bothWays, conjugated, home, placing, TOP_CORNERS, TOP_EDGES } from './kit'
+import { bothWays, home, placing, TOP_CORNERS, TOP_EDGES } from './kit'
+import { conjugated } from '../../solve/everyWay'
+import { PLL_UB, SUNE_BACK } from '../standard/algs'
 
 /**
  * BigBlock, as taught on fan2cube.fr (bigblock2, "solution par
@@ -24,11 +26,11 @@ import { bothWays, conjugated, home, placing, TOP_CORNERS, TOP_EDGES } from './k
  */
 
 /** (HGP)+ (HPD)+ (HDA)+, and three top edges: DHD'H.DH²D'H² */
-export const TWIST = parseMoves("R U R' U R U2 R' U2")
+export const TWIST = parseMoves(SUNE_BACK)
 /** (HP) -> (HA) -> (HD): D²H'D'H'D².(HD)².H²D */
 export const CYCLE_BACK = parseMoves("R2 U' R' U' R2 U R U R U2 R")
 /** (HG) -> (HD) -> (HA): D.(DH)²(D'H')².D'HD' */
-export const CYCLE = parseMoves("R R U R U R' U' R' U' R' U R'")
+export const CYCLE = parseMoves(PLL_UB)
 
 const RU = moveSet('R U')
 const U = moveSet('U')

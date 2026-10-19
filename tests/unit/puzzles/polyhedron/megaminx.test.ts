@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { megaSlotAt } from '@/lib/puzzles/polyhedron/megaminx'
+import { megaFormula } from '@/lib/methods/polyhedron/megaminxFormulas'
 import {
   CORNER,
   SIDE_CORNERS,
   STAR,
   EQUATOR,
-  megaFormula,
   TOP_CORNERS,
   TOP_EDGES,
   TOP_FLIP,
   TOP_TWIST,
-} from '@/lib/methods/polyhedron/megaminx'
+} from '@/lib/methods/polyhedron/megaminxFormulas'
 import { formatMove, NOTATION_FR } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
 import type { MegaMove } from '@/lib/core/types'

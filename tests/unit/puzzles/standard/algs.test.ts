@@ -5,6 +5,13 @@ import { parseMoves } from '@/lib/core/moves'
 import {
   ANTISUNE,
   CMLL_ADJACENT,
+  CORNER_CYCLE,
+  CORNER_TWIST_PAIR,
+  INSERT_RIGHT,
+  INSERT_RIGHT_BACK,
+  OLL_EDGE_TURN,
+  PLL_UB,
+  SUNE_BACK,
   NIKLAS,
   OLL_EDGE,
   PLL_AA,
@@ -60,5 +67,26 @@ describe('algorithm catalogue', () => {
       expect(piecesHome(cube, block)).toBe(true)
       expect(edgesOriented(cube)).toBe(false)
     }
+  })
+
+  it('the shared cube formulas: last-layer ones keep the first two layers', () => {
+    for (const alg of [PLL_UB, SUNE_BACK, OLL_EDGE_TURN, CORNER_CYCLE, CORNER_TWIST_PAIR]) {
+      expect(piecesHome(run(alg), F2L)).toBe(true)
+    }
+    // Ub cycles edges only; the corner formulas move corners only.
+    expect(piecesHome(run(PLL_UB), U_CORNERS)).toBe(true)
+    for (const alg of [CORNER_CYCLE, CORNER_TWIST_PAIR]) {
+      expect(piecesHome(run(alg), U_EDGES)).toBe(true)
+    }
+    // Two corners twisted, none moved: both twice back home.
+    expect(
+      piecesHome(run(`${CORNER_TWIST_PAIR} ${CORNER_TWIST_PAIR} ${CORNER_TWIST_PAIR}`), U_CORNERS),
+    ).toBe(true)
+  })
+
+  it('the inserts keep the first layer', () => {
+    const FIRST = pieces('D DF DB DL DR DFL DFR DBL DBR')
+    for (const alg of [INSERT_RIGHT, INSERT_RIGHT_BACK])
+      expect(piecesHome(run(alg), FIRST)).toBe(true)
   })
 })

@@ -431,7 +431,7 @@ test('tutorial: a formula applied, looked at, undone; a move by hand finished', 
 
   const panel = page.getByRole('region', { name: 'Tutoriel' })
   // The words first (step 0): one on, then past them.
-  await expect(panel.getByText('Le vocabulaire')).toBeVisible()
+  await expect(panel.getByRole('heading', { name: 'Le vocabulaire' })).toBeVisible()
   await panel.getByRole('button', { name: 'Suivant' }).click()
   await expect(panel.getByText(/^Une arête/)).toBeVisible()
   await panel.getByRole('button', { name: 'Passer' }).click()

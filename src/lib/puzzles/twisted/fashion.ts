@@ -1,7 +1,8 @@
 import { FACE_SPEC } from '../../core/geometry'
 import { applyMove } from '../../core/turn'
-import type { FaceLabels } from '../../core/moves'
+import { AMOUNT_SUFFIX, type FaceLabels } from '../../core/moves'
 import type { Cube, Face, Move } from '../../core/types'
+import type { MoveDescription } from '../../core/guide'
 
 /**
  * The Fashion-V (fan2cube.fr/fashioncube1, Adam Cowan and Jason Smith,
@@ -79,16 +80,23 @@ export function scrambleFashion(length: number, rng: () => number, start: Cube):
   return moves
 }
 
-const SUFFIX = { 1: '', 2: '2', 3: "'" } as const
-
 /** A turn as fan2cube writes the Fashion-V's: a side's block by its face
  *  (D for Rw), a half by its face and a star (H* for Uw), a thin layer by
  *  its face (H), the one under it in lowercase (h). */
+/** What a Fashion-V's turn does: a side's block, a half, a thin layer or
+ *  the one under it. */
+export function describeFashionMove(move: Move): MoveDescription {
+  const vertical = move.face === 'U' || move.face === 'D'
+  const layer = move.wide ? (vertical ? 'half' : 'block') : move.depth ? 'inner' : 'thin'
+  const turn = move.amount === 2 ? 'half' : move.amount === 1 ? 'cw' : 'ccw'
+  return { kind: 'fashion', face: move.face, layer, turn }
+}
+
 export function formatFashionMove(move: Move, labels: FaceLabels): string {
   const letter = labels[move.face]
   const vertical = move.face === 'U' || move.face === 'D'
   let name = letter
   if (move.wide && vertical) name = `${letter}*`
   else if (!move.wide && move.depth) name = letter.toLowerCase()
-  return name + SUFFIX[move.amount]
+  return name + AMOUNT_SUFFIX[move.amount]
 }

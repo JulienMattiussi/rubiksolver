@@ -1,10 +1,11 @@
 import { FACE_COLOR, solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS, faceOfNormal } from '../../core/geometry'
+import { faceOfNormal } from '../../core/geometry'
 import { recolored } from '../../core/pieces'
 import { edgeFlipParity } from '../standard/solver4/parity'
 import { projectPlan, type MethodPlan } from '../../solve/solverKit'
 import type { Color, Cube } from '../../core/types'
 import { TORI_PLAN } from './tori'
+import { holdingsOf } from '../../solve/holdings'
 
 /**
  * Edge Only, "extended cross", as taught on fan2cube.fr (edgeonly2): solved
@@ -21,12 +22,7 @@ const SOLVED = solvedCube('edge')
 const CENTERS = solvedCube('tori').filter((c) => c.stickers.length === 1)
 
 /** The solved puzzle held every way. */
-const HOLDINGS: Cube[] = AXIS_ROTATIONS.map((turn) =>
-  SOLVED.map((c) => ({
-    position: turn(c.position),
-    stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
-  })),
-)
+const HOLDINGS: Cube[] = holdingsOf(SOLVED)
 
 const look = (cube: Cube) =>
   new Set(

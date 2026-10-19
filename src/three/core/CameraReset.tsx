@@ -43,7 +43,7 @@ export function CameraReset() {
   const controls = useThree((s) => s.controls) as OrbitLike | null
   const token = useView((s) => s.resetToken)
   const toward = useView((s) => s.toward)
-  const facing = useEditor((s) => s.mode === 'edit' && s.phase === 'faces')
+  const facing = useEditor((s) => s.mode === 'edit' && s.phase === 'canvas')
   const anim = useRef<{
     from: THREE.Vector3
     fromTarget: THREE.Vector3

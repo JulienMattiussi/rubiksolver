@@ -3,7 +3,7 @@ import type { TutorialTexts } from '../../tutorialTexts'
 export const CUBES_EN: TutorialTexts = {
   terms: {
     termCenter:
-      'A **center**: the piece in the middle of a side, one face showing. Centers never move: each gives its side’s color.',
+      'A **center**: the piece in the middle of a side, they have one face showing. Centers never move: each gives its side’s color.',
     termEdge: 'An **edge**: a piece with two faces showing, between two centers.',
     termCorner: 'A **corner**: a piece with three faces showing, at a corner of the cube.',
     termClockwise:

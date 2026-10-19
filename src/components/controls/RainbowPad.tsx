@@ -1,10 +1,9 @@
-import { formatMove } from '@/lib/core/moves'
 import type { RainbowCorner, RainbowMove } from '@/lib/core/types'
 import type { PadKind } from '@/lib/puzzles/entry'
-import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
-import { PadButton } from './PadButton'
+import { useI18n } from '@/i18n/i18nStore'
 import { PadGroups } from './PadGroups'
 import { PadHeader } from './PadHeader'
+import { useTurnButton } from './useTurnButton'
 
 type Group = {
   key: 'rainbowFront' | 'rainbowBack' | 'dinoTop' | 'dinoBottom' | 'masterSlices'
@@ -52,23 +51,14 @@ const VARIANTS: Record<
 export function RainbowPad({ disabled, variant }: { disabled: boolean; variant: RainbowVariant }) {
   const { groups, flags } = VARIANTS[variant]
   const t = useI18n((s) => s.t)
-  const labels = useI18n(selectMoveLabels)
+  const turnButton = useTurnButton(disabled)
   const titleOf = (move: RainbowMove) => {
     const clockwise = move.amount === 1
     if (move.master && move.slice) return t.masterSliceTitle(move.triangle, clockwise)
     if (move.dino) return t.dinoTurnTitle(move.triangle, clockwise)
     return t.rainbowTurnTitle(move.triangle, clockwise)
   }
-  const button = (move: RainbowMove, ghost: boolean) => (
-    <PadButton
-      key={formatMove(move)}
-      move={move}
-      label={formatMove(move, labels)}
-      title={titleOf(move)}
-      disabled={disabled}
-      ghost={ghost}
-    />
-  )
+  const button = (move: RainbowMove, ghost: boolean) => turnButton(move, titleOf(move), { ghost })
   return (
     <div>
       <PadHeader />

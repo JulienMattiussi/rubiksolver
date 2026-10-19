@@ -1,30 +1,26 @@
-import { MODELS } from '../puzzles/models'
-import { stateKey, turnDims } from '../core/cube'
-import { stickerId, tablesFor } from './editorTables'
-import { normalIndex } from '../core/geometry'
-import { layerTurnsOf } from '../core/moves'
-import { applyMove } from '../core/turn'
-import { asSeenMorphinx } from '../puzzles/pyramid/mmorph'
-import { asSeenThin } from '../puzzles/shared/thinEdges'
-import type { Color, Cube, CubeShape, Cubie } from '../core/types'
+import { MODELS } from '../../puzzles/models'
+import { stateKey, turnDims } from '../../core/cube'
+import { stickerId, tablesFor } from '../editorTables'
+import { normalIndex } from '../../core/geometry'
+import { layerTurnsOf } from '../../core/moves'
+import { applyMove } from '../../core/turn'
+import type { Color, Cube, CubeShape, Cubie } from '../../core/types'
 
 /**
- * Piece-by-piece entry, for a puzzle whose pieces are told apart by their
- * shape alone: the Floppy Ghost, all silver, whose thousands of forms could
- * never be offered to pick from (forms.ts); the Z-Twist, whose pieces show
- * the colors of its twisted sides, not a 3x3's stickers. Instead of painting stickers,
- * one puts a piece in each slot: a click on a slot moves on to the next
+ * Entry piece by piece (a model's paint `by: 'pieces'`), for a puzzle whose
+ * pieces are told apart by their shape alone: the Floppy Ghost, all silver,
+ * whose thousands of forms could never be offered to pick from
+ * (modes/form.ts); the Z-Twist, whose pieces show the colors of its twisted
+ * sides, not a 3x3's stickers. Instead of painting stickers, one puts a
+ * piece in each slot: a click on a slot moves on to the next
  * pose that fits there (another piece, or the same one lying the other way),
  * skipping pieces already placed elsewhere.
  *
  * A pose is a piece as some sequence of turns leaves it, found by turning
  * that piece alone from its home. The edit stays a map of painted stickers
- * (editor.ts): a slot holds the stickers of its pose, so everything that
+ * (edit.ts): a slot holds the stickers of its pose, so everything that
  * reads an edit (from the current state, validation) works unchanged.
  */
-
-/** Whether a shape is entered piece by piece rather than painted. */
-export const entersByPieces = (shape: CubeShape): boolean => MODELS[shape]?.entry?.byPieces === true
 
 interface Pose {
   /** The piece's look: its colors (twins, alike, share it). */
@@ -74,15 +70,13 @@ function posesBySlot(shape: CubeShape): ReadonlyMap<string, readonly Pose[]> {
     }
     const kind = `${kindOf(home)}|${[...new Set(queue.map((c) => c.position.join()))].sort()}`
     budget.set(kind, (budget.get(kind) ?? 0) + 1)
+    const asSeen = MODELS[shape]?.entry?.seen
     for (const cubie of queue) {
-      // A Z-Twist's thin edge (a Barrel's middle one) only one way round:
-      // the other never shows.
+      // Only a pose as the editor shows it: a Z-Twist's thin edge one way
+      // round, a Master Morphinx's small corner upright (the other ways
+      // never show).
       const look = stateKey([cubie])
-      const oneWay = shape === 'twist' || shape === 'barrel' || shape === 'fisher'
-      // A Master Morphinx's small corner only upright: its twist never shows.
-      const seen = oneWay
-        ? asSeenThin([cubie])[0] === cubie
-        : shape !== 'mmorph' || asSeenMorphinx([cubie])[0] === cubie
+      const seen = !asSeen || stateKey(asSeen([cubie], (c) => c)) === look
       if (seen && !offered.has(look)) {
         offered.add(look)
         bySlot.get(cubie.position.join(','))?.push({ kind, cubie })

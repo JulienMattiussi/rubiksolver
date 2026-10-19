@@ -1,6 +1,6 @@
 import type { LayerKind } from '@/lib/core/moves'
 import type { PyraLayer } from '@/lib/puzzles/pyramid/pyraminx'
-import type { GhostSide, MegaFace, PyraVertex, RainbowCorner } from '@/lib/core/types'
+import type { GhostSide, MegaFace, PyraVertex, RainbowCorner, CubeVariant } from '@/lib/core/types'
 import {
   CORNER_NAMES_FR,
   describeFr,
@@ -307,7 +307,8 @@ export const UI_FR = {
   describeMoveShort: describeShortFr,
   guideBlocked: 'Ce mouvement n’est pas possible dans cette configuration',
   puzzleCount: (n: number) => `${n} puzzle${n > 1 ? 's' : ''}`,
-  cubeKind: (label: string, mirror: boolean) => `${label}${mirror ? ' miroir' : ''}`,
+  cubeKind: (label: string, variant: CubeVariant) =>
+    `${label}${({ classic: '', mirror: ' miroir' } as const)[variant]}`,
   cubeCategories: {
     standard: 'Standards',
     mirror: 'Miroirs',

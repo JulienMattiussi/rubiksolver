@@ -1,5 +1,4 @@
 import { cubeShape } from '@/lib/core/cube'
-import { formatMove } from '@/lib/core/moves'
 import {
   isOppositeFace,
   PYRA_LAYERS,
@@ -8,13 +7,13 @@ import {
   type PyraLayer,
 } from '@/lib/puzzles/pyramid/pyraminx'
 import { isPyraminx, type PyraMove } from '@/lib/core/types'
-import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
+import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { LayerTabs } from './LayerTabs'
-import { PadButton } from './PadButton'
 import { PadGroups } from './PadGroups'
 import { PadHeader } from './PadHeader'
 import { useHeldTurn } from './useHeldTurn'
+import { useTurnButton } from './useTurnButton'
 
 /**
  * Rotation pad of a Pyraminx: each corner, a third of a turn either way, of
@@ -26,7 +25,7 @@ import { useHeldTurn } from './useHeldTurn'
  */
 export function PyraPad({ disabled }: { disabled: boolean }) {
   const t = useI18n((s) => s.t)
-  const labels = useI18n(selectMoveLabels)
+  const turnButton = useTurnButton(disabled)
   const shape = useCube((s) => cubeShape(s.cube))
   const held = useHeldTurn()
   const layers = isPyraminx(shape) ? PYRA_LAYERS[shape] : []
@@ -37,18 +36,13 @@ export function PyraPad({ disabled }: { disabled: boolean }) {
   const outer = (k: PyraLayer) => k === 'tips' || k === 'corners' || nameOf(k) === 'faces'
 
   const grid = (shown: PyraLayer) => {
-    const button = (move: PyraMove, ghost: boolean) => (
-      <PadButton
-        key={formatMove(move)}
+    const button = (move: PyraMove, ghost: boolean) =>
+      turnButton(move, t.pyraTurnTitle(move.vertex, nameOf(shown), move.amount === 1), {
+        ghost,
+        compact: layers.length > 2,
         // Held another way (the tutorial): the corner where it stands.
-        move={held(move)}
-        label={formatMove(move, labels)}
-        title={t.pyraTurnTitle(move.vertex, nameOf(shown), move.amount === 1)}
-        disabled={disabled}
-        ghost={ghost}
-        compact={layers.length > 2}
-      />
-    )
+        played: held(move),
+      })
     return (
       <PadGroups
         groups={[{ key: shown, layers: PYRA_VERTICES }]}

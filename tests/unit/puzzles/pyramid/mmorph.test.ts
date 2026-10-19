@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/core/cube'
-import { buildCube, cubeToEdit } from '@/lib/editor/editor'
+import { buildCube, cubeToEdit } from '@/lib/editor/edit'
 import { CENTER_HALF, CENTERS_TWO } from '@/lib/methods/pyramid/mmorph'
 import { isSmallCorner } from '@/lib/puzzles/pyramid/mmorph'
 import { parseMoves } from '@/lib/core/moves'

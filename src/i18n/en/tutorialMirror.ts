@@ -17,7 +17,12 @@ export const TUTORIAL_MIRROR_EN: typeof TUTORIAL_MIRROR_FR = {
       : `the ${PIECES_EN[kind] ?? 'piece'} with ${listEn(names)} faces`,
   terms: {
     termCenter:
-      'A **center**: the piece in the middle of a side, one face showing. Centers never move: each gives its side’s thickness.',
+      'A **center**: the piece in the middle of a side, they have one face showing. Centers never move: each gives its side’s thickness.',
+    termCenter4:
+      'A **center**: one of the four pieces in the middle of a side, they have one face showing.',
+    termWing: 'A **wing**: a piece with two faces, on a border. Each pair of thicknesses has two.',
+    termEdge4:
+      'An **edge**: two wings of the same thicknesses, side by side and the same way round.',
   },
   thicknessTerm: (name, first) =>
     `${first ? 'On a mirror cube every face has the same color: you tell them by their thickness, from very thin to very thick. ' : ''}In blue, the pieces with a **${name}** face.`,
@@ -88,6 +93,12 @@ export const TUTORIAL_MIRROR_EN: typeof TUTORIAL_MIRROR_FR = {
     stepTutorialTopCorners2: 'Place the top corners',
   },
   hints: {
+    stepTutorialOllParity4:
+      'On a 4x4, an edge can end up alone upside down, which no 3x3 allows. It is flipped before building the thick side’s cross.',
+    stepTutorialPllParity4:
+      'On a 4x4, two edges can end up swapped alone, which no 3x3 allows. They are swapped before placing the top edges.',
+    stepTutorialCenters4:
+      'Gather each thickness’s four centers on their side one by one: the thin side down, the thick side up, then the four others around.',
     stepTutorialCross: 'Place the four edges with a thin face one by one, that face down.',
     stepTutorialCorner: 'Place the four corners with a thin face one by one, that face down.',
     stepTutorialMiddle:

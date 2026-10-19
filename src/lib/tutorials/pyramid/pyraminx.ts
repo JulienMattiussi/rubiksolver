@@ -1,22 +1,19 @@
-import { isSolved, stateKey } from '../../core/cube'
+import { isSolved } from '../../core/cube'
 import { mapVec, normalIndex } from '../../core/geometry'
 import type { Hold } from '../../core/hold'
-import { hasColors } from '../../core/pieces'
+import { hasColors, sameAt } from '../../core/pieces'
 import { simplifyMoves } from '../../core/moves'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, PyraMove, PyraVertex, Turn, Vec3 } from '../../core/types'
-import {
-  faceColors as pyraFaceColors,
-  formula as pyraFormula,
-  showsFaces,
-  undo,
-} from '../../methods/pyramid/pyraKit'
+import { faceColors as pyraFaceColors, showsFaces, undo } from '../../methods/pyramid/pyraKit'
 import { PYRA_CORNERS, PYRA_VERTICES } from '../../puzzles/pyramid/pyraminx'
 import { tutorialOf, type Kept, type Target } from '../../teach/kit'
 import { firstGesture, type Gesture } from '../../teach/macros'
 import type { TutorialPick } from '../../teach/tutorial'
 import { PYRA_HOLDS } from './pyraHolds'
 import { PYRA_GLOSSARY } from './pyraTerms'
+import { searchFormulas } from '../../solve/formulaSearch'
+import { PYRA_CYCLE, PYRA_FLIP, PYRA_HOOK, PYRA_TOP } from '../../methods/pyramid/pyraminx'
 
 /**
  * The Pyraminx's tutorial, centers first (the method of fan2cube.fr's
@@ -31,13 +28,10 @@ import { PYRA_GLOSSARY } from './pyraTerms'
  *   5. the edges flipped two at a time, by `[gd'][h'd]`.
  */
 
-const formula = pyraFormula(3)
-
 /** Where a corner's center piece sits, and its tip. */
 const centerAt = (v: PyraVertex): Vec3 => PYRA_CORNERS[v]
 const tipAt = (v: PyraVertex): Vec3 => mapVec(PYRA_CORNERS[v], (x) => 2 * x)
 
-const sameAt = (a: Vec3, b: Vec3) => a.join() === b.join()
 const indexAt = (cube: Cube, at: Vec3) => cube.findIndex((c) => sameAt(c.position, at))
 const faces = (cube: Cube) => pyraFaceColors(cube, 3)
 const home = (cube: Cube, piece: number) => showsFaces(faces(cube))(cube[piece]!)
@@ -120,8 +114,8 @@ const edgeTarget = ([v, w]: readonly PyraVertex[]): Target => {
   }
 }
 
-const HOOK = formula("[gd']")
-const TOP = formula('h')
+const HOOK = PYRA_HOOK
+const TOP = PYRA_TOP
 /** The hook from each side, also after a turn of the top (undone after). */
 const DOWN: Gesture[] = PYRA_HOLDS.holds.flatMap((hold) =>
   [[], TOP, TOP.map(undo)].map((setUp) => ({
@@ -132,25 +126,12 @@ const DOWN: Gesture[] = PYRA_HOLDS.holds.flatMap((hold) =>
 
 /** The fewest hooks bringing the picked edge home, keeping those home. */
 function edgeFormula(cube: Cube, pick: TutorialPick, kept: Kept): Turn[] | null {
-  const goal = (c: Cube) => sameAt(c[pick.piece]!.position, pick.slot) && home(c, pick.piece)
+  const goal = (c: Cube) =>
+    sameAt(c[pick.piece]!.position, pick.slot) && home(c, pick.piece) && kept.targetsKept(c)
   const plays = DOWN.map((g) => g.moves.map((m) => PYRA_HOLDS.played(g.hold, m)))
-  let frontier = [{ cube, moves: [] as Turn[] }]
-  const seen = new Set([stateKey(cube)])
-  for (let depth = 0; depth <= 3; depth++) {
-    const found = frontier.find((n) => goal(n.cube) && kept.targetsKept(n.cube))
-    // A turn of the top undone then done again by the next hook: none.
-    if (found) return simplifyMoves(found.moves)
-    frontier = frontier.flatMap((n) =>
-      plays.flatMap((moves) => {
-        const next = applyMoves(n.cube, moves)
-        const key = stateKey(next)
-        if (seen.has(key)) return []
-        seen.add(key)
-        return [{ cube: next, moves: [...n.moves, ...moves] }]
-      }),
-    )
-  }
-  return null
+  const moves = searchFormulas(cube, plays, goal, { depth: 3 })
+  // A turn of the top undone then done again by the next hook: none.
+  return moves && simplifyMoves(moves)
 }
 
 // ---------------------------------------------------------------------------
@@ -179,8 +160,8 @@ const fromEachSide = (moves: PyraMove[]): Gesture[] =>
     { hold, moves: [...moves].reverse().map(undo) },
   ])
 
-const CYCLE = formula("dhd'hdhd'")
-const FLIP = formula("[gd'][h'd]")
+const CYCLE = PYRA_CYCLE
+const FLIP = PYRA_FLIP
 const CYCLES = fromEachSide(CYCLE)
 const FLIPS = fromEachSide(FLIP)
 

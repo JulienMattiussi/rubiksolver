@@ -2,7 +2,7 @@ import { FACE_COLOR } from '../../core/cube'
 import { FACE_NORMAL } from '../../core/geometry'
 import { CUBE_HOLDS, type Hold } from '../../core/hold'
 import { parseMoves } from '../../core/moves'
-import { colorAt, hasColors } from '../../core/pieces'
+import { colorAt, hasColors, sameAt } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Face, Move, Vec3 } from '../../core/types'
 import {
@@ -15,18 +15,19 @@ import { homeOf } from '../../methods/standard/pieces3'
 import { centersHome, recenter } from '../../methods/standard/recenter'
 import { OUTER_GENERATORS, search, SIDES } from '../../solve/solverKit'
 import { tutorialOf, type Kept, type Target } from '../../teach/kit'
+import type { PieceStage } from '../../teach/stages'
 import {
   cornerFormula,
   cornerPairAt,
   cornerSlot,
   pieceWith,
-  sameAt,
   TRIGGER,
   type Pair,
 } from './cornerTrigger'
 import { LAST_LAYER } from './cube3LastLayer'
 import { CENTER, CLOCKWISE, CORNER, COUNTERCLOCKWISE, EDGE, THICKNESSES } from './terms'
 import type { TutorialPick } from '../../teach/tutorial'
+import { COMM_UF, COMM_UF_BACK, COMM_UR } from '../../methods/standard/algs'
 
 /**
  * The 3x3's tutorial, layer by layer (the beginner method, its frame: yellow
@@ -93,8 +94,8 @@ const middleTarget = (pair: Pair): Target => ({
 /** The insertions, read held with the edge above the front center: each
  *  two gestures, the slot's corner taken out of the way with the edge,
  *  then brought back with it. */
-const RIGHT_PARTS = [parseMoves("U R U' R'"), parseMoves("U' F' U F")]
-const LEFT_PARTS = [parseMoves("U' L' U L"), parseMoves("U F U' F'")]
+const RIGHT_PARTS = [parseMoves(COMM_UR), parseMoves(COMM_UF_BACK)]
+const LEFT_PARTS = [parseMoves("U' L' U L"), parseMoves(COMM_UF)]
 const RIGHT = RIGHT_PARTS.flat()
 const LEFT = LEFT_PARTS.flat()
 
@@ -159,6 +160,51 @@ const isMiddleEdge = (cube: Cube, i: number) =>
 /** A side slot's pair, from a target's slot (corner or middle edge). */
 const pairOf = (slot: Vec3) => (cornerPairAt(slot) ?? middlePairAt(slot))!
 
+/** The first two layers' stages: the yellow cross, the yellow corners, the
+ *  middle edges (also a reduced big cube's, through its projection). */
+export const FIRST_LAYERS: readonly PieceStage[] = [
+  {
+    kind: 'pieces',
+    key: 'stepTutorialCross',
+    stage: 1,
+    // The yellow cross, shown done.
+    shows: FACE_NORMAL.D,
+    targets: SIDES.map(crossTarget),
+    marker: Y,
+    words: true,
+    hold: () => 'F',
+    formula: crossFormula,
+  },
+  {
+    kind: 'pieces',
+    key: 'stepTutorialCorner',
+    stage: 2,
+    shows: FACE_NORMAL.D,
+    targets: CORNER_PAIRS.map(cornerTarget),
+    marker: Y,
+    words: true,
+    algorithms: [[TRIGGER]],
+    // Held with the slot front right: its trigger reads R U R' U'.
+    hold: (_, pick, next) => pairOf(pick?.slot ?? next.slot)[0] as Hold,
+    formula: (cube, pick) => cornerFormula(cube, pick, Y),
+    checked: true,
+  },
+  {
+    kind: 'pieces',
+    key: 'stepTutorialMiddle',
+    stage: 3,
+    targets: CORNER_PAIRS.map(middleTarget),
+    algorithms: [RIGHT_PARTS, LEFT_PARTS],
+    pickable: (cube, placed) =>
+      cube.flatMap((_, i) => (isMiddleEdge(cube, i) && !placed.includes(i) ? [i] : [])),
+    // Held as the formula from where the step began reads.
+    hold: (begun, pick, next) =>
+      (pick && edgePlan(begun, pick)?.hold) || (pairOf(next.slot)[0] as Hold),
+    formula: (cube, pick) => edgePlan(cube, pick)?.moves ?? null,
+    checked: true,
+  },
+]
+
 export const CUBE3_TUTORIAL = tutorialOf({
   glossary: [CENTER, EDGE, CORNER, CLOCKWISE, COUNTERCLOCKWISE, ...THICKNESSES],
   stages: [
@@ -170,46 +216,7 @@ export const CUBE3_TUTORIAL = tutorialOf({
       hold: 'F',
       formula: recenter,
     },
-    {
-      kind: 'pieces',
-      key: 'stepTutorialCross',
-      stage: 1,
-      // The yellow cross, shown done.
-      shows: FACE_NORMAL.D,
-      targets: SIDES.map(crossTarget),
-      marker: Y,
-      words: true,
-      hold: () => 'F',
-      formula: crossFormula,
-    },
-    {
-      kind: 'pieces',
-      key: 'stepTutorialCorner',
-      stage: 2,
-      shows: FACE_NORMAL.D,
-      targets: CORNER_PAIRS.map(cornerTarget),
-      marker: Y,
-      words: true,
-      algorithms: [[TRIGGER]],
-      // Held with the slot front right: its trigger reads R U R' U'.
-      hold: (_, pick, next) => pairOf(pick?.slot ?? next.slot)[0] as Hold,
-      formula: (cube, pick) => cornerFormula(cube, pick, Y),
-      checked: true,
-    },
-    {
-      kind: 'pieces',
-      key: 'stepTutorialMiddle',
-      stage: 3,
-      targets: CORNER_PAIRS.map(middleTarget),
-      algorithms: [RIGHT_PARTS, LEFT_PARTS],
-      pickable: (cube, placed) =>
-        cube.flatMap((_, i) => (isMiddleEdge(cube, i) && !placed.includes(i) ? [i] : [])),
-      // Held as the formula from where the step began reads.
-      hold: (begun, pick, next) =>
-        (pick && edgePlan(begun, pick)?.hold) || (pairOf(next.slot)[0] as Hold),
-      formula: (cube, pick) => edgePlan(cube, pick)?.moves ?? null,
-      checked: true,
-    },
+    ...FIRST_LAYERS,
     ...LAST_LAYER,
   ],
 })

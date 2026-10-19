@@ -1,13 +1,15 @@
-import { AXIS_ROTATIONS, FACE_NORMAL, faceOfNormal, vecKey } from '../../core/geometry'
+import { FACE_NORMAL, faceOfNormal, vecKey } from '../../core/geometry'
 import { parseMoves } from '../../core/moves'
 import { allTurnsOf, moveSet } from '../../core/moveSet'
-import { homesOf } from '../../core/pieces'
+import { homesOf, withStickers } from '../../core/pieces'
 import { solvePieces } from '../../solve/pieceSearch'
 import { isSolved, solvedCube } from '../../core/cube'
 import type { MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
 import { once } from '../../solve/once'
+import { heldEveryWay, turnedFace } from '../../solve/everyWay'
+import { OLL_EDGE } from '../standard/algs'
 
 /**
  * Quarter Cube, "edges first", as taught on fan2cube.fr (quarter2). Every
@@ -28,7 +30,7 @@ import { once } from '../../solve/once'
  */
 
 /** 1: A[DH]A' */
-export const EDGE_CYCLE = parseMoves("F R U R' U' F'")
+export const EDGE_CYCLE = parseMoves(OLL_EDGE)
 /** 2: A[DH]A'.G[HA]G'.D[HP]D' */
 export const EDGE_FLIP = parseMoves("F R U R' U' F' L U F U' F' L' R U B U' B' R'")
 /** 3: [DH].G[HD]G' */
@@ -52,9 +54,7 @@ function alternates(moves: readonly Move[]): boolean {
 /** A formula held every way, and set up by a face's quarter: those that
  *  alternate. */
 function variants(formula: readonly Move[]): Move[][] {
-  const held = AXIS_ROTATIONS.map((turn) =>
-    formula.map((m) => ({ ...m, face: faceOfNormal(turn(FACE_NORMAL[m.face])) })),
-  )
+  const held = heldEveryWay(formula, (m, by) => ({ ...m, face: turnedFace(m.face, by) }))
   const faces = Object.keys(FACE_NORMAL) as Face[]
   const all = held.flatMap((f) => [
     f,
@@ -76,8 +76,8 @@ const macros = once(() => ({
   twist: variants(CORNER_TWIST),
 }))
 
-const isEdge = (c: Cubie) => c.stickers.length === 2
-const isCorner = (c: Cubie) => c.stickers.length === 3
+const isEdge = withStickers(2)
+const isCorner = withStickers(3)
 const EDGES = homesOf('quarter', isEdge)
 const CORNERS = homesOf('quarter', isCorner)
 const HOME = new Map(

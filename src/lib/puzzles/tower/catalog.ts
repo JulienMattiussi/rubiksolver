@@ -11,6 +11,7 @@ export const TOWER = {
   },
   // Sold blue below, yellow behind.
   '224': {
+    home: 'classic',
     label: '2x2x4',
     slug: '2x2x4',
     dims: [2, 4, 2],

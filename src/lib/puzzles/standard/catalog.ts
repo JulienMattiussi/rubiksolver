@@ -4,6 +4,8 @@ import type { PuzzleEntry } from '../entry'
 export const STANDARD = {
   '2': { label: '2x2 (Pocket)', slug: '2x2', dims: [2, 2, 2], scramble: 11, mirror: true },
   '3': {
+    home: 'classic',
+    cover: true,
     label: '3x3',
     slug: '3x3',
     dims: [3, 3, 3],
@@ -12,6 +14,7 @@ export const STANDARD = {
     mirror: true,
   },
   '4': {
+    home: 'mirror',
     label: '4x4 (Revenge)',
     slug: '4x4',
     dims: [4, 4, 4],

@@ -53,6 +53,12 @@ Les tranches du 3x3 ne demandent rien au moteur : sur 3 couches, la couche
 `S` = `2F`, et `r` = `Rw`. `formatMove(move, labels, dims)` les affiche `M`,
 `E`, `S` quand on lui passe les dimensions.
 
+Le 4x4 et le Super Revenge s'écrivent comme le guide officiel de Rubik's :
+la tranche interne seule en minuscule (`r`, FR `d`), la face et sa tranche
+ensemble en deux lettres (`Rr`, FR `Dd`), par le `format` de leur modèle
+(`lib/puzzles/standard/revenge.ts`). Les formules internes restent écrites
+`2R` / `Rw` (`parseMoves`), seul l'affichage change.
+
 ## Le 5x5 par réduction (`src/lib/methods/standard/solver5/`)
 
 Le moteur n'a rien de nouveau pour le 5x5 (grille `{-2..2}`, coups `R`,

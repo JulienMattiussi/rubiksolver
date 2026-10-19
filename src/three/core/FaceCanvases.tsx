@@ -1,10 +1,9 @@
 import { useFrame } from '@react-three/fiber'
 import { useRef, useState } from 'react'
 import type { Group } from 'three'
-import { joinKey, type Canvas } from '@/lib/editor/faceCanvases'
+import { joinKey, type Canvas } from '@/lib/editor/modes/canvas'
 import { useEditor } from '@/store/editorStore'
-import { ABSENT_HEX, COLOR_HEX, HIGHLIGHT, PLASTIC } from './colors'
-import { EMPTY_COLOR } from './EditView'
+import { ABSENT_HEX, COLOR_HEX, EMPTY_COLOR, HIGHLIGHT, PLASTIC } from './colors'
 import { paintable } from './paintable'
 
 /** Half the puzzle's side, and the gap between two cells. */

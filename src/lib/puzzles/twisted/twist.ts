@@ -1,4 +1,5 @@
-import type { Cube } from '../../core/types'
+import type { Cube, Vec3 } from '../../core/types'
+import type { TogglesSpec } from '../../editor/entry'
 import { withRealThinEdges } from '../shared/thinEdges'
 
 /**
@@ -27,3 +28,18 @@ export const withTurnedCenters = (cube: Cube, turned: readonly string[]): Cube =
       c.spin === undefined ? c : { ...c, spin: turned.includes(c.position.join(',')) ? 1 : 0 },
     ),
   )
+
+/** Its centers turned a quarter while entered, a click each (the Z-Twist's
+ *  side centers, the Quarter Cube's: those `turns` says), as a state shows
+ *  them: the centers spun. */
+export const centerToggles = (turns: (position: Vec3) => boolean): TogglesSpec => ({
+  name: 'centers',
+  keyAt: (slot) => (slot.stickers === 1 && turns(slot.position) ? slot.key : null),
+  ways: 2,
+  of: (cube) =>
+    Object.fromEntries(
+      cube
+        .filter((c) => c.spin === 1 && c.stickers.length === 1)
+        .map((c) => [c.position.join(','), 1]),
+    ),
+})

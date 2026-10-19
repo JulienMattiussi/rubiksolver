@@ -101,8 +101,11 @@ celles que tournent les méthodes de la forme (`methodTurns`), groupées par sec
 tranches internes, coups larges ; étages et slash sur l'étoile), sans
 sélecteur : tout défile verticalement. Le contenu est **pur et dérivé**
 (`lib/app/moveGuide.ts`) : `moveGuide(shape)` et `describeMove` (une description
-structurée que `t.describeMove` met en phrase), donc un nouveau puzzle a son
-guide sans travail. Rendu : **un seul contexte WebGL** (`GuideCanvas`, posé
+structurée, `core/guide.ts`, que `t.describeMove` met en phrase). Un cube a
+son guide sans travail ; un puzzle qui ne tourne pas comme un cube le déclare
+dans son modèle (`guide`, construit par `lib/puzzles/guides.ts`), et la sorte
+de ses coups dit ce que fait chacun (`MoveKind.describe`), son modèle
+pouvant préciser (`describe` : le Fashion-V, le Curvy Copter III). Rendu : **un seul contexte WebGL** (`GuideCanvas`, posé
 sous la liste, transparent) ; chaque vignette a sa scène et sa caméra et se
 dessine en scissor dans sa boîte DOM, les vignettes hors de la zone visible
 sont sautées. Seules les lignes au **centre** de la liste s'animent
@@ -170,6 +173,16 @@ R D` répété, un seul pas, la première couche se défaisant en route).
   demande. Son vocabulaire (sur une pyramide, on parle de pointes, pas de coins) :
   pointe, milieu, moitié, sens horaire et
   anti-horaire.
+- **Le parcours du 4x4** (méthode Réduction par couches), onze étapes :
+  les centres regroupés un à un (jaune, blanc, puis la ceinture), les
+  arêtes appariées une à une (une tranche, un échange, la tranche qui
+  revient), puis les étapes du 3x3 jouées sur le cube réduit, avec ses deux
+  parités là où on les voit : une arête seule à l'envers juste avant la
+  croix blanche (parité OLL), deux arêtes échangées juste avant les arêtes
+  blanches (parité PLL), chacune corrigée par sa formule de tranches. Son
+  vocabulaire ajoute centre (quatre par face), aile, arête (deux ailes) et
+  tranche intérieure. Au-delà de douze pièces, l'avancement n'a plus ses
+  points, seulement ses mots.
 - **Le vocabulaire** (« Étape 0 ») : avant les étapes, un pas par terme
   (centre, arête, coin ; sur un miroir, les six épaisseurs), ses pièces en
   bleu et la vue tournée vers elles ; « Suivant » passe au terme suivant,

@@ -1,5 +1,5 @@
 import { X } from 'lucide-react'
-import { FACES } from '@/lib/puzzles/shared/faceViews'
+import { CANVAS_COUNT } from '@/lib/editor/modes/canvas'
 import { useI18n } from '@/i18n/i18nStore'
 import { useEditor } from '@/store/editorStore'
 import { Button } from '@/components/ui/Button'
@@ -18,7 +18,7 @@ export function FacesPanel() {
     <div className="flex flex-col gap-5">
       <p className="text-xs leading-relaxed text-slate-400">{t.editHintFaces}</p>
       <span className="text-sm font-medium text-slate-200">
-        {t.faceStep(faceAt + 1, FACES.length)}
+        {t.faceStep(faceAt + 1, CANVAS_COUNT)}
       </span>
       <FacePalette />
       {error === 'faces' && <ErrorAlert>{t.errorFaces}</ErrorAlert>}

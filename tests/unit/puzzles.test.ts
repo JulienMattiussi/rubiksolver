@@ -7,9 +7,9 @@ import {
   stateKey,
   stickersTotal,
 } from '@/lib/core/cube'
-import { buildCube, cubeToEdit, emptyEdit, isComplete, progress } from '@/lib/editor/editor'
+import { buildCube, cubeToEdit, emptyEdit, isComplete, progress } from '@/lib/editor/edit'
 import { stickerId, tablesFor } from '@/lib/editor/editorTables'
-import { formOf } from '@/lib/editor/forms'
+import { formOf } from '@/lib/editor/modes/form'
 import { normalIndex } from '@/lib/core/geometry'
 import { describeMove, moveGuide } from '@/lib/app/moveGuide'
 import {
@@ -25,8 +25,7 @@ import { methodsFor } from '@/lib/solve/solver'
 import { decodeCube, encodeCube } from '@/lib/app/snapshot'
 import { applyMoves, turnAllowed } from '@/lib/core/turn'
 import type { Cube, CubeShape, Turn } from '@/lib/core/types'
-import { gearColorsOf } from '@/lib/editor/gearEditor'
-import { marksOf, settingsOf } from '@/lib/editor/setup'
+import { settingsOf } from '@/lib/editor/steps'
 import { validateCube } from '@/lib/editor/validate'
 import { LOCALES } from '@/i18n/translations'
 import { seededRng } from '../helpers'
@@ -297,8 +296,8 @@ describe.each(PUZZLES)('$shape', ({ shape, pieces, stickers, orientations, paint
       const edit = cubeToEdit(cube)
       expect(isComplete(edit, shape, form)).toBe(true)
       // What it sets besides its colors (bars, gears...), as from its state.
-      const marks = marksOf(shape, settingsOf(cube), edit, gearColorsOf(cube))!
-      const built = buildCube(edit, shape, form, marks)
+      const { toggles, parts } = settingsOf(cube)
+      const built = buildCube(edit, shape, form, { toggles, parts })
       expect(cubeToEdit(built)).toEqual(edit)
       expect(validateCube(built)).toEqual({ ok: true })
     }

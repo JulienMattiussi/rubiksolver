@@ -4,10 +4,10 @@ import { isBoxed, isSolved, solvedCube } from '@/lib/core/cube'
 import { methodsFor } from '@/lib/solve/solver'
 import { backToBox, shapeOf } from '@/lib/puzzles/tower/camoShape'
 import { CAMO_FACE_ENTRY, shapeFromViews } from '@/lib/puzzles/tower/camoViews'
-import { sightOf } from '@/lib/puzzles/shared/faceViews'
+import { sightOf } from '@/lib/editor/modes/faceViews'
 
 const camoViewsOf = (cube: Parameters<typeof sightOf>[0]) => sightOf(cube, CAMO_FACE_ENTRY.grid)
-import { formsOf } from '@/lib/editor/forms'
+import { entryOf } from '@/lib/editor/entry'
 import { EXCHANGE, evenWings, WING_PARITY } from '@/lib/methods/tower/camo'
 import { formatMove, layerTurnsOf, parseMoves, scrambleTurns } from '@/lib/core/moves'
 import { applyMoves, turnAllowed } from '@/lib/core/turn'
@@ -45,7 +45,7 @@ describe('Camouflage 4x4x2', () => {
   })
 
   it('offers no forms to pick: too many, it is entered face by face', () => {
-    expect(formsOf('camo')).toHaveLength(1)
+    expect(entryOf('camo').steps.map((s) => s.kind)).toEqual(['canvas'])
   })
 
   it('is seen from four sides: its front, top, back and bottom, as it tilts toward us', () => {

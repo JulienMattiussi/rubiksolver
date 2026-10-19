@@ -1,26 +1,8 @@
 import { cubeShape, turnDims } from './cube'
 import { MODELS } from '../puzzles/models'
 import { FACE_SPEC, layerCoords, rotateN } from './geometry'
-import { applyGhostMove, ghostAxis, ghostTurns } from '../puzzles/flat/ghost'
-import { applyCopterMove, copterAxis, copterTurns } from '../puzzles/diagonal/copter'
-import { applyPuckMove, puckRotation, puckTurns } from '../puzzles/round/puck'
-import { applyGearMove, gearFaceTurns, gearRotation, gearSliceTurns } from '../puzzles/gear/gear'
-import { applyMegaMove, megaRotation, megaTurns } from '../puzzles/polyhedron/megaminx'
-import { applyRainbowMove, rainbowRotation, rainbowTurns } from '../puzzles/shared/rainbow'
-import { applyPyraMove, pyraRotation, pyraSize, pyraTurns } from '../puzzles/pyramid/pyraminx'
-import { applyStarMove, starRotation, starTurns } from '../puzzles/round/star'
-import {
-  isCopterMove,
-  isGhostMove,
-  isPuckMove,
-  isPyraMove,
-  isGearMove,
-  isMegaMove,
-  isRainbowMove,
-  isStarMove,
-  SHAPE_DIMS,
-  SHAPE_SHIFTS,
-} from './types'
+import { isFaceTurn, kindOf, type TurnRotation } from './moveKind'
+import { SHAPE_DIMS, SHAPE_SHIFTS } from './types'
 import type { Cube, Dims, Move, Turn } from './types'
 
 /**
@@ -84,17 +66,7 @@ function turnsPosition(move: Move, mechanism: Dims): (position: readonly number[
 /** Which cubies `move` turns, by index: the animation turns them, the move
  *  preview highlights them. */
 export function turnedBy(cube: Cube, move: Turn): (index: number) => boolean {
-  if (isStarMove(move)) return (index) => starTurns(move, cube[index]!.position)
-  if (isGhostMove(move)) return (index) => ghostTurns(move, cube[index]!.position)
-  if (isCopterMove(move)) return (index) => copterTurns(move, cube[index]!.position)
-  if (isPuckMove(move)) return (index) => puckTurns(move, cube[index]!.position)
-  if (isRainbowMove(move)) return (index) => rainbowTurns(move, cube[index]!.position)
-  if (isMegaMove(move)) return (index) => megaTurns(move, cube[index]!.position)
-  if (isGearMove(move)) return (index) => gearFaceTurns(move, cube[index]!.position)
-  if (isPyraMove(move)) {
-    const size = pyraSize(turnDims(cubeShape(cube)))
-    return (index) => pyraTurns(move, cube[index]!.position, size)
-  }
+  if (!isFaceTurn(move)) return kindOf(move)!.turned(cube, move)
   const turns = turnsPosition(move, turnDims(cubeShape(cube)))
   return (index) => turns(cube[index]!.position)
 }
@@ -102,8 +74,7 @@ export function turnedBy(cube: Cube, move: Turn): (index: number) => boolean {
 /** Which cubies `move` turns half as far as the others (a Gear Cube's
  *  slice, beside the face it turns), by index; none on other puzzles. */
 export function halfTurnedBy(cube: Cube, move: Turn): (index: number) => boolean {
-  if (isGearMove(move)) return (index) => gearSliceTurns(move, cube[index]!.position)
-  return () => false
+  return kindOf(move)?.halfTurned?.(cube, move) ?? (() => false)
 }
 
 /**
@@ -117,10 +88,8 @@ export function halfTurnedBy(cube: Cube, move: Turn): (index: number) => boolean
  * - inner slices are not part of it (a wide then an outer turn makes one).
  */
 export function turnAllowed(cube: Cube, move: Turn): boolean {
-  if (isStarMove(move)) return true // pieces are whole 60 degree sectors
-  if (isPyraMove(move) || isGhostMove(move) || isPuckMove(move)) return true
-  if (isRainbowMove(move) || isGearMove(move) || isMegaMove(move)) return true
-  if (isCopterMove(move)) return true
+  // Another kind's: its pieces are whole (a star's sectors, a Pyraminx's...).
+  if (!isFaceTurn(move)) return true
   if (move.whole) return true
   const shape = cubeShape(cube)
   const own = MODELS[shape]?.turnAllowed
@@ -137,25 +106,10 @@ export function turnAllowed(cube: Cube, move: Turn): boolean {
   return inEnd === s1! * s2!
 }
 
-/** How a renderer animates a turn: about which axis, by which angle. */
-interface TurnRotation {
-  /** Unit vector of the axis, in the renderer's frame. */
-  readonly axis: readonly [number, number, number]
-  /** Radians (right-hand rule), taking the shortest path. */
-  readonly angle: number
-}
-
 const AXIS_VECTOR = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1] } as const
 
 export function turnRotation(move: Turn): TurnRotation {
-  if (isStarMove(move)) return starRotation(move)
-  if (isPyraMove(move)) return pyraRotation(move)
-  if (isGhostMove(move)) return { axis: ghostAxis(move.side), angle: Math.PI }
-  if (isCopterMove(move)) return { axis: copterAxis(move.edge), angle: Math.PI }
-  if (isPuckMove(move)) return puckRotation(move)
-  if (isRainbowMove(move)) return rainbowRotation(move)
-  if (isMegaMove(move)) return megaRotation(move)
-  if (isGearMove(move)) return gearRotation(move)
+  if (!isFaceTurn(move)) return kindOf(move)!.rotation(move)
   const spec = FACE_SPEC[move.face]
   const t = (((spec.sign * move.amount) % 4) + 4) % 4 // 1, 2 or 3 quarter turns
   return { axis: AXIS_VECTOR[spec.axis], angle: (t === 3 ? -1 : t) * (Math.PI / 2) }
@@ -171,14 +125,12 @@ export function applyMove(
   move: Turn,
   mechanism: Dims = turnDims(cubeShape(cube)),
 ): Cube {
-  if (isStarMove(move)) return applyStarMove(cube, move)
-  if (isPyraMove(move)) return applyPyraMove(cube, move, pyraSize(mechanism))
-  if (isGhostMove(move)) return applyGhostMove(cube, move)
-  if (isCopterMove(move)) return applyCopterMove(cube, move)
-  if (isPuckMove(move)) return applyPuckMove(cube, move)
-  if (isRainbowMove(move)) return applyRainbowMove(cube, move)
-  if (isMegaMove(move)) return applyMegaMove(cube, move)
-  if (isGearMove(move)) return applyGearMove(cube, move)
+  if (!isFaceTurn(move)) return kindOf(move)!.apply(cube, move, mechanism)
+  return applyFaceTurn(cube, move, mechanism)
+}
+
+/** A cube's face turn played (the core's own kind of move). */
+function applyFaceTurn(cube: Cube, move: Move, mechanism: Dims): Cube {
   const spec = FACE_SPEC[move.face]
   const turns = turnsPosition(move, mechanism)
   const times = spec.sign * move.amount

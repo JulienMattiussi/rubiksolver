@@ -63,7 +63,7 @@ describe('1x2x3 solver', () => {
     expect(states.size).toBe(96)
     let longest = 0
     for (const cube of states.values()) {
-      const moves = solveExhaustively(cube)
+      const moves = solveExhaustively(cube, 7)
       expect(isSolved(applyMoves(cube, moves))).toBe(true)
       longest = Math.max(longest, moves.length)
     }

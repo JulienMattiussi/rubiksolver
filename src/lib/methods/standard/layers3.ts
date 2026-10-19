@@ -12,7 +12,7 @@ import {
   type MethodPlan,
 } from '../../solve/solverKit'
 import type { Color, Cube, Cubie, Face, Move } from '../../core/types'
-import { OLL_EDGE, PLL_AA, PLL_UA, SUNE } from './algs'
+import { INSERT_RIGHT, OLL_EDGE, PLL_AA, PLL_UA, SUNE } from './algs'
 
 /**
  * Layer-by-layer methods of the 3x3: the beginner method and CFOP (Fridrich).
@@ -162,7 +162,7 @@ export function solveCross(cube: Cube): Move[] {
 // from a wrong slot and drop it into the right one.
 export const CORNER_TRIGGERS = [...atEverySide("R U R'"), ...atEverySide("R U' R'")]
 const MIDDLE_TRIGGERS = [
-  ...atEverySide("U R U' R' U' F' U F"), // insert edge into the front-right slot
+  ...atEverySide(INSERT_RIGHT), // insert edge into the front-right slot
   ...atEverySide("U' L' U L U F U' F'"), // insert edge into the front-left slot
 ]
 

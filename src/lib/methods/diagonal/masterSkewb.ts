@@ -8,6 +8,7 @@ import { faceOfNormal, mapVec } from '../../core/geometry'
 import { aroundTop } from '../shared/skewbKit'
 import { skewbFirst } from './skewb'
 import { once } from '../../solve/once'
+import { withStickers } from '../../core/pieces'
 
 /**
  * Master Skewb, "Skewb d'abord", as taught on fan2cube.fr (masterskewb3):
@@ -56,7 +57,7 @@ const SETUPS = TURNS.turns as RainbowMove[]
 const bothWays = (formulas: readonly string[]) =>
   formulas.flatMap((f) => aroundTop(parse(f))).flatMap((f) => [f, invertMoves(f)])
 
-const isEdge = (c: Cubie) => c.stickers.length === 2
+const isEdge = withStickers(2)
 
 /** Every 3-cycle of edges (the petals stirred: placed after) and of
  *  petals, built once. */
