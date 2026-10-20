@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { scrambleTurns } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
+import { buildCube, cubeToEdit } from '@/lib/editor/edit'
 import { tutorialFor } from '@/lib/tutorials/registry'
 import { TUTORIAL_EN } from '@/i18n/en/tutorial'
 import { TUTORIAL_FR } from '@/i18n/fr/tutorial'
@@ -48,6 +49,18 @@ describe('Floppy Ghost tutorial', () => {
     expect(SOLVED.some((c) => legend.turned(c))).toBe(false)
     const flipped = applyMoves(SOLVED, [{ side: 'U' }])
     expect(flipped.filter((c) => legend.turned(c))).toHaveLength(3)
+  })
+
+  it('tells its pieces by what they are: an entered state, its pieces in its own order', () => {
+    const scrambled = applyMoves(SOLVED, scrambleTurns('ghost', 15, seededRng(11), SOLVED))
+    const entered = buildCube(cubeToEdit(scrambled), 'ghost')
+    expect(entered.map((c) => c.position.join())).not.toEqual(
+      scrambled.map((c) => c.position.join()),
+    )
+    expect(isSolved(walk(tutorial, entered, 40).cube)).toBe(true)
+    // Each piece its own: the legend finds every one, once.
+    const found = entered.map((c) => tutorial.legend!.identify(c))
+    expect(new Set(found).size).toBe(SOLVED.length)
   })
 
   it('says its own stages and words in both languages', () => {

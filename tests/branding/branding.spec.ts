@@ -31,13 +31,14 @@ async function scrambled(page: Page, address: string) {
 test('share preview and README banner', async ({ page }) => {
   await page.goto('/#/en')
   const count = Number(await homeHeading(page).locator('span').textContent())
-  // One drawing per category: the first of each card of the picker.
+  // One drawing per category: the first of each card of the picker (its
+  // tutorial badge, an icon, aside).
   await page.getByRole('button', { name: /^Cube choice/ }).click()
   const cards = page.getByRole('button', { name: /, \d+ puzzles?$/ })
   const icons = await Promise.all(
     (await cards.all()).map((card) =>
       card
-        .locator('svg')
+        .locator('svg:not(.lucide)')
         .first()
         .evaluate((svg) => svg.outerHTML),
     ),

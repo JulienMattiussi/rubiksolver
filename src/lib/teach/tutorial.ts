@@ -61,9 +61,12 @@ export interface Term {
  * number), and shown in pictures (its front and its back), in a legend
  * after the words and beside its name in the instructions. */
 export interface Legend {
-  /** Each piece's label, by its index (stable from turn to turn), in the
+  /** Each piece's label, by its index in the solved puzzle, in the
    *  legend's order. */
   readonly labels: readonly { readonly piece: number; readonly label: string }[]
+  /** A piece's index in the solved puzzle, wherever it stands and however
+   *  the state orders its pieces (an entered one, its own way). */
+  readonly identify: (cubie: Cubie) => number
   /** Whether a piece shows its back (turned over): pictured so. */
   readonly turned: (cubie: Cubie) => boolean
   /** The piece that tells how to hold the puzzle when no color can, read

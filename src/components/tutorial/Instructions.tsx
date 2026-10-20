@@ -45,7 +45,8 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
   const legend = view.tutorial?.legend
   const name = (index: number) => {
     const kind = view.tutorial?.pieceKind(cube[index]!) ?? 'piece'
-    const label = legend?.labels.find((l) => l.piece === index)?.label
+    const solved = legend?.identify(cube[index]!)
+    const label = legend?.labels.find((l) => l.piece === solved)?.label
     return label !== undefined
       ? tx.labelled(kind, label)
       : tx.piece(

@@ -64,7 +64,7 @@ export function Pictured({
         >
           <PiecePicture
             shape={shape}
-            piece={piece}
+            piece={legend.identify(cube[piece]!)}
             back={legend.turned(cube[piece]!)}
             className="block size-8"
           />

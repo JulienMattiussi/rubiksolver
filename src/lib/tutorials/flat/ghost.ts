@@ -3,7 +3,7 @@ import { FACE_NORMAL, vecKey } from '../../core/geometry'
 import type { HoldFrame } from '../../core/hold'
 import { allTurnsOf } from '../../core/moveSet'
 import { simplifyMoves } from '../../core/moves'
-import { atHome, sameAt } from '../../core/pieces'
+import { atHome, colorsOf, sameAt } from '../../core/pieces'
 import type { Cube, Cubie, GhostMove, Vec3 } from '../../core/types'
 import { aroundGhost, CYCLE_CORNERS, FLIP_EDGES, TURN_CORNERS } from '../../methods/flat/ghost'
 import { GHOST_SLOTS, ghostSlot, isCornerSlot } from '../../puzzles/flat/ghost'
@@ -37,8 +37,19 @@ function pieceKind(cubie: Cubie): string {
   return isCornerSlot(cubie.position) ? 'corner' : 'edge'
 }
 
-/** The piece solved at slot `m`. */
+/** The piece solved at slot `m`, by its index there. */
 const pieceAt = (m: number) => SOLVED.findIndex((c) => sameAt(c.position, GHOST_SLOTS[m]!))
+
+/** What a piece is, whatever its index (an entered state orders them its
+ *  own way): its kind and its colors (an edge and a corner may share
+ *  theirs). */
+const identityOf = (c: Cubie) => `${pieceKind(c)}:${colorsOf(c)}`
+const SOLVED_IDS = SOLVED.map(identityOf)
+/** A piece's index in the solved puzzle (its legend's, its pictures'). */
+const solvedIndex = (c: Cubie) => SOLVED_IDS.indexOf(identityOf(c))
+/** The index in `cube` of the piece solved at slot `m`. */
+const found = (cube: Cube, m: number) =>
+  cube.findIndex((c) => identityOf(c) === SOLVED_IDS[pieceAt(m)])
 
 /** Corners A to E and edges 1 to 5, clockwise from the top. */
 const CORNER_SLOTS = [1, 3, 5, 7, 9]
@@ -87,23 +98,28 @@ function stage(
   placed: (cube: Cube, piece: number, slot: Vec3) => boolean,
 ): PieceStage {
   const target = (m: number): Target => {
-    const piece = pieceAt(m)
     const slot = GHOST_SLOTS[m]!
-    return { piece: () => piece, slot, placed: (cube) => placed(cube, piece, slot) }
+    return {
+      piece: (cube) => found(cube, m),
+      slot,
+      placed: (cube) => placed(cube, found(cube, m), slot),
+    }
   }
   // A turn and a formula starting with the same turn cancel where they
   // meet (U2 then U2 R2 U2 R2): merged, the formula plays what it does.
   const formula = (cube: Cube, pick: TutorialPick, kept: Kept) => {
-    const found = searchFormulas(
+    // Its own place: placed there; another's: there.
+    const own = found(cube, ghostSlot(pick.slot)!) === pick.piece
+    const moves = searchFormulas(
       cube,
       formulas,
       (c) =>
         kept.targetsKept(c) &&
         sameAt(c[pick.piece]!.position, pick.slot) &&
-        (pieceAt(ghostSlot(pick.slot)!) !== pick.piece || placed(c, pick.piece, pick.slot)),
+        (!own || placed(c, pick.piece, pick.slot)),
       { depth: 4, key: keyOf(kind) },
     )
-    return found && simplifyMoves(found)
+    return moves && simplifyMoves(moves)
   }
   return {
     kind: 'pieces',
@@ -140,7 +156,7 @@ export const GHOST_TUTORIAL = tutorialOf({
   pieceKind,
   // The hold told by the corner top left as it stands: every piece's pose
   // has its own shape, so its picture says which way up and which side.
-  legend: { labels: LABELS, turned, anchor: topLeft },
+  legend: { labels: LABELS, identify: solvedIndex, turned, anchor: topLeft },
   glossary: [GHOST_CORNER, GHOST_EDGE, GHOST_TURN],
   stages: [
     stage(
