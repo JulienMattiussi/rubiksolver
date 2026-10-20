@@ -136,8 +136,8 @@ demande un commutateur. La méthode est donc celle des cubeurs, par
 4. **Phase 3x3** par projection (`projectPlan`, partagé avec le 4x4) : coins,
    milieux d'arêtes et centres fixes forment un vrai 3x3, toujours légal.
 
-Ce plan reste celui du super 5x5 et de la preuve de solubilité ; le 5x5
-lui-même joue son tutoriel.
+Ce plan reste celui de la preuve de solubilité ; le 5x5 joue son
+tutoriel.
 
 **Le tutoriel du 5x5** (`lib/tutorials/standard/cube5.ts`, réduction par
 couches, comme celui du 4x4) : le cube tenu ses centres fixes à leur place
@@ -192,6 +192,21 @@ page (les « x » ; les « + » avec la tranche du milieu). Les couleurs
 faites, coins et ailes sont à leur place : les centres ne sont qu'à une
 permutation paire de la leur. Sur le 4x4, la page tourne les centres avec
 d* et h* les deux couches intérieures.
+
+**Les tutoriels** (`lib/tutorials/standard/superCubes.ts`) : celui du 4x4
+ou du 5x5 joué sur les couleurs (`projectedStages` passe tout son plan par
+la projection `samePieces(withoutBorders)`, ses étapes déjà projetées sur
+un 3x3 par les deux, `thenProject`), puis leurs propres étapes : sur le
+Professor, les centres du milieu redressés, une formule de la page par pas
+(`middleTurns`), puis chaque centre à sa place, un 3-cycle par pas
+(`nextCenterCycle`). Ses trois emplacements sont sur une même face, pour
+que les couleurs restent faites d'un pas à l'autre ; quand une face a deux
+centres échangés (une permutation impaire, qu'aucun cycle sur elle ne
+défait), le pas enchaîne les cycles du solveur jusqu'à ce que les couleurs
+soient refaites. Une pièce s'y nomme par sa place (`pieceKind`) et un centre
+par sa propre couleur (`outside`), ses bordures à part ; le vocabulaire
+ajoute la bordure. La tranche du milieu est aussi sur le pad du Super
+Professor, comme sur le 5x5.
 
 ## Le 6x6 par réduction (`src/lib/methods/standard/solver6/`)
 

@@ -2,6 +2,7 @@ import type { TUTORIAL_FR } from '../fr/tutorial'
 import { CUBE3_EN } from './tutorials/cube3'
 import { CUBE4_EN } from './tutorials/cube4'
 import { CUBE5_EN } from './tutorials/cube5'
+import { SUPER_CUBES_EN } from './tutorials/superCubes'
 import { CUBE2_EN } from './tutorials/cube2'
 import { CUBES_EN } from './tutorials/cubes'
 import { MORPH_EN } from './tutorials/morph'
@@ -16,6 +17,7 @@ const TEXTS = mergeTexts([
   CUBE2_EN,
   CUBE4_EN,
   CUBE5_EN,
+  SUPER_CUBES_EN,
   PYRAMIDS_EN,
   PYRAMINX_EN,
   MORPH_EN,

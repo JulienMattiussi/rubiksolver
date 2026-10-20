@@ -161,6 +161,8 @@ export const STEPS_EN: typeof STEPS_FR = {
   stepTutorialCenters5: 'Place a center',
   stepTutorialPair5: 'Join a wing to its edge',
   stepTutorialParity5: 'Fix the edge parity',
+  stepTutorialSuperMiddles: 'Straighten the middle centers',
+  stepTutorialSuperCenters: 'Put three centers back in place',
   stepInnerIsolate: 'Inner star: points isolated',
   stepInnerBottom: 'Inner star: bottom finished',
   stepInnerTop: 'Inner star: top finished',

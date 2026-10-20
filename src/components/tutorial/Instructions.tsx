@@ -42,7 +42,7 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
   const name = (index: number) =>
     tx.piece(
       view.tutorial?.pieceKind(cube[index]!) ?? 'piece',
-      pieceColors(cube, index, step.marker).map(tx.colorName),
+      pieceColors(cube, index, step.marker, view.tutorial?.outside).map(tx.colorName),
     )
   const occupant = pick ? occupantOf(cube, pick, view.moves ?? []) : null
   // The formula cut as taught (moves one by one, sequences learnt, a

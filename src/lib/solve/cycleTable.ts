@@ -159,31 +159,44 @@ export function placeByCycles<T extends Turn>(
 ): T[] {
   const moves: T[] = []
   let state = cube
-  const wrongIn = (home: ReadonlyMap<string, string>) =>
-    [...home].filter(([at, to]) => at !== to).map(([at]) => at)
   for (let guard = 0; ; guard++) {
     if (guard > 64) throw new Error('cycleTable: the pieces cannot be cycled into place')
-    const home = homeOf(state)
-    const wrong = wrongIn(home)
-    if (wrong.length === 0) return moves
-    const [a] = wrong as [string]
-    const b = home.get(a)!
-    const through = wrong
-      .filter((c) => c !== a && c !== b)
-      .sort((x, y) => Number(home.get(y) === a) - Number(home.get(x) === a))
-      .map((c) => table.get(cycleId(a, b, c)))
-      .find((sequence) => sequence !== undefined)
-    const cycle =
-      through ??
-      [...home.keys()]
-        .filter((c) => !wrong.includes(c))
-        .map((c) => table.get(cycleId(a, b, c)))
-        .find(
-          (sequence) =>
-            sequence && wrongIn(homeOf(applyMoves(state, sequence))).length < wrong.length,
-        )
-    if (!cycle) throw new Error('cycleTable: the pieces cannot be cycled into place')
+    const cycle = nextCycle(state, table, homeOf)
+    if (!cycle) return moves
     moves.push(...cycle)
     state = applyMoves(state, cycle)
   }
+}
+
+const wrongIn = (home: ReadonlyMap<string, string>) =>
+  [...home].filter(([at, to]) => at !== to).map(([at]) => at)
+
+/** The next cycle `placeByCycles` plays (a tutorial's step), null once
+ *  every piece is home. */
+export function nextCycle<T extends Turn>(
+  state: Cube,
+  table: ReadonlyMap<string, T[]>,
+  homeOf: (state: Cube) => ReadonlyMap<string, string>,
+): T[] | null {
+  const home = homeOf(state)
+  const wrong = wrongIn(home)
+  if (wrong.length === 0) return null
+  const [a] = wrong as [string]
+  const b = home.get(a)!
+  const through = wrong
+    .filter((c) => c !== a && c !== b)
+    .sort((x, y) => Number(home.get(y) === a) - Number(home.get(x) === a))
+    .map((c) => table.get(cycleId(a, b, c)))
+    .find((sequence) => sequence !== undefined)
+  const cycle =
+    through ??
+    [...home.keys()]
+      .filter((c) => !wrong.includes(c))
+      .map((c) => table.get(cycleId(a, b, c)))
+      .find(
+        (sequence) =>
+          sequence && wrongIn(homeOf(applyMoves(state, sequence))).length < wrong.length,
+      )
+  if (!cycle) throw new Error('cycleTable: the pieces cannot be cycled into place')
+  return cycle
 }

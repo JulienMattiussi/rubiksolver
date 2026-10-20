@@ -1,5 +1,5 @@
 import type { Hold, HoldFrame } from '../core/hold'
-import type { Color, Cube, Cubie, Turn, Vec3 } from '../core/types'
+import type { Color, Cube, Cubie, Sticker, Turn, Vec3 } from '../core/types'
 import type { CubeVariant } from '../core/shapes'
 
 /**
@@ -140,6 +140,9 @@ export interface Tutorial {
   /** What kind of piece a piece is, its name's key (a cube's by its
    *  stickers: center, edge, corner; a Pyraminx's tips told apart). */
   readonly pieceKind: (cubie: Cubie) => string
+  /** The stickers naming a piece, when not all of them (a super cube's
+   *  centers' borders aside). */
+  readonly outside?: (cubie: Cubie) => readonly Sticker[]
   /** Its own way to say how to hold the puzzle (a text's key: the
    *  Pyraminx laid flat); none: by the center in front, or the side. */
   readonly holding?: string

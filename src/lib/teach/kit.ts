@@ -1,6 +1,6 @@
 import { CUBE_HOLDS, type Hold, type HoldFrame } from '../core/hold'
-import type { Color, Cube, Cubie, Vec3 } from '../core/types'
-import { liftStep, type Projection } from './project'
+import type { Color, Cube, Cubie, Sticker, Vec3 } from '../core/types'
+import { liftStep, thenProject, type Projection } from './project'
 import {
   keptBy,
   stageStep,
@@ -39,8 +39,10 @@ export interface TutorialPlan {
   readonly faceColor?: (cube: Cube, normal: Vec3) => Color | null
   /** The words its steps use, shown first (see `Tutorial.glossary`). */
   readonly glossary?: readonly Term[]
-  /** See `Tutorial.pieceKind` (by default, a cube's) and `holding`. */
+  /** See `Tutorial.pieceKind` (by default, a cube's), `outside` and
+   *  `holding`. */
   readonly pieceKind?: (cubie: Cubie) => string
+  readonly outside?: (cubie: Cubie) => readonly Sticker[]
   readonly holding?: string
   /** The stage still to come, shown not taught yet; none once the plan
    *  solves the puzzle (the tutorial then over). */
@@ -56,7 +58,7 @@ interface ProjectedStage {
   readonly via: Projection
 }
 
-type Stage = PieceStage | FormulaStage | FigureStage | ProjectedStage
+export type Stage = PieceStage | FormulaStage | FigureStage | ProjectedStage
 
 /** A stage as a plan lists it: its own, or a small puzzle's projected. */
 export const projected = (
@@ -64,6 +66,23 @@ export const projected = (
   via: Projection,
   stage: number,
 ): ProjectedStage => ({ kind: 'projected', stage, inner, via })
+
+/** A plan's stages played on a bigger puzzle through a projection (a
+ *  4x4's on a Super Revenge): its own projected, its projected ones through
+ *  both projections, its formula ones read on the projection (their turns
+ *  the same on both). */
+export const projectedStages = (stages: readonly Stage[], via: Projection): Stage[] =>
+  stages.map((s): Stage =>
+    s.kind === 'projected'
+      ? projected(s.inner, thenProject(via, s.via), s.stage)
+      : s.kind === 'formula'
+        ? {
+            ...s,
+            done: (cube: Cube) => s.done(via.project(cube)),
+            formula: (cube: Cube) => s.formula(via.project(cube)),
+          }
+        : projected(s, via, s.stage),
+  )
 
 const isDone = (stage: Stage, cube: Cube): boolean =>
   stage.kind === 'projected'
@@ -103,15 +122,18 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
   const stageKeys = Array.from({ length: stages }, (_, i) =>
     keyOf(numbered.find((s) => s.stage === i + 1)),
   )
-  /** The sticker of the middle center facing that way (a 5x5's fixed one),
-   *  if the puzzle has one. */
+  /** The sticker facing that way of the middle center there (a 5x5's
+   *  fixed one, a super cube's with its borders), if the puzzle has one (a
+   *  cube's face, along an axis). */
   const centerColor = (cube: Cube, normal: Vec3) =>
-    cube.find(
-      (c) =>
-        c.stickers.length === 1 &&
-        c.stickers[0]!.normal.join() === normal.join() &&
-        c.position.every((v, a) => normal[a] !== 0 || v === 0),
-    )?.stickers[0]!.color ?? null
+    cube
+      .filter(
+        (c) =>
+          normal.filter((n) => n !== 0).length === 1 &&
+          c.position.every((v, a) => normal[a] !== 0 || v === 0),
+      )
+      .flatMap((c) => c.stickers)
+      .find((s) => s.normal.join() === normal.join())?.color ?? null
   return {
     frame,
     stages,
@@ -120,6 +142,7 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
     openings: plan.stages.flatMap((s) => (s.kind === 'formula' ? [s.key] : [])),
     glossary: plan.glossary ?? [],
     pieceKind: plan.pieceKind ?? cubeKind,
+    ...(plan.outside && { outside: plan.outside }),
     ...(plan.holding && { holding: plan.holding }),
     // The plan's own colors first (a 4x4's, its centers not yet one face
     // each), else the center there.
@@ -130,20 +153,20 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
       return center ? { color: center, center: true } : null
     },
     stepOf: (cube, begun = cube) => {
-      // The pieces kept, the big puzzle's and its projection's.
+      // The pieces kept, on the big puzzle (a projected stage reads them
+      // through its own projection: stages may each have theirs).
       let kept: number[] = []
-      let keptSmall: number[] = []
       for (const stage of plan.stages) {
         if (!isDone(stage, begun)) {
           if (stage.kind !== 'projected') return stageStep(stage, frame, cube, begun, kept)
           const { inner, via } = stage
-          const step = stageStep(inner, frame, via.project(cube), via.project(begun), keptSmall)
+          const small = [...new Set(kept.map((p) => via.down(cube, p)))]
+          const step = stageStep(inner, frame, via.project(cube), via.project(begun), small)
           return liftStep(step, via, cube, stage.stage)
         }
         if (stage.kind === 'pieces') kept = [...kept, ...keptBy(stage, begun, cube)]
         if (stage.kind === 'projected' && stage.inner.kind === 'pieces') {
           const small = keptBy(stage.inner, stage.via.project(begun), stage.via.project(cube))
-          keptSmall = [...keptSmall, ...small]
           kept = [...kept, ...small.flatMap((p) => stage.via.up(cube, p))]
         }
       }

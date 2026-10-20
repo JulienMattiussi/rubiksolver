@@ -24,7 +24,7 @@ import {
   PLL_PARITY,
 } from '../../methods/standard/solver4/parity'
 import { search } from '../../solve/solverKit'
-import { projected, tutorialOf, type Kept, type Target } from '../../teach/kit'
+import { projected, tutorialOf, type Kept, type Target, type TutorialPlan } from '../../teach/kit'
 import type { TutorialPick } from '../../teach/tutorial'
 import { FIRST_LAYERS } from './cube3'
 import { LAST_LAYER } from './cube3LastLayer'
@@ -198,7 +198,8 @@ const wingsAt = (cube: Cube, places: readonly string[]) =>
 const FRONT_TOP = ['-1,3,3', '1,3,3']
 const BACK_TOP = ['-1,3,-3', '1,3,-3']
 
-export const CUBE4_TUTORIAL = tutorialOf({
+/** The plan, also the super cube's on its colors (superCubes.ts). */
+export const CUBE4_PLAN: TutorialPlan = {
   glossary: [CENTER4, WING, EDGE4, CORNER, INNER, CLOCKWISE, COUNTERCLOCKWISE, ...THICKNESSES],
   // The usual colors' faces: the centers say nothing until built.
   faceColor: (_, normal) => FACE_COLOR[faceOfNormal(normal)],
@@ -262,4 +263,6 @@ export const CUBE4_TUTORIAL = tutorialOf({
     },
     ...LAST_LAYER.slice(1).map((stage, i) => projected(stage, PROJECT_4, 9 + i)),
   ],
-})
+}
+
+export const CUBE4_TUTORIAL = tutorialOf(CUBE4_PLAN)

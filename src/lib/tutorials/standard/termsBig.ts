@@ -12,12 +12,19 @@ import type { Term } from '../../teach/tutorial'
  * The words the big cubes' tutorials add to the cubes': the 4x4's four
  * centers a face, its wings (half an edge), an edge (two wings paired), an
  * inner slice; the 5x5's fixed center and the eight around it, its middle
- * edge and the two wings beside it, an edge (the three of them).
+ * edge and the two wings beside it, an edge (the three of them); a super
+ * cube's centers' borders. Pieces are told by where they stand, not by
+ * their stickers (a super cube's centers have more than one).
  */
 
 const piecesWhere = (is: (c: Cubie) => boolean) => (cube: Cube) =>
   cube.flatMap((c, i) => (is(c) ? [i] : []))
-const withStickers = (count: number) => piecesWhere((c) => c.stickers.length === count)
+/** The pieces on `faces` faces of the cube (a center on one, an edge on
+ *  two), the outer layer read on the cube. */
+const onFaces = (faces: number) => (cube: Cube) => {
+  const reach = Math.max(...cube.map((c) => Math.max(...c.position.map(Math.abs))))
+  return piecesWhere((c) => c.position.filter((v) => Math.abs(v) === reach).length === faces)(cube)
+}
 
 const FRONT: Vec3 = [0, 0, 1]
 const FRONT_RIGHT: Vec3 = [1, 0, 1]
@@ -32,12 +39,12 @@ const inner = (key: string): Term => ({
   demo: SLICE,
 })
 
-export const CENTER4: Term = { key: 'termCenter4', pieces: withStickers(1), from: () => FRONT }
-export const WING: Term = { key: 'termWing', pieces: withStickers(2), from: () => FRONT_RIGHT }
-export const EDGE4: Term = { key: 'termEdge4', pieces: withStickers(2), from: () => FRONT_RIGHT }
+export const CENTER4: Term = { key: 'termCenter4', pieces: onFaces(1), from: () => FRONT }
+export const WING: Term = { key: 'termWing', pieces: onFaces(2), from: () => FRONT_RIGHT }
+export const EDGE4: Term = { key: 'termEdge4', pieces: onFaces(2), from: () => FRONT_RIGHT }
 export const INNER = inner('termInner')
 
-// The 5x5's pieces are told by where they stand (solver5/kinds.ts).
+// The 5x5's pieces (solver5/kinds.ts).
 export const FIXED_CENTER: Term = {
   key: 'termFixedCenter',
   pieces: piecesWhere(isFixedCenter),
@@ -58,5 +65,8 @@ export const WING5: Term = {
   pieces: piecesWhere(isWing),
   from: () => FRONT_RIGHT,
 }
-export const EDGE5: Term = { key: 'termEdge5', pieces: withStickers(2), from: () => FRONT_RIGHT }
+export const EDGE5: Term = { key: 'termEdge5', pieces: onFaces(2), from: () => FRONT_RIGHT }
 export const INNER5 = inner('termInner5')
+
+/** A super cube's centers, each bordered. */
+export const BORDER: Term = { key: 'termBorder', pieces: onFaces(1), from: () => FRONT }

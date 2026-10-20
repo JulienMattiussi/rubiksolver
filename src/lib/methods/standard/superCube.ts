@@ -7,7 +7,7 @@ import { projectPlan, type MethodPlan } from '../../solve/solverKit'
 import { centerKey, isOuter, withoutBorders } from '../../puzzles/standard/superCube'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
-import { cycleTable, placeByCycles } from '../../solve/cycleTable'
+import { cycleTable, nextCycle, placeByCycles } from '../../solve/cycleTable'
 import { once } from '../../solve/once'
 
 /**
@@ -47,7 +47,7 @@ interface Super {
 const SUPERS = {
   super4: { solved: solvedCube('super4'), reach: 3 },
   super5: { solved: solvedCube('super5'), reach: 2 },
-} satisfies Record<string, Super>
+} as const satisfies Record<string, Super>
 
 const isCenterAt = (reach: number) => (c: Cubie) =>
   c.position.filter((v) => Math.abs(v) === reach).length === 1
@@ -82,15 +82,83 @@ function cyclesFor(name: string, sup: Super, kind: (c: Cubie) => boolean, formul
 export const O_CORNER = "2L' U 2R U' 2L U 2R' U'"
 export const O_EDGE = "3R' U 2L U' 3R U 2L' U'"
 
-/** The centers of a kind, each to its own place. */
-const placeCenters = (name: 'super4' | 'super5', off: number, formula: string) => {
-  const sup = SUPERS[name]
-  const kind = (c: Cubie) => isCenterAt(sup.reach)(c) && offMiddle(sup.reach)(c) === off
-  return (cube: Cube) =>
-    placeByCycles(cube, cyclesFor(`${name}${off}`, sup, kind, formula), homesFor(sup, kind))
+type SuperShape = keyof typeof SUPERS
+
+/** The centers placed by cycles, kind after kind: how far off the middle
+ *  (a Revenge's all 2, a Professor's corner ones, then its edge ones), and
+ *  the formula cycling them. */
+const PLACED: Record<SuperShape, readonly (readonly [number, string])[]> = {
+  super4: [[2, O_CORNER]],
+  super5: [
+    [2, O_CORNER],
+    [1, O_EDGE],
+  ],
 }
 
-const centersHome = (name: 'super4' | 'super5') => (cube: Cube) => {
+/** A kind of center's cycles and homes. */
+function centerKind(name: SuperShape, off: number, formula: string) {
+  const sup = SUPERS[name]
+  const kind = (c: Cubie) => isCenterAt(sup.reach)(c) && offMiddle(sup.reach)(c) === off
+  return { table: cyclesFor(`${name}${off}`, sup, kind, formula), homes: homesFor(sup, kind) }
+}
+
+/** The centers of a kind, each to its own place. */
+const placeCenters = (name: SuperShape, off: number, formula: string) => (cube: Cube) => {
+  const { table, homes } = centerKind(name, off, formula)
+  return placeByCycles(cube, table, homes)
+}
+
+/** The face a slot (`x,y,z`) is on, by its outer coordinate. */
+const faceOfSlot = (slot: string, reach: number) =>
+  slot
+    .split(',')
+    .map((v, axis) => (Math.abs(Number(v)) === reach ? `${axis}${Math.sign(Number(v))}` : ''))
+    .join('')
+
+/** Whether every sticker but the borders is home (the colors done). */
+const colorsDone = (cube: Cube) => isSolved(withoutBorders(cube))
+
+/** The next 3-cycle bringing a center home (the tutorial's step), the
+ *  kinds in turn, a face at a time: its three slots on one face, so the
+ *  colors stay done between steps. When a face's centers stand an odd
+ *  permutation off (two swapped), no cycle on it does: the solver's own
+ *  cycles then, through another face, until the colors are done again (two
+ *  in one step). Null once all are home. */
+export function nextCenterCycle(name: SuperShape, cube: Cube): Move[] | null {
+  const { reach } = SUPERS[name]
+  for (const [off, formula] of PLACED[name]) {
+    const { table, homes } = centerKind(name, off, formula)
+    const wrong = [...homes(cube)].find(([at, to]) => at !== to)
+    if (!wrong) continue
+    const face = faceOfSlot(wrong[0], reach)
+    const onFace = (state: Cube) =>
+      new Map([...homes(state)].filter(([at]) => faceOfSlot(at, reach) === face))
+    try {
+      return nextCycle(cube, table, onFace)
+    } catch {
+      const moves: Move[] = []
+      let state = cube
+      do {
+        const cycle = nextCycle(state, table, homes)!
+        moves.push(...cycle)
+        state = applyMoves(state, cycle)
+      } while (!colorsDone(state))
+      return moves
+    }
+  }
+  return null
+}
+
+/** The centers home, of how many (the Professor's middle ones apart: they
+ *  never leave). */
+export function centersAtHome(name: SuperShape, cube: Cube): { done: number; total: number } {
+  const sup = SUPERS[name]
+  const moving = (c: Cubie) => isCenterAt(sup.reach)(c) && offMiddle(sup.reach)(c) > 0
+  const home = [...homesFor(sup, moving)(cube)]
+  return { done: home.filter(([at, to]) => at === to).length, total: home.length }
+}
+
+const centersHome = (name: SuperShape) => (cube: Cube) => {
   const sup = SUPERS[name]
   const home = homesFor(sup, isCenterAt(sup.reach))(cube)
   return [...home].every(([at, to]) => at === to)
@@ -144,7 +212,7 @@ export const TURN_PAIR: Move[] = [
   ...inner('U', 1),
   ...inner('R', 1),
 ]
-const TURN_HALF = parseMoves("U R L U2 R' L' U R L U2 R' L'")
+export const TURN_HALF = parseMoves("U R L U2 R' L' U R L U2 R' L'")
 
 /** Every way of holding both, and back: what each does to the turns. */
 const turners = once(() =>
@@ -154,8 +222,8 @@ const turners = once(() =>
 )
 
 /** The fewest of them turning the middle centers back (a search on their
- *  turns, 4^6 states). */
-function turnMiddles(cube: Cube): Move[] {
+ *  turns, 4^6 states), formula by formula. */
+export function middleTurns(cube: Cube): Move[][] {
   const start = turnsOf(cube)
   const id = (t: readonly number[]) => t.join()
   const back = new Map<string, { from: string; moves: Move[] } | null>([[id(start), null]])
@@ -166,7 +234,7 @@ function turnMiddles(cube: Cube): Move[] {
       if (t.every((v) => v === 0)) {
         const out: Move[][] = []
         for (let at = id(t); back.get(at); at = back.get(at)!.from) out.unshift(back.get(at)!.moves)
-        return out.flat()
+        return out
       }
       for (const { moves, effect } of turners()) {
         const u = t.map((v, i) => (v + effect[i]!) % 4)
@@ -180,7 +248,11 @@ function turnMiddles(cube: Cube): Move[] {
   throw new Error('superCube: the middle centers cannot turn back')
 }
 
-const middlesDone = (cube: Cube) => turnsOf(cube).every((v) => v === 0)
+const turnMiddles = (cube: Cube): Move[] => middleTurns(cube).flat()
+
+/** The Professor's middle centers turned right. */
+export const middlesStraight = (cube: Cube) => turnsOf(cube).filter((v) => v === 0).length
+const middlesDone = (cube: Cube) => middlesStraight(cube) === FACES.length
 
 // ---------------------------------------------------------------------------
 

@@ -160,6 +160,8 @@ export const STEPS_FR = {
   stepTutorialCenters5: 'Placer un centre',
   stepTutorialPair5: 'Joindre une aile à son arête',
   stepTutorialParity5: 'Corriger la parité des arêtes',
+  stepTutorialSuperMiddles: 'Redresser les centres du milieu',
+  stepTutorialSuperCenters: 'Remettre trois centres à leur place',
   stepInnerIsolate: 'Étoile interne : sommets isolés',
   stepInnerBottom: 'Étoile interne : bas fini',
   stepInnerTop: 'Étoile interne : haut fini',

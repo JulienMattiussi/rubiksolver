@@ -150,7 +150,8 @@ src/
 │   │                    #   ofapelEnd (le 3x3 par Ofapel) ;
 │   │                    #   cube4 (réduction, puis les étapes du 3x3 projetées), cube5 et pair5 (le 5x5,
 │   │                    #   ses arêtes une aile à la fois), reduced (un grand cube réduit lu comme un 3x3),
-│   │                    #   termsBig (vocabulaire des grands cubes) ;
+│   │                    #   termsBig (vocabulaire des grands cubes) ; superCubes (les super cubes : le tutoriel
+│   │                    #   du 4x4 ou du 5x5 sur leurs couleurs, puis leurs centres) ;
 │   │                    #   pyramid/pyraminx (Centres d'abord), pyraHolds (ses tenues), pyraTerms ;
 │   │                    #   pyramid/morph (le Pyramorphinx, Comme un Pocket), morphTerms
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
@@ -488,6 +489,9 @@ liste d'étapes, et `tutorialOf` en fait le pas où en est un état (sa sorte,
   (une arête pour ses deux ailes, un centre pour ses quatre), ses coups
   restent les mêmes ; une cible `interchangeable` (un des quatre centres
   d'une couleur) est gardée par ce que montre sa place, pas par sa pièce ;
+  tout un plan peut passer par une projection (`projectedStages`, celui du
+  4x4 sur les couleurs d'un super cube), ses étapes déjà projetées par les
+  deux (`thenProject`) ;
 - avant les étapes, le **vocabulaire** (`glossary`, l'étape 0) : chaque
   terme (`Term`) allume ses pièces et dit d'où les regarder, un pas par
   terme, « Passer » les saute ; un terme peut être réservé à un rendu

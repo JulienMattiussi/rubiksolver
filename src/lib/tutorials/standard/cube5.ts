@@ -12,7 +12,7 @@ import {
 } from '../../methods/standard/solver5/edges'
 import { isMovingCenter } from '../../methods/standard/solver5/kinds'
 import { middlesHome } from '../../methods/standard/solver5/steps'
-import { projected, tutorialOf, type Kept, type Target } from '../../teach/kit'
+import { projected, tutorialOf, type Kept, type Target, type TutorialPlan } from '../../teach/kit'
 import type { TutorialPick } from '../../teach/tutorial'
 import { FIRST_LAYERS, holdStage } from './cube3'
 import { LAST_LAYER } from './cube3LastLayer'
@@ -145,7 +145,8 @@ function joined(cube: Cube, moves: readonly Move[]) {
 /** The front top edge's two wings, where the parity formula swaps them. */
 const FRONT_TOP = ['-1,2,2', '1,2,2']
 
-export const CUBE5_TUTORIAL = tutorialOf({
+/** The plan, also the super cube's on its colors (superCubes.ts). */
+export const CUBE5_PLAN: TutorialPlan = {
   glossary: [
     FIXED_CENTER,
     CENTER5,
@@ -209,4 +210,6 @@ export const CUBE5_TUTORIAL = tutorialOf({
     ...FIRST_LAYERS.map((stage, i) => projected(stage, PROJECT_5, 4 + i)),
     ...LAST_LAYER.map((stage, i) => projected(stage, PROJECT_5, 7 + i)),
   ],
-})
+}
+
+export const CUBE5_TUTORIAL = tutorialOf(CUBE5_PLAN)

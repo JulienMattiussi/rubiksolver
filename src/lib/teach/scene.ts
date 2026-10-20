@@ -1,5 +1,13 @@
 import { applyMoves } from '../core/turn'
-import { isFaceMove, type Color, type Cube, type Turn, type Vec3 } from '../core/types'
+import {
+  isFaceMove,
+  type Color,
+  type Cube,
+  type Cubie,
+  type Sticker,
+  type Turn,
+  type Vec3,
+} from '../core/types'
 import type { TutorialPick, TutorialStep } from './tutorial'
 
 /**
@@ -128,8 +136,13 @@ export function markedOn(cube: Cube, moves: readonly Turn[], step: TutorialStep)
 }
 
 /** A piece's colors, the marker's first (the yellow edge's: yellow-green). */
-export function pieceColors(cube: Cube, index: number, marker?: Color): Color[] {
-  return [...cube[index]!.stickers]
+export function pieceColors(
+  cube: Cube,
+  index: number,
+  marker?: Color,
+  outside: (cubie: Cubie) => readonly Sticker[] = (c) => c.stickers,
+): Color[] {
+  return [...outside(cube[index]!)]
     .sort((a, b) => Number(b.color === marker) - Number(a.color === marker))
     .map((s) => s.color)
 }

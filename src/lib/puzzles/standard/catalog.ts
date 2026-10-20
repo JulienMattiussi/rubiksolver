@@ -49,6 +49,6 @@ export const STANDARD = {
     slug: 'super-professor',
     dims: [5, 5, 5],
     scramble: 60,
-    inner: ['slice', 'wide'],
+    inner: ['slice', 'slice3', 'wide'],
   },
 } satisfies Record<string, PuzzleEntry>
