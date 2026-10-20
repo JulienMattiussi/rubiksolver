@@ -1,7 +1,7 @@
 import { FACE_COLOR } from '../../core/cube'
 import { FACE_NORMAL, faceOfNormal } from '../../core/geometry'
 import { applyMoves } from '../../core/turn'
-import type { Cube, Face, Move, Turn, Vec3 } from '../../core/types'
+import type { Cube, Cubie, Face, Move, Turn, Vec3 } from '../../core/types'
 import {
   BELT_GENERATORS,
   centerIndices,
@@ -24,8 +24,8 @@ import {
   PLL_PARITY,
 } from '../../methods/standard/solver4/parity'
 import { search } from '../../solve/solverKit'
-import { projected, tutorialOf, type Kept, type Target, type TutorialPlan } from '../../teach/kit'
-import type { TutorialPick } from '../../teach/tutorial'
+import { projected, tutorialOf, type TutorialPlan } from '../../teach/kit'
+import { centerStage } from './bigCenters'
 import { FIRST_LAYERS } from './cube3'
 import { LAST_LAYER } from './cube3LastLayer'
 import { PROJECT_4 } from './reduced'
@@ -51,12 +51,13 @@ import { CENTER4, EDGE4, INNER, WING } from './termsBig'
 /** The faces in the order their centers are built. */
 const ORDER: readonly Face[] = ['D', 'U', 'F', 'R', 'B', 'L']
 
-const isCenter = (cube: Cube, i: number) => cube[i]!.stickers.length === 1
-const onItsFace = (cube: Cube, i: number) =>
-  FACE_COLOR[faceOfNormal(cube[i]!.stickers[0]!.normal)] === cube[i]!.stickers[0]!.color
+const isCenter = (c: Cubie) => c.stickers.length === 1
+/** A face's right centers. */
 const centersOn = (cube: Cube, face: Face) =>
   cube.flatMap((c, i) =>
-    isCenter(cube, i) && faceOfNormal(c.stickers[0]!.normal) === face && onItsFace(cube, i)
+    isCenter(c) &&
+    faceOfNormal(c.stickers[0]!.normal) === face &&
+    FACE_COLOR[face] === c.stickers[0]!.color
       ? [i]
       : [],
   )
@@ -71,17 +72,22 @@ const faceAt = (slot: Vec3): Face =>
   )!
 
 /** The searches see the centers only (one color's alike), up and down
- *  slices for the top and bottom, side ones for the belt. */
-const searchCenters = (cube: Cube, face: Face, goal: (c: Cube) => boolean, key = '') => {
+ *  slices for the top and bottom, side ones for the belt; null past their
+ *  depth. */
+function searchCenters(cube: Cube, face: Face, goal: (c: Cube) => boolean, key = '') {
   const centers = centersKeyFor(centerIndices(cube))
   const vertical = face === 'U' || face === 'D'
-  return search(
-    cube,
-    goal,
-    vertical ? VERTICAL_GENERATORS : BELT_GENERATORS,
-    vertical ? 5 : 6,
-    (c) => centers(c) + key,
-  )
+  try {
+    return search(
+      cube,
+      goal,
+      vertical ? VERTICAL_GENERATORS : BELT_GENERATORS,
+      vertical ? 5 : 6,
+      (c) => centers(c) + key,
+    )
+  } catch {
+    return null
+  }
 }
 
 /** Whether a state keeps the faces built so far, and has `face` one more
@@ -93,52 +99,23 @@ const oneMore = (face: Face, than: Cube) => {
     centersOn(c, face).length >= more && before.every((f) => centersOn(c, f).length === 4)
 }
 
-/** The next center to place, as the solver's search finds it (once per
- *  state): its moves, the center it brings, and where it lands. */
-const NEXT = new WeakMap<Cube, { moves: Move[]; piece: number; slot: Vec3 } | null>()
-function nextCenter(cube: Cube) {
-  if (NEXT.has(cube)) return NEXT.get(cube)!
-  const face = building(cube)
-  let found = null
-  if (face) {
-    const moves = searchCenters(cube, face, oneMore(face, cube))
-    const after = applyMoves(cube, moves)
-    const was = new Set(centersOn(cube, face))
-    const piece = centersOn(after, face).find((i) => !was.has(i))
-    if (piece !== undefined) found = { moves, piece, slot: after[piece]!.position }
-  }
-  NEXT.set(cube, found)
-  return found
-}
-
-/** The centers, read where the step began: per face, its first, second...
- *  center of its color (any of the four: they look the same), the next one
- *  the one the search brings, where it lands. */
-function centerTargets(begun: Cube): Target[] {
-  const next = nextCenter(begun)
-  return ORDER.flatMap((face) => {
-    const placed = centersOn(begun, face).length
-    return [1, 2, 3, 4].map((k): Target => ({
-      interchangeable: true,
-      piece: (cube) =>
-        k <= placed ? centersOn(cube, face)[k - 1]! : (next?.piece ?? centersOn(cube, face)[0]!),
-      slot: next && k === placed + 1 ? next.slot : FACE_NORMAL[face],
-      placed: (cube) => centersOn(cube, face).length >= k,
-    }))
-  })
-}
-
-/** The way to the pick's place, the centers placed kept: the search's own
- *  if it is its pick, else one for that center (any place of its face). */
-function centerFormula(cube: Cube, pick: TutorialPick, kept: Kept): Move[] {
-  const next = nextCenter(kept.begun)
-  if (cube === kept.begun && next && next.piece === pick.piece) return next.moves
-  const face = faceAt(pick.slot)
-  const more = oneMore(face, kept.begun)
-  const goal = (c: Cube) =>
-    faceOfNormal(c[pick.piece]!.stickers[0]!.normal) === face && more(c) && kept.targetsKept(c)
-  return searchCenters(cube, face, goal, `|${pick.piece}`)
-}
+/** One at a time (bigCenters.ts), each the shortest way that adds one to
+ *  the face being built; a pick, anywhere on its face. */
+const CENTERS = centerStage('stepTutorialCenters4', {
+  full: 4,
+  isCenter,
+  next: (cube) => {
+    const face = building(cube)
+    return face && searchCenters(cube, face, oneMore(face, cube))
+  },
+  pick: (cube, piece, slot, keep) => {
+    const face = faceAt(slot)
+    const more = oneMore(face, cube)
+    const goal = (c: Cube) =>
+      faceOfNormal(c[piece]!.stickers[0]!.normal) === face && more(c) && keep(c)
+    return searchCenters(cube, face, goal, `|${piece}`)
+  },
+})
 
 // ---------------------------------------------------------------------------
 // 2. The edges paired
@@ -204,15 +181,7 @@ export const CUBE4_PLAN: TutorialPlan = {
   // The usual colors' faces: the centers say nothing until built.
   faceColor: (_, normal) => FACE_COLOR[faceOfNormal(normal)],
   stages: [
-    {
-      kind: 'pieces',
-      key: 'stepTutorialCenters4',
-      stage: 1,
-      targets: centerTargets,
-      words: true,
-      hold: () => 'F',
-      formula: centerFormula,
-    },
+    CENTERS,
     {
       kind: 'figures',
       key: 'stepTutorialPair4',

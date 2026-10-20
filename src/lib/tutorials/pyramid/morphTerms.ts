@@ -1,6 +1,6 @@
 import { mapVec } from '../../core/geometry'
-import { turnedBy } from '../../core/turn'
-import type { Cube, Move, Vec3 } from '../../core/types'
+import type { Move, Vec3 } from '../../core/types'
+import { piecesTurnedBy, piecesWhere } from '../../teach/pieces'
 import type { Term } from '../../teach/tutorial'
 import { PYRA_CORNERS } from '../../puzzles/pyramid/pyraminx'
 
@@ -10,15 +10,14 @@ import { PYRA_CORNERS } from '../../puzzles/pyramid/pyraminx'
  * ways of turning.
  */
 
-const withStickers = (count: number) => (cube: Cube) =>
-  cube.flatMap((c, i) => (c.stickers.length === count ? [i] : []))
+const withStickers = (count: number) => piecesWhere((c) => c.stickers.length === count)
 
 /** The front face (across from the back corner), and the top half's side. */
 const FRONT: Vec3 = mapVec(PYRA_CORNERS.B, (v) => -v)
 const TOP: Vec3 = [0, 1, 0]
 
 const HALF: Move = { face: 'U', amount: 1 }
-const halfPieces = (cube: Cube) => cube.flatMap((_, i) => (turnedBy(cube, HALF)(i) ? [i] : []))
+const halfPieces = piecesTurnedBy(HALF)
 
 export const MORPH_GLOSSARY: readonly Term[] = [
   { key: 'termMorphTip', pieces: withStickers(3), from: () => FRONT },

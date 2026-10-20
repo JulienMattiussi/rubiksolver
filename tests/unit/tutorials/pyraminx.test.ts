@@ -2,28 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { scrambleTurns } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
-import type { Cube, PyraMove, PyraVertex } from '@/lib/core/types'
+import type { PyraMove, PyraVertex } from '@/lib/core/types'
 import { PYRA_HOLDS } from '@/lib/tutorials/pyramid/pyraHolds'
 import { tutorialFor } from '@/lib/tutorials/registry'
 import { TUTORIAL_EN } from '@/i18n/en/tutorial'
 import { TUTORIAL_FR } from '@/i18n/fr/tutorial'
 import { seededRng } from '../../helpers'
+import { walk } from './walk'
 
 const tutorial = tutorialFor('pyra', 'centersFirst')!
-
-/** The steps from a state to the solve, each suggestion's formula played. */
-function walk(start: Cube) {
-  let cube = start
-  const steps = []
-  for (let n = 0; n < 40 && !isSolved(cube); n++) {
-    const step = tutorial.stepOf(cube)!
-    const moves = step.formula(step.suggestion)
-    expect(moves, step.key).not.toBeNull()
-    steps.push(step)
-    cube = applyMoves(cube, moves!)
-  }
-  return { steps, cube }
-}
 
 describe('Pyraminx tutorial', () => {
   it('has five stages, for its centers-first method only', () => {
@@ -45,7 +32,7 @@ describe('Pyraminx tutorial', () => {
         solvedCube('pyra'),
         scrambleTurns('pyra', 11, rng, solvedCube('pyra')),
       )
-      const { steps, cube } = walk(scrambled)
+      const { steps, cube } = walk(tutorial, scrambled, 40)
       expect(isSolved(cube)).toBe(true)
       const stages = steps.map((s) => s.stage!)
       expect(stages).toEqual([...stages].sort())

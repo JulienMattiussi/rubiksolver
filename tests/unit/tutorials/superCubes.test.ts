@@ -1,29 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
-import type { CubeShape } from '@/lib/core/shapes'
 import { scramble } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
-import type { Cube } from '@/lib/core/types'
 import { TURN_HALF } from '@/lib/methods/standard/superCube'
 import { tutorialFor } from '@/lib/tutorials/registry'
-import { TUTORIAL_EN } from '@/i18n/en/tutorial'
-import { TUTORIAL_FR } from '@/i18n/fr/tutorial'
-import { seededRng } from '../../helpers'
 
-/** The steps from a state to the solve, each suggestion's formula played. */
-function walk(shape: CubeShape, start: Cube) {
-  const tutorial = tutorialFor(shape, 'reduction')!
-  let cube = start
-  const steps = []
-  for (let n = 0; n < 250 && !isSolved(cube); n++) {
-    const step = tutorial.stepOf(cube)!
-    const moves = step.formula(step.suggestion)
-    expect(moves, step.key).not.toBeNull()
-    steps.push(step)
-    cube = applyMoves(cube, moves!)
-  }
-  return { steps, cube }
-}
+import { seededRng } from '../../helpers'
+import { expectTexts, walk } from './walk'
 
 describe.each(['super4', 'super5'] as const)('%s tutorial', (shape) => {
   const tutorial = tutorialFor(shape, 'reduction')!
@@ -40,7 +23,7 @@ describe.each(['super4', 'super5'] as const)('%s tutorial', (shape) => {
 
   it('walks a scramble to the solve, stage after stage, the centers cycled home last', () => {
     const start = applyMoves(solvedCube(shape), scramble(shape, 40, seededRng(9)))
-    const { steps, cube } = walk(shape, start)
+    const { steps, cube } = walk(tutorial, start, 250)
     expect(isSolved(cube)).toBe(true)
     const stages = steps.flatMap((s) => (s.stage ? [s.stage] : []))
     expect(stages).toEqual([...stages].sort((a, b) => a - b))
@@ -61,15 +44,7 @@ describe.each(['super4', 'super5'] as const)('%s tutorial', (shape) => {
   })
 
   it('says its own stages and words in both languages', () => {
-    for (const texts of [TUTORIAL_FR, TUTORIAL_EN]) {
-      for (const key of tutorial.stageKeys) {
-        expect(texts.titles[key], key).toBeTruthy()
-        expect(texts.hints[key], key).toBeTruthy()
-      }
-      for (const term of tutorial.glossary.filter((t) => !t.only)) {
-        expect(texts.terms[term.key], term.key).toBeTruthy()
-      }
-    }
+    expectTexts(tutorial)
   })
 })
 

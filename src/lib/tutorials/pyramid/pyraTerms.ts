@@ -1,5 +1,5 @@
-import { turnedBy } from '../../core/turn'
-import type { Cube, Cubie, PyraMove, Vec3 } from '../../core/types'
+import type { Cubie, PyraMove, Vec3 } from '../../core/types'
+import { piecesTurnedBy, piecesWhere } from '../../teach/pieces'
 import type { Term } from '../../teach/tutorial'
 
 /**
@@ -10,8 +10,7 @@ import type { Term } from '../../teach/tutorial'
 
 /** A tip, a center piece (by how far out it stands) or an edge. */
 const reach = (c: Cubie) => c.position.reduce((sum, x) => sum + Math.abs(x), 0)
-const kind = (keep: (c: Cubie) => boolean) => (cube: Cube) =>
-  cube.flatMap((c, i) => (keep(c) ? [i] : []))
+const kind = piecesWhere
 
 /** The front side (across from the back corner), and the top corner. */
 const FRONT: Vec3 = [1, -1, 1]
@@ -19,7 +18,7 @@ const TOP: Vec3 = [1, 1, 1]
 
 const LAYER: PyraMove = { vertex: 'U', amount: 1 }
 const TIP: PyraMove = { vertex: 'U', amount: 1, tip: true }
-const layerPieces = (cube: Cube) => cube.flatMap((_, i) => (turnedBy(cube, LAYER)(i) ? [i] : []))
+const layerPieces = piecesTurnedBy(LAYER)
 
 export const PYRA_GLOSSARY: readonly Term[] = [
   {

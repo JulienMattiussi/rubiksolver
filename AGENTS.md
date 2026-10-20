@@ -140,6 +140,7 @@ src/
 │   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), stages (sortes d'étapes et leurs
 │   │                    #   pas), project (étape d'un petit puzzle relevée sur un grand), scene (tons, flèches),
 │   │                    #   segments (formule lue en gestes), keep (pièces gardées, formule en cours de pas),
+│   │                    #   pieces (les pièces d'un terme : d'une sorte, ou que tourne un coup),
 │   │                    #   macros (la plus courte chaîne de gestes appris vers un but, jouée par une étape :
 │   │                    #   gestureChain, chainFigure, chainedPieces), method (la méthode
 │   │                    #   qu'un tutoriel enseigne, en MethodPlan)
@@ -148,7 +149,8 @@ src/
 │   │                    #   partagent les cubes : coins jaunes, tour du haut, formule lue dans une tenue),
 │   │                    #   terms (vocabulaire des cubes), en méthode débutant ; ofapel, ofapelKit et
 │   │                    #   ofapelEnd (le 3x3 par Ofapel) ;
-│   │                    #   cube4 (réduction, puis les étapes du 3x3 projetées), cube5 et pair5 (le 5x5,
+│   │                    #   cube4 (réduction, puis les étapes du 3x3 projetées), bigCenters (leur étape des
+│   │                    #   centres, partagée avec le 5x5), cube5 et pair5 (le 5x5,
 │   │                    #   ses arêtes une aile à la fois), reduced (un grand cube réduit lu comme un 3x3),
 │   │                    #   termsBig (vocabulaire des grands cubes) ; superCubes (les super cubes : le tutoriel
 │   │                    #   du 4x4 ou du 5x5 sur leurs couleurs, puis leurs centres) ;

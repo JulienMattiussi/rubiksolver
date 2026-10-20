@@ -4,12 +4,12 @@ import type { HoldFrame } from '../../core/hold'
 import { allTurnsOf } from '../../core/moveSet'
 import { simplifyMoves } from '../../core/moves'
 import { atHome, sameAt } from '../../core/pieces'
-import { turnedBy } from '../../core/turn'
 import type { Cube, Cubie, GhostMove, Vec3 } from '../../core/types'
 import { aroundGhost, CYCLE_CORNERS, FLIP_EDGES, TURN_CORNERS } from '../../methods/flat/ghost'
 import { GHOST_SLOTS, ghostSlot, isCornerSlot } from '../../puzzles/flat/ghost'
 import { searchFormulas } from '../../solve/formulaSearch'
 import { tutorialOf, type Kept, type Target } from '../../teach/kit'
+import { piecesTurnedBy, piecesWhere } from '../../teach/pieces'
 import type { PieceStage } from '../../teach/stages'
 import type { Term, TutorialPick } from '../../teach/tutorial'
 
@@ -120,15 +120,14 @@ const at = (cube: Cube, piece: number, slot: Vec3) => sameAt(cube[piece]!.positi
 const home = (cube: Cube, piece: number, slot: Vec3) =>
   at(cube, piece, slot) && atHome(cube[piece]!, 'ghost')
 
-const withKind = (kind: string) => (cube: Cube) =>
-  cube.flatMap((c, i) => (pieceKind(c) === kind ? [i] : []))
+const withKind = (kind: string) => piecesWhere((c) => pieceKind(c) === kind)
 const GHOST_CORNER: Term = { key: 'termGhostCorner', pieces: withKind('corner') }
 const GHOST_EDGE: Term = { key: 'termGhostEdge', pieces: withKind('edge') }
 /** A turn: the right side flipped over, its edge and corners. */
 const FLIP_RIGHT: GhostMove = { side: 'R' }
 const GHOST_TURN: Term = {
   key: 'termGhostTurn',
-  pieces: (cube) => cube.flatMap((_, i) => (turnedBy(cube, FLIP_RIGHT)(i) ? [i] : [])),
+  pieces: piecesTurnedBy(FLIP_RIGHT),
   demo: FLIP_RIGHT,
 }
 

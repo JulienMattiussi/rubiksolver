@@ -3,27 +3,13 @@ import { isSolved, solvedCube } from '@/lib/core/cube'
 import { scramble } from '@/lib/core/moves'
 import { parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
-import type { Cube } from '@/lib/core/types'
 import { tutorialFor } from '@/lib/tutorials/registry'
 import { TUTORIAL_EN } from '@/i18n/en/tutorial'
 import { TUTORIAL_FR } from '@/i18n/fr/tutorial'
 import { seededRng } from '../../helpers'
+import { walk } from './walk'
 
 const tutorial = tutorialFor('morph', 'asPocket')!
-
-/** The steps from a state to the solve, each suggestion's formula played. */
-function walk(start: Cube) {
-  let cube = start
-  const steps = []
-  for (let n = 0; n < 30 && !isSolved(cube); n++) {
-    const step = tutorial.stepOf(cube)!
-    const moves = step.formula(step.suggestion)
-    expect(moves, step.key).not.toBeNull()
-    steps.push(step)
-    cube = applyMoves(cube, moves!)
-  }
-  return { steps, cube }
-}
 
 describe('Pyramorphinx tutorial', () => {
   it('has three stages, for its as-a-Pocket method', () => {
@@ -40,7 +26,11 @@ describe('Pyramorphinx tutorial', () => {
     const rng = seededRng(3)
     const figures = new Set<string>()
     for (let k = 0; k < 8; k++) {
-      const { steps, cube } = walk(applyMoves(solvedCube('morph'), scramble('morph', 12, rng)))
+      const { steps, cube } = walk(
+        tutorial,
+        applyMoves(solvedCube('morph'), scramble('morph', 12, rng)),
+        30,
+      )
       expect(isSolved(cube)).toBe(true)
       const stages = steps.map((s) => s.stage ?? 0)
       expect(stages).toEqual([...stages].sort())

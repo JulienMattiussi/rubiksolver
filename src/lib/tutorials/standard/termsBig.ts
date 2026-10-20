@@ -1,11 +1,11 @@
-import { turnedBy } from '../../core/turn'
-import type { Cube, Cubie, Move, Vec3 } from '../../core/types'
+import type { Cube, Move, Vec3 } from '../../core/types'
 import {
   isFixedCenter,
   isMidge,
   isMovingCenter,
   isWing,
 } from '../../methods/standard/solver5/kinds'
+import { piecesTurnedBy, piecesWhere } from '../../teach/pieces'
 import type { Term } from '../../teach/tutorial'
 
 /**
@@ -17,8 +17,6 @@ import type { Term } from '../../teach/tutorial'
  * their stickers (a super cube's centers have more than one).
  */
 
-const piecesWhere = (is: (c: Cubie) => boolean) => (cube: Cube) =>
-  cube.flatMap((c, i) => (is(c) ? [i] : []))
 /** The pieces on `faces` faces of the cube (a center on one, an edge on
  *  two), the outer layer read on the cube. */
 const onFaces = (faces: number) => (cube: Cube) => {
@@ -31,7 +29,7 @@ const FRONT_RIGHT: Vec3 = [1, 0, 1]
 
 /** An inner slice: the one beside the right face. */
 const SLICE: Move = { face: 'R', amount: 1, depth: 2 }
-const slicePieces = (cube: Cube) => cube.flatMap((_, i) => (turnedBy(cube, SLICE)(i) ? [i] : []))
+const slicePieces = piecesTurnedBy(SLICE)
 const inner = (key: string): Term => ({
   key,
   pieces: slicePieces,

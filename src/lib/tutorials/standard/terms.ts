@@ -1,7 +1,7 @@
 import { byThickness, LAYER_THICKNESS } from '../../core/shape'
 import { invertMove } from '../../core/moves'
-import { turnedBy } from '../../core/turn'
 import type { Cube, CubeColor, Move, Vec3 } from '../../core/types'
+import { piecesTurnedBy, piecesWhere } from '../../teach/pieces'
 import type { Term } from '../../teach/tutorial'
 
 /**
@@ -11,8 +11,7 @@ import type { Term } from '../../teach/tutorial'
  */
 
 /** The pieces showing this many stickers. */
-const withStickers = (count: number) => (cube: Cube) =>
-  cube.flatMap((c, i) => (c.stickers.length === count ? [i] : []))
+const withStickers = (count: number) => piecesWhere((c) => c.stickers.length === count)
 
 /** A center, seen from the front; an edge, from the front a little to the
  *  right; a corner, from a corner. */
@@ -30,8 +29,7 @@ export const CORNER: Term = {
 /** The ways of turning, shown on the front side (F, then F'): its pieces
  *  lit, seen from the front. */
 const FRONT_TURN: Move = { face: 'F', amount: 1 }
-const frontPieces = (cube: Cube) =>
-  cube.flatMap((_, i) => (turnedBy(cube, FRONT_TURN)(i) ? [i] : []))
+const frontPieces = piecesTurnedBy(FRONT_TURN)
 export const CLOCKWISE: Term = {
   key: 'termClockwise',
   pieces: frontPieces,
@@ -67,7 +65,7 @@ export const thicknessKey = (color: CubeColor) => `termThickness${color}`
 export const THICKNESSES: readonly Term[] = byThickness(LAYER_THICKNESS.mirror).map((color) => ({
   key: thicknessKey(color),
   only: 'mirror',
-  pieces: (cube) => cube.flatMap((c, i) => (c.stickers.some((s) => s.color === color) ? [i] : [])),
+  pieces: piecesWhere((c) => c.stickers.some((s) => s.color === color)),
   from: (cube) => sideOf(cube, color),
 }))
 
@@ -76,7 +74,7 @@ export const THICKNESSES: readonly Term[] = byThickness(LAYER_THICKNESS.mirror).
  *  together (Uw, written u), their pieces lit, shown turning. */
 const sliceTerm = (key: string, turn: Move, from: Vec3): Term => ({
   key,
-  pieces: (cube) => cube.flatMap((_, i) => (turnedBy(cube, turn)(i) ? [i] : [])),
+  pieces: piecesTurnedBy(turn),
   from: () => from,
   demo: turn,
 })

@@ -10,22 +10,10 @@ import { tutorialFor } from '@/lib/tutorials/registry'
 import { TUTORIAL_EN } from '@/i18n/en/tutorial'
 import { TUTORIAL_FR } from '@/i18n/fr/tutorial'
 import { seededRng } from '../../helpers'
+import { walk } from './walk'
 
 const tutorial = tutorialFor('2', 'beginner')!
 const stepOf = (cube: Cube) => tutorial.stepOf(cube)!
-
-/** The steps from a state to the solve, each suggestion's formula played. */
-function walk(cube: Cube) {
-  const steps = []
-  for (let n = 0; n < 30 && !isSolved(cube); n++) {
-    const step = stepOf(cube)
-    const moves = step.formula(step.suggestion)
-    expect(moves, step.key).not.toBeNull()
-    steps.push(step)
-    cube = applyMoves(cube, moves!)
-  }
-  return { steps, cube }
-}
 
 describe('2x2 tutorial', () => {
   it('has four stages, as its manual (four steps, three formulas)', () => {
@@ -43,7 +31,11 @@ describe('2x2 tutorial', () => {
     const rng = seededRng(7)
     const figures = new Set<string>()
     for (let k = 0; k < 8; k++) {
-      const { steps, cube } = walk(applyMoves(solvedCube('2'), scramble('2', 12, rng)))
+      const { steps, cube } = walk(
+        tutorial,
+        applyMoves(solvedCube('2'), scramble('2', 12, rng)),
+        30,
+      )
       expect(isSolved(cube)).toBe(true)
       const stages = steps.map((s) => s.stage ?? 0)
       expect(stages).toEqual([...stages].sort())
@@ -129,7 +121,7 @@ describe('2x2 tutorial', () => {
       const step = stepOf(cube)
       expect(step.key).toBe('stepTutorialTopCorners2')
       expect(step.figure).toBe(figure)
-      cube = walk(cube).cube
+      cube = walk(tutorial, cube, 30).cube
       expect(isSolved(cube)).toBe(true)
     }
   })

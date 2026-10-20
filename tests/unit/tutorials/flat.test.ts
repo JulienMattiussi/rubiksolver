@@ -6,8 +6,8 @@ import { applyMove, applyMoves } from '@/lib/core/turn'
 import type { Cube } from '@/lib/core/types'
 import { FLIP_MIDDLE } from '@/lib/tutorials/flat/cube123'
 import { tutorialFor } from '@/lib/tutorials/registry'
-import { TUTORIAL_EN } from '@/i18n/en/tutorial'
-import { TUTORIAL_FR } from '@/i18n/fr/tutorial'
+
+import { expectTexts } from './walk'
 
 /** Every state a flat puzzle reaches (96 and 192: all of them). */
 function everyState(shape: CubeShape): Cube[] {
@@ -66,13 +66,7 @@ describe.each([
   })
 
   it('says its own stages and words in both languages', () => {
-    for (const texts of [TUTORIAL_FR, TUTORIAL_EN]) {
-      for (const key of tutorial.stageKeys) {
-        expect(texts.titles[key], key).toBeTruthy()
-        expect(texts.hints[key], key).toBeTruthy()
-      }
-      for (const term of tutorial.glossary) expect(texts.terms[term.key], term.key).toBeTruthy()
-    }
+    expectTexts(tutorial)
   })
 })
 

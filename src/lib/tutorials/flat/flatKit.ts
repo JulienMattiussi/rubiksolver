@@ -5,6 +5,7 @@ import type { CubeShape } from '../../core/shapes'
 import type { Color, Cube, Cubie, Move, Sticker, Vec3 } from '../../core/types'
 import { searchFormulas } from '../../solve/formulaSearch'
 import type { Kept, Target } from '../../teach/kit'
+import { piecesTurnedBy, piecesWhere } from '../../teach/pieces'
 import type { PieceStage } from '../../teach/stages'
 import type { Term, TutorialPick } from '../../teach/tutorial'
 
@@ -102,8 +103,8 @@ export function cornerStage(
   }
 }
 
-const withKind = (kind: string) => (cube: Cube) =>
-  cube.flatMap((c, i) => (c.stickers.length > 0 && flatPieceKind(c) === kind ? [i] : []))
+const withKind = (kind: string) =>
+  piecesWhere((c) => c.stickers.length > 0 && flatPieceKind(c) === kind)
 
 const FRONT_RIGHT_TOP: Vec3 = [1, 1, 1]
 const FRONT_RIGHT: Vec3 = [1, 0, 1]
@@ -123,7 +124,7 @@ export const FLAT_EDGE: Term = {
 const HALF: Move = { face: 'R', amount: 2 }
 export const HALF_TURN: Term = {
   key: 'termHalfTurn',
-  pieces: (cube) => cube.flatMap((c, i) => (c.position[0] > 0 ? [i] : [])),
+  pieces: piecesTurnedBy(HALF),
   from: () => FRONT_RIGHT,
   demo: HALF,
 }

@@ -3,29 +3,14 @@ import { isSolved, solvedCube } from '@/lib/core/cube'
 import { scramble } from '@/lib/core/moves'
 import { parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
-import type { Cube } from '@/lib/core/types'
 import { OLL_PARITY, PLL_PARITY } from '@/lib/methods/standard/solver4/parity'
 import { PROJECT_4 } from '@/lib/tutorials/standard/reduced'
 import { tutorialFor } from '@/lib/tutorials/registry'
-import { TUTORIAL_EN } from '@/i18n/en/tutorial'
-import { TUTORIAL_FR } from '@/i18n/fr/tutorial'
+
 import { seededRng } from '../../helpers'
+import { expectTexts, walk } from './walk'
 
 const tutorial = tutorialFor('4', 'reduction')!
-
-/** The steps from a state to the solve, each suggestion's formula played. */
-function walk(start: Cube) {
-  let cube = start
-  const steps = []
-  for (let n = 0; n < 120 && !isSolved(cube); n++) {
-    const step = tutorial.stepOf(cube)!
-    const moves = step.formula(step.suggestion)
-    expect(moves, step.key).not.toBeNull()
-    steps.push(step)
-    cube = applyMoves(cube, moves!)
-  }
-  return { steps, cube }
-}
 
 describe('4x4 tutorial', () => {
   it('reduces, then plays the 3x3 stages, a parity before each of its two', () => {
@@ -44,13 +29,22 @@ describe('4x4 tutorial', () => {
     ])
   })
 
-  it('walks scrambles to the solve, stage after stage', () => {
+  it('walks scrambles to the solve, stage after stage, a center at least a step', () => {
     const rng = seededRng(4)
     for (let k = 0; k < 3; k++) {
-      const { steps, cube } = walk(applyMoves(solvedCube('4'), scramble('4', 25, rng)))
+      const { steps, cube } = walk(
+        tutorial,
+        applyMoves(solvedCube('4'), scramble('4', 25, rng)),
+        120,
+      )
       expect(isSolved(cube)).toBe(true)
       const stages = steps.map((s) => s.stage!)
       expect(stages).toEqual([...stages].sort((a, b) => a - b))
+      // A face full, the next one counts the centers it already shows.
+      const centers = steps
+        .filter((s) => s.key === 'stepTutorialCenters4')
+        .map((s) => s.progress!.done)
+      centers.slice(1).forEach((done, i) => expect(done).toBeGreaterThan(centers[i]!))
     }
   }, 60000)
 
@@ -82,14 +76,6 @@ describe('4x4 tutorial', () => {
   })
 
   it('says its own stages and words in both languages', () => {
-    for (const texts of [TUTORIAL_FR, TUTORIAL_EN]) {
-      for (const key of tutorial.stageKeys) {
-        expect(texts.titles[key], key).toBeTruthy()
-        expect(texts.hints[key], key).toBeTruthy()
-      }
-      for (const term of tutorial.glossary.filter((t) => !t.only)) {
-        expect(texts.terms[term.key], term.key).toBeTruthy()
-      }
-    }
+    expectTexts(tutorial)
   })
 })

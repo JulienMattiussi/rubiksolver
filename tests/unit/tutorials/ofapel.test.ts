@@ -11,22 +11,10 @@ import { tutorialFor } from '@/lib/tutorials/registry'
 import { TUTORIAL_EN } from '@/i18n/en/tutorial'
 import { TUTORIAL_FR } from '@/i18n/fr/tutorial'
 import { seededRng } from '../../helpers'
+import { walk } from './walk'
 
 const tutorial = tutorialFor('3', 'ofapel')!
 const stepOf = (cube: Cube) => tutorial.stepOf(cube)!
-
-/** The steps from a state to the solve, each suggestion's formula played. */
-function walk(cube: Cube) {
-  const steps = []
-  for (let n = 0; n < 60 && !isSolved(cube); n++) {
-    const step = stepOf(cube)
-    const moves = step.formula(step.suggestion)
-    expect(moves, step.key).not.toBeNull()
-    steps.push(step)
-    cube = applyMoves(cube, moves!)
-  }
-  return { steps, cube }
-}
 
 /** Every state some formulas reach from a start, told apart by some
  *  pieces only (the others as they come). */
@@ -68,7 +56,11 @@ describe('Ofapel tutorial', () => {
     const rng = seededRng(11)
     const figures = new Set<string>()
     for (let k = 0; k < 6; k++) {
-      const { steps, cube } = walk(applyMoves(solvedCube('3'), scramble('3', 20, rng)))
+      const { steps, cube } = walk(
+        tutorial,
+        applyMoves(solvedCube('3'), scramble('3', 20, rng)),
+        60,
+      )
       expect(isSolved(cube)).toBe(true)
       const stages = steps.map((s) => s.stage ?? 0)
       expect(stages).toEqual([...stages].sort())
@@ -103,7 +95,7 @@ describe('Ofapel tutorial', () => {
     expect(stepOf(before(swap)).figure).toBe('figureOfapelSwap')
     const across = before("L' U R U' L U R' L' U R U' L U R'")
     expect(stepOf(across).figure).toBe('figureOfapelSwapTwice')
-    expect(isSolved(walk(across).cube)).toBe(true)
+    expect(isSolved(walk(tutorial, across, 60).cube)).toBe(true)
   })
 
   it('turns the top corners by the Antisune, then the top back', () => {

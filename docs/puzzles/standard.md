@@ -144,7 +144,9 @@ couches, comme celui du 4x4) : le cube tenu ses centres fixes à leur place
 (`holdStage` avec `middlesHome`), puis (1) les centres un à un, D, U puis la
 ceinture, chacun placé comme le fait le solveur (`placeCenter` :
 deux coups tant que la face est ouverte, sinon un commutateur), sa
-progression ne comptant une face qu'une fois les précédentes finies ;
+progression ne comptant une face qu'une fois les précédentes finies
+(l'étape `bigCenters.ts`, partagée avec le 4x4, qui y place ses centres
+par la plus courte recherche) ;
 (2) les arêtes, une aile à la fois à côté de son arête centrale, à la
 façon des cubeurs (`pair5.ts`) : des tours externes (trois au plus,
 qui déplacent des arêtes entières) puis une tranche, `R U R' F R' F' R`
