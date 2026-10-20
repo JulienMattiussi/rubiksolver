@@ -2,7 +2,8 @@ import { GraduationCap } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 /** A picker choice: a picture above its name, highlighted when current;
- *  a puzzle with a tutorial marked in its corner (`tutorial`: told so). */
+ *  a puzzle with a tutorial (or a category holding one) marked in its
+ *  corner (`tutorial`: told so). */
 export function PickerTile({
   label,
   detail,

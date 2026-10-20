@@ -5,7 +5,7 @@
 # Rubik Solver
 
 **Turn, scramble or enter 75 twisty puzzles in 3D, then solve them step by step with
-real methods, or learn to solve the 3x3, the 2x2, the 4x4, the 5x5, the super cubes, the Floppy, the 1x2x3, the Pyraminx or the Pyramorphinx yourself with a guided tutorial.**
+real methods, or learn to solve the 3x3, the 2x2, the 4x4, the 5x5, the super cubes, the Floppy, the 1x2x3, the Floppy Ghost, the Pyraminx or the Pyramorphinx yourself with a guided tutorial.**
 
 [**Try it**](https://rubiksolver.yavadeus.dev) &nbsp;·&nbsp;
 [The puzzles](#75-puzzles-12-families) &nbsp;·&nbsp;
@@ -18,7 +18,7 @@ real methods, or learn to solve the 3x3, the 2x2, the 4x4, the 5x5, the super cu
 
 <sub>
   100% front-end &nbsp;·&nbsp; React 19 + React Three Fiber &nbsp;·&nbsp; TypeScript strict &nbsp;·&nbsp;
-  integer-only puzzle engine &nbsp;·&nbsp; 48 solving methods &nbsp;·&nbsp; 11 guided tutorials &nbsp;·&nbsp;
+  integer-only puzzle engine &nbsp;·&nbsp; 48 solving methods &nbsp;·&nbsp; 12 guided tutorials &nbsp;·&nbsp;
   French and English &nbsp;·&nbsp; MIT license
 </sub>
 
@@ -64,6 +64,7 @@ plays the 3x3's stages on the reduced cube, its two parities fixed where they sh
 does the same around its fixed centers, its edges completed a wing at a time the way cubers do.
 The super cubes play those on their colors, then cycle their centers home three at a time.
 The Floppy and the 1x2x3 place their corners in a few half turns, then flip their edges by one formula.
+The all-silver Floppy Ghost names its pieces in a legend, each pictured front and back.
 Every tutorial starts with its words (an edge, a tip, clockwise...), shown on the puzzle.
 
 <img src="docs/images/tutorial.png" width="820" alt="The 3x3 tutorial: an arrow from a yellow edge to its place, and the step's numbered instructions on the right.">

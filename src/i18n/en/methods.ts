@@ -15,15 +15,15 @@ export const METHODS_EN: typeof METHODS_FR = {
   },
   roux: {
     name: 'Roux',
-    desc: 'Two blocks built on the sides, then everything else turning almost only M and U.',
+    desc: 'Two blocks built on the sides, then everything else turning almost only the middle slice and the top face.',
   },
   petrus: {
     name: 'Petrus',
-    desc: 'A block grown bigger, edges oriented early to finish both layers with R and U only.',
+    desc: 'A block grown bigger, edges oriented early to finish both layers turning the right and top faces only.',
   },
   zz: {
     name: 'ZZ',
-    desc: 'Every edge oriented from the start, so as never to turn F or B again.',
+    desc: 'Every edge oriented from the start, so as never to turn the front and back faces again.',
   },
   reduction: {
     name: 'Reduction (layer by layer)',

@@ -10,6 +10,7 @@ import { SUPER4_TUTORIAL, SUPER5_TUTORIAL } from './standard/superCubes'
 import { MORPH_TUTORIAL } from './pyramid/morph'
 import { CUBE123_TUTORIAL } from './flat/cube123'
 import { FLOPPY_TUTORIAL } from './flat/floppy'
+import { GHOST_TUTORIAL } from './flat/ghost'
 import { PYRAMINX_TUTORIAL } from './pyramid/pyraminx'
 
 /**
@@ -33,6 +34,7 @@ const TUTORIALS: Partial<Record<CubeShape, readonly TutorialEntry[]>> = {
   pyra: [{ method: 'centersFirst', tutorial: PYRAMINX_TUTORIAL }],
   '123': [{ method: 'cornersFirst', tutorial: CUBE123_TUTORIAL }],
   '331': [{ method: 'cornersFirst', tutorial: FLOPPY_TUTORIAL }],
+  ghost: [{ method: 'cornersFirst', tutorial: GHOST_TUTORIAL }],
   morph: [{ method: 'asPocket', tutorial: MORPH_TUTORIAL }],
   '3': [
     { method: 'beginner', tutorial: CUBE3_TUTORIAL },

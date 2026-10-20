@@ -100,11 +100,20 @@ que la géométrie donne à chaque pièce les côtés du carré que disent ses
 stickers, et que **chaque pose d'un emplacement a sa propre forme** :
 l'argent suffit à tout distinguer.
 
-**Résolution** (`methods/flat/ghost.ts`, méthode **Coins puis arêtes**, d'après
-la page) : (1) sommets placés avec le 3-cycle `(H²D²)²` ; (2) sommets
-orientés avec `D²B²P²G².P²B²D²H²` (retourne les deux sommets du haut, et
-deux arêtes) ; (3) arêtes retournées deux par deux avec `(H²D²)³`. Chaque
-formule sert depuis les cinq côtés (la mécanique est la même vue de chacun).
+**Résolution** (méthode **Coins puis arêtes**, d'après la page, celle de
+son tutoriel, `lib/tutorials/flat/ghost.ts` ; ses formules dans
+`methods/flat/ghost.ts`) : (1) sommets placés un à un, par un coup ou le
+3-cycle `(H²D²)²` ; (2) sommets retournés deux par deux avec
+`D²B²P²G².P²B²D²H²` (retourne les deux sommets du haut, et deux arêtes) ;
+(3) arêtes retournées deux par deux avec `(H²D²)³`. Chaque formule sert
+depuis les cinq côtés (la mécanique est la même vue de chacun,
+`aroundGhost`) ; chaque pas joue la plus courte suite de formules qui
+amène la pièce choisie, les pièces placées gardées.
+
+**Sa légende** : tout argenté, ses pièces se nomment par une légende
+(`Tutorial.legend`, voir AGENTS.md) : coins A à E et arêtes 1 à 5, dans le
+sens horaire depuis le haut, chacun dessiné seul, à l'endroit et à
+l'envers. Il ne se tient que d'une façon (une seule tenue).
 
 **Saisie pièce par pièce** (voir AGENTS.md) : des milliers de formes,
 impossibles à proposer en vignettes.

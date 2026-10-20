@@ -77,6 +77,6 @@ export const OFAPEL_EN: TutorialTexts = {
     stepTutorialOfapelEdges:
       'Bring the top edges up one by one from the middle layer: get the two corners that will frame it above it, then the formula. The middle layer turns along: it is set at the end.',
     stepTutorialOfapelFinish:
-      'Only the middle layer is left: the cube is tipped over to make it the upright middle slice, then its edges and centers are placed with a few formulas in M and U.',
+      'Only the middle layer is left: the cube is tipped over to make it the upright middle slice, then its edges and centers are placed with a few formulas turning only that slice and the top face.',
   },
 }

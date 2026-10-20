@@ -9,7 +9,7 @@ import {
   type FormulaStage,
   type PieceStage,
 } from './stages'
-import type { RecapStage, Term, Tutorial } from './tutorial'
+import type { Legend, RecapStage, Term, Tutorial } from './tutorial'
 
 export type { FigureStage, Kept, Target } from './stages'
 
@@ -44,6 +44,8 @@ export interface TutorialPlan {
   readonly pieceKind?: (cubie: Cubie) => string
   readonly outside?: (cubie: Cubie) => readonly Sticker[]
   readonly holding?: string
+  /** See `Tutorial.legend`. */
+  readonly legend?: Legend
   /** The stage still to come, shown not taught yet; none once the plan
    *  solves the puzzle (the tutorial then over). */
   readonly next?: { readonly key: string; readonly stage: number; readonly hold: Hold }
@@ -143,6 +145,7 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
     glossary: plan.glossary ?? [],
     pieceKind: plan.pieceKind ?? cubeKind,
     ...(plan.outside && { outside: plan.outside }),
+    ...(plan.legend && { legend: plan.legend }),
     ...(plan.holding && { holding: plan.holding }),
     // The plan's own colors first (a 4x4's, its centers not yet one face
     // each), else the center there.

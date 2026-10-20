@@ -16,15 +16,15 @@ export const METHODS_FR = {
   },
   roux: {
     name: 'Roux',
-    desc: 'Deux blocs construits sur les côtés, puis tout le reste en tournant presque uniquement M et U.',
+    desc: 'Deux blocs construits sur les côtés, puis tout le reste en tournant presque uniquement la tranche du milieu et la face du haut.',
   },
   petrus: {
     name: 'Petrus',
-    desc: 'Un bloc qu’on agrandit, les arêtes orientées tôt pour finir les deux couches en R et U seulement.',
+    desc: 'Un bloc qu’on agrandit, les arêtes orientées tôt pour finir les deux couches en tournant seulement les faces de droite et du haut.',
   },
   zz: {
     name: 'ZZ',
-    desc: 'Toutes les arêtes orientées dès le départ, pour ne plus jamais tourner F ni B ensuite.',
+    desc: 'Toutes les arêtes orientées dès le départ, pour ne plus jamais tourner les faces avant et arrière ensuite.',
   },
   reduction: {
     name: 'Réduction par couches',

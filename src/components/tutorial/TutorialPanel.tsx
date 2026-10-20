@@ -134,6 +134,8 @@ export function TutorialPanel() {
           progress={progress}
           stages={view.stages}
           hatched={!turnsWhole(view.moves ?? [])}
+          tutorial={tutorial}
+          shape={shape}
         />
       )}
       {/* Every stage done: the puzzle solved. */}
@@ -162,8 +164,9 @@ export function TutorialPanel() {
           </Button>
         </>
       )}
-      {/* A word of the glossary: on to the next, or past them all. */}
-      {step?.kind === 'term' && (
+      {/* A word of the glossary (or the legend after them): on to the next,
+          or past them all. */}
+      {(step?.kind === 'term' || step?.kind === 'legend') && (
         <div className="flex flex-col gap-2">
           <Button variant="solve" onClick={showTerm}>
             <ArrowRight className="size-4" aria-hidden />
@@ -181,47 +184,51 @@ export function TutorialPanel() {
           )}
         </div>
       )}
-      {step && step.kind !== 'toCome' && step.kind !== 'alreadyDone' && step.kind !== 'term' && (
-        <>
-          <Instructions view={view} busy={busy} />
-          <div className="flex flex-col gap-2">
-            {review ? (
-              <Button variant="solve" onClick={next} disabled={busy}>
-                <ArrowRight className="size-4" aria-hidden />
-                {t.tutorial.next}
-              </Button>
-            ) : (
-              <Button
-                variant="solve"
-                onClick={() => {
-                  if (!moves) return
-                  // The moves shown, learnt from now on.
-                  if (hold && view.shown) {
-                    learn(view.shown.moves.map((m) => formatMove(frame.inHold(hold, m))))
-                  }
-                  apply({ key: step.key, moves }, pick)
-                }}
-                disabled={busy || !moves || (moves.length === 0 && !manual)}
-              >
-                <Sparkles className="size-4" aria-hidden />
-                {manual ? t.tutorial.finish : t.tutorial.apply}
-              </Button>
-            )}
-            {/* Nothing played yet: back to the glossary's start instead. */}
-            {!played && !manual && view.glossary > 0 ? (
-              <Button onClick={() => setTermsShown(0)} disabled={busy}>
-                <Undo2 className="size-4" aria-hidden />
-                {t.tutorial.backToGlossary}
-              </Button>
-            ) : (
-              <Button onClick={undo} disabled={busy || (!played && !manual)}>
-                <Undo2 className="size-4" aria-hidden />
-                {t.tutorial.undo}
-              </Button>
-            )}
-          </div>
-        </>
-      )}
+      {step &&
+        step.kind !== 'toCome' &&
+        step.kind !== 'alreadyDone' &&
+        step.kind !== 'term' &&
+        step.kind !== 'legend' && (
+          <>
+            <Instructions view={view} busy={busy} />
+            <div className="flex flex-col gap-2">
+              {review ? (
+                <Button variant="solve" onClick={next} disabled={busy}>
+                  <ArrowRight className="size-4" aria-hidden />
+                  {t.tutorial.next}
+                </Button>
+              ) : (
+                <Button
+                  variant="solve"
+                  onClick={() => {
+                    if (!moves) return
+                    // The moves shown, learnt from now on.
+                    if (hold && view.shown) {
+                      learn(view.shown.moves.map((m) => formatMove(frame.inHold(hold, m))))
+                    }
+                    apply({ key: step.key, moves }, pick)
+                  }}
+                  disabled={busy || !moves || (moves.length === 0 && !manual)}
+                >
+                  <Sparkles className="size-4" aria-hidden />
+                  {manual ? t.tutorial.finish : t.tutorial.apply}
+                </Button>
+              )}
+              {/* Nothing played yet: back to the glossary's start instead. */}
+              {!played && !manual && view.glossary > 0 ? (
+                <Button onClick={() => setTermsShown(0)} disabled={busy}>
+                  <Undo2 className="size-4" aria-hidden />
+                  {t.tutorial.backToGlossary}
+                </Button>
+              ) : (
+                <Button onClick={undo} disabled={busy || (!played && !manual)}>
+                  <Undo2 className="size-4" aria-hidden />
+                  {t.tutorial.undo}
+                </Button>
+              )}
+            </div>
+          </>
+        )}
     </section>
   )
 }

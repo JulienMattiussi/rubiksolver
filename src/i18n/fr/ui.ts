@@ -39,6 +39,8 @@ export const UI_FR = {
   statusSolving: 'Résolution',
   /** A puzzle's tile in the picker, when it has a tutorial. */
   withTutorial: 'Tutoriel disponible',
+  /** A category of the picker holding puzzles with a tutorial. */
+  withTutorials: 'Des puzzles avec tutoriel',
   solutionCount: (n: number) => `${n} rotation${n > 1 ? 's' : ''}`,
   /** A step turning the whole cube only, told as the way to hold it (on
    *  a mirror cube, its faces by their thickness). */

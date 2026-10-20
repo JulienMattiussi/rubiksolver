@@ -8,6 +8,7 @@ import { cubeShape, stateKey } from '@/lib/core/cube'
 import { arrowedSubjects, tonesOf, type Tone } from '@/lib/teach/scene'
 import {
   alreadyDoneStep,
+  legendStep,
   termStep,
   type Tutorial,
   type TutorialPick,
@@ -49,10 +50,11 @@ export interface TutorialView {
   /** A piece clicked on the puzzle: picked, or the place for the piece
    *  picked. */
   click: (index: number) => void
-  /** On a word of the glossary (step 0): where to look at its pieces from
-   *  (null: where the view is), and how many words there are. */
+  /** On a word of the glossary (step 0), or its legend after them: where
+   *  to look at its pieces from (null: where the view is), and how many
+   *  pages there are (the words and the legend). */
   term?: { from: Vec3 | null; count: number }
-  /** How many words its glossary shows on this rendering. */
+  /** How many pages its glossary shows on this rendering (the legend one). */
   glossary: number
 }
 
@@ -127,8 +129,9 @@ export function useTutorial(): TutorialView {
     return review ? tones.map((t) => (t === 'slot' ? 'moved' : t)) : tones
   }, [step, moves, busy, read, pick, review])
   // The glossary first (step 0): each word's pieces lit, one at a time,
-  // those of this rendering only.
+  // those of this rendering only; then the legend, if any.
   const terms = tutorial?.glossary.filter((term) => !term.only || term.only === variant) ?? []
+  const pages = terms.length + (tutorial?.legend ? 1 : 0)
   const term = active && !review ? terms[termsShown] : undefined
   if (tutorial && term) {
     const step = termStep(tutorial, term, termsShown, terms.length, cube)
@@ -142,8 +145,21 @@ export function useTutorial(): TutorialView {
       progress: step.progress ?? null,
       moves: [],
       tones: busy ? null : tonesOf(cube, [], null, [], step.focus),
-      term: { from: term.from?.(cube) ?? null, count: terms.length },
-      glossary: terms.length,
+      term: { from: term.from?.(cube) ?? null, count: pages },
+      glossary: pages,
+    }
+  }
+  if (tutorial?.legend && active && !review && termsShown === terms.length) {
+    return {
+      ...OFF,
+      cube,
+      frame: tutorial.frame,
+      stages: tutorial.stages,
+      tutorial,
+      step: legendStep(tutorial, pages),
+      moves: [],
+      term: { from: null, count: pages },
+      glossary: pages,
     }
   }
   // A stage skipped over (the puzzle meeting it already): shown in passing
@@ -205,7 +221,7 @@ export function useTutorial(): TutorialView {
     hold: step.hold(pick),
     frame: tutorial?.frame ?? CUBE_HOLDS,
     stages: tutorial?.stages ?? 0,
-    glossary: terms.length,
+    glossary: pages,
     ...(tutorial && { tutorial }),
     moves,
     shown,

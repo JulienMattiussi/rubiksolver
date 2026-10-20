@@ -39,6 +39,7 @@ export const UI_EN: typeof UI_FR = {
   statusPlaying: 'Animating',
   statusSolving: 'Solving',
   withTutorial: 'Tutorial available',
+  withTutorials: 'Puzzles with a tutorial',
   solutionCount: (n: number) => `${n} turn${n > 1 ? 's' : ''}`,
   heldAs: (down: string, front: string) => [
     `${cap(down)} center down`,

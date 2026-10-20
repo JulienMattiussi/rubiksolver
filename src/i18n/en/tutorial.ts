@@ -54,6 +54,7 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   holding: TEXTS.holding,
   facingTitle: 'Turn the view to face it',
   piece: (kind, colors) => `the ${colors.join('-')} ${PIECES_EN[kind] ?? 'piece'}`,
+  labelled: (kind: string, label: string) => `${PIECES_EN[kind] ?? 'piece'} ${label}`.trim(),
   spot: (piece: string) => `Spot ${piece}.`,
   spotSwap: (piece: string, other: string) =>
     `Spot ${piece}, and ${other} which stands in its place.`,
@@ -81,6 +82,13 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
     'This first, preliminary step is to learn and understand the words used to describe and handle the cube.',
   termCount: (n, total) => `Word ${n} of ${total}`,
   skipTerms: 'Skip',
+  legend: 'The legend',
+  legendIntro: 'This puzzle wears a single color: its pieces are told by their shape.',
+  legendKinds: { corner: 'The corners', edge: 'The edges' },
+  legendFront: 'Front',
+  legendBack: 'Back',
+  legendOpen: 'See the pieces’ legend',
+  legendClose: 'Close the legend',
   backToGlossary: 'Back to the words',
   recap: 'Cheat sheet',
   recapTitle: (n: number) =>

@@ -62,6 +62,41 @@ export function formDrawing(shape: CubeShape, form: Cube): IsoDrawing {
   return drawing
 }
 
+const PIECE_DRAWINGS = new Map<string, IsoDrawing>()
+
+/** How far the 3D view looks from above, and from the right (radians). */
+const TILT = 0.35
+
+/** A point of the scene as the iso drawing (which looks from up, front and
+ *  right) must take it for the puzzle to be seen from the front, a little
+ *  from above and the right, as the 3D view sees it; `back`: from behind
+ *  (the puzzle turned a half turn about the vertical). */
+function fromFront(back: boolean) {
+  const [c, s] = [Math.cos(TILT), Math.sin(TILT)]
+  return ([x0, y0, z0]: Point): Point => {
+    const [x1, z1] = back ? [-x0, -z0] : [x0, z0]
+    // Its right side turned a little toward the viewer, then its top.
+    const [x2, z2] = [x1 * c - z1 * s, x1 * s + z1 * c]
+    const [y3, z3] = [y0 * c - z2 * s, y0 * s + z2 * c]
+    // The front (z) onto the iso view's direction, the top kept up.
+    const [a, b, d] = [x2 / Math.SQRT2, y3 / Math.sqrt(6), z3 / Math.sqrt(3)]
+    return [a - b + d, 2 * b + d, -a - b + d]
+  }
+}
+
+/** One piece of a puzzle drawn from polygons, alone as solved, seen from
+ *  its front as the 3D view sees the puzzle, or from behind (`back`): a
+ *  tutorial's legend (its pieces told by shape). */
+export function pieceDrawing(shape: CubeShape, piece: number, back: boolean): IsoDrawing {
+  const key = `${shape}|${piece}|${back}`
+  let drawing = PIECE_DRAWINGS.get(key)
+  if (!drawing) {
+    drawing = drawPoly(shape, [solvedCube(shape)[piece]!], undefined, fromFront(back))
+    PIECE_DRAWINGS.set(key, drawing)
+  }
+  return drawing
+}
+
 /** A grid puzzle's cubies as they stand (`neutral`: every sticker that color). */
 function drawCubies(cube: Cube, variant: CubeVariant, neutral?: Color): IsoDrawing {
   const dims = cubeDims(cube)
@@ -107,9 +142,15 @@ const DRAWN_OVER = 100
 /** A gridless puzzle (a star prism, the Pyraminx), from the same polygons
  *  as its 3D view, turned by its yaw; faces turned away from the viewer are
  *  left out. */
-function drawPoly(shape: CubeShape, cube = solvedCube(shape), neutral?: Color): IsoDrawing {
+function drawPoly(
+  shape: CubeShape,
+  cube = solvedCube(shape),
+  neutral?: Color,
+  /** Where the drawing looks from, when not the thumbnail's corner. */
+  view: (p: Point) => Point = (p) => p,
+): IsoDrawing {
   const drawing = polyDrawing(shape)
-  const yaw = (v: readonly number[]): Point => inScene(drawing, v)
+  const yaw = (v: readonly number[]): Point => view(inScene(drawing, v))
   const faces: IsoFace[] = []
   for (const cubie of cube.filter(drawnIn(cube))) {
     const polygons = (drawing.thumbnail ?? drawing.polygons)(cubie)

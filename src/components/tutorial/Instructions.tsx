@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import type { Turn } from '@/lib/core/types'
 import { markedOn, occupantOf, pieceColors, turnsWhole } from '@/lib/teach/scene'
 import { applyMoves } from '@/lib/core/turn'
+import { cubeShape } from '@/lib/core/cube'
 import { formulaSegments } from '@/lib/teach/segments'
 import type { TutorialView } from '@/hooks/useTutorial'
 import { useView } from '@/store/viewStore'
@@ -13,6 +14,7 @@ import { FormulaMoves } from './FormulaMoves'
 import { Toned } from './Toned'
 import { liftFor } from './liftFor'
 import { Bolded } from './Bolded'
+import { Pictured } from './Pictured'
 import { useTutorialTexts } from './useTutorialTexts'
 
 /**
@@ -39,11 +41,33 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
   const front = view.tutorial?.faceColor(held, frontNormal) ?? null
   // And the side held down (the holds turn round the top).
   const down = view.tutorial?.faceColor(held, frame.down) ?? null
-  const name = (index: number) =>
-    tx.piece(
-      view.tutorial?.pieceKind(cube[index]!) ?? 'piece',
-      pieceColors(cube, index, step.marker, view.tutorial?.outside).map(tx.colorName),
-    )
+  // A piece named by its colors, or by its label on a puzzle told by shape.
+  const legend = view.tutorial?.legend
+  const name = (index: number) => {
+    const kind = view.tutorial?.pieceKind(cube[index]!) ?? 'piece'
+    const label = legend?.labels.find((l) => l.piece === index)?.label
+    return label !== undefined
+      ? tx.labelled(kind, label)
+      : tx.piece(
+          kind,
+          pieceColors(cube, index, step.marker, view.tutorial?.outside).map(tx.colorName),
+        )
+  }
+  // Words naming pieces, each name followed by its picture (with a legend).
+  const pictured = (text: string, picked: number, occupant: number | null = null) => (
+    <Pictured
+      text={text}
+      // Framed as on the puzzle: the piece picked, the one in its place.
+      pieces={[
+        { piece: picked, tone: HIGHLIGHT },
+        ...(occupant === null ? [] : [{ piece: occupant, tone: PLACE }]),
+      ]}
+      name={name}
+      cube={cube}
+      shape={cubeShape(cube)}
+      legend={legend}
+    />
+  )
   const occupant = pick ? occupantOf(cube, pick, view.moves ?? []) : null
   // The formula cut as taught (moves one by one, sequences learnt, a
   // sequence repeated told once with its count); followed by hand, the
@@ -121,13 +145,26 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
             title={tx.facingTitle}
             className="rounded text-left underline decoration-dotted underline-offset-2 hover:text-white focus-visible:outline-2 focus-visible:outline-sky-400"
           >
-            <Toned colors={[tx.swatch(front.color)]}>
-              {tx.facing(
-                tx.colorName(front.color),
-                down ? tx.colorName(down.color) : '',
-                view.tutorial?.holding ?? (front.center ? 'center' : 'side'),
-              )}
-            </Toned>
+            {/* Told by a piece of the legend (a puzzle with no color to
+                name), its picture beside it; else by its color. */}
+            {legend?.anchor !== undefined ? (
+              <Pictured
+                text={tx.facing(name(legend.anchor(cube)), '', view.tutorial?.holding ?? 'side')}
+                pieces={[{ piece: legend.anchor(cube) }]}
+                name={name}
+                cube={cube}
+                shape={cubeShape(cube)}
+                legend={legend}
+              />
+            ) : (
+              <Toned colors={[tx.swatch(front.color)]}>
+                {tx.facing(
+                  tx.colorName(front.color),
+                  down ? tx.colorName(down.color) : '',
+                  view.tutorial?.holding ?? (front.center ? 'center' : 'side'),
+                )}
+              </Toned>
+            )}
           </button>,
         ]
       : []),
@@ -140,9 +177,13 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
       : pick
         ? [
             <Toned key="spot" framed colors={occupant === null ? [HIGHLIGHT] : [HIGHLIGHT, PLACE]}>
-              {occupant === null
-                ? tx.spot(name(pick.piece))
-                : tx.spotSwap(name(pick.piece), name(occupant))}
+              {pictured(
+                occupant === null
+                  ? tx.spot(name(pick.piece))
+                  : tx.spotSwap(name(pick.piece), name(occupant)),
+                pick.piece,
+                occupant,
+              )}
             </Toned>,
           ]
         : []),
@@ -150,7 +191,7 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
       ? []
       : [shown ? <div key="play">{play(shown.moves, shown.done)}</div> : tx.noFormula]),
     pick
-      ? tx.check(name(pick.piece))
+      ? pictured(tx.check(name(pick.piece)), pick.piece)
       : step.figure
         ? (tx.checks[step.key]?.(
             step.outcome?.done ?? 0,

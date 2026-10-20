@@ -37,9 +37,10 @@ export interface RecapStage {
  * formula of its own, no pick (`formula`); a figure recognized, no pick
  * (`figure`); a stage the puzzle already meets, shown in passing, nothing
  * to play (`alreadyDone`); a stage not taught yet (`toCome`); a word the
- * tutorial uses, shown on the puzzle before its stages (`term`).
+ * tutorial uses, shown on the puzzle before its stages (`term`); its
+ * pieces' legend, shown after its words (`legend`).
  */
-type StepKind = 'pieces' | 'formula' | 'figure' | 'alreadyDone' | 'toCome' | 'term'
+type StepKind = 'pieces' | 'formula' | 'figure' | 'alreadyDone' | 'toCome' | 'term' | 'legend'
 
 /** A word a tutorial uses (an edge, a thin face), shown first: the pieces
  *  it names, lit, and where to look at them from. */
@@ -53,6 +54,22 @@ export interface Term {
   readonly only?: CubeVariant
   /** A turn shown playing (a way of turning: clockwise). */
   readonly demo?: Turn
+}
+
+/** A puzzle whose pieces are told by their shape, not their colors (the
+ * Floppy Ghost, all silver): each piece named by a label (a letter, a
+ * number), and shown in pictures (its front and its back), in a legend
+ * after the words and beside its name in the instructions. */
+export interface Legend {
+  /** Each piece's label, by its index (stable from turn to turn), in the
+   *  legend's order. */
+  readonly labels: readonly { readonly piece: number; readonly label: string }[]
+  /** Whether a piece shows its back (turned over): pictured so. */
+  readonly turned: (cubie: Cubie) => boolean
+  /** The piece that tells how to hold the puzzle when no color can, read
+   *  on the state (the one at a given place: its picture, as it shows now,
+   *  says which way up and which side). */
+  readonly anchor?: (cube: Cube) => number
 }
 
 /** Where the tutorial stands on a state: its step, what it suggests. */
@@ -146,6 +163,8 @@ export interface Tutorial {
   /** Its own way to say how to hold the puzzle (a text's key: the
    *  Pyraminx laid flat); none: by the center in front, or the side. */
   readonly holding?: string
+  /** Its pieces named and pictured, when their colors do not tell them. */
+  readonly legend?: Legend
 }
 
 /** A word of the glossary, shown before the stages (step 0): its pieces
@@ -164,6 +183,20 @@ export const termStep = (
   hold: () => tutorial.frame.holds[0]!,
   focus: term.pieces(cube),
   ...(term.demo && { demo: term.demo }),
+  placed: [],
+  suggestion: null,
+  pickable: [],
+  slots: () => [],
+  formula: () => null,
+})
+
+/** The legend's page, after the words (`count`: the words and it). */
+export const legendStep = (tutorial: Tutorial, count: number): TutorialStep => ({
+  kind: 'legend',
+  key: 'legend',
+  stage: 0,
+  progress: { done: count, total: count },
+  hold: () => tutorial.frame.holds[0]!,
   placed: [],
   suggestion: null,
   pickable: [],

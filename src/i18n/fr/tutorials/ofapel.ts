@@ -86,6 +86,6 @@ export const OFAPEL_FR: TutorialTexts = {
     stepTutorialOfapelEdges:
       'Remonte une à une les arêtes du haut depuis la couronne du milieu : amène au-dessus d’elle les deux coins qui l’encadreront, puis la formule. La couronne du milieu tourne avec : elle se règle à la fin.',
     stepTutorialOfapelFinish:
-      'Il ne reste que la couronne du milieu : on bascule le cube pour en faire la tranche verticale du milieu, puis on place ses arêtes et ses centres avec quelques formules en M et U.',
+      'Il ne reste que la couronne du milieu : on bascule le cube pour en faire la tranche verticale du milieu, puis on place ses arêtes et ses centres avec quelques formules qui ne tournent que cette tranche et la face du haut.',
   },
 }

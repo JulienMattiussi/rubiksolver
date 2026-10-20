@@ -152,6 +152,12 @@ export function CubePicker({
                       label={t.cubeCategories[c]}
                       detail={t.puzzleCount(kindsOf(c).length)}
                       current={!home && c === cubeCategory(current)}
+                      // Marked as its puzzles are when one has a tutorial.
+                      tutorial={
+                        kindsOf(c).some((kind) => hasTutorial(kind.shape))
+                          ? t.withTutorials
+                          : undefined
+                      }
                       onClick={() => setCategory(c)}
                     >
                       <CategoryIcon {...showcase(c)} />

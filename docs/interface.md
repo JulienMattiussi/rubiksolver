@@ -135,8 +135,8 @@ survolé.
 `store/tutorialStore.ts` et `store/tutorialTrack.ts`, `hooks/useTutorial.ts`,
 `components/tutorial/`). Sur un puzzle qui en a un pour la méthode choisie
 (`tutorialFor(forme, méthode)` ; aujourd'hui le 3x3 par couches et par
-Ofapel, le 2x2 par couches, le 4x4, le 5x5 et les super cubes par réduction, le Floppy et
-le 1x2x3, le Pyraminx et le Pyramorphinx : rien pour Roux, CFOP ou l'optimale), le bouton Tutoriel (grisé sur un puzzle résolu) remplace
+Ofapel, le 2x2 par couches, le 4x4, le 5x5 et les super cubes par réduction, le Floppy,
+le 1x2x3 et le Floppy Ghost, le Pyraminx et le Pyramorphinx : rien pour Roux, CFOP ou l'optimale), le bouton Tutoriel (grisé sur un puzzle résolu) remplace
 le bloc de résolution par un panneau où l'on résout soi-même, un **pas** à
 la fois.
 
@@ -197,7 +197,12 @@ R D` répété, un seul pas, la première couche se défaisant en route).
   « Aide-mémoire » : ses étapes et leurs formules, à la place du pas,
   jusqu'à « Revenir au tutoriel ». Sur un miroir, tous les textes nomment les
   faces et les pièces par leur épaisseur, de très fine à très épaisse
-  (« l'arête aux faces fine et moins épaisse »).
+  (« l'arête aux faces fine et moins épaisse »). Sur un puzzle qui a une
+  légende (le Floppy Ghost), une page « La légende » suit le vocabulaire :
+  chaque pièce nommée (coin A, arête 1...), dessinée seule à l'endroit et
+  à l'envers ; ensuite une icône à droite du titre d'étape la rouvre dans
+  une fenêtre, et les consignes nomment les pièces ainsi, leur miniature à
+  côté.
 - **Le panneau** : l'étape (« Étape 4 sur 7 », son but, son avancement,
   sa consigne, la légende des hachures), puis quatre **consignes
   numérotées** : tenir le centre de face (un clic tourne la vue vers lui),

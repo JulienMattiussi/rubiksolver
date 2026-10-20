@@ -64,6 +64,8 @@ export const TUTORIAL_FR = {
   /** A piece named by its kind (`Tutorial.pieceKind`) and colors. */
   piece: (kind: string, colors: readonly string[]) =>
     `${PIECES_FR[kind] ?? 'la pièce'} ${colors.join('-')}`,
+  /** A piece named by its legend's label (« le coin A »). */
+  labelled: (kind: string, label: string) => `${PIECES_FR[kind] ?? 'la pièce'} ${label}`.trim(),
   spot: (piece: string) => `Repère ${piece}.`,
   spotSwap: (piece: string, other: string) => `Repère ${piece}, et ${other} qui occupe sa place.`,
   /** None left: turns by hand have done the step's formula. */
@@ -102,6 +104,14 @@ export const TUTORIAL_FR = {
     'La première étape, préliminaire, est d’acquérir et de comprendre le vocabulaire qui sera utilisé pour décrire et manipuler le cube.',
   termCount: (n: number, total: number) => `Mot ${n} sur ${total}`,
   skipTerms: 'Passer',
+  /** The legend of a puzzle whose pieces are told by shape (`Tutorial.legend`). */
+  legend: 'La légende',
+  legendIntro: 'Ce puzzle est d’une seule couleur : ses pièces se reconnaissent à leur forme.',
+  legendKinds: { corner: 'Les coins', edge: 'Les arêtes' } as Record<string, string>,
+  legendFront: 'Endroit',
+  legendBack: 'Envers',
+  legendOpen: 'Voir la légende des pièces',
+  legendClose: 'Fermer la légende',
   backToGlossary: 'Revenir au vocabulaire',
   /** The reminder: the stages and their formulas (at the end, or asked for
    *  once the tutorial played through). */

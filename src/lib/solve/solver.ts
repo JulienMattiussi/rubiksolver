@@ -6,7 +6,6 @@ import { methodOf } from '../teach/method'
 import { tutorialFor } from '../tutorials/registry'
 import { proveFourByFour } from '../methods/standard/solver4/proof'
 import { solveMorph } from '../methods/pyramid/morph'
-import { GHOST_PLAN } from '../methods/flat/ghost'
 import { BARREL_PLAN } from '../methods/round/barrel'
 import { BEGINNER_PLAN, CFOP_PLAN } from '../methods/standard/layers3'
 import { twistPlan } from '../methods/twisted/twist'
@@ -230,7 +229,7 @@ const SOLVE_METHODS = [
       '332': DOMINO_PLAN,
       '123': taught('123', 'cornersFirst'),
       '331': taught('331', 'cornersFirst'),
-      ghost: GHOST_PLAN,
+      ghost: taught('ghost', 'cornersFirst'),
       bigBlock: BIG_BLOCK_PLAN,
     },
   },
@@ -296,6 +295,7 @@ const PROOFS: Partial<Record<CubeShape, (cube: Cube) => void>> = {
   // The flat puzzles' whole space searched (exhaustive.ts).
   '123': (cube) => void buildSteps(cube, optimalPlan('123', 7)),
   '331': (cube) => void buildSteps(cube, optimalPlan('331', 9)),
+  ghost: (cube) => void buildSteps(cube, optimalPlan('ghost', 16)),
 }
 
 /** Throws when a state cannot be solved: its shape's proof, else its

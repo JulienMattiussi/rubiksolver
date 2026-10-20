@@ -1,8 +1,11 @@
-import type { TutorialStep } from '@/lib/teach/tutorial'
+import type { CubeShape } from '@/lib/core/shapes'
+import type { Tutorial, TutorialStep } from '@/lib/teach/tutorial'
 import { stepName } from '@/i18n/translations'
 import { useI18n } from '@/i18n/i18nStore'
 import { Bolded } from './Bolded'
 import { HatchedCubie } from './HatchedCubie'
+import { LegendButton, LegendIcon } from './LegendButton'
+import { LegendGrid } from './LegendGrid'
 import { ProgressCount } from './ProgressCount'
 import { TermDemo } from './TermDemo'
 import { useTutorialTexts } from './useTutorialTexts'
@@ -11,16 +14,21 @@ import { useTutorialTexts } from './useTutorialTexts'
  *  words wear the dots' colors, ProgressCount). */
 const MAX_DOTS = 12
 
-/** A tutorial step's heading: its rank among the stages, its goal, how far
- *  it has come (dots and words), what it asks, and the hatched pieces'
- *  legend. */
+/** A tutorial step's heading: its rank among the stages, its goal (and the
+ *  pieces' legend at hand, on a puzzle that has one), how far it has come
+ *  (dots and words), what it asks, and the hatched pieces' legend. On the
+ *  legend's own page, the legend. */
 export function StepHeading({
   step,
   progress,
   stages,
   hatched,
+  tutorial,
+  shape,
 }: {
   step: TutorialStep
+  tutorial?: Tutorial
+  shape: CubeShape
   /** Whether its formula moves pieces aside (not when it only turns the
    *  whole puzzle): the hatches' legend shows. */
   hatched: boolean
@@ -32,15 +40,25 @@ export function StepHeading({
   const tx = useTutorialTexts()
   // A word of the glossary (step 0): its words in place of a hint.
   const term = step.kind === 'term'
-  const told = term ? tx.termCount : tx.progress[step.key]
+  const legend = step.kind === 'legend'
+  const told = term ? tx.termCount : legend ? undefined : tx.progress[step.key]
   return (
     <div>
       <p className="text-[11px] font-semibold tracking-wide text-amber-300 uppercase">
         {step.stage !== undefined ? tx.stage(step.stage, stages) : tx.beforeStages}
       </p>
-      <h3 className="text-sm font-semibold text-white">
-        {term ? tx.glossary : (tx.titles[step.key] ?? stepName(t, step.key))}
-      </h3>
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-sm font-semibold text-white">
+          {term ? tx.glossary : legend ? tx.legend : (tx.titles[step.key] ?? stepName(t, step.key))}
+        </h3>
+        {tutorial?.legend &&
+          (legend ? (
+            // Its icon, as the button opening it from the steps shows it.
+            <LegendIcon className="m-1 size-4 shrink-0 text-amber-300" />
+          ) : (
+            <LegendButton tutorial={tutorial} shape={shape} />
+          ))}
+      </div>
       {progress && told && (
         <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-300">
           {/* A dot a piece, while they fit (a 4x4's 24 centers: the words alone). */}
@@ -69,6 +87,11 @@ export function StepHeading({
             <Bolded text={tx.term(step.key)} />
           </p>
           {step.demo && <TermDemo turn={step.demo} />}
+        </>
+      ) : legend ? (
+        <>
+          <p className="mt-1 text-xs leading-relaxed text-slate-400">{tx.legendIntro}</p>
+          {tutorial && <LegendGrid tutorial={tutorial} shape={shape} />}
         </>
       ) : (
         <p className="mt-1 text-xs leading-relaxed text-slate-400">{tx.hints[step.key]}</p>

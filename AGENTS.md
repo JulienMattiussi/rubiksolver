@@ -154,7 +154,8 @@ src/
 │   │                    #   du 4x4 ou du 5x5 sur leurs couleurs, puis leurs centres) ;
 │   │                    #   pyramid/pyraminx (Centres d'abord), pyraHolds (ses tenues), pyraTerms ;
 │   │                    #   pyramid/morph (le Pyramorphinx, Comme un Pocket), morphTerms ;
-│   │                    #   flat/floppy et flat/cube123 (Coins puis arêtes), flatKit (ce qu'ils partagent)
+│   │                    #   flat/floppy, flat/cube123 et flat/ghost (Coins puis arêtes ; le Ghost par sa
+│   │                    #   légende), flatKit (ce que partagent le Floppy et le 1x2x3)
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
 │                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
@@ -495,7 +496,13 @@ liste d'étapes, et `tutorialOf` en fait le pas où en est un état (sa sorte,
   deux (`thenProject`) ;
 - avant les étapes, le **vocabulaire** (`glossary`, l'étape 0) : chaque
   terme (`Term`) allume ses pièces et dit d'où les regarder, un pas par
-  terme, « Passer » les saute ; un terme peut être réservé à un rendu
+  terme, « Passer » les saute ; puis, sur un puzzle dont les pièces se
+  reconnaissent à leur forme (le Floppy Ghost, tout argenté), la
+  **légende** (`legend` : un nom par pièce, A, B... ou 1, 2...) : une page
+  qui les dessine seules, à l'endroit et à l'envers (`pieceDrawing`,
+  `three/core/isometric.ts`), à portée de main ensuite par l'icône à droite
+  du titre d'étape ; les consignes nomment alors une pièce par son nom,
+  sa miniature à côté (`Pictured`), du côté qu'elle montre ; un terme peut être réservé à un rendu
   (`only` : les six épaisseurs d'un miroir, `lib/tutorials/standard/terms.ts`).
 
 Sur un cube miroir, les textes parlent en épaisseurs (très fine, fine,
