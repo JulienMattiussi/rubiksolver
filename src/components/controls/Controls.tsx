@@ -12,7 +12,7 @@ import { LanguageToggle } from './LanguageToggle'
 import { ScrambleButton } from './ScrambleButton'
 import { SetupSection } from './SetupSection'
 import { CubePicker } from '@/components/picker/CubePicker'
-import { SECTION_BOX } from '@/components/ui/styles'
+import { SECTION_BOX, SECTION_RULE } from '@/components/ui/styles'
 import { FEATURE_ICON } from '@/components/ui/features'
 import { goTo, useRoute } from '@/store/router'
 
@@ -119,7 +119,9 @@ export function Controls() {
             )}
             <div className={collapsed ? 'hidden flex-col gap-5 sm:flex' : 'flex flex-col gap-5'}>
               {setup}
-              <SolveArea home={home} />
+              <div className={SECTION_RULE}>
+                <SolveArea home={home} />
+              </div>
               <Credit />
             </div>
           </>
