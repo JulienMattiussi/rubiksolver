@@ -18,6 +18,7 @@ import { IconButton } from '@/components/ui/IconButton'
 import { Modal } from '@/components/ui/Modal'
 import { SECTION_LABEL } from '@/components/ui/styles'
 import { CategoryIcon } from './CategoryIcon'
+import { hasTutorial } from '@/lib/tutorials/registry'
 import { PickerTile } from './PickerTile'
 import { PuzzleIcon } from './PuzzleIcon'
 
@@ -138,6 +139,7 @@ export function CubePicker({
                     <PickerTile
                       label={nameOf(kind)}
                       current={isCurrent(kind)}
+                      tutorial={hasTutorial(kind.shape) ? t.withTutorial : undefined}
                       onClick={() => choose(kind)}
                     >
                       <PuzzleIcon shape={kind.shape} variant={kind.variant} className="h-full" />

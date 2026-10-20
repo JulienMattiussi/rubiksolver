@@ -31,6 +31,9 @@ const TUTORIALS: Partial<Record<CubeShape, readonly TutorialEntry[]>> = {
   ],
 }
 
+/** Whether a puzzle has a tutorial, for one method or another. */
+export const hasTutorial = (shape: CubeShape): boolean => (TUTORIALS[shape]?.length ?? 0) > 0
+
 /** The tutorial of a puzzle teaching a method (none if there is none). */
 export function tutorialFor(shape: CubeShape, method: string): Tutorial | undefined {
   return TUTORIALS[shape]?.find((e) => e.method === method)?.tutorial
