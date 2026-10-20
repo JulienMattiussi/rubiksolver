@@ -1,5 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+import { useHeight } from '@/hooks/useHeight'
+import { useIsDesktop } from '@/hooks/useIsDesktop'
+import { usePanelFold } from '@/hooks/usePanelFold'
 import { Controls } from '@/components/controls/Controls'
+import { TopBar } from '@/components/controls/TopBar'
 import { useI18n } from '@/i18n/i18nStore'
 import { cubeShape } from '@/lib/core/cube'
 import { SHAPE_LABEL } from '@/lib/core/shapes'
@@ -12,6 +16,11 @@ import { StageCheer } from '@/components/celebration/StageCheer'
 import { Scene } from '@/three/core/Scene'
 import { FaceArrows } from '@/components/edit/FaceArrows'
 
+/** A phone's folded panel, its height while it goes down (px, measured
+ *  once folded), and the margin below it (p-3). */
+const FOLDED_BAR = 152
+const PANEL_MARGIN = 12
+
 export default function App() {
   const locale = useI18n((s) => s.locale)
   const editing = useEditor((s) => s.mode === 'edit')
@@ -19,6 +28,19 @@ export default function App() {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
   const variant = useCube((s) => s.variant)
+  // On a phone, the puzzle is framed in the space above the panel (Scene's
+  // `covered`): open, the top fifth of the screen; folded, all above its
+  // bar; going down, the bar's height already, so the puzzle grows as the
+  // panel goes.
+  const panel = useRef<HTMLDivElement>(null)
+  const panelHeight = useHeight(panel)
+  const desktop = useIsDesktop()
+  const fold = usePanelFold()
+  const phone = !desktop && !editing && !home
+  const open = phone && !fold.folded
+  const covered = !phone
+    ? 0
+    : (fold.closing || panelHeight === 0 ? FOLDED_BAR : panelHeight) + PANEL_MARGIN
   useEffect(() => {
     document.documentElement.lang = locale
     document.querySelector('meta[name="description"]')?.setAttribute('content', t.metaDescription)
@@ -41,7 +63,7 @@ export default function App() {
           editing || home ? 'absolute inset-x-0 top-0 bottom-[48vh] sm:inset-0' : 'absolute inset-0'
         }
       >
-        {home ? <HomeGallery /> : <Scene />}
+        {home ? <HomeGallery /> : <Scene covered={covered} />}
         <FaceArrows />
         {/* A tutorial stage done: a cheer in front of the puzzle. */}
         <StageCheer />
@@ -50,13 +72,19 @@ export default function App() {
           to the scene: the panel cards opt back in (see Controls). */}
       <div className="pointer-events-none absolute inset-0 flex items-end justify-center p-3 sm:p-5">
         <div
-          className={`pointer-events-auto w-full max-w-sm overflow-auto sm:pointer-events-none sm:h-full sm:max-w-none sm:overflow-visible ${
-            editing || home ? 'max-h-[48vh] sm:max-h-full' : 'max-h-full'
+          ref={panel}
+          className={`pointer-events-auto flex w-full max-w-sm flex-col sm:pointer-events-none sm:block sm:h-full sm:max-w-none ${
+            editing || home
+              ? 'max-h-[48vh] sm:max-h-full'
+              : open
+                ? 'max-h-[80vh] sm:max-h-full'
+                : 'max-h-full'
           }`}
         >
           <Controls />
         </div>
       </div>
+      <TopBar />
       {/* A turn that solves the puzzle sets off a little show. */}
       <Fireworks />
     </main>

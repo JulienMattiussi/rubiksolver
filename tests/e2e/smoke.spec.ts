@@ -492,3 +492,37 @@ test('tutorial: Space and the arrows press its buttons on and back', async ({ pa
     timeout: 30000,
   })
 })
+
+test('phone: scrambling or solving from the open panel folds it', async ({ page }) => {
+  test.setTimeout(90000)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/#/fr/3x3')
+  await expect(page.getByRole('button', { name: 'Replier le menu' })).toBeVisible()
+  await page.getByRole('button', { name: 'Mélanger' }).click()
+  const unfold = page.getByRole('button', { name: 'Déplier le menu' })
+  await expect(unfold).toBeVisible()
+  await unfold.click()
+  const solve = page.getByRole('button', { name: 'Résoudre' }).last()
+  await expect(solve).toBeEnabled({ timeout: 60000 })
+  await solve.click()
+  await expect(unfold).toBeVisible()
+})
+
+test('phone: the folded bar stops a scramble or a solution in Solve’s place', async ({ page }) => {
+  test.setTimeout(90000)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/#/fr/3x3')
+  await page.getByRole('button', { name: 'Replier le menu' }).click()
+  await page.getByRole('button', { name: 'Mélanger' }).click()
+  const stop = page.getByRole('button', { name: 'Arrêter' })
+  await expect(stop).toBeVisible()
+  // A few moves in, so the cube is no longer solved.
+  await page.waitForTimeout(600)
+  await stop.click()
+  const solve = page.getByRole('button', { name: 'Résoudre' })
+  await expect(solve).toBeEnabled({ timeout: 30000 })
+  await solve.click()
+  await expect(stop).toBeVisible({ timeout: 30000 })
+  await stop.click()
+  await expect(solve).toBeVisible({ timeout: 30000 })
+})

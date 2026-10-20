@@ -11,9 +11,12 @@ import { CubeView } from './CubeView'
 import { EditView } from './EditView'
 import { PolyEditView } from './PolyEditView'
 import { PolyView } from './PolyView'
+import { ViewRegion } from './ViewRegion'
 
-/** The 3D canvas: camera, lighting, the cube (play or edit), orbit controls. */
-export function Scene() {
+/** The 3D canvas: camera, lighting, the cube (play or edit), orbit controls;
+ *  the puzzle framed above what a phone's panel covers (`covered`, px from
+ *  the bottom). */
+export function Scene({ covered = 0 }: { covered?: number }) {
   const editing = useEditor((s) => s.mode === 'edit')
   const shape = useCube((s) => cubeShape(s.cube))
   const gridless = isPolyDrawn(shape)
@@ -51,6 +54,7 @@ export function Scene() {
         enableDamping
       />
       <CameraReset />
+      <ViewRegion bottom={covered} />
     </Canvas>
   )
 }

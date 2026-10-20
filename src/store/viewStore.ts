@@ -24,6 +24,10 @@ interface ViewStore {
    *  focused), or null. */
   preview: Turn | null
   setPreview: (move: Turn | null) => void
+  /** Whether the panel is folded (a phone's: the puzzle in sight, a bar
+   *  of its main actions); scrambling and solving fold it. */
+  folded: boolean
+  setFolded: (folded: boolean) => void
 }
 
 export const useView = create<ViewStore>((set) => ({
@@ -34,4 +38,6 @@ export const useView = create<ViewStore>((set) => ({
     set((s) => ({ toward: { normal, lift, token: (s.toward?.token ?? 0) + 1 } })),
   preview: null,
   setPreview: (preview) => set({ preview }),
+  folded: false,
+  setFolded: (folded) => set({ folded }),
 }))

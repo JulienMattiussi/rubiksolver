@@ -93,3 +93,29 @@
     }
   }
 }
+
+/* A phone's panel unfolding: it rises from the bottom as the puzzle shrinks
+   above, at the same pace; folding, it goes down first, then the puzzle
+   grows (Controls, App). */
+@theme {
+  --animate-unfold: unfold 300ms ease-out;
+  --animate-fold: fold 300ms ease-in forwards;
+
+  @keyframes unfold {
+    0% {
+      transform: translateY(50vh);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fold {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(50vh);
+    }
+  }
+}

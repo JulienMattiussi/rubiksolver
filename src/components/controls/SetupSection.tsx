@@ -1,4 +1,4 @@
-import { ArchiveRestore, Bookmark, RotateCcw, Square } from 'lucide-react'
+import { ArchiveRestore, Bookmark, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import { cubeShape } from '@/lib/core/cube'
 import { SHAPE_LABEL } from '@/lib/core/shapes'
@@ -9,6 +9,7 @@ import { useEditor } from '@/store/editorStore'
 import { useSaved } from '@/store/savedStore'
 import { useTutorialStore } from '@/store/tutorialStore'
 import { Button } from '@/components/ui/Button'
+import { StopButton } from './StopButton'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { CubePicker } from '@/components/picker/CubePicker'
 import { SECTION_BOX } from '@/components/ui/styles'
@@ -56,10 +57,7 @@ export function SetupSection() {
       <div className="grid grid-cols-2 gap-2">
         <ScrambleButton />
         {busy && !solving ? (
-          <Button onClick={stop}>
-            <Square className="size-4" aria-hidden />
-            {t.stop}
-          </Button>
+          <StopButton onClick={stop} />
         ) : (
           <Button onClick={reset} disabled={solved || busy || tutorial} title={locked}>
             <RotateCcw className="size-4" aria-hidden />

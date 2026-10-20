@@ -2,20 +2,27 @@ import { Cog, Shuffle } from 'lucide-react'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectScrambling, useCube } from '@/store/cubeStore'
 import { useTutorialStore } from '@/store/tutorialStore'
+import { useView } from '@/store/viewStore'
 import { Button } from '@/components/ui/Button'
 
 /** Scramble: a turning cog while the scramble plays; locked during the
- *  tutorial, which follows the cube it began on. */
+ *  tutorial, which follows the cube it began on. It folds a phone's
+ *  panel. */
 export function ScrambleButton({ className = '' }: { className?: string }) {
   const t = useI18n((s) => s.t)
   const scramble = useCube((s) => s.scramble)
   const busy = useCube(selectBusy)
   const scrambling = useCube(selectScrambling)
   const tutorial = useTutorialStore((s) => s.active)
+  const fold = useView((s) => s.setFolded)
   const Icon = scrambling ? Cog : Shuffle
   return (
     <Button
-      onClick={scramble}
+      onClick={() => {
+        scramble()
+        // On a phone, the puzzle in sight while it plays.
+        fold(true)
+      }}
       disabled={busy || tutorial}
       aria-busy={scrambling}
       title={tutorial ? t.tutorial.locked : undefined}

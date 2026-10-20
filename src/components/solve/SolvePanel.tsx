@@ -1,18 +1,10 @@
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  Cog,
-  GraduationCap,
-  Square,
-} from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Cog } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
 import { tutorialFor } from '@/lib/tutorials/registry'
-import { useTutorialStore } from '@/store/tutorialStore'
 import { stepEnd } from '@/lib/solve/progress'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, selectSolved, useCube } from '@/store/cubeStore'
+import { useView } from '@/store/viewStore'
 import { Button } from '@/components/ui/Button'
 import { SECTION_BOX, SECTION_LABEL } from '@/components/ui/styles'
 import { FEATURE_ICON } from '@/components/ui/features'
@@ -20,6 +12,8 @@ import { useAutoPlan } from '@/hooks/useAutoPlan'
 import { useSolveShortcuts } from '@/hooks/useSolveShortcuts'
 import { useEditor } from '@/store/editorStore'
 import { MethodSelect } from './MethodSelect'
+import { TutorialButton } from './TutorialButton'
+import { StopButton } from '@/components/controls/StopButton'
 import { PlanOutline } from './PlanOutline'
 import { SlowCog } from './SlowCog'
 import { StepList } from './StepList'
@@ -46,6 +40,7 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
   const steps = useCube((s) => s.steps)
   const dispatched = useCube((s) => s.dispatched)
   const busy = useCube(selectBusy)
+  const fold = useView((s) => s.setFolded)
   const solved = useCube(selectSolved)
   const lengths = steps ? steps.map((s) => s.moves.length) : []
   const total = lengths.reduce((n, len) => n + len, 0)
@@ -58,7 +53,6 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
   const editing = useEditor((s) => s.mode === 'edit')
   // A puzzle with a tutorial: its button beside Solve.
   const tutorial = useCube((s) => tutorialFor(cubeShape(s.cube), s.method) !== undefined) && !home
-  const startTutorial = useTutorialStore((s) => s.start)
   const wide = tutorial ? '' : 'col-span-2'
   // The solution being computed: a turning cog says so.
   const computing = !home && !solved && !ready
@@ -91,14 +85,19 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
       <div className="grid grid-cols-2 gap-2">
         {busy && solving ? (
           // Pauses where it stands: the move under way ends, the rest waits.
-          <Button onClick={pause} className={wide} title={`${t.pauseTitle} (${t.solveKeys.pause})`}>
-            <Square className="size-4" aria-hidden />
-            {t.stop}
-          </Button>
+          <StopButton
+            onClick={pause}
+            className={wide}
+            title={`${t.pauseTitle} (${t.solveKeys.pause})`}
+          />
         ) : (
           <Button
             variant="solve"
-            onClick={solveAll}
+            onClick={() => {
+              solveAll()
+              // On a phone, the puzzle in sight while it plays.
+              fold(true)
+            }}
             disabled={home || busy || solved || !ready}
             aria-busy={computing}
             // Computing, its cog turns and it says so shortly (the whole
@@ -115,18 +114,7 @@ export function SolvePanel({ home = false }: { home?: boolean }) {
             {computing ? t.computingShort : t.solve}
           </Button>
         )}
-        {tutorial && (
-          // Nothing to teach on a solved puzzle.
-          <Button
-            variant="solveOutline"
-            onClick={startTutorial}
-            disabled={busy || solved}
-            title={t.tutorial.buttonTitle}
-          >
-            <GraduationCap className="size-4" aria-hidden />
-            {t.tutorial.button}
-          </Button>
-        )}
+        {tutorial && <TutorialButton />}
         <Button
           onClick={undoStep}
           disabled={back}

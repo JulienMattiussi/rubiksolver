@@ -10,7 +10,14 @@ import { tutorialFor } from '@/lib/tutorials/registry'
 /** Method dropdown (its label says how many; a method with a tutorial
  *  wears its icon) plus the selected method's description (two lines, all
  *  of it on a click of its arrow). */
-export function MethodSelect({ disabled }: { disabled: boolean }) {
+export function MethodSelect({
+  disabled,
+  compact = false,
+}: {
+  disabled: boolean
+  /** Without its description (the phone's folded bar). */
+  compact?: boolean
+}) {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
   const method = useCube((s) => s.method)
@@ -37,7 +44,9 @@ export function MethodSelect({ disabled }: { disabled: boolean }) {
         }))}
       />
       {/* Folded again for another method or language. */}
-      <MethodDesc key={method + t.methods[method].desc} text={t.methods[method].desc} />
+      {!compact && (
+        <MethodDesc key={method + t.methods[method].desc} text={t.methods[method].desc} />
+      )}
     </div>
   )
 }

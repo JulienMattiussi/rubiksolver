@@ -13,10 +13,11 @@ export function CollapseButton({
   const t = useI18n((s) => s.t)
   return (
     <IconButton label={collapsed ? t.expand : t.collapse} onClick={onToggle} className="sm:hidden">
+      {/* The panel stands at the bottom: up unfolds it, down folds it. */}
       {collapsed ? (
-        <ChevronDown className="size-5" aria-hidden />
-      ) : (
         <ChevronUp className="size-5" aria-hidden />
+      ) : (
+        <ChevronDown className="size-5" aria-hidden />
       )}
     </IconButton>
   )

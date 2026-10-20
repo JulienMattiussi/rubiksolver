@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { Controls } from '@/components/controls/Controls'
+import { TopBar } from '@/components/controls/TopBar'
 import { useI18n } from '@/i18n/i18nStore'
 import { cubeShape, solvedCube, stateKey } from '@/lib/core/cube'
 import { applyMoves } from '@/lib/core/turn'
@@ -28,7 +29,13 @@ beforeEach(() => {
 
 describe('<Controls />', () => {
   it('renders the French title and actions by default', () => {
-    render(<Controls />)
+    // On a phone (jsdom), the title stands in the top bar.
+    render(
+      <>
+        <TopBar />
+        <Controls />
+      </>,
+    )
     expect(screen.getByRole('heading', { name: 'Rubik Solver' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Mélanger' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Résoudre' })).toBeInTheDocument()
@@ -48,7 +55,12 @@ describe('<Controls />', () => {
 
   it('switches language to English', async () => {
     const user = userEvent.setup()
-    render(<Controls />)
+    render(
+      <>
+        <TopBar />
+        <Controls />
+      </>,
+    )
     await user.click(screen.getByRole('button', { name: 'en' }))
     expect(screen.getByRole('button', { name: 'Scramble' })).toBeInTheDocument()
   })
