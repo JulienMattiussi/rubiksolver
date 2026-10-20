@@ -7,6 +7,13 @@ async function pickCube(page: Page, category: string, name: string) {
   await page.getByRole('button', { name, exact: true }).click()
 }
 
+/** Choose a solving method in its dropdown (a method with a tutorial says
+ *  so after its name). */
+async function chooseMethod(page: Page, name: RegExp) {
+  await page.getByRole('combobox', { name: /^Méthode de résolution/ }).click()
+  await page.getByRole('option', { name }).click()
+}
+
 test('loads, renders the cube canvas and the controls', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
@@ -108,7 +115,7 @@ test('2x2: switch size, scramble, then solve with the optimal method', async ({ 
   await pickCube(page, 'Standards', '2x2 (Pocket)')
 
   // The 2x2 offers the optimal method; its solutions are at most 11 moves.
-  await page.getByLabel('Méthode de résolution').selectOption('optimal')
+  await chooseMethod(page, /^Optimale/)
 
   const scramble = page.getByRole('button', { name: 'Mélanger' })
   const solve = page.getByRole('button', { name: 'Résoudre' })
@@ -128,7 +135,7 @@ test('4x4: switch size, scramble, then solve by reduction', async ({ page }) => 
 
   await page.getByLabel('Vitesse').fill('100')
   await pickCube(page, 'Standards', '4x4 (Revenge)')
-  await page.getByLabel('Méthode de résolution').selectOption('reduction')
+  await chooseMethod(page, /^Réduction par couches/)
 
   const scramble = page.getByRole('button', { name: 'Mélanger' })
   const solve = page.getByRole('button', { name: 'Résoudre' })

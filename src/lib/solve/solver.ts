@@ -6,7 +6,6 @@ import { methodOf } from '../teach/method'
 import { tutorialFor } from '../tutorials/registry'
 import { proveFourByFour } from '../methods/standard/solver4/proof'
 import { solveMorph } from '../methods/pyramid/morph'
-import { FLOPPY_PLAN } from '../methods/flat/floppy'
 import { GHOST_PLAN } from '../methods/flat/ghost'
 import { BARREL_PLAN } from '../methods/round/barrel'
 import { BEGINNER_PLAN, CFOP_PLAN } from '../methods/standard/layers3'
@@ -227,7 +226,13 @@ const SOLVE_METHODS = [
   { id: 'puckIsolate', plans: { puck: PUCK_PLAN } },
   {
     id: 'cornersFirst',
-    plans: { '332': DOMINO_PLAN, '331': FLOPPY_PLAN, ghost: GHOST_PLAN, bigBlock: BIG_BLOCK_PLAN },
+    plans: {
+      '332': DOMINO_PLAN,
+      '123': taught('123', 'cornersFirst'),
+      '331': taught('331', 'cornersFirst'),
+      ghost: GHOST_PLAN,
+      bigBlock: BIG_BLOCK_PLAN,
+    },
   },
   {
     id: 'optimal',
@@ -280,14 +285,17 @@ const QUICKEST: Partial<Record<CubeShape, (cube: Cube) => Turn[]>> = { '2': solv
 /** A shape's own proof of solvability, throwing on an impossible state,
  *  when quicker than solving it (the 4x4's, solver4/proof.ts; the
  *  Pyramorphinx's, read as a 2x2; the 5x5's and the super cubes', their
- *  solver's reduction rather than their tutorial's, whose searches are not
- *  made to give up). */
+ *  solver's reduction, and the flat puzzles', their optimal search, rather
+ *  than their tutorial's, whose searches are not made to give up). */
 const PROOFS: Partial<Record<CubeShape, (cube: Cube) => void>> = {
   '4': proveFourByFour,
   morph: solveMorph,
   '5': (cube) => void buildSteps(cube, reduction5Plan(BEGINNER_PLAN)),
   super4: (cube) => void buildSteps(cube, super4Plan(reductionPlan(BEGINNER_PLAN))),
   super5: (cube) => void buildSteps(cube, super5Plan(reduction5Plan(BEGINNER_PLAN))),
+  // The flat puzzles' whole space searched (exhaustive.ts).
+  '123': (cube) => void buildSteps(cube, optimalPlan('123', 7)),
+  '331': (cube) => void buildSteps(cube, optimalPlan('331', 9)),
 }
 
 /** Throws when a state cannot be solved: its shape's proof, else its

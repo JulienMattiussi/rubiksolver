@@ -21,6 +21,16 @@ solvable est toujours trouvé avant, donc l'échec prouve un puzzle impossible,
 ce dont la validation se sert. Le test parcourt **tout l'espace d'états** et
 vérifie que chacun se résout, et que 6 coups suffisent toujours.
 
+**Coins puis arêtes** (son tutoriel, `lib/tutorials/flat/cube123.ts`, la
+méthode qu'il enseigne) : ses deux arêtes (les pièces du milieu, en haut et
+en bas) ne quittent jamais leur rangée, un demi-tour du haut ou du bas les
+retournant seulement ; celle du haut dit comment le tenir (le blanc en
+haut, sa couleur de devant face à soi, `frameOf`). (1) Les coins un à un, en
+demi-tours qui gardent ceux placés et l'arête du haut (cinq au plus ; le
+quatrième vient avec le troisième) ; (2) l'arête du bas retournée, une fois
+sur deux, par `U2 L2 U2 R2 D2 R2`, qui ne touche qu'elle. Le test parcourt
+les 96 états.
+
 > La tranche du milieu (la colonne centrale) n'est volontairement pas proposée :
 > la tourner équivaut à `L2 R2` suivi d'une rotation du puzzle entier, qui ne
 > change pas ce que « résolu » veut dire (pas de centre fixe pour ancrer un
@@ -31,10 +41,20 @@ vérifie que chacun se résout, et que 6 coups suffisent toujours.
 Le Floppy (`[3, 1, 3]`, `methods/flat/floppy.ts`, d'après fan2cube.fr/floppy1)
 est un 3x3 d'une seule couche : seulement `R2 L2 F2 B2`, 192 états, diamètre
 8 (tout est vérifié en parcourant l'espace entier). Les arêtes ne quittent
-jamais leur place, un demi-tour les retourne ; seuls les coins voyagent. Méthode **Coins puis arêtes** : (1) coins placés en demi-tours, (2) arêtes
-retournées deux par deux par `(F2 R2)3`, qui retourne l'avant et la droite
-sans rien toucher d'autre. En saisie, ses arêtes (qui se retournent) se
-peignent.
+jamais leur place, un demi-tour les retourne ; seuls les coins voyagent. Méthode **Coins puis arêtes**, celle de son tutoriel
+(`lib/tutorials/flat/floppy.ts`) : (1) coins placés un à un en demi-tours,
+(2) arêtes retournées deux par deux par `(F2 R2)3`, qui retourne l'avant et
+la droite sans rien toucher d'autre : tenu les deux à l'envers devant et à
+droite, ou, opposées, l'une devant (elles finissent côte à côte), ou toutes
+les quatre, n'importe comment. Le test parcourt les 192 états. En saisie,
+ses arêtes (qui se retournent) se peignent.
+
+**Ce que partagent leurs tutoriels** (`lib/tutorials/flat/flatKit.ts`) :
+une pièce s'y nomme par sa place (`flatPieceKind`) et par les couleurs de
+son pourtour, les deux grandes faces à part (`flatOutside`), et chaque côté
+par sa couleur dans le repère que disent les pièces qui ne bougent pas
+(`frameOf`, `frameColor`) ; les coins se placent par la même étape
+(`cornerStage`).
 
 ## Le Floppy Ghost (`ghost`)
 

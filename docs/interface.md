@@ -46,7 +46,10 @@ mobile et en saisie, une seule carte) :
   qui ne tourne pas comme un cube a son propre pad, nommé par le `pad` de sa
   carte et construit par `padFor`).
 - **Résolution** : choix de la **méthode** (liste déroulante, filtrée par
-  forme via `methodsFor`), **Tutoriel** à côté de Résoudre sur les puzzles
+  forme via `methodsFor` ; une méthode qui a un tutoriel porte son icône à
+  droite de son nom, comme sa vignette dans le sélecteur ; la liste est
+  faite main, `components/ui/Select.tsx`, un `<select>` natif ne pouvant
+  pas montrer d'icône), **Tutoriel** à côté de Résoudre sur les puzzles
   qui en ont un (voir plus bas), **Résoudre**
   (joue le reste de la solution), puis la solution parcourue dans les deux
   sens : **étape précédente / suivante** et **coup précédent / suivant** (le
@@ -132,8 +135,8 @@ survolé.
 `store/tutorialStore.ts` et `store/tutorialTrack.ts`, `hooks/useTutorial.ts`,
 `components/tutorial/`). Sur un puzzle qui en a un pour la méthode choisie
 (`tutorialFor(forme, méthode)` ; aujourd'hui le 3x3 par couches et par
-Ofapel, le 2x2 par couches, le 4x4, le 5x5 et les super cubes par réduction, le Pyraminx et
-le Pyramorphinx : rien pour Roux, CFOP ou l'optimale), le bouton Tutoriel (grisé sur un puzzle résolu) remplace
+Ofapel, le 2x2 par couches, le 4x4, le 5x5 et les super cubes par réduction, le Floppy et
+le 1x2x3, le Pyraminx et le Pyramorphinx : rien pour Roux, CFOP ou l'optimale), le bouton Tutoriel (grisé sur un puzzle résolu) remplace
 le bloc de résolution par un panneau où l'on résout soi-même, un **pas** à
 la fois.
 

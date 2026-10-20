@@ -74,7 +74,7 @@ describe('Corners then edges (Floppy method)', () => {
     expect(changed.sort()).toEqual(['0,0,1', '1,0,0'])
   })
 
-  it('is offered first, before the optimal search', () => {
+  it('is offered first (its tutorial), before the optimal search', () => {
     expect(methodsFor('331').map((m) => m.id)).toEqual(['cornersFirst', 'optimal'])
   })
 })

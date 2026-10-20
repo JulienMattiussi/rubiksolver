@@ -6,7 +6,7 @@ Chaque méthode, ses puzzles et ses étapes (registre : `src/lib/solve/solver.ts
 enseigne est ce tutoriel joué jusqu'au bout (`lib/teach/method.ts`) : ses
 étapes sont celles du tutoriel, chacune résolue par les formules qu'il
 propose l'une après l'autre ; la solution affichée est donc ce qu'il
-enseigne. C'est le cas de **Par couches** sur le 3x3 et le 2x2, d'**Ofapel** sur le 3x3, de la
+enseigne. C'est le cas de **Par couches** sur le 3x3 et le 2x2, d'**Ofapel** sur le 3x3, de **Coins puis arêtes** sur le Floppy et le 1x2x3, de la
 **Réduction** du 4x4, du 5x5 et des super cubes, de **Centres d'abord** sur le Pyraminx et de **Comme
 un Pocket** sur le Pyramorphinx ; leurs étapes sont décrites avec leur
 tutoriel ([standard](puzzles/standard.md), [pyramid](puzzles/pyramid.md)).
@@ -88,7 +88,7 @@ Leurs étapes sont décrites dans la fiche de chaque puzzle (section
 | Double Domino (`doubleDomino`)                  | tour 3x3x4                                                                     | [tower](puzzles/tower.md)                                                           |
 | Réduction (`towerReduction`)                    | tours 4x4x3, 4x4x5, 5x5x4                                                      | [tower](puzzles/tower.md)                                                           |
 | Équateur puis coins (`equatorFirst`)            | Slim Tower 2x2x3                                                               | [tower](puzzles/tower.md)                                                           |
-| Coins puis arêtes (`cornersFirst`)              | Domino, Floppy, Floppy Ghost, BigBlock                                         | [tower](puzzles/tower.md), [flat](puzzles/flat.md), [bandaged](puzzles/bandaged.md) |
+| Coins puis arêtes (`cornersFirst`)              | Domino, 1x2x3, Floppy, Floppy Ghost, BigBlock                                  | [tower](puzzles/tower.md), [flat](puzzles/flat.md), [bandaged](puzzles/bandaged.md) |
 | Isoler puis permuter (`isolateFirst`)           | 2-Star Prism                                                                   | [round](puzzles/round.md)                                                           |
 | Deux étoiles (`twoStars`)                       | 4-Star Prism                                                                   | [round](puzzles/round.md)                                                           |
 | Isoler puis permuter (`puckIsolate`)            | Hockey Puck                                                                    | [round](puzzles/round.md)                                                           |

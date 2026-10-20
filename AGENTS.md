@@ -153,7 +153,8 @@ src/
 │   │                    #   termsBig (vocabulaire des grands cubes) ; superCubes (les super cubes : le tutoriel
 │   │                    #   du 4x4 ou du 5x5 sur leurs couleurs, puis leurs centres) ;
 │   │                    #   pyramid/pyraminx (Centres d'abord), pyraHolds (ses tenues), pyraTerms ;
-│   │                    #   pyramid/morph (le Pyramorphinx, Comme un Pocket), morphTerms
+│   │                    #   pyramid/morph (le Pyramorphinx, Comme un Pocket), morphTerms ;
+│   │                    #   flat/floppy et flat/cube123 (Coins puis arêtes), flatKit (ce qu'ils partagent)
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
 │                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
