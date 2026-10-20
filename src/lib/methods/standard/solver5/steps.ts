@@ -29,7 +29,7 @@ const WITH_MIDDLES: MoveSet = {
 
 /** The middle centers where the absolute frame wants them (the 3x3 plans
  *  take it: yellow down, white up). */
-const middlesHome = (cube: Cube) =>
+export const middlesHome = (cube: Cube) =>
   cube
     .filter(isFixedCenter)
     .every((c) => c.stickers[0]!.color === FACE_COLOR[faceOfNormal(c.stickers[0]!.normal)])

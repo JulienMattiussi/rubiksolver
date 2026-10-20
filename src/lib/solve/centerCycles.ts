@@ -30,6 +30,12 @@ const slot = (c: Cubie) => c.position.join(',')
 
 const ORDER: readonly Face[] = ['D', 'U', 'F', 'R', 'B']
 
+/** A center to take from its slot to another (`x,y,z` keys). */
+interface Pick {
+  readonly from: string
+  readonly to: string
+}
+
 export function centerSolver(spec: CenterSpec) {
   const { mechanism, kinds, slices, outer } = spec
   const kindOf = (c: Cubie) => kinds.find((k) => k.is(c))
@@ -42,11 +48,20 @@ export function centerSolver(spec: CenterSpec) {
     centers.filter((c) => faceOf(c) === face && right(c)).length
 
   /** Two turns (a slice, a face turn) that add a right center to `face`,
-   *  every finished face kept, if any. */
-  function quickPlacement(centers: Cube, face: Face, full: number, finished: readonly Face[]) {
+   *  every finished face kept (the picked center taken to its slot), if any. */
+  function quickPlacement(
+    centers: Cube,
+    face: Face,
+    full: number,
+    finished: readonly Face[],
+    pick?: Pick,
+  ) {
     const want = countOn(centers, face) + 1
+    const piece = pick ? centers.findIndex((c) => slot(c) === pick.from) : -1
     const ok = (c: Cube) =>
-      countOn(c, face) >= want && finished.every((f) => countOn(c, f) === full)
+      countOn(c, face) >= want &&
+      finished.every((f) => countOn(c, f) === full) &&
+      (!pick || slot(c[piece]!) === pick.to)
     for (const first of [...slices, ...outer]) {
       const one = applyMoves(centers, [first], mechanism)
       if (ok(one)) return [first]
@@ -58,9 +73,15 @@ export function centerSolver(spec: CenterSpec) {
     return null
   }
 
-  /** A pure 3-cycle bringing a right center onto `face`, its third slot
-   *  where nothing is done (a turn of the source's face first if needed). */
-  function cyclePlacement(centers: Cube, face: Face, finished: readonly Face[]): Move[] {
+  /** A pure 3-cycle bringing a right center onto `face` (the picked one to
+   *  its slot), its third slot where nothing is done (a turn of the
+   *  source's face first if needed); null when there is none. */
+  function cyclePlacement(
+    centers: Cube,
+    face: Face,
+    finished: readonly Face[],
+    pick?: Pick,
+  ): Move[] | null {
     const fixed = new Set(
       centers
         .filter((c) => finished.includes(faceOf(c)) || (faceOf(c) === face && right(c)))
@@ -69,11 +90,13 @@ export function centerSolver(spec: CenterSpec) {
     const color = FACE_COLOR[face]
     for (const target of centers) {
       if (faceOf(target) !== face || right(target)) continue
+      if (pick && slot(target) !== pick.to) continue
       const kind = kindOf(target)!
       for (const source of centers) {
         if (!kind.is(source) || source.stickers[0]!.color !== color || fixed.has(slot(source))) {
           continue
         }
+        if (pick && slot(source) !== pick.from) continue
         // The source's face turned 0 to 3 quarters first: free, it never
         // changes what a face holds.
         for (const amount of [0, 1, 2, 3] as const) {
@@ -85,28 +108,37 @@ export function centerSolver(spec: CenterSpec) {
         }
       }
     }
-    throw new Error(`solveCenters: no 3-cycle for face ${face}`)
+    return null
+  }
+
+  /** The next center placed: one more right center on the first face not
+   *  done, those before kept (the picked one, from its slot to its own, if
+   *  asked: null when no placement does that). Null once all are done. */
+  function placeCenter(cube: Cube, pick?: Pick): Move[] | null {
+    // Only the centers matter here: the search turns them alone.
+    const centers = cube.filter(isMoving)
+    const full = centers.length / 6
+    const at = ORDER.findIndex((f) => countOn(centers, f) < full)
+    if (at < 0) return null
+    const face = ORDER[at]!
+    const finished = ORDER.slice(0, at)
+    return (
+      quickPlacement(centers, face, full, finished, pick) ??
+      cyclePlacement(centers, face, finished, pick)
+    )
   }
 
   function solve(cube: Cube): Move[] {
-    // Only the centers matter here: the search turns them alone.
     let centers: Cube = cube.filter(isMoving)
-    const full = centers.length / 6
     const all: Move[] = []
-    const finished: Face[] = []
-    for (const face of ORDER) {
-      for (let guard = 0; countOn(centers, face) < full; guard++) {
-        if (guard > 2 * full) throw new Error(`solveCenters: no progress on ${face}`)
-        const moves =
-          quickPlacement(centers, face, full, finished) ?? cyclePlacement(centers, face, finished)
-        centers = applyMoves(centers, moves, mechanism)
-        all.push(...moves)
-      }
-      finished.push(face)
+    for (let guard = 0; !done(centers); guard++) {
+      const moves = placeCenter(centers)
+      if (!moves || guard > centers.length) throw new Error('solveCenters: no progress')
+      centers = applyMoves(centers, moves, mechanism)
+      all.push(...moves)
     }
-    if (!done(centers)) throw new Error('solveCenters: centers left unsolved')
     return all
   }
 
-  return { centersDone: done, solveCenters: solve }
+  return { centersDone: done, solveCenters: solve, placeCenter }
 }

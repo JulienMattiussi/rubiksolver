@@ -1,4 +1,5 @@
 import { solvedCube } from '../../../core/cube'
+import { colorAt } from '../../../core/pieces'
 import { faceOfNormal, mapVec, vecKey } from '../../../core/geometry'
 import { parseMoves } from '../../../core/notation'
 import { applyMove, applyMoves } from '../../../core/turn'
@@ -43,6 +44,25 @@ const EDGES: readonly EdgeSlot[] = SOLVED.filter(isMidge).map((m) => {
     faces: m.stickers.map((s) => faceOfNormal(s.normal)),
   }
 })
+
+/** The slots of the wings beside their edge's middle piece, showing its
+ *  colors on its faces (the slots holding the wing they want), and how
+ *  many edges have both. Read on any pieces holding the
+ *  edges (the tutorial's searches turn those alone). */
+export function edgePairing(cube: Cube): { wings: string[]; edges: number } {
+  const byPos = new Map(cube.map((c) => [vecKey(c.position), c]))
+  const wings: string[] = []
+  let edges = 0
+  for (const edge of EDGES) {
+    const midge = byPos.get(edge.midge)!
+    const paired = edge.wings
+      .map(vecKey)
+      .filter((p) => edge.faces.every((f) => colorAt(byPos.get(p)!, f) === colorAt(midge, f)))
+    wings.push(...paired)
+    if (paired.length === 2) edges++
+  }
+  return { wings, edges }
+}
 
 /** How each wing shows its colors in each slot: wing index -> slot -> face
  *  -> color (found by turning each wing alone). */

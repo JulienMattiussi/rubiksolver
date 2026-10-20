@@ -28,9 +28,9 @@ import { projected, tutorialOf, type Kept, type Target } from '../../teach/kit'
 import type { TutorialPick } from '../../teach/tutorial'
 import { FIRST_LAYERS } from './cube3'
 import { LAST_LAYER } from './cube3LastLayer'
-import { PROJECT_4 } from './project4'
+import { PROJECT_4 } from './reduced'
 import { CLOCKWISE, CORNER, COUNTERCLOCKWISE, THICKNESSES } from './terms'
-import { CENTER4, EDGE4, INNER, WING } from './terms4'
+import { CENTER4, EDGE4, INNER, WING } from './termsBig'
 
 /**
  * The 4x4's tutorial, by reduction (yellow down, white up: its centers say

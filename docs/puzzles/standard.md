@@ -102,9 +102,12 @@ ensemble en deux lettres (`Rr`, FR `Dd`), par le `format` de leur modèle
 
 Le moteur n'a rien de nouveau pour le 5x5 (grille `{-2..2}`, coups `R`,
 `2R`, `Rw` déduits de la forme, centres du milieu fixes et pré-remplis en
-saisie), sauf la **tranche du milieu** (`3R`, `Move.depth` 3), que seule la
-méthode utilise (pas le pad ni le mélange) : le guide la montre via
-`methodTurns`. La saisie distingue les deux sortes de centres d'une couleur
+saisie), plus la **tranche du milieu** (`3R`, `3U`, `3F` : `Move.depth` 3, `slice3`
+dans `inner` sur sa carte), sur le pad et dans le mélange : les
+commutateurs des centres en croix en ont besoin, une tranche `2R` croisant
+toujours une rangée sur un centre diagonal. Mélangé, le cube a donc ses
+centres fixes ailleurs : méthode et tutoriel commencent par le tenir comme
+il faut. La saisie distingue les deux sortes de centres d'une couleur
 (budget 4 chacune).
 
 Une recherche bornée par comptage, comme sur le 4x4, ne suffit pas : une
@@ -132,6 +135,28 @@ demande un commutateur. La méthode est donc celle des cubeurs, par
    un 5x5 aux centres faits, il n'échange que ces deux ailes).
 4. **Phase 3x3** par projection (`projectPlan`, partagé avec le 4x4) : coins,
    milieux d'arêtes et centres fixes forment un vrai 3x3, toujours légal.
+
+Ce plan reste celui du super 5x5 et de la preuve de solubilité ; le 5x5
+lui-même joue son tutoriel.
+
+**Le tutoriel du 5x5** (`lib/tutorials/standard/cube5.ts`, réduction par
+couches, comme celui du 4x4) : le cube tenu ses centres fixes à leur place
+(`holdStage` avec `middlesHome`), puis (1) les centres un à un, D, U puis la
+ceinture, chacun placé comme le fait le solveur (`placeCenter` :
+deux coups tant que la face est ouverte, sinon un commutateur), sa
+progression ne comptant une face qu'une fois les précédentes finies ;
+(2) les arêtes, une aile à la fois à côté de son arête centrale, à la
+façon des cubeurs (`pair5.ts`) : des tours externes (trois au plus,
+qui déplacent des arêtes entières) puis une tranche, `R U R' F R' F' R`
+qui retourne l'arête FR, la tranche défaite (2U ou 2D, dans un sens ou
+dans l'autre, ou la formule jouée à l'envers), chaque formule complétant
+une arête de plus, ou plaçant une aile de plus sans défaire d'arête
+complète ; (3) la parité, une arête aux deux ailes échangées amenée en UF
+(`fixEdgeParity`) ; puis les étapes du 3x3 projetées (`PROJECT_5`,
+`tutorials/standard/reduced.ts`, la projection partagée avec le 4x4 :
+une arête du 3x3 est son arête centrale et ses deux ailes, l'arête
+centrale d'abord). Vocabulaire : centre fixe, centre, arête centrale,
+aile, arête complète, tranche intérieure (`termsBig.ts`).
 
 ## Les super cubes (`super4`, `super5`)
 

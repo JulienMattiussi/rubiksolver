@@ -133,6 +133,7 @@ export const UI_EN: typeof UI_FR = {
     outer: 'Outer',
     slice: 'Slice',
     slice3: 'Slice 3',
+    middle: 'Middle slice',
     wide: 'Wide',
     wide3: 'Wide 3',
     advanced: 'Advanced',

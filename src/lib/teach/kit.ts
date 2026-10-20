@@ -103,10 +103,15 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
   const stageKeys = Array.from({ length: stages }, (_, i) =>
     keyOf(numbered.find((s) => s.stage === i + 1)),
   )
-  /** The center sticker facing that way, if the puzzle has one. */
+  /** The sticker of the middle center facing that way (a 5x5's fixed one),
+   *  if the puzzle has one. */
   const centerColor = (cube: Cube, normal: Vec3) =>
-    cube.find((c) => c.stickers.length === 1 && c.stickers[0]!.normal.join() === normal.join())
-      ?.stickers[0]!.color ?? null
+    cube.find(
+      (c) =>
+        c.stickers.length === 1 &&
+        c.stickers[0]!.normal.join() === normal.join() &&
+        c.position.every((v, a) => normal[a] !== 0 || v === 0),
+    )?.stickers[0]!.color ?? null
   return {
     frame,
     stages,

@@ -5,6 +5,7 @@ import { CUBE2_TUTORIAL } from './standard/cube2'
 import { OFAPEL_TUTORIAL } from './standard/ofapel'
 import { CUBE3_TUTORIAL } from './standard/cube3'
 import { CUBE4_TUTORIAL } from './standard/cube4'
+import { CUBE5_TUTORIAL } from './standard/cube5'
 import { MORPH_TUTORIAL } from './pyramid/morph'
 import { PYRAMINX_TUTORIAL } from './pyramid/pyraminx'
 
@@ -23,6 +24,7 @@ interface TutorialEntry {
 const TUTORIALS: Partial<Record<CubeShape, readonly TutorialEntry[]>> = {
   '2': [{ method: 'beginner', tutorial: CUBE2_TUTORIAL }],
   '4': [{ method: 'reduction', tutorial: CUBE4_TUTORIAL }],
+  '5': [{ method: 'reduction', tutorial: CUBE5_TUTORIAL }],
   pyra: [{ method: 'centersFirst', tutorial: PYRAMINX_TUTORIAL }],
   morph: [{ method: 'asPocket', tutorial: MORPH_TUTORIAL }],
   '3': [

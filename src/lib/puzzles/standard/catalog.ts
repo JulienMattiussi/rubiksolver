@@ -27,7 +27,7 @@ export const STANDARD = {
     slug: '5x5',
     dims: [5, 5, 5],
     scramble: 60,
-    inner: ['slice', 'wide'],
+    inner: ['slice', 'slice3', 'wide'],
   },
   '6': {
     label: '6x6',

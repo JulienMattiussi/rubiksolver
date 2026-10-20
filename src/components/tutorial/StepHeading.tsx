@@ -3,10 +3,12 @@ import { stepName } from '@/i18n/translations'
 import { useI18n } from '@/i18n/i18nStore'
 import { Bolded } from './Bolded'
 import { HatchedCubie } from './HatchedCubie'
+import { ProgressCount } from './ProgressCount'
 import { TermDemo } from './TermDemo'
 import { useTutorialTexts } from './useTutorialTexts'
 
-/** The most progress dots a heading shows. */
+/** The most progress dots a heading shows (past them, the numbers of its
+ *  words wear the dots' colors, ProgressCount). */
 const MAX_DOTS = 12
 
 /** A tutorial step's heading: its rank among the stages, its goal, how far
@@ -42,17 +44,22 @@ export function StepHeading({
       {progress && told && (
         <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-300">
           {/* A dot a piece, while they fit (a 4x4's 24 centers: the words alone). */}
-          {progress.total <= MAX_DOTS && (
-            <span className="flex gap-1" aria-hidden>
-              {Array.from({ length: progress.total }, (_, i) => (
-                <span
-                  key={i}
-                  className={`size-2 rounded-full ${i < progress.done ? 'bg-emerald-400' : 'bg-slate-600'}`}
-                />
-              ))}
-            </span>
+          {progress.total <= MAX_DOTS ? (
+            <>
+              <span className="flex gap-1" aria-hidden>
+                {Array.from({ length: progress.total }, (_, i) => (
+                  <span
+                    key={i}
+                    className={`size-2 rounded-full ${i < progress.done ? 'bg-emerald-400' : 'bg-slate-600'}`}
+                  />
+                ))}
+              </span>
+              {told(progress.done, progress.total)}
+            </>
+          ) : (
+            // Too many for dots: their colors on the numbers.
+            <ProgressCount text={told(progress.done, progress.total)} {...progress} />
           )}
-          {told(progress.done, progress.total)}
         </div>
       )}
       {term ? (

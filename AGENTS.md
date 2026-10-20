@@ -148,7 +148,9 @@ src/
 │   │                    #   partagent les cubes : coins jaunes, tour du haut, formule lue dans une tenue),
 │   │                    #   terms (vocabulaire des cubes), en méthode débutant ; ofapel, ofapelKit et
 │   │                    #   ofapelEnd (le 3x3 par Ofapel) ;
-│   │                    #   cube4 (réduction, puis les étapes du 3x3 projetées), project4, terms4 ;
+│   │                    #   cube4 (réduction, puis les étapes du 3x3 projetées), cube5 et pair5 (le 5x5,
+│   │                    #   ses arêtes une aile à la fois), reduced (un grand cube réduit lu comme un 3x3),
+│   │                    #   termsBig (vocabulaire des grands cubes) ;
 │   │                    #   pyramid/pyraminx (Centres d'abord), pyraHolds (ses tenues), pyraTerms ;
 │   │                    #   pyramid/morph (le Pyramorphinx, Comme un Pocket), morphTerms
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux

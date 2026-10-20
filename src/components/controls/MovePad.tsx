@@ -69,8 +69,15 @@ export function MovePad({ disabled, corners }: { disabled: boolean; corners?: bo
   )
   /** The rows of buttons a tab shows, three layers a row. */
   const rowsOf = (k: PadTab) => Math.ceil((k === 'advanced' ? advancedLayers : faces).length / 3)
+  /** The third layer is the middle one (a 5x5's 3R): named by R, U and F
+   *  only, never by their opposite faces. */
+  const middle = !moves.some((m) => layerKindOf(m) === 'slice3' && ['L', 'D', 'B'].includes(m.face))
   const nameOf = (k: PadTab) =>
-    corners && (k === 'outer' || k === 'wide') ? t.vtoLayerKinds[k] : t.layerKinds[k]
+    corners && (k === 'outer' || k === 'wide')
+      ? t.vtoLayerKinds[k]
+      : k === 'slice3' && middle
+        ? t.layerKinds.middle
+        : t.layerKinds[k]
 
   /** A tab's buttons. */
   const grid = (tabShown: PadTab) => {

@@ -131,8 +131,9 @@ survolé.
 **Tutoriel** (moteur `lib/teach/`, tutoriels `lib/tutorials/`, état
 `store/tutorialStore.ts` et `store/tutorialTrack.ts`, `hooks/useTutorial.ts`,
 `components/tutorial/`). Sur un puzzle qui en a un pour la méthode choisie
-(`tutorialFor(forme, méthode)` ; aujourd'hui le 3x3 et le 2x2, méthode par
-couches : rien pour Roux, CFOP ou l'optimale), le bouton Tutoriel (grisé sur un puzzle résolu) remplace
+(`tutorialFor(forme, méthode)` ; aujourd'hui le 3x3 par couches et par
+Ofapel, le 2x2 par couches, le 4x4 et le 5x5 par réduction, le Pyraminx et
+le Pyramorphinx : rien pour Roux, CFOP ou l'optimale), le bouton Tutoriel (grisé sur un puzzle résolu) remplace
 le bloc de résolution par un panneau où l'on résout soi-même, un **pas** à
 la fois.
 

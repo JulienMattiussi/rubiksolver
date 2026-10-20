@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { scrambleTurns } from '@/lib/core/moves'
 import { formatMoves, parseMoves } from '@/lib/core/notation'
-import { methodsFor } from '@/lib/solve/solver'
+import { BEGINNER_PLAN } from '@/lib/methods/standard/layers3'
+import { reduction5Plan } from '@/lib/methods/standard/solver5/steps'
+import { buildSteps } from '@/lib/solve/solverKit'
 import { centersDone, solveCenters } from '@/lib/methods/standard/solver5/centers'
 import {
   EDGE_PARITY,
@@ -57,11 +59,13 @@ describe('5x5', () => {
   })
 
   it('meets the edge parity on some scrambles, and solves them all', () => {
-    const [method] = methodsFor('5')
+    // The solver's reduction (super 5x5's, and the 5x5's proof), its
+    // tutorial's apart (tests/unit/tutorials/cube5.test.ts).
+    const plan = reduction5Plan(BEGINNER_PLAN)
     let parities = 0
     for (let seed = 0; seed < 8; seed++) {
       const cube = scrambled(seed)
-      const steps = method!.solve(cube)
+      const steps = buildSteps(cube, plan)
       if (steps.some((s) => s.key === 'stepParity')) parities++
       const reducedAt = steps.findIndex((s) => s.key === 'stepBottomCross')
       const reduced = applyMoves(

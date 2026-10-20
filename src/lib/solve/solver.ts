@@ -158,7 +158,7 @@ const SOLVE_METHODS = [
     plans: {
       '4': taught('4', 'reduction'),
       super4: super4Plan(reductionPlan(BEGINNER_PLAN)),
-      '5': reduction5Plan(BEGINNER_PLAN),
+      '5': taught('5', 'reduction'),
       super5: super5Plan(reduction5Plan(BEGINNER_PLAN)),
       '6': reduction6Plan(BEGINNER_PLAN),
     },
@@ -279,10 +279,12 @@ const QUICKEST: Partial<Record<CubeShape, (cube: Cube) => Turn[]>> = { '2': solv
 
 /** A shape's own proof of solvability, throwing on an impossible state,
  *  when quicker than solving it (the 4x4's, solver4/proof.ts; the
- *  Pyramorphinx's, read as a 2x2). */
+ *  Pyramorphinx's, read as a 2x2; the 5x5's, its solver's reduction rather
+ *  than its tutorial's, whose searches are not made to give up). */
 const PROOFS: Partial<Record<CubeShape, (cube: Cube) => void>> = {
   '4': proveFourByFour,
   morph: solveMorph,
+  '5': (cube) => void buildSteps(cube, reduction5Plan(BEGINNER_PLAN)),
 }
 
 /** Throws when a state cannot be solved: its shape's proof, else its

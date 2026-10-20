@@ -131,6 +131,7 @@ export const UI_FR = {
     outer: 'Externe',
     slice: 'Tranche',
     slice3: 'Tranche 3',
+    middle: 'Tranche du milieu',
     wide: 'Large',
     wide3: 'Large 3',
     advanced: 'Avancé',

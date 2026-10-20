@@ -5,7 +5,7 @@
 # Rubik Solver
 
 **Turn, scramble or enter 75 twisty puzzles in 3D, then solve them step by step with
-real methods, or learn to solve the 3x3, the 2x2, the 4x4, the Pyraminx or the Pyramorphinx yourself with a guided tutorial.**
+real methods, or learn to solve the 3x3, the 2x2, the 4x4, the 5x5, the Pyraminx or the Pyramorphinx yourself with a guided tutorial.**
 
 [**Try it**](https://rubiksolver.yavadeus.dev) &nbsp;·&nbsp;
 [The puzzles](#75-puzzles-12-families) &nbsp;·&nbsp;
@@ -18,7 +18,7 @@ real methods, or learn to solve the 3x3, the 2x2, the 4x4, the Pyraminx or the P
 
 <sub>
   100% front-end &nbsp;·&nbsp; React 19 + React Three Fiber &nbsp;·&nbsp; TypeScript strict &nbsp;·&nbsp;
-  integer-only puzzle engine &nbsp;·&nbsp; 48 solving methods &nbsp;·&nbsp; 6 guided tutorials &nbsp;·&nbsp;
+  integer-only puzzle engine &nbsp;·&nbsp; 48 solving methods &nbsp;·&nbsp; 7 guided tutorials &nbsp;·&nbsp;
   French and English &nbsp;·&nbsp; MIT license
 </sub>
 
@@ -60,7 +60,8 @@ four steps and three formulas of its maker's manual: the yellow face built on to
 corners placed, then the cube turned over for the white face and its corners.
 The Pyraminx has one too, laid flat, in five stages from the centers to the flipped edges, and
 the Pyramorphinx, solved as the 2x2 it hides. The 4x4 gathers its centers and pairs its edges, then
-plays the 3x3's stages on the reduced cube, its two parities fixed where they show.
+plays the 3x3's stages on the reduced cube, its two parities fixed where they show. The 5x5
+does the same around its fixed centers, its edges completed a wing at a time the way cubers do.
 Every tutorial starts with its words (an edge, a tip, clockwise...), shown on the puzzle.
 
 <img src="docs/images/tutorial.png" width="820" alt="The 3x3 tutorial: an arrow from a yellow edge to its place, and the step's numbered instructions on the right.">

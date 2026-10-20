@@ -7,7 +7,7 @@ import { applyMoves } from '../../core/turn'
 import type { Cube, Face, Move, Vec3 } from '../../core/types'
 import { CORNER_PAIRS, edgePlaced, middleEdgePlaced } from '../../methods/standard/layers3'
 import { homeOf } from '../../methods/standard/pieces3'
-import { turnHome } from '../../methods/standard/recenter'
+import { centersHome, turnHome } from '../../methods/standard/recenter'
 import { OUTER_GENERATORS, search, SIDES } from '../../solve/solverKit'
 import { tutorialOf, type Kept, type Target } from '../../teach/kit'
 import type { FormulaStage, PieceStage } from '../../teach/stages'
@@ -199,14 +199,18 @@ export const FIRST_LAYERS: readonly PieceStage[] = [
  * frame: the cube turned in one's hands, nothing played (the centers keep
  * their places one to another, a middle slice moving them as a turn of the
  * whole cube does). Not once `built` (a tutorial whose stages turn the
- * middle layer or the cube on purpose: Ofapel's).
+ * middle layer or the cube on purpose: Ofapel's). `home` says the centers
+ * home (by default a 3x3's; a 5x5's middle ones).
  */
-export const holdStage = (built: (cube: Cube) => boolean = () => false): FormulaStage => ({
+export const holdStage = (
+  built: (cube: Cube) => boolean = () => false,
+  home: (cube: Cube) => boolean = centersHome,
+): FormulaStage => ({
   kind: 'formula',
   key: 'stepHoldCube',
-  done: (cube) => built(cube) || (turnHome(cube)?.length ?? 0) === 0,
+  done: (cube) => built(cube) || (turnHome(cube, home)?.length ?? 0) === 0,
   hold: 'F',
-  formula: (cube) => turnHome(cube) ?? [],
+  formula: (cube) => turnHome(cube, home) ?? [],
 })
 
 export const CUBE3_TUTORIAL = tutorialOf({
