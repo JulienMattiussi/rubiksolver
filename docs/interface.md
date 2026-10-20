@@ -90,9 +90,21 @@ mobile et en saisie, une seule carte) :
   gauche ou retour arrière son bouton en arrière (le mot d'avant, Annuler le
   déplacement, Revenir au vocabulaire), avec les mêmes réserves.
 
-**Mobile** : le panneau se **replie** en une barre compacte (Mélanger +
-Résoudre) ; en mode saisie, le cube est empilé **au-dessus** du panneau pour
-rester entièrement visible pendant la peinture.
+**Mobile** : une **barre du haut** (`TopBar`), par-dessus la scène, porte
+le titre (son icône seule quand le panneau est ouvert), la langue et le
+chevron de repli (vers le haut : déplier ; vers le bas : replier). Le
+panneau se **replie** en une barre compacte : la méthode et le Tutoriel à
+côté, Mélanger et Résoudre (Arrêter à la place de Résoudre pendant un
+mélange ou une résolution) ; Mélanger et Résoudre le replient, Tutoriel le
+déplie, le tutoriel passant alors avant le choix du cube. Ouvert, il laisse
+au cube le cinquième haut de l'écran et défile en lui-même (son cadre
+reste entier). Le puzzle est cadré entre le haut de l'écran et le haut du
+panneau : le canvas garde sa taille, c'est la caméra qui se décale
+(`ViewRegion`, au même rythme et sur la même courbe que le panneau, qui
+monte et descend en 300 ms ; replié, la scène suit la hauteur mesurée du
+panneau, `useHeight`, `usePanelFold`). En mode saisie, le cube est empilé
+**au-dessus** du panneau pour rester entièrement visible pendant la
+peinture.
 
 **Forme d'un puzzle déformable** (`FormPicker`) : les formes de `formsOf` en
 vignettes (`formDrawing`), groupées par nombre de petits cubes isolés aux

@@ -513,6 +513,8 @@ test('phone: the folded bar stops a scramble or a solution in Solve’s place', 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#/fr/3x3')
   await page.getByRole('button', { name: 'Replier le menu' }).click()
+  // The panel goes down first, then turns into its bar (Enter gone).
+  await expect(page.getByRole('button', { name: 'Saisir', exact: true })).toBeHidden()
   await page.getByRole('button', { name: 'Mélanger' }).click()
   const stop = page.getByRole('button', { name: 'Arrêter' })
   await expect(stop).toBeVisible()

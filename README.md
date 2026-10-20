@@ -145,10 +145,11 @@ solve in disguise.
   (pieces to place one at a time, or figures to recognize), each with its targets, how
   to hold the puzzle and how to find its formulas. The engine knows no puzzle: a
   tutorial for another puzzle, or another method, only declares its own stages.
-- **Every formula is tested before a method uses it.** Methods for the less common
-  puzzles follow the formulas of [fan2cube.fr](https://www.fan2cube.fr), each one seen
-  from every side and set up by a move undone afterwards; each formula's effect is
-  checked in a test.
+- **Every formula is tested before a method uses it.** The methods draw on several
+  sources (the usual speedcubing methods, [fan2cube.fr](https://www.fan2cube.fr),
+  [francocube.com](https://www.francocube.com), the puzzles' own manuals) and on our own
+  exploration of each puzzle; a formula is seen from every side and set up by a move
+  undone afterwards, and each formula's effect is checked in a test.
 
 ## Getting started
 
@@ -182,8 +183,9 @@ The project documentation is written in French.
 
 ## License
 
-[MIT](LICENSE). Methods and formulas for many puzzles come from
-[fan2cube.fr](https://www.fan2cube.fr).
+[MIT](LICENSE). The methods and formulas come from several sources, among them
+[fan2cube.fr](https://www.fan2cube.fr), [francocube.com](https://www.francocube.com) and
+the puzzles' own manuals, and from our own exploration.
 
 ---
 
