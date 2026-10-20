@@ -82,6 +82,8 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
     'This first, preliminary step is to learn and understand the words used to describe and handle the cube.',
   termCount: (n, total) => `Word ${n} of ${total}`,
   skipTerms: 'Skip',
+  keysAhead: 'Shortcut: Space or right arrow',
+  keysBack: 'Shortcut: left arrow or Backspace',
   legend: 'The legend',
   legendIntro: 'This puzzle wears a single color: its pieces are told by their shape.',
   legendKinds: { corner: 'The corners', edge: 'The edges' },

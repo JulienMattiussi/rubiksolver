@@ -8,6 +8,7 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect } from 'react'
+import { useTutorialShortcuts, type TutorialKeys } from '@/hooks/useTutorialShortcuts'
 import { cubeShape } from '@/lib/core/cube'
 import { formatMove } from '@/lib/core/notation'
 import { tutorialFor } from '@/lib/tutorials/registry'
@@ -58,6 +59,7 @@ export function TutorialPanel() {
   const playThrough = useTutorialTrack((s) => s.playThrough)
   const recapShown = useTutorialTrack((s) => s.recapShown)
   const showRecap = useTutorialTrack((s) => s.showRecap)
+  const termsShown = useTutorialTrack((s) => s.termsShown)
   // The end come (every stage shown, the puzzle solved): the cup, and the
   // fireworks with it, not before.
   const over = !step
@@ -91,6 +93,42 @@ export function TutorialPanel() {
     } else if (finished) viewToward(finished)
     else if (hold) viewToward(frame.front(hold), lift)
   }, [hold, frame, lift, finished, termFrom, setHold, viewToward])
+  // The buttons' actions, shared with their keys (none where a button is
+  // off).
+  const words = step?.kind === 'term' || step?.kind === 'legend'
+  const canApply = !busy && !!moves && (moves.length > 0 || manual)
+  const applyFormula = () => {
+    if (!moves || !step) return
+    // The moves shown, learnt from now on.
+    if (hold && view.shown) learn(view.shown.moves.map((m) => formatMove(frame.inHold(hold, m))))
+    apply({ key: step.key, moves }, pick)
+  }
+  // Nothing played yet: back to the glossary's start instead of undoing.
+  const toGlossary = !played && !manual && view.glossary > 0
+  const keys: TutorialKeys = recapShown
+    ? { back: () => showRecap(false) }
+    : !step
+      ? {}
+      : step.kind === 'alreadyDone'
+        ? busy
+          ? {}
+          : { ahead: () => showStage(step.stage!) }
+        : words
+          ? {
+              ahead: showTerm,
+              ...(termsShown > 0 && { back: () => setTermsShown(termsShown - 1) }),
+            }
+          : {
+              ...((review ? !busy : canApply) && { ahead: review ? next : applyFormula }),
+              ...(!busy &&
+                (toGlossary || played || manual) && {
+                  back: toGlossary ? () => setTermsShown(0) : undo,
+                }),
+            }
+  useTutorialShortcuts(keys)
+  // Their keys, said on the buttons.
+  const aheadKeys = { 'aria-keyshortcuts': 'Space ArrowRight', title: t.tutorial.keysAhead }
+  const backKeys = { 'aria-keyshortcuts': 'ArrowLeft Backspace', title: t.tutorial.keysBack }
   const header = (
     <div className="flex items-center justify-between">
       <h2 className={`${SECTION_LABEL} flex items-center gap-2`}>
@@ -118,7 +156,7 @@ export function TutorialPanel() {
       <section aria-label={t.tutorial.button} className={SECTION_BOX}>
         {header}
         <FormulaRecap tutorial={tutorial} />
-        <Button onClick={() => showRecap(false)}>
+        <Button onClick={() => showRecap(false)} {...backKeys}>
           <Undo2 className="size-4" aria-hidden />
           {t.tutorial.recapBack}
         </Button>
@@ -158,7 +196,12 @@ export function TutorialPanel() {
             <br />
             {t.tutorial.alreadyDoneNext}
           </p>
-          <Button variant="solve" onClick={() => showStage(step.stage!)} disabled={busy}>
+          <Button
+            variant="solve"
+            onClick={() => showStage(step.stage!)}
+            disabled={busy}
+            {...aheadKeys}
+          >
             <ArrowRight className="size-4" aria-hidden />
             {t.tutorial.next}
           </Button>
@@ -166,9 +209,9 @@ export function TutorialPanel() {
       )}
       {/* A word of the glossary (or the legend after them): on to the next,
           or past them all. */}
-      {(step?.kind === 'term' || step?.kind === 'legend') && (
+      {words && (
         <div className="flex flex-col gap-2">
-          <Button variant="solve" onClick={showTerm}>
+          <Button variant="solve" onClick={showTerm} {...aheadKeys}>
             <ArrowRight className="size-4" aria-hidden />
             {t.tutorial.next}
           </Button>
@@ -184,51 +227,36 @@ export function TutorialPanel() {
           )}
         </div>
       )}
-      {step &&
-        step.kind !== 'toCome' &&
-        step.kind !== 'alreadyDone' &&
-        step.kind !== 'term' &&
-        step.kind !== 'legend' && (
-          <>
-            <Instructions view={view} busy={busy} />
-            <div className="flex flex-col gap-2">
-              {review ? (
-                <Button variant="solve" onClick={next} disabled={busy}>
-                  <ArrowRight className="size-4" aria-hidden />
-                  {t.tutorial.next}
-                </Button>
-              ) : (
-                <Button
-                  variant="solve"
-                  onClick={() => {
-                    if (!moves) return
-                    // The moves shown, learnt from now on.
-                    if (hold && view.shown) {
-                      learn(view.shown.moves.map((m) => formatMove(frame.inHold(hold, m))))
-                    }
-                    apply({ key: step.key, moves }, pick)
-                  }}
-                  disabled={busy || !moves || (moves.length === 0 && !manual)}
-                >
-                  <Sparkles className="size-4" aria-hidden />
-                  {manual ? t.tutorial.finish : t.tutorial.apply}
-                </Button>
-              )}
-              {/* Nothing played yet: back to the glossary's start instead. */}
-              {!played && !manual && view.glossary > 0 ? (
-                <Button onClick={() => setTermsShown(0)} disabled={busy}>
-                  <Undo2 className="size-4" aria-hidden />
-                  {t.tutorial.backToGlossary}
-                </Button>
-              ) : (
-                <Button onClick={undo} disabled={busy || (!played && !manual)}>
-                  <Undo2 className="size-4" aria-hidden />
-                  {t.tutorial.undo}
-                </Button>
-              )}
-            </div>
-          </>
-        )}
+      {step && step.kind !== 'toCome' && step.kind !== 'alreadyDone' && !words && (
+        <>
+          <Instructions view={view} busy={busy} />
+          <div className="flex flex-col gap-2">
+            {review ? (
+              <Button variant="solve" onClick={next} disabled={busy} {...aheadKeys}>
+                <ArrowRight className="size-4" aria-hidden />
+                {t.tutorial.next}
+              </Button>
+            ) : (
+              <Button variant="solve" onClick={applyFormula} disabled={!canApply} {...aheadKeys}>
+                <Sparkles className="size-4" aria-hidden />
+                {manual ? t.tutorial.finish : t.tutorial.apply}
+              </Button>
+            )}
+            {/* Nothing played yet: back to the glossary's start instead. */}
+            {toGlossary ? (
+              <Button onClick={() => setTermsShown(0)} disabled={busy} {...backKeys}>
+                <Undo2 className="size-4" aria-hidden />
+                {t.tutorial.backToGlossary}
+              </Button>
+            ) : (
+              <Button onClick={undo} disabled={busy || (!played && !manual)} {...backKeys}>
+                <Undo2 className="size-4" aria-hidden />
+                {t.tutorial.undo}
+              </Button>
+            )}
+          </div>
+        </>
+      )}
     </section>
   )
 }

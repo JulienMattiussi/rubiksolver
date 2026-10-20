@@ -19,8 +19,8 @@ export interface SolveKeys {
 }
 
 /** Whether a key press belongs to something else: a field being typed in,
- *  a select, an open dialog. */
-function elsewhere(event: KeyboardEvent): boolean {
+ *  a select, an open dialog (the tutorial's shortcuts read it too). */
+export function elsewhere(event: KeyboardEvent): boolean {
   const target = event.target
   if (target instanceof Element && target.closest('input, textarea, select, [contenteditable]'))
     return true

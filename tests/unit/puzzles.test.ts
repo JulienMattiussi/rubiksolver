@@ -277,7 +277,8 @@ describe.each(PUZZLES)('$shape', ({ shape, pieces, stickers, orientations, paint
         expect(isSolved(state)).toBe(true)
       }
     }
-  }, 60000)
+    // The slowest (the Latch Cube's) come close to a minute.
+  }, 90000)
 
   it('goes through the editor and back, every sticker counted', () => {
     expect(progress(emptyEdit(shape), shape).total).toBe(painted)

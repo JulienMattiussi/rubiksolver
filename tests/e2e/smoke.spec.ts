@@ -468,3 +468,27 @@ test('tutorial: a formula applied, looked at, undone; a move by hand finished', 
   await expect(page.getByRole('button', { name: 'Mélanger' })).toBeEnabled()
   expect(errors).toEqual([])
 })
+
+test('tutorial: Space and the arrows press its buttons on and back', async ({ page }) => {
+  test.setTimeout(90000)
+  await page.goto('/#/fr/3x3')
+  await page.getByLabel('Vitesse').fill('100')
+  await page.getByRole('button', { name: 'Mélanger' }).click()
+  const tutorial = page.getByRole('button', { name: 'Tutoriel', exact: true })
+  await expect(tutorial).toBeEnabled({ timeout: 30000 })
+  await tutorial.click()
+  const panel = page.getByRole('region', { name: 'Tutoriel' })
+  // The words: on, then back.
+  await page.keyboard.press('ArrowRight')
+  await expect(panel.getByText(/^Mot 2 sur/)).toBeVisible()
+  await page.keyboard.press('Backspace')
+  await expect(panel.getByText(/^Mot 1 sur/)).toBeVisible()
+  // A step: its formula applied, then undone.
+  await panel.getByRole('button', { name: 'Passer' }).click()
+  await page.keyboard.press(' ')
+  await expect(page.getByRole('button', { name: 'Suivant' })).toBeEnabled({ timeout: 30000 })
+  await page.keyboard.press('ArrowLeft')
+  await expect(page.getByRole('button', { name: 'Appliquer la formule' })).toBeEnabled({
+    timeout: 30000,
+  })
+})

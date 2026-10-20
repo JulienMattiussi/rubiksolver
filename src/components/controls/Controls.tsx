@@ -72,14 +72,14 @@ export function Controls() {
     return (
       <div className="flex h-full items-start justify-between gap-5">
         <section aria-label={t.title} className={CARD}>
-          <header>{title}</header>
+          <header className="flex items-center justify-between gap-3">
+            {title}
+            <LanguageToggle />
+          </header>
           {setup}
           <Credit />
         </section>
         <div className={CARD}>
-          <header className="flex justify-end">
-            <LanguageToggle />
-          </header>
           <SolveArea home={home} />
         </div>
       </div>
@@ -92,7 +92,8 @@ export function Controls() {
         <header className="flex items-center justify-between gap-3">
           {title}
           <div className="flex items-center gap-2">
-            <LanguageToggle />
+            {/* Not while entering a cube: little use there. */}
+            {!editing && <LanguageToggle />}
             {!editing && !home && (
               <CollapseButton collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
             )}

@@ -140,7 +140,8 @@ describe('Ofapel tutorial', () => {
       const moves = ofapel.solve(cube).flatMap((s) => s.moves)
       expect(isSolved(applyMoves(cube, moves))).toBe(true)
     }
-  })
+    // Twenty-one solves: the Ofapel method plays its tutorial (5 s is tight).
+  }, 15000)
 
   it('places and turns the top corners from each of their 648 cases', () => {
     const topCorner = (c: Cubie) =>

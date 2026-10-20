@@ -104,6 +104,9 @@ export const TUTORIAL_FR = {
     'La première étape, préliminaire, est d’acquérir et de comprendre le vocabulaire qui sera utilisé pour décrire et manipuler le cube.',
   termCount: (n: number, total: number) => `Mot ${n} sur ${total}`,
   skipTerms: 'Passer',
+  /** The keys pressing the tutorial's buttons, on their tooltips. */
+  keysAhead: 'Raccourci : Espace ou flèche droite',
+  keysBack: 'Raccourci : flèche gauche ou retour arrière',
   /** The legend of a puzzle whose pieces are told by shape (`Tutorial.legend`). */
   legend: 'La légende',
   legendIntro: 'Ce puzzle est d’une seule couleur : ses pièces se reconnaissent à leur forme.',

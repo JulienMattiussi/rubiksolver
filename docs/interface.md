@@ -84,7 +84,11 @@ mobile et en saisie, une seule carte) :
   précédente une étape (en arrière, une solution qui joue s'arrête d'abord,
   puis le dernier coup ou l'étape sont défaits), Espace met en pause ou reprend, Entrée joue tout le
   reste ; rien pendant une saisie, dans un champ ou une fenêtre ouverte, ni
-  ce que le bouton correspondant ne pourrait pas faire.
+  ce que le bouton correspondant ne pourrait pas faire. Dans le tutoriel
+  (`useTutorialShortcuts`, rappelé de même) : Espace ou flèche droite
+  pressent son bouton en avant (Suivant, Appliquer la formule), flèche
+  gauche ou retour arrière son bouton en arrière (le mot d'avant, Annuler le
+  déplacement, Revenir au vocabulaire), avec les mêmes réserves.
 
 **Mobile** : le panneau se **replie** en une barre compacte (Mélanger +
 Résoudre) ; en mode saisie, le cube est empilé **au-dessus** du panneau pour
