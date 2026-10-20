@@ -44,6 +44,16 @@ interface Box {
 const clear = (p: THREE.Vector3, { hull, k }: Box) =>
   hull.some(({ normal: [x, y, z], offset }) => p.x * x + p.y * y + p.z * z >= offset + GAP * k)
 
+/** How far straight out of a face (at `p`, normal `n`) the line runs: the
+ *  margin, or past the puzzle's outside on that side when the face lies
+ *  below it (a mirror cube's thin face beside a bump), so the line leaves
+ *  it before it bends. */
+function runOut(p: THREE.Vector3, n: THREE.Vector3, { hull, k }: Box) {
+  const side = hull.find(({ normal: [x, y, z] }) => x * n.x + y * n.y + z * n.z > 0.999)
+  const below = side ? side.offset - p.dot(n) : 0
+  return Math.max(MARGIN * k, below + GAP * k)
+}
+
 /** A curve from `p` leaving along `dp` to `q` arriving along `dq`. */
 function joining(p: THREE.Vector3, dp: THREE.Vector3, q: THREE.Vector3, dq: THREE.Vector3) {
   const k = p.distanceTo(q) / 3
@@ -96,8 +106,8 @@ function arrowLine(
     m.length() < NEAR_CENTER * box.k
       ? flat.multiplyScalar(flat.dot(m) < 0 ? -1 : 1)
       : across(m.clone().addScaledVector(view, LEAN), u, view)
-  const leaveFrom = a.clone().addScaledVector(n1, margin)
-  const landAt = base.clone().addScaledVector(n2, margin)
+  const leaveFrom = a.clone().addScaledVector(n1, runOut(a, n1, box))
+  const landAt = base.clone().addScaledVector(n2, runOut(base, n2, box))
   let radius = a.distanceTo(m) + margin
   let line: THREE.Vector3[] = [a, leaveFrom, landAt, base]
   for (let k = 0; k < TRIES; k++, radius *= WIDER) {

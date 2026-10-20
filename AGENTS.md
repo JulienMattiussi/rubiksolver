@@ -544,8 +544,10 @@ d'avancement et termes de ses étapes dans son module de textes
 leurs noms dans `steps.ts` ; ses tests dans `tests/unit/tutorials/` (ceux du moteur dans `tests/unit/teach/`). Le rendu des tons,
 du clic et des flèches est commun aux deux vues (`useTutorialScene`, pour
 `CubeView` et `PolyView`) : la flèche contourne les plans des faces du
-puzzle (`three/core/hull.ts`), et sur un puzzle en polygones part du centre
-dessiné du sticker ; la vue se tourne vers une direction du modèle par
+puzzle (`three/core/hull.ts` : sur un cube, les boîtes des pièces telles
+que dessinées, bosses d'un miroir comprises) et va du centre dessiné d'un
+sticker à celui de la face où il arrive (`faceCenter`, la pièce dans sa
+forme une fois la formule jouée) ; la vue se tourne vers une direction du modèle par
 `sceneDirection` (le dessin la convertit, `PolyDrawing.direction`). Un
 tutoriel déclare aussi le nom de ses sortes de pièces (`pieceKind` : les
 pointes du Pyraminx) et sa façon de dire la tenue (`holding` : « Place la
