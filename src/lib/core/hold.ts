@@ -28,6 +28,16 @@ export interface HoldFrame {
   readonly played: (hold: Hold, turn: Turn) => Turn
 }
 
+const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+/** The hold with a place (a corner's) in front on the right: its side in
+ *  front and the next one round both face it (the first hold if none). */
+export function holdFrontRight(frame: HoldFrame, at: Vec3): Hold {
+  const { holds } = frame
+  const facing = (hold: Hold) => dot(frame.front(hold), at) > 0
+  return holds.find((h, i) => facing(h) && facing(holds[(i + 1) % holds.length]!)) ?? holds[0]!
+}
+
 const cross = (a: Vec3, b: Vec3): Vec3 => [
   a[1] * b[2] - a[2] * b[1],
   a[2] * b[0] - a[0] * b[2],

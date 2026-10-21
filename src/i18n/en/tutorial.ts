@@ -12,6 +12,7 @@ import { PYRAMIDS_EN } from './tutorials/pyramids'
 import { PYRAMINX_EN } from './tutorials/pyraminx'
 import { SKEWB_EN } from './tutorials/skewb'
 import { GEAR_EN } from './tutorials/gear'
+import { TOWER_EN } from './tutorials/tower'
 import { mergeTexts } from '../tutorialTexts'
 
 const TEXTS = mergeTexts([
@@ -28,6 +29,7 @@ const TEXTS = mergeTexts([
   OFAPEL_EN,
   SKEWB_EN,
   GEAR_EN,
+  TOWER_EN,
 ])
 
 /** The kinds of pieces, named. */

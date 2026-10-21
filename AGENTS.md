@@ -142,7 +142,8 @@ src/
 │   │                    #   segments (formule lue en gestes), keep (pièces gardées, formule en cours de pas),
 │   │                    #   pieces (les pièces d'un terme : d'une sorte, ou que tourne un coup),
 │   │                    #   macros (la plus courte chaîne de gestes appris vers un but, jouée par une étape :
-│   │                    #   gestureChain, chainFigure, chainedPieces), method (la méthode
+│   │                    #   eachHold, gestureChain, chainFigure, chainedPieces ; asGestures : les formules
+│   │                    #   d'une méthode déclinées en gestes), method (la méthode
 │   │                    #   qu'un tutoriel enseigne, en MethodPlan)
 │   ├── tutorials/       # Les tutoriels : registry (par forme, un par méthode), un dossier par catégorie :
 │   │                    #   standard/cube3 et cube3LastLayer (le 3x3), cube2 (le 2x2), cornerTrigger (ce que
@@ -159,7 +160,8 @@ src/
 │   │                    #   flat/floppy, flat/cube123 et flat/ghost (Coins puis arêtes ; le Ghost par sa
 │   │                    #   légende), flatKit (ce que partagent le Floppy et le 1x2x3) ;
 │   │                    #   diagonal/skewb (Le haut d'abord, de francocube), skewbHolds, skewbTerms ;
-│   │                    #   gear/gearUltimate (le Gear Cube Ultimate, Coins d'abord), gearTerms
+│   │                    #   gear/gearUltimate (le Gear Cube Ultimate, Coins d'abord), gearTerms ;
+│   │                    #   tower/tower224 (la tour 2x2x4, Deux Pockets), towerTerms
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
 │                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)

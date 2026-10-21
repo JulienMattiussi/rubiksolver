@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { FACE_NORMAL } from '@/lib/core/geometry'
-import { CUBE_HOLDS, ringHolds } from '@/lib/core/hold'
+import { CUBE_HOLDS, holdFrontRight, ringHolds } from '@/lib/core/hold'
 import { formatMoves, parseMoves } from '@/lib/core/notation'
 
 describe('the ways a cube is held', () => {
@@ -30,5 +30,12 @@ describe('the ways a cube is held', () => {
     const played = trigger.map((m) => CUBE_HOLDS.played('B', m))
     expect(formatMoves(played)).toBe("L U L' U'")
     expect(played.map((m) => CUBE_HOLDS.inHold('B', m))).toEqual(trigger)
+  })
+
+  it('holds a corner in front on the right', () => {
+    expect(holdFrontRight(CUBE_HOLDS, [1, 1, 1])).toBe('F')
+    expect(holdFrontRight(CUBE_HOLDS, [1, -1, -1])).toBe('R')
+    expect(holdFrontRight(CUBE_HOLDS, [-1, 1, -1])).toBe('B')
+    expect(holdFrontRight(CUBE_HOLDS, [-1, -1, 1])).toBe('L')
   })
 })

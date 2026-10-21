@@ -5,7 +5,7 @@
 # Rubik Solver
 
 **Turn, scramble or enter 75 twisty puzzles in 3D, then solve them step by step with
-real methods, or learn to solve the 3x3, the 2x2, the 4x4, the 5x5, the super cubes, the Floppy, the 1x2x3, the Floppy Ghost, the Pyraminx, the Pyramorphinx, the Skewb or the Gear Cube Ultimate yourself with a guided tutorial.**
+real methods, or learn to solve the 3x3, the 2x2, the 4x4, the 5x5, the super cubes, the Floppy, the 1x2x3, the Floppy Ghost, the Pyraminx, the Pyramorphinx, the Skewb, the Gear Cube Ultimate or the 2x2x4 tower yourself with a guided tutorial.**
 
 [**Try it**](https://rubiksolver.yavadeus.dev) &nbsp;·&nbsp;
 [The puzzles](#75-puzzles-12-families) &nbsp;·&nbsp;
@@ -18,7 +18,7 @@ real methods, or learn to solve the 3x3, the 2x2, the 4x4, the 5x5, the super cu
 
 <sub>
   100% front-end &nbsp;·&nbsp; React 19 + React Three Fiber &nbsp;·&nbsp; TypeScript strict &nbsp;·&nbsp;
-  integer-only puzzle engine &nbsp;·&nbsp; 48 solving methods &nbsp;·&nbsp; 14 guided tutorials &nbsp;·&nbsp;
+  integer-only puzzle engine &nbsp;·&nbsp; 48 solving methods &nbsp;·&nbsp; 15 guided tutorials &nbsp;·&nbsp;
   French and English &nbsp;·&nbsp; MIT license
 </sub>
 
@@ -62,7 +62,8 @@ The Pyraminx has one too, laid flat, in five stages from the centers to the flip
 the Pyramorphinx, solved as the 2x2 it hides. The Skewb follows francocube's method: the top
 corners by turns of the bottom ones, then one four-move formula for the centers and, played twice,
 the bottom corners. The Gear Cube Ultimate places its corners, then its edges, their clips and
-their gears, each by one of the page's formulas. The 4x4 gathers its centers and pairs its edges, then
+their gears, each by one of the page's formulas. The 2x2x4 tower is back in shape bar by bar, then
+solved as two Pockets stacked, the inner one then the outer one. The 4x4 gathers its centers and pairs its edges, then
 plays the 3x3's stages on the reduced cube, its two parities fixed where they show. The 5x5
 does the same around its fixed centers, its edges completed a wing at a time the way cubers do.
 The super cubes play those on their colors, then cycle their centers home three at a time.

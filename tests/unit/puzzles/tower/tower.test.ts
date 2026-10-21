@@ -2,8 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { isBoxed, isSolved, solvedCube } from '@/lib/core/cube'
 import { applyMove, turnAllowed } from '@/lib/core/turn'
 import { invertMoves } from '@/lib/core/moves'
-import { formatMove } from '@/lib/core/notation'
-import { DESCEND, PIVOT, SWAP, TOWER_PLAN } from '@/lib/methods/tower/tower'
+import { DESCEND, PIVOT, SWAP } from '@/lib/methods/tower/tower'
 import type { Cube, Turn } from '@/lib/core/types'
 
 const SOLVED = solvedCube('224')
@@ -50,15 +49,5 @@ describe('tower formulas (from fan2cube.fr)', () => {
     // A second descent, whatever the setup turn of U, puts the middles back.
     const twice = play([...DESCEND, { face: 'U', amount: 1 }, ...DESCEND])
     expect(changes(twice).every((c) => c.split('->')[0]!.split(',')[1]!.match(/^-?3$/))).toBe(true)
-  })
-})
-
-describe('Two Pockets tower method', () => {
-  it('declares its move sets: wide turns, then inner, then outer layers', () => {
-    expect(TOWER_PLAN.map((s) => s.moves.generators.map((m) => formatMove(m)).join(' '))).toEqual([
-      'Uw Dw Rw Fw',
-      'Uw Dw Rw2 Fw2',
-      'U D Rw2 Fw2',
-    ])
   })
 })

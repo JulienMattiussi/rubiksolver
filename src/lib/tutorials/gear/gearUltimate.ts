@@ -1,14 +1,14 @@
 import { isSolved, solvedCube } from '../../core/cube'
-import { CUBE_HOLDS } from '../../core/hold'
+import { CUBE_HOLDS, holdFrontRight } from '../../core/hold'
 import { colorsOf, poseOf, sameAt } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, Face, GearMove, Turn, Vec3 } from '../../core/types'
 import { GEAR_CLIPS, GEAR_FORMULAS, GEAR_SPIN, GEAR_SWAP } from '../../methods/gear/gear'
 import { GEAR_TURNS } from '../../puzzles/gear/gear'
-import { searchChain, searchFormulas } from '../../solve/formulaSearch'
+import { searchFormulas } from '../../solve/formulaSearch'
 import { holdingsOf, holdingsShowing } from '../../solve/holdings'
 import { tutorialOf, type Kept, type Target } from '../../teach/kit'
-import { asGestures, perState, type Gesture } from '../../teach/macros'
+import { asGestures, gestureChain, leading, perState, type Gesture } from '../../teach/macros'
 import type { TutorialPick } from '../../teach/tutorial'
 import { GEAR_GLOSSARY } from './gearTerms'
 
@@ -134,18 +134,6 @@ function cornerFormula(cube: Cube, pick: TutorialPick, kept: Kept): Turn[] | nul
   return searchFormulas(cube, moves, goal, { key: cornerLook })
 }
 
-/** The hold with a corner in front (on the right, if it can). */
-const holdFor = (at: Vec3) => {
-  const facing = (hold: string) => {
-    const n = CUBE_HOLDS.front(hold)
-    return n.reduce((sum, v, a) => sum + v * at[a]!, 0) > 0
-  }
-  const k = CUBE_HOLDS.holds.findIndex(
-    (h, i, all) => facing(h) && facing(all[(i + 1) % all.length]!),
-  )
-  return CUBE_HOLDS.holds[k]!
-}
-
 // ---------------------------------------------------------------------------
 // 2-4. The edges, their clips, their gears: the page's formulas
 // ---------------------------------------------------------------------------
@@ -164,12 +152,9 @@ const SPINS = gestures(GEAR_FORMULAS.spins, [GEAR_SPIN])
 /** The first formula of the fewest reaching `goal`, states told apart by
  *  what the goal reads. */
 const firstOf =
-  (gestures: readonly Gesture[], goal: (cube: Cube) => boolean, look: (cube: Cube) => string) =>
-  (cube: Cube) => {
-    const played = gestures.map((x) => x.moves.map((m) => CUBE_HOLDS.played(x.hold, m)))
-    const chain = searchChain(cube, played, goal, { key: look })
-    return chain?.length ? gestures[chain[0]!]! : null
-  }
+  (gestures: readonly Gesture[], goal: (cube: Cube) => boolean, key: (cube: Cube) => string) =>
+  (cube: Cube) =>
+    leading(gestureChain(cube, gestures, goal, { key, frame: CUBE_HOLDS }))
 
 const edgesPlaced = (cube: Cube) =>
   countHome(CORNERS, true)(cube) === CORNERS.length &&
@@ -188,7 +173,7 @@ export const GEAR_TUTORIAL = tutorialOf({
       key: 'stepGearCorners',
       stage: 1,
       targets: cornerTargets,
-      hold: (_, pick, next) => holdFor((pick ?? next).slot),
+      hold: (_, pick, next) => holdFrontRight(CUBE_HOLDS, (pick ?? next).slot),
       formula: cornerFormula,
     },
     {

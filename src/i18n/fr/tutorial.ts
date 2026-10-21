@@ -11,6 +11,7 @@ import { PYRAMIDS_FR } from './tutorials/pyramids'
 import { PYRAMINX_FR } from './tutorials/pyraminx'
 import { SKEWB_FR } from './tutorials/skewb'
 import { GEAR_FR } from './tutorials/gear'
+import { TOWER_FR } from './tutorials/tower'
 import { mergeTexts } from '../tutorialTexts'
 
 /** Each tutorial's texts, by key, in one (see i18n/tutorialTexts.ts). */
@@ -28,6 +29,7 @@ const TEXTS = mergeTexts([
   OFAPEL_FR,
   SKEWB_FR,
   GEAR_FR,
+  TOWER_FR,
 ])
 
 /** The kinds of pieces (`Tutorial.pieceKind`), named. */

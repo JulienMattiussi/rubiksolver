@@ -14,6 +14,7 @@ import { GHOST_TUTORIAL } from './flat/ghost'
 import { PYRAMINX_TUTORIAL } from './pyramid/pyraminx'
 import { SKEWB_TUTORIAL } from './diagonal/skewb'
 import { GEAR_TUTORIAL } from './gear/gearUltimate'
+import { TOWER_TUTORIAL } from './tower/tower224'
 
 /**
  * The tutorials, by puzzle: each teaches one of its solving methods. A
@@ -40,6 +41,7 @@ const TUTORIALS: Partial<Record<CubeShape, readonly TutorialEntry[]>> = {
   morph: [{ method: 'asPocket', tutorial: MORPH_TUTORIAL }],
   skewb: [{ method: 'skewbTopFirst', tutorial: SKEWB_TUTORIAL }],
   gearU: [{ method: 'gearCornersFirst', tutorial: GEAR_TUTORIAL }],
+  '224': [{ method: 'twoPockets', tutorial: TOWER_TUTORIAL }],
   '3': [
     { method: 'beginner', tutorial: CUBE3_TUTORIAL },
     { method: 'ofapel', tutorial: OFAPEL_TUTORIAL },

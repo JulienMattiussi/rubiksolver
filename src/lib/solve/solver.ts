@@ -61,7 +61,6 @@ import { ROUX_PLAN } from '../methods/standard/roux'
 import { SLIM_TOWER_PLAN } from '../methods/tower/slimTower'
 import { STAR_PLAN } from '../methods/round/starPrism'
 import { STAR4_PLAN } from '../methods/round/starPrism4'
-import { TOWER_PLAN } from '../methods/tower/tower'
 import { ZZ_PLAN } from '../methods/standard/zz'
 import { reductionPlan } from '../methods/standard/solver4/steps'
 import { reduction5Plan } from '../methods/standard/solver5/steps'
@@ -170,7 +169,7 @@ const SOLVE_METHODS = [
       '6': reduction6Plan(CFOP_PLAN),
     },
   },
-  { id: 'twoPockets', plans: { '224': TOWER_PLAN } },
+  { id: 'twoPockets', plans: { '224': taught('224', 'twoPockets') } },
   { id: 'tower234Steps', plans: { '234': TOWER234_PLAN } },
   { id: 'doubleDomino', plans: { '334': TOWER334_PLAN } },
   { id: 'fashionLaid', plans: { fashion: FASHION_PLAN } },

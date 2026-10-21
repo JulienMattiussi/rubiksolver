@@ -23,8 +23,10 @@ Le pad grise les coups bloqués, le mélange ne tire que des coups possibles
 (il simule l'état depuis le cube courant), et le rendu place linéairement les
 pièces sorties de la boîte (`visualPosition`).
 
-**Résolution** (`methods/tower/tower.ts`, méthode **Deux Pockets**, d'après
-fan2cube.fr/tower2242.php et domino2.php) : la tour est deux Pockets empilés,
+**Résolution** (méthode **Deux Pockets**, d'après fan2cube.fr/tower2242.php
+et domino2.php ; ses formules et ce qu'elles lisent dans
+`methods/tower/tower.ts`, la méthode étant son tutoriel joué jusqu'au bout,
+`lib/tutorials/tower/tower224.ts`) : la tour est deux Pockets empilés,
 un intérieur (les 8 pièces du milieu) et un extérieur (les 8 coins).
 
 1. **Remise en forme** (`Uw Dw Rw Fw`) : vue comme un long Pocket dont les
@@ -39,6 +41,17 @@ un intérieur (les 8 pièces du milieu) et un extérieur (les 8 coins).
    retourne la moitié avant du Pocket intérieur : la recherche, qui exige le
    Pocket intérieur intact, descend donc les coins **deux par deux**, comme le
    prescrit la page.
+
+**Tutoriel** : les mêmes étapes, le Pocket intérieur puis l'extérieur
+chacun en deux (le bas, puis le haut), soit cinq. Chaque pas joue la plus
+courte suite des formules de l'étape, chacune vue de chaque tenue et
+préparée par un tour du haut (`eachHold`), sur les seules pièces que
+l'étape lit (`gestureChain` et sa clé). La remise en forme est une étape de
+figures (le pivot, ou un coup large qui lui amène deux barres couchées) ;
+les autres placent une pièce à la fois, les milieux jumeaux
+interchangeables. Une tour sans centre dit ses côtés par la couleur qu'ils
+auront (« le côté qui sera vert »). Vocabulaire : coin, milieu, barre, les
+deux Pockets, coup large, coup d'étage, les deux sens.
 
 Correspondance des notations : H B A P G D = U D F B L R, H\* B\* = Uw Dw, une
 face latérale de la tour en est la moitié (A = Fw), « D = D² » en parties II

@@ -4,7 +4,7 @@ import { CUBE_HOLDS } from '../../core/hold'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, Move } from '../../core/types'
 import type { Target } from '../../teach/kit'
-import { gestureChain, type Gesture } from '../../teach/macros'
+import { eachHold, gestureChain, type Gesture } from '../../teach/macros'
 import { topTurn } from './cornerTrigger'
 
 /**
@@ -18,21 +18,13 @@ export const Y = FACE_COLOR.D
 export const W = FACE_COLOR.U
 
 /** Each formula from each hold (some only), the top turned before it
- *  (and back after, `back`), each its kind. */
+ *  (and back after, `back`), each its kind (`eachHold`, the top turns as
+ *  its setups). */
 export const fromEachHold = (
   formulas: readonly (readonly Move[])[],
   kind: string,
   { holds = CUBE_HOLDS.holds, before = [0], back = false } = {},
-): Gesture[] =>
-  holds.flatMap((hold) =>
-    before.flatMap((pre) =>
-      formulas.map((f) => ({
-        hold,
-        kind,
-        moves: [...topTurn(pre), ...f, ...(back ? topTurn(4 - pre) : [])],
-      })),
-    ),
-  )
+): Gesture[] => eachHold(formulas, kind, CUBE_HOLDS, { holds, setups: before.map(topTurn), back })
 
 /** The 3x3's mechanism: what a search on some of its pieces turns on. */
 export const MECHANISM = [3, 3, 3] as const

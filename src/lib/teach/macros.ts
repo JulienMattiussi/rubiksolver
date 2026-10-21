@@ -1,5 +1,6 @@
 import { stateKey } from '../core/cube'
 import type { Hold, HoldFrame } from '../core/hold'
+import { invertMoves } from '../core/moves'
 import { applyMoves } from '../core/turn'
 import type { Cube, Cubie, Dims, Turn } from '../core/types'
 import { searchChain } from '../solve/formulaSearch'
@@ -104,29 +105,61 @@ export function perState<T>(compute: (cube: Cube) => T): (cube: Cube) => T {
   }
 }
 
+/** Each formula from each of a frame's holds (some only), prepared by each
+ *  setup (`setups`: turns played before it, undone after with `back`),
+ *  each its kind: the gestures a chain is searched among. */
+export function eachHold(
+  formulas: readonly (readonly Turn[])[],
+  kind: string,
+  frame: HoldFrame,
+  {
+    holds = frame.holds,
+    setups = [[]],
+    back = false,
+  }: {
+    holds?: readonly Hold[]
+    setups?: readonly (readonly Turn[])[]
+    back?: boolean
+  } = {},
+): Gesture[] {
+  return holds.flatMap((hold) =>
+    setups.flatMap((pre) =>
+      formulas.map((f) => ({
+        hold,
+        kind,
+        moves: [...pre, ...f, ...(back ? invertMoves(pre) : [])],
+      })),
+    ),
+  )
+}
+
 /** A chain of gestures' turns, as played. */
 const turnsOf = (chain: readonly Gesture[], frame: HoldFrame): Turn[] =>
   chain.flatMap((g) => g.moves.map((m) => frame.played(g.hold, m)))
 
 /**
- * The shortest chain of gestures bringing some pieces (`keep`) to a goal,
- * the others left out of the search (the gestures keep them, which keeps
- * it small): null if none does within the depth. The whole chain, unlike
- * `firstGesture`: a piece stage plays it all, a figure stage its first.
+ * The shortest chain of gestures bringing some pieces (`keep`, by default
+ * all) to a goal, the others left out of the search (the gestures keep
+ * them, which keeps it small), states told apart by `key` (by default,
+ * whole: what the goal reads, when less): null if none does within the
+ * depth. The whole chain, unlike `firstGesture`: a piece stage plays it
+ * all, a figure stage its first (`leading`).
  */
 export function gestureChain(
   cube: Cube,
   gestures: readonly Gesture[],
   goal: (pieces: Cube) => boolean,
   options: {
-    keep: (c: Cubie) => boolean
-    depth: number
-    mechanism: Dims
+    keep?: (c: Cubie) => boolean
+    depth?: number
+    mechanism?: Dims
+    key?: (pieces: Cube) => string
     frame: HoldFrame
   },
 ): Gesture[] | null {
-  const formulas = gestures.map((g) => turnsOf([g], options.frame))
-  const chain = searchChain(cube.filter(options.keep), formulas, goal, options)
+  const { keep, frame, ...search } = options
+  const formulas = gestures.map((g) => turnsOf([g], frame))
+  const chain = searchChain(keep ? cube.filter(keep) : cube, formulas, goal, search)
   return chain && chain.map((i) => gestures[i]!)
 }
 
