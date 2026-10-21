@@ -34,6 +34,9 @@ export interface ModelProps {
   onPick?: (index: number) => void
   pickable?: (index: number) => boolean
   onPickHover?: (index: number, on: boolean) => void
+  /** The part of the lit pieces lit (see `Term.part`): a puzzle drawn from
+   *  its own pieces tells its parts apart. */
+  part?: string
   /** Drawn in the pieces' frame (the tutorial's arrow). */
   children?: ReactNode
 }
@@ -57,6 +60,7 @@ export function CubeModel({
   onPick,
   pickable = NO_PIECES,
   onPickHover,
+  part,
   children,
 }: ModelProps & { variant: CubeVariant }) {
   const dims = cubeDims(cube)
@@ -82,6 +86,7 @@ export function CubeModel({
               pulse={pulse}
               onPick={onPick && pickable(i) ? () => onPick(i) : undefined}
               onPickHover={onPickHover && ((on) => onPickHover(i, on))}
+              part={part}
               own={own}
             />
           ),
@@ -96,6 +101,7 @@ export function CubeModel({
                 variant={variant}
                 highlighted={highlighted(i)}
                 hatched={hatched(i)}
+                part={part}
                 own={own}
               />
             ) : null,

@@ -7,9 +7,9 @@ enseigne est ce tutoriel joué jusqu'au bout (`lib/teach/method.ts`) : ses
 étapes sont celles du tutoriel, chacune résolue par les formules qu'il
 propose l'une après l'autre ; la solution affichée est donc ce qu'il
 enseigne. C'est le cas de **Par couches** sur le 3x3 et le 2x2, d'**Ofapel** sur le 3x3, de **Coins puis arêtes** sur le Floppy, le 1x2x3 et le Floppy Ghost, de la
-**Réduction** du 4x4, du 5x5 et des super cubes, de **Centres d'abord** sur le Pyraminx et de **Comme
-un Pocket** sur le Pyramorphinx ; leurs étapes sont décrites avec leur
-tutoriel ([standard](puzzles/standard.md), [pyramid](puzzles/pyramid.md)).
+**Réduction** du 4x4, du 5x5 et des super cubes, de **Centres d'abord** sur le Pyraminx, de **Comme
+un Pocket** sur le Pyramorphinx du **Haut d'abord** sur le Skewb et de **Coins d'abord** sur le Gear Cube Ultimate ; leurs étapes sont décrites avec leur
+tutoriel ([standard](puzzles/standard.md), [pyramid](puzzles/pyramid.md), [diagonal](puzzles/diagonal.md), [gear](puzzles/gear.md)).
 Les mêmes méthodes sur les autres puzzles (le 3x3 par couches comme phase
 du Void Cube, du 6x6...) gardent leur plan déclaré.
 

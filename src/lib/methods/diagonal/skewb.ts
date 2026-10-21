@@ -9,7 +9,10 @@ import { aroundTop, notPetal, skewbKit } from '../shared/skewbKit'
 import { colorsOf, withStickers } from '../../core/pieces'
 
 /**
- * Skewb, "le Haut d'abord", as taught on fan2cube.fr (skewb2 and skewb4):
+ * The Skewb's formulas, and "le Haut d'abord" on a Skewb's corners and
+ * centers as fan2cube.fr teaches it (skewb2 and skewb4), the first step of
+ * the Master Skewb's method (the Skewb's own method is its tutorial,
+ * lib/tutorials/diagonal/, after francocube.com: `CENTER_SWAP`):
  * only the four bottom corners turn (B, O, H, E), so the top center never
  * moves and sets how the puzzle is held (white on top).
  *
@@ -25,12 +28,17 @@ import { colorsOf, withStickers } from '../../core/pieces'
  * asserted in tests/unit/puzzles/diagonal/skewb.test.ts.
  */
 
-/** A- (the top front right corner), the bottom ones turned too. */
+/** A- (the top front right corner), the bottom ones turned too (also
+ *  francocube's 2'-1-2-1'). */
 export const TOP_TWIST = "[B'O']"
 /** (A)->(G)->(B) and (A)->(B)->(D). */
 export const CENTER_CYCLES = ["[B'E'][HE]", "[H'E'][HO]"]
-/** The four bottom corners turned: B-, O-, H+, E+. */
+/** The four bottom corners turned: B-, O-, H+, E+ (francocube's 1-2-1'-2'
+ *  twice, the other way round). */
 export const BOTTOM_TWIST = "[BO'][BO']"
+/** francocube's 1-2-1'-2': the bottom and front centers swapped, the left
+ *  and right ones too, the top corners kept. */
+export const CENTER_SWAP = "[O'B]"
 
 /** The Skewb's turns in a formula of `kind`'s (a Master Skewb's outer
  *  layers, which turn its corners and centers as a Skewb's). */
@@ -116,5 +124,3 @@ export function skewbFirst(shape: CubeShape, kind: 'skewb' | 'master') {
   ]
   return { steps, kit, skewb, parse }
 }
-
-export const SKEWB_PLAN: MethodPlan = skewbFirst('skewb', 'skewb').steps

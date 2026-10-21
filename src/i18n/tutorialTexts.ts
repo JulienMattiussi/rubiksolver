@@ -9,6 +9,11 @@ export interface TutorialTexts {
   /** A stage's check, given how far its formula takes it and the pieces it
    *  leaves marked on its side, named. */
   readonly checks?: Record<string, (done: number, pieces?: readonly string[]) => string>
+  /** A piece stage's own check once a piece is placed, named (when
+   *  « à sa place » would mislead: the Skewb's top corners, placed among
+   *  themselves), given how many of its pieces were placed before it and
+   *  the color held on top. */
+  readonly placed?: Record<string, (piece: string, before: number, up: string) => string>
   readonly figures?: Record<string, string>
   /** The glossary's words (the word defined between `**`, in bold). */
   readonly terms?: Record<string, string>
@@ -27,6 +32,7 @@ export function mergeTexts(all: readonly TutorialTexts[]): Merged {
   return {
     holding: merge('holding'),
     checks: merge('checks'),
+    placed: merge('placed'),
     figures: merge('figures'),
     terms: merge('terms'),
     progress: merge('progress'),

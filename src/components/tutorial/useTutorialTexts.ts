@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import type { Color, CubeColor } from '@/lib/core/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
+import { useColorName } from '@/hooks/useColorName'
 import { COLOR_HEX, VARIANT_SKIN } from '@/three/core/colors'
 import { byThickness, LAYER_THICKNESS, tellsSizes } from '@/lib/core/shape'
 import { thicknessKey } from '@/lib/tutorials/standard/terms'
@@ -16,12 +17,13 @@ import { thicknessKey } from '@/lib/tutorials/standard/terms'
 export function useTutorialTexts() {
   const t = useI18n((s) => s.t)
   const variant = useCube((s) => s.variant)
+  const color = useColorName()
   return useMemo(() => {
     const usual = t.tutorial
     if (!tellsSizes(variant)) {
       return {
         ...usual,
-        colorName: (c: Color) => t.colors[c].toLowerCase(),
+        colorName: (c: Color) => color(c).toLowerCase(),
         swatch: (c: Color) => COLOR_HEX[c],
         /** How to hold the puzzle: by its center in front, its side, or the
          *  tutorial's own way (`Tutorial.holding`). */
@@ -45,7 +47,7 @@ export function useTutorialTexts() {
       progress: { ...usual.progress, ...m.progress },
       titles: { ...usual.titles, ...m.titles },
       hints: { ...usual.hints, ...m.hints },
-      colorName: (c: Color) => m.thickness[c as CubeColor] ?? t.colors[c].toLowerCase(),
+      colorName: (c: Color) => m.thickness[c as CubeColor] ?? color(c).toLowerCase(),
       swatch: () => VARIANT_SKIN[variant]!,
       facing: (name: string, down: string, how: string) =>
         (usual.holding[how] ?? m.facing)(name, down),
@@ -56,5 +58,5 @@ export function useTutorialTexts() {
           : (m.terms[key] ?? usual.terms[key] ?? key)
       },
     }
-  }, [t, variant])
+  }, [t, variant, color])
 }

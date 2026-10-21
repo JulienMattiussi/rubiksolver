@@ -3,6 +3,7 @@ import type { FaceCell } from '@/lib/editor/modes/canvas'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
+import { useColorName } from '@/hooks/useColorName'
 import { SECTION_LABEL } from '@/components/ui/styles'
 import { ABSENT_HEX, COLOR_HEX } from '@/three/core/colors'
 
@@ -14,6 +15,7 @@ export function FacePalette() {
   const shape = useCube((s) => cubeShape(s.cube))
   const selected = useEditor((s) => s.faceColor)
   const setFaceColor = useEditor((s) => s.setFaceColor)
+  const colorName = useColorName()
   // Every color its faces show (the Purple's violet too, which painting
   // leaves out: its big cubes come painted).
   const cells: FaceCell[] = [...shapeColors(shape), 'absent']
@@ -22,7 +24,7 @@ export function FacePalette() {
       <h2 className={`mb-2 ${SECTION_LABEL}`}>{t.palette}</h2>
       <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t.palette}>
         {cells.map((cell) => {
-          const name = cell === 'absent' ? t.faceAbsent : t.colors[cell]
+          const name = cell === 'absent' ? t.faceAbsent : colorName(cell)
           return (
             <button
               key={cell}

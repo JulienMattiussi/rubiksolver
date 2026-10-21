@@ -9,6 +9,8 @@ import { MORPH_FR } from './tutorials/morph'
 import { OFAPEL_FR } from './tutorials/ofapel'
 import { PYRAMIDS_FR } from './tutorials/pyramids'
 import { PYRAMINX_FR } from './tutorials/pyraminx'
+import { SKEWB_FR } from './tutorials/skewb'
+import { GEAR_FR } from './tutorials/gear'
 import { mergeTexts } from '../tutorialTexts'
 
 /** Each tutorial's texts, by key, in one (see i18n/tutorialTexts.ts). */
@@ -24,6 +26,8 @@ const TEXTS = mergeTexts([
   PYRAMINX_FR,
   MORPH_FR,
   OFAPEL_FR,
+  SKEWB_FR,
+  GEAR_FR,
 ])
 
 /** The kinds of pieces (`Tutorial.pieceKind`), named. */
@@ -94,6 +98,8 @@ export const TUTORIAL_FR = {
    *  its formula takes it and the pieces it leaves marked on its side,
    *  named (else `checkFigure`); or of a formula stage (else `checkAll`). */
   checks: TEXTS.checks,
+  /** A piece stage's own check, by its key (else `check`). */
+  placed: TEXTS.placed,
   /** The figures a stage recognizes, by their key. */
   figures: TEXTS.figures,
   /** The glossary (step 0): its heading, how far along, the button past

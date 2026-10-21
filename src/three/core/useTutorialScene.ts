@@ -18,7 +18,7 @@ import { usePreviewed } from './usePreviewed'
 export function useTutorialScene(cube: Cube): {
   model: Pick<
     ModelProps,
-    'highlighted' | 'hatched' | 'marked' | 'pulse' | 'onPick' | 'pickable' | 'onPickHover'
+    'highlighted' | 'hatched' | 'marked' | 'pulse' | 'onPick' | 'pickable' | 'onPickHover' | 'part'
   >
   arrows: readonly Arrow[]
   /** The formula the arrows are for (where they land). */
@@ -71,6 +71,9 @@ export function useTutorialScene(cube: Cube): {
         marked: (i: number) => tones[i] === 'slot' || lands(i) || (over(i) && isSlot(i)),
       }),
       pulse: !!tones,
+      // A word naming a part of its pieces (a Gear Cube's gears): that
+      // part alone lit.
+      ...(step?.kind === 'term' && step.part && { part: step.part }),
       ...(tutorial.step && {
         onPick: tutorial.click,
         pickable,

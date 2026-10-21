@@ -54,6 +54,9 @@ export interface Term {
   readonly only?: CubeVariant
   /** A turn shown playing (a way of turning: clockwise). */
   readonly demo?: Turn
+  /** Only this part of its pieces lit, their other parts as the pieces it
+   *  does not name (a Gear Cube's edges: its `gear`, or its `clips`). */
+  readonly part?: string
 }
 
 /** A puzzle whose pieces are told by their shape, not their colors (the
@@ -121,8 +124,10 @@ export interface TutorialStep {
    *  following the marker only when it comes there), and the view looks at
    *  it. */
   readonly side?: Vec3
-  /** On a word of the glossary: a turn shown playing. */
+  /** On a word of the glossary: a turn shown playing, and the part of its
+   *  pieces lit (see `Term.part`). */
   readonly demo?: Turn
+  readonly part?: string
   /** The side its stage finishes (its outward normal: a cross, a face),
    *  shown once the formula ending the stage is played. */
   readonly shows?: Vec3
@@ -186,6 +191,7 @@ export const termStep = (
   hold: () => tutorial.frame.holds[0]!,
   focus: term.pieces(cube),
   ...(term.demo && { demo: term.demo }),
+  ...(term.part && { part: term.part }),
   placed: [],
   suggestion: null,
   pickable: [],

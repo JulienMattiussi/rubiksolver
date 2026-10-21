@@ -1,5 +1,6 @@
 import type { RefObject } from 'react'
 import type { Cubie, Dims } from '@/lib/core/types'
+import type { PieceTone } from '@/three/core/Cubie'
 import { PLASTIC } from '@/three/core/colors'
 import { visualPosition } from '@/three/core/layout'
 import { GearCorner } from './GearCorner'
@@ -15,7 +16,7 @@ const GEAR_CORE = 2 * (1.5 - 0.47)
 export function GearPiece({
   cubie,
   dims,
-  highlighted,
+  tone,
   spinning,
   progress,
   colors,
@@ -27,7 +28,7 @@ export function GearPiece({
 }: {
   cubie: Cubie
   dims: Dims
-  highlighted: boolean
+  tone: PieceTone
   spinning?: number
   progress?: RefObject<number>
   colors?: readonly string[]
@@ -52,7 +53,7 @@ export function GearPiece({
       {cubie.spin === undefined ? (
         <GearCorner
           cubie={cubie}
-          highlighted={highlighted}
+          tone={tone}
           colors={colors}
           onSelect={onSelect}
           onHover={onHover}
@@ -61,7 +62,7 @@ export function GearPiece({
       ) : (
         <GearEdge
           cubie={cubie}
-          highlighted={highlighted}
+          tone={tone}
           spinning={spinning}
           progress={progress}
           colors={colors}

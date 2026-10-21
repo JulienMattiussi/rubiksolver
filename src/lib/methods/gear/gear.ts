@@ -2,18 +2,18 @@ import { cubeOrientations, isSolved, solvedCube } from '../../core/cube'
 import { normalIndex } from '../../core/geometry'
 import { GEAR_TURNS } from '../../puzzles/gear/gear'
 import { allTurnsOf } from '../../core/moveSet'
-import { invertMoves } from '../../core/moves'
 import { found, searchFormulas } from '../../solve/formulaSearch'
 import type { MethodPlan } from '../../solve/solverKit'
 import { type Cube, type Cubie, type Face, type GearMove, type Turn } from '../../core/types'
-import { hasColoredClips, type CubeShape } from '../../core/shapes'
-import { heldEveryWay, turnedFace } from '../../solve/everyWay'
+import { conjugated, heldEveryWay, turnedFace } from '../../solve/everyWay'
 import { holdingsShowing } from '../../solve/holdings'
 
 /**
- * Gear Cube, "corners first", as taught on fan2cube.fr (gearcube2): each
- * step searches among the page's formulas only, each of which leaves the
- * steps before it alone.
+ * The Gear Cubes, "corners first", as taught on fan2cube.fr (gearcube2):
+ * the page's formulas, declared once, and the plain Gear Cube's plan (the
+ * Gear Cube Ultimate's method is its tutorial, lib/tutorials/gear/, which
+ * plays the same formulas). Each step searches among them only, each of
+ * which leaves the steps before it alone.
  *
  *   1. Corners   by any gear moves (the page: "simple et intuitif"); they
  *                tell how the solved puzzle is held, which a gear move can
@@ -31,7 +31,7 @@ import { holdingsShowing } from '../../solve/holdings'
  *
  * The plain Gear Cube shows no clips: step 3 goes, and step 2 places each
  * edge's gear its colors' way round, D⁸ helping (a gear a half turn round
- * reads as its colors swapped, see gear.ts).
+ * reads as its colors swapped, see gear.ts): its plan below.
  */
 
 const isCorner = (c: Cubie) => c.position.every((v) => v !== 0)
@@ -51,9 +51,39 @@ const colors = (c: Cubie) =>
 /** A gear move by letter, a half turn (1) or back (3). */
 const g = (gear: Face, amount: 1 | 3 = 1): GearMove => ({ gear, amount })
 
-/** A formula as seen from every way of holding the puzzle. */
+/** The page's formulas, as it writes them held in front (in our letters):
+ *  D4, two moves of the right face (the slice beside it a half turn, two
+ *  pairs of edges swapped); (A²D²)³ (the clips of eight edges swapped);
+ *  D8, four moves (the slice's four gears a third of a turn). Declared once:
+ *  the method plays them from every side (`GEAR_FORMULAS`), the tutorial
+ *  each from a hold (lib/tutorials/gear/). */
+export const GEAR_SWAP: GearMove[] = [g('R'), g('R')]
+export const GEAR_CLIPS: GearMove[] = [g('F'), g('R'), g('F'), g('R'), g('F'), g('R')]
+export const GEAR_SPIN: GearMove[] = [g('R'), g('R'), g('R'), g('R')]
+
+/** A formula from every way of holding the puzzle, both ways, each once. */
 const fromEverySide = (moves: readonly GearMove[]): GearMove[][] =>
-  heldEveryWay(moves, (m, by) => ({ ...m, gear: turnedFace(m.gear, by) }))
+  heldEveryWay(moves, (m, by) => ({ ...m, gear: turnedFace(m.gear, by) }), {
+    inverses: true,
+    once: true,
+  })
+
+const SWAPS = fromEverySide(GEAR_SWAP)
+
+/** Each of the page's formulas from every side, both ways: the edges'
+ *  swaps (D4, also prepared by any move: P²D4P'²), the clips', the
+ *  gears'. */
+export const GEAR_FORMULAS = {
+  swaps: [
+    ...SWAPS,
+    ...conjugated(
+      SWAPS,
+      GEAR_TURNS.map((m) => [m]),
+    ),
+  ],
+  clips: fromEverySide(GEAR_CLIPS),
+  spins: fromEverySide(GEAR_SPIN),
+}
 
 /** The fewest of `macros` (each a formula played whole) reaching `goal`,
  *  states told apart by `look` (what the goal reads). */
@@ -68,10 +98,11 @@ const search = <T extends Turn>(
     'gear: no formula reaches the goal (an impossible puzzle)',
   )
 
-/** The plan for a Gear Cube shape. */
-function gearPlan(shape: CubeShape): MethodPlan {
-  const holdings = cubeOrientations(solvedCube(shape))
-  const all = allTurnsOf(shape)
+/** The plain Gear Cube's plan: its corners, its edges placed the right
+ *  way round, its gears. */
+function gearPlan(): MethodPlan {
+  const holdings = cubeOrientations(solvedCube('gearCube'))
+  const all = allTurnsOf('gearCube')
 
   /** The ways of holding the solved puzzle its corners match. */
   const matching = (cube: Cube) => holdingsShowing(holdings, cube, isCorner, pose)
@@ -82,7 +113,6 @@ function gearPlan(shape: CubeShape): MethodPlan {
     const h = held(cube)
     return cube.filter(isEdge).every((c) => colors(h.get(key(c))!) === colors(c))
   }
-  const clips = hasColoredClips(shape)
   const clipsDone = (cube: Cube) => {
     if (!edgesPlaced(cube)) return false
     const h = held(cube)
@@ -96,17 +126,7 @@ function gearPlan(shape: CubeShape): MethodPlan {
       .sort()
       .join(' ')
 
-  // The page's formulas, from every side, both ways.
-  const twoHalves = GEAR_TURNS.map((m) => [m, m])
-  const swaps = [
-    ...twoHalves,
-    ...GEAR_TURNS.flatMap((y) => twoHalves.map((xx) => [y, ...xx, ...invertMoves([y])])),
-  ]
-  const clipFormulas = [
-    ...fromEverySide([g('F'), g('R'), g('F'), g('R'), g('F'), g('R')]),
-    ...fromEverySide([g('F', 3), g('R', 3), g('F', 3), g('R', 3), g('F', 3), g('R', 3)]),
-  ]
-  const spins = GEAR_TURNS.map((m) => [m, m, m, m])
+  const { swaps, spins } = GEAR_FORMULAS
 
   return [
     {
@@ -123,37 +143,20 @@ function gearPlan(shape: CubeShape): MethodPlan {
           ),
       ],
     },
-    clips
-      ? {
-          key: 'stepGearEdges',
-          goal: edgesPlaced,
-          moves: all,
-          phases: [(cube) => search(cube, swaps, edgesPlaced, lookOf(isEdge, colors))],
-        }
-      : {
-          key: 'stepGearEdges',
-          goal: clipsDone,
-          moves: all,
-          phases: [
-            (cube) =>
-              search(
-                cube,
-                [...swaps, ...spins],
-                clipsDone,
-                lookOf(isEdge, (c) => pose(c) + c.spin),
-              ),
-          ],
-        },
-    ...(clips
-      ? [
-          {
-            key: 'stepGearClips',
-            goal: clipsDone,
-            moves: all,
-            phases: [(cube: Cube) => search(cube, clipFormulas, clipsDone, lookOf(isEdge, pose))],
-          },
-        ]
-      : []),
+    {
+      key: 'stepGearEdges',
+      goal: clipsDone,
+      moves: all,
+      phases: [
+        (cube) =>
+          search(
+            cube,
+            [...swaps, ...spins],
+            clipsDone,
+            lookOf(isEdge, (c) => pose(c) + c.spin),
+          ),
+      ],
+    },
     {
       key: 'stepGearSpins',
       goal: isSolved,
@@ -171,5 +174,4 @@ function gearPlan(shape: CubeShape): MethodPlan {
   ]
 }
 
-export const GEAR_PLAN = gearPlan('gearCube')
-export const GEAR_ULTIMATE_PLAN = gearPlan('gearU')
+export const GEAR_PLAN = gearPlan()

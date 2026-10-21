@@ -46,7 +46,26 @@ clan : `skewbKit`, partagé avec le Skewb Ultimate). (1) sommets du haut
 placés, puis tournés ([B'O'], de chaque côté : t H) ; (2) centres placés
 ([B'E'][HE], [H'E'][HO]) : les sommets du bas sont alors placés ; (3)
 sommets du bas tournés ([BO']²). L'« algorithme minimal » de la page 3 (la
-seule formule [DG']) n'est pas repris.
+seule formule [DG']) n'est pas repris. Ce plan (`skewbFirst`) est la
+première étape du Master Skewb ; le Skewb a pour méthode son tutoriel joué
+jusqu'au bout (ci-dessous), qui valide aussi sa saisie, sur les mêmes
+formules (`methods/diagonal/skewb.ts`, avec `CENTER_SWAP` de francocube).
+
+**Tutoriel** (`lib/tutorials/diagonal/skewb.ts`, la méthode de
+francocube.com, cyril/skewb_index, très proche de celle de fan2cube) : la
+face du centre qui est en haut se construit d'abord, quelle que soit sa
+couleur ; le but est le Skewb résolu tourné pour que ce centre soit en haut
+et chaque sommet dans son clan (des deux tenues possibles, celle avec
+laquelle les sommets du haut s'accordent le plus). Tenues autour du haut,
+le côté devant (`skewbHolds.ts`, un quart de tour de l'une à l'autre). (1)
+sommets du haut placés, par des tours des sommets du bas, quatre au plus ;
+(2) tournés, chacun tenu devant à droite, par [B'O'] (2'-1-2-1' de
+francocube) ou son inverse ; (3) centres, par [O'B] (1-2-1'-2') : le centre
+du bas échangé avec celui de devant, ceux de gauche et de droite entre eux,
+les sommets du haut gardés ; (4) sommets du bas tournés, [O'B] deux fois ou
+son inverse, depuis un côté puis un autre (trois fois au plus). Le côté
+devant n'est nommé qu'une fois un sommet du haut placé : sa couleur se lit
+sur lui, le centre de ce côté pouvant être ailleurs.
 
 ## Le Master Skewb (`masterSkewb`)
 

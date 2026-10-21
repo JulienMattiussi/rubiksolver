@@ -42,13 +42,12 @@ import { OCT4_PLAN } from '../methods/polyhedron/oct4'
 import { GEM_PLAN, VTO_PLAN } from '../methods/polyhedron/vto'
 import { RAINBOW_PLAN } from '../methods/polyhedron/rainbow'
 import { CRYSTAL_PLAN, MEGAMINX_PLAN } from '../methods/polyhedron/megaminx'
-import { GEAR_PLAN, GEAR_ULTIMATE_PLAN } from '../methods/gear/gear'
+import { GEAR_PLAN } from '../methods/gear/gear'
 import { DINO_PLAN } from '../methods/diagonal/dino'
 import { DINO_CYL_PLAN } from '../methods/round/dinoCyl'
 import { REX_PLAN } from '../methods/diagonal/rex'
 import { FTO_PLAN } from '../methods/polyhedron/fto'
 import { SKEWB_U_PLAN } from '../methods/polyhedron/skewbU'
-import { SKEWB_PLAN } from '../methods/diagonal/skewb'
 import { MASTER_SKEWB_PLAN } from '../methods/diagonal/masterSkewb'
 import { TOWER334_PLAN } from '../methods/tower/tower334'
 import { FASHION_PLAN } from '../methods/twisted/fashion'
@@ -210,10 +209,16 @@ const SOLVE_METHODS = [
   { id: 'dinoLayers', plans: { dino: DINO_PLAN } },
   { id: 'dinoCylLayers', plans: { dinoCyl: DINO_CYL_PLAN } },
   { id: 'rexEdgesFirst', plans: { rex: REX_PLAN } },
-  { id: 'skewbTopFirst', plans: { skewb: SKEWB_PLAN, skewbU: SKEWB_U_PLAN } },
+  {
+    id: 'skewbTopFirst',
+    plans: { skewb: taught('skewb', 'skewbTopFirst'), skewbU: SKEWB_U_PLAN },
+  },
   { id: 'skewbFirst', plans: { masterSkewb: MASTER_SKEWB_PLAN } },
   { id: 'ftoCornersFirst', plans: { fto: FTO_PLAN } },
-  { id: 'gearCornersFirst', plans: { gearCube: GEAR_PLAN, gearU: GEAR_ULTIMATE_PLAN } },
+  {
+    id: 'gearCornersFirst',
+    plans: { gearCube: GEAR_PLAN, gearU: taught('gearU', 'gearCornersFirst') },
+  },
   { id: 'gearEquatorFirst', plans: { gearX: GEAR_EXTREME_PLAN } },
   { id: 'shapeFirst', plans: { purple: PURPLE_SHAPE_FIRST_PLAN } },
   { id: 'extendedCross', plans: { tori: TORI_PLAN, edge: EDGE_ONLY_PLAN } },
@@ -284,8 +289,9 @@ const QUICKEST: Partial<Record<CubeShape, (cube: Cube) => Turn[]>> = { '2': solv
 /** A shape's own proof of solvability, throwing on an impossible state,
  *  when quicker than solving it (the 4x4's, solver4/proof.ts; the
  *  Pyramorphinx's, read as a 2x2; the 5x5's and the super cubes', their
- *  solver's reduction, and the flat puzzles', their optimal search, rather
- *  than their tutorial's, whose searches are not made to give up). */
+ *  solver's reduction, and the flat
+ *  puzzles', their optimal search, rather than their tutorial's, whose
+ *  searches are not made to give up). */
 const PROOFS: Partial<Record<CubeShape, (cube: Cube) => void>> = {
   '4': proveFourByFour,
   morph: solveMorph,

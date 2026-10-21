@@ -9,6 +9,7 @@ import { nextToggle } from '@/lib/editor/modes/toggles'
 import type { Cube, Face, GearMove } from '@/lib/core/types'
 import { validateCube } from '@/lib/editor/validate'
 import { GEAR_SLOTS, twists } from '@/lib/methods/gear/gearExtreme'
+import { GEAR_CLIPS, GEAR_SPIN, GEAR_SWAP } from '@/lib/methods/gear/gear'
 import { spinEffect, spinsHome } from '@/lib/methods/gear/spinSearch'
 import { seededRng, twistedCorner } from '../../../helpers'
 
@@ -60,15 +61,23 @@ describe('Gear Cube model', () => {
     expect(changes(after).some((c) => c.at.startsWith('-1,'))).toBe(false)
   })
 
+  it('swaps two pairs of edges with D⁴, the slice a half turn, no corner (fan2cube)', () => {
+    const c = changes(applyMoves(SOLVED, GEAR_SWAP))
+    // The slice's four edges and four centers moved, each across from home.
+    expect(c).toHaveLength(8)
+    expect(c.every((p) => p.at.startsWith('0,') && p.to !== p.at)).toBe(true)
+    expect(c.filter((p) => p.spin !== undefined)).toHaveLength(4)
+  })
+
   it('pivots the 4 gears of a slice with D⁸, nothing else (fan2cube)', () => {
-    const c = changes(play('R R R R'))
+    const c = changes(applyMoves(SOLVED, GEAR_SPIN))
     expect(c.map((p) => p.at).sort()).toEqual(['0,-1,-1', '0,-1,1', '0,1,-1', '0,1,1'])
     // Four moves of five sixths: a third of a turn.
     expect(c.every((p) => p.to === p.at && !p.turned && p.spin === 2)).toBe(true)
   })
 
   it('swaps the clips of the 8 edges of the top and bottom with (A² D²)³ (fan2cube)', () => {
-    const c = changes(play('F R F R F R'))
+    const c = changes(applyMoves(SOLVED, GEAR_CLIPS))
     expect(c).toHaveLength(8)
     // Each base turned over in place, its gear on it a half turn: the gear
     // back as it was, only its clips turned over (fan2cube's "agrafes").

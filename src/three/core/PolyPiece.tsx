@@ -11,20 +11,27 @@ import { usePulse } from './usePulse'
 /** How many hatching tiles a unit of the drawing spans. */
 const UV_SCALE = 1.5
 
+/** Axes laid on a plane of outward normal `n`, the same for every polygon
+ *  of that plane: the texture (the tutorial's hatching) then runs on from
+ *  one polygon of a sticker to the next, however finely it is cut. */
+function planeAxes(n: THREE.Vector3) {
+  const ref = Math.abs(n.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0)
+  const u = ref.clone().cross(n).normalize()
+  return { u, v: n.clone().cross(u) }
+}
+
 /** Convex polygons as one geometry, each a triangle fan with its own normal
  *  (or one per point, on a curved surface), its texture laid flat on its
- *  plane (the tutorial's hatching). */
+ *  plane (`planeAxes`). */
 function polygonsGeometry(polygons: readonly PiecePolygon[]): THREE.BufferGeometry {
   const positions: number[] = []
   const normals: number[] = []
   const uvs: number[] = []
   for (const { points, normal, normals: smooth } of polygons) {
     const normalAt = (i: number) => smooth?.[i] ?? normal
-    const origin = new THREE.Vector3(...points[0]!)
-    const u = new THREE.Vector3(...points[1]!).sub(origin).normalize()
-    const v = new THREE.Vector3(...normal).cross(u)
+    const { u, v } = planeAxes(new THREE.Vector3(...normal).normalize())
     const uvAt = (i: number) => {
-      const p = new THREE.Vector3(...points[i]!).sub(origin)
+      const p = new THREE.Vector3(...points[i]!)
       return [p.dot(u) * UV_SCALE, p.dot(v) * UV_SCALE]
     }
     for (let i = 1; i < points.length - 1; i++) {

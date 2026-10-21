@@ -157,7 +157,9 @@ src/
 │   │                    #   pyramid/pyraminx (Centres d'abord), pyraHolds (ses tenues), pyraTerms ;
 │   │                    #   pyramid/morph (le Pyramorphinx, Comme un Pocket), morphTerms ;
 │   │                    #   flat/floppy, flat/cube123 et flat/ghost (Coins puis arêtes ; le Ghost par sa
-│   │                    #   légende), flatKit (ce que partagent le Floppy et le 1x2x3)
+│   │                    #   légende), flatKit (ce que partagent le Floppy et le 1x2x3) ;
+│   │                    #   diagonal/skewb (Le haut d'abord, de francocube), skewbHolds, skewbTerms ;
+│   │                    #   gear/gearUltimate (le Gear Cube Ultimate, Coins d'abord), gearTerms
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
 │                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
@@ -551,7 +553,7 @@ forme une fois la formule jouée) ; la vue se tourne vers une direction du modè
 `sceneDirection` (le dessin la convertit, `PolyDrawing.direction`). Un
 tutoriel déclare aussi le nom de ses sortes de pièces (`pieceKind` : les
 pointes du Pyraminx) et sa façon de dire la tenue (`holding` : « Place la
-pyramide à plat »), et ses termes peuvent porter un coup animé (`demo`). Le comportement du tutoriel du 3x3 est figé pas à pas
+pyramide à plat »), et ses termes peuvent porter un coup animé (`demo`) et n'allumer qu'une partie de leurs pièces (`part` : l'engrenage ou les agrafes d'une arête du Gear Cube). Le comportement du tutoriel du 3x3 est figé pas à pas
 par `golden.test.ts` (référence `golden/cube3.json`, écrite par le test :
 `-u` pour la réécrire, seulement sur un changement voulu).
 

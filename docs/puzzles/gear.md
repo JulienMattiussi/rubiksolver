@@ -58,7 +58,27 @@ la page, qui laissent les étapes d'avant intactes : (1) coins, par tous les
 coups ; (2) arêtes placées, D⁴ et P²D⁴P'² ; (3) agrafes, (A²D²)³ (échange
 les agrafes des 8 arêtes du haut et du bas, engrenages revenus tels quels) ;
 (4) engrenages, D⁸ (pivote d'un tiers les 4 engrenages d'une tranche). Les
-centres suivent. **Saisie** dans tout état : d'abord le pivot des
+centres suivent. Les formules de la page sont déclarées une seule fois
+(`GEAR_SWAP`, `GEAR_CLIPS`, `GEAR_SPIN`, et `GEAR_FORMULAS` : de chaque
+côté, dans les deux sens) ; ce plan est celui du Gear Cube, l'Ultimate
+ayant pour méthode son tutoriel joué jusqu'au bout (ci-dessous), qui
+valide aussi sa saisie.
+
+**Tutoriel** du Gear Cube Ultimate (`lib/tutorials/gear/gearUltimate.ts`),
+les mêmes quatre étapes, tenu un côté devant (`CUBE_HOLDS`, dont les tenues
+lisent aussi un coup d'engrenage par sa face) : (1) les coins un à un, par
+les coups les plus courts ; le but est la tenue du cube résolu que les coups
+peuvent donner aux coins (chaque couleur d'un coin reste sur son axe), celle
+qui a le plus de coins chez eux, puis la plus proche ; (2) les arêtes
+placées, une formule à la fois, la première de la plus courte suite de D4 et
+de ses préparations (P²D4P'²) ; (3) les agrafes, (A²D²)³ ; (4) les
+engrenages, D8. Ce sont les formules de la méthode (`GEAR_FORMULAS`),
+chacune montrée dans la tenue où elle ressemble le plus à celle de la page
+(`asGestures`, `lib/teach/macros.ts`). Le côté
+devant n'est nommé qu'une fois un coin chez lui. Les pièces du Gear Cube,
+dessinées à part, prennent les tons du tutoriel comme un cubie (`PieceTone`,
+`Cubie.tsx` : surbrillance pulsée, destination, hachures, clic ;
+`pieceTone.ts`, `GearBody`). **Saisie** dans tout état : d'abord le pivot des
 engrenages (une étape de bascules, `lib/puzzles/gear/gearEntry.ts` : un clic fait pivoter d'un
 sixième les quatre engrenages d'une tranche, qui le partagent toujours ; ce
 qui se voit, `shownSpin`, un engrenage étant le même un demi-tour plus

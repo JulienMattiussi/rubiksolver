@@ -41,6 +41,11 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
   const front = view.tutorial?.faceColor(held, frontNormal) ?? null
   // And the side held down (the holds turn round the top).
   const down = view.tutorial?.faceColor(held, frame.down) ?? null
+  const up = view.tutorial?.faceColor(held, [
+    0 - frame.down[0],
+    0 - frame.down[1],
+    0 - frame.down[2],
+  ])
   // A piece named by its colors, or by its label on a puzzle told by shape.
   const legend = view.tutorial?.legend
   const name = (index: number) => {
@@ -192,7 +197,14 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
       ? []
       : [shown ? <div key="play">{play(shown.moves, shown.done)}</div> : tx.noFormula]),
     pick
-      ? pictured(tx.check(name(pick.piece)), pick.piece)
+      ? pictured(
+          (tx.placed[step.key] ?? tx.check)(
+            name(pick.piece),
+            step.progress?.done ?? 0,
+            up ? tx.colorName(up.color) : '',
+          ),
+          pick.piece,
+        )
       : step.figure
         ? (tx.checks[step.key]?.(
             step.outcome?.done ?? 0,

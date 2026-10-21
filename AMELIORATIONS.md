@@ -16,12 +16,19 @@ notation, le pad Rainbow, le guide et ses phrases : la dernière trace du
 nouveau puzzle de cette famille demande un drapeau de plus et de toucher
 une douzaine de fichiers.
 
-**Piste.** Un coup neutre (`{ triangle, amount, slice? }`) et la coupe
-déclarée par le modèle (`cut`), que le moteur lit sur le puzzle :
-`applyRainbowMove` et `rainbowTurns` recevraient le puzzle (ou sa coupe).
-Coût : réécrire les formules et les tests des six méthodes (l'effet de
-chaque formule fan2cube), la notation (les lettres du Dino), le pad et le
-guide. Aucun gain visible ; à faire avant d'ajouter un puzzle de cette
+**Piste** (revue le 2026-10-21). La coupe ne peut pas être lue sur le
+modèle : la recherche par pièces (`pieceSearch`) joue les coups sur
+quelques pièces seulement, qui ne disent pas de quel puzzle il s'agit.
+Elle reste donc dans le coup, mais en donnée : une plage de profondeur le
+long de la diagonale (`cut: { min, max }`) au lieu des drapeaux, chaque
+puzzle déclarant les siennes dans son module (le Rex « 4 et plus », une
+tranche du FTO « entre -1 et 1 »), le moteur ne testant plus que « la pièce
+est-elle dans la plage ? ». La notation, les titres du pad et les phrases
+du guide, eux, se lisent sur le modèle (ces endroits connaissent le puzzle
+affiché ; vérifier que chaque appel à `formatMove` reçoit sa forme). Coût :
+une quinzaine de fichiers source et huit de test (28 coups écrits avec un
+drapeau, le décodage des formules fan2cube, la notation, les deux pads, le
+guide). Aucun gain visible ; à faire avant d'ajouter un puzzle de cette
 famille.
 
 ## Le blanc d'abord, puis le cube retourné

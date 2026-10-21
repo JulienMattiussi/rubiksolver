@@ -7,12 +7,25 @@ import { CUBIE_GAP, visualPosition } from './layout'
 import { Sticker } from './Sticker'
 import { usePulse } from './usePulse'
 
+/** How a piece is shown: lit by a hovered pad button, or the tutorial's
+ *  tones and click (see Cubie's props). */
+export interface PieceTone {
+  highlighted: boolean
+  hatched?: boolean
+  marked?: boolean
+  pulse?: boolean
+  onPick?: () => void
+  onPickHover?: (on: boolean) => void
+  /** Only this part of the piece lit (see `Term.part`). */
+  part?: string
+}
+
 /** What a puzzle's own piece is drawn from (three/puzzles/views.ts: a Gear
  *  Cube's), in place of a cubie. */
 export interface OwnPieceProps {
   cubie: CubieType
   dims: Dims
-  highlighted: boolean
+  tone: PieceTone
   spinning?: number
   progress?: RefObject<number>
   colors?: readonly string[]
@@ -37,6 +50,7 @@ export function Cubie({
   pulse = false,
   onPick,
   onPickHover,
+  part,
   spinning,
   progress,
   own: Own,
@@ -63,6 +77,8 @@ export function Cubie({
   onPick?: () => void
   /** The pointer coming onto the piece, clickable, and leaving it. */
   onPickHover?: (on: boolean) => void
+  /** Only this part of a puzzle's own piece lit (see `Term.part`). */
+  part?: string
   /** A Gear Cube's gear in a turning slice: the sixths it spins, and how far
    *  along the turn is. */
   spinning?: number
@@ -86,7 +102,7 @@ export function Cubie({
       <Own
         cubie={cubie}
         dims={dims}
-        highlighted={highlighted}
+        tone={{ highlighted, hatched, marked, pulse, onPick, onPickHover, part }}
         spinning={spinning}
         progress={progress}
         colors={colors}

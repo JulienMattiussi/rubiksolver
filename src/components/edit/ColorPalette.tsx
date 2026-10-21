@@ -7,6 +7,7 @@ import type { CubeColor } from '@/lib/core/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
+import { useColorName } from '@/hooks/useColorName'
 import { COLOR_HEX, VARIANT_SKIN } from '@/three/core/colors'
 import { SECTION_LABEL } from '@/components/ui/styles'
 
@@ -24,6 +25,7 @@ function swatchWidth(thickness: number, all: readonly number[]): string {
  *  each thickness is one color's, so the editor underneath is the same). */
 export function ColorPalette() {
   const t = useI18n((s) => s.t)
+  const colorName = useColorName()
   const shape = useCube((s) => cubeShape(s.cube))
   const variant = useCube((s) => s.variant)
   const sizes = tellsSizes(variant)
@@ -52,8 +54,8 @@ export function ColorPalette() {
               key={c}
               role="radio"
               aria-checked={selected === c}
-              aria-label={`${sizes ? t.thickness(rank + 1) : t.colors[c]} (${left})`}
-              title={sizes ? t.thickness(rank + 1) : t.colors[c]}
+              aria-label={`${sizes ? t.thickness(rank + 1) : colorName(c)} (${left})`}
+              title={sizes ? t.thickness(rank + 1) : colorName(c)}
               onClick={() => setColor(c)}
               // None left: dimmed, still chosen (a paint takes it back from
               // where it is, see `paint`).

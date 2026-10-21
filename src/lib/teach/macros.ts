@@ -23,6 +23,30 @@ export interface Gesture {
 }
 
 /**
+ * Formulas held every way (the turns they play: a method's "from every
+ * side"), as gestures: each read in the hold where it looks most like one
+ * of the formulas as written (the most turns the same, place by place),
+ * the first hold if none does (one of the top or the bottom). A tutorial
+ * thus declines the formulas its method declares once.
+ */
+export function asGestures(
+  formulas: readonly (readonly Turn[])[],
+  written: readonly (readonly Turn[])[],
+  frame: HoldFrame,
+): Gesture[] {
+  const same = (a: readonly Turn[], b: readonly Turn[]) =>
+    a.filter((t, i) => b[i] !== undefined && JSON.stringify(t) === JSON.stringify(b[i])).length
+  return formulas.map((played) => {
+    const read = frame.holds.map((hold) => ({
+      hold,
+      moves: played.map((t) => frame.inHold(hold, t)),
+    }))
+    const score = (g: Gesture) => Math.max(...written.map((w) => same(g.moves, w)))
+    return read.reduce((best, g) => (score(g) > score(best) ? g : best))
+  })
+}
+
+/**
  * The first gesture of the shortest chain of `gestures` (at most `depth`
  * long) that brings the puzzle to `goal`: null if none does, or if it is
  * there already. Of the gestures starting a shortest chain, the one leaving

@@ -10,6 +10,8 @@ import { MORPH_EN } from './tutorials/morph'
 import { OFAPEL_EN } from './tutorials/ofapel'
 import { PYRAMIDS_EN } from './tutorials/pyramids'
 import { PYRAMINX_EN } from './tutorials/pyraminx'
+import { SKEWB_EN } from './tutorials/skewb'
+import { GEAR_EN } from './tutorials/gear'
 import { mergeTexts } from '../tutorialTexts'
 
 const TEXTS = mergeTexts([
@@ -24,6 +26,8 @@ const TEXTS = mergeTexts([
   PYRAMINX_EN,
   MORPH_EN,
   OFAPEL_EN,
+  SKEWB_EN,
+  GEAR_EN,
 ])
 
 /** The kinds of pieces, named. */
@@ -76,6 +80,7 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   checkAll: 'Check the new positions: the pieces are in their place.',
   checkFigure: 'Check the new figure the white draws on top.',
   checks: TEXTS.checks,
+  placed: TEXTS.placed,
   figures: TEXTS.figures,
   glossary: 'The words',
   glossaryIntro:

@@ -3,8 +3,7 @@ import { solvedCube } from '@/lib/core/cube'
 import { scrambleTurns } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
 import { parseDinoMoves } from '@/lib/puzzles/shared/rainbow'
-import { BOTTOM_TWIST, CENTER_CYCLES, SKEWB_PLAN, TOP_TWIST } from '@/lib/methods/diagonal/skewb'
-import { buildSteps } from '@/lib/solve/solverKit'
+import { BOTTOM_TWIST, CENTER_CYCLES, CENTER_SWAP, TOP_TWIST } from '@/lib/methods/diagonal/skewb'
 import { seededRng } from '../../../helpers'
 
 const SOLVED = solvedCube('skewb')
@@ -73,11 +72,18 @@ describe('Skewb', () => {
     expect(effect(BOTTOM_TWIST)).toEqual(['B°', 'E°', 'H°', 'O°'])
   })
 
-  it('solves held any way up, the top center white', () => {
-    for (let seed = 1; seed <= 6; seed++) {
-      const cube = applyMoves(SOLVED, scrambleTurns('skewb', 15, seededRng(seed), SOLVED))
-      const steps = buildSteps(cube, SKEWB_PLAN)
-      expect(steps.length).toBeGreaterThan(0)
-    }
+  it("does what francocube.com says of 1-2-1'-2'", () => {
+    // [O'B]: the bottom and front centers swapped, the left and right ones
+    // too, the top corners kept (the bottom ones turned in place).
+    const swap = effect(CENTER_SWAP)
+    expect(swap.filter((e) => e.startsWith('('))).toEqual([
+      '(A)->(B)',
+      '(B)->(A)',
+      '(D)->(G)',
+      '(G)->(D)',
+    ])
+    expect(swap.filter((e) => /^[ADPG]/.test(e))).toEqual([])
+    // Twice: the four bottom corners turned, nothing else.
+    expect(effect(CENTER_SWAP + CENTER_SWAP)).toEqual(['B°', 'E°', 'H°', 'O°'])
   })
 })

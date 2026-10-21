@@ -1,6 +1,6 @@
 import { FACE_NORMAL } from './geometry'
 import type { Face, Turn, Vec3 } from './types'
-import { isFaceMove } from './types'
+import { isFaceMove, isGearMove } from './types'
 
 /**
  * The ways a puzzle may be held (a tutorial's: the formula's letters read
@@ -39,7 +39,8 @@ const cross = (a: Vec3, b: Vec3): Vec3 => [
  * faces' outward normals: the sides round its top (`up`), from `front`,
  * each the right of the one before (seen with it in front), found without
  * any angle, so it has as many holds as sides round its top. The top and
- * bottom keep their names; a turn of another kind is read as it is.
+ * bottom keep their names; a Gear Cube's turn (a face's too) is read the
+ * same way, a turn of another kind as it is.
  */
 export function ringHolds(
   normals: Readonly<Record<Face, Vec3>>,
@@ -61,8 +62,14 @@ export function ringHolds(
     const by = ring.indexOf(hold as Face)
     return at < 0 ? face : ring[(at + sign * by + ring.length) % ring.length]!
   }
-  const relabel = (sign: 1 | -1) => (hold: Hold, turn: Turn) =>
-    isFaceMove(turn) ? { ...turn, face: step(hold, turn.face, sign) } : turn
+  const relabel =
+    (sign: 1 | -1) =>
+    (hold: Hold, turn: Turn): Turn =>
+      isFaceMove(turn)
+        ? { ...turn, face: step(hold, turn.face, sign) }
+        : isGearMove(turn)
+          ? { ...turn, gear: step(hold, turn.gear, sign) }
+          : turn
   return {
     holds: ring,
     front: (hold) => normals[hold as Face],
