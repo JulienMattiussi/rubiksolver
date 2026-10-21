@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { selectBusy, useCube } from '@/store/cubeStore'
 import { useTutorialTrack } from '@/store/tutorialTrack'
+import { Cheer } from './Cheer'
 
 /**
  * A tutorial stage done (`stagesDone`, its last formula validated): a 💪
- * in front of the puzzle, once the formula has played, growing in, beating
- * twice and fading out (`animate-cheer`, index.css). Not the fireworks of
- * a whole solve; skipped for who asks for reduced motion.
+ * in front of the puzzle (`Cheer`), once the formula has played. Not the
+ * fireworks of a whole solve; skipped for who asks for reduced motion.
  */
 export function StageCheer() {
   // Each cheer its own key, so a new one starts afresh.
@@ -33,18 +33,5 @@ export function StageCheer() {
     }
   }, [])
   if (!show) return null
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 flex items-center justify-center"
-      aria-hidden
-    >
-      <span
-        key={show}
-        className="animate-cheer text-[9rem] drop-shadow-2xl"
-        onAnimationEnd={() => setShow(0)}
-      >
-        💪
-      </span>
-    </div>
-  )
+  return <Cheer key={show} onDone={() => setShow(0)} />
 }

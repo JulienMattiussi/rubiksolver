@@ -72,6 +72,16 @@ export function barAxis(corner: Cubie): number {
   return end.normal.findIndex((v) => v !== 0)
 }
 
+/** A bar's pieces, by index: its corner (`corner`, an index) and the
+ *  middle beside it, along the way it lies. */
+export function barOf(cube: Cube, corner: number): number[] {
+  const at = cube[corner]!.position
+  const axis = barAxis(cube[corner]!)
+  const next = at.map((v, a) => (a === axis ? v - 2 * Math.sign(v) : v))
+  const middle = cube.findIndex((c) => isMiddle(c) && c.position.join() === next.join())
+  return middle < 0 ? [corner] : [corner, middle]
+}
+
 /** Under wide turns the bars move rigidly, so how they lie evolves from this
  *  pattern alone: 3^8 states at most. */
 export function barKey(pieces: readonly Cubie[]): string {

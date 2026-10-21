@@ -1,6 +1,5 @@
-import { sameAt } from '../../core/pieces'
 import type { Cube, Move, Vec3 } from '../../core/types'
-import { barAxis, isCorner, isMiddle } from '../../methods/tower/tower'
+import { barOf, isCorner, isMiddle } from '../../methods/tower/tower'
 import { piecesTurnedBy, piecesWhere } from '../../teach/pieces'
 import type { Term } from '../../teach/tutorial'
 
@@ -20,14 +19,8 @@ const TOP_HALF: Move = { face: 'U', amount: 1, depth: 2, wide: true }
 const corners = piecesWhere(isCorner)
 const middles = piecesWhere(isMiddle)
 
-/** A bar: a corner and the middle beside it, along the way it lies. */
-function aBar(cube: Cube): number[] {
-  const corner = cube.findIndex(isCorner)
-  const at = cube[corner]!.position
-  const axis = barAxis(cube[corner]!)
-  const next = at.map((v, a) => (a === axis ? v - 2 * Math.sign(v) : v))
-  return [corner, cube.findIndex((c) => isMiddle(c) && sameAt(c.position, next))]
-}
+/** A bar: the first corner and the middle beside it. */
+const aBar = (cube: Cube) => barOf(cube, cube.findIndex(isCorner))
 
 export const TOWER_GLOSSARY: readonly Term[] = [
   { key: 'termTowerCorner', pieces: corners, from: () => FRONT },

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { isBoxed, isSolved, solvedCube } from '@/lib/core/cube'
 import { applyMove, turnAllowed } from '@/lib/core/turn'
 import { invertMoves } from '@/lib/core/moves'
-import { DESCEND, PIVOT, SWAP } from '@/lib/methods/tower/tower'
+import { barOf, DESCEND, PIVOT, SWAP } from '@/lib/methods/tower/tower'
 import type { Cube, Turn } from '@/lib/core/types'
 
 const SOLVED = solvedCube('224')
@@ -49,5 +49,14 @@ describe('tower formulas (from fan2cube.fr)', () => {
     // A second descent, whatever the setup turn of U, puts the middles back.
     const twice = play([...DESCEND, { face: 'U', amount: 1 }, ...DESCEND])
     expect(changes(twice).every((c) => c.split('->')[0]!.split(',')[1]!.match(/^-?3$/))).toBe(true)
+  })
+
+  it('reads a bar: a corner and the middle beside it, the way it lies', () => {
+    const top = SOLVED.findIndex((c) => c.position.join() === '1,3,1')
+    expect(barOf(SOLVED, top).map((i) => SOLVED[i]!.position.join())).toEqual(['1,3,1', '1,1,1'])
+    // Laid down by the pivot: its middle beside it, along x.
+    const laid = play(PIVOT)
+    const corner = laid.findIndex((c) => c.position.join() === '3,1,1')
+    expect(barOf(laid, corner).map((i) => laid[i]!.position.join())).toEqual(['3,1,1', '1,1,1'])
   })
 })

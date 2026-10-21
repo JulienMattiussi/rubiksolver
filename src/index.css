@@ -57,8 +57,8 @@
   }
 }
 
-/* A tutorial stage done: its emoji grows in, beats twice, then fades out
-   (StageCheer). */
+/* A step done (a tutorial stage, a face scanned): its emoji grows in,
+   beats twice, then fades out (Cheer). */
 @theme {
   --animate-cheer: cheer 1.8s ease-out forwards;
 

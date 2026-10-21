@@ -197,6 +197,23 @@ export const UI_EN: typeof UI_FR = {
   piecesOf: (n: number, total: number) => `${n} / ${total} pieces`,
   facesOf: (n: number, total: number) => `${n} / ${total} faces`,
   clearAll: 'Clear all',
+  scanStart: 'Use the camera',
+  scanMoves: {
+    first: (front: string, up: string) =>
+      `Hold the camera still in front of the cube, the ${front} center facing the lens and ${up} on top, the face filling the frame, in a well-lit place.`,
+    turn: (front: string, up: string) =>
+      `Turn the cube a quarter turn to the left: the ${front} center facing the lens, ${up} still on top.`,
+    tilt: (front: string, up: string) =>
+      `Tilt the cube toward the lens: the ${front} center facing the lens, ${up} on top.`,
+    flip: (front: string, up: string) =>
+      `Turn the cube half round: the ${front} center facing the lens, ${up} still on top.`,
+  },
+  scanMissed: 'Cube not detected properly: take this face again.',
+  scanChecking: 'Checking the face…',
+  scanReading: 'Reading the cube…',
+  scanDenied: 'The camera could not be opened: allow it in the browser settings, then try again.',
+  torchOn: 'Turn the light on',
+  torchOff: 'Turn the light off',
   editHintRoadblock:
     'Its centers are bars of three: a click paints the whole bar. Pick a color and click the stickers; turn the view to reach the other faces.',
   editHintBars:

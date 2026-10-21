@@ -102,6 +102,8 @@ interface EditorStore extends Settings {
   /** Put the next piece that fits in a slot (modes/pieces.ts). */
   cycleAt: (slotKey: string) => void
   clearAll: () => void
+  /** The colors a camera scan read (lib/editor/scan/), to check and apply. */
+  scanned: (edit: EditStickers) => void
   /** Build + validate; on success load the cube into play mode. Returns ok. */
   apply: () => boolean
 }
@@ -318,6 +320,8 @@ export const useEditor = create<EditorStore>((set, get) => {
         toggles: stepOf(currentShape(), 'toggles') ? s.toggles : {},
         error: null,
       })),
+
+    scanned: (edit) => set({ edit, error: null, failedStep: null }),
 
     apply: () => {
       const { edit, form, parts, toggles, joints } = get()

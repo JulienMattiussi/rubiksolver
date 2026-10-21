@@ -9,12 +9,13 @@ export const TOWER_EN: TutorialTexts = {
     stepTowerShape: (done: number) =>
       done === 8
         ? 'Check that every bar stands up: the tower is back in shape.'
-        : 'Check that the two front bars, at the top, have turned the other way.',
+        : `Check that ${done} bar${done > 1 ? 's' : ''} of 8 now ${done > 1 ? 'stand' : 'stands'} up. The tower only gets its shape back once all eight stand.`,
   },
   figures: {
-    figureTowerPivot: 'Find the lying bars: the formula pivots the two top front bars, in one go.',
+    figureTowerPivot:
+      'Find the lying bars: if need be, a wide turn brings two of them to the top front, then the formula pivots them in one go.',
     figureTowerTurn:
-      'Turn a half of the tower to bring two lying bars to the top front, where the formula stands them up.',
+      'Turn a half of the tower: its bars tip over with it, and lying bars stand up.',
   },
   terms: {
     termTowerCorner:

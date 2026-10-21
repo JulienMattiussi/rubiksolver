@@ -198,6 +198,24 @@ export const UI_FR = {
   piecesOf: (n: number, total: number) => `${n} / ${total} pièces`,
   facesOf: (n: number, total: number) => `${n} / ${total} faces`,
   clearAll: 'Tout effacer',
+  scanStart: 'Utiliser l’appareil photo',
+  scanMoves: {
+    first: (front: string, up: string) =>
+      `Positionnez la caméra immobile devant le cube, le centre ${front} face à l’objectif et le ${up} en haut, la face remplissant le cadre, dans un endroit éclairé.`,
+    turn: (front: string, up: string) =>
+      `Tournez le cube d’un quart de tour vers la gauche : le centre ${front} face à l’objectif, le ${up} toujours en haut.`,
+    tilt: (front: string, up: string) =>
+      `Basculez le cube vers l’objectif : le centre ${front} face à l’objectif, le ${up} en haut.`,
+    flip: (front: string, up: string) =>
+      `Faites faire un demi-tour au cube : le centre ${front} face à l’objectif, le ${up} toujours en haut.`,
+  },
+  scanMissed: 'Cube mal détecté : reprenez cette face.',
+  scanChecking: 'Vérification de la face…',
+  scanReading: 'Lecture du cube…',
+  scanDenied:
+    'Impossible d’ouvrir l’appareil photo : autorisez-le dans les réglages du navigateur, puis réessayez.',
+  torchOn: 'Allumer la lampe',
+  torchOff: 'Éteindre la lampe',
   editHintRoadblock:
     'Ses centres sont des barres de trois : un clic peint la barre entière. Choisissez une couleur et cliquez les stickers ; tournez la vue pour atteindre les autres faces.',
   editHintBars:

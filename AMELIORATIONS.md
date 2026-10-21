@@ -3,6 +3,26 @@
 Ce qui marche aujourd'hui mais mériterait mieux, avec les pistes déjà
 envisagées.
 
+## Le scan à l'appareil photo : réglages et autres formes
+
+**Constat.** Le scan (`lib/editor/scan/`) ne couvre que les cubes à grille
+dont chaque face a un centre (3x3, 5x5), et ses seuils (les bandes de teinte
+et les marges d'assurance de `color.ts`, `HOLD_MS` dans `capture.ts`,
+`FORCED` dans `classify.ts`) ne sont réglés que sur des images
+synthétiques et un premier essai à la webcam. Une face
+tenue tournée d'un quart est lue fausse (le texte dit la couleur en haut,
+rien ne le vérifie).
+
+**Pistes.** Régler les seuils sur de vraies photos (sous lampe chaude,
+cube sans stickers, reflets) et en faire des tests. Retrouver la rotation
+de chaque face à la lecture : 4 par face, celle qui donne des pièces qui
+existent. Les cubes pairs (2x2, 4x4, 6x6) : sans centre, la consigne nomme
+un coin (« le coin blanc-vert-rouge en haut à gauche »), les couleurs se
+regroupent entre elles (six groupes de N² stickers) au lieu de se lire sur
+les centres ; l'affectation des pièces (`classify.ts`) marche déjà telle
+quelle. Les cuboïdes impairs passent sans rien changer (cadre
+rectangulaire).
+
 ## Les puzzles « Rainbow » : la coupe dans le coup
 
 **Constat.** Le Rainbow, le Dino Cube, le Rex Cube, le Skewb, le Master

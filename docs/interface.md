@@ -112,6 +112,34 @@ pointes (pièces qui n'en touchent qu'une autre : ce qu'on remarque d'abord
 sur une tour déformée), puis par éloignement de la boîte ; survoler une
 vignette montre la forme en 3D.
 
+**Saisie à l'appareil photo** (`ScanView`, sur mobile comme sur un portable) : sur un
+puzzle que l'on peut scanner (`scannable` : un cube à grille peint par ses
+couleurs, chaque face avec un centre : le 3x3 et le 5x5), le panneau de
+peinture offre « Utiliser l'appareil photo ». La caméra arrière s'ouvre en
+plein écran, avec un cadre en pointillé (la grille de la face en
+filigrane) et le cadre de la case du centre ; la consigne dit la face à
+montrer et la couleur en haut (vert devant, blanc en haut, puis le cube
+tourné vers la gauche, basculé, retourné : `scanPlan`). La face est prise
+d'elle-même quand chaque case est sûrement d'une couleur de cube, que le
+centre est celui demandé et que ces couleurs restent les mêmes deux
+secondes (le cadre passe au vert) : ni cadrage précis ni immobilité
+mesurée, une lecture qui tient dit que le cube était bien placé ; chaque
+face prise est saluée d'un 💪 (`Cheer`, celui des étapes du tutoriel),
+puis la consigne suivante s'affiche en grand devant l'image avant de
+glisser à sa place en haut (`ScanInstruction`), la caméra ne lisant
+qu'une fois elle en place ; un loader pendant la vérification, puis la face suivante, ou
+« Cube mal détecté » et la même face à reprendre. Les six faces prises, le
+cube est lu en entier (`readScan`) : bon, il est peint dans l'éditeur, à
+valider ou retoucher ; une face douteuse est redemandée. Une lampe torche
+s'ajoute quand le téléphone la propose (Chrome sur Android) ; une caméra
+tournée vers soi (celle d'un portable) est montrée en miroir. Chaque case
+montre en temps réel la couleur qu'elle semble avoir (un point ; un
+anneau quand ce n'est pas sûr : trop près d'une limite de teinte, de
+saturation ou de clarté), ce qui dit ce qui bloque ; `?scandebug` dans
+l'adresse y écrit aussi sa mesure (clarté, saturation, teinte),
+pour régler les seuils. La caméra
+exige HTTPS : on l'essaie sur un déploiement Vercel.
+
 **Guide des mouvements** (bouton au-dessus du pad, modale) : chaque coup de
 la forme, montré **sur le cube dans son état actuel**, avec sa notation et une
 phrase qui le décrit. Une ligne par couche et par sens : le coup et son

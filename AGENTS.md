@@ -135,7 +135,8 @@ src/
 │   ├── editor/          # La saisie : entry (ce que le modèle déclare : étapes, peinture), steps (leur
 │   │                    #   enchaînement), edit (la table de stickers, buildCube), editorTables, validate,
 │   │                    #   modes/ (un mode par fichier : form, canvas et faceViews, joints, toggles,
-│   │                    #   colors, pieces)
+│   │                    #   colors, pieces), scan/ (la saisie à l'appareil photo : plan des faces,
+│   │                    #   frame, color, sample, capture, assign et classify : la lecture du cube)
 │   ├── teach/           # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
 │   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), stages (sortes d'étapes et leurs
 │   │                    #   pas), project (étape d'un petit puzzle relevée sur un grand), scene (tons, flèches),
@@ -173,12 +174,12 @@ src/
 │   └── puzzles/         # Les dessins, un dossier par catégorie : drawings.ts et la géométrie de chaque puzzle
 │                        #   (gear/ : pas de drawings.ts, ses pièces, sa vue de saisie et sa vignette sont à lui,
 │                        #   déclarées dans views.ts) ; shared/ : dinoGeometry (Dino Cube, Edge Only)
-├── components/          # UI : ui/ (primitives), controls/ (panneau, pads de coups faits de useTurnButton, padFor), picker/, guide/, edit/,
+├── components/          # UI : ui/ (primitives), controls/ (panneau, pads de coups faits de useTurnButton, padFor), picker/, guide/, edit/ (scan/ : la caméra),
 │                        #   solve/ (SolveArea : la résolution ou le tutoriel), tutorial/, home/, celebration/
 ├── store/               # Zustand : cubeStore (cube, file de coups, solution), editorStore, savedStore,
-│                        #   viewStore, router, tutorialStore (pick, formules jouées, coups à la main, arrêt),
+│                        #   viewStore, router, scanStore (le scan, face par face), tutorialStore (pick, formules jouées, coups à la main, arrêt),
 │                        #   tutorialTrack (étapes montrées, 💪 et fin, coups déjà montrés)
-├── hooks/               # useAutoPlan (solution dans le worker), useIsDesktop, useSolveShortcuts, useTutorial
+├── hooks/               # useAutoPlan (solution dans le worker), useCamera, useIsDesktop, useSolveShortcuts, useTutorial
 ├── i18n/                # fr/ et en/ (ui, methods, steps, moveSentences : phrases longues du guide et
 │                        #   courtes du tutoriel, tutorial : phrases communes, tutorials/ : les textes de chaque tutoriel,
 │                        #   tutorialMirror ; EN typé sur FR), tutorialTexts (leur forme), translations
@@ -415,6 +416,16 @@ les stickers disent une taille, le cube miroir : `STICKERS_TELL` dans
   chaque emplacement porte une vraie pièce, `usesRealPieces`, et que la
   vrille des coins tienne, vérifiée comme un 2x2). Quand la résolution
   échoue sur une étape, le message dit laquelle (`StepFailure`).
+
+**À l'appareil photo** (`lib/editor/scan/`) : la caméra prend
+chaque face d'elle-même (`capture.ts` : chaque case sûrement d'une
+couleur, centre demandé, ces couleurs inchangées deux secondes), puis `readScan` lit le cube entier
+sur les centres scannés (aucun seuil fixe entre rouge et orange) et place
+les vraies pièces au moindre coût (`assign.ts`, sur les placements et les
+budgets de `tablesFor`) ; le résultat est peint dans l'éditeur, à valider.
+Tout se déduit des dimensions (`scanPlan`) ; seuls les cubes dont chaque
+face a un centre sont scannables (`scannable`) ; les limites et la suite :
+`AMELIORATIONS.md`. Voir [docs/interface.md](docs/interface.md).
 
 Ce que toute saisie remplit, quel que soit son mode, est une table de
 stickers (`lib/editor/edit.ts` : progression, `isComplete`, `buildCube`,

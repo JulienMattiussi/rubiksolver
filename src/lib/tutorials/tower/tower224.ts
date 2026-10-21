@@ -1,11 +1,13 @@
 import { faceColorsOf, solvedCube, turnDims } from '../../core/cube'
 import { faceOfNormal } from '../../core/geometry'
 import { CUBE_HOLDS } from '../../core/hold'
+import { applyMoves } from '../../core/turn'
 import { invertMoves } from '../../core/moves'
 import { colorsOf, sameAt } from '../../core/pieces'
 import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
 import {
   barAxis,
+  barOf,
   barKey,
   DESCEND,
   DESCEND_INNER,
@@ -20,14 +22,7 @@ import {
   SWAP_INNER,
 } from '../../methods/tower/tower'
 import { tutorialOf, type Target } from '../../teach/kit'
-import {
-  chainedPieces,
-  chainFigure,
-  eachHold,
-  gestureChain,
-  perState,
-  type Gesture,
-} from '../../teach/macros'
+import { chainedPieces, eachHold, gestureChain, perState, type Gesture } from '../../teach/macros'
 import type { TutorialPick } from '../../teach/tutorial'
 import { TOWER_GLOSSARY } from './towerTerms'
 
@@ -38,7 +33,8 @@ import { TOWER_GLOSSARY } from './towerTerms'
  * side in front (`CUBE_HOLDS`). The tower is two Pockets stacked, an inner
  * one (the eight middles) and an outer one (the eight corners):
  *   1. back in shape: each bar (a corner and the middle beside it) stood up
- *      by the pivot, wide turns bringing two lying bars to it;
+ *      by the pivot, wide turns bringing two lying bars to it, each step
+ *      standing more bars up (`shapeStep`);
  *   2-3. the inner Pocket, bottom then top: a middle brought down by the
  *      descent, the top ones swapped two at a time (h and b turned as Uw
  *      and Dw);
@@ -125,22 +121,71 @@ const placeChain =
 // ---------------------------------------------------------------------------
 
 /** The pivot from each side, both ways; the wide turns bringing the bars
- *  to it. */
+ *  to it (or the tower back in its box by themselves: in its box, every
+ *  bar stands). */
 const SHAPE_GESTURES: Gesture[] = [
   ...eachHold([PIVOT, invertMoves(PIVOT)], 'pivot', CUBE_HOLDS),
-  ...(['U', 'D'] as const).flatMap((face) =>
+  ...(['U', 'D', 'R', 'F'] as const).flatMap((face) =>
     [1, 2, 3].map((t): Gesture => ({ hold: 'F', kind: 'turn', moves: turn(face, t, true) })),
   ),
-  ...(['R', 'F'] as const).map((face): Gesture => ({
-    hold: 'F',
-    kind: 'turn',
-    moves: turn(face, 2, true),
-  })),
 ]
 const standing = (pieces: Cube) => pieces.filter(isCorner).every((c) => barAxis(c) === 1)
-const shapeChain = perState((cube: Cube) =>
-  chainOf(cube, SHAPE_GESTURES, standing, isCorner, barKey),
+/** Turns alone first, if a few bring the tower back in its box (a pivot,
+ *  one gesture of fourteen moves, would otherwise win over two turns). */
+const TURNS_ONLY = SHAPE_GESTURES.filter((g) => g.kind === 'turn')
+const shapeChain = perState(
+  (cube: Cube) =>
+    gestureChain(cube, TURNS_ONLY, standing, {
+      keep: isCorner,
+      key: barKey,
+      depth: 4,
+      mechanism: MECHANISM,
+      frame: CUBE_HOLDS,
+    }) ?? chainOf(cube, SHAPE_GESTURES, standing, isCorner, barKey),
 )
+
+const barsUp = (cube: Cube) => cube.filter((c) => isCorner(c) && barAxis(c) === 1).length
+const playedOf = (g: Gesture) => g.moves.map((m) => CUBE_HOLDS.played(g.hold, m))
+
+/**
+ * A step of the shape: the chain's gestures until more bars stand (the
+ * turns bringing two lying bars to the pivot, then the pivot), as one
+ * formula read in the hold of its last; once the tower is back in shape,
+ * the moves after left out (the pivot's last turn of the top, when every
+ * bar already stands).
+ */
+const shapeStep = perState((cube: Cube) => {
+  const chain = shapeChain(cube)
+  if (!chain?.length) return null
+  const taken: Gesture[] = []
+  let state = cube
+  for (const g of chain) {
+    taken.push(g)
+    state = applyMoves(state, playedOf(g))
+    if (barsUp(state) > barsUp(cube)) break
+  }
+  let moves = taken.flatMap(playedOf)
+  if (shapeDone(state)) {
+    let at = cube
+    const end = moves.findIndex((m) => shapeDone((at = applyMoves(at, [m]))))
+    moves = moves.slice(0, end + 1)
+  }
+  const last = taken[taken.length - 1]!
+  return {
+    kind: taken.some((g) => g.kind === 'pivot') ? 'pivot' : 'turn',
+    hold: last.hold,
+    moves: moves.map((m) => CUBE_HOLDS.inHold(last.hold, m)),
+  }
+})
+/** The shape step's figure: a pivot (and the turns bringing the bars to
+ *  it), or turns alone. */
+const shapeFigure = (kind: string, key: string) => ({
+  key,
+  match: (cube: Cube) => {
+    const step = shapeStep(cube)
+    return step?.kind === kind ? { hold: step.hold, moves: step.moves } : null
+  },
+})
 
 // ---------------------------------------------------------------------------
 // 2-5. The two Pockets
@@ -201,13 +246,12 @@ export const TOWER_TUTORIAL = tutorialOf({
       key: 'stepTowerShape',
       stage: 1,
       done: shapeDone,
-      figures: [
-        chainFigure(shapeChain, 'pivot', 'figureTowerPivot'),
-        chainFigure(shapeChain, 'turn', 'figureTowerTurn'),
-      ],
-      focus: (cube) => indicesOf(cube, (c) => isCorner(c) && barAxis(c) !== 1),
+      figures: [shapeFigure('pivot', 'figureTowerPivot'), shapeFigure('turn', 'figureTowerTurn')],
+      // The lying bars, whole: each corner and the middle beside it.
+      focus: (cube) =>
+        indicesOf(cube, (c) => isCorner(c) && barAxis(c) !== 1).flatMap((i) => barOf(cube, i)),
       progress: (cube) => ({
-        done: cube.filter((c) => isCorner(c) && barAxis(c) === 1).length,
+        done: barsUp(cube),
         total: CORNERS_DOWN.length + CORNERS_UP.length,
       }),
       algorithms: [[PIVOT]],

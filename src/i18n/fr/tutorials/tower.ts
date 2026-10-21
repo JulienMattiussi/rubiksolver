@@ -10,13 +10,13 @@ export const TOWER_FR: TutorialTexts = {
     stepTowerShape: (done: number) =>
       done === 8
         ? 'Vérifie que chaque barre est debout : la tour a repris sa forme.'
-        : 'Vérifie que les deux barres de devant, en haut, ont changé de sens.',
+        : `Vérifie que ${done} barre${done > 1 ? 's' : ''} sur 8 ${done > 1 ? 'sont' : 'est'} maintenant debout. La tour ne reprend sa forme qu’une fois les huit debout.`,
   },
   figures: {
     figureTowerPivot:
-      'Repère les barres couchées : la formule fait pivoter les deux barres du haut de devant, d’un seul geste.',
+      'Repère les barres couchées : si besoin, un coup large en amène deux devant, en haut, puis la formule les fait pivoter d’un seul geste.',
     figureTowerTurn:
-      'Tourne une moitié de la tour pour amener deux barres couchées devant, en haut, là où la formule les redresse.',
+      'Tourne une moitié de la tour : ses barres basculent avec elle, et des barres couchées se redressent.',
   },
   terms: {
     termTowerCorner:
