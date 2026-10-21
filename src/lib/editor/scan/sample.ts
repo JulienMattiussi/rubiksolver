@@ -1,11 +1,14 @@
-import { labOf, type Lab } from './color'
+import { colored, labOf, type Lab } from './color'
 
 /**
  * A face's cells measured on a picture (pure): the picture is the frame
  * the user aims the face into, cut into its grid; each cell is read on its
  * middle (its borders may hold the plastic between stickers, or the
  * next sticker when the cube is not exactly the frame's size), as the
- * median of its pixels (a glare, a few pixels, does not tip it).
+ * median of its pixels. A glare takes color away, never gives any: when
+ * a good share of a cell's pixels have some color, the cell is read on
+ * the most colored half of those (the glare spared them), so a sticker
+ * half under a glare keeps its color.
  */
 
 /** RGBA pixels, row by row (an ImageData). */
@@ -18,6 +21,10 @@ export interface Pixels {
 export interface CellSample {
   readonly lab: Lab
 }
+
+/** The share of a cell's pixels with some color that tells a colored
+ *  sticker, however much glare covers the rest. */
+const COLORED = 0.25
 
 /** Pixels read per cell side, at most: enough for a median. */
 const READS = 12
@@ -52,7 +59,13 @@ export function sampleGrid(pixels: Pixels, rows: number, cols: number): CellSamp
           labs.push(labOf(pixels.data[k]!, pixels.data[k + 1]!, pixels.data[k + 2]!))
         }
       }
-      out.push({ lab: medianLab(labs) })
+      const tinted = labs.filter(colored)
+      if (tinted.length < COLORED * labs.length) {
+        out.push({ lab: medianLab(labs) })
+        continue
+      }
+      tinted.sort((p, q) => Math.hypot(q[1], q[2]) - Math.hypot(p[1], p[2]))
+      out.push({ lab: medianLab(tinted.slice(0, Math.ceil(tinted.length / 2))) })
     }
   }
   return out

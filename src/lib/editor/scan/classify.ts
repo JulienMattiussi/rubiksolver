@@ -1,17 +1,20 @@
 import { tablesFor } from '../editorTables'
 import { emptyEdit } from '../edit'
 import type { EditStickers } from '../entry'
+import { anchorsOf } from './anchors'
 import { cheapestAssignment } from './assign'
 import { distance, type Lab } from './color'
+import { orientFaces } from './orient'
 import { scanPlan } from './plan'
 import type { CellSample } from './sample'
 import type { Color } from '../../core/types'
 import type { CubeShape } from '../../core/shapes'
 
 /**
- * A scanned puzzle's colors (pure), read against its faces' centers, as
- * this light shows them: no fixed threshold tells red
- * from orange. Each sticker alone could still be misread, so the pieces are
+ * A scanned puzzle's colors (pure), read against its colors as this light
+ * shows them (anchors.ts): no fixed threshold tells red from orange. Faces
+ * held turned are found back first (orient.ts). Each sticker alone could
+ * still be misread, so the pieces are
  * read whole: every real piece goes to one place, in one of the ways it
  * can sit there, the cheapest way for all of them at once (the editor's
  * placements and budgets, editorTables.ts: a corner red and orange at once
@@ -30,8 +33,11 @@ export type ScanReading =
 
 /** The colors read from each face's cells (`scanPlan`'s order), or the
  *  face to take again. */
-export function readScan(shape: CubeShape, faces: readonly (readonly CellSample[])[]): ScanReading {
+export function readScan(shape: CubeShape, taken: readonly (readonly CellSample[])[]): ScanReading {
   const plan = scanPlan(shape)
+  const anchor = anchorsOf(shape, taken)
+  const faces = orientFaces(shape, taken, anchor)
+
   const seen = new Map<string, Lab>()
   const faceOf = new Map<string, number>()
   plan.forEach((face, f) =>
@@ -42,13 +48,6 @@ export function readScan(shape: CubeShape, faces: readonly (readonly CellSample[
     }),
   )
   const tables = tablesFor(shape)
-
-  // Each color as its face's center shows it (the face asked for).
-  const anchor = new Map<Color, Lab>()
-  plan.forEach((face, f) => {
-    const center = faces[f]?.[face.center]
-    if (center) anchor.set(face.frontColor, center.lab)
-  })
   const costOf = (id: string, color: Color) => {
     const lab = seen.get(id)
     const ref = anchor.get(color)

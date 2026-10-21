@@ -209,6 +209,13 @@ export const UI_FR = {
     flip: (front: string, up: string) =>
       `Faites faire un demi-tour au cube : le centre ${front} face à l’objectif, le ${up} toujours en haut.`,
   },
+  scanMovesAny: {
+    first:
+      'Positionnez la caméra immobile devant le cube, n’importe quelle face face à l’objectif, la face remplissant le cadre, dans un endroit éclairé.',
+    turn: 'Tournez le cube d’un quart de tour vers la gauche, le dessus restant en haut.',
+    tilt: 'Basculez le cube vers l’objectif : le dessus vient face à l’objectif.',
+    flip: 'Faites faire un demi-tour au cube : le dessous vient face à l’objectif.',
+  },
   scanMissed: 'Cube mal détecté : reprenez cette face.',
   scanChecking: 'Vérification de la face…',
   scanReading: 'Lecture du cube…',

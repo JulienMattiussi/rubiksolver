@@ -136,7 +136,8 @@ src/
 │   │                    #   enchaînement), edit (la table de stickers, buildCube), editorTables, validate,
 │   │                    #   modes/ (un mode par fichier : form, canvas et faceViews, joints, toggles,
 │   │                    #   colors, pieces), scan/ (la saisie à l'appareil photo : plan des faces,
-│   │                    #   frame, color, sample, capture, assign et classify : la lecture du cube)
+│   │                    #   frame, color, sample, capture, anchors (les couleurs), orient (les faces tenues tournées), assign et
+│   │                    #   classify : la lecture du cube)
 │   ├── teach/           # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
 │   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), stages (sortes d'étapes et leurs
 │   │                    #   pas), project (étape d'un petit puzzle relevée sur un grand), scene (tons, flèches),
@@ -419,12 +420,13 @@ les stickers disent une taille, le cube miroir : `STICKERS_TELL` dans
 
 **À l'appareil photo** (`lib/editor/scan/`) : la caméra prend
 chaque face d'elle-même (`capture.ts` : chaque case sûrement d'une
-couleur, centre demandé, ces couleurs inchangées deux secondes), puis `readScan` lit le cube entier
+couleur, centre demandé, ces couleurs inchangées deux secondes), puis `readScan` retrouve les faces tenues tournées (`orient.ts`), lit le cube entier
 sur les centres scannés (aucun seuil fixe entre rouge et orange) et place
 les vraies pièces au moindre coût (`assign.ts`, sur les placements et les
 budgets de `tablesFor`) ; le résultat est peint dans l'éditeur, à valider.
-Tout se déduit des dimensions (`scanPlan`) ; seuls les cubes dont chaque
-face a un centre sont scannables (`scannable`) ; les limites et la suite :
+Tout se déduit des dimensions (`scanPlan`) ; les cubes sont scannables
+(`scannable`), pas encore les cuboïdes ; un cube pair, sans centre, se
+tient n'importe comment, ses couleurs triées entre elles (`anchors.ts`) ; les limites et la suite :
 `AMELIORATIONS.md`. Voir [docs/interface.md](docs/interface.md).
 
 Ce que toute saisie remplit, quel que soit son mode, est une table de

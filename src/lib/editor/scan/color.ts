@@ -41,18 +41,29 @@ const WHITE_CHROMA = 30
 /** Below this lightness, no sticker: the plastic, a shadow. */
 const DARK = 15
 
+/** Whether a measure has some color: not white, nor a glare (which only
+ *  takes color away). */
+export const colored = ([, a, b]: Lab): boolean => Math.hypot(a, b) >= WHITE_CHROMA
+
 /** Hue bands, in degrees, each up to its bound: red wraps round. A
  *  camera's yellow leans green (up to 120 and more under a cold light),
- *  while a green sticker stays past 140; its orange comes down to 45, its
- *  red stays under 25 (a webcam's, 2026-10-21): each bound sits between. */
+ *  while a green sticker stays past 140; its orange comes down to 45, a
+ *  bright red goes up to 30 (a webcam's, 2026-10-21): each bound sits
+ *  between. */
 const HUES: readonly [number, CubeColor][] = [
-  [36, 'R'],
+  [39, 'R'],
   [76, 'O'],
   [128, 'Y'],
   [200, 'G'],
   [325, 'B'],
   [360, 'R'],
 ]
+
+/** Red and orange: their hues come so close under some lights (a red up
+ *  to 37, an orange down to 46: 2026-10-21) that no bound tells them
+ *  apart; the reading does, every sticker against the others (classify.ts).
+ *  A measure near their bound is sure all the same: one of the two. */
+export const TWINS: readonly CubeColor[] = ['R', 'O']
 
 /** How far inside its band a measure must be to be sure of its color:
  *  in degrees of hue, in chroma, in lightness. Near a bound, the light
@@ -81,9 +92,15 @@ export function guessColor([l, a, b]: Lab): ColorGuess {
   const deg = hue < 0 ? hue + 360 : hue
   const band = HUES.findIndex(([bound]) => deg < bound)
   const [bound, color] = HUES[band]!
-  const from = band ? HUES[band - 1]![0] : 0
-  // Red wraps round: 0 and 360 are no bound.
-  const inside = Math.min(band ? deg - from : Infinity, bound === 360 ? Infinity : bound - deg)
+  // How far from each bound, but red's wrap round (0 and 360) and the one
+  // between twins.
+  const near = (side: number) => {
+    const next = HUES[side]
+    return !next || (TWINS.includes(color) && TWINS.includes(next[1]))
+  }
+  const below = band && !near(band - 1) ? deg - HUES[band - 1]![0] : Infinity
+  const above = bound !== 360 && !near(band + 1) ? bound - deg : Infinity
+  const inside = Math.min(below, above)
   return {
     color,
     sure: bright && chroma >= WHITE_CHROMA + SURE_CHROMA && inside >= SURE_HUE,

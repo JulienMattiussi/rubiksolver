@@ -20,15 +20,18 @@ export interface ScanFace {
   readonly front: Face
   readonly up: Face
   readonly move: ScanMove
-  /** Their solved colors, which the texts name. */
+  /** Their solved colors, which the texts name when the face has a
+   *  center telling it. */
   readonly frontColor: Color
   readonly upColor: Color
   readonly rows: number
   readonly cols: number
   /** The sticker id of each cell, row by row from the top left. */
   readonly cells: readonly string[]
-  /** The cell that holds the face's center, which tells the face. */
-  readonly center: number
+  /** The cell that holds the face's center, which tells the face; none
+   *  on an even face (the puzzle is then held any way, its colors told
+   *  apart among themselves, anchors.ts). */
+  readonly center: number | null
 }
 
 /** The faces in order: the four sides, the top up (white), turning the
@@ -78,14 +81,20 @@ function faceCells(shape: CubeShape, front: Face, up: Face) {
   return { rows, cols, cells }
 }
 
-/** Whether a puzzle can be scanned: a plain grid puzzle painted by its
+/** Whether a puzzle can be scanned: a plain grid cube painted by its
  *  colors (no model of its own building or entering it otherwise, no
- *  shifting), each face with one center cell, the one that tells it. */
+ *  shifting). A cuboid's faces are not all alike, some with a center and
+ *  some without: not yet (AMELIORATIONS.md). */
 export function scannable(shape: CubeShape): boolean {
   const model = MODELS[shape]
   if (model?.solved || model?.entry || isGridless(shape) || SHAPE_SHIFTS[shape]) return false
-  return SHAPE_DIMS[shape].every((d) => d >= 3 && d % 2 === 1)
+  const [x, y, z] = SHAPE_DIMS[shape]
+  return x >= 2 && x === y && y === z
 }
+
+/** Whether a puzzle's faces each have a center, which tells each face. */
+export const hasCenters = (shape: CubeShape): boolean =>
+  scanPlan(shape).every((face) => face.center !== null)
 
 const PLANS = new Map<CubeShape, readonly ScanFace[]>()
 
@@ -105,7 +114,7 @@ export function scanPlan(shape: CubeShape): readonly ScanFace[] {
         rows,
         cols,
         cells,
-        center: (rows * cols - 1) / 2,
+        center: rows % 2 && cols % 2 ? (rows * cols - 1) / 2 : null,
       }
     })
     PLANS.set(shape, plan)

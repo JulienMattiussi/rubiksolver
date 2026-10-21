@@ -208,6 +208,13 @@ export const UI_EN: typeof UI_FR = {
     flip: (front: string, up: string) =>
       `Turn the cube half round: the ${front} center facing the lens, ${up} still on top.`,
   },
+  scanMovesAny: {
+    first:
+      'Hold the camera still in front of the cube, any face facing the lens, the face filling the frame, in a well-lit place.',
+    turn: 'Turn the cube a quarter turn to the left, its top staying on top.',
+    tilt: 'Tilt the cube toward the lens: its top comes to face the lens.',
+    flip: 'Turn the cube half round: its bottom comes to face the lens.',
+  },
   scanMissed: 'Cube not detected properly: take this face again.',
   scanChecking: 'Checking the face…',
   scanReading: 'Reading the cube…',

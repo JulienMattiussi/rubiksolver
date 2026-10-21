@@ -5,23 +5,23 @@ envisagées.
 
 ## Le scan à l'appareil photo : réglages et autres formes
 
-**Constat.** Le scan (`lib/editor/scan/`) ne couvre que les cubes à grille
-dont chaque face a un centre (3x3, 5x5), et ses seuils (les bandes de teinte
+**Constat.** Le scan (`lib/editor/scan/`) ne couvre que les cubes (2x2 à
+6x6), pas les cuboïdes, et ses seuils (les bandes de teinte
 et les marges d'assurance de `color.ts`, `HOLD_MS` dans `capture.ts`,
 `FORCED` dans `classify.ts`) ne sont réglés que sur des images
-synthétiques et un premier essai à la webcam. Une face
-tenue tournée d'un quart est lue fausse (le texte dit la couleur en haut,
-rien ne le vérifie).
+synthétiques et un premier essai à la webcam.
 
 **Pistes.** Régler les seuils sur de vraies photos (sous lampe chaude,
-cube sans stickers, reflets) et en faire des tests. Retrouver la rotation
-de chaque face à la lecture : 4 par face, celle qui donne des pièces qui
-existent. Les cubes pairs (2x2, 4x4, 6x6) : sans centre, la consigne nomme
-un coin (« le coin blanc-vert-rouge en haut à gauche »), les couleurs se
-regroupent entre elles (six groupes de N² stickers) au lieu de se lire sur
-les centres ; l'affectation des pièces (`classify.ts`) marche déjà telle
-quelle. Les cuboïdes impairs passent sans rien changer (cadre
-rectangulaire).
+cube sans stickers, reflets) et en faire des tests. Les cuboïdes (tours
+2x3x2, 3x4x3..., Domino) : leurs faces ne sont pas toutes pareilles, les
+unes avec un centre, les autres sans, et le premier côté montré ne dit
+pas quel bout est en haut ; il faut une consigne qui le fixe (« le centre
+blanc en haut » dès le premier côté), puis les couleurs triées entre
+elles comme sur un cube pair (`anchors.ts`) ; cadre rectangulaire, faces
+non carrées tournées d'un demi-tour seulement (`orient.ts`), tout cela
+déjà prêt. Un cube pair tourné à droite au lieu de gauche n'est pas
+retrouvé (la face redemandée en boucle) : essayer aussi l'ordre inverse
+des côtés.
 
 ## Les puzzles « Rainbow » : la coupe dans le coup
 

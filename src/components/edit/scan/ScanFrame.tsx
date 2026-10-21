@@ -8,8 +8,8 @@ interface ScanFrameProps {
   rect: Rect
   rows: number
   cols: number
-  /** The cell that must show the face's center. */
-  center: number
+  /** The cell that must show the face's center (none: an even face). */
+  center: number | null
   /** The colors read hold: the face is about to be taken. */
   holding: boolean
   /** The cells as last read, row by row as the camera sees them. */
@@ -21,7 +21,7 @@ interface ScanFrameProps {
 }
 
 /** The frame a face is aimed into: dashed, its grid faint, the cell of its
- *  center outlined; green while its colors hold. Each cell shows the color
+ *  center outlined (if it has one); green while its colors hold. Each cell shows the color
  *  it seems to be, as a dot (a ring when not surely, nothing when it is no
  *  cube color), so one sees what holds the scan. */
 export function ScanFrame(props: ScanFrameProps) {
@@ -58,10 +58,12 @@ export function ScanFrame(props: ScanFrameProps) {
           style={{ top: (i + 1) * cellH }}
         />
       ))}
-      <div
-        className={`absolute rounded-md border-2 transition-colors ${tone}`}
-        style={box(center, 0.1)}
-      />
+      {center !== null && (
+        <div
+          className={`absolute rounded-md border-2 transition-colors ${tone}`}
+          style={box(center, 0.1)}
+        />
+      )}
       {cells.map((cell, i) => {
         const { color, sure } = guessColor(cell.lab)
         return (

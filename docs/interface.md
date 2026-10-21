@@ -114,13 +114,21 @@ vignette montre la forme en 3D.
 
 **Saisie à l'appareil photo** (`ScanView`, sur mobile comme sur un portable) : sur un
 puzzle que l'on peut scanner (`scannable` : un cube à grille peint par ses
-couleurs, chaque face avec un centre : le 3x3 et le 5x5), le panneau de
+couleurs : les cubes du 2x2 au 6x6), le panneau de
 peinture offre « Utiliser l'appareil photo ». La caméra arrière s'ouvre en
 plein écran, avec un cadre en pointillé (la grille de la face en
-filigrane) et le cadre de la case du centre ; la consigne dit la face à
+filigrane, sous la consigne et au-dessus des boutons) et le cadre de la case du centre ; la consigne dit la face à
 montrer et la couleur en haut (vert devant, blanc en haut, puis le cube
-tourné vers la gauche, basculé, retourné : `scanPlan`). La face est prise
-d'elle-même quand chaque case est sûrement d'une couleur de cube, que le
+tourné vers la gauche, basculé, retourné : `scanPlan`) ; sur un cube pair,
+sans centre, n'importe quelle face d'abord, puis les mêmes gestes, sans
+couleur ni cadre du centre, chacun dessiné au-dessus de sa consigne (un
+cube en relief et la flèche du geste, `ScanMoveArrow`) ; une face qui
+montre encore les couleurs de celle qu'on vient de prendre attend que
+l'image change, et une face toute blanche (ce peut être un mur) n'est
+prise que si c'est la dernière à prendre. La face est prise
+d'elle-même quand chaque case est sûrement d'une couleur de cube (lue
+sur ses pixels colorés quand un reflet en couvre une partie : un reflet
+ôte la couleur, il n'en donne pas), que le
 centre est celui demandé et que ces couleurs restent les mêmes deux
 secondes (le cadre passe au vert) : ni cadrage précis ni immobilité
 mesurée, une lecture qui tient dit que le cube était bien placé ; chaque
@@ -129,7 +137,8 @@ puis la consigne suivante s'affiche en grand devant l'image avant de
 glisser à sa place en haut (`ScanInstruction`), la caméra ne lisant
 qu'une fois elle en place ; un loader pendant la vérification, puis la face suivante, ou
 « Cube mal détecté » et la même face à reprendre. Les six faces prises, le
-cube est lu en entier (`readScan`) : bon, il est peint dans l'éditeur, à
+cube est lu en entier (`readScan`), une face tenue tournée retrouvée
+d'elle-même (`orient.ts` : la rotation qui fait de vraies pièces) : bon, il est peint dans l'éditeur, à
 valider ou retoucher ; une face douteuse est redemandée. Une lampe torche
 s'ajoute quand le téléphone la propose (Chrome sur Android) ; une caméra
 tournée vers soi (celle d'un portable) est montrée en miroir. Chaque case

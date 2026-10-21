@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Flashlight, FlashlightOff, Loader2, X } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
-import { NO_WATCH, watch } from '@/lib/editor/scan/capture'
+import { watch, watchAfter } from '@/lib/editor/scan/capture'
 import { frameOnScreen, screenToPicture, type Size } from '@/lib/editor/scan/frame'
 import { scanPlan } from '@/lib/editor/scan/plan'
 import { sampleGrid, type CellSample } from '@/lib/editor/scan/sample'
@@ -15,12 +15,17 @@ import { Cheer } from '@/components/celebration/Cheer'
 import { ErrorAlert } from '../ErrorAlert'
 import { ColorWords } from './ColorWords'
 import { ScanFrame } from './ScanFrame'
+import { ScanMoveArrow } from './ScanMoveArrow'
 import { ScanInstruction, type InstructionStage } from './ScanInstruction'
 
 /** How often the picture is read, in milliseconds. */
 const READ_MS = 100
 /** How long an instruction stays big in front, before moving up. */
 const FRONT_MS = 1800
+/** Room kept under the frame for the buttons, and over it before the
+ *  instruction is measured, in pixels. */
+const BUTTONS_PX = 88
+const CARD_PX = 140
 /** Pixels a cell is read on (sample.ts reads its middle). */
 const CELL_PX = 24
 
@@ -43,18 +48,23 @@ const reducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motion: redu
 export function ScanView() {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
-  const { face: at, status, missed, cheers, take, read, close } = useScan()
+  const { face: at, faces, status, missed, cheers, last, take, read, close } = useScan()
   const { videoRef, status: camera, mirrored, canTorch, torch, setTorch } = useCamera()
   const [screen, setScreen] = useState(screenSize)
   const [holding, setHolding] = useState(false)
   const [cells, setCells] = useState<readonly CellSample[]>([])
   const [stage, setStage] = useState<'cheer' | InstructionStage>('front')
+  const [cardBottom, setCardBottom] = useState(CARD_PX)
   const cheered = useRef(cheers)
   const canvas = useRef<HTMLCanvasElement | null>(null)
 
   const plan = scanPlan(shape)
   const face = plan[at]!
-  const rect = frameOnScreen(screen, face.rows, face.cols)
+  // Below the instruction, above the buttons: the camera reads it there.
+  const top = cardBottom + 8
+  const rect = frameOnScreen(screen, face.rows, face.cols, top, BUTTONS_PX)
+  // Every other face taken: this one may be all white (capture.ts).
+  const lastFace = faces.filter(Boolean).length + (faces[at] ? 0 : 1) === plan.length
 
   useEffect(() => {
     const resize = () => setScreen(screenSize())
@@ -82,12 +92,13 @@ export function ScanView() {
 
   useEffect(() => {
     if (camera !== 'on' || status !== 'aiming' || stage !== 'top') return
-    let watched = NO_WATCH
+    let watched = watchAfter(last)
     const timer = setInterval(() => {
       const video = videoRef.current
       if (!video?.videoWidth) return
       const view = { width: video.clientWidth, height: video.clientHeight }
-      const crop = screenToPicture(frameOnScreen(view, face.rows, face.cols), view, {
+      const onScreen = frameOnScreen(view, face.rows, face.cols, top, BUTTONS_PX)
+      const crop = screenToPicture(onScreen, view, {
         width: video.videoWidth,
         height: video.videoHeight,
       })
@@ -98,7 +109,7 @@ export function ScanView() {
       if (!ctx) return
       ctx.drawImage(video, crop.x, crop.y, crop.width, crop.height, 0, 0, width, height)
       const cells = sampleGrid(ctx.getImageData(0, 0, width, height), face.rows, face.cols)
-      const seen = watch(watched, cells, performance.now(), face.center, face.frontColor)
+      const seen = watch(watched, cells, performance.now(), face, lastFace)
       watched = seen.state
       setCells(cells)
       setHolding(watched.frames.length > 1)
@@ -109,7 +120,7 @@ export function ScanView() {
       setHolding(false)
       setCells([])
     }
-  }, [camera, status, stage, face, take, videoRef])
+  }, [camera, status, stage, face, top, last, lastFace, take, videoRef])
 
   const color = (c: keyof typeof t.colors) => t.colors[c].toLowerCase()
   const busy = status === 'checking' ? t.scanChecking : status === 'reading' ? t.scanReading : null
@@ -148,15 +159,24 @@ export function ScanView() {
         </ScanInstruction>
       ) : (
         status !== 'complete' && (
-          <ScanInstruction stage={stage === 'cheer' ? 'hidden' : stage}>
+          <ScanInstruction stage={stage === 'cheer' ? 'hidden' : stage} onBottom={setCardBottom}>
             <p>
-              <ColorWords
-                text={t.scanMoves[face.move](color(face.frontColor), color(face.upColor))}
-                colors={[
-                  { color: face.frontColor, name: color(face.frontColor) },
-                  { color: face.upColor, name: color(face.upColor) },
-                ]}
-              />
+              {/* Told by its center; an even cube, held any way, by the way
+                  to turn it. */}
+              {face.center !== null ? (
+                <ColorWords
+                  text={t.scanMoves[face.move](color(face.frontColor), color(face.upColor))}
+                  colors={[
+                    { color: face.frontColor, name: color(face.frontColor) },
+                    { color: face.upColor, name: color(face.upColor) },
+                  ]}
+                />
+              ) : (
+                <>
+                  <ScanMoveArrow move={face.move} />
+                  {t.scanMovesAny[face.move]}
+                </>
+              )}
             </p>
             {missed && <ErrorAlert>{t.scanMissed}</ErrorAlert>}
           </ScanInstruction>

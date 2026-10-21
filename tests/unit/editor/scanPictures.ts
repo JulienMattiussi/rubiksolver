@@ -1,4 +1,4 @@
-import { solvedCube } from '@/lib/core/cube'
+import { cubeOrientations, solvedCube } from '@/lib/core/cube'
 import { applyMoves } from '@/lib/core/turn'
 import { scramble } from '@/lib/core/moves'
 import { cubeToEdit } from '@/lib/editor/edit'
@@ -47,15 +47,22 @@ export function picture(
   return { width, height, data }
 }
 
-/** Each face of a state scanned, in the plan's order. */
+/** Each face of a state scanned, in the plan's order, held as told. */
 export function scanOf(
   shape: CubeShape,
   seed: number,
 ): { faces: CellSample[][]; edit: EditStickers } {
   const rng = seededRng(seed)
-  const cube = applyMoves(solvedCube(shape), scramble(shape, 30, rng))
-  const edit = cubeToEdit(cube)
-  const faces = scanPlan(shape).map((face) =>
+  const plan = scanPlan(shape)
+  const scrambled = applyMoves(solvedCube(shape), scramble(shape, 30, rng))
+  // Held as the instructions say, each face's center toward the lens in
+  // its turn (a 5x5's middle slices move them).
+  const edit = cubeOrientations(scrambled)
+    .map(cubeToEdit)
+    .find((e) =>
+      plan.every((face) => face.center === null || e[face.cells[face.center]!] === face.frontColor),
+    )!
+  const faces = plan.map((face) =>
     sampleGrid(
       picture(
         face.cells.map((id) => edit[id]!),

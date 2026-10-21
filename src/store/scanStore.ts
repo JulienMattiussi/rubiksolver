@@ -25,6 +25,8 @@ interface ScanStore {
   missed: boolean
   /** Faces taken so far, each one cheered (ScanView). */
   cheers: number
+  /** The face taken last, not to take again before the cube turns. */
+  last: readonly CellSample[] | undefined
   start: () => void
   close: () => void
   /** A face taken (capture.ts): checked, then the next, or every face in. */
@@ -67,9 +69,18 @@ export const useScan = create<ScanStore>((set, get) => {
     status: 'aiming',
     missed: false,
     cheers: 0,
+    last: undefined,
 
     start: () =>
-      set({ open: true, face: 0, faces: [], status: 'aiming', missed: false, cheers: 0 }),
+      set({
+        open: true,
+        face: 0,
+        faces: [],
+        status: 'aiming',
+        missed: false,
+        cheers: 0,
+        last: undefined,
+      }),
 
     close: () => {
       run++
@@ -82,15 +93,15 @@ export const useScan = create<ScanStore>((set, get) => {
         const plan = scanPlan(shape())
         const { face, faces } = get()
         const asked = plan[face]!
-        if (!showsFace(cells, asked.center, asked.frontColor)) {
+        if (!showsFace(cells, asked)) {
           set({ status: 'aiming', missed: true })
           return
         }
         const taken = plan.map((_, i) => (i === face ? cells : faces[i]))
         const next = taken.findIndex((f) => !f)
-        const cheers = get().cheers + 1
-        if (next >= 0) set({ faces: taken, face: next, status: 'aiming', missed: false, cheers })
-        else set({ faces: taken, status: 'complete', missed: false, cheers })
+        const done = { faces: taken, missed: false, cheers: get().cheers + 1, last: cells }
+        if (next >= 0) set({ ...done, face: next, status: 'aiming' })
+        else set({ ...done, status: 'complete' })
       }, CHECK_MS)
     },
 
