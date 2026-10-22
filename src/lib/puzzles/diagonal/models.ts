@@ -25,9 +25,12 @@ import { asSeenThin, withRealThinEdges } from '../shared/thinEdges'
 import { copterGuide, dinoGuide, masterSkewbGuide } from '../guides'
 import { fisherSolved, windmillSolved, withMarks } from './fisher'
 
+// Cubes whose faces are no grid: scanned each sticker where its drawing
+// shows it (`scan: 'square'`, lib/editor/scan/plan.ts).
 export const DIAGONAL_MODELS = {
   dino: {
     solved: solvedDino,
+    scan: 'square',
     turns: () => DINO_TURNS,
     scramble: (length, rng) => scrambleDino(length, rng),
     guide: () => dinoGuide(),
@@ -35,6 +38,7 @@ export const DIAGONAL_MODELS = {
   // A cube: its 24 holdings.
   skewb: {
     solved: solvedSkewb,
+    scan: 'square',
     symmetries: SKEWB_CUBE_SYMMETRIES,
     turns: () => SKEWB_TURNS,
     scramble: (length, rng) => scrambleSkewbU(length, rng),
@@ -43,6 +47,7 @@ export const DIAGONAL_MODELS = {
   // The Curvy Copters: a cube, as the Skewb, held 24 ways.
   copter: {
     solved: solvedCurvyCopter,
+    scan: 'square',
     symmetries: SKEWB_CUBE_SYMMETRIES,
     turns: () => COPTER_TURNS,
     scramble: (length, rng) => scrambleCopter(length, rng),
@@ -51,6 +56,7 @@ export const DIAGONAL_MODELS = {
   // Its edges turn its centers and petals too: said so.
   copter3: {
     solved: solvedCurvyCopter3,
+    scan: 'square',
     symmetries: SKEWB_CUBE_SYMMETRIES,
     turns: () => COPTER_TURNS,
     scramble: (length, rng) => scrambleCopter(length, rng),
@@ -60,6 +66,7 @@ export const DIAGONAL_MODELS = {
   // A cube, as the Skewb: its 24 holdings.
   masterSkewb: {
     solved: solvedMasterSkewb,
+    scan: 'square',
     symmetries: SKEWB_CUBE_SYMMETRIES,
     turns: () => MASTER_TURNS,
     scramble: (length, rng) => scrambleMasterSkewb(length, rng),
@@ -67,6 +74,7 @@ export const DIAGONAL_MODELS = {
   },
   rex: {
     solved: solvedRex,
+    scan: 'square',
     turns: () => REX_TURNS,
     scramble: (length, rng) => scrambleRex(length, rng),
     guide: () => dinoGuide({ rex: true }),

@@ -113,24 +113,38 @@ sur une tour déformée), puis par éloignement de la boîte ; survoler une
 vignette montre la forme en 3D.
 
 **Saisie à l'appareil photo** (`ScanView`, sur mobile comme sur un portable) : sur un
-puzzle que l'on peut scanner (`scannable` : un cube à grille peint par ses
-couleurs : les cubes du 2x2 au 6x6), le panneau de
-peinture offre « Utiliser l'appareil photo ». La caméra arrière s'ouvre en
+puzzle que l'on peut scanner (`scannable` : les cubes, les cuboïdes et les
+plats sans saisie propre, le Void Cube et l'Edge Only (des cases vides à
+leurs trous), les cubes diagonaux (Skewb, Master Skewb, Dino, Rex, Curvy
+Copter et Copter III : chaque sticker lu où leur dessin le montre,
+`three/core/scanDrawing.ts`, ses contours en filigrane, leurs centres qui
+bougent servant de référence de couleur sans nommer les faces), le Megaminx
+et le Holey Megaminx, qui déclarent leur scan), le
+panneau de
+peinture offre « Utiliser l'appareil photo », suivi d'une fiole (« Cette
+fonction n'a pas encore été testée et validée sur ce modèle ») sauf sur les
+puzzles où le scan a été essayé en vrai (`scanTried` sur leur carte : 2x2,
+3x3, 4x4). La caméra arrière s'ouvre en
 plein écran, avec un cadre en pointillé (la grille de la face en
 filigrane, sous la consigne et au-dessus des boutons) et le cadre de la case du centre ; la consigne dit la face à
 montrer et la couleur en haut (vert devant, blanc en haut, puis le cube
-tourné vers la gauche, basculé, retourné : `scanPlan`) ; sur un cube pair,
-sans centre, n'importe quelle face d'abord, puis les mêmes gestes, sans
+tourné vers la gauche, basculé, retourné : `scanPlan`, le cadre de la forme
+de chaque face, une bande de 3 x 1 pour une tranche de Floppy) ; sur un
+puzzle dont une face n'a pas de centre (un cube pair, la plupart des
+cuboïdes), n'importe quelle face de la forme du cadre d'abord, puis les mêmes gestes, sans
 couleur ni cadre du centre, chacun dessiné au-dessus de sa consigne (un
 cube en relief et la flèche du geste, `ScanMoveArrow`) ; une face qui
 montre encore les couleurs de celle qu'on vient de prendre attend que
-l'image change, et une face toute blanche (ce peut être un mur) n'est
-prise que si c'est la dernière à prendre. La face est prise
+l'image change. Rien ne distinguant un puzzle d'un mur, c'est l'utilisateur
+qui dit quand le puzzle est en place : il touche « Scanner la face » (au milieu de l'écran,
+`ScanTake` ; la barre d'espace sur un portable), la caméra ne lit qu'ensuite,
+« Tenez le puzzle immobile… », et redemande un tap si rien n'est stable en
+5 secondes. La face est alors prise
 d'elle-même quand chaque case est sûrement d'une couleur de cube (lue
 sur ses pixels colorés quand un reflet en couvre une partie : un reflet
 ôte la couleur, il n'en donne pas), que le
-centre est celui demandé et que ces couleurs restent les mêmes deux
-secondes (le cadre passe au vert) : ni cadrage précis ni immobilité
+centre est celui demandé et que ces couleurs restent les mêmes une
+seconde (le cadre passe au vert) : ni cadrage précis ni immobilité
 mesurée, une lecture qui tient dit que le cube était bien placé ; chaque
 face prise est saluée d'un 💪 (`Cheer`, celui des étapes du tutoriel),
 puis la consigne suivante s'affiche en grand devant l'image avant de
@@ -139,15 +153,32 @@ qu'une fois elle en place ; un loader pendant la vérification, puis la face sui
 « Cube mal détecté » et la même face à reprendre. Les six faces prises, le
 cube est lu en entier (`readScan`), une face tenue tournée retrouvée
 d'elle-même (`orient.ts` : la rotation qui fait de vraies pièces) : bon, il est peint dans l'éditeur, à
-valider ou retoucher ; une face douteuse est redemandée. Une lampe torche
+valider ou retoucher, un encadré demandant de vérifier que le modèle
+représenté est conforme au puzzle (`fromScan`, jusqu'à ce qu'on efface ou
+saisisse autrement) ; une face douteuse est redemandée. Une lampe torche
 s'ajoute quand le téléphone la propose (Chrome sur Android) ; une caméra
-tournée vers soi (celle d'un portable) est montrée en miroir. Chaque case
+tournée vers soi (celle d'un portable) est montrée en miroir. Après le tap
+seulement (avant, l'utilisateur attendrait des points tous justes), chaque case
 montre en temps réel la couleur qu'elle semble avoir (un point ; un
 anneau quand ce n'est pas sûr : trop près d'une limite de teinte, de
 saturation ou de clarté), ce qui dit ce qui bloque ; `?scandebug` dans
 l'adresse y écrit aussi sa mesure (clarté, saturation, teinte),
 pour régler les seuils. La caméra
 exige HTTPS : on l'essaie sur un déploiement Vercel.
+
+Le Megaminx se scanne de même, ses douze faces nommées par leur centre et
+la couleur du haut, le cadre en pentagone (ses découpes en étoile en
+filigrane) ; ses douze couleurs ne se nomment pas à la prise : chaque point
+montre la couleur mesurée, la face est prise quand ces mesures restent
+stables une seconde, et les couleurs ne sont dites qu'à la lecture, chacune
+prenant ses onze stickers les plus proches. Le Holey Megaminx, sans centres
+pour nommer ses faces, se montre par des gestes seuls, depuis n'importe
+quelle face : les cinq faces autour de celle du haut en le tournant vers la
+gauche, le dessus restant en haut ; basculé vers l'objectif (la face du
+haut devant, une pointe en haut) ; un demi-tour (la face de derrière) ;
+basculé de nouveau ; les cinq autour de celle du bas, le dessous restant en
+bas (`holeyScan.ts`, vérifié sur un dodécaèdre) ; chaque geste fléché, avec
+son angle (72°, 63°, 180°).
 
 **Guide des mouvements** (bouton au-dessus du pad, modale) : chaque coup de
 la forme, montré **sur le cube dans son état actuel**, avec sa notation et une

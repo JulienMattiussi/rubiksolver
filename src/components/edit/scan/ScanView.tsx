@@ -5,9 +5,10 @@ import { cubeShape } from '@/lib/core/cube'
 import { watch, watchAfter } from '@/lib/editor/scan/capture'
 import { frameOnScreen, screenToPicture, type Size } from '@/lib/editor/scan/frame'
 import { scanPlan } from '@/lib/editor/scan/plan'
-import { sampleGrid, type CellSample } from '@/lib/editor/scan/sample'
+import { sampleFace, type CellSample } from '@/lib/editor/scan/sample'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCamera } from '@/hooks/useCamera'
+import { drawnFace } from '@/three/core/scanDrawing'
 import { useCube } from '@/store/cubeStore'
 import { useScan } from '@/store/scanStore'
 import { Button } from '@/components/ui/Button'
@@ -17,6 +18,7 @@ import { ColorWords } from './ColorWords'
 import { ScanFrame } from './ScanFrame'
 import { ScanMoveArrow } from './ScanMoveArrow'
 import { ScanInstruction, type InstructionStage } from './ScanInstruction'
+import { ScanTake } from './ScanTake'
 
 /** How often the picture is read, in milliseconds. */
 const READ_MS = 100
@@ -24,10 +26,12 @@ const READ_MS = 100
 const FRONT_MS = 1800
 /** Room kept under the frame for the buttons, and over it before the
  *  instruction is measured, in pixels. */
-const BUTTONS_PX = 88
+const BUTTONS_PX = 130
 const CARD_PX = 140
-/** Pixels a cell is read on (sample.ts reads its middle). */
-const CELL_PX = 24
+/** Pixels across the picture of a frame the cells are read on. */
+const FRAME_PX = 192
+/** How long a face is waited for once the user said it is there. */
+const ARMED_MS = 5000
 
 const screenSize = (): Size => ({ width: window.innerWidth, height: window.innerHeight })
 
@@ -38,8 +42,9 @@ const reducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motion: redu
 
 /**
  * The camera scan, full screen: the picture, the frame to aim each face
- * into, what to show, and the face taken by itself once its colors hold
- * in the frame (capture.ts), checked, then the next; read whole at the end
+ * into, what to show, and once the user said the puzzle is there (a tap,
+ * ScanTake), the face taken by itself as soon as its colors hold in the
+ * frame (capture.ts), checked, then the next; read whole at the end
  * and painted in the editor (scanStore). Each face taken is cheered (a 💪,
  * not for who asks for reduced motion), then the next instruction is shown
  * big in front of the picture before it moves up to its place: the camera
@@ -48,23 +53,24 @@ const reducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motion: redu
 export function ScanView() {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
-  const { face: at, faces, status, missed, cheers, last, take, read, close } = useScan()
+  const { face: at, status, missed, cheers, last, take, read, close } = useScan()
   const { videoRef, status: camera, mirrored, canTorch, torch, setTorch } = useCamera()
   const [screen, setScreen] = useState(screenSize)
   const [holding, setHolding] = useState(false)
   const [cells, setCells] = useState<readonly CellSample[]>([])
   const [stage, setStage] = useState<'cheer' | InstructionStage>('front')
   const [cardBottom, setCardBottom] = useState(CARD_PX)
+  const [armed, setArmed] = useState(false)
+  const [nothing, setNothing] = useState(false)
   const cheered = useRef(cheers)
   const canvas = useRef<HTMLCanvasElement | null>(null)
 
   const plan = scanPlan(shape)
-  const face = plan[at]!
+  // A face whose stickers are no grid, where its drawing shows them.
+  const face = drawnFace(shape, plan[at]!)
   // Below the instruction, above the buttons: the camera reads it there.
   const top = cardBottom + 8
-  const rect = frameOnScreen(screen, face.rows, face.cols, top, BUTTONS_PX)
-  // Every other face taken: this one may be all white (capture.ts).
-  const lastFace = faces.filter(Boolean).length + (faces[at] ? 0 : 1) === plan.length
+  const rect = frameOnScreen(screen, face, top, BUTTONS_PX)
 
   useEffect(() => {
     const resize = () => setScreen(screenSize())
@@ -90,37 +96,58 @@ export function ScanView() {
     return () => clearTimeout(timer)
   }, [stage, at])
 
+  // Each face waits for the user's tap; one that does not hold still in
+  // time, a tap again. Nothing is read before (no dots to wait for).
+  const aiming = camera === 'on' && status === 'aiming' && stage === 'top'
   useEffect(() => {
-    if (camera !== 'on' || status !== 'aiming' || stage !== 'top') return
+    if (!armed) return
+    const timer = setTimeout(() => {
+      setArmed(false)
+      setNothing(true)
+    }, ARMED_MS)
+    return () => clearTimeout(timer)
+  }, [armed])
+  const arm = useCallback(() => {
+    setNothing(false)
+    setArmed(true)
+  }, [])
+
+  useEffect(() => {
+    if (!aiming || !armed) return
+    // Watched from the tap on, the shake of the tap left out.
     let watched = watchAfter(last)
     const timer = setInterval(() => {
       const video = videoRef.current
       if (!video?.videoWidth) return
       const view = { width: video.clientWidth, height: video.clientHeight }
-      const onScreen = frameOnScreen(view, face.rows, face.cols, top, BUTTONS_PX)
+      const onScreen = frameOnScreen(view, face, top, BUTTONS_PX)
       const crop = screenToPicture(onScreen, view, {
         width: video.videoWidth,
         height: video.videoHeight,
       })
       canvas.current ??= document.createElement('canvas')
-      const [width, height] = [face.cols * CELL_PX, face.rows * CELL_PX]
+      const [width, height] = [FRAME_PX, Math.round((FRAME_PX * face.height) / face.width)]
       Object.assign(canvas.current, { width, height })
       const ctx = canvas.current.getContext('2d', { willReadFrequently: true })
       if (!ctx) return
       ctx.drawImage(video, crop.x, crop.y, crop.width, crop.height, 0, 0, width, height)
-      const cells = sampleGrid(ctx.getImageData(0, 0, width, height), face.rows, face.cols)
-      const seen = watch(watched, cells, performance.now(), face, lastFace)
-      watched = seen.state
+      const cells = sampleFace(ctx.getImageData(0, 0, width, height), face)
       setCells(cells)
+      const seen = watch(watched, cells, performance.now(), face)
+      watched = seen.state
       setHolding(watched.frames.length > 1)
-      if (seen.taken) take(seen.taken)
+      if (seen.taken) {
+        // A tap again for the next face.
+        setArmed(false)
+        take(seen.taken)
+      }
     }, READ_MS)
     return () => {
       clearInterval(timer)
       setHolding(false)
       setCells([])
     }
-  }, [camera, status, stage, face, top, last, lastFace, take, videoRef])
+  }, [aiming, armed, face, top, last, take, videoRef])
 
   const color = (c: keyof typeof t.colors) => t.colors[c].toLowerCase()
   const busy = status === 'checking' ? t.scanChecking : status === 'reading' ? t.scanReading : null
@@ -137,9 +164,7 @@ export function ScanView() {
       {camera === 'on' && (
         <ScanFrame
           rect={rect}
-          rows={face.rows}
-          cols={face.cols}
-          center={face.center}
+          face={face}
           holding={holding}
           cells={cells}
           mirrored={mirrored}
@@ -163,7 +188,7 @@ export function ScanView() {
             <p>
               {/* Told by its center; an even cube, held any way, by the way
                   to turn it. */}
-              {face.center !== null ? (
+              {face.told ? (
                 <ColorWords
                   text={t.scanMoves[face.move](color(face.frontColor), color(face.upColor))}
                   colors={[
@@ -173,7 +198,7 @@ export function ScanView() {
                 />
               ) : (
                 <>
-                  <ScanMoveArrow move={face.move} />
+                  <ScanMoveArrow face={face} />
                   {t.scanMovesAny[face.move]}
                 </>
               )}
@@ -194,21 +219,25 @@ export function ScanView() {
         </div>
       )}
 
-      <div className="absolute inset-x-0 bottom-0 flex justify-center gap-3 p-4 pb-8">
-        {canTorch && (
-          <Button onClick={() => setTorch(!torch)} aria-pressed={torch}>
-            {torch ? (
-              <FlashlightOff className="size-4" aria-hidden />
-            ) : (
-              <Flashlight className="size-4" aria-hidden />
-            )}
-            {torch ? t.torchOff : t.torchOn}
+      {aiming && <ScanTake armed={armed} nothing={nothing} onArm={arm} />}
+
+      <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 p-4 pb-8">
+        <div className="flex justify-center gap-3">
+          {canTorch && (
+            <Button onClick={() => setTorch(!torch)} aria-pressed={torch}>
+              {torch ? (
+                <FlashlightOff className="size-4" aria-hidden />
+              ) : (
+                <Flashlight className="size-4" aria-hidden />
+              )}
+              {torch ? t.torchOff : t.torchOn}
+            </Button>
+          )}
+          <Button onClick={close}>
+            <X className="size-4" aria-hidden />
+            {t.cancel}
           </Button>
-        )}
-        <Button onClick={close}>
-          <X className="size-4" aria-hidden />
-          {t.cancel}
-        </Button>
+        </div>
       </div>
     </div>,
     document.body,

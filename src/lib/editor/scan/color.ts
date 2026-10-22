@@ -18,6 +18,13 @@ const linear = (c: number) => {
 
 const f = (t: number) => (t > 216 / 24389 ? Math.cbrt(t) : ((24389 / 27) * t) / 116 + 16 / 116)
 
+/** A '#rrggbb' color's channels. */
+export const rgbOfHex = (hex: string): [number, number, number] => [
+  parseInt(hex.slice(1, 3), 16),
+  parseInt(hex.slice(3, 5), 16),
+  parseInt(hex.slice(5, 7), 16),
+]
+
 /** An sRGB color in Lab (D65 white). */
 export function labOf(r: number, g: number, b: number): Lab {
   const [lr, lg, lb] = [linear(r), linear(g), linear(b)]
@@ -26,6 +33,22 @@ export function labOf(r: number, g: number, b: number): Lab {
   const z = (0.0193 * lr + 0.1192 * lg + 0.9505 * lb) / 1.08883
   const [fx, fy, fz] = [f(x), f(y), f(z)]
   return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)]
+}
+
+const unf = (t: number) => (t > 6 / 29 ? t ** 3 : (116 * t - 16) / (24389 / 27))
+const gamma = (v: number) => {
+  const c = v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055
+  return Math.round(255 * Math.min(1, Math.max(0, c)))
+}
+
+/** A measure as a CSS color, to show it as the camera saw it. */
+export function cssOf([l, a, b]: Lab): string {
+  const fy = (l + 16) / 116
+  const [x, y, z] = [0.95047 * unf(fy + a / 500), unf(fy), 1.08883 * unf(fy - b / 200)]
+  const r = 3.2406 * x - 1.5372 * y - 0.4986 * z
+  const g = -0.9689 * x + 1.8758 * y + 0.0415 * z
+  const bl = 0.0557 * x - 0.204 * y + 1.057 * z
+  return `rgb(${gamma(r)} ${gamma(g)} ${gamma(bl)})`
 }
 
 /** How different two measures look. Lightness counts half: shade varies

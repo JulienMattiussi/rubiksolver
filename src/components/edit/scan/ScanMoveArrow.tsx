@@ -12,16 +12,17 @@ interface Gesture {
   readonly from: number
   readonly to: number
   readonly behind?: readonly [number, number]
-  readonly label: string
 }
 
-const GESTURES: Record<Exclude<ScanFace['move'], 'first'>, Gesture> = {
-  // A quarter turn to the left, about the vertical: its front goes left.
-  turn: { cx: 33, cy: 31, rx: 24, ry: 9, from: -10, to: 190, label: '90°' },
+const GESTURES: Record<Exclude<ScanFace['move'], 'first' | 'show'>, Gesture> = {
+  // A turn to the left, about the vertical: its front goes left.
+  turn: { cx: 33, cy: 31, rx: 24, ry: 9, from: -10, to: 190 },
+  // The same, round its bottom (which stays at the bottom).
+  below: { cx: 33, cy: 39, rx: 24, ry: 9, from: -10, to: 190 },
   // Its top toward the lens: over its front, from the top down.
-  tilt: { cx: 32, cy: 27, rx: 11, ry: 24, from: -100, to: 105, label: '90°' },
+  tilt: { cx: 32, cy: 27, rx: 11, ry: 24, from: -100, to: 105 },
   // A half turn about the vertical: round its back, then its front.
-  flip: { cx: 33, cy: 31, rx: 24, ry: 9, from: -10, to: 190, behind: [190, 350], label: '180°' },
+  flip: { cx: 33, cy: 31, rx: 24, ry: 9, from: -10, to: 190, behind: [190, 350] },
 }
 
 const rad = (deg: number) => (deg * Math.PI) / 180
@@ -46,10 +47,12 @@ const head = (g: Gesture) => {
   return [tip, side(1), side(-1)].map((p) => p.join(',')).join(' ')
 }
 
-/** The way to turn the cube for a face (none for the first one), drawn
- *  above its instruction: the cube in relief, the arrow round it. */
-export function ScanMoveArrow({ move }: { move: ScanFace['move'] }) {
-  if (move === 'first') return null
+/** The way to turn the puzzle for a face (none for the first one, nor one
+ *  told by its colors alone), drawn above its instruction: a cube in
+ *  relief, the arrow round it, how far it turns. */
+export function ScanMoveArrow({ face }: { face: Pick<ScanFace, 'move' | 'angle'> }) {
+  const { move, angle } = face
+  if (move === 'first' || move === 'show') return null
   const g = GESTURES[move]
   const line = { fill: 'none', strokeWidth: 3, strokeLinecap: 'round' } as const
   return (
@@ -69,9 +72,11 @@ export function ScanMoveArrow({ move }: { move: ScanFace['move'] }) {
       </g>
       <path d={arc(g, g.from, g.to)} {...line} className="stroke-amber-300" />
       <polygon points={head(g)} className="fill-amber-300" />
-      <text x="1" y="8" className="fill-amber-200 text-[8px] font-bold">
-        {g.label}
-      </text>
+      {angle !== null && (
+        <text x="1" y="8" className="fill-amber-200 text-[8px] font-bold">
+          {angle}°
+        </text>
+      )}
     </svg>
   )
 }

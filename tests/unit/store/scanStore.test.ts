@@ -36,6 +36,10 @@ describe('scan store', () => {
     vi.runAllTimers()
     expect(useScan.getState().open).toBe(false)
     expect(useEditor.getState().edit).toEqual(edit)
+    // Asked to check it by eye, until the colors are entered otherwise.
+    expect(useEditor.getState().fromScan).toBe(true)
+    useEditor.getState().clearAll()
+    expect(useEditor.getState().fromScan).toBe(false)
   })
 
   it('takes a face again when it does not show the face asked for', () => {

@@ -9,6 +9,7 @@ import {
   solvedCrystal,
   solvedMegaminx,
 } from './megaminx'
+import { megaScan } from './megaminxScan'
 import { solvedOct4 } from './oct4'
 import { RAINBOW_TURNS, scrambleRainbow, solvedRainbow } from '../shared/rainbow'
 import { scrambleSkewbU, SKEWB_SYMMETRIES, SKEWB_TURNS, solvedSkewbU } from '../shared/skewbs'
@@ -40,7 +41,8 @@ export const POLYHEDRON_MODELS = {
     scramble: (length, rng) => scrambleRainbow(length, rng),
     guide: triangleGuide,
   },
-  megaminx: MEGAMINX,
+  // Scanned face by face, each a ring round its center (megaminxScan.ts).
+  megaminx: { ...MEGAMINX, scan: megaScan },
   crystal: {
     solved: solvedCrystal,
     symmetries: MEGA_SYMMETRIES,

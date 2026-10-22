@@ -1,11 +1,10 @@
 import { colored, labOf, type Lab } from './color'
+import type { FaceLayout } from './plan'
 
 /**
  * A face's cells measured on a picture (pure): the picture is the frame
- * the user aims the face into, cut into its grid; each cell is read on its
- * middle (its borders may hold the plastic between stickers, or the
- * next sticker when the cube is not exactly the frame's size), as the
- * median of its pixels. A glare takes color away, never gives any: when
+ * the user aims the face into; each cell is read round its point (plan.ts),
+ * as the median of its pixels. A glare takes color away, never gives any: when
  * a good share of a cell's pixels have some color, the cell is read on
  * the most colored half of those (the glare spared them), so a sticker
  * half under a glare keeps its color.
@@ -28,9 +27,6 @@ const COLORED = 0.25
 
 /** Pixels read per cell side, at most: enough for a median. */
 const READS = 12
-/** The share of a cell's side read, in its middle. */
-const MIDDLE = 0.4
-const MARGIN = (1 - MIDDLE) / 2
 
 const median = (values: number[]) => {
   values.sort((a, b) => a - b)
@@ -43,32 +39,35 @@ const medianLab = (labs: readonly Lab[]): Lab => [
   median(labs.map((v) => v[2])),
 ]
 
-/** A grid's cells measured, row by row from the top left. */
-export function sampleGrid(pixels: Pixels, rows: number, cols: number): CellSample[] {
-  const cellW = pixels.width / cols
-  const cellH = pixels.height / rows
-  const out: CellSample[] = []
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      const labs: Lab[] = []
-      for (let i = 0; i < READS; i++) {
-        for (let j = 0; j < READS; j++) {
-          const x = Math.floor((col + MARGIN + (MIDDLE * (j + 0.5)) / READS) * cellW)
-          const y = Math.floor((row + MARGIN + (MIDDLE * (i + 0.5)) / READS) * cellH)
-          const k = (y * pixels.width + x) * 4
-          labs.push(labOf(pixels.data[k]!, pixels.data[k + 1]!, pixels.data[k + 2]!))
-        }
+const clamp = (v: number, size: number) => Math.min(size - 1, Math.max(0, v))
+
+/** A face's cells measured on the picture of its frame, in its layout's
+ *  order. */
+export function sampleFace(pixels: Pixels, layout: FaceLayout): CellSample[] {
+  const scale = pixels.width / layout.width
+  const reach = layout.reach * scale
+  return layout.points.map(([px, py]) => {
+    const labs: Lab[] = []
+    for (let i = 0; i < READS; i++) {
+      for (let j = 0; j < READS; j++) {
+        // Within the picture, whatever the layout says.
+        const x = clamp(
+          Math.floor(px * scale - reach + (2 * reach * (j + 0.5)) / READS),
+          pixels.width,
+        )
+        const y = clamp(
+          Math.floor(py * scale - reach + (2 * reach * (i + 0.5)) / READS),
+          pixels.height,
+        )
+        const k = (y * pixels.width + x) * 4
+        labs.push(labOf(pixels.data[k]!, pixels.data[k + 1]!, pixels.data[k + 2]!))
       }
-      const tinted = labs.filter(colored)
-      if (tinted.length < COLORED * labs.length) {
-        out.push({ lab: medianLab(labs) })
-        continue
-      }
-      tinted.sort((p, q) => Math.hypot(q[1], q[2]) - Math.hypot(p[1], p[2]))
-      out.push({ lab: medianLab(tinted.slice(0, Math.ceil(tinted.length / 2))) })
     }
-  }
-  return out
+    const tinted = labs.filter(colored)
+    if (tinted.length < COLORED * labs.length) return { lab: medianLab(labs) }
+    tinted.sort((p, q) => Math.hypot(q[1], q[2]) - Math.hypot(p[1], p[2]))
+    return { lab: medianLab(tinted.slice(0, Math.ceil(tinted.length / 2))) }
+  })
 }
 
 /** Several pictures of one face merged, cell by cell (the steady seconds

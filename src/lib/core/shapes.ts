@@ -132,6 +132,10 @@ export const SHAPE_PAD: Record<CubeShape, PadKind> = each((e) => e.pad ?? 'faces
 /** The editor's hint for each shape, when not the usual one. */
 export const SHAPE_EDIT_HINT: Record<CubeShape, EditHint | undefined> = each((e) => e.editHint)
 
+/** Shapes whose camera scan was tried on the real puzzle (lib/editor/scan/):
+ *  the others' button says it is untried yet. */
+export const SHAPE_SCAN_TRIED: Record<CubeShape, boolean> = each((e) => e.scanTried === true)
+
 /** Shapes exposed in the UI, in display order. */
 const SHAPES = Object.keys(CATALOG) as readonly CubeShape[]
 

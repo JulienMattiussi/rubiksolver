@@ -5,23 +5,36 @@ envisagées.
 
 ## Le scan à l'appareil photo : réglages et autres formes
 
-**Constat.** Le scan (`lib/editor/scan/`) ne couvre que les cubes (2x2 à
-6x6), pas les cuboïdes, et ses seuils (les bandes de teinte
-et les marges d'assurance de `color.ts`, `HOLD_MS` dans `capture.ts`,
-`FORCED` dans `classify.ts`) ne sont réglés que sur des images
-synthétiques et un premier essai à la webcam.
+**Constat.** Le scan (`lib/editor/scan/`) couvre les cubes, les cuboïdes,
+les plats sans saisie propre, le Void Cube, l'Edge Only, les six cubes
+diagonaux, le Megaminx et le Holey Megaminx (tous ceux-là essayés sur
+images synthétiques seulement : les douze
+couleurs du Megaminx restent à éprouver sous une vraie lumière, `DRIFT`
+dans `capture.ts`) ; ses seuils (les bandes de teinte et les
+marges d'assurance de `color.ts`, `HOLD_MS` dans `capture.ts`, `FORCED`
+dans `classify.ts`, `TURNED` dans `orient.ts`) ne sont réglés que sur des
+images synthétiques et des essais à la webcam (3x3, 4x4). Une face tenue
+tournée n'est retrouvée à coup sûr que sur un cube à grille : un cuboïde ou un plat
+a trop peu de pièces, une face lue dans l'autre sens peut encore faire de
+vraies pièces (une tranche de Floppy à l'envers), et l'état lu est alors
+faux mais possible ; il faut le tenir comme la consigne le dit. De même, sur le Dino, le Rex et
+l'Edge Only, dont seules quelques arêtes touchent deux faces, une face
+tournée n'est pas retrouvée (elle est redemandée) ; sur le Skewb, une fois
+sur dix environ quand toutes ses faces sont tournées, l'état lu est faux. Un cube
+pair tourné à droite au lieu de gauche n'est pas retrouvé (la face
+redemandée en boucle).
+
+Reste hors du scan, parmi les troués, le Tori : ses arêtes sont de minces
+amandes au bord des faces (une grille lirait son grand anneau de centre ;
+il lui faudrait une disposition propre, lue sur une bande au bord, sans
+doute de biais). À faire avec le vrai puzzle en main.
 
 **Pistes.** Régler les seuils sur de vraies photos (sous lampe chaude,
-cube sans stickers, reflets) et en faire des tests. Les cuboïdes (tours
-2x3x2, 3x4x3..., Domino) : leurs faces ne sont pas toutes pareilles, les
-unes avec un centre, les autres sans, et le premier côté montré ne dit
-pas quel bout est en haut ; il faut une consigne qui le fixe (« le centre
-blanc en haut » dès le premier côté), puis les couleurs triées entre
-elles comme sur un cube pair (`anchors.ts`) ; cadre rectangulaire, faces
-non carrées tournées d'un demi-tour seulement (`orient.ts`), tout cela
-déjà prêt. Un cube pair tourné à droite au lieu de gauche n'est pas
-retrouvé (la face redemandée en boucle) : essayer aussi l'ordre inverse
-des côtés.
+cube sans stickers, reflets) et en faire des tests. Sur un cuboïde, dire
+quel bout va en haut dès la première face (« le blanc en haut ») même sans
+centre, pour que la tenue lève l'ambiguïté. Essayer aussi l'ordre inverse
+des côtés. Les tranches d'un Floppy (un sticker de haut) demandent la
+caméra tout près : vérifier qu'un téléphone fait encore la mise au point.
 
 ## Les puzzles « Rainbow » : la coupe dans le coup
 

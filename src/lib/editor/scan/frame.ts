@@ -1,7 +1,7 @@
 /**
  * Where the frame the user aims a face into lies (pure): centered in the
  * room the screen leaves it (below the instruction, above the buttons),
- * as wide as the face's grid is (a cuboid's faces are rectangles), and in
+ * as wide as the face is (a cuboid's faces are rectangles), and in
  * the camera's picture, which fills the screen cropped (`cover`).
  */
 
@@ -20,12 +20,13 @@ export interface Rect extends Size {
 const WIDTH_SHARE = 0.72
 const HEIGHT_SHARE = 0.92
 
-/** The frame on a screen, for a grid of `rows` by `cols`, between `top`
- *  and `bottom` pixels kept for the rest. */
-export function frameOnScreen(screen: Size, rows: number, cols: number, top = 0, bottom = 0): Rect {
+/** The frame on a screen, for a face `width` by `height` units, between
+ *  `top` and `bottom` pixels kept for the rest. */
+export function frameOnScreen(screen: Size, face: Size, top = 0, bottom = 0): Rect {
   const room = Math.max(0, screen.height - top - bottom)
-  const side = Math.min(WIDTH_SHARE * screen.width, HEIGHT_SHARE * room) / Math.max(rows, cols)
-  const [width, height] = [side * cols, side * rows]
+  const unit =
+    Math.min(WIDTH_SHARE * screen.width, HEIGHT_SHARE * room) / Math.max(face.width, face.height)
+  const [width, height] = [unit * face.width, unit * face.height]
   return { x: (screen.width - width) / 2, y: top + (room - height) / 2, width, height }
 }
 

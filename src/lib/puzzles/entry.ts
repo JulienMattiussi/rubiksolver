@@ -53,6 +53,9 @@ export interface PuzzleEntry {
   readonly advanced?: readonly ('slice' | 'wide')[]
   /** Sold as a mirror puzzle too (see `supportsMirror`). */
   readonly mirror?: true
+  /** Its camera scan was tried on the real puzzle and works (elsewhere,
+   *  the button says it is untried: see `SHAPE_SCAN_TRIED`). */
+  readonly scanTried?: true
   /** Its colors where its real puzzle differs from the standard scheme. */
   readonly scheme?: Partial<Record<Face, Color>>
   /** Its pad of turns, when not its faces'. */

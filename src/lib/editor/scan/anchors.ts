@@ -1,35 +1,28 @@
 import { shapeColors, stickersOfColor } from '../../core/cube'
 import { cheapestAssignment } from './assign'
-import { distance, guessColor, labOf, type Lab } from './color'
-import { hasCenters, scanPlan } from './plan'
+import { distance, guessColor, labOf, rgbOfHex, type Lab } from './color'
+import { COLOR_HEX } from '../../core/stickerColors'
+import { scanPlan } from './plan'
 import type { CellSample } from './sample'
 import type { Color } from '../../core/types'
 import type { CubeShape } from '../../core/shapes'
 
 /**
  * Each color of a scanned puzzle as this light shows it (pure), which the
- * reading measures every sticker against (classify.ts). Where every face
- * has a center, the face asked for, its center tells it. An even cube has
- * none: its stickers are sorted into its colors among themselves, each
- * color taking as many as the puzzle has (a 4x4, 16), the nearest to it,
- * twice over (a first guess by hue, then each color where its stickers
- * fell).
+ * reading measures every sticker against (classify.ts). A first guess:
+ * the faces' centers (each its face's color where it tells the face, else
+ * the color it looks like); else (an even cube) the stickers by hue. Then the stickers are sorted into
+ * the colors among themselves, each color taking as many as the puzzle has
+ * (a 4x4, 16; a Megaminx, 11), the nearest to it, and each color moves to
+ * where its stickers fell, twice over: the light varies from face to face,
+ * a center alone may be off.
  */
 
-/** A color as a camera often shows it, for a first guess no sticker made. */
-const TYPICAL: Partial<Record<Color, Lab>> = {
-  W: labOf(235, 235, 235),
-  Y: labOf(250, 210, 30),
-  G: labOf(0, 160, 80),
-  B: labOf(0, 90, 200),
-  O: labOf(250, 120, 40),
-  R: labOf(190, 20, 50),
-}
+/** A color as the puzzle is painted, for a first guess no sticker made. */
+const painted = (color: Color): Lab => labOf(...rgbOfHex(COLOR_HEX[color]))
 
-const GREY: Lab = [50, 0, 0]
-
-/** Rounds of sorting the stickers, then moving each color where its fell. */
-const ROUNDS = 2
+/** Rounds of sorting the stickers, then moving each color where they fell. */
+const ROUNDS = 3
 
 const mean = (labs: readonly Lab[]): Lab => {
   const of = (c: 0 | 1 | 2) => labs.reduce((sum, l) => sum + l[c], 0) / labs.length
@@ -42,25 +35,35 @@ export function anchorsOf(
   faces: readonly (readonly CellSample[])[],
 ): Map<Color, Lab> {
   const plan = scanPlan(shape)
-  if (hasCenters(shape)) {
-    // A turn of the face leaves its center where it is.
-    const anchor = new Map<Color, Lab>()
-    plan.forEach((face, f) => {
-      const center = face.center !== null && faces[f]?.[face.center]
-      if (center) anchor.set(face.frontColor, center.lab)
-    })
-    return anchor
-  }
   const labs = faces.flat().map((s) => s.lab)
   const colors = shapeColors(shape)
-  let anchor = new Map(
-    colors.map((color) => {
-      const guessed = labs.filter((lab) => guessColor(lab).color === color)
-      return [color, guessed.length ? mean(guessed) : (TYPICAL[color] ?? GREY)] as const
-    }),
-  )
+  // A first guess: each face's center, where it tells the face (a turn of
+  // the face leaves it where it is); else one center a color, wherever it
+  // stands (a Skewb's move about), each the color it is nearest to as
+  // painted; else each color's stickers by hue, or as painted.
+  let anchor = new Map<Color, Lab>()
+  const centers = plan.flatMap((face, f) => {
+    const center = face.center !== null ? faces[f]?.[face.center] : undefined
+    return center ? [{ face, lab: center.lab }] : []
+  })
+  if (plan[0]?.told) {
+    for (const { face, lab } of centers) anchor.set(face.frontColor, lab)
+  } else if (centers.length === colors.length) {
+    const sorted = cheapestAssignment(
+      centers.map(({ lab }) => colors.map((color) => distance(lab, painted(color)))),
+    )
+    centers.forEach(({ lab }, i) => anchor.set(colors[sorted[i]!]!, lab))
+  } else {
+    // Hue tells a cube's six colors only (a Holey Megaminx's twelve start
+    // from their painted tones).
+    const named = plan[0]?.named
+    for (const color of colors) {
+      const guessed = named ? labs.filter((lab) => guessColor(lab).color === color) : []
+      anchor.set(color, guessed.length ? mean(guessed) : painted(color))
+    }
+  }
   const places = colors.flatMap((color) => Array<Color>(stickersOfColor(shape, color)).fill(color))
-  if (places.length !== labs.length) return anchor
+  if (places.length !== labs.length || anchor.size !== colors.length) return anchor
   for (let round = 0; round < ROUNDS; round++) {
     const sorted = cheapestAssignment(
       labs.map((lab) => places.map((color) => distance(lab, anchor.get(color)!))),

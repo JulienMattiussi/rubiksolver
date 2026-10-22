@@ -1,24 +1,27 @@
-import { guessColor, TWINS } from './color'
+import { distance, guessColor, TWINS } from './color'
 import type { ScanFace } from './plan'
 import { mergeSamples, type CellSample } from './sample'
 import type { Color } from '../../core/types'
 
 /**
- * When to take a face (pure): the picture shows it once every cell of the
- * frame is surely some cube color and its center, if it has one, is the
- * face asked for; it is taken once the colors read stayed the same for two
- * seconds, which says the cube was framed and held still enough, the
- * pictures of those two seconds merged. No closer aim nor stillness is
- * asked: a cell read across two stickers, or a hand that shakes, changes
- * the colors read. The face taken just before is not taken again until the
- * picture changed: without a center (an even cube), nothing else tells two
- * faces apart. Nor does anything tell a wall or a ceiling, all white, from
- * a white face: on an even cube, a face all white is taken only as the
- * last one to take (the others then told it).
+ * When to take a face (pure), once the user said the puzzle is in the
+ * frame (ScanView: nothing else tells a puzzle from a wall): the picture
+ * shows it once every cell of the frame is surely some cube color and its
+ * center, if it tells the face, is the one asked for; it is taken once the
+ * colors read stayed the same for a second (on a puzzle of many colors,
+ * which a camera cannot name: once every cell's measure barely drifted),
+ * which says the puzzle was framed and held still enough, the pictures of
+ * that second merged. No closer aim nor stillness is asked: a cell read
+ * across two stickers, or a hand that shakes, changes the colors read. The
+ * face taken just before is not taken again until the picture changed:
+ * without a center, nothing else tells two faces apart.
  */
 
 /** How long the colors read must stay the same, in milliseconds. */
-export const HOLD_MS = 2000
+export const HOLD_MS = 1000
+/** On a puzzle of many colors, how far a cell's measure may drift while
+ *  held still (the noise of the camera, a hand that barely moves). */
+const DRIFT = 12
 
 /** A color, twins alike (red and orange: color.ts). */
 const family = (color: Color | null): Color | null =>
@@ -29,59 +32,54 @@ const family = (color: Color | null): Color | null =>
 const colorsOf = (cells: readonly CellSample[]): string =>
   cells.map((cell) => family(guessColor(cell.lab).color) ?? '-').join('')
 
-/** The colors a picture shows, cell by cell, if it shows the face asked
- *  for: every cell surely a cube color, its center that face's; all white
- *  without a center, only as the `last` face to take. */
-function faceColors(cells: readonly CellSample[], face: ScanFace, last = true): string | null {
-  const center = face.center !== null ? cells[face.center] : undefined
-  if (face.center !== null) {
-    const middle = center && guessColor(center.lab).color
-    if (!middle || family(middle) !== family(face.frontColor)) return null
-  }
-  if (cells.length !== face.cells.length) return null
-  if (!cells.every((cell) => guessColor(cell.lab).sure)) return null
-  const colors = colorsOf(cells)
-  return face.center === null && !last && /^W+$/.test(colors) ? null : colors
+/** Whether two pictures of a face read the same: the same colors, or on a
+ *  puzzle of many colors, measures that barely drifted. */
+function same(a: readonly CellSample[], b: readonly CellSample[], face: ScanFace): boolean {
+  if (face.named) return colorsOf(a) === colorsOf(b)
+  return a.length === b.length && a.every((cell, i) => distance(cell.lab, b[i]!.lab) <= DRIFT)
 }
 
-/** Whether a picture shows the face asked for. */
-export const showsFace = (cells: readonly CellSample[], face: ScanFace): boolean =>
-  faceColors(cells, face) !== null
+/** Whether a picture shows the face asked for: every cell some sticker
+ *  (surely a cube color, its center the face's where it tells it, on a
+ *  cube; lit enough on a puzzle of many colors). */
+export function showsFace(cells: readonly CellSample[], face: ScanFace): boolean {
+  if (cells.length !== face.cells.length) return false
+  const guesses = cells.map((cell) => guessColor(cell.lab))
+  if (!face.named) return guesses.every((g) => g.color !== null)
+  const middle = face.told && face.center !== null ? guesses[face.center]?.color : face.frontColor
+  return !!middle && family(middle) === family(face.frontColor) && guesses.every((g) => g.sure)
+}
 
-/** The pictures of the face showing the same colors so far, since when,
- *  and the colors of the face taken before while the picture still shows
- *  them. */
+/** The pictures of the face reading the same so far, since when, and the
+ *  face taken before while the picture still shows it. */
 export interface Watch {
   readonly since: number
-  readonly colors: string
   readonly frames: readonly (readonly CellSample[])[]
-  readonly before: string
+  readonly before: readonly CellSample[] | undefined
 }
 
 /** A face watched for, after this one taken (if any). */
 export const watchAfter = (taken?: readonly CellSample[]): Watch => ({
   since: 0,
-  colors: '',
   frames: [],
-  before: taken ? colorsOf(taken) : '',
+  before: taken,
 })
 
-/** A new picture watched, of the face asked for (the `last` one to take,
- *  or not): the face taken (its cells, merged) once its colors stayed the
- *  same long enough, else what is watched now. */
+/** A new picture watched, of the face asked for: the face taken (its cells, merged) once it read the same long
+ *  enough, else what is watched now. */
 export function watch(
   state: Watch,
   cells: readonly CellSample[],
   now: number,
   face: ScanFace,
-  last: boolean,
 ): { readonly state: Watch; readonly taken?: CellSample[] } {
-  const colors = faceColors(cells, face, last)
-  // Still the face taken before: the cube has not turned yet.
-  if (colors && colors === state.before) return { state }
-  if (!colors) return { state: watchAfter() }
-  if (colors !== state.colors)
-    return { state: { ...watchAfter(), since: now, colors, frames: [cells] } }
+  if (!showsFace(cells, face)) return { state: watchAfter() }
+  // Still the face taken before: the puzzle has not turned yet.
+  if (state.before && same(cells, state.before, face)) return { state }
+  const first = state.frames[0]
+  if (!first || !same(cells, first, face)) {
+    return { state: { ...watchAfter(), since: now, frames: [cells] } }
+  }
   const frames = [...state.frames, cells]
   if (now - state.since < HOLD_MS) return { state: { ...state, frames } }
   return { state: watchAfter(), taken: mergeSamples(frames) }

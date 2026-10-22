@@ -104,6 +104,9 @@ interface EditorStore extends Settings {
   clearAll: () => void
   /** The colors a camera scan read (lib/editor/scan/), to check and apply. */
   scanned: (edit: EditStickers) => void
+  /** The colors entered come from a scan, not yet checked by eye (the
+   *  panel asks to). */
+  fromScan: boolean
   /** Build + validate; on success load the cube into play mode. Returns ok. */
   apply: () => boolean
 }
@@ -139,6 +142,7 @@ export const useEditor = create<EditorStore>((set, get) => {
     edit: emptyEdit('3'),
     error: null,
     failedStep: null,
+    fromScan: false,
 
     enter: () => {
       const shape = currentShape()
@@ -153,6 +157,7 @@ export const useEditor = create<EditorStore>((set, get) => {
         edit: emptyEdit(shape),
         selectedColor: pickable(get().selectedColor),
         error: null,
+        fromScan: false,
       })
     },
 
@@ -168,6 +173,7 @@ export const useEditor = create<EditorStore>((set, get) => {
         edit: cubeToEdit(cube),
         selectedColor: pickable(get().selectedColor, form),
         error: null,
+        fromScan: false,
       })
     },
 
@@ -319,9 +325,10 @@ export const useEditor = create<EditorStore>((set, get) => {
         // A step's toggles are not colors: kept; the paint's own cleared.
         toggles: stepOf(currentShape(), 'toggles') ? s.toggles : {},
         error: null,
+        fromScan: false,
       })),
 
-    scanned: (edit) => set({ edit, error: null, failedStep: null }),
+    scanned: (edit) => set({ edit, error: null, failedStep: null, fromScan: true }),
 
     apply: () => {
       const { edit, form, parts, toggles, joints } = get()

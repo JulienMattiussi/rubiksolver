@@ -1,11 +1,11 @@
-import { Camera, Check, Eraser, X } from 'lucide-react'
+import { Camera, Check, Eraser, FlaskConical, ScanEye, X } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
 import { isComplete, progress } from '@/lib/editor/edit'
 import { entryOf, stepOf, type EntryStep } from '@/lib/editor/entry'
 import { placedCount } from '@/lib/editor/modes/pieces'
 import { partsDone } from '@/lib/editor/steps'
 import { scannable } from '@/lib/editor/scan/plan'
-import { SHAPE_EDIT_HINT } from '@/lib/core/shapes'
+import { SHAPE_EDIT_HINT, SHAPE_SCAN_TRIED } from '@/lib/core/shapes'
 import { tellsSizes } from '@/lib/core/shape'
 import type { EditHint } from '@/lib/puzzles/entry'
 import { stepName, type Translations } from '@/i18n/translations'
@@ -121,6 +121,7 @@ function PaintPanel() {
   const form = useEditor((s) => s.form)
   const backTo = useEditor((s) => s.backTo)
   const scanning = useScan((s) => s.open)
+  const fromScan = useEditor((s) => s.fromScan)
   const startScan = useScan((s) => s.start)
   const { steps, paint } = entryOf(shape)
   // A camera reads a cube's colors (lib/editor/scan/).
@@ -159,6 +160,13 @@ function PaintPanel() {
         {complete && <Check className="size-4 text-emerald-400" aria-hidden />}
       </div>
 
+      {fromScan && (
+        <p className="flex gap-2 rounded-lg bg-sky-500/15 px-3 py-2 text-sm text-sky-100 ring-1 ring-inset ring-sky-400/40">
+          <ScanEye className="mt-0.5 size-4 shrink-0" aria-hidden />
+          {t.scanCheck}
+        </p>
+      )}
+
       {error && <ErrorAlert>{errorText(t, error, failedStep, sizes)}</ErrorAlert>}
 
       <div className="grid grid-cols-2 gap-2">
@@ -166,6 +174,12 @@ function PaintPanel() {
           <Button variant="edit" onClick={startScan} className="col-span-2">
             <Camera className="size-4" aria-hidden />
             {t.scanStart}
+            {/* Not yet tried on the real puzzle: said so. */}
+            {!SHAPE_SCAN_TRIED[shape] && (
+              <span title={t.scanUntried} role="img" aria-label={t.scanUntried}>
+                <FlaskConical className="size-4 text-amber-300" aria-hidden />
+              </span>
+            )}
           </Button>
         )}
         <Button variant="primary" onClick={apply} disabled={!complete} className="col-span-2">

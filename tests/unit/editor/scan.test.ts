@@ -7,21 +7,66 @@ import { HOLD_MS, showsFace, watch, watchAfter } from '@/lib/editor/scan/capture
 import { readScan } from '@/lib/editor/scan/classify'
 import { frameOnScreen, screenToPicture } from '@/lib/editor/scan/frame'
 import { turnCells } from '@/lib/editor/scan/orient'
-import { scannable, scanPlan } from '@/lib/editor/scan/plan'
-import { sampleGrid } from '@/lib/editor/scan/sample'
+import { gridLayout, scannable, scanPlan } from '@/lib/editor/scan/plan'
+import { sampleFace, type Pixels } from '@/lib/editor/scan/sample'
+import { SHAPE_DIMS, SHAPE_SCAN_TRIED, type CubeShape } from '@/lib/core/shapes'
+import {
+  MEGA_FACES,
+  megaAround,
+  megaSlotAt,
+  solvedMegaminx,
+} from '@/lib/puzzles/polyhedron/megaminx'
+import type { Color } from '@/lib/core/types'
 import { seededRng } from '../../helpers'
-import { picture, RGB, scanOf } from './scanPictures'
+import { facePicture, picture, RGB, scanOf } from './scanPictures'
+
+/** A grid face's cells, measured. */
+const sampleGrid = (pixels: Pixels, rows: number, cols: number) =>
+  sampleFace(pixels, gridLayout(rows, cols))
+
+/** Every puzzle a camera can scan. */
+const SCANNED = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter(scannable)
 
 describe('scan plan', () => {
-  it('scans the plain cubes, not the cuboids nor the super cubes', () => {
-    for (const shape of ['2', '3', '4', '5', '6'] as const) expect(scannable(shape)).toBe(true)
-    expect(scannable('334')).toBe(false)
-    expect(scannable('super5')).toBe(false)
+  it('scans the plain grid puzzles, not those entered otherwise', () => {
+    expect(SCANNED).toEqual(
+      expect.arrayContaining(['2', '3', '4', '5', '6', '123', '331', '332', '334']),
+    )
+    expect(SCANNED).toEqual(expect.arrayContaining(['void', 'edge', 'megaminx', 'holey']))
+    // Pieces a camera cannot tell, or a model entering them otherwise.
+    for (const shape of ['super5', 'ghost', '224', 'tori'] as const) {
+      expect(scannable(shape)).toBe(false)
+    }
   })
 
-  it('tells a face by its center, none on an even cube', () => {
+  it('says which puzzles it was tried on for real', () => {
+    const tried = (Object.keys(SHAPE_SCAN_TRIED) as CubeShape[]).filter((s) => SHAPE_SCAN_TRIED[s])
+    expect(tried).toEqual(['2', '3', '4'])
+    expect(tried.every(scannable)).toBe(true)
+  })
+
+  it('tells a face by its center, only where every face has one', () => {
     expect(scanPlan('3').map((f) => f.center)).toEqual(Array(6).fill(4))
+    // The Floppy's edges, one sticker high, have one too.
+    expect(scanPlan('331').map((f) => [f.height, f.width, f.center])).toEqual([
+      [1, 3, 1],
+      [1, 3, 1],
+      [1, 3, 1],
+      [1, 3, 1],
+      [3, 3, 4],
+      [3, 3, 4],
+    ])
     expect(scanPlan('4').map((f) => f.center)).toEqual(Array(6).fill(null))
+    // The Void Cube's hole: eight cells a face, none its center, its turns
+    // kept to them.
+    for (const face of scanPlan('void')) {
+      expect([face.cells.length, face.center, face.turns.length]).toEqual([8, null, 4])
+      expect(face.turns.every((turn) => [...turn].sort().join() === '0,1,2,3,4,5,6,7')).toBe(true)
+    }
+    // The 1x2x3's ends have one, its sides none: none tells its face.
+    expect(scanPlan('123').map((f) => f.center)).toEqual([null, null, null, null, 1, 1])
+    expect(scanPlan('123').some((f) => f.told)).toBe(false)
+    expect(scanPlan('3').every((f) => f.told)).toBe(true)
   })
 
   it('shows each face of the solved 3x3 in its own color, up on top', () => {
@@ -38,10 +83,82 @@ describe('scan plan', () => {
   })
 })
 
+describe('scanning a Megaminx', () => {
+  const plan = scanPlan('megaminx')
+
+  it('shows its twelve faces, each a ring of 11 round its center', () => {
+    expect(scannable('megaminx')).toBe(true)
+    expect(plan).toHaveLength(12)
+    expect(new Set(plan.map((f) => f.frontColor)).size).toBe(12)
+    for (const face of plan) {
+      expect(face.cells).toHaveLength(11)
+      expect(face.center).toBe(0)
+      expect(face.turns).toHaveLength(5)
+      expect(face.named).toBe(false)
+    }
+    // Every sticker once.
+    expect(new Set(plan.flatMap((f) => f.cells)).size).toBe(132)
+  })
+
+  it('takes a face once its measures barely drift, its colors unnamed', () => {
+    const face = plan[1]!
+    const colors = face.cells.map((_, i) => (['G', 'L', 'T', 'N', 'M', 'P'] as const)[i % 6]!)
+    const cells = sampleFace(facePicture(colors, face, seededRng(8)), face)
+    const again = sampleFace(facePicture(colors, face, seededRng(9)), face)
+    let state = watch(watchAfter(), cells, 0, face).state
+    state = watch(state, again, HOLD_MS / 2, face).state
+    expect(watch(state, cells, HOLD_MS, face).taken).toHaveLength(11)
+    // Another sticker under the lens: it starts over.
+    const moved = [{ lab: labOf(...RGB.Y) }, ...cells.slice(1)]
+    expect(watch(state, moved, HOLD_MS, face).taken).toBeUndefined()
+  })
+})
+
+describe('scanning a Holey Megaminx', () => {
+  const plan = scanPlan('holey')
+  // Each face by its solved color (the Megaminx's, as labels).
+  const solved = solvedMegaminx()
+  const faceOf = new Map(
+    MEGA_FACES.map((f) => [
+      solved.find((c) => c.stickers.length === 1 && megaSlotAt(c.position).join() === f)!
+        .stickers[0]!.color,
+      f,
+    ]),
+  )
+  const near = (a: Color, b: Color) => megaAround(faceOf.get(a)!).includes(faceOf.get(b)!)
+
+  it('shows its twelve faces by gestures, ten cells each, no center', () => {
+    expect(plan.map((f) => f.move).join()).toBe(
+      'first,turn,turn,turn,turn,tilt,flip,tilt,below,below,below,below',
+    )
+    expect(new Set(plan.map((f) => f.frontColor)).size).toBe(12)
+    expect(new Set(plan.flatMap((f) => f.cells)).size).toBe(120)
+    for (const face of plan) expect([face.cells.length, face.center]).toEqual([10, null])
+    expect(plan.map((f) => f.angle)).toEqual([null, 72, 72, 72, 72, 63, 180, 63, 72, 72, 72, 72])
+  })
+
+  it('gets from each face to the next by its gesture', () => {
+    plan.slice(1).forEach((face, i) => {
+      const was = plan[i]!
+      // Turned: round the same face, on top or at the bottom, to its
+      // neighbor; tilted: the face on top comes in front; turned half
+      // round: the face opposite.
+      if (face.move === 'turn' || face.move === 'below') {
+        expect([face.upColor, near(face.frontColor, was.frontColor)]).toEqual([was.upColor, true])
+      } else if (face.move === 'tilt') {
+        expect([face.frontColor, face.upColor]).toEqual([was.upColor, was.frontColor])
+      } else {
+        expect(near(face.frontColor, was.frontColor)).toBe(false)
+        expect(face.frontColor).not.toBe(was.frontColor)
+      }
+    })
+  })
+})
+
 describe('scan frame', () => {
   it('centers the frame and finds it in a picture cropped to fill the screen', () => {
     const screen = { width: 400, height: 800 }
-    const rect = frameOnScreen(screen, 3, 3)
+    const rect = frameOnScreen(screen, { width: 3, height: 3 })
     expect(rect).toEqual({ x: 56, y: 256, width: 288, height: 288 })
     // A 1280x720 picture covers 400x800 scaled by 800/720: its sides cut.
     const seen = screenToPicture(rect, screen, { width: 1280, height: 720 })
@@ -52,14 +169,14 @@ describe('scan frame', () => {
 
   it('keeps the frame between the instruction and the buttons', () => {
     // A phone: as wide as before, centered in the room left.
-    expect(frameOnScreen({ width: 400, height: 800 }, 3, 3, 200, 88)).toEqual({
+    expect(frameOnScreen({ width: 400, height: 800 }, { width: 3, height: 3 }, 200, 88)).toEqual({
       x: 56,
       y: 312,
       width: 288,
       height: 288,
     })
     // A laptop: the height left makes it smaller.
-    const laptop = frameOnScreen({ width: 1280, height: 700 }, 4, 4, 220, 88)
+    const laptop = frameOnScreen({ width: 1280, height: 700 }, { width: 4, height: 4 }, 220, 88)
     expect(laptop.height).toBeCloseTo(0.92 * 392)
     expect(laptop.y).toBeGreaterThan(220)
   })
@@ -107,20 +224,20 @@ describe('scan colors', () => {
     const cells = greens()
     expect(showsFace(cells, green!)).toBe(true)
     expect(showsFace(cells, blue!)).toBe(false)
-    let state = watch(watchAfter(), cells, 0, green!, false).state
-    const half = watch(state, cells, HOLD_MS / 2, green!, false)
+    let state = watch(watchAfter(), cells, 0, green!).state
+    const half = watch(state, cells, HOLD_MS / 2, green!)
     expect(half.taken).toBeUndefined()
     state = half.state
-    expect(watch(state, cells, HOLD_MS, green!, false).taken).toHaveLength(9)
+    expect(watch(state, cells, HOLD_MS, green!).taken).toHaveLength(9)
   })
 
   it('starts over when a color read changes', () => {
     const cells = greens()
     const other = [{ lab: labOf(...RGB.B) }, ...cells.slice(1)]
-    let state = watch(watchAfter(), cells, 0, green!, false).state
-    state = watch(state, other, HOLD_MS / 2, green!, false).state
-    expect(watch(state, other, HOLD_MS, green!, false).taken).toBeUndefined()
-    expect(watch(state, other, (HOLD_MS * 3) / 2, green!, false).taken).toHaveLength(9)
+    let state = watch(watchAfter(), cells, 0, green!).state
+    state = watch(state, other, HOLD_MS / 2, green!).state
+    expect(watch(state, other, HOLD_MS, green!).taken).toBeUndefined()
+    expect(watch(state, other, (HOLD_MS * 3) / 2, green!).taken).toHaveLength(9)
   })
 
   it('holds a cell between red and orange still', () => {
@@ -128,30 +245,17 @@ describe('scan colors', () => {
     const cells = sampleGrid(picture(['R', 'W', 'B', 'Y'], 2, 2, seededRng(7)), 2, 2)
     const orange = [{ lab: lch(50, 60, 40) }, ...cells.slice(1)]
     const red = [{ lab: lch(50, 60, 38) }, ...cells.slice(1)]
-    let state = watch(watchAfter(), red, 0, face, false).state
-    state = watch(state, orange, HOLD_MS / 2, face, false).state
-    expect(watch(state, red, HOLD_MS, face, false).taken).toHaveLength(4)
+    let state = watch(watchAfter(), red, 0, face).state
+    state = watch(state, orange, HOLD_MS / 2, face).state
+    expect(watch(state, red, HOLD_MS, face).taken).toHaveLength(4)
   })
 
-  it('takes an all white face of an even cube as the last one only', () => {
+  it('takes an all white face like any other (the user tapped: no wall)', () => {
     const face = scanPlan('2')[0]!
     const white = sampleGrid(picture(['W', 'W', 'W', 'W'], 2, 2, seededRng(3)), 2, 2)
-    const held = (last: boolean) => {
-      let state = watchAfter()
-      for (const now of [0, HOLD_MS / 2, HOLD_MS]) {
-        const step = watch(state, white, now, face, last)
-        if (step.taken) return true
-        state = step.state
-      }
-      return false
-    }
-    expect(held(false)).toBe(false)
-    expect(held(true)).toBe(true)
-    // A center tells the face: the 3x3's white one is taken anywhere.
-    const top = scanPlan('3')[4]!
-    const whites = sampleGrid(picture(Array(9).fill('W'), 3, 3, seededRng(3)), 3, 3)
-    expect(showsFace(whites, top)).toBe(true)
-    expect(watch(watchAfter(), whites, 0, top, false).state.frames).toHaveLength(1)
+    let state = watchAfter()
+    state = watch(state, white, 0, face).state
+    expect(watch(state, white, HOLD_MS, face).taken).toHaveLength(4)
   })
 
   it('reads a sticker half under a glare in its color', () => {
@@ -178,14 +282,14 @@ describe('scan colors', () => {
     // Still showing the face taken before: waits for the cube to turn.
     let state = watchAfter(cells)
     for (const now of [0, HOLD_MS, 2 * HOLD_MS]) {
-      const seen = watch(state, cells, now, face, false)
+      const seen = watch(state, cells, now, face)
       expect(seen.taken).toBeUndefined()
       state = seen.state
     }
     // Once the picture changed, the same colors may be a face again.
-    state = watch(state, greens().slice(0, 4), 3 * HOLD_MS, face, false).state
-    state = watch(state, cells, 4 * HOLD_MS, face, false).state
-    expect(watch(state, cells, 5 * HOLD_MS, face, false).taken).toHaveLength(4)
+    state = watch(state, greens().slice(0, 4), 3 * HOLD_MS, face).state
+    state = watch(state, cells, 4 * HOLD_MS, face).state
+    expect(watch(state, cells, 5 * HOLD_MS, face).taken).toHaveLength(4)
   })
 })
 
@@ -200,9 +304,7 @@ describe('reading a scan', () => {
     ).toEqual([1, 0, 2])
   })
 
-  const CUBES = ['2', '3', '4', '5', '6'] as const
-
-  it.each(CUBES)('reads a scrambled %s back', (shape) => {
+  it.each(SCANNED)('reads a scrambled %s back', (shape) => {
     const { faces, edit } = scanOf(shape, 7)
     expect(readScan(shape, faces)).toEqual({ ok: true, edit })
   })
@@ -215,13 +317,24 @@ describe('reading a scan', () => {
     expect(turnCells(cells, face, 3)).toEqual(turnCells(turnCells(cells, face, 2), face, 1))
   })
 
+  // A cube's faces held turned are found back; a cuboid's or a flat one's
+  // may make real pieces either way (a Floppy's edge read backward), and
+  // so may those whose only pieces on two faces are a few edges (the Edge
+  // Only, the Dino, the Rex: then a face is asked again): held as told,
+  // they read back above.
+  const FEW_EDGES: readonly CubeShape[] = ['edge', 'dino', 'rex']
+  const CUBES = SCANNED.filter(
+    (shape) => new Set(SHAPE_DIMS[shape]).size === 1 && !FEW_EDGES.includes(shape),
+  )
+
   it.each(CUBES)('finds back the faces of a %s held turned', (shape) => {
     for (const seed of [11, 12, 13]) {
       const { faces, edit } = scanOf(shape, seed)
       const rng = seededRng(seed)
-      const held = faces.map((cells, f) =>
-        turnCells(cells, scanPlan(shape)[f]!, Math.floor(rng() * 4)),
-      )
+      const held = faces.map((cells, f) => {
+        const face = scanPlan(shape)[f]!
+        return turnCells(cells, face, Math.floor(rng() * face.turns.length))
+      })
       expect(readScan(shape, held)).toEqual({ ok: true, edit })
     }
   })

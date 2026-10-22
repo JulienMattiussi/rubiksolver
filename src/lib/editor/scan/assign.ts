@@ -38,6 +38,8 @@ export function cheapestAssignment(cost: readonly (readonly number[])[]): number
           v[j]! -= delta
         } else minv[j]! -= delta
       }
+      // A cost that is no number would never settle: none taken.
+      if (!Number.isFinite(delta)) throw new Error('cheapestAssignment: costs must be numbers')
       j0 = j1
     } while (rowOf[j0] !== 0)
     do {

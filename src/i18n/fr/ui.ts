@@ -199,22 +199,35 @@ export const UI_FR = {
   facesOf: (n: number, total: number) => `${n} / ${total} faces`,
   clearAll: 'Tout effacer',
   scanStart: 'Utiliser l’appareil photo',
+  scanUntried: 'Cette fonction n’a pas encore été testée et validée sur ce modèle',
+  scanCheck:
+    'Scan terminé : vérifiez bien que le modèle représenté est conforme à votre puzzle, puis validez.',
+  scanTake: 'Scanner la face',
+  scanTakeHint: 'Positionnez le puzzle dans le cadre, puis touchez le bouton pour scanner la face.',
+  scanHolding: 'Tenez le puzzle immobile…',
+  scanNothing: 'Rien de stable dans le cadre : repositionnez le puzzle et réessayez.',
   scanMoves: {
     first: (front: string, up: string) =>
-      `Positionnez la caméra immobile devant le cube, le centre ${front} face à l’objectif et le ${up} en haut, la face remplissant le cadre, dans un endroit éclairé.`,
+      `Positionnez la caméra immobile devant le puzzle, le centre ${front} face à l’objectif et le ${up} en haut, la face remplissant le cadre, dans un endroit éclairé.`,
     turn: (front: string, up: string) =>
       `Tournez le cube d’un quart de tour vers la gauche : le centre ${front} face à l’objectif, le ${up} toujours en haut.`,
     tilt: (front: string, up: string) =>
       `Basculez le cube vers l’objectif : le centre ${front} face à l’objectif, le ${up} en haut.`,
     flip: (front: string, up: string) =>
       `Faites faire un demi-tour au cube : le centre ${front} face à l’objectif, le ${up} toujours en haut.`,
+    below: (front: string, up: string) =>
+      `Tournez le puzzle vers la gauche : le centre ${front} face à l’objectif, le ${up} toujours en bas.`,
+    show: (front: string, up: string) =>
+      `Montrez le centre ${front} face à l’objectif, le ${up} en haut.`,
   },
   scanMovesAny: {
     first:
-      'Positionnez la caméra immobile devant le cube, n’importe quelle face face à l’objectif, la face remplissant le cadre, dans un endroit éclairé.',
-    turn: 'Tournez le cube d’un quart de tour vers la gauche, le dessus restant en haut.',
-    tilt: 'Basculez le cube vers l’objectif : le dessus vient face à l’objectif.',
-    flip: 'Faites faire un demi-tour au cube : le dessous vient face à l’objectif.',
+      'Positionnez la caméra immobile devant le puzzle, n’importe quelle face de la forme du cadre face à l’objectif et le remplissant, dans un endroit éclairé.',
+    turn: 'Tournez le puzzle vers la gauche jusqu’à la face suivante, le dessus restant en haut.',
+    below: 'Tournez le puzzle vers la gauche jusqu’à la face suivante, le dessous restant en bas.',
+    tilt: 'Basculez le puzzle vers l’objectif : la face du haut vient face à l’objectif.',
+    flip: 'Faites faire un demi-tour au puzzle : la face de derrière vient face à l’objectif.',
+    show: 'Montrez la face suivante à l’objectif.',
   },
   scanMissed: 'Cube mal détecté : reprenez cette face.',
   scanChecking: 'Vérification de la face…',

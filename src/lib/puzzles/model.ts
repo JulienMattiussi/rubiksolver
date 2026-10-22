@@ -2,6 +2,7 @@ import type { FaceLabels } from '../core/notation'
 import type { Cube, Dims, Face, Move, Turn, Vec3 } from '../core/types'
 import type { GuideGroup, MoveDescription } from '../core/guide'
 import type { EntryMarks, EntryStep, PaintSpec } from '../editor/entry'
+import type { RingFace } from '../editor/scan/plan'
 
 /**
  * How a puzzle departs from a plain cuboid on its grid, each hook optional:
@@ -41,6 +42,12 @@ export interface PuzzleModel {
   /** What a turn does, when not what its kind of moves says (the Fashion-V's
    *  layers, the Curvy Copter III's edges). */
   readonly describe?: (turn: Turn) => MoveDescription
+  /** How a camera scans it (lib/editor/scan/plan.ts), though built
+   *  otherwise: as a grid, its holes skipped (the Void Cube); as a cube
+   *  whose faces are no grid, each sticker where its drawing shows it
+   *  (`square`: the Skewb, the Rex Cube...); or face by face, each a ring
+   *  round its center (the Megaminx). */
+  readonly scan?: 'grid' | 'square' | (() => readonly RingFace[])
   /** How it is entered (lib/editor/entry.ts), when not by painting its
    *  stickers alone. */
   readonly entry?: {

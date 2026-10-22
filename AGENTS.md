@@ -98,6 +98,7 @@ src/
 ├── lib/                 # Logique pure, zéro React / zéro three.js (entièrement testée)
 │   ├── core/            # Le moteur : types (Move, Turn, Cubie...), shapes (CubeShape et les tables lues sur les
 │   │                    #   cartes : SHAPE_DIMS, variantes, choix du sélecteur), geometry (normales, rotations entières),
+│   │                    #   stickerColors (la teinte de chaque couleur : le rendu, le scan),
 │   │                    #   cube (construction, reconnaissance, résolu, boîte, orientations), pieces, turn (coups,
 │   │                    #   coups permis, animation), moves (coups d'une forme, mélange), notation (écrire et lire
 │   │                    #   un coup : US, FR), moveSet,
@@ -135,7 +136,8 @@ src/
 │   ├── editor/          # La saisie : entry (ce que le modèle déclare : étapes, peinture), steps (leur
 │   │                    #   enchaînement), edit (la table de stickers, buildCube), editorTables, validate,
 │   │                    #   modes/ (un mode par fichier : form, canvas et faceViews, joints, toggles,
-│   │                    #   colors, pieces), scan/ (la saisie à l'appareil photo : plan des faces,
+│   │                    #   colors, pieces), scan/ (la saisie à l'appareil photo : plan des faces (une
+│   │                    #   grille, ou un anneau déclaré par le modèle : `PuzzleModel.scan`, le Megaminx),
 │   │                    #   frame, color, sample, capture, anchors (les couleurs), orient (les faces tenues tournées), assign et
 │   │                    #   classify : la lecture du cube)
 │   ├── teach/           # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
@@ -170,7 +172,8 @@ src/
 │   ├── core/            # Scene, CubeView / Cubie / Sticker (puzzles à grille), PolyView / PolyModel / PolyPiece
 │   │                    #   (puzzles en polygones), EditView / PolyEditView / CutsView (saisie), polyDrawing (registre des
 │   │                    #   dessins), polyhedron, cutSolid, layout, isometric (vignettes), useTurnAnimation,
-│   │                    #   TutorialArrow, hatchTexture et usePulse (le tutoriel)...
+│   │                    #   TutorialArrow, hatchTexture et usePulse (le tutoriel), scanDrawing (une face scannée
+│   │                    #   telle que son dessin la montre)...
 │   ├── guide/           # Le guide des mouvements : GuideCanvas, GuideTile, guideCamera
 │   └── puzzles/         # Les dessins, un dossier par catégorie : drawings.ts et la géométrie de chaque puzzle
 │                        #   (gear/ : pas de drawings.ts, ses pièces, sa vue de saisie et sa vignette sont à lui,
@@ -223,7 +226,7 @@ Holey Megaminx du Megaminx, reprend simplement celui de son parent) :
 
 - **sa carte** (`lib/puzzles/<catégorie>/catalog.ts`, type `PuzzleEntry`) :
   nom, adresse, dimensions, longueur de mélange, couches intérieures, coups
-  avancés, déformation, miroir, couleurs, sorte de coups (`moves`, d'où
+  avancés, déformation, miroir, scan essayé en vrai (`scanTried`), couleurs, sorte de coups (`moves`, d'où
   `isStar`, `isPyraminx`, `isGridless`...), clips colorés d'un Gear Cube,
   vignette en tête de sa catégorie (`cover`), pavé de coups (`pad`) et
   consigne de saisie (`editHint`), que l'interface traduit (`padFor`,
@@ -418,15 +421,23 @@ les stickers disent une taille, le cube miroir : `STICKERS_TELL` dans
   vrille des coins tienne, vérifiée comme un 2x2). Quand la résolution
   échoue sur une étape, le message dit laquelle (`StepFailure`).
 
-**À l'appareil photo** (`lib/editor/scan/`) : la caméra prend
-chaque face d'elle-même (`capture.ts` : chaque case sûrement d'une
-couleur, centre demandé, ces couleurs inchangées deux secondes), puis `readScan` retrouve les faces tenues tournées (`orient.ts`), lit le cube entier
-sur les centres scannés (aucun seuil fixe entre rouge et orange) et place
+**À l'appareil photo** (`lib/editor/scan/`) : une fois que
+l'utilisateur a touché « Scanner la face », la caméra prend la face
+d'elle-même (`capture.ts` : chaque case sûrement d'une
+couleur, centre demandé, ces couleurs inchangées une seconde), puis `readScan` retrouve les faces tenues tournées (`orient.ts`), lit le cube entier
+sur ses couleurs telles que la lumière les montre (`anchors.ts` : les
+centres d'abord, puis chaque couleur prenant autant de stickers que le
+puzzle en a, les plus proches ; aucun seuil fixe entre rouge et orange) et place
 les vraies pièces au moindre coût (`assign.ts`, sur les placements et les
 budgets de `tablesFor`) ; le résultat est peint dans l'éditeur, à valider.
-Tout se déduit des dimensions (`scanPlan`) ; les cubes sont scannables
-(`scannable`), pas encore les cuboïdes ; un cube pair, sans centre, se
-tient n'importe comment, ses couleurs triées entre elles (`anchors.ts`) ; les limites et la suite :
+Tout se déduit des dimensions (`scanPlan`, les trous d'un puzzle sautés),
+sauf d'un modèle qui déclare son scan (`PuzzleModel.scan` : en grille, le
+Void Cube et l'Edge Only ; en carré, les cubes diagonaux, chaque sticker où
+leur dessin le montre, `three/core/scanDrawing.ts` ; en anneaux, le Megaminx, ses douze couleurs lues
+à la fin seulement, et le Holey Megaminx, montré par des gestes seuls) ; les cubes, les cuboïdes et les plats sans saisie
+propre sont scannables (`scannable`) ; un puzzle dont
+une face n'a pas de centre se tient n'importe comment, ses couleurs triées
+entre elles (`anchors.ts`) ; les limites et la suite :
 `AMELIORATIONS.md`. Voir [docs/interface.md](docs/interface.md).
 
 Ce que toute saisie remplit, quel que soit son mode, est une table de

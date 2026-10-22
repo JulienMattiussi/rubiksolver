@@ -2,7 +2,14 @@ import type { PuzzleEntry } from '../entry'
 
 /** The NxNxN cubes and their super versions. In the picker's order. */
 export const STANDARD = {
-  '2': { label: '2x2 (Pocket)', slug: '2x2', dims: [2, 2, 2], scramble: 11, mirror: true },
+  '2': {
+    label: '2x2 (Pocket)',
+    slug: '2x2',
+    dims: [2, 2, 2],
+    scramble: 11,
+    mirror: true,
+    scanTried: true,
+  },
   '3': {
     home: 'classic',
     cover: true,
@@ -12,6 +19,7 @@ export const STANDARD = {
     scramble: 20,
     advanced: ['slice', 'wide'],
     mirror: true,
+    scanTried: true,
   },
   '4': {
     home: 'mirror',
@@ -21,6 +29,7 @@ export const STANDARD = {
     scramble: 40,
     inner: ['slice', 'wide'],
     mirror: true,
+    scanTried: true,
   },
   '5': {
     label: '5x5 (Professor)',
