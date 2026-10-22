@@ -58,13 +58,15 @@ function same(a: readonly CellSample[], b: readonly CellSample[], face: ScanFace
 /** Whether a picture shows the face asked for: every cell some sticker
  *  (surely a cube color, its center the face's where it tells it, on a
  *  cube; lit enough on a puzzle of many colors; some sticker at least on a
- *  puzzle out of shape). */
+ *  puzzle out of shape; its middle, on a puzzle read whole). */
 export function showsFace(cells: readonly CellSample[], face: ScanFace): boolean {
   if (cells.length !== face.cells.length) return false
   const guesses = cells.map((cell) => guessColor(cell.lab))
   // A face of a puzzle out of shape: black sides and the background
   // between its stickers; some sticker at least.
   if (face.open) return guesses.some((g) => g.sure)
+  // A face read whole: its anchor lit in the middle (its seams are dark).
+  if (face.whole) return guesses[(guesses.length - 1) >> 1]?.color != null
   if (!face.named) return guesses.every((g) => g.color !== null)
   const middle = face.told && face.center !== null ? guesses[face.center]?.color : face.frontColor
   return !!middle && family(middle) === family(face.frontColor) && guesses.every((g) => g.sure)

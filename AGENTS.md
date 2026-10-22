@@ -102,7 +102,8 @@ src/
 │   │                    #   cube (construction, reconnaissance, résolu, boîte, orientations), pieces, turn (coups,
 │   │                    #   coups permis, animation), moves (coups d'une forme, mélange), notation (écrire et lire
 │   │                    #   un coup : US, FR), moveSet,
-│   │                    #   moveKind (les sortes de coups, MoveKind), shape (miroir), pieces (poseOf, sameAt,
+│   │                    #   moveKind (les sortes de coups, MoveKind), plane (polygones convexes du plan),
+│   │                    #   shape (miroir), pieces (poseOf, sameAt,
 │   │                    #   withStickers : prédicats de pièces), guide (sections du guide, MoveDescription), hold (les tenues d'un modèle, HoldFrame, déduites de ses faces : un coup lu depuis
 │   │                    #   la face tenue devant)
 │   ├── puzzles/         # Les puzzles, un dossier par catégorie (voir « La fiche d'un puzzle ») :
@@ -430,7 +431,8 @@ tournées ; `assign.ts` : les vraies pièces au moindre coût) et le peint
 dans l'éditeur, à valider. Tout se déduit des dimensions (`scanPlan`,
 `layout.ts`), sauf d'un modèle qui déclare son scan (`PuzzleModel.scan` :
 en grille, en carré placé par son dessin, en anneaux, ou par sa forme,
-que le scan trouve : `forms.ts`, les tours, calées par leur cœur, `box.ts`). Le détail :
+que le scan trouve : `forms.ts`, les tours, calées par leur cœur, `box.ts` ;
+le Floppy Ghost, argenté, se lit à ses contours, d'une seule photo, `outlines.ts`). Le détail :
 [docs/scan.md](docs/scan.md) ; les limites : `AMELIORATIONS.md`.
 
 Ce que toute saisie remplit, quel que soit son mode, est une table de

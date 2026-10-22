@@ -7,7 +7,7 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 
 ## Les puzzles scannables
 
-`scannable` (`lib/editor/scan/plan.ts`) : 25 modèles sur 75.
+`scannable` (`lib/editor/scan/plan.ts`) : 26 modèles sur 75.
 
 - **En grille**, tout se déduit des dimensions (`scanPlan`) : les cubes du
   2x2 au 6x6, les cuboïdes et les plats sans saisie propre (1x2x3, Floppy,
@@ -25,6 +25,9 @@ HTTPS : on l'essaie sur un déploiement Vercel.
   déforment. Elles se scannent comme la boîte où tourne leur mécanisme, et
   le scan trouve leur forme : plus besoin de la choisir parmi les
   vignettes (voir « La forme d'une tour » plus bas).
+- **Par ses contours** (`scan` : un `OutlineScan`, `outlines.ts`) : le
+  Floppy Ghost, tout argenté, lu d'une seule photo (voir « Par les
+  contours » plus bas).
 
 Restent dehors les puzzles dont une information n'est pas une couleur
 (miroirs, super cubes, soudés, engrenages...), les autres puzzles qui se
@@ -161,3 +164,37 @@ là si elle est fausse.
 Sur des images synthétiques, 20 tours mélangées sur 20 sont lues exactement
 (chacune des deux), en moins de 0,2 s, la première lecture prenant en plus
 le temps d'énumérer les formes (environ 1 s).
+
+## Par les contours : le Floppy Ghost
+
+Le Floppy Ghost est tout argenté : ses pièces se reconnaissent à leur
+forme, chaque sticker encadré du plastique noir de sa pièce. Une seule
+photo suffit (le dos montre les mêmes contours, en miroir). La lecture
+(`outlines.ts`, déclarée par `ghostScan`, `lib/puzzles/flat/ghostScan.ts`)
+:
+
+- sépare le clair (un sticker) du sombre (un corps, un joint) par un seuil
+  que la photo fixe (Otsu), chaque pixel noté de -1 à 1 selon qu'il est
+  aussi sombre ou aussi clair que la moyenne de son côté ;
+- trouve le pentagone central (la plage claire autour du milieu du cadre,
+  la seule pièce qui ne bouge jamais) : sa surface donne l'échelle, son
+  centre la position, son moment d'ordre 5 la rotation à un cinquième de
+  tour près ;
+- pour chacune des dix tenues (cinq rotations, de face ou de dos), note
+  chaque pose de pièce (son contour où elle se trouve,
+  `lib/puzzles/flat/ghostShape.ts`) : clair sur son sticker, sombre
+  autour (à demi-poids : un fond sombre cache le bord d'une pièce, jamais
+  un sticker) ; un état vaut la somme de ses pièces, et les 30 720 sont
+  essayés (une fraction de seconde).
+
+Le parcours n'a qu'une face (`move: 'anchored'`) : une grande face face à
+l'objectif, sa pièce centrale dans le pentagone tracé dans le cadre
+(`ScanFace.mark`), sans points dans les cases ; le cadre est tenu immobile
+une seconde (ses 5 x 5 cases, mesurées comme celles d'un Megaminx), puis la
+prise garde, avec la photo, la clarté de chaque pixel du cadre
+(`useFaceReading`, `scanStore.lights`) que lit `readScan`.
+
+Sur des images synthétiques (tenue quelconque, de face ou de dos, zoom de
+plus ou moins 10 %, fond de n'importe quelle clarté, bruit, reflet sombre),
+les états sont lus exactement. Reste à régler sur le vrai puzzle la largeur
+du cadre noir des stickers (`border`, 2,5 mm estimés sur photos).

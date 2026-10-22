@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { watch, watchAfter } from '@/lib/editor/scan/capture'
+import { labOf } from '@/lib/editor/scan/color'
 import { frameOnScreen, screenToPicture } from '@/lib/editor/scan/frame'
+import type { Picture } from '@/lib/editor/scan/outlines'
 import type { ScanFace } from '@/lib/editor/scan/plan'
 import { sampleFace, type CellSample } from '@/lib/editor/scan/sample'
 
@@ -10,6 +12,14 @@ const READ_MS = 100
 const FRAME_PX = 192
 /** How long a face is waited for once the user said it is there. */
 const ARMED_MS = 5000
+
+/** A picture's lightness, pixel by pixel (a face read whole). */
+function lightOf({ data, width, height }: ImageData): Picture {
+  const light = new Float32Array(width * height)
+  for (let i = 0; i < light.length; i++)
+    light[i] = labOf(data[4 * i]!, data[4 * i + 1]!, data[4 * i + 2]!)[0]
+  return { width, height, light }
+}
 
 /**
  * A face read from the camera (ScanView): nothing until the user says the
@@ -36,8 +46,8 @@ export function useFaceReading({
   /** The face taken before, not to take again before the puzzle turns. */
   last: readonly CellSample[] | undefined
   /** The face taken, and its picture (to show it again, should it be
-   *  refused). */
-  take: (cells: readonly CellSample[], picture: string) => void
+   *  refused; on a face read whole, its lightness too). */
+  take: (cells: readonly CellSample[], picture: string, light?: Picture) => void
 }) {
   const [armed, setArmed] = useState(false)
   const [nothing, setNothing] = useState(false)
@@ -84,7 +94,8 @@ export function useFaceReading({
       if (seen.taken) {
         // A tap again for the next face.
         setArmed(false)
-        take(seen.taken, canvas.current.toDataURL('image/jpeg', 0.8))
+        const light = face.whole ? lightOf(ctx.getImageData(0, 0, width, height)) : undefined
+        take(seen.taken, canvas.current.toDataURL('image/jpeg', 0.8), light)
       }
     }, READ_MS)
     return () => {

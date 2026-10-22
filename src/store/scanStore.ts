@@ -5,6 +5,7 @@ import { readScan } from '@/lib/editor/scan/read'
 import type { ScanReading } from '@/lib/editor/scan/classify'
 import { scanPlan } from '@/lib/editor/scan/plan'
 import { coreOf } from '@/lib/editor/scan/box'
+import type { Picture } from '@/lib/editor/scan/outlines'
 import type { CellSample } from '@/lib/editor/scan/sample'
 import { useCube } from './cubeStore'
 import { useEditor } from './editorStore'
@@ -30,18 +31,20 @@ interface ScanStore {
   /** Each face's picture as taken, to show which one to take again (a
    *  face shown by gestures is only its place in them). */
   pictures: readonly (string | undefined)[]
+  /** Each face's lightness, pixel by pixel, on a puzzle read whole from
+   *  its picture (outlines.ts). */
+  lights: readonly (Picture | undefined)[]
   /** Faces taken so far, each one cheered (ScanView). */
   cheers: number
   /** The face taken last, not to take again before the cube turns. */
   last: readonly CellSample[] | undefined
   start: () => void
   close: () => void
-  /** A face taken (capture.ts), with its picture: checked, then the next,
-   *  or every face in. */
-  take: (cells: readonly CellSample[], picture?: string) => void
+  /** A face taken (capture.ts), with its picture (and its lightness, on
+   *  a puzzle read whole): checked, then the next, or every face in. */
+  take: (cells: readonly CellSample[], picture?: string, light?: Picture) => void
   /** Every face in: the puzzle read, painted in the editor, or the face
-   *  to take again. */
-  /** The faces read; `behind`: filmed by a camera facing the user. */
+   *  to take again; `behind`: filmed by a camera facing the user. */
   read: (behind?: boolean) => void
 }
 
@@ -92,7 +95,7 @@ export const useScan = create<ScanStore>((set, get) => {
     // the scan waiting for ever.
     let reading: ScanReading
     try {
-      reading = readScan(shape(), faces as readonly (readonly CellSample[])[], behind)
+      reading = readScan(shape(), faces as readonly (readonly CellSample[])[], behind, get().lights)
     } catch (error) {
       console.error(error)
       reading = { ok: false, face: 0 }
@@ -115,6 +118,7 @@ export const useScan = create<ScanStore>((set, get) => {
     face: 0,
     faces: [],
     pictures: [],
+    lights: [],
     status: 'aiming',
     missed: false,
     cheers: 0,
@@ -126,6 +130,7 @@ export const useScan = create<ScanStore>((set, get) => {
         face: 0,
         faces: [],
         pictures: [],
+        lights: [],
         status: 'aiming',
         missed: false,
         cheers: 0,
@@ -141,7 +146,7 @@ export const useScan = create<ScanStore>((set, get) => {
       set({ open: false, status: 'aiming' })
     },
 
-    take: (cells, picture) => {
+    take: (cells, picture, light) => {
       set({ status: 'checking' })
       later(() => {
         const plan = scanPlan(shape())
@@ -154,10 +159,12 @@ export const useScan = create<ScanStore>((set, get) => {
         const taken = plan.map((_, i) => (i === face ? cells : faces[i]))
         const next = taken.findIndex((f) => !f)
         const pictures = plan.map((_, i) => (i === face ? picture : get().pictures[i]))
+        const lights = plan.map((_, i) => (i === face ? light : get().lights[i]))
         logScan(`face ${face + 1}`, taken)
         const done = {
           faces: taken,
           pictures,
+          lights,
           missed: false,
           cheers: get().cheers + 1,
           last: cells,

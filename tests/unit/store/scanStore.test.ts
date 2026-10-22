@@ -10,6 +10,10 @@ import { applyMoves } from '@/lib/core/turn'
 import { scrambleTurns } from '@/lib/core/moves'
 import { AXIS_ROTATIONS } from '@/lib/core/geometry'
 import { lookOf } from '@/lib/editor/modes/form'
+import { cubeToEdit } from '@/lib/editor/edit'
+import { scanPlan } from '@/lib/editor/scan/plan'
+import { ghostScan } from '@/lib/puzzles/flat/ghostScan'
+import { ghostPicture } from '../editor/ghostPictures'
 import { seededRng } from '../../helpers'
 
 beforeEach(() => {
@@ -99,5 +103,19 @@ describe('scan store', () => {
     vi.runAllTimers()
     expect(useEditor.getState()).toMatchObject({ phase: 'paint', fromScan: true })
     expect(lookOf(useEditor.getState().form!)).toBe(lookOf(held))
+  })
+
+  it('reads a Floppy Ghost from its one picture, into the editor', () => {
+    useCube.getState().setShape('ghost')
+    useEditor.getState().enter()
+    useScan.getState().start()
+    const cube = ghostScan.states()[777]!
+    const cells = scanPlan('ghost')[0]!.cells.map(() => ({ lab: labOf(200, 200, 200) }))
+    useScan.getState().take(cells, 'photo', ghostPicture(cube, { turn: 2 }, seededRng(3)))
+    vi.runAllTimers()
+    expect(useScan.getState().status).toBe('complete')
+    useScan.getState().read(true)
+    vi.runAllTimers()
+    expect(useEditor.getState()).toMatchObject({ edit: cubeToEdit(cube), fromScan: true })
   })
 })

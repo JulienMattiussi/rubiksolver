@@ -225,6 +225,9 @@ export const UI_FR = {
     belowMirrored: (front: string, up: string) =>
       `Tournez le puzzle vers la droite : le centre ${front} face à l’objectif, le ${up} toujours en bas.`,
     // A puzzle out of shape names no color (`told` never): as below.
+    // A puzzle read whole names no color either.
+    anchored: () =>
+      'Positionnez la caméra immobile devant une grande face du puzzle, sa pièce centrale dans la forme marquée, dans un endroit éclairé.',
     upright: () =>
       'Positionnez la caméra immobile devant le puzzle, son côté le plus long à la verticale, ses petits cubes du milieu dans les cases encadrées.',
   },
@@ -240,6 +243,8 @@ export const UI_FR = {
     tilt: 'Montrez le dessus : basculez le haut du puzzle vers l’objectif, la face du dessus vient face à l’objectif.',
     flip: 'Faites faire un demi-tour au puzzle : la face de derrière vient face à l’objectif.',
     show: 'Montrez la face suivante à l’objectif.',
+    anchored:
+      'Positionnez la caméra immobile devant une grande face du puzzle, sa pièce centrale dans la forme marquée, dans un endroit éclairé.',
     upright:
       'Positionnez la caméra immobile devant le puzzle, son côté le plus long à la verticale, ses petits cubes du milieu dans les cases encadrées.',
   },

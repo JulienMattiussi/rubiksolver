@@ -23,7 +23,8 @@ interface ScanFrameProps {
 }
 
 /** The frame a face is aimed into: its outline dashed, its lines faint,
- *  its center's cell outlined (if it tells the face), or its core's cells;
+ *  its center's cell outlined (if it tells the face), or its core's cells,
+ *  or the shape its anchor goes in (a face read whole, which shows no dots);
  *  green while its
  *  colors hold. Each cell shows what it reads, as a dot: the cube color it
  *  seems to be (a ring when not surely, nothing when none), or on a puzzle
@@ -67,6 +68,14 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }:
           strokeLinejoin="round"
           className={`transition-colors ${stroke}`}
         />
+        {face.mark && (
+          <polygon
+            points={points(face.mark)}
+            strokeWidth={2}
+            strokeLinejoin="round"
+            className={`transition-colors ${stroke}`}
+          />
+        )}
         {marked.length > 0 && (
           <rect
             x={span(0)[0]}
@@ -79,21 +88,22 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }:
           />
         )}
       </svg>
-      {cells.map((cell, i) => {
-        const point = face.points[i]
-        if (!point) return null
-        const [x, y] = at(point)
-        return (
-          <div
-            key={i}
-            className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
-            style={{ left: x, top: y }}
-          >
-            <CellDot cell={cell} named={face.named && !face.open} />
-            {debug && <CellMeasure cell={cell} />}
-          </div>
-        )
-      })}
+      {!face.whole &&
+        cells.map((cell, i) => {
+          const point = face.points[i]
+          if (!point) return null
+          const [x, y] = at(point)
+          return (
+            <div
+              key={i}
+              className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
+              style={{ left: x, top: y }}
+            >
+              <CellDot cell={cell} named={face.named && !face.open} />
+              {debug && <CellMeasure cell={cell} />}
+            </div>
+          )
+        })}
     </div>
   )
 }

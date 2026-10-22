@@ -2,6 +2,7 @@ import type { FaceLabels } from '../core/notation'
 import type { Cube, Dims, Face, Move, Turn, Vec3 } from '../core/types'
 import type { GuideGroup, MoveDescription } from '../core/guide'
 import type { EntryMarks, EntryStep, PaintSpec } from '../editor/entry'
+import type { OutlineScan } from '../editor/scan/outlines'
 import type { RingFace } from '../editor/scan/plan'
 
 /**
@@ -47,8 +48,9 @@ export interface PuzzleModel {
    *  whose faces are no grid, each sticker where its drawing shows it
    *  (`square`: the Skewb, the Rex Cube...); as the box it turns in, its
    *  form found from what its faces show (`forms`: the towers); or face
-   *  by face, each a ring round its center (the Megaminx). */
-  readonly scan?: 'grid' | 'square' | 'forms' | (() => readonly RingFace[])
+   *  by face, each a ring round its center (the Megaminx); or from one
+   *  picture, by its pieces' outlines (the Floppy Ghost, all silver). */
+  readonly scan?: 'grid' | 'square' | 'forms' | (() => readonly RingFace[]) | OutlineScan
   /** How it is entered (lib/editor/entry.ts), when not by painting its
    *  stickers alone. */
   readonly entry?: {

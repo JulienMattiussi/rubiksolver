@@ -3,6 +3,7 @@ import type { PuzzleModel } from '../model'
 import { BY_PIECES } from '../../editor/entry'
 import { GHOST_TURNS, scrambleGhost, solvedGhost } from './ghost'
 import { ghostGuide } from '../guides'
+import { ghostScan } from './ghostScan'
 
 export const FLAT_MODELS = {
   // No grid; held one way only.
@@ -13,5 +14,6 @@ export const FLAT_MODELS = {
     turns: () => GHOST_TURNS,
     scramble: (length, rng) => scrambleGhost(length, rng),
     guide: ghostGuide,
+    scan: ghostScan,
   },
 } satisfies Partial<Record<CubeShape, PuzzleModel>>

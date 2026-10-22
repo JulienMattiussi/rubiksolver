@@ -222,6 +222,9 @@ export const UI_EN: typeof UI_FR = {
     belowMirrored: (front: string, up: string) =>
       `Turn the puzzle to the right: the ${front} center facing the lens, ${up} still at the bottom.`,
     // A puzzle out of shape names no color (`told` never): as below.
+    // A puzzle read whole names no color either.
+    anchored: () =>
+      'Hold the camera still in front of a large face of the puzzle, its middle piece in the marked shape, in a well-lit place.',
     upright: () =>
       'Hold the camera still in front of the puzzle, its longest side upright, its middle small cubes in the outlined cells.',
   },
@@ -236,6 +239,8 @@ export const UI_EN: typeof UI_FR = {
     tilt: 'Show the top: tilt the top of the puzzle toward the lens, the top face comes to face the lens.',
     flip: 'Turn the puzzle half round: the face at the back comes to face the lens.',
     show: 'Show the next face to the lens.',
+    anchored:
+      'Hold the camera still in front of a large face of the puzzle, its middle piece in the marked shape, in a well-lit place.',
     upright:
       'Hold the camera still in front of the puzzle, its longest side upright, its middle small cubes in the outlined cells.',
   },

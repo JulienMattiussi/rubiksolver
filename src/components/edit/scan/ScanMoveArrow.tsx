@@ -19,7 +19,10 @@ interface Gesture {
 
 type Point = readonly [number, number]
 
-const GESTURES: Record<Exclude<ScanFace['move'], 'first' | 'upright' | 'show'>, Gesture> = {
+const GESTURES: Record<
+  Exclude<ScanFace['move'], 'first' | 'upright' | 'anchored' | 'show'>,
+  Gesture
+> = {
   // A turn to the left, about the vertical: its front goes left.
   turn: { c: [33, 31], a: [24, 0], b: [0, 9], from: -10, to: 190 },
   // The same, round its bottom (which stays at the bottom).
@@ -71,7 +74,7 @@ export function ScanMoveArrow({
   mirrored?: boolean
 }) {
   const { move, angle } = face
-  if (move === 'first' || move === 'upright' || move === 'show') return null
+  if (move === 'first' || move === 'upright' || move === 'anchored' || move === 'show') return null
   const drawn = GESTURES[move]
   const g = mirrored && drawn.deep ? { ...drawn, from: drawn.to, to: drawn.from } : drawn
   const line = {

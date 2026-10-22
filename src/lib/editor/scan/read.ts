@@ -1,7 +1,9 @@
 import { tablesFor } from '../editorTables'
 import type { CubeShape } from '../../core/shapes'
 import { readFaces, type ScanReading } from './classify'
+import { cubeToEdit } from '../edit'
 import { readForms } from './forms'
+import { readOutlines, type Picture } from './outlines'
 import { ORDER, scanPlan, type ScanFace } from './plan'
 import type { CellSample } from './sample'
 
@@ -9,10 +11,21 @@ type Taken = readonly (readonly CellSample[])[]
 
 /** A scanned puzzle read from each face's cells (`scanPlan`'s order): its
  *  colors (classify.ts), and its form if it changes shape (forms.ts); or
- *  the face to take again. `behind`: filmed by a camera facing the user
- *  (`fromBehind`). */
-export function readScan(shape: CubeShape, taken: Taken, behind = false): ScanReading {
+ *  from its pictures, a puzzle read whole (outlines.ts); or the face to
+ *  take again. `behind`: filmed by a camera facing the user (`fromBehind`;
+ *  a puzzle read whole is read either way). */
+export function readScan(
+  shape: CubeShape,
+  taken: Taken,
+  behind = false,
+  pictures: readonly (Picture | undefined)[] = [],
+): ScanReading {
   const plan = scanPlan(shape)
+  const whole = plan[0]?.whole
+  if (whole) {
+    const read = pictures[0] && readOutlines(whole, pictures[0])
+    return read?.ok ? { ok: true, edit: cubeToEdit(read.cube) } : { ok: false, face: 0 }
+  }
   const seen = behind ? fromBehind(plan, taken) : undefined
   const faces = seen ?? taken
   const reading = plan[0]?.open

@@ -4,6 +4,7 @@ import { isGridless, SHAPE_DIMS, SHAPE_SHIFTS, type CubeShape } from '../../core
 import { stickerId, type SlotTables } from '../editorTables'
 import { gap, gridLayout, ringLayout, squareLayout, type FaceLayout, type Point } from './layout'
 import { MODELS } from '../../puzzles/models'
+import { outlineMark, type OutlineScan } from './outlines'
 import type { Color, Cube, CubeColor, Dims, Face, Vec3 } from '../../core/types'
 
 /**
@@ -21,8 +22,10 @@ import type { Color, Cube, CubeColor, Dims, Face, Vec3 } from '../../core/types'
  *  left, its top staying on top (`turn`) or its bottom at the bottom
  *  (`below`), tilted toward the lens, turned half round; `show`: told by
  *  its colors alone (a Megaminx's twelve faces); `upright`: the first face
- *  of a puzzle out of shape, its long side upright. */
-export type ScanMove = 'first' | 'upright' | 'turn' | 'below' | 'tilt' | 'flip' | 'show'
+ *  of a puzzle out of shape, its long side upright; `anchored`: the one
+ *  face of a puzzle read whole, its anchor in the shape marked (`whole`). */
+export type ScanMove =
+  'first' | 'upright' | 'anchored' | 'turn' | 'below' | 'tilt' | 'flip' | 'show'
 
 export interface ScanFace extends FaceLayout {
   readonly move: ScanMove
@@ -56,6 +59,11 @@ export interface ScanFace extends FaceLayout {
    *  its form says, found from them (forms.ts); its `cells` name the
    *  cells only. */
   readonly open?: true
+  /** A face read whole from its picture, by its pieces' outlines (a
+   *  Floppy Ghost: outlines.ts), its reader: its cells only tell when it is
+   *  held still; its `mark`, where the piece that never moves goes. */
+  readonly whole?: OutlineScan
+  readonly mark?: readonly Point[]
 }
 
 /** What a scan is read against: the puzzle, its faces as scanned, and the
@@ -227,6 +235,30 @@ export function boxSides(dims: Dims, front: Face, up: Face): [number, number] {
   return [dims[axisOf(u)]!, dims[axisOf(r)]!]
 }
 
+/** Cells across the frame of a face read whole, held still by them. */
+const WHOLE_CELLS = 5
+
+/** A puzzle read whole from one picture (outlines.ts): one face, its
+ *  anchor marked; its cells, which only say when it is held still. */
+function wholeFaces(shape: CubeShape, scan: OutlineScan) {
+  const colors = faceColorsOf(shape)
+  const grid = gridLayout(WHOLE_CELLS, WHOLE_CELLS)
+  return [
+    {
+      ...grid,
+      lines: [],
+      move: 'anchored' as const,
+      angle: null,
+      frontColor: colors.F,
+      upColor: colors.U,
+      cells: grid.points.map((_, i) => `F${i}`),
+      center: null,
+      whole: scan,
+      mark: outlineMark(scan, WHOLE_CELLS),
+    },
+  ]
+}
+
 /** The stickers a puzzle has (a Void Cube has no centers). */
 const present = (shape: CubeShape) =>
   new Set(
@@ -259,29 +291,34 @@ export function scanPlan(shape: CubeShape): readonly ScanFace[] {
   if (!plan) {
     const own = MODELS[shape]?.scan
     const rings = typeof own === 'function' ? own() : undefined
-    const faces =
-      own === 'square'
-        ? squareFaces(shape)
-        : own === 'forms'
-          ? boxFaces(shape)
-          : rings
-            ? rings.map((ring, f) =>
-                withoutHoles(
-                  {
-                    ...ringLayout((ring.cells.length - 1) / 2, ring.bottom),
-                    ...ring,
-                    move: ring.move ?? (f ? 'show' : 'first'),
-                    angle: ring.angle ?? null,
-                    center: 0,
-                  },
-                  present(shape),
-                ),
-              )
-            : gridFaces(shape)
+    const faces: Omit<ScanFace, 'told' | 'named'>[] =
+      typeof own === 'object'
+        ? wholeFaces(shape, own)
+        : own === 'square'
+          ? squareFaces(shape)
+          : own === 'forms'
+            ? boxFaces(shape)
+            : rings
+              ? rings.map((ring, f) =>
+                  withoutHoles(
+                    {
+                      ...ringLayout((ring.cells.length - 1) / 2, ring.bottom),
+                      ...ring,
+                      move: ring.move ?? (f ? 'show' : 'first'),
+                      angle: ring.angle ?? null,
+                      center: 0,
+                    },
+                    present(shape),
+                  ),
+                )
+              : gridFaces(shape)
     // Centers tell the faces only if every face has one, where they stay
     // (not a Skewb's, which move about).
     const told = own !== 'square' && own !== 'forms' && faces.every((face) => face.center !== null)
-    const named = shapeColors(shape).every((color) => CUBE_COLORS.includes(color))
+    // A puzzle read by its outlines names no color (its colors only tell
+    // its pieces apart, all silver).
+    const named =
+      typeof own !== 'object' && shapeColors(shape).every((color) => CUBE_COLORS.includes(color))
     plan = faces.map((face) => ({ ...face, told, named }))
     PLANS.set(shape, plan)
   }

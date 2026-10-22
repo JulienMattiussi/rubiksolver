@@ -4,7 +4,8 @@ import { faceOfNormal, normalIndex } from '@/lib/core/geometry'
 import { GHOST_TURNS, ghostSlot } from '@/lib/puzzles/flat/ghost'
 import { applyMove } from '@/lib/core/turn'
 import type { Cubie } from '@/lib/core/types'
-import { ghostPolygons, ghostSquareSides } from '@/three/puzzles/flat/ghostGeometry'
+import { ghostSquareSides } from '@/lib/puzzles/flat/ghostShape'
+import { ghostPolygons } from '@/three/puzzles/flat/ghostGeometry'
 
 const SOLVED = solvedCube('ghost')
 

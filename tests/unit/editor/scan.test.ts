@@ -32,7 +32,8 @@ const sampleGrid = (pixels: Pixels, rows: number, cols: number) =>
 /** Every puzzle a camera can scan; those whose form the scan finds
  *  (the towers) apart. */
 const SCANNABLE = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter(scannable)
-const SCANNED = SCANNABLE.filter((shape) => !scanPlan(shape)[0]?.open)
+// Read from their cells (not a face out of shape, nor one read whole).
+const SCANNED = SCANNABLE.filter((shape) => !scanPlan(shape)[0]?.open && !scanPlan(shape)[0]?.whole)
 const OUT_OF_SHAPE = SCANNABLE.filter((shape) => scanPlan(shape)[0]?.open)
 
 describe('scan plan', () => {
@@ -42,8 +43,10 @@ describe('scan plan', () => {
     )
     expect(SCANNED).toEqual(expect.arrayContaining(['void', 'edge', 'megaminx', 'holey']))
     expect(OUT_OF_SHAPE).toEqual(['224', '234'])
+    // Read whole, by the outlines of its silver pieces (outlines.test.ts).
+    expect(scannable('ghost')).toBe(true)
     // Pieces a camera cannot tell, or a model entering them otherwise.
-    for (const shape of ['super5', 'ghost', 'camo', 'tori'] as const) {
+    for (const shape of ['super5', 'camo', 'tori'] as const) {
       expect(scannable(shape)).toBe(false)
     }
   })
