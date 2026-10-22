@@ -6,6 +6,7 @@ import { applyMoves } from '@/lib/core/turn'
 import { barAxis, isCorner, shapeDone } from '@/lib/methods/tower/tower'
 import type { Cube } from '@/lib/core/types'
 import { tutorialFor } from '@/lib/tutorials/registry'
+import { methodsFor } from '@/lib/solve/solver'
 import { TUTORIAL_EN } from '@/i18n/en/tutorial'
 import { TUTORIAL_FR } from '@/i18n/fr/tutorial'
 import { seededRng } from '../../helpers'
@@ -77,6 +78,39 @@ describe('2x2x4 tower tutorial', () => {
     for (const texts of [TUTORIAL_FR, TUTORIAL_EN]) {
       for (const key of tutorial.stageKeys) expect(texts.progress[key], key).toBeTruthy()
       expect(texts.holding.tower!('vert', 'bleu')).toContain('bleu')
+    }
+  })
+
+  it('turns a layer back alone, rather than a formula that also does', () => {
+    const solve = methodsFor('224').find((m) => m.id === 'twoPockets')!.solve
+    for (const off of ["D U'", 'U', 'D', "Dw' U"]) {
+      const steps = solve(applyMoves(SOLVED, parseMoves(off)))
+      expect(steps.flatMap((s) => s.moves).length, off).toBeLessThanOrEqual(2)
+    }
+  })
+
+  it("never turns the whole tower by two layer turns (Uw' Dw: held another way)", () => {
+    const solve = methodsFor('224').find((m) => m.id === 'twoPockets')!.solve
+    for (let seed = 1; seed <= 4; seed++) {
+      const cube = applyMoves(SOLVED, scrambleTurns('224', 25, seededRng(seed), SOLVED))
+      const moves = solve(cube).flatMap((s) => s.moves)
+      expect(isSolved(applyMoves(cube, moves))).toBe(true)
+      const halves = moves.flatMap((m, i) => {
+        const next = moves[i + 1]
+        return 'face' in m && next && 'face' in next ? [[m, next]] : []
+      })
+      expect(
+        halves.some(
+          ([a, b]) =>
+            a!.wide &&
+            b!.wide &&
+            new Set([a!.face, b!.face]).size === 2 &&
+            ['U', 'D'].includes(a!.face) &&
+            ['U', 'D'].includes(b!.face) &&
+            // U and D turned the same way round: amounts adding up to a turn.
+            (a!.amount + b!.amount) % 4 === 0,
+        ),
+      ).toBe(false)
     }
   })
 })

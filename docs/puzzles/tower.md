@@ -45,8 +45,10 @@ un intérieur (les 8 pièces du milieu) et un extérieur (les 8 coins).
 **Tutoriel** : les mêmes étapes, le Pocket intérieur puis l'extérieur
 chacun en deux (le bas, puis le haut), soit cinq. Chaque pas joue la plus
 courte suite des formules de l'étape, chacune vue de chaque tenue et
-préparée par un tour du haut (`eachHold`), sur les seules pièces que
-l'étape lit (`gestureChain` et sa clé). La remise en forme est une étape de
+préparée par un tour du haut (`eachHold`), ou le tour du haut ou du bas
+seul (un étage décalé se remet d'un coup), sur les seules pièces que
+l'étape lit (`gestureChain` et sa clé) ; à longueur égale, les gestes les
+plus courts d'abord (un tour d'étage avant une formule qui fait de même). La remise en forme est une étape de
 figures (le pivot, ou un coup large qui lui amène deux barres couchées) ;
 les autres placent une pièce à la fois, les milieux jumeaux
 interchangeables. Une tour sans centre dit ses côtés par la couleur qu'ils

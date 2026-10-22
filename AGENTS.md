@@ -132,7 +132,8 @@ src/
 │   │                    #   (la plus courte suite de formules vers un but, found ; searchChain : la même,
 │   │                    #   formule par formule), everyWay (une formule vue
 │   │                    #   de chaque côté), holdings (le puzzle tenu de chaque façon), permutation (parité),
-│   │                    #   once (mémoïsation paresseuse), placeTable (places, macros et Dijkstra :
+│   │                    #   once (mémoïsation paresseuse), rotations (les tours en main retirés : Uw' Dw
+│   │                    #   sur la 2x2x4), placeTable (places, macros et Dijkstra :
 │   │                    #   Megaminx, AI Cube)
 │   ├── editor/          # La saisie : entry (ce que le modèle déclare : étapes, peinture), steps (leur
 │   │                    #   enchaînement), edit (la table de stickers, buildCube), editorTables, validate,
@@ -296,7 +297,10 @@ atteindre** (`goal`), **les coups qu'elle a le droit d'utiliser** (`moves`, un
 résolution : une étape qui s'arrête avant son objectif, glisse un coup
 interdit ou un coup que le puzzle bloque à ce moment (`turnAllowed` : un
 soudé, le Latch Cube) lève une exception ; la solution n'est simplifiée que
-si ses coups passent encore. C'est ce qui empêche une méthode de dégénérer en
+si ses coups passent encore. Une solution complète perd enfin les tours en
+main que font ses coups d'étage (`Uw' Dw` sur la 2x2x4 : la tour tournée
+d'un bloc), les coups suivants nommés comme le puzzle est alors tenu
+(`solve/rotations.ts`), si elle résout toujours. C'est ce qui empêche une méthode de dégénérer en
 « par couches déguisé » : les jeux de coups (`<M, U>` pour la fin de Roux,
 `<R, U>` pour le F2L de Petrus...) sont imposés.
 

@@ -1,8 +1,10 @@
-import { isSolved, stateKey } from '../core/cube'
+import { cubeShape, isSolved, stateKey, turnDims } from '../core/cube'
+import { isGridless } from '../core/shapes'
 import { applyMove, applyMoves, turnAllowed } from '../core/turn'
 import { simplifyMoves } from '../core/moves'
 import { formatMove, parseMoves } from '../core/notation'
 import { allows, type MoveSet } from '../core/moveSet'
+import { withoutRotations } from './rotations'
 import type { Cube, Face, Move, Turn } from '../core/types'
 
 /**
@@ -266,5 +268,26 @@ export function buildSteps(cube: Cube, plan: MethodPlan): SolveStep[] {
       moves,
     })
   }
-  return steps.filter((s) => s.moves.length > 0)
+  return withoutTurnsInHand(cube, state, steps).filter((s) => s.moves.length > 0)
+}
+
+/** A solution's steps without its whole-puzzle turns made of layer turns
+ *  (rotations.ts), if it solves the puzzle all the same (a method solving
+ *  part of it only, or a puzzle without a grid, keeps its own). */
+function withoutTurnsInHand(cube: Cube, end: Cube, steps: SolveStep[]): SolveStep[] {
+  const shape = cubeShape(cube)
+  if (isGridless(shape) || !isSolved(end)) return steps
+  let lean = steps.map((s) => s.moves)
+  // Tidied again after each pass: turns cancelled may bring two more
+  // together that turn it whole.
+  for (let pass = 0; pass < 4; pass++) {
+    const next = withoutRotations(lean, turnDims(shape)).map((moves) => simplifyMoves(moves))
+    if (next.flat().length === lean.flat().length) break
+    lean = next
+  }
+  const moves = lean.flat()
+  const unchanged = moves.length === steps.flatMap((s) => s.moves).length
+  if (unchanged || !goesFrom(cube, moves)) return steps
+  if (!isSolved(applyMoves(cube, moves))) return steps
+  return steps.map((s, i) => ({ ...s, moves: lean[i]! }))
 }

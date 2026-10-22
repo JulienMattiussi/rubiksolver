@@ -90,14 +90,23 @@ function target(at: Vec3): Target {
 }
 
 /** The shortest chain of a step's gestures bringing its pieces (`keep`) to
- *  a goal, told apart by `key`. */
+ *  a goal, told apart by `key`; of chains as long, the one of the shortest
+ *  gestures first (a turn of a layer before a formula that also does). */
 const chainOf = (
   cube: Cube,
   gestures: readonly Gesture[],
   goal: (pieces: Cube) => boolean,
   keep: (c: Cubie) => boolean,
   key: (pieces: Cube) => string,
-) => gestureChain(cube, gestures, goal, { keep, key, mechanism: MECHANISM, frame: CUBE_HOLDS })
+) =>
+  gestureChain(cube, shortestFirst(gestures), goal, {
+    keep,
+    key,
+    mechanism: MECHANISM,
+    frame: CUBE_HOLDS,
+  })
+const shortestFirst = (gestures: readonly Gesture[]) =>
+  [...gestures].sort((a, b) => a.moves.length - b.moves.length)
 
 /** A piece stage's chain: the pick's place home, those home where the step
  *  began kept home (and `also`, what earlier steps leave). */
@@ -194,13 +203,15 @@ const shapeFigure = (kind: string, key: string) => ({
 /** A formula from each side, the top (its half, `wide`) turned before it. */
 const prepared = (formula: readonly Move[], kind: string, wide: boolean, back = false) =>
   eachHold([formula], kind, CUBE_HOLDS, { setups: TURNS.map((t) => turn('U', t, wide)), back })
-/** The top's turns (its half, `wide`) alone: the last one, if need be. */
-const topTurns = (wide: boolean): Gesture[] =>
-  [1, 2, 3].map((t) => ({ hold: 'F', kind: 'turn', moves: turn('U', t, wide) }))
+/** The top's turns (its half, `wide`) alone: the last one, if need be;
+ *  the bottom's, where the step places its pieces. */
+const layerTurns = (face: 'U' | 'D', wide: boolean): Gesture[] =>
+  [1, 2, 3].map((t) => ({ hold: 'F', kind: 'turn', moves: turn(face, t, wide) }))
+const topTurns = (wide: boolean) => layerTurns('U', wide)
 
 const innerLook = (pieces: Cube) => layoutKey(pieces.filter(isMiddle))
 const INNER_DOWN = placeChain(
-  prepared(DESCEND_INNER, 'descend', true),
+  [...prepared(DESCEND_INNER, 'descend', true), ...layerTurns('D', true)],
   MIDDLES_DOWN,
   isMiddle,
   innerLook,
@@ -214,7 +225,7 @@ const INNER_UP = placeChain(
 /** The middles home: what the outer Pocket's formulas must leave. */
 const middlesHome = (pieces: Cube) => pieces.filter(isMiddle).every(isHome)
 const OUTER_DOWN = placeChain(
-  prepared(DESCEND, 'descend', false),
+  [...prepared(DESCEND, 'descend', false), ...layerTurns('D', false)],
   CORNERS_DOWN,
   (c) => isMiddle(c) || isCorner(c),
   // All the goal reads: the middles and the bottom corners.
