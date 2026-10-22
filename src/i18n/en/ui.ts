@@ -210,23 +210,37 @@ export const UI_EN: typeof UI_FR = {
     turn: (front: string, up: string) =>
       `Turn the cube a quarter turn to the left: the ${front} center facing the lens, ${up} still on top.`,
     tilt: (front: string, up: string) =>
-      `Tilt the cube toward the lens: the ${front} center facing the lens, ${up} on top.`,
+      `Tilt the top of the cube toward the lens: the ${front} center facing the lens, ${up} on top.`,
     flip: (front: string, up: string) =>
       `Turn the cube half round: the ${front} center facing the lens, ${up} still on top.`,
     below: (front: string, up: string) =>
       `Turn the puzzle to the left: the ${front} center facing the lens, ${up} still at the bottom.`,
     show: (front: string, up: string) => `Show the ${front} center to the lens, ${up} on top.`,
+    // The camera facing you (a laptop's): your left is its right.
+    turnMirrored: (front: string, up: string) =>
+      `Turn the cube a quarter turn to the right: the ${front} center facing the lens, ${up} still on top.`,
+    belowMirrored: (front: string, up: string) =>
+      `Turn the puzzle to the right: the ${front} center facing the lens, ${up} still at the bottom.`,
+    // A puzzle out of shape names no color (`told` never): as below.
+    upright: (_front: string, _up: string) =>
+      'Hold the camera still in front of the puzzle, its longest side upright, its middle small cubes in the outlined cells.',
   },
   scanMovesAny: {
     first:
       'Hold the camera still in front of the puzzle, any face shaped like the frame facing the lens and filling it, in a well-lit place.',
     turn: 'Turn the puzzle to the left up to the next face, its top staying on top.',
     below: 'Turn the puzzle to the left up to the next face, its bottom staying at the bottom.',
-    tilt: 'Tilt the puzzle toward the lens: the face on top comes to face the lens.',
+    turnMirrored: 'Turn the puzzle to the right up to the next face, its top staying on top.',
+    belowMirrored:
+      'Turn the puzzle to the right up to the next face, its bottom staying at the bottom.',
+    tilt: 'Show the top: tilt the top of the puzzle toward the lens, the top face comes to face the lens.',
     flip: 'Turn the puzzle half round: the face at the back comes to face the lens.',
     show: 'Show the next face to the lens.',
+    upright:
+      'Hold the camera still in front of the puzzle, its longest side upright, its middle small cubes in the outlined cells.',
   },
-  scanMissed: 'Cube not detected properly: take this face again.',
+  scanAgain: 'The face to take again, as it was taken',
+  scanMissed: 'Cube not detected properly: take this face again, held as in the picture.',
   scanChecking: 'Checking the face…',
   scanReading: 'Reading the cube…',
   scanDenied: 'The camera could not be opened: allow it in the browser settings, then try again.',

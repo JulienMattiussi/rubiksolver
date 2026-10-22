@@ -1,14 +1,12 @@
-import { tablesFor } from '../editorTables'
 import { emptyEdit } from '../edit'
 import type { EditStickers } from '../entry'
 import { anchorsOf } from './anchors'
 import { cheapestAssignment } from './assign'
 import { distance, type Lab } from './color'
 import { orientFaces } from './orient'
-import { scanPlan } from './plan'
+import type { Scanned } from './plan'
 import type { CellSample } from './sample'
-import type { Color } from '../../core/types'
-import type { CubeShape } from '../../core/shapes'
+import type { Color, Cube } from '../../core/types'
 
 /**
  * A scanned puzzle's colors (pure), read against its colors as this light
@@ -29,14 +27,19 @@ const NEVER = 1e6
 const FORCED = 25
 
 export type ScanReading =
-  { readonly ok: true; readonly edit: EditStickers } | { readonly ok: false; readonly face: number }
+  | { readonly ok: true; readonly edit: EditStickers; readonly form?: Cube }
+  | { readonly ok: false; readonly face: number }
 
-/** The colors read from each face's cells (`scanPlan`'s order), or the
- *  face to take again. */
-export function readScan(shape: CubeShape, taken: readonly (readonly CellSample[])[]): ScanReading {
-  const plan = scanPlan(shape)
-  const anchor = anchorsOf(shape, taken)
-  const faces = orientFaces(shape, taken, anchor)
+/** A scan read against its plan and tables (one form of a puzzle that
+ *  changes shape, forms.ts), and what the reading cost: how far its
+ *  stickers stand from their colors. */
+export function readFaces(
+  scanned: Scanned,
+  taken: readonly (readonly CellSample[])[],
+): { reading: ScanReading; cost: number } {
+  const { shape, plan, tables, form } = scanned
+  const anchor = anchorsOf(scanned, taken)
+  const faces = orientFaces(scanned, taken, anchor)
 
   const seen = new Map<string, Lab>()
   const faceOf = new Map<string, number>()
@@ -47,11 +50,12 @@ export function readScan(shape: CubeShape, taken: readonly (readonly CellSample[
       faceOf.set(id, f)
     }),
   )
-  const tables = tablesFor(shape)
+  // A sticker out of sight (a tower out of shape hides some) costs nothing
+  // in any color: its piece's other stickers tell it.
   const costOf = (id: string, color: Color) => {
     const lab = seen.get(id)
     const ref = anchor.get(color)
-    return lab && ref ? distance(lab, ref) : NEVER
+    return !lab ? 0 : ref ? distance(lab, ref) : NEVER
   }
 
   // Every physical piece, as many times as it has copies (centers).
@@ -69,11 +73,13 @@ export function readScan(shape: CubeShape, taken: readonly (readonly CellSample[
   const matrix = best.map((byPiece) => pieces.map((key) => byPiece.get(key)?.cost ?? NEVER))
   const chosen = cheapestAssignment(matrix)
 
-  const edit = emptyEdit(shape)
+  const edit = emptyEdit(shape, form)
   const doubts = new Array<number>(plan.length).fill(0)
   const colors = [...anchor.keys()]
+  let cost = 0
   slots.forEach((slot, i) => {
     const pick = best[i]!.get(pieces[chosen[i]!]!)
+    cost += pick?.cost ?? NEVER
     for (const s of slot.stickers) {
       const color = pick?.colors[s.ni]
       if (color) edit[s.id] = color
@@ -83,5 +89,8 @@ export function readScan(shape: CubeShape, taken: readonly (readonly CellSample[
     }
   })
   const worst = doubts.indexOf(Math.max(...doubts))
-  return doubts[worst] ? { ok: false, face: worst } : { ok: true, edit }
+  const reading: ScanReading = doubts[worst]
+    ? { ok: false, face: worst }
+    : { ok: true, edit, ...(form && { form }) }
+  return { reading, cost }
 }

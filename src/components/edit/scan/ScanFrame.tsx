@@ -17,20 +17,32 @@ interface ScanFrameProps {
   mirrored: boolean
   /** Each cell's measure written in it, to tune the scan. */
   debug: boolean
+  /** The cells the puzzle's core goes in (a tower's middle four), marked:
+   *  where they stand sets where every other cell does. */
+  core?: readonly number[]
 }
 
 /** The frame a face is aimed into: its outline dashed, its lines faint,
- *  its center's cell outlined (if it tells the face); green while its
+ *  its center's cell outlined (if it tells the face), or its core's cells;
+ *  green while its
  *  colors hold. Each cell shows what it reads, as a dot: the cube color it
  *  seems to be (a ring when not surely, nothing when none), or on a puzzle
- *  of many colors the color measured; so one sees what holds the scan. */
-export function ScanFrame({ rect, face, holding, cells, mirrored, debug }: ScanFrameProps) {
+ *  of many colors, or out of shape (a wall looks like a white sticker),
+ *  the color measured; so one sees what holds the scan. */
+export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }: ScanFrameProps) {
   const unit = rect.width / face.width
   const at = ([x, y]: Point): Point => [(mirrored ? face.width - x : x) * unit, y * unit]
   const stroke = holding ? 'stroke-emerald-400' : 'stroke-white/90'
   const points = (ps: readonly Point[]) => ps.map((p) => at(p).join(',')).join(' ')
-  const middle = face.center !== null ? face.points[face.center] : undefined
-  const side = 4 * face.reach * unit
+  const marked = (face.center !== null ? [face.center] : (core ?? [])).flatMap((i) => {
+    const point = face.points[i]
+    return point ? [at(point)] : []
+  })
+  const half = 2 * face.reach * unit
+  const span = (axis: 0 | 1) => {
+    const from = Math.min(...marked.map((p) => p[axis])) - half
+    return [from, Math.max(...marked.map((p) => p[axis])) + half - from] as const
+  }
   return (
     <div
       aria-hidden
@@ -55,12 +67,12 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug }: ScanF
           strokeLinejoin="round"
           className={`transition-colors ${stroke}`}
         />
-        {middle && (
+        {marked.length > 0 && (
           <rect
-            x={at(middle)[0] - side / 2}
-            y={at(middle)[1] - side / 2}
-            width={side}
-            height={side}
+            x={span(0)[0]}
+            y={span(1)[0]}
+            width={span(0)[1]}
+            height={span(1)[1]}
             rx={6}
             strokeWidth={2}
             className={`transition-colors ${stroke}`}
@@ -77,7 +89,7 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug }: ScanF
             className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
             style={{ left: x, top: y }}
           >
-            <CellDot cell={cell} named={face.named} />
+            <CellDot cell={cell} named={face.named && !face.open} />
             {debug && <CellMeasure cell={cell} />}
           </div>
         )

@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
+import { applyMoves } from '@/lib/core/turn'
+import { scrambleTurns } from '@/lib/core/moves'
+import { AXIS_ROTATIONS } from '@/lib/core/geometry'
+import { lookOf } from '@/lib/editor/modes/form'
 import { cubeToEdit } from '@/lib/editor/edit'
 import { cheapestAssignment } from '@/lib/editor/scan/assign'
 import { guessColor, labOf } from '@/lib/editor/scan/color'
 import { HOLD_MS, showsFace, watch, watchAfter } from '@/lib/editor/scan/capture'
-import { readScan } from '@/lib/editor/scan/classify'
+import { readScan } from '@/lib/editor/scan/read'
 import { frameOnScreen, screenToPicture } from '@/lib/editor/scan/frame'
 import { turnCells } from '@/lib/editor/scan/orient'
 import { gridLayout } from '@/lib/editor/scan/layout'
@@ -19,23 +23,27 @@ import {
 } from '@/lib/puzzles/polyhedron/megaminx'
 import type { Color } from '@/lib/core/types'
 import { seededRng } from '../../helpers'
-import { facePicture, picture, RGB, scanOf } from './scanPictures'
+import { boxScanOf, facePicture, picture, RGB, scanOf } from './scanPictures'
 
 /** A grid face's cells, measured. */
 const sampleGrid = (pixels: Pixels, rows: number, cols: number) =>
   sampleFace(pixels, gridLayout(rows, cols))
 
-/** Every puzzle a camera can scan. */
-const SCANNED = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter(scannable)
+/** Every puzzle a camera can scan; those whose form the scan finds
+ *  (the towers) apart. */
+const SCANNABLE = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter(scannable)
+const SCANNED = SCANNABLE.filter((shape) => !scanPlan(shape)[0]?.open)
+const OUT_OF_SHAPE = SCANNABLE.filter((shape) => scanPlan(shape)[0]?.open)
 
 describe('scan plan', () => {
-  it('scans the plain grid puzzles, not those entered otherwise', () => {
+  it('scans the puzzles it can read, not those entered otherwise', () => {
     expect(SCANNED).toEqual(
       expect.arrayContaining(['2', '3', '4', '5', '6', '123', '331', '332', '334']),
     )
     expect(SCANNED).toEqual(expect.arrayContaining(['void', 'edge', 'megaminx', 'holey']))
+    expect(OUT_OF_SHAPE).toEqual(['224', '234'])
     // Pieces a camera cannot tell, or a model entering them otherwise.
-    for (const shape of ['super5', 'ghost', '224', 'tori'] as const) {
+    for (const shape of ['super5', 'ghost', 'camo', 'tori'] as const) {
       expect(scannable(shape)).toBe(false)
     }
   })
@@ -153,6 +161,84 @@ describe('scanning a Holey Megaminx', () => {
         expect(face.frontColor).not.toBe(was.frontColor)
       }
     })
+  })
+})
+
+describe('scanning a tower out of shape', () => {
+  /** A scrambled tower, out of shape, held its long side upright. */
+  const towerOf = (shape: CubeShape, seed: number) => {
+    const rng = seededRng(seed)
+    const solved = solvedCube(shape)
+    const state = applyMoves(solved, scrambleTurns(shape, 25, rng, solved))
+    return AXIS_ROTATIONS.map((turn) =>
+      state.map((c) => ({
+        ...c,
+        position: turn(c.position),
+        stickers: c.stickers.map((s) => ({ ...s, normal: turn(s.normal) })),
+      })),
+    ).find((c) => new Set(c.map((p) => p.position[1])).size === 4)!
+  }
+
+  it('scans the box it turns in, each face a grid of its cells', () => {
+    const plan = scanPlan('224')
+    expect(plan.map((f) => [f.height, f.width])).toEqual(Array(6).fill([4, 4]))
+    expect(plan.every((f) => f.open && !f.told)).toBe(true)
+    expect(plan[0]!.move).toBe('upright')
+  })
+
+  it.each(OUT_OF_SHAPE)('finds the form and the colors of a %s', (shape) => {
+    for (const seed of [1, 2, 3]) {
+      const held = towerOf(shape, seed)
+      const reading = readScan(shape, boxScanOf(shape, held, seed))
+      expect(reading.ok && lookOf(reading.form!)).toBe(lookOf(held))
+      expect(reading.ok && reading.edit).toEqual(cubeToEdit(held))
+    }
+  })
+
+  it('reads a tower filmed from behind (by a laptop camera), sides the other way', () => {
+    const held = towerOf('224', 6)
+    const faces = boxScanOf('224', held, 6)
+    // Turned to the right as the user sees it: the left side after the
+    // front; then the top and the bottom upside down.
+    const taken = [0, 3, 2, 1, 4, 5].map((f) => (f < 4 ? faces[f]! : [...faces[f]!].reverse()))
+    const reading = readScan('224', taken, true)
+    expect(reading.ok && lookOf(reading.form!)).toBe(lookOf(held))
+    // The face to take again said as taken.
+    taken[1] = taken[1]!.map(() => ({ lab: [50, 0, 0] as const }))
+    expect(readScan('224', taken, true)).toMatchObject({ ok: false })
+  })
+
+  it('holds a tower face still by its stickers, whatever its background', () => {
+    const face = scanPlan('224')[0]!
+    const cells = boxScanOf('224', towerOf('224', 4), 4)[0]!
+    // A hand moving in an empty cell: still the same face.
+    const empty = cells.findIndex((c) => !guessColor(c.lab).sure)
+    const moved = cells.map((c, i) => (i === empty ? { lab: labOf(220, 160, 130) } : c))
+    let state = watch(watchAfter(), cells, 0, face).state
+    state = watch(state, moved, HOLD_MS / 2, face).state
+    expect(watch(state, cells, HOLD_MS, face).taken).toHaveLength(16)
+  })
+
+  it('holds a tower face still though a sticker turns doubtful a moment', () => {
+    const face = scanPlan('224')[0]!
+    const cells = boxScanOf('224', towerOf('224', 4), 4)[0]!
+    // A sure sticker read doubtful (a logo, a glare) in one picture.
+    const sure = cells.findIndex((c) => guessColor(c.lab).sure)
+    const doubtful = cells.map((c, i) => (i === sure ? { lab: labOf(120, 120, 120) } : c))
+    let state = watch(watchAfter(), cells, 0, face).state
+    state = watch(state, doubtful, HOLD_MS / 2, face).state
+    expect(watch(state, cells, HOLD_MS, face).taken).toHaveLength(16)
+    // A sticker of another color: it moved.
+    const moved = cells.map((c, i) => (i === sure ? { lab: labOf(0, 80, 190) } : c))
+    state = watch(watchAfter(), cells, 0, face).state
+    expect(watch(state, moved, HOLD_MS / 2, face).state.since).toBe(HOLD_MS / 2)
+  })
+
+  it('takes a face showing black sides and the background', () => {
+    const face = scanPlan('224')[0]!
+    const held = towerOf('224', 4)
+    const cells = boxScanOf('224', held, 4)[0]!
+    expect(showsFace(cells, face)).toBe(true)
   })
 })
 

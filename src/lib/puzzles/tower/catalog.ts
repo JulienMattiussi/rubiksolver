@@ -19,6 +19,7 @@ export const TOWER = {
     shifts: true,
     inner: ['wide'],
     scheme: { D: 'B', B: 'Y' },
+    scanTried: true,
   },
   // The 2x3x4 (tower234.ts): its side columns turn by quarters, out of its box.
   '234': {

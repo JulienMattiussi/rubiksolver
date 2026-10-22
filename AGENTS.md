@@ -429,7 +429,8 @@ couleurs telles que la lumière les montre ; `orient.ts` : les faces tenues
 tournées ; `assign.ts` : les vraies pièces au moindre coût) et le peint
 dans l'éditeur, à valider. Tout se déduit des dimensions (`scanPlan`,
 `layout.ts`), sauf d'un modèle qui déclare son scan (`PuzzleModel.scan` :
-en grille, en carré placé par son dessin, en anneaux). Le détail :
+en grille, en carré placé par son dessin, en anneaux, ou par sa forme,
+que le scan trouve : `forms.ts`, les tours, calées par leur cœur, `box.ts`). Le détail :
 [docs/scan.md](docs/scan.md) ; les limites : `AMELIORATIONS.md`.
 
 Ce que toute saisie remplit, quel que soit son mode, est une table de

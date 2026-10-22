@@ -1,19 +1,16 @@
-import { Camera, Check, Eraser, FlaskConical, ScanEye, X } from 'lucide-react'
+import { Check, Eraser, ScanEye, X } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
 import { isComplete, progress } from '@/lib/editor/edit'
 import { entryOf, stepOf, type EntryStep } from '@/lib/editor/entry'
 import { placedCount } from '@/lib/editor/modes/pieces'
 import { partsDone } from '@/lib/editor/steps'
-import { scannable } from '@/lib/editor/scan/plan'
-import { SHAPE_EDIT_HINT, SHAPE_SCAN_TRIED } from '@/lib/core/shapes'
+import { SHAPE_EDIT_HINT } from '@/lib/core/shapes'
 import { tellsSizes } from '@/lib/core/shape'
 import type { EditHint } from '@/lib/puzzles/entry'
 import { stepName, type Translations } from '@/i18n/translations'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
-import { useScan } from '@/store/scanStore'
-import { hasCamera } from '@/hooks/useCamera'
 import { Button } from '@/components/ui/Button'
 import { ColorPalette } from './ColorPalette'
 import { ErrorAlert } from './ErrorAlert'
@@ -21,7 +18,7 @@ import { FacesPanel } from './FacesPanel'
 import { FormPicker } from './FormPicker'
 import { PhasePanel } from './PhasePanel'
 import { PiecesLeft } from './PiecesLeft'
-import { ScanView } from './scan/ScanView'
+import { ScanButton } from './scan/ScanButton'
 import { stepTexts } from './stepTexts'
 
 /** The editor's own hints, by kind (a puzzle's card says which). */
@@ -65,6 +62,8 @@ export function EditPanel() {
   if (phase === 'form') {
     return (
       <div className="flex flex-col gap-4">
+        {/* Its form found by the scan, rather than picked. */}
+        <ScanButton />
         <FormPicker />
         <Button onClick={cancel}>
           <X className="size-4" aria-hidden />
@@ -120,12 +119,8 @@ function PaintPanel() {
   const parts = useEditor((s) => s.parts)
   const form = useEditor((s) => s.form)
   const backTo = useEditor((s) => s.backTo)
-  const scanning = useScan((s) => s.open)
   const fromScan = useEditor((s) => s.fromScan)
-  const startScan = useScan((s) => s.start)
   const { steps, paint } = entryOf(shape)
-  // A camera reads a cube's colors (lib/editor/scan/).
-  const canScan = !sizes && scannable(shape) && hasCamera()
 
   const byPieces = paint.by === 'pieces'
   const hint = SHAPE_EDIT_HINT[shape]
@@ -137,6 +132,8 @@ function PaintPanel() {
 
   return (
     <div className="flex flex-col gap-5">
+      {/* First, under the title: the quickest way in. */}
+      <ScanButton />
       <p className="text-xs leading-relaxed text-slate-400">
         {hint
           ? HINTS(t)[hint]
@@ -170,18 +167,6 @@ function PaintPanel() {
       {error && <ErrorAlert>{errorText(t, error, failedStep, sizes)}</ErrorAlert>}
 
       <div className="grid grid-cols-2 gap-2">
-        {canScan && (
-          <Button variant="edit" onClick={startScan} className="col-span-2">
-            <Camera className="size-4" aria-hidden />
-            {t.scanStart}
-            {/* Not yet tried on the real puzzle: said so. */}
-            {!SHAPE_SCAN_TRIED[shape] && (
-              <span title={t.scanUntried} role="img" aria-label={t.scanUntried}>
-                <FlaskConical className="size-4 text-amber-300" aria-hidden />
-              </span>
-            )}
-          </Button>
-        )}
         <Button variant="primary" onClick={apply} disabled={!complete} className="col-span-2">
           <Check className="size-4" aria-hidden />
           {t.applyCube}
@@ -209,7 +194,6 @@ function PaintPanel() {
           )
         })}
       </div>
-      {scanning && <ScanView />}
     </div>
   )
 }

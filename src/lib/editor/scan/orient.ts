@@ -1,9 +1,7 @@
-import { tablesFor } from '../editorTables'
 import { distance, type Lab } from './color'
-import { scanPlan, type ScanFace } from './plan'
+import type { Scanned, ScanFace } from './plan'
 import type { CellSample } from './sample'
 import type { Color } from '../../core/types'
-import type { CubeShape } from '../../core/shapes'
 
 /**
  * Faces scanned held turned, found back (pure): the instruction says which
@@ -42,12 +40,10 @@ const EVERY = 100_000
  *  the turns that make the cheapest real pieces of the stickers seen
  *  (`anchor`: each color as this light shows it). */
 export function orientFaces(
-  shape: CubeShape,
+  { plan, tables }: Scanned,
   faces: readonly (readonly CellSample[])[],
   anchor: ReadonlyMap<Color, Lab>,
 ): CellSample[][] {
-  const plan = scanPlan(shape)
-  const tables = tablesFor(shape)
   const faceOf = new Map(plan.flatMap((face, f) => face.cells.map((id) => [id, f] as const)))
   // Per face and turn, each sticker's cost in each color.
   const costs = plan.map((face, f) =>

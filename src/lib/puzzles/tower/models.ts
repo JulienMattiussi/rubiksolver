@@ -9,8 +9,9 @@ import { CAMO_FACE_ENTRY } from './camoViews'
 import { PICK_FORM } from '../../editor/entry'
 
 export const TOWER_MODELS = {
-  // Entered in the form it stands in.
-  '224': { entry: { steps: PICK_FORM } },
+  // Entered in the form it stands in, or scanned as the box it turns in,
+  // its form found from its faces (lib/editor/scan/forms.ts).
+  '224': { entry: { steps: PICK_FORM }, scan: 'forms' },
   // The 2x3x4: its side columns lie down, cut either way (tower234.ts).
   // Its layers turn by halves, with their slice and their half; its side
   // columns by quarters; its front and back halves by halves.
@@ -26,6 +27,7 @@ export const TOWER_MODELS = {
           ? [{}, { depth: 2 }, { depth: 2, wide: true }]
           : [{ depth: 2, wide: true }],
     entry: { steps: PICK_FORM },
+    scan: 'forms',
   },
   // A double Domino: no slice between its sides.
   '334': {

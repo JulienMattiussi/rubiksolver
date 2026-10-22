@@ -35,7 +35,9 @@ export function useFaceReading({
   aiming: boolean
   /** The face taken before, not to take again before the puzzle turns. */
   last: readonly CellSample[] | undefined
-  take: (cells: readonly CellSample[]) => void
+  /** The face taken, and its picture (to show it again, should it be
+   *  refused). */
+  take: (cells: readonly CellSample[], picture: string) => void
 }) {
   const [armed, setArmed] = useState(false)
   const [nothing, setNothing] = useState(false)
@@ -82,7 +84,7 @@ export function useFaceReading({
       if (seen.taken) {
         // A tap again for the next face.
         setArmed(false)
-        take(seen.taken)
+        take(seen.taken, canvas.current.toDataURL('image/jpeg', 0.8))
       }
     }, READ_MS)
     return () => {

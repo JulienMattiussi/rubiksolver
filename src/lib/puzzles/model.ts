@@ -45,9 +45,10 @@ export interface PuzzleModel {
   /** How a camera scans it (lib/editor/scan/plan.ts), though built
    *  otherwise: as a grid, its holes skipped (the Void Cube); as a cube
    *  whose faces are no grid, each sticker where its drawing shows it
-   *  (`square`: the Skewb, the Rex Cube...); or face by face, each a ring
-   *  round its center (the Megaminx). */
-  readonly scan?: 'grid' | 'square' | (() => readonly RingFace[])
+   *  (`square`: the Skewb, the Rex Cube...); as the box it turns in, its
+   *  form found from what its faces show (`forms`: the towers); or face
+   *  by face, each a ring round its center (the Megaminx). */
+  readonly scan?: 'grid' | 'square' | 'forms' | (() => readonly RingFace[])
   /** How it is entered (lib/editor/entry.ts), when not by painting its
    *  stickers alone. */
   readonly entry?: {

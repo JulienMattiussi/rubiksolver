@@ -3,13 +3,14 @@ import { createPortal } from 'react-dom'
 import { Flashlight, FlashlightOff, Loader2, X } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
 import { frameOnScreen, type Size } from '@/lib/editor/scan/frame'
+import { coreOf } from '@/lib/editor/scan/box'
 import { scanPlan } from '@/lib/editor/scan/plan'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCamera } from '@/hooks/useCamera'
 import { useFaceReading } from '@/hooks/useFaceReading'
 import { drawnFace } from '@/three/core/scanDrawing'
 import { useCube } from '@/store/cubeStore'
-import { useScan } from '@/store/scanStore'
+import { scanDebug, useScan } from '@/store/scanStore'
 import { Button } from '@/components/ui/Button'
 import { Cheer } from '@/components/celebration/Cheer'
 import { ErrorAlert } from '../ErrorAlert'
@@ -21,15 +22,15 @@ import { ScanTake } from './ScanTake'
 
 /** How long an instruction stays big in front, before moving up. */
 const FRONT_MS = 1800
-/** Room kept under the frame for the buttons, and over it before the
- *  instruction is measured, in pixels. */
+/** How long a 💪 may last, at most (its animation, 1.8 s, and some). */
+const CHEER_MS = 2500
+/** Room kept under the frame for the buttons, and over it for the
+ *  instructions, in pixels: enough for most (a gesture's arrow and three
+ *  lines), so that the frame seldom has to shrink. */
 const BUTTONS_PX = 130
-const CARD_PX = 140
+const CARD_PX = 240
 
 const screenSize = (): Size => ({ width: window.innerWidth, height: window.innerHeight })
-
-/** `?scandebug` in the address writes each cell's measure in it. */
-const debug = () => new URLSearchParams(window.location.search).has('scandebug')
 
 const reducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
@@ -46,11 +47,15 @@ const reducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motion: redu
 export function ScanView() {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
-  const { face: at, status, missed, cheers, last, take, read, close } = useScan()
+  const { face: at, status, missed, pictures, cheers, last, take, read, close } = useScan()
   const { videoRef, status: camera, mirrored, canTorch, torch, setTorch } = useCamera()
   const [screen, setScreen] = useState(screenSize)
   const [stage, setStage] = useState<'cheer' | InstructionStage>('front')
+  // The room over the frame only grows: the frame keeps its size from one
+  // instruction to the next, rather than have the puzzle held nearer or
+  // farther (and the camera focus again) at each.
   const [cardBottom, setCardBottom] = useState(CARD_PX)
+  const fitCard = useCallback((bottom: number) => setCardBottom((b) => Math.max(b, bottom)), [])
   const cheered = useRef(cheers)
 
   const plan = scanPlan(shape)
@@ -68,16 +73,27 @@ export function ScanView() {
 
   // A face taken: cheered, then the next instruction (or the reading, the
   // last one in); a face asked again (a misread), its instruction.
+  // Leaving the 💪 (whichever comes first, its end or its time) ends it.
   const afterCheer = useCallback(() => {
-    if (useScan.getState().status === 'complete') read()
-    else setStage('front')
-  }, [read])
+    if (useScan.getState().status !== 'complete') return setStage('front')
+    setStage('hidden')
+    read(mirrored)
+  }, [read, mirrored])
+  // A face asked again (`missed`), even the one just taken (the last, after
+  // the reading), shows its instruction again.
   useEffect(() => {
     const taken = cheers !== cheered.current
     cheered.current = cheers
     if (taken && !reducedMotion()) setStage('cheer')
     else afterCheer()
-  }, [cheers, at, afterCheer])
+  }, [cheers, at, missed, afterCheer])
+  // The 💪 says when it is done; should its animation never end (a tab in
+  // the background), the scan goes on all the same.
+  useEffect(() => {
+    if (stage !== 'cheer') return
+    const timer = setTimeout(afterCheer, CHEER_MS)
+    return () => clearTimeout(timer)
+  }, [stage, afterCheer])
   useEffect(() => {
     if (stage !== 'front') return
     const timer = setTimeout(() => setStage('top'), FRONT_MS)
@@ -97,6 +113,12 @@ export function ScanView() {
   })
 
   const color = (c: keyof typeof t.colors) => t.colors[c].toLowerCase()
+  // A camera facing the user (a laptop's): turning the puzzle to the
+  // user's right brings the next face, as a mirror shows it.
+  const wording =
+    mirrored && (face.move === 'turn' || face.move === 'below')
+      ? (`${face.move}Mirrored` as const)
+      : face.move
   const busy = status === 'checking' ? t.scanChecking : status === 'reading' ? t.scanReading : null
 
   return createPortal(
@@ -115,7 +137,8 @@ export function ScanView() {
           holding={holding}
           cells={cells}
           mirrored={mirrored}
-          debug={debug()}
+          debug={scanDebug()}
+          core={face.open ? coreOf(shape)[at] : undefined}
         />
       )}
 
@@ -131,26 +154,41 @@ export function ScanView() {
         </ScanInstruction>
       ) : (
         status !== 'complete' && (
-          <ScanInstruction stage={stage === 'cheer' ? 'hidden' : stage} onBottom={setCardBottom}>
-            <p>
-              {/* Told by its center; an even cube, held any way, by the way
-                  to turn it. */}
-              {face.told ? (
+          <ScanInstruction stage={stage === 'cheer' ? 'hidden' : stage} onBottom={fitCard}>
+            {/* Told by its center; an even cube, held any way, by the way
+                to turn it. A face asked again: no way to it (it is taken
+                again where it stands), only what it is. */}
+            {face.told ? (
+              <p>
                 <ColorWords
-                  text={t.scanMoves[face.move](color(face.frontColor), color(face.upColor))}
+                  text={t.scanMoves[missed ? 'show' : wording](
+                    color(face.frontColor),
+                    color(face.upColor),
+                  )}
                   colors={[
                     { color: face.frontColor, name: color(face.frontColor) },
                     { color: face.upColor, name: color(face.upColor) },
                   ]}
                 />
-              ) : (
-                <>
-                  <ScanMoveArrow face={face} />
-                  {t.scanMovesAny[face.move]}
-                </>
-              )}
-            </p>
+              </p>
+            ) : (
+              !missed && (
+                <p>
+                  <ScanMoveArrow face={face} mirrored={mirrored} />
+                  {t.scanMovesAny[wording]}
+                </p>
+              )
+            )}
             {missed && <ErrorAlert>{t.scanMissed}</ErrorAlert>}
+            {/* The face to take again, as it was taken: which one, which
+                way up. */}
+            {missed && pictures[at] && (
+              <img
+                src={pictures[at]}
+                alt={t.scanAgain}
+                className={`mx-auto max-h-28 rounded-md ring-1 ring-white/30 ${mirrored ? '-scale-x-100' : ''}`}
+              />
+            )}
           </ScanInstruction>
         )
       )}

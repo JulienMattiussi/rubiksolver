@@ -7,7 +7,7 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 
 ## Les puzzles scannables
 
-`scannable` (`lib/editor/scan/plan.ts`) : 23 modèles sur 75.
+`scannable` (`lib/editor/scan/plan.ts`) : 25 modèles sur 75.
 
 - **En grille**, tout se déduit des dimensions (`scanPlan`) : les cubes du
   2x2 au 6x6, les cuboïdes et les plats sans saisie propre (1x2x3, Floppy,
@@ -21,12 +21,17 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 - **En anneaux** (`scan` : une fonction du modèle) : le Megaminx
   (`megaminxScan.ts`) et le Holey Megaminx (`holeyScan.ts`), chaque face
   un pentagone, son centre, ses arêtes puis ses coins.
+- **Par leur forme** (`scan: 'forms'`) : les tours 2x2x4 et 2x3x4, qui se
+  déforment. Elles se scannent comme la boîte où tourne leur mécanisme, et
+  le scan trouve leur forme : plus besoin de la choisir parmi les
+  vignettes (voir « La forme d'une tour » plus bas).
 
 Restent dehors les puzzles dont une information n'est pas une couleur
-(miroirs, super cubes, soudés, engrenages...), ceux qui se déforment, et
-le Tori (ses arêtes, de minces amandes au bord des faces).
+(miroirs, super cubes, soudés, engrenages...), les autres puzzles qui se
+déforment (Camouflage, Purple, Fashion-V, AI Cube), et le Tori (ses
+arêtes, de minces amandes au bord des faces).
 
-Seuls le 2x2, le 3x3 et le 4x4 ont été essayés en vrai (`scanTried` sur
+Seuls le 2x2, le 3x3, le 4x4 et la tour 2x2x4 ont été essayés en vrai (`scanTried` sur
 leur carte) ; sur les autres, le bouton « Utiliser l'appareil photo » porte
 une fiole : « Cette fonction n'a pas encore été testée et validée sur ce
 modèle ».
@@ -47,9 +52,20 @@ sur Android).
      centres bougent, le Holey Megaminx) : n'importe quelle face de la forme
      du cadre d'abord, puis tourné vers la gauche, basculé vers l'objectif,
      un demi-tour..., chaque geste fléché avec son angle (`ScanMoveArrow`).
+     Une caméra tournée vers l'utilisateur (celle d'un portable, l'image en
+     miroir) voit le puzzle de l'autre côté : « tournez vers la gauche »
+     y devient « vers la droite », la flèche inversée ; la flèche d'une bascule
+     vers l'objectif y part de la face vue par l'utilisateur, par-dessus, vers
+     l'écran. Le puzzle y est filmé de dos : tourné vers la droite, il montre
+     ses côtés dans l'autre ordre (la gauche après la face), puis son dessus
+     et son dessous à l'envers ; la lecture les remet dans l'ordre du plan
+     (`readScan(..., behind)`, `read.ts`). Une face à reprendre
+     ne redit pas le geste qui y menait : seulement la face, et sa photo.
 2. **Le cadre** (`ScanFrame`), en pointillé, de la forme de la face (grille,
    bande, pentagone, carré), sous la consigne et au-dessus des boutons
-   (`frame.ts`), ses découpes en filigrane, la case du centre entourée.
+   (`frame.ts`) ; il garde sa taille d'une face à l'autre (la place
+   réservée à la consigne ne fait que grandir), pour ne pas faire rapprocher
+   ou éloigner le puzzle ; ses découpes en filigrane, la case du centre entourée.
 3. **Le tap** (`ScanTake`, au milieu de l'écran ; la barre d'espace sur un
    portable) : rien ne distinguant un puzzle d'un mur, c'est l'utilisateur
    qui dit que le puzzle est en place. Avant, rien n'est lu (pas de points
@@ -64,7 +80,9 @@ sur Android).
 6. **La lecture** du puzzle entier (`readScan`), puis l'éditeur, le puzzle
    peint, avec un encadré : « vérifiez bien que le modèle représenté est
    conforme à votre puzzle, puis validez » (`fromScan`). Une face douteuse
-   est redemandée.
+   est redemandée, avec la photo prise d'elle : sans couleur qui la nomme (un
+   puzzle montré par gestes), c'est ce qui dit laquelle reprendre, et dans
+   quel sens.
 
 `?scandebug` dans l'adresse écrit dans chaque case sa mesure (clarté,
 saturation, teinte), pour régler les seuils.
@@ -109,3 +127,37 @@ le Master Skewb, les Copter et le Megaminx : sur un cuboïde, un plat, le
 Dino, le Rex, l'Edge Only, une face lue dans l'autre sens peut encore
 faire de vraies pièces (la face est redemandée, ou l'état lu est faux mais
 possible) ; il faut le tenir comme la consigne le dit.
+
+## La forme d'une tour
+
+`box.ts`, `forms.ts`. Le bouton « Utiliser l'appareil photo » est offert dès
+le choix de la forme. La tour se tient son côté le plus long à la verticale
+(toutes ses formes en ont un de 4 : il fixe la taille des cases), chaque
+petit cube dans une case ; les six faces de la boîte se scannent par les
+gestes d'un 4x4x4, chaque cadre de la taille de la boîte (4 x 4 sur la
+2x2x4). Une case montre un sticker, le côté noir d'une pièce ou rien (le
+fond) : la prise demande seulement un sticker au moins.
+
+**Le cœur** (`coreOf`) : les cases qu'une pièce remplit quelle que soit la
+forme (les quatre petits cubes du milieu de la 2x2x4, qui ne bougent
+jamais), encadrées dans le cadre. La consigne demande de les y mettre :
+chaque case est alors là où le mécanisme la place, sans décalage à
+deviner. Le cœur ne montre que des pièces : ses stickers, sous cette
+lumière, disent ce qu'est un sticker autour (une case aussi proche de l'un
+d'eux, la clarté comptée entière : un mur gris est un blanc plus sombre),
+une case sombre est un côté noir (ou un fond sombre), le reste est le fond.
+
+À la lecture, chaque forme de la tour (102 sur la 2x2x4, 22 sur la 2x3x4,
+`formsOf`), tenue de chaque façon qui garde son côté long vertical
+(`holdings`), dit ce que montre chaque case (`facesShown`). Chaque forme
+est confrontée aux images, un sticker attendu devant ressembler à ceux du
+cœur, un côté noir être sombre, le fond n'imposant presque rien. Les
+meilleures formes sont lues entières (`readFaces`, sur les tables de
+l'éditeur pour cette forme : un sticker caché contre une autre pièce se
+déduit de sa pièce), et la lecture la moins coûteuse donne la forme et les
+couleurs ; l'éditeur s'ouvre dans cette forme, « Changer la forme » restant
+là si elle est fausse.
+
+Sur des images synthétiques, 20 tours mélangées sur 20 sont lues exactement
+(chacune des deux), en moins de 0,2 s, la première lecture prenant en plus
+le temps d'énumérer les formes (environ 1 s).

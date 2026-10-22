@@ -4,7 +4,13 @@ import type { CellSample } from '@/lib/editor/scan/sample'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { useScan } from '@/store/scanStore'
-import { scanOf } from '../editor/scanPictures'
+import { boxScanOf, scanOf } from '../editor/scanPictures'
+import { solvedCube } from '@/lib/core/cube'
+import { applyMoves } from '@/lib/core/turn'
+import { scrambleTurns } from '@/lib/core/moves'
+import { AXIS_ROTATIONS } from '@/lib/core/geometry'
+import { lookOf } from '@/lib/editor/modes/form'
+import { seededRng } from '../../helpers'
 
 beforeEach(() => {
   vi.useFakeTimers()
@@ -58,5 +64,40 @@ describe('scan store', () => {
     useScan.getState().read()
     vi.runAllTimers()
     expect(useScan.getState()).toMatchObject({ open: true, face: 3, missed: true })
+  })
+
+  it('keeps each face picture, to show the one to take again', () => {
+    const { faces } = scanOf('3', 5)
+    faces[3]![0] = { lab: labOf(150, 40, 200) }
+    faces.forEach((cells, i) => {
+      useScan.getState().take(cells, `face ${i}`)
+      vi.runAllTimers()
+    })
+    useScan.getState().read()
+    vi.runAllTimers()
+    expect(useScan.getState()).toMatchObject({ face: 3, missed: true })
+    expect(useScan.getState().pictures[3]).toBe('face 3')
+  })
+
+  it('opens the paint in the form it found a tower in, no form to pick', () => {
+    useCube.getState().setShape('224')
+    useEditor.getState().enter()
+    expect(useEditor.getState().phase).toBe('form')
+    useScan.getState().start()
+    const rng = seededRng(5)
+    const solved = solvedCube('224')
+    const state = applyMoves(solved, scrambleTurns('224', 25, rng, solved))
+    const held = AXIS_ROTATIONS.map((turn) =>
+      state.map((c) => ({
+        ...c,
+        position: turn(c.position),
+        stickers: c.stickers.map((st) => ({ ...st, normal: turn(st.normal) })),
+      })),
+    ).find((c) => new Set(c.map((p) => p.position[1])).size === 4)!
+    boxScanOf('224', held, 5).forEach(take)
+    useScan.getState().read()
+    vi.runAllTimers()
+    expect(useEditor.getState()).toMatchObject({ phase: 'paint', fromScan: true })
+    expect(lookOf(useEditor.getState().form!)).toBe(lookOf(held))
   })
 })

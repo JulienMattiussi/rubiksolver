@@ -2,10 +2,9 @@ import { shapeColors, stickersOfColor } from '../../core/cube'
 import { cheapestAssignment } from './assign'
 import { distance, guessColor, labOf, rgbOfHex, type Lab } from './color'
 import { COLOR_HEX } from '../../core/stickerColors'
-import { scanPlan } from './plan'
+import type { Scanned } from './plan'
 import type { CellSample } from './sample'
 import type { Color } from '../../core/types'
-import type { CubeShape } from '../../core/shapes'
 
 /**
  * Each color of a scanned puzzle as this light shows it (pure), which the
@@ -32,10 +31,9 @@ const mean = (labs: readonly Lab[]): Lab => {
 
 /** Each color as the scan shows it, from each face's cells as taken. */
 export function anchorsOf(
-  shape: CubeShape,
+  { shape, plan }: Pick<Scanned, 'shape' | 'plan'>,
   faces: readonly (readonly CellSample[])[],
 ): Map<Color, Lab> {
-  const plan = scanPlan(shape)
   const labs = faces.flat().map((s) => s.lab)
   const colors = shapeColors(shape)
   // A first guess: each face's center, where it tells the face (a turn of
@@ -64,15 +62,22 @@ export function anchorsOf(
     }
   }
   const places = colors.flatMap((color) => Array<Color>(stickersOfColor(shape, color)).fill(color))
-  if (places.length !== labs.length || anchor.size !== colors.length) return anchor
+  // Some stickers may be out of sight (a tower out of shape hides some):
+  // the places left over go to nobody.
+  if (places.length < labs.length || anchor.size !== colors.length) return anchor
+  const unseen = Array.from({ length: places.length - labs.length }, () => places.map(() => 0))
   for (let round = 0; round < ROUNDS; round++) {
-    const sorted = cheapestAssignment(
-      labs.map((lab) => places.map((color) => distance(lab, anchor.get(color)!))),
-    )
+    const sorted = cheapestAssignment([
+      ...labs.map((lab) => places.map((color) => distance(lab, anchor.get(color)!))),
+      ...unseen,
+    ])
     anchor = new Map(
-      colors.map(
-        (color) => [color, mean(labs.filter((_, i) => places[sorted[i]!] === color))] as const,
-      ),
+      colors.map((color) => {
+        // A color none of the stickers seen went to (its own all out of
+        // sight) keeps where it stood.
+        const its = labs.filter((_, i) => places[sorted[i]!] === color)
+        return [color, its.length ? mean(its) : anchor.get(color)!] as const
+      }),
     )
   }
   return anchor

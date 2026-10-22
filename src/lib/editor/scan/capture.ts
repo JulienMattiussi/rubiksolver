@@ -17,6 +17,8 @@ import type { Color } from '../../core/types'
  * without a center, nothing else tells two faces apart.
  */
 
+/** The stickers a face out of shape must show still, at least. */
+const SURE_CELLS = 2
 /** How long the colors read must stay the same, in milliseconds. */
 export const HOLD_MS = 1000
 /** On a puzzle of many colors, how far a cell's measure may drift while
@@ -32,19 +34,37 @@ const family = (color: Color | null): Color | null =>
 const colorsOf = (cells: readonly CellSample[]): string =>
   cells.map((cell) => family(guessColor(cell.lab).color) ?? '-').join('')
 
-/** Whether two pictures of a face read the same: the same colors, or on a
- *  puzzle of many colors, measures that barely drifted. */
+/** Whether two pictures of a face read the same: the same colors (its
+ *  stickers' only, out of shape), or on a puzzle of many colors, measures
+ *  that barely drifted. */
 function same(a: readonly CellSample[], b: readonly CellSample[], face: ScanFace): boolean {
+  // A face out of shape: its stickers only, the cells of a sure color in
+  // both (the background, a hand, a black side, a sticker's logo may
+  // flicker as they like), a few at least.
+  if (face.open) {
+    let agree = 0
+    for (let i = 0; i < a.length; i++) {
+      const [was, now] = [guessColor(a[i]!.lab), guessColor(b[i]?.lab ?? a[i]!.lab)]
+      if (!was.sure || !now.sure) continue
+      if (family(was.color) !== family(now.color)) return false
+      agree++
+    }
+    return agree >= SURE_CELLS
+  }
   if (face.named) return colorsOf(a) === colorsOf(b)
   return a.length === b.length && a.every((cell, i) => distance(cell.lab, b[i]!.lab) <= DRIFT)
 }
 
 /** Whether a picture shows the face asked for: every cell some sticker
  *  (surely a cube color, its center the face's where it tells it, on a
- *  cube; lit enough on a puzzle of many colors). */
+ *  cube; lit enough on a puzzle of many colors; some sticker at least on a
+ *  puzzle out of shape). */
 export function showsFace(cells: readonly CellSample[], face: ScanFace): boolean {
   if (cells.length !== face.cells.length) return false
   const guesses = cells.map((cell) => guessColor(cell.lab))
+  // A face of a puzzle out of shape: black sides and the background
+  // between its stickers; some sticker at least.
+  if (face.open) return guesses.some((g) => g.sure)
   if (!face.named) return guesses.every((g) => g.color !== null)
   const middle = face.told && face.center !== null ? guesses[face.center]?.color : face.frontColor
   return !!middle && family(middle) === family(face.frontColor) && guesses.every((g) => g.sure)

@@ -102,8 +102,9 @@ interface EditorStore extends Settings {
   /** Put the next piece that fits in a slot (modes/pieces.ts). */
   cycleAt: (slotKey: string) => void
   clearAll: () => void
-  /** The colors a camera scan read (lib/editor/scan/), to check and apply. */
-  scanned: (edit: EditStickers) => void
+  /** The colors a camera scan read (lib/editor/scan/), to check and apply,
+   *  in the form it found a puzzle that changes shape in (no form to pick). */
+  scanned: (edit: EditStickers, form?: Cube) => void
   /** The colors entered come from a scan, not yet checked by eye (the
    *  panel asks to). */
   fromScan: boolean
@@ -328,7 +329,14 @@ export const useEditor = create<EditorStore>((set, get) => {
         fromScan: false,
       })),
 
-    scanned: (edit) => set({ edit, error: null, failedStep: null, fromScan: true }),
+    scanned: (edit, form) =>
+      set({
+        edit,
+        ...(form && { form, phase: 'paint' as const, preview: undefined }),
+        error: null,
+        failedStep: null,
+        fromScan: true,
+      }),
 
     apply: () => {
       const { edit, form, parts, toggles, joints } = get()

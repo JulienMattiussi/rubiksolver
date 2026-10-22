@@ -1,10 +1,10 @@
-import { faceColorsOf, shapeColors, solvedCube } from '../../core/cube'
+import { faceColorsOf, shapeColors, solvedCube, turnDims } from '../../core/cube'
 import { cross, dot, FACE_NORMAL, layerCoords, normalIndex, outerCoord } from '../../core/geometry'
 import { isGridless, SHAPE_DIMS, SHAPE_SHIFTS, type CubeShape } from '../../core/shapes'
-import { stickerId } from '../editorTables'
+import { stickerId, type SlotTables } from '../editorTables'
 import { gap, gridLayout, ringLayout, squareLayout, type FaceLayout, type Point } from './layout'
 import { MODELS } from '../../puzzles/models'
-import type { Color, CubeColor, Face, Vec3 } from '../../core/types'
+import type { Color, Cube, CubeColor, Dims, Face, Vec3 } from '../../core/types'
 
 /**
  * How a puzzle is scanned with a camera, face by face (pure, no React): the
@@ -20,8 +20,9 @@ import type { Color, CubeColor, Face, Vec3 } from '../../core/types'
 /** How the puzzle is turned to show a face, from the one before: turned
  *  left, its top staying on top (`turn`) or its bottom at the bottom
  *  (`below`), tilted toward the lens, turned half round; `show`: told by
- *  its colors alone (a Megaminx's twelve faces). */
-export type ScanMove = 'first' | 'turn' | 'below' | 'tilt' | 'flip' | 'show'
+ *  its colors alone (a Megaminx's twelve faces); `upright`: the first face
+ *  of a puzzle out of shape, its long side upright. */
+export type ScanMove = 'first' | 'upright' | 'turn' | 'below' | 'tilt' | 'flip' | 'show'
 
 export interface ScanFace extends FaceLayout {
   readonly move: ScanMove
@@ -50,6 +51,22 @@ export interface ScanFace extends FaceLayout {
    *  scan reads its measures only, its colors told at the end (a
    *  Megaminx's twelve). */
   readonly named: boolean
+  /** A face of the box of a puzzle that changes shape (`scan: 'forms'`):
+   *  its cells may show a sticker, a piece's black side or nothing, which
+   *  its form says, found from them (forms.ts); its `cells` name the
+   *  cells only. */
+  readonly open?: true
+}
+
+/** What a scan is read against: the puzzle, its faces as scanned, and the
+ *  editor's tables of the form it stands in (its box, or a form a puzzle
+ *  that changes shape was found in, forms.ts). */
+export interface Scanned {
+  readonly shape: CubeShape
+  readonly plan: readonly ScanFace[]
+  readonly tables: SlotTables
+  /** The form, a state of it (none: its box). */
+  readonly form?: Cube
 }
 
 /** A face as a model declares it (`PuzzleModel.scan`): its colors, then
@@ -75,7 +92,7 @@ const CUBE_COLORS: readonly Color[] = ['W', 'Y', 'G', 'B', 'O', 'R'] satisfies C
 /** The faces in order: the four sides, the top up (white), turning the
  *  puzzle left each time; then tilted toward oneself (the top comes in
  *  front, the back on top), then turned half round (the bottom in front). */
-const ORDER: readonly { front: Face; up: Face; move: ScanMove }[] = [
+export const ORDER: readonly { front: Face; up: Face; move: ScanMove }[] = [
   { front: 'F', up: 'U', move: 'first' },
   { front: 'R', up: 'U', move: 'turn' },
   { front: 'B', up: 'U', move: 'turn' },
@@ -84,7 +101,7 @@ const ORDER: readonly { front: Face; up: Face; move: ScanMove }[] = [
   { front: 'D', up: 'R', move: 'flip' },
 ]
 
-const axisOf = (v: Vec3): number => v.findIndex((x) => x !== 0)
+export const axisOf = (v: Vec3): number => v.findIndex((x) => x !== 0)
 
 /** The sticker ids of a face seen from outside, `up` on top: its right is
  *  up x front (right-handed), each axis' layers read along that side. */
@@ -182,6 +199,34 @@ function squareFaces(shape: CubeShape) {
   })
 }
 
+/** The faces of the box a puzzle that changes shape turns in (its
+ *  mechanism), in `ORDER`, each a grid of its cells: what each shows, its
+ *  form says (forms.ts). The first held its long side upright, each piece
+ *  in a cell. */
+function boxFaces(shape: CubeShape) {
+  const dims = turnDims(shape)
+  return ORDER.map(({ front, up, move }, f) => {
+    const [rows, cols] = boxSides(dims, front, up)
+    return {
+      ...gridLayout(rows, cols),
+      move: f ? move : ('upright' as const),
+      angle: GRID_ANGLES[move] ?? null,
+      frontColor: faceColorsOf(shape)[front],
+      upColor: faceColorsOf(shape)[up],
+      cells: Array.from({ length: rows * cols }, (_, i) => `${front}${i}`),
+      center: null,
+      open: true as const,
+    }
+  })
+}
+
+/** A box's face, seen with `up` on top: its rows, its columns. */
+export function boxSides(dims: Dims, front: Face, up: Face): [number, number] {
+  const u = FACE_NORMAL[up]
+  const r = cross(u, FACE_NORMAL[front])
+  return [dims[axisOf(u)]!, dims[axisOf(r)]!]
+}
+
 /** The stickers a puzzle has (a Void Cube has no centers). */
 const present = (shape: CubeShape) =>
   new Set(
@@ -217,23 +262,25 @@ export function scanPlan(shape: CubeShape): readonly ScanFace[] {
     const faces =
       own === 'square'
         ? squareFaces(shape)
-        : rings
-          ? rings.map((ring, f) =>
-              withoutHoles(
-                {
-                  ...ringLayout((ring.cells.length - 1) / 2, ring.bottom),
-                  ...ring,
-                  move: ring.move ?? (f ? 'show' : 'first'),
-                  angle: ring.angle ?? null,
-                  center: 0,
-                },
-                present(shape),
-              ),
-            )
-          : gridFaces(shape)
+        : own === 'forms'
+          ? boxFaces(shape)
+          : rings
+            ? rings.map((ring, f) =>
+                withoutHoles(
+                  {
+                    ...ringLayout((ring.cells.length - 1) / 2, ring.bottom),
+                    ...ring,
+                    move: ring.move ?? (f ? 'show' : 'first'),
+                    angle: ring.angle ?? null,
+                    center: 0,
+                  },
+                  present(shape),
+                ),
+              )
+            : gridFaces(shape)
     // Centers tell the faces only if every face has one, where they stay
     // (not a Skewb's, which move about).
-    const told = own !== 'square' && faces.every((face) => face.center !== null)
+    const told = own !== 'square' && own !== 'forms' && faces.every((face) => face.center !== null)
     const named = shapeColors(shape).every((color) => CUBE_COLORS.includes(color))
     plan = faces.map((face) => ({ ...face, told, named }))
     PLANS.set(shape, plan)

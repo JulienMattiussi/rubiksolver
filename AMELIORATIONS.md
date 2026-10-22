@@ -24,6 +24,16 @@ sur dix environ quand toutes ses faces sont tournées, l'état lu est faux. Un c
 pair tourné à droite au lieu de gauche n'est pas retrouvé (la face
 redemandée en boucle).
 
+La forme d'une tour est trouvée en confrontant ses formes aux images
+(`forms.ts`) : essayé sur images synthétiques seulement. Un fond blanc
+ressemble à un sticker blanc et un fond noir à un côté noir : seule la
+lecture des couleurs départage alors les formes, ce qu'elle ne fera pas
+toujours ; une tour mal centrée multiplie les placements possibles. Les
+formes sont énumérées à l'ouverture du scan (environ 1 s sur un portable,
+sans doute plus sur un téléphone, le fil de l'interface bloqué pendant
+l'annonce de la première face) : à faire dans un worker. Le Camouflage, le Purple, le Fashion-V
+et l'AI Cube pourraient suivre le même chemin.
+
 Reste hors du scan, parmi les troués, le Tori : ses arêtes sont de minces
 amandes au bord des faces (une grille lirait son grand anneau de centre ;
 il lui faudrait une disposition propre, lue sur une bande au bord, sans
