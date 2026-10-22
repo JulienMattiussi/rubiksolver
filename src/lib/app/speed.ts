@@ -22,6 +22,13 @@ export function sliderFromDuration(duration: number): number {
   return Math.max(0, Math.min(100, position))
 }
 
+/** A duration as said to the user: in milliseconds under a second (whole),
+ *  else in seconds (two significant digits). */
+export function sayDuration(seconds: number): { value: number; unit: 'ms' | 's' } {
+  if (seconds < 1) return { value: Math.round(seconds * 1000), unit: 'ms' }
+  return { value: Number(seconds.toPrecision(2)), unit: 's' }
+}
+
 /**
  * The pause between two turns: at the slowest speed only, as long as a turn
  * (time to play it by hand on a real puzzle); none otherwise, so a scramble

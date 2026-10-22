@@ -33,6 +33,8 @@ export const UI_FR = {
   reset: 'Réinitialiser',
   stop: 'Arrêter',
   speed: 'Vitesse',
+  speedHint: (value: number, unit: 'ms' | 's') =>
+    `${value.toLocaleString('fr-FR')} ${unit} par coup`,
   statusSolved: 'Cube résolu',
   statusReady: 'Prêt',
   statusPlaying: 'Animation en cours',

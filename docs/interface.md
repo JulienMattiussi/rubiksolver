@@ -25,7 +25,8 @@ mobile et en saisie, une seule carte) :
   pour comparer deux méthodes sur le même mélange ; remplacer un autre état
   mémorisé demande confirmation dans une modale), vitesse
   d'animation (au plus lent, une pause aussi longue qu'un coup sépare deux
-  coups, le temps de le refaire sur un vrai puzzle : `pauseBetweenTurns`),
+  coups, le temps de le refaire sur un vrai puzzle : `pauseBetweenTurns` ;
+  au survol, le temps d'un coup, pause comprise, en ms sous la seconde),
   **recentrage caméra animé** et **bascule de notation FR/US**.
 - **Pad de rotations**, construit à partir des coups que la
   forme autorise, lus dans `movesFor` (une gâchette horaire + une anti-horaire

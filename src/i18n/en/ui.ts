@@ -34,6 +34,8 @@ export const UI_EN: typeof UI_FR = {
   reset: 'Reset',
   stop: 'Stop',
   speed: 'Speed',
+  speedHint: (value: number, unit: 'ms' | 's') =>
+    `${value.toLocaleString('en-US')} ${unit} per move`,
   statusSolved: 'Solved',
   statusReady: 'Ready',
   statusPlaying: 'Animating',

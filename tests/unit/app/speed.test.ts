@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   durationFromSlider,
+  sayDuration,
   MAX_TURN_DURATION,
   MIN_TURN_DURATION,
   pauseBetweenTurns,
@@ -35,5 +36,14 @@ describe('pause between turns', () => {
     expect(pauseBetweenTurns(durationFromSlider(0))).toBe(MAX_TURN_DURATION)
     expect(pauseBetweenTurns(durationFromSlider(1))).toBe(0)
     expect(pauseBetweenTurns(MIN_TURN_DURATION)).toBe(0)
+  })
+})
+
+describe('a duration said', () => {
+  it('in milliseconds under a second, else in seconds', () => {
+    expect(sayDuration(0.06)).toEqual({ value: 60, unit: 'ms' })
+    expect(sayDuration(0.3456)).toEqual({ value: 346, unit: 'ms' })
+    expect(sayDuration(2.5)).toEqual({ value: 2.5, unit: 's' })
+    expect(sayDuration(5)).toEqual({ value: 5, unit: 's' })
   })
 })
