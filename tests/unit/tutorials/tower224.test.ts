@@ -89,6 +89,18 @@ describe('2x2x4 tower tutorial', () => {
     }
   })
 
+  it('reads the tower as it stands, upside down too', () => {
+    const solve = methodsFor('224').find((m) => m.id === 'twoPockets')!.solve
+    // Its Pockets read the other way round: three turns, not the inner
+    // Pocket turned over.
+    for (const off of ['x2 D Dw U', "y x2 Dw'"]) {
+      const cube = applyMoves(SOLVED, parseMoves(off))
+      const moves = solve(cube).flatMap((s) => s.moves)
+      expect(moves.length, off).toBeLessThanOrEqual(3)
+      expect(isSolved(applyMoves(cube, moves))).toBe(true)
+    }
+  })
+
   it("never turns the whole tower by two layer turns (Uw' Dw: held another way)", () => {
     const solve = methodsFor('224').find((m) => m.id === 'twoPockets')!.solve
     for (let seed = 1; seed <= 4; seed++) {

@@ -1,4 +1,5 @@
 import { cubeShape } from '../core/cube'
+import { bestHolding, holdingsOf, turnBack } from './holdings'
 import { OPTIMAL_2_PLAN, solveOptimal2 } from '../methods/standard/cube2'
 import { DOMINO_PLAN } from '../methods/tower/domino'
 import { optimalPlan } from './exhaustive'
@@ -169,7 +170,9 @@ const SOLVE_METHODS = [
       '6': reduction6Plan(CFOP_PLAN),
     },
   },
-  { id: 'twoPockets', plans: { '224': taught('224', 'twoPockets') } },
+  // No piece of a tower says how it is held: read as it stands (upside
+  // down, its Pockets the other way round).
+  { id: 'twoPockets', plans: { '224': taught('224', 'twoPockets') }, asItStands: true },
   { id: 'tower234Steps', plans: { '234': TOWER234_PLAN } },
   { id: 'doubleDomino', plans: { '334': TOWER334_PLAN } },
   { id: 'fashionLaid', plans: { fashion: FASHION_PLAN } },
@@ -251,6 +254,8 @@ const SOLVE_METHODS = [
 ] as const satisfies ReadonlyArray<{
   id: string
   plans: Readonly<Partial<Record<CubeShape, MethodPlan>>>
+  /** Solved from the holding where most pieces stand home (`bestHolding`). */
+  asItStands?: true
 }>
 
 /** Identifier of an available solving method. */
@@ -264,12 +269,23 @@ export function methodsFor(shape: CubeShape) {
       ? [
           {
             id: m.id as MethodId,
-            solve: (cube: Cube) => buildSteps(cube, plan),
+            solve: (cube: Cube) =>
+              'asItStands' in m ? solveAsItStands(cube, plan) : buildSteps(cube, plan),
             outline: (start?: Cube) => planOutline(plan, start),
           },
         ]
       : []
   })
+}
+
+/** A plan run on the puzzle held where most of its pieces stand home, its
+ *  turns named back for the puzzle as it is held. */
+function solveAsItStands(cube: Cube, plan: MethodPlan): SolveStep[] {
+  const by = bestHolding(cube, cubeShape(cube))
+  return buildSteps(holdingsOf(cube, [by])[0]!, plan).map((step) => ({
+    ...step,
+    moves: step.moves.map((m) => turnBack(m, by)),
+  }))
 }
 
 /** Every layer the shape's methods turn (their steps' move sets): the

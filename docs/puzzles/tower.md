@@ -48,7 +48,14 @@ courte suite des formules de l'étape, chacune vue de chaque tenue et
 préparée par un tour du haut (`eachHold`), ou le tour du haut ou du bas
 seul (un étage décalé se remet d'un coup), sur les seules pièces que
 l'étape lit (`gestureChain` et sa clé) ; à longueur égale, les gestes les
-plus courts d'abord (un tour d'étage avant une formule qui fait de même). La remise en forme est une étape de
+plus courts d'abord (un tour d'étage avant une formule qui fait de même).
+Aucune pièce ne disant comment la tour est tenue, la méthode la lit comme
+elle se présente : elle la résout tenue de la façon (parmi les huit qui
+gardent son côté long vertical) où le plus de pièces sont déjà chez elles,
+ses coups renommés pour la tour telle qu'elle est (`bestHolding`,
+`asItStands` au registre) ; tenue à l'envers, ses Pockets se lisent dans
+l'autre sens au lieu d'être retournés. Le tutoriel, lui, garde la tour à
+l'endroit. La remise en forme est une étape de
 figures (le pivot, ou un coup large qui lui amène deux barres couchées) ;
 les autres placent une pièce à la fois, les milieux jumeaux
 interchangeables. Une tour sans centre dit ses côtés par la couleur qu'ils

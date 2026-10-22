@@ -131,7 +131,8 @@ src/
 │   │                    #   wingPairing, exhaustive (optimal par recherche exhaustive), progress, formulaSearch
 │   │                    #   (la plus courte suite de formules vers un but, found ; searchChain : la même,
 │   │                    #   formule par formule), everyWay (une formule vue
-│   │                    #   de chaque côté), holdings (le puzzle tenu de chaque façon), permutation (parité),
+│   │                    #   de chaque côté), holdings (le puzzle tenu de chaque façon ; bestHolding : celle où il
+│   │                    #   se lit, une méthode `asItStands` au registre), permutation (parité),
 │   │                    #   once (mémoïsation paresseuse), rotations (les tours en main retirés : Uw' Dw
 │   │                    #   sur la 2x2x4), placeTable (places, macros et Dijkstra :
 │   │                    #   Megaminx, AI Cube)
