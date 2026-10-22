@@ -222,7 +222,7 @@ export const UI_EN: typeof UI_FR = {
     belowMirrored: (front: string, up: string) =>
       `Turn the puzzle to the right: the ${front} center facing the lens, ${up} still at the bottom.`,
     // A puzzle out of shape names no color (`told` never): as below.
-    upright: (_front: string, _up: string) =>
+    upright: () =>
       'Hold the camera still in front of the puzzle, its longest side upright, its middle small cubes in the outlined cells.',
   },
   scanMovesAny: {

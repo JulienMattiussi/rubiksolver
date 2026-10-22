@@ -225,7 +225,7 @@ export const UI_FR = {
     belowMirrored: (front: string, up: string) =>
       `Tournez le puzzle vers la droite : le centre ${front} face à l’objectif, le ${up} toujours en bas.`,
     // A puzzle out of shape names no color (`told` never): as below.
-    upright: (_front: string, _up: string) =>
+    upright: () =>
       'Positionnez la caméra immobile devant le puzzle, son côté le plus long à la verticale, ses petits cubes du milieu dans les cases encadrées.',
   },
   scanMovesAny: {
