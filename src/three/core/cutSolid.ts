@@ -1,7 +1,7 @@
-import { AXIS_ROTATIONS, mapVec, normalIndex } from '@/lib/core/geometry'
+import { AXIS_ROTATIONS, dot, mapVec, normalIndex } from '@/lib/core/geometry'
 import { colorsOf } from '@/lib/core/pieces'
 import type { Color, Cube, Cubie, Vec3 } from '@/lib/core/types'
-import { dot, polyhedron, type Plane } from './polyhedron'
+import { polyhedron, type Plane } from './polyhedron'
 import { face, type P3, type PiecePolygon } from './polygons'
 
 /**

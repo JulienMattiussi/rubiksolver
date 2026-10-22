@@ -1,6 +1,7 @@
 import { cssOf, guessColor } from '@/lib/editor/scan/color'
 import type { Rect } from '@/lib/editor/scan/frame'
-import type { Point, ScanFace } from '@/lib/editor/scan/plan'
+import type { Point } from '@/lib/editor/scan/layout'
+import type { ScanFace } from '@/lib/editor/scan/plan'
 import type { CellSample } from '@/lib/editor/scan/sample'
 import { COLOR_HEX } from '@/three/core/colors'
 

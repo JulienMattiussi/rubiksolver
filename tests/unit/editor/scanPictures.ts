@@ -4,7 +4,8 @@ import { scrambleTurns } from '@/lib/core/moves'
 import { cubeToEdit } from '@/lib/editor/edit'
 import { rgbOfHex } from '@/lib/editor/scan/color'
 import { COLOR_HEX } from '@/lib/core/stickerColors'
-import { gridLayout, scanPlan, type FaceLayout } from '@/lib/editor/scan/plan'
+import { gap, gridLayout, type FaceLayout } from '@/lib/editor/scan/layout'
+import { scanPlan } from '@/lib/editor/scan/plan'
 import { sampleFace, type CellSample, type Pixels } from '@/lib/editor/scan/sample'
 import type { EditStickers } from '@/lib/editor/entry'
 import type { Color, CubeColor } from '@/lib/core/types'
@@ -40,9 +41,7 @@ export function facePicture(
   const data = new Uint8ClampedArray(width * height * 4)
   // Each sticker a square nearly meeting its nearest neighbor's.
   const closest = Math.min(
-    ...layout.points.flatMap((p, i) =>
-      layout.points.slice(i + 1).map((q) => Math.hypot(p[0] - q[0], p[1] - q[1])),
-    ),
+    ...layout.points.flatMap((p, i) => layout.points.slice(i + 1).map((q) => gap(p, q))),
   )
   const half = 0.45 * closest * scale
   for (let y = 0; y < height; y++) {

@@ -1,4 +1,4 @@
-import { mapVec, TET_NORMALS } from '../../core/geometry'
+import { dot, mapVec, TET_NORMALS } from '../../core/geometry'
 import type {
   Color,
   Cube,
@@ -66,7 +66,6 @@ export const PYRA_CORNERS: Record<PyraVertex, Vec3> = {
  *  red on the right (opposite L), blue on the left (opposite R). */
 export const PYRA_FACE_COLOR: Record<PyraVertex, Color> = { U: 'Y', L: 'R', R: 'B', B: 'G' }
 
-const dot = (a: Vec3, b: Vec3): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 const add = (a: Vec3, b: Vec3): Vec3 => [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
 
 /** One sticker per face the piece lies on: the faces opposite the corners it

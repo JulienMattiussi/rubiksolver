@@ -1,8 +1,15 @@
-import { AXIS_ROTATIONS, mapVec, normalIndex, parseVecKey, TET_NORMALS } from '@/lib/core/geometry'
+import {
+  AXIS_ROTATIONS,
+  dot,
+  mapVec,
+  normalIndex,
+  parseVecKey,
+  TET_NORMALS,
+} from '@/lib/core/geometry'
 import { PYRA_CORNERS, PYRA_VERTICES } from '@/lib/puzzles/pyramid/pyraminx'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import { face, type P3, type PiecePolygon } from '../../core/polygons'
-import { dot, polyhedron, type Plane } from '../../core/polyhedron'
+import { polyhedron, type Plane } from '../../core/polyhedron'
 
 /**
  * Geometry of the Pyramorphinx's pieces (see lib/puzzles/pyramid/morph.ts): each is its

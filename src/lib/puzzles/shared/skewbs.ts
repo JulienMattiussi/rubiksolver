@@ -1,6 +1,6 @@
-import { DODECA_NORMALS, FACE_NORMAL } from '../../core/geometry'
+import { DODECA_NORMALS, dot, FACE_NORMAL } from '../../core/geometry'
 import type { Color, Cube, Cubie, Face, RainbowCorner, RainbowMove, Vec3 } from '../../core/types'
-import { MASTER_SLICES, RAINBOW_CORNERS, RAINBOW_TRIANGLES, SQUARE_COLOR, dot } from './rainbow'
+import { MASTER_SLICES, RAINBOW_CORNERS, RAINBOW_TRIANGLES, SQUARE_COLOR } from './rainbow'
 import { DINO_TURNS } from './dinoRex'
 
 /**

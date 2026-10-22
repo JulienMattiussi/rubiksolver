@@ -2,12 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Flashlight, FlashlightOff, Loader2, X } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
-import { watch, watchAfter } from '@/lib/editor/scan/capture'
-import { frameOnScreen, screenToPicture, type Size } from '@/lib/editor/scan/frame'
+import { frameOnScreen, type Size } from '@/lib/editor/scan/frame'
 import { scanPlan } from '@/lib/editor/scan/plan'
-import { sampleFace, type CellSample } from '@/lib/editor/scan/sample'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCamera } from '@/hooks/useCamera'
+import { useFaceReading } from '@/hooks/useFaceReading'
 import { drawnFace } from '@/three/core/scanDrawing'
 import { useCube } from '@/store/cubeStore'
 import { useScan } from '@/store/scanStore'
@@ -20,18 +19,12 @@ import { ScanMoveArrow } from './ScanMoveArrow'
 import { ScanInstruction, type InstructionStage } from './ScanInstruction'
 import { ScanTake } from './ScanTake'
 
-/** How often the picture is read, in milliseconds. */
-const READ_MS = 100
 /** How long an instruction stays big in front, before moving up. */
 const FRONT_MS = 1800
 /** Room kept under the frame for the buttons, and over it before the
  *  instruction is measured, in pixels. */
 const BUTTONS_PX = 130
 const CARD_PX = 140
-/** Pixels across the picture of a frame the cells are read on. */
-const FRAME_PX = 192
-/** How long a face is waited for once the user said it is there. */
-const ARMED_MS = 5000
 
 const screenSize = (): Size => ({ width: window.innerWidth, height: window.innerHeight })
 
@@ -56,14 +49,9 @@ export function ScanView() {
   const { face: at, status, missed, cheers, last, take, read, close } = useScan()
   const { videoRef, status: camera, mirrored, canTorch, torch, setTorch } = useCamera()
   const [screen, setScreen] = useState(screenSize)
-  const [holding, setHolding] = useState(false)
-  const [cells, setCells] = useState<readonly CellSample[]>([])
   const [stage, setStage] = useState<'cheer' | InstructionStage>('front')
   const [cardBottom, setCardBottom] = useState(CARD_PX)
-  const [armed, setArmed] = useState(false)
-  const [nothing, setNothing] = useState(false)
   const cheered = useRef(cheers)
-  const canvas = useRef<HTMLCanvasElement | null>(null)
 
   const plan = scanPlan(shape)
   // A face whose stickers are no grid, where its drawing shows them.
@@ -96,58 +84,17 @@ export function ScanView() {
     return () => clearTimeout(timer)
   }, [stage, at])
 
-  // Each face waits for the user's tap; one that does not hold still in
-  // time, a tap again. Nothing is read before (no dots to wait for).
+  // Each face waits for the user's tap, then is read (useFaceReading).
   const aiming = camera === 'on' && status === 'aiming' && stage === 'top'
-  useEffect(() => {
-    if (!armed) return
-    const timer = setTimeout(() => {
-      setArmed(false)
-      setNothing(true)
-    }, ARMED_MS)
-    return () => clearTimeout(timer)
-  }, [armed])
-  const arm = useCallback(() => {
-    setNothing(false)
-    setArmed(true)
-  }, [])
-
-  useEffect(() => {
-    if (!aiming || !armed) return
-    // Watched from the tap on, the shake of the tap left out.
-    let watched = watchAfter(last)
-    const timer = setInterval(() => {
-      const video = videoRef.current
-      if (!video?.videoWidth) return
-      const view = { width: video.clientWidth, height: video.clientHeight }
-      const onScreen = frameOnScreen(view, face, top, BUTTONS_PX)
-      const crop = screenToPicture(onScreen, view, {
-        width: video.videoWidth,
-        height: video.videoHeight,
-      })
-      canvas.current ??= document.createElement('canvas')
-      const [width, height] = [FRAME_PX, Math.round((FRAME_PX * face.height) / face.width)]
-      Object.assign(canvas.current, { width, height })
-      const ctx = canvas.current.getContext('2d', { willReadFrequently: true })
-      if (!ctx) return
-      ctx.drawImage(video, crop.x, crop.y, crop.width, crop.height, 0, 0, width, height)
-      const cells = sampleFace(ctx.getImageData(0, 0, width, height), face)
-      setCells(cells)
-      const seen = watch(watched, cells, performance.now(), face)
-      watched = seen.state
-      setHolding(watched.frames.length > 1)
-      if (seen.taken) {
-        // A tap again for the next face.
-        setArmed(false)
-        take(seen.taken)
-      }
-    }, READ_MS)
-    return () => {
-      clearInterval(timer)
-      setHolding(false)
-      setCells([])
-    }
-  }, [aiming, armed, face, top, last, take, videoRef])
+  const { armed, nothing, arm, holding, cells } = useFaceReading({
+    videoRef,
+    face,
+    top,
+    bottom: BUTTONS_PX,
+    aiming,
+    last,
+    take,
+  })
 
   const color = (c: keyof typeof t.colors) => t.colors[c].toLowerCase()
   const busy = status === 'checking' ? t.scanChecking : status === 'reading' ? t.scanReading : null

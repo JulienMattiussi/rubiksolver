@@ -1,3 +1,4 @@
+import { dot, cross } from '@/lib/core/geometry'
 import type { Vec3 } from '@/lib/core/types'
 import type { P3 } from './polygons'
 
@@ -14,14 +15,6 @@ export interface Plane {
   readonly normal: Vec3
   readonly offset: number
 }
-
-export const dot = (a: readonly number[], b: readonly number[]) =>
-  a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!
-const cross = (a: readonly number[], b: readonly number[]): P3 => [
-  a[1]! * b[2]! - a[2]! * b[1]!,
-  a[2]! * b[0]! - a[0]! * b[2]!,
-  a[0]! * b[1]! - a[1]! * b[0]!,
-]
 
 /** The point where three planes meet, if they do at a single point. */
 function meet(a: Plane, b: Plane, c: Plane): P3 | null {

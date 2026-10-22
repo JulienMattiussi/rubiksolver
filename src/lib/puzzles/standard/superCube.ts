@@ -1,5 +1,5 @@
-import type { Color, Cube, Cubie, Sticker, Vec3 } from '../../core/types'
-import { mapVec } from '../../core/geometry'
+import type { Color, Cube, Cubie, Sticker } from '../../core/types'
+import { dot, mapVec } from '../../core/geometry'
 
 /**
  * The Super Revenge and the Super Professor (fan2cube.fr/superrevenge1 and
@@ -16,8 +16,6 @@ import { mapVec } from '../../core/geometry'
  * face does, so "each direction one color" still says solved; and a center
  * is told by its colors, its own one first.
  */
-
-const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
 /** How far out the outer layer is (3 on a 4x4's grid, 2 on a 5x5's). */
 const reachOf = (cube: Cube) => Math.max(...cube.map((c) => Math.max(...c.position.map(Math.abs))))

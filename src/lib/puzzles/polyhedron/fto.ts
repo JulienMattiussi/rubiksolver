@@ -7,7 +7,7 @@ import {
   RAINBOW_TRIANGLES,
 } from '../shared/rainbow'
 import type { Cube, Cubie, RainbowCorner, RainbowMove, Vec3 } from '../../core/types'
-import { mapVec } from '../../core/geometry'
+import { dot, mapVec } from '../../core/geometry'
 
 /**
  * The FTO, Face Turning Octahedron (fan2cube.fr/FTO1, Jürgen Brandt, 2009):
@@ -26,8 +26,6 @@ import { mapVec } from '../../core/geometry'
  * takes what is at least 2 along its diagonal, its slice what is within 2
  * of the middle (`rainbowTurns`). Its colors are the 4-Trajber's.
  */
-
-const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
 const FACES: readonly Vec3[] = Object.values(RAINBOW_CORNERS)
 

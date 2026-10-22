@@ -1,7 +1,7 @@
-import { mapVec, normalIndex } from '@/lib/core/geometry'
+import { dot, mapVec, normalIndex } from '@/lib/core/geometry'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import { face, type P3, type PiecePolygon } from '../../core/polygons'
-import { dot, polyhedron, type Plane } from '../../core/polyhedron'
+import { polyhedron, type Plane } from '../../core/polyhedron'
 
 /**
  * Geometry of the Master Skewb's pieces (lib/puzzles/shared/rainbow.ts): the

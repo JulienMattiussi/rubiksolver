@@ -4,10 +4,10 @@ import { colorsOf, homesOf, withStickers } from '../../core/pieces'
 import { solvePieces } from '../../solve/pieceSearch'
 import { parseRainbowMoves, RAINBOW_CORNERS } from '../../puzzles/shared/rainbow'
 import type { MethodPlan } from '../../solve/solverKit'
-import type { Cube, RainbowMove, Vec3 } from '../../core/types'
+import type { Cube, RainbowMove } from '../../core/types'
 import { cycleTable, placeByCycles } from '../../solve/cycleTable'
 import { fromEverySide } from '../shared/rainbowKit'
-import { vecKey } from '../../core/geometry'
+import { dot, vecKey } from '../../core/geometry'
 import { once } from '../../solve/once'
 
 /**
@@ -28,7 +28,6 @@ const SOLVED = solvedCube('rainbow')
 const TURNS = allTurnsOf('rainbow')
 
 const isPiece = withStickers(4)
-const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
 /** The top triangle's three pieces. */
 const TOP = homesOf('rainbow', (c) => isPiece(c) && dot(c.position, RAINBOW_CORNERS.U) === 2)

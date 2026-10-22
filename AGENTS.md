@@ -136,10 +136,9 @@ src/
 │   ├── editor/          # La saisie : entry (ce que le modèle déclare : étapes, peinture), steps (leur
 │   │                    #   enchaînement), edit (la table de stickers, buildCube), editorTables, validate,
 │   │                    #   modes/ (un mode par fichier : form, canvas et faceViews, joints, toggles,
-│   │                    #   colors, pieces), scan/ (la saisie à l'appareil photo : plan des faces (une
-│   │                    #   grille, ou un anneau déclaré par le modèle : `PuzzleModel.scan`, le Megaminx),
-│   │                    #   frame, color, sample, capture, anchors (les couleurs), orient (les faces tenues tournées), assign et
-│   │                    #   classify : la lecture du cube)
+│   │                    #   colors, pieces), scan/ (la saisie à l'appareil photo, docs/scan.md : plan (les faces,
+│   │                    #   `PuzzleModel.scan`), layout (grille, anneau, carré), frame, color, sample, capture,
+│   │                    #   anchors (les couleurs), orient (les faces tenues tournées), assign et classify (la lecture))
 │   ├── teach/           # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
 │   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), stages (sortes d'étapes et leurs
 │   │                    #   pas), project (étape d'un petit puzzle relevée sur un grand), scene (tons, flèches),
@@ -183,7 +182,8 @@ src/
 ├── store/               # Zustand : cubeStore (cube, file de coups, solution), editorStore, savedStore,
 │                        #   viewStore, router, scanStore (le scan, face par face), tutorialStore (pick, formules jouées, coups à la main, arrêt),
 │                        #   tutorialTrack (étapes montrées, 💪 et fin, coups déjà montrés)
-├── hooks/               # useAutoPlan (solution dans le worker), useCamera, useIsDesktop, useSolveShortcuts, useTutorial
+├── hooks/               # useAutoPlan (solution dans le worker), useCamera et useFaceReading (le scan), useIsDesktop,
+│                        #   useSolveShortcuts, useTutorial
 ├── i18n/                # fr/ et en/ (ui, methods, steps, moveSentences : phrases longues du guide et
 │                        #   courtes du tutoriel, tutorial : phrases communes, tutorials/ : les textes de chaque tutoriel,
 │                        #   tutorialMirror ; EN typé sur FR), tutorialTexts (leur forme), translations
@@ -202,6 +202,7 @@ docs/
 ├── puzzles/<catégorie>.md # Le détail de chaque puzzle : modèle, rendu, méthode, saisie
 ├── methods.md           # Chaque méthode, ses puzzles et ses étapes
 ├── interface.md         # Le détail de l'interface
+├── scan.md              # Le scan à l'appareil photo : puzzles, parcours, lecture
 └── images/              # Les captures du README (en anglais) et sa bannière
 public/                  # favicon, apple-touch-icon, og.png (aperçu de partage), robots.txt, sitemap.xml
 ```
@@ -421,24 +422,15 @@ les stickers disent une taille, le cube miroir : `STICKERS_TELL` dans
   vrille des coins tienne, vérifiée comme un 2x2). Quand la résolution
   échoue sur une étape, le message dit laquelle (`StepFailure`).
 
-**À l'appareil photo** (`lib/editor/scan/`) : une fois que
-l'utilisateur a touché « Scanner la face », la caméra prend la face
-d'elle-même (`capture.ts` : chaque case sûrement d'une
-couleur, centre demandé, ces couleurs inchangées une seconde), puis `readScan` retrouve les faces tenues tournées (`orient.ts`), lit le cube entier
-sur ses couleurs telles que la lumière les montre (`anchors.ts` : les
-centres d'abord, puis chaque couleur prenant autant de stickers que le
-puzzle en a, les plus proches ; aucun seuil fixe entre rouge et orange) et place
-les vraies pièces au moindre coût (`assign.ts`, sur les placements et les
-budgets de `tablesFor`) ; le résultat est peint dans l'éditeur, à valider.
-Tout se déduit des dimensions (`scanPlan`, les trous d'un puzzle sautés),
-sauf d'un modèle qui déclare son scan (`PuzzleModel.scan` : en grille, le
-Void Cube et l'Edge Only ; en carré, les cubes diagonaux, chaque sticker où
-leur dessin le montre, `three/core/scanDrawing.ts` ; en anneaux, le Megaminx, ses douze couleurs lues
-à la fin seulement, et le Holey Megaminx, montré par des gestes seuls) ; les cubes, les cuboïdes et les plats sans saisie
-propre sont scannables (`scannable`) ; un puzzle dont
-une face n'a pas de centre se tient n'importe comment, ses couleurs triées
-entre elles (`anchors.ts`) ; les limites et la suite :
-`AMELIORATIONS.md`. Voir [docs/interface.md](docs/interface.md).
+**À l'appareil photo** (`lib/editor/scan/`) : une fois que l'utilisateur
+a touché « Scanner la face », la caméra prend la face d'elle-même
+(`capture.ts`), puis `readScan` lit le puzzle entier (`anchors.ts` : ses
+couleurs telles que la lumière les montre ; `orient.ts` : les faces tenues
+tournées ; `assign.ts` : les vraies pièces au moindre coût) et le peint
+dans l'éditeur, à valider. Tout se déduit des dimensions (`scanPlan`,
+`layout.ts`), sauf d'un modèle qui déclare son scan (`PuzzleModel.scan` :
+en grille, en carré placé par son dessin, en anneaux). Le détail :
+[docs/scan.md](docs/scan.md) ; les limites : `AMELIORATIONS.md`.
 
 Ce que toute saisie remplit, quel que soit son mode, est une table de
 stickers (`lib/editor/edit.ts` : progression, `isComplete`, `buildCube`,

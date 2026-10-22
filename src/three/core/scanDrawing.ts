@@ -1,8 +1,9 @@
+import { dot, cross } from '@/lib/core/geometry'
 import { solvedCube } from '@/lib/core/cube'
 import type { CubeShape } from '@/lib/core/shapes'
-import type { Vec3 } from '@/lib/core/types'
 import { stickerId } from '@/lib/editor/editorTables'
-import type { Point, ScanFace } from '@/lib/editor/scan/plan'
+import type { Point } from '@/lib/editor/scan/layout'
+import type { ScanFace } from '@/lib/editor/scan/plan'
 import { isPolyDrawn, polyDrawing } from './polyDrawing'
 import type { P3 } from './polygons'
 
@@ -14,15 +15,6 @@ import type { P3 } from './polygons'
  * in watermark. A face without `seen`, or a drawing in a frame of its own,
  * stays as the plan lays it.
  */
-
-const dot = (a: readonly number[], b: readonly number[]) =>
-  a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!
-
-const cross = (a: Vec3, b: Vec3): Vec3 => [
-  a[1] * b[2] - a[2] * b[1],
-  a[2] * b[0] - a[0] * b[2],
-  a[0] * b[1] - a[1] * b[0],
-]
 
 /** A polygon's area, and its middle (the mean of its corners). */
 function measure(points: readonly Point[]) {

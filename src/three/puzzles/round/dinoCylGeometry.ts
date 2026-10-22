@@ -1,9 +1,9 @@
-import { AXIS_ROTATIONS, mapVec, normalIndex } from '@/lib/core/geometry'
+import { AXIS_ROTATIONS, dot, mapVec, normalIndex } from '@/lib/core/geometry'
 import { solvedCube } from '@/lib/core/cube'
 import { colorsOf } from '@/lib/core/pieces'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import { type P3, type PiecePolygon } from '../../core/polygons'
-import { dot, polyhedron, type Plane } from '../../core/polyhedron'
+import { polyhedron, type Plane } from '../../core/polyhedron'
 
 /**
  * Geometry of the Dino Cylinder's pieces (lib/puzzles/round/dinoCyl.ts): a cylinder as

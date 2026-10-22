@@ -1,5 +1,5 @@
 import { colored, labOf, type Lab } from './color'
-import type { FaceLayout } from './plan'
+import type { FaceLayout } from './layout'
 
 /**
  * A face's cells measured on a picture (pure): the picture is the frame

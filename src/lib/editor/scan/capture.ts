@@ -65,8 +65,9 @@ export const watchAfter = (taken?: readonly CellSample[]): Watch => ({
   before: taken,
 })
 
-/** A new picture watched, of the face asked for: the face taken (its cells, merged) once it read the same long
- *  enough, else what is watched now. */
+/** A new picture watched, of the face asked for: the face taken (its
+ *  cells, merged) once it read the same long enough, else what is watched
+ *  now. */
 export function watch(
   state: Watch,
   cells: readonly CellSample[],

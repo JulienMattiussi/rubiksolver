@@ -7,6 +7,17 @@ import type { Axis, Dims, Face, Vec3 } from './types'
  */
 
 /** Map each coordinate of a 3-vector (with its axis index) to a new `Vec3`. */
+/** The dot product of two 3D vectors. */
+export const dot = (a: readonly number[], b: readonly number[]): number =>
+  a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!
+
+/** The cross product of two 3D vectors (right-handed). */
+export const cross = (a: readonly number[], b: readonly number[]): [number, number, number] => [
+  a[1]! * b[2]! - a[2]! * b[1]!,
+  a[2]! * b[0]! - a[0]! * b[2]!,
+  a[0]! * b[1]! - a[1]! * b[0]!,
+]
+
 export function mapVec(v: readonly number[], f: (x: number, axis: number) => number): Vec3 {
   return [f(v[0]!, 0), f(v[1]!, 1), f(v[2]!, 2)]
 }

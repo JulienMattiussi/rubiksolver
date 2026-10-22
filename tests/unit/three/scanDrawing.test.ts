@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { CubeShape } from '@/lib/core/shapes'
+import { gap } from '@/lib/editor/scan/layout'
 import { scanPlan } from '@/lib/editor/scan/plan'
 import { drawnFace } from '@/three/core/scanDrawing'
 
@@ -18,7 +19,7 @@ describe('a scanned face as its drawing shows it', () => {
       // read on the same pixels.
       face.points.forEach((p, i) =>
         face.points.slice(i + 1).forEach((q) => {
-          expect(Math.hypot(p[0] - q[0], p[1] - q[1])).toBeGreaterThan(2 * face.reach)
+          expect(gap(p, q)).toBeGreaterThan(2 * face.reach)
         }),
       )
       expect(face.lines.length).toBeGreaterThan(0)

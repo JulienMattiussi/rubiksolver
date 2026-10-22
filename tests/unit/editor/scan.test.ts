@@ -7,7 +7,8 @@ import { HOLD_MS, showsFace, watch, watchAfter } from '@/lib/editor/scan/capture
 import { readScan } from '@/lib/editor/scan/classify'
 import { frameOnScreen, screenToPicture } from '@/lib/editor/scan/frame'
 import { turnCells } from '@/lib/editor/scan/orient'
-import { gridLayout, scannable, scanPlan } from '@/lib/editor/scan/plan'
+import { gridLayout } from '@/lib/editor/scan/layout'
+import { scannable, scanPlan } from '@/lib/editor/scan/plan'
 import { sampleFace, type Pixels } from '@/lib/editor/scan/sample'
 import { SHAPE_DIMS, SHAPE_SCAN_TRIED, type CubeShape } from '@/lib/core/shapes'
 import {

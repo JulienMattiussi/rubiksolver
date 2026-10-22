@@ -1,6 +1,6 @@
-import { DODECA_NORMALS, mapVec, normalIndex } from '@/lib/core/geometry'
+import { DODECA_NORMALS, dot, mapVec, normalIndex } from '@/lib/core/geometry'
 import type { Cubie, Vec3 } from '@/lib/core/types'
-import { dot, polyhedron, type Plane } from '../../core/polyhedron'
+import { polyhedron, type Plane } from '../../core/polyhedron'
 import { face, type P3, type PiecePolygon } from '../../core/polygons'
 
 /**

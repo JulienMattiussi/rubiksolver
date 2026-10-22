@@ -1,5 +1,5 @@
 import { FACE_COLOR } from '../../core/cube'
-import { FACE_NORMAL, mapVec } from '../../core/geometry'
+import { dot, FACE_NORMAL, mapVec } from '../../core/geometry'
 import type { FaceLabels } from '../../core/notation'
 import type { CopterEdge, CopterMove, Cube, Cubie, Face, Vec3 } from '../../core/types'
 
@@ -47,8 +47,6 @@ export const COPTER_EDGES = Object.keys(COPTER_AXES) as CopterEdge[]
 
 /** Every turn: one per edge, each its own inverse. */
 export const COPTER_TURNS: readonly CopterMove[] = COPTER_EDGES.map((edge) => ({ edge }))
-
-const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
 /** Whether an edge's turn carries the piece at `position`. */
 export function copterTurns(move: CopterMove, position: Vec3): boolean {

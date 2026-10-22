@@ -7,14 +7,15 @@ import type { CubeShape } from '../../core/shapes'
 
 /**
  * Faces scanned held turned, found back (pure): the instruction says which
- * color goes on top, but a face held a quarter turn off reads as well. Each
+ * side goes on top, but a face held a quarter turn off reads as well. Each
  * face may have been turned (its layout's turns: a quarter at a time, a
- * half on a face that is not square, a fifth on a Megaminx's); the right turns are those that make real pieces of the
- * corners and edges, which sit on several faces. Its centers turn within
- * their face, so they tell nothing.
+ * half on a face that is not square, a fifth on a Megaminx's); the right
+ * turns are those that make real pieces of the corners and edges, which
+ * sit on several faces. Its centers turn within their face, so they tell
+ * nothing.
  *
- * Every combination of turns is tried (up to `EVERY`), but cheaply: a piece sits on two or
- * three faces only, so what it costs is worked out once for each turn of
+ * Every combination of turns is tried (up to `EVERY`), but cheaply: a
+ * piece sits on two or three faces only, so what it costs is worked out once for each turn of
  * those (64 at most), and a combination is a sum of those. On a 6x6, 4096
  * combinations of 56 pieces take some 25 ms (2026-10-21).
  *

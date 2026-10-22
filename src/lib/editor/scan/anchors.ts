@@ -11,11 +11,12 @@ import type { CubeShape } from '../../core/shapes'
  * Each color of a scanned puzzle as this light shows it (pure), which the
  * reading measures every sticker against (classify.ts). A first guess:
  * the faces' centers (each its face's color where it tells the face, else
- * the color it looks like); else (an even cube) the stickers by hue. Then the stickers are sorted into
- * the colors among themselves, each color taking as many as the puzzle has
- * (a 4x4, 16; a Megaminx, 11), the nearest to it, and each color moves to
- * where its stickers fell, twice over: the light varies from face to face,
- * a center alone may be off.
+ * the color it looks like); else (an even cube) the stickers by hue. Then
+ * the stickers are sorted into the colors among themselves, each color
+ * taking as many as the puzzle has (a 4x4, 16; a Megaminx, 11), the
+ * nearest to it, and each color moves to where its stickers fell, a few
+ * times over (`ROUNDS`): the light varies from face to face, a center
+ * alone may be off.
  */
 
 /** A color as the puzzle is painted, for a first guess no sticker made. */

@@ -1,19 +1,20 @@
 import { faceColorsOf, shapeColors, solvedCube } from '../../core/cube'
-import { FACE_NORMAL, layerCoords, normalIndex, outerCoord } from '../../core/geometry'
+import { cross, dot, FACE_NORMAL, layerCoords, normalIndex, outerCoord } from '../../core/geometry'
 import { isGridless, SHAPE_DIMS, SHAPE_SHIFTS, type CubeShape } from '../../core/shapes'
 import { stickerId } from '../editorTables'
+import { gap, gridLayout, ringLayout, squareLayout, type FaceLayout, type Point } from './layout'
 import { MODELS } from '../../puzzles/models'
 import type { Color, CubeColor, Face, Vec3 } from '../../core/types'
 
 /**
  * How a puzzle is scanned with a camera, face by face (pure, no React): the
  * face shown, the one on top, how to get there from the face before, and
- * which sticker each cell of the picture is, and where. A face is a set of
- * points to read in its frame, an outline and lines to draw, and the ways
- * it can be held turned: a cube's is a grid (its dims say it all, a
- * cuboid's faces just rectangles), a Megaminx's a ring round its center
- * (its model says which sticker is where, `PuzzleModel.scan`). A grid
- * puzzle with holes (the Void Cube) skips them.
+ * which sticker each cell of the picture is, laid out as layout.ts says: a
+ * cube's face a grid (its dims say it all, a cuboid's faces just
+ * rectangles), a Megaminx's a ring round its center (its model says which
+ * sticker is where, `PuzzleModel.scan`), a Skewb's a square whose stickers
+ * its drawing places (three/core/scanDrawing.ts). A puzzle with holes (the
+ * Void Cube, the Holey Megaminx) skips them.
  */
 
 /** How the puzzle is turned to show a face, from the one before: turned
@@ -21,25 +22,6 @@ import type { Color, CubeColor, Face, Vec3 } from '../../core/types'
  *  (`below`), tilted toward the lens, turned half round; `show`: told by
  *  its colors alone (a Megaminx's twelve faces). */
 export type ScanMove = 'first' | 'turn' | 'below' | 'tilt' | 'flip' | 'show'
-
-export type Point = readonly [number, number]
-
-/** Where a face's cells are, in its frame (`width` by `height` units, from
- *  its top left). */
-export interface FaceLayout {
-  readonly width: number
-  readonly height: number
-  /** Each cell's middle, where it is read. */
-  readonly points: readonly Point[]
-  /** How far round each point it is read, each way. */
-  readonly reach: number
-  /** The frame's outline, and its lines in watermark. */
-  readonly outline: readonly Point[]
-  readonly lines: readonly (readonly [Point, Point])[]
-  /** Each way it can be held turned, the identity first: the cell each
-   *  cell then reads (`turned[i] = cells[turn[i]]`). */
-  readonly turns: readonly (readonly number[])[]
-}
 
 export interface ScanFace extends FaceLayout {
   readonly move: ScanMove
@@ -90,109 +72,6 @@ const GRID_ANGLES: Partial<Record<ScanMove, number>> = { turn: 90, tilt: 90, fli
 
 const CUBE_COLORS: readonly Color[] = ['W', 'Y', 'G', 'B', 'O', 'R'] satisfies CubeColor[]
 
-/** A grid of `rows` by `cols`, a unit a cell: read on the middle 40% of
- *  each cell (its borders may hold the plastic, or the next sticker when
- *  the cube is not exactly the frame's size). Square, it turns by
- *  quarters; else by halves only. */
-export function gridLayout(rows: number, cols: number): FaceLayout {
-  const points: Point[] = []
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) points.push([col + 0.5, row + 0.5])
-  }
-  const lines: [Point, Point][] = [
-    ...Array.from({ length: cols - 1 }, (_, i): [Point, Point] => [
-      [i + 1, 0],
-      [i + 1, rows],
-    ]),
-    ...Array.from({ length: rows - 1 }, (_, i): [Point, Point] => [
-      [0, i + 1],
-      [cols, i + 1],
-    ]),
-  ]
-  const ids = points.map((_, i) => i)
-  // Row r of the picture turned a quarter is column r of this one, upward.
-  const quarter = (from: readonly number[]) =>
-    from.map((_, i) => from[(cols - 1 - (i % cols)) * cols + Math.floor(i / cols)]!)
-  const half = [...ids].reverse()
-  return {
-    width: cols,
-    height: rows,
-    points,
-    reach: 0.2,
-    outline: [
-      [0, 0],
-      [cols, 0],
-      [cols, rows],
-      [0, rows],
-    ],
-    lines,
-    turns: rows === cols ? [ids, quarter(ids), half, quarter(half)] : [ids, half],
-  }
-}
-
-/** A regular polygon of `sides`, a flat side on top (or at the bottom,
- *  turned half round), round its center: the center, then the edges
- *  clockwise from that side, then the corners (the proportions of a
- *  Megaminx's face). It turns by a side at a time. */
-function ringLayout(sides: number, bottom = false): FaceLayout {
-  const layout = flatTopRing(sides)
-  if (!bottom) return layout
-  const { width, height } = layout
-  const half = ([x, y]: Point): Point => [width - x, height - y]
-  return {
-    ...layout,
-    points: layout.points.map(half),
-    outline: layout.outline.map(half),
-    lines: layout.lines.map(([a, b]) => [half(a), half(b)] as const),
-  }
-}
-
-function flatTopRing(sides: number): FaceLayout {
-  const step = (2 * Math.PI) / sides
-  // Clockwise from the top, y down; corners half a step on.
-  const at = (k: number, r: number): Point => {
-    const angle = Math.PI / 2 - k * step
-    return [r * Math.cos(angle), -r * Math.sin(angle)]
-  }
-  const corner = (k: number) => at(k + 0.5, 1)
-  const xs = Array.from({ length: sides }, (_, k) => corner(k)[0])
-  const ys = Array.from({ length: sides }, (_, k) => corner(k)[1])
-  const [left, top] = [Math.min(...xs), -Math.cos(step / 2)]
-  const move = ([x, y]: Point): Point => [x - left, y - top]
-  const ks = Array.from({ length: sides }, (_, k) => k)
-  const points = [
-    [0, 0] as Point,
-    ...ks.map((k) => at(k, 0.58)),
-    ...ks.map((k) => at(k + 0.5, 0.72)),
-  ]
-  // The cuts: each parallel to a side, through the center's pentagon,
-  // across to the two sides beside it.
-  const inner = (k: number) => at(k + 0.5, 0.42)
-  const cross = (p: Point, q: Point, a: Point, b: Point): Point => {
-    const [dx, dy, ex, ey] = [q[0] - p[0], q[1] - p[1], b[0] - a[0], b[1] - a[1]]
-    const t = ((a[0] - p[0]) * ey - (a[1] - p[1]) * ex) / (dx * ey - dy * ex)
-    return [p[0] + t * dx, p[1] + t * dy]
-  }
-  const cut = (k: number): [Point, Point] => {
-    const [p, q] = [inner(k - 1), inner(k)]
-    return [cross(p, q, corner(k - 2), corner(k - 1)), cross(p, q, corner(k), corner(k + 1))]
-  }
-  const turn = (by: number) => [
-    0,
-    ...ks.map((k) => 1 + ((k + by) % sides)),
-    ...ks.map((k) => 1 + sides + ((k + by) % sides)),
-  ]
-  return {
-    width: Math.max(...xs) - left,
-    height: Math.max(...ys) - top,
-    points: points.map(move),
-    reach: 0.07,
-    outline: ks.map((k) => move(corner(k))),
-    lines: ks.map((k) => cut(k).map(move) as [Point, Point]),
-    turns: ks.map(turn),
-  }
-}
-
 /** The faces in order: the four sides, the top up (white), turning the
  *  puzzle left each time; then tilted toward oneself (the top comes in
  *  front, the back on top), then turned half round (the bottom in front). */
@@ -203,12 +82,6 @@ const ORDER: readonly { front: Face; up: Face; move: ScanMove }[] = [
   { front: 'L', up: 'U', move: 'turn' },
   { front: 'U', up: 'R', move: 'tilt' },
   { front: 'D', up: 'R', move: 'flip' },
-]
-
-const cross = (a: Vec3, b: Vec3): Vec3 => [
-  a[1] * b[2] - a[2] * b[1],
-  a[2] * b[0] - a[0] * b[2],
-  a[0] * b[1] - a[1] * b[0],
 ]
 
 const axisOf = (v: Vec3): number => v.findIndex((x) => x !== 0)
@@ -271,8 +144,6 @@ function gridFaces(shape: CubeShape) {
   })
 }
 
-const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
-
 /** A cube whose faces are no grid, in `ORDER`: each face its stickers, at
  *  their pieces' places across it (a frame 2 units wide, its middle at
  *  1, 1), which the view replaces by where its drawing shows them; turned
@@ -294,33 +165,12 @@ function squareFaces(shape: CubeShape) {
     )
     const far = Math.max(1, ...on.flatMap((s) => [Math.abs(s.across), Math.abs(s.upward)]))
     // Inside the face, its outermost pieces three quarters of the way out.
-    const points = on.map((s): Point => [1 + (0.75 * s.across) / far, 1 - (0.75 * s.upward) / far])
-    const near = (p: Point, q: Point) => Math.hypot(p[0] - q[0], p[1] - q[1]) < 1e-6
-    // Read round each point, short of the next one.
-    const closest = Math.min(
-      ...points.flatMap((p, i) =>
-        points.slice(i + 1).map((q) => Math.hypot(p[0] - q[0], p[1] - q[1])),
-      ),
+    const layout = squareLayout(
+      on.map((s): Point => [1 + (0.75 * s.across) / far, 1 - (0.75 * s.upward) / far]),
     )
-    const quarter = points.map(([x, y]) => points.findIndex((q) => near(q, [2 - y, x])))
-    const ids = points.map((_, i) => i)
-    const times = (k: number) =>
-      ids.map((i) => Array.from({ length: k }).reduce<number>((j) => quarter[j]!, i))
-    const square = !quarter.includes(-1)
-    const middle = points.findIndex((p) => near(p, [1, 1]))
+    const middle = layout.points.findIndex((p) => gap(p, [1, 1]) < 1e-6)
     return {
-      width: 2,
-      height: 2,
-      points,
-      reach: 0.3 * closest,
-      outline: [
-        [0, 0],
-        [2, 0],
-        [2, 2],
-        [0, 2],
-      ] as Point[],
-      lines: [],
-      turns: square ? [ids, times(1), times(2), times(3)] : [ids],
+      ...layout,
       move,
       angle: GRID_ANGLES[move] ?? null,
       frontColor: colors[front],

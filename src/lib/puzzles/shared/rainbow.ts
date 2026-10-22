@@ -1,4 +1,4 @@
-import { FACE_NORMAL } from '../../core/geometry'
+import { dot, FACE_NORMAL } from '../../core/geometry'
 import type { FaceLabels } from '../../core/notation'
 import type { Color, Cube, Cubie, Face, RainbowCorner, RainbowMove, Vec3 } from '../../core/types'
 
@@ -56,8 +56,6 @@ const TRIANGLE_COLOR: ReadonlyMap<string, Color> = new Map<string, Color>([
 ])
 
 const triangleColor = (d: Vec3): Color => TRIANGLE_COLOR.get(d.join())!
-
-export const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
 /** The solved Rainbow: the 12 pieces, then the 8 fixed centers. */
 export function solvedRainbow(): Cube {

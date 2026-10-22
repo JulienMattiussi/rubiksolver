@@ -1,5 +1,4 @@
-import { normalIndex, TET_NORMALS } from '@/lib/core/geometry'
-import { dot } from '../../core/polyhedron'
+import { dot, normalIndex, TET_NORMALS } from '@/lib/core/geometry'
 import { PYRA_CORNERS, PYRA_VERTICES, pyraToCartesian } from '@/lib/puzzles/pyramid/pyraminx'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import { colorFacing, type P3, type PiecePolygon } from '../../core/polygons'

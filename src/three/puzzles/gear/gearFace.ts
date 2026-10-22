@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { dot } from '../../core/polyhedron'
 import type { Vec3 } from '@/lib/core/types'
 import blockUrl from '@/assets/gear/block.png'
 import centerUrl from '@/assets/gear/center.png'
@@ -7,7 +6,7 @@ import clipUrl from '@/assets/gear/clip.png'
 import cornerUrl from '@/assets/gear/corner.png'
 import gearUrl from '@/assets/gear/gear.png'
 import OUTLINES from '@/assets/gear/outlines.json'
-import { mapVec } from '@/lib/core/geometry'
+import { dot, mapVec } from '@/lib/core/geometry'
 
 /**
  * The Gear Cube's face, as agreed on a flat drawing: 13 pieces, each a mask
