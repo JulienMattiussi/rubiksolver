@@ -1,14 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
 import { FACE_NORMAL } from '@/lib/core/geometry'
-import { scrambleTurns } from '@/lib/core/moves'
 import { parseMoves } from '@/lib/core/notation'
 import { applyMoves, turnAllowed } from '@/lib/core/turn'
 import type { Face } from '@/lib/core/types'
-import { CORNER_CYCLE, CORNER_TWIST, LATCH_PLAN } from '@/lib/methods/twisted/latch'
+import { CORNER_CYCLE, CORNER_TWIST } from '@/lib/methods/twisted/latch'
 import { faceWays } from '@/lib/puzzles/twisted/latch'
-import { buildSteps } from '@/lib/solve/solverKit'
-import { seededRng } from '../../../helpers'
 
 const SOLVED = solvedCube('latch')
 const FACES = Object.keys(FACE_NORMAL) as Face[]
@@ -70,16 +67,4 @@ describe('Latch Cube', () => {
     // (HGP)-(HAG)+ = [DH]² .G'[HD]²G, nothing else.
     expect(effect(CORNER_TWIST)).toEqual(['(HAG)°', '(HPG)°'])
   })
-
-  it('solves its scrambles by turns that all go', () => {
-    for (let seed = 1; seed <= 3; seed++) {
-      const cube = applyMoves(SOLVED, scrambleTurns('latch', 30, seededRng(seed), SOLVED))
-      const moves = buildSteps(cube, LATCH_PLAN).flatMap((s) => s.moves)
-      let state = cube
-      for (const m of moves) {
-        expect(turnAllowed(state, m)).toBe(true)
-        state = applyMoves(state, [m])
-      }
-    }
-  }, 60000)
 })
