@@ -80,9 +80,11 @@ export const picture = (
 export function scanOf(
   shape: CubeShape,
   seed: number,
+  behind = false,
 ): { faces: CellSample[][]; edit: EditStickers } {
   const rng = seededRng(seed)
-  const plan = scanPlan(shape)
+  // `behind`: shown to a laptop's camera, its gestures mirrored.
+  const plan = scanPlan(shape, 'classic', behind)
   const solved = solvedCube(shape)
   const scrambled = applyMoves(solved, scrambleTurns(shape, 30, rng, solved))
   // Held as the instructions say, each face's center toward the lens in

@@ -6,6 +6,9 @@ import type { ScanReading } from '@/lib/editor/scan/classify'
 import { scanPlan } from '@/lib/editor/scan/plan'
 import { coreOf } from '@/lib/editor/scan/box'
 import type { Picture } from '@/lib/editor/scan/outlines'
+import { placeStickers, stickerSizes } from '@/lib/editor/scan/sized'
+import { readSized } from '@/lib/editor/scan/sizedRead'
+import { findStickers, type FaceImage } from '@/workers/findStickers'
 import type { CellSample } from '@/lib/editor/scan/sample'
 import { useCube } from './cubeStore'
 import { useEditor } from './editorStore'
@@ -19,6 +22,15 @@ const READ_DELAY_MS = 400
  *  then read), or reading the whole puzzle. */
 type ScanStatus = 'aiming' | 'checking' | 'complete' | 'reading'
 
+/** What is kept of a face taken, besides its cells: its photo (to show it
+ *  again, should it be refused), and on a puzzle read from its pictures,
+ *  its lightness (outlines.ts) or its image (a mirror's, sized.ts). */
+export interface Kept {
+  readonly photo?: string
+  readonly light?: Picture
+  readonly image?: FaceImage
+}
+
 interface ScanStore {
   open: boolean
   /** The face to take (`scanPlan`'s order). */
@@ -28,24 +40,26 @@ interface ScanStore {
   status: ScanStatus
   /** The last face taken, or the puzzle read, was refused. */
   missed: boolean
-  /** Each face's picture as taken, to show which one to take again (a
-   *  face shown by gestures is only its place in them). */
-  pictures: readonly (string | undefined)[]
-  /** Each face's lightness, pixel by pixel, on a puzzle read whole from
-   *  its picture (outlines.ts). */
-  lights: readonly (Picture | undefined)[]
+  /** What is kept of each face taken: its photo shows which one to take
+   *  again (a face shown by gestures is only its place in them). */
+  kept: readonly (Kept | undefined)[]
   /** Faces taken so far, each one cheered (ScanView). */
   cheers: number
   /** The face taken last, not to take again before the cube turns. */
   last: readonly CellSample[] | undefined
   start: () => void
   close: () => void
-  /** A face taken (capture.ts), with its picture (and its lightness, on
-   *  a puzzle read whole): checked, then the next, or every face in. */
-  take: (cells: readonly CellSample[], picture?: string, light?: Picture) => void
+  /** A face taken (capture.ts), and what is kept of it: checked, then the
+   *  next, or every face in. */
+  take: (cells: readonly CellSample[], kept?: Kept) => void
   /** Every face in: the puzzle read, painted in the editor, or the face
-   *  to take again; `behind`: filmed by a camera facing the user. */
-  read: (behind?: boolean) => void
+   *  to take again. */
+  read: () => void
+  /** Filmed by a camera facing the user (a laptop's, its picture
+   *  mirrored): the gestures come mirrored, the faces named, checked and
+   *  read as they come (`orderFor`). */
+  behind: boolean
+  setBehind: (behind: boolean) => void
 }
 
 const shape = () => cubeShape(useCube.getState().cube)
@@ -88,18 +102,53 @@ export const useScan = create<ScanStore>((set, get) => {
     setTimeout(() => mine === run && f(), ms)
   }
 
-  const readFaces = (behind: boolean) => {
+  /** The faces as asked, the camera facing the user or not. */
+  const plan = () => scanPlan(shape(), useCube.getState().variant, get().behind)
+
+  const readFaces = () => {
     const faces = get().faces
     logScan('read', faces)
     // A reading that fails outright is refused like any, rather than leave
     // the scan waiting for ever.
     let reading: ScanReading
     try {
-      reading = readScan(shape(), faces as readonly (readonly CellSample[])[], behind, get().lights)
+      const lights = get().kept.map((k) => k?.light)
+      reading = readScan(shape(), faces as readonly (readonly CellSample[])[], get().behind, lights)
     } catch (error) {
       console.error(error)
       reading = { ok: false, face: 0 }
     }
+    done(reading)
+  }
+
+  /** A mirror read by its stickers' sizes: each face's found in the worker
+   *  (OpenCV), set round its center (the frame's middle), then read. */
+  const readSizes = async () => {
+    const mine = run
+    let reading: ScanReading
+    try {
+      const sizes = []
+      const found = []
+      for (const kept of get().kept) {
+        const image = kept?.image
+        const rects = image ? await findStickers(image) : []
+        const middle = image ? ([image.width / 2, image.height / 2] as const) : ([0, 0] as const)
+        found.push({ size: image && [image.width, image.height], rects })
+        sizes.push(stickerSizes(placeStickers(rects, middle)))
+      }
+      // The rectangles found, to replay a reading that went wrong.
+      if (scanDebug()) console.log(`scan ${shape()} sized`, JSON.stringify(found))
+      reading = readSized(sizes)
+    } catch (error) {
+      console.error(error)
+      reading = { ok: false, face: 0 }
+    }
+    if (mine === run) done(reading)
+  }
+
+  /** The puzzle read: painted in the editor, or the face to take again. */
+  const done = (reading: ScanReading) => {
+    const faces = get().faces
     if (reading.ok) {
       useEditor.getState().scanned(reading.edit, reading.form)
       get().close()
@@ -117,8 +166,7 @@ export const useScan = create<ScanStore>((set, get) => {
     open: false,
     face: 0,
     faces: [],
-    pictures: [],
-    lights: [],
+    kept: [],
     status: 'aiming',
     missed: false,
     cheers: 0,
@@ -129,8 +177,7 @@ export const useScan = create<ScanStore>((set, get) => {
         open: true,
         face: 0,
         faces: [],
-        pictures: [],
-        lights: [],
+        kept: [],
         status: 'aiming',
         missed: false,
         cheers: 0,
@@ -138,7 +185,7 @@ export const useScan = create<ScanStore>((set, get) => {
       })
       // A puzzle out of shape: its forms and core listed now, while the first face
       // is shown, rather than when it is read (a second or so).
-      if (scanPlan(shape())[0]?.open) later(() => coreOf(shape()), 0)
+      if (plan()[0]?.open) later(() => coreOf(shape()), 0)
     },
 
     close: () => {
@@ -146,38 +193,39 @@ export const useScan = create<ScanStore>((set, get) => {
       set({ open: false, status: 'aiming' })
     },
 
-    take: (cells, picture, light) => {
+    take: (cells, kept) => {
       set({ status: 'checking' })
       later(() => {
-        const plan = scanPlan(shape())
+        const asking = plan()
         const { face, faces } = get()
-        const asked = plan[face]!
+        const asked = asking[face]!
         if (!showsFace(cells, asked)) {
           set({ status: 'aiming', missed: true })
           return
         }
-        const taken = plan.map((_, i) => (i === face ? cells : faces[i]))
+        const taken = asking.map((_, i) => (i === face ? cells : faces[i]))
         const next = taken.findIndex((f) => !f)
-        const pictures = plan.map((_, i) => (i === face ? picture : get().pictures[i]))
-        const lights = plan.map((_, i) => (i === face ? light : get().lights[i]))
+        const keep = asking.map((_, i) => (i === face ? kept : get().kept[i]))
         logScan(`face ${face + 1}`, taken)
-        const done = {
+        const after = {
           faces: taken,
-          pictures,
-          lights,
+          kept: keep,
           missed: false,
           cheers: get().cheers + 1,
           last: cells,
         }
-        if (next >= 0) set({ ...done, face: next, status: 'aiming' })
-        else set({ ...done, status: 'complete' })
+        if (next >= 0) set({ ...after, face: next, status: 'aiming' })
+        else set({ ...after, status: 'complete' })
       }, CHECK_MS)
     },
 
-    read: (behind = false) => {
+    behind: false,
+    setBehind: (behind) => set({ behind }),
+
+    read: () => {
       set({ status: 'reading' })
       // The loader shown a moment before the reading takes the thread.
-      later(() => readFaces(behind), READ_DELAY_MS)
+      later(() => (plan()[0]?.sized ? void readSizes() : readFaces()), READ_DELAY_MS)
     },
   }
 })

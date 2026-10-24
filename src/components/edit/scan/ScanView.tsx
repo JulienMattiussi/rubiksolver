@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Flashlight, FlashlightOff, Loader2, X } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
+import { LAYER_THICKNESS, thicknessShare } from '@/lib/core/shape'
+import type { CubeColor } from '@/lib/core/types'
 import { frameOnScreen, type Size } from '@/lib/editor/scan/frame'
 import { coreOf } from '@/lib/editor/scan/box'
 import { scanPlan } from '@/lib/editor/scan/plan'
@@ -11,6 +13,7 @@ import { useFaceReading } from '@/hooks/useFaceReading'
 import { drawnFace } from '@/three/core/scanDrawing'
 import { useCube } from '@/store/cubeStore'
 import { scanDebug, useScan } from '@/store/scanStore'
+import { Bolded } from '@/components/ui/Bolded'
 import { Button } from '@/components/ui/Button'
 import { Cheer } from '@/components/celebration/Cheer'
 import { ErrorAlert } from '../ErrorAlert'
@@ -47,7 +50,8 @@ const reducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motion: redu
 export function ScanView() {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
-  const { face: at, status, missed, pictures, cheers, last, take, read, close } = useScan()
+  const variant = useCube((s) => s.variant)
+  const { face: at, status, missed, kept, cheers, last, take, read, close } = useScan()
   const { videoRef, status: camera, mirrored, canTorch, torch, setTorch } = useCamera()
   const [screen, setScreen] = useState(screenSize)
   const [stage, setStage] = useState<'cheer' | InstructionStage>('front')
@@ -58,7 +62,10 @@ export function ScanView() {
   const fitCard = useCallback((bottom: number) => setCardBottom((b) => Math.max(b, bottom)), [])
   const cheered = useRef(cheers)
 
-  const plan = scanPlan(shape)
+  // A camera facing the user: the faces named, checked and read as its
+  // mirrored gestures bring them.
+  const plan = scanPlan(shape, variant, mirrored)
+  useEffect(() => useScan.getState().setBehind(mirrored), [mirrored])
   // A face whose stickers are no grid, where its drawing shows them.
   const face = drawnFace(shape, plan[at]!)
   // Below the instruction, above the buttons: the camera reads it there.
@@ -77,8 +84,8 @@ export function ScanView() {
   const afterCheer = useCallback(() => {
     if (useScan.getState().status !== 'complete') return setStage('front')
     setStage('hidden')
-    read(mirrored)
-  }, [read, mirrored])
+    read()
+  }, [read])
   // A face asked again (`missed`), even the one just taken (the last, after
   // the reading), shows its instruction again.
   useEffect(() => {
@@ -112,13 +119,22 @@ export function ScanView() {
     take,
   })
 
-  const color = (c: keyof typeof t.colors) => t.colors[c].toLowerCase()
+  // A face named by its color, or a mirror's by its thickness.
+  const color = (c: keyof typeof t.colors) =>
+    face.sized ? t.tutorialMirror.thickness[c as CubeColor] : t.colors[c].toLowerCase()
   // A camera facing the user (a laptop's): turning the puzzle to the
   // user's right brings the next face, as a mirror shows it.
   const wording =
     mirrored && (face.move === 'turn' || face.move === 'below')
       ? (`${face.move}Mirrored` as const)
       : face.move
+  // What a face told by its center (or a mirror's, by its thickness) says.
+  const toldText = (front: string, up: string) => {
+    const key = missed ? 'show' : wording
+    if (!face.sized) return t.scanMoves[key](front, up)
+    const sized = t.scanMovesSized
+    return (sized[key as keyof typeof sized] ?? sized.show)(front, up)
+  }
   const busy = status === 'checking' ? t.scanChecking : status === 'reading' ? t.scanReading : null
 
   return createPortal(
@@ -160,31 +176,34 @@ export function ScanView() {
                 again where it stands), only what it is. */}
             {face.told ? (
               <p>
+                {/* A mirror's faces, named, still come by a gesture. */}
+                {face.sized && !missed && <ScanMoveArrow face={face} mirrored={mirrored} />}
                 <ColorWords
-                  text={t.scanMoves[missed ? 'show' : wording](
-                    color(face.frontColor),
-                    color(face.upColor),
-                  )}
-                  colors={[
-                    { color: face.frontColor, name: color(face.frontColor) },
-                    { color: face.upColor, name: color(face.upColor) },
-                  ]}
+                  text={toldText(color(face.frontColor), color(face.upColor))}
+                  colors={[face.frontColor, face.upColor].map((c) => ({
+                    color: c,
+                    name: color(c),
+                    // A mirror's face, drawn by its thickness.
+                    ...(face.sized && {
+                      size: thicknessShare(c as CubeColor, LAYER_THICKNESS.mirror),
+                    }),
+                  }))}
                 />
               </p>
             ) : (
               !missed && (
                 <p>
                   <ScanMoveArrow face={face} mirrored={mirrored} />
-                  {t.scanMovesAny[wording]}
+                  <Bolded text={t.scanMovesAny[wording]} strong="font-extrabold text-amber-200" />
                 </p>
               )
             )}
             {missed && <ErrorAlert>{t.scanMissed}</ErrorAlert>}
             {/* The face to take again, as it was taken: which one, which
                 way up. */}
-            {missed && pictures[at] && (
+            {missed && kept[at]?.photo && (
               <img
-                src={pictures[at]}
+                src={kept[at]?.photo}
                 alt={t.scanAgain}
                 className={`mx-auto max-h-28 rounded-md ring-1 ring-white/30 ${mirrored ? '-scale-x-100' : ''}`}
               />
@@ -204,7 +223,14 @@ export function ScanView() {
         </div>
       )}
 
-      {aiming && <ScanTake armed={armed} nothing={nothing} onArm={arm} />}
+      {aiming && (
+        <ScanTake
+          armed={armed}
+          nothing={nothing}
+          onArm={arm}
+          hint={face.sized ? t.scanTakeHintSized : undefined}
+        />
+      )}
 
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 p-4 pb-8">
         <div className="flex justify-center gap-3">

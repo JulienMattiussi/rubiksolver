@@ -2,7 +2,7 @@ import { cubeShape } from '@/lib/core/cube'
 import { progress } from '@/lib/editor/edit'
 import { paletteColors } from '@/lib/editor/modes/colors'
 import { entryOf } from '@/lib/editor/entry'
-import { byThickness, LAYER_THICKNESS, tellsSizes } from '@/lib/core/shape'
+import { byThickness, LAYER_THICKNESS, tellsSizes, thicknessShare } from '@/lib/core/shape'
 import type { CubeColor } from '@/lib/core/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
@@ -11,14 +11,9 @@ import { useColorName } from '@/hooks/useColorName'
 import { COLOR_HEX, VARIANT_SKIN } from '@/three/core/colors'
 import { SECTION_LABEL } from '@/components/ui/styles'
 
-/** Width of a thickness swatch. The scale is stretched over the whole button:
- *  the real thicknesses (a mirror's span 0.44..1.56) are too close to tell two
- *  neighbors apart in a 5 rem chip. Order and the thin/thick grouping are
- *  preserved. */
-function swatchWidth(thickness: number, all: readonly number[]): string {
-  const [thinnest, thickest] = [Math.min(...all), Math.max(...all)]
-  return `${20 + (80 * (thickness - thinnest)) / (thickest - thinnest)}%`
-}
+/** Width of a thickness swatch, stretched over the whole button (order and
+ *  the thin/thick grouping kept). */
+const swatchWidth = (share: number): string => `${20 + 80 * share}%`
 
 /** Swatches with the remaining count, picking what a click paints: a color, or
  *  a layer thickness on a variant whose stickers tell sizes (a mirror cube;
@@ -70,7 +65,7 @@ export function ColorPalette() {
                     className="block h-3.5 rounded-sm"
                     style={{
                       // Only the cubes come so: their six colors.
-                      width: swatchWidth(thickness[c as CubeColor], Object.values(thickness)),
+                      width: swatchWidth(thicknessShare(c as CubeColor, thickness)),
                       backgroundColor: VARIANT_SKIN[variant],
                     }}
                   />

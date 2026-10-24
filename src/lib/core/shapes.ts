@@ -136,6 +136,9 @@ export const SHAPE_EDIT_HINT: Record<CubeShape, EditHint | undefined> = each((e)
  *  the others' button says it is untried yet. */
 export const SHAPE_SCAN_TRIED: Record<CubeShape, boolean> = each((e) => e.scanTried === true)
 
+/** Shapes whose mirror scans by its stickers' sizes (sizedRead.ts). */
+export const SHAPE_MIRROR_SCAN: Record<CubeShape, boolean> = each((e) => e.mirrorScan === true)
+
 /** Shapes exposed in the UI, in display order. */
 const SHAPES = Object.keys(CATALOG) as readonly CubeShape[]
 

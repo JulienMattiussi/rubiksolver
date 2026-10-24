@@ -14,11 +14,15 @@ export function ScanTake({
   armed,
   nothing,
   onArm,
+  hint,
 }: {
   armed: boolean
   /** Nothing held still last time. */
   nothing: boolean
   onArm: () => void
+  /** What to put in the frame, when not the whole puzzle (a mirror's
+   *  center). */
+  hint?: string
 }) {
   const t = useI18n((s) => s.t)
   useEffect(() => {
@@ -51,7 +55,7 @@ export function ScanTake({
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
       <div className="pointer-events-auto flex max-w-sm flex-col items-center gap-3 rounded-2xl bg-black/75 p-5 text-center shadow-xl ring-1 ring-white/15">
         <p className="text-sm leading-snug text-slate-100">
-          {nothing ? t.scanNothing : t.scanTakeHint}
+          {nothing ? t.scanNothing : (hint ?? t.scanTakeHint)}
         </p>
         <Button variant="primary" onClick={onArm} className="px-6 py-3 text-base">
           <ScanLine className="size-5" aria-hidden />

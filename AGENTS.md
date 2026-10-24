@@ -41,6 +41,7 @@ plus souvent celle de fan2cube (voir leur fiche dans `docs/puzzles/`).
 | Prettier                   | Formatage                                                          |
 | ESLint (typescript-eslint) | Linting                                                            |
 | Knip                       | Détection du code / dépendances inutilisés                         |
+| OpenCV.js                  | Les stickers d'un cube miroir au scan (worker, préchargé)          |
 
 > `three` est **épinglé à `0.176.0`** : les versions plus récentes déprécient
 > `THREE.Clock` (utilisé en interne par React Three Fiber), ce qui émettrait un
@@ -185,13 +186,14 @@ src/
 ├── store/               # Zustand : cubeStore (cube, file de coups, solution), editorStore, savedStore,
 │                        #   viewStore, router, scanStore (le scan, face par face), tutorialStore (pick, formules jouées, coups à la main, arrêt),
 │                        #   tutorialTrack (étapes montrées, 💪 et fin, coups déjà montrés)
-├── hooks/               # useAutoPlan (solution dans le worker), useCamera et useFaceReading (le scan), useIsDesktop,
+├── hooks/               # useAutoPlan (solution dans le worker), useCamera, useFaceReading et usePreloadStickers (le scan), useIsDesktop,
 │                        #   useSolveShortcuts, useTutorial
 ├── i18n/                # fr/ et en/ (ui, methods, steps, moveSentences : phrases longues du guide et
 │                        #   courtes du tutoriel, tutorial : phrases communes, tutorials/ : les textes de chaque tutoriel,
 │                        #   tutorialMirror ; EN typé sur FR), tutorialTexts (leur forme), translations
 │                        #   (les assemble), i18nStore
-├── workers/             # solveWorker : la solution hors du fil de l'interface ; facesWorker (et
+├── workers/             # solveWorker : la solution hors du fil de l'interface ; stickersWorker (et findStickers,
+│                        #   stickers) : les stickers d'un miroir trouvés par OpenCV ; facesWorker (et
 │                        #   findFaces) : la forme retrouvée de ses faces (Camouflage, Purple)
 └── assets/gear/         # Masques des pièces du Gear Cube (scripts/gear_face.py)
 tests/
@@ -437,7 +439,8 @@ dans l'éditeur, à valider. Tout se déduit des dimensions (`scanPlan`,
 `layout.ts`), sauf d'un modèle qui déclare son scan (`PuzzleModel.scan` :
 en grille, en carré placé par son dessin, en anneaux, ou par sa forme,
 que le scan trouve : `forms.ts`, les tours, calées par leur cœur, `box.ts` ;
-le Floppy Ghost, argenté, se lit à ses contours, d'une seule photo, `outlines.ts`). Le détail :
+le Floppy Ghost, argenté, se lit à ses contours, d'une seule photo, `outlines.ts` ; le 3x3 miroir,
+aux tailles de ses stickers, trouvés par OpenCV dans un worker, `sized.ts`, `sizedRead.ts`). Le détail :
 [docs/scan.md](docs/scan.md) ; les limites : `AMELIORATIONS.md`.
 
 Ce que toute saisie remplit, quel que soit son mode, est une table de

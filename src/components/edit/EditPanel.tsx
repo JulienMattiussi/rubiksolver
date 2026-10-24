@@ -44,7 +44,8 @@ function errorText(
   if (error === 'parts') return t.errorGears
   if (error === 'jointsColors') return t.errorJointsColors
   if (error === 'counts') return sizes ? t.errorCountsMirror : t.errorCounts
-  if (failedStep && failedStep in t.steps) return t.errorImpossibleAt(stepName(t, failedStep))
+  if (failedStep && failedStep in t.steps)
+    return t.errorImpossibleAt(stepName(t, failedStep, sizes))
   return t.errorImpossible
 }
 

@@ -81,7 +81,7 @@ export function StepList({ steps }: { steps: readonly SolveStep[] }) {
             <li key={i} className={stepClass(done, current)}>
               <div className="flex items-start justify-between gap-2">
                 <span className="min-w-0 font-medium text-slate-200">
-                  {i + 1}. {stepName(t, step.key)}
+                  {i + 1}. {stepName(t, step.key, sizes)}
                 </span>
                 <span className="flex shrink-0 items-center gap-1 whitespace-nowrap text-slate-400">
                   {done && <Check className="size-3 text-emerald-400" aria-hidden />}

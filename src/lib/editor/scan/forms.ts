@@ -4,7 +4,7 @@ import { coreOf, facesShown, holdings, type Shown } from './box'
 import { readFaces, type ScanReading } from './classify'
 import { colored } from './color'
 import { gridLayout } from './layout'
-import { scanPlan, type ScanFace } from './plan'
+import { orderFor, scanPlan, type ScanFace } from './plan'
 import type { CellSample } from './sample'
 
 /**
@@ -78,11 +78,12 @@ function cost(shown: readonly Shown[], looks: readonly Look[]): number {
 export function readForms(
   shape: CubeShape,
   taken: readonly (readonly CellSample[])[],
+  behind = false,
 ): ScanReading {
-  const box = scanPlan(shape)
+  const box = scanPlan(shape, 'classic', behind)
   const looks = looksOf(shape, taken)
   const candidates = holdings(shape).map((cube) => {
-    const shown = facesShown(shape, cube)
+    const shown = facesShown(shape, cube, orderFor(behind))
     return { cube, shown, cost: shown.reduce((sum, s, f) => sum + cost(s, looks[f] ?? []), 0) }
   })
   candidates.sort((a, b) => a.cost - b.cost)

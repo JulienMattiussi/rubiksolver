@@ -3,6 +3,8 @@ import { watch, watchAfter } from '@/lib/editor/scan/capture'
 import { labOf } from '@/lib/editor/scan/color'
 import { frameOnScreen, screenToPicture } from '@/lib/editor/scan/frame'
 import type { Picture } from '@/lib/editor/scan/outlines'
+import type { Kept } from '@/store/scanStore'
+import type { FaceImage } from '@/workers/findStickers'
 import type { ScanFace } from '@/lib/editor/scan/plan'
 import { sampleFace, type CellSample } from '@/lib/editor/scan/sample'
 
@@ -19,6 +21,24 @@ function lightOf({ data, width, height }: ImageData): Picture {
   for (let i = 0; i < light.length; i++)
     light[i] = labOf(data[4 * i]!, data[4 * i + 1]!, data[4 * i + 2]!)[0]
   return { width, height, light }
+}
+
+/** Pixels across the image a mirror's face is kept in: its stickers found
+ *  on it (stickersWorker.ts), a thin one some 25 pixels wide. */
+const SIZED_PX = 480
+
+/** The frame's image, sharp enough to find a mirror's stickers on. */
+function imageOf(
+  video: HTMLVideoElement,
+  crop: { x: number; y: number; width: number; height: number },
+  canvas: HTMLCanvasElement,
+): FaceImage | undefined {
+  const [width, height] = [SIZED_PX, Math.round((SIZED_PX * crop.height) / crop.width)]
+  Object.assign(canvas, { width, height })
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  if (!ctx) return undefined
+  ctx.drawImage(video, crop.x, crop.y, crop.width, crop.height, 0, 0, width, height)
+  return { width, height, rgba: ctx.getImageData(0, 0, width, height).data }
 }
 
 /**
@@ -45,15 +65,17 @@ export function useFaceReading({
   aiming: boolean
   /** The face taken before, not to take again before the puzzle turns. */
   last: readonly CellSample[] | undefined
-  /** The face taken, and its picture (to show it again, should it be
-   *  refused; on a face read whole, its lightness too). */
-  take: (cells: readonly CellSample[], picture: string, light?: Picture) => void
+  /** The face taken, and what is kept of it: its photo (to show it again,
+   *  should it be refused); on a face read whole, its lightness; on a
+   *  mirror's, its image. */
+  take: (cells: readonly CellSample[], kept: Kept) => void
 }) {
   const [armed, setArmed] = useState(false)
   const [nothing, setNothing] = useState(false)
   const [holding, setHolding] = useState(false)
   const [cells, setCells] = useState<readonly CellSample[]>([])
   const canvas = useRef<HTMLCanvasElement | null>(null)
+  const wide = useRef<HTMLCanvasElement | null>(null)
 
   const arm = useCallback(() => {
     setNothing(false)
@@ -95,7 +117,10 @@ export function useFaceReading({
         // A tap again for the next face.
         setArmed(false)
         const light = face.whole ? lightOf(ctx.getImageData(0, 0, width, height)) : undefined
-        take(seen.taken, canvas.current.toDataURL('image/jpeg', 0.8), light)
+        const image = face.sized
+          ? imageOf(video, crop, (wide.current ??= document.createElement('canvas')))
+          : undefined
+        take(seen.taken, { photo: canvas.current.toDataURL('image/jpeg', 0.8), light, image })
       }
     }, READ_MS)
     return () => {

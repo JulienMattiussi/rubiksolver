@@ -1,4 +1,5 @@
 import { cubeShape } from '@/lib/core/cube'
+import { tellsSizes } from '@/lib/core/shape'
 import { methodsFor } from '@/lib/solve/solver'
 import { stepName } from '@/i18n/translations'
 import { useI18n } from '@/i18n/i18nStore'
@@ -13,6 +14,7 @@ export function PlanOutline() {
   const cube = useCube((s) => s.cube)
   const shape = cubeShape(cube)
   const methodId = useCube((s) => s.method)
+  const sizes = useCube((s) => tellsSizes(s.variant))
   const methods = methodsFor(shape)
   const method = methods.find((m) => m.id === methodId) ?? methods[0]
   if (!method) return null
@@ -26,7 +28,7 @@ export function PlanOutline() {
           <li key={step.key} className="rounded-lg bg-slate-800/40 px-2.5 py-1.5 text-xs">
             <div className="flex items-start justify-between gap-2">
               <span className="min-w-0 font-medium text-slate-200">
-                {i + 1}. {stepName(t, step.key)}
+                {i + 1}. {stepName(t, step.key, sizes)}
               </span>
               {step.optional && (
                 <span className="shrink-0 whitespace-nowrap text-slate-500">{t.ifNeeded}</span>

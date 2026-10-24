@@ -15,6 +15,7 @@ import { Fireworks } from '@/components/celebration/Fireworks'
 import { StageCheer } from '@/components/celebration/StageCheer'
 import { Scene } from '@/three/core/Scene'
 import { FaceArrows } from '@/components/edit/FaceArrows'
+import { usePreloadStickers } from '@/hooks/usePreloadStickers'
 
 /** A phone's folded panel, its height while it goes down (px, measured
  *  once folded), and the margin below it (p-3). */
@@ -28,6 +29,8 @@ export default function App() {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
   const variant = useCube((s) => s.variant)
+  // A mirror cube that scans: OpenCV loaded ahead, the page once idle.
+  usePreloadStickers(shape, variant)
   // On a phone, the puzzle is framed in the space above the panel (Scene's
   // `covered`): open, the top fifth of the screen; folded, all above its
   // bar; going down, the bar's height already, so the puzzle grows as the

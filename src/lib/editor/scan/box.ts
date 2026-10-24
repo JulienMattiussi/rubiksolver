@@ -11,7 +11,7 @@ import type { CubeShape } from '../../core/shapes'
 import type { Cube } from '../../core/types'
 import { stickerId } from '../editorTables'
 import { formsOf, lookOf } from '../modes/form'
-import { axisOf, boxSides, ORDER } from './plan'
+import { axisOf, boxSides, ORDER, orderFor } from './plan'
 
 /**
  * A puzzle that changes shape, scanned as the box it turns in (pure): its
@@ -48,9 +48,9 @@ export function holdings(shape: CubeShape): Cube[] {
 }
 
 /** A form held some way: each face's cells as it shows them. */
-export function facesShown(shape: CubeShape, cube: Cube): Shown[][] {
+export function facesShown(shape: CubeShape, cube: Cube, order = orderFor(false)): Shown[][] {
   const dims = turnDims(shape)
-  return ORDER.map(({ front, up }) => {
+  return order.map(({ front, up }) => {
     const [rows, cols] = boxSides(dims, front, up)
     const n = FACE_NORMAL[front]
     const u = FACE_NORMAL[up]

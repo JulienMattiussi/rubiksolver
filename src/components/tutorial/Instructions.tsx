@@ -13,7 +13,7 @@ import { HIGHLIGHT, PLACE } from '@/three/core/colors'
 import { FormulaMoves } from './FormulaMoves'
 import { Toned } from './Toned'
 import { liftFor } from './liftFor'
-import { Bolded } from './Bolded'
+import { Bolded } from '@/components/ui/Bolded'
 import { Pictured } from './Pictured'
 import { useTutorialTexts } from './useTutorialTexts'
 

@@ -66,6 +66,15 @@ export function byThickness(thickness: Record<CubeColor, number>): CubeColor[] {
   return (Object.keys(thickness) as CubeColor[]).sort((a, b) => thickness[a] - thickness[b])
 }
 
+/** Where a color's thickness stands among a variant's, from 0 (the
+ *  thinnest) to 1 (the thickest): what a swatch draws, stretched (the real
+ *  thicknesses, 0.44 to 1.56, are too close to tell apart small). */
+export function thicknessShare(color: CubeColor, thickness: Record<CubeColor, number>): number {
+  const all = Object.values(thickness)
+  const [thinnest, thickest] = [Math.min(...all), Math.max(...all)]
+  return thickest > thinnest ? (thickness[color] - thinnest) / (thickest - thinnest) : 0
+}
+
 /** Box of one cubie, in cell units. */
 export interface CubieBox {
   /** Extents along x, y, z. */

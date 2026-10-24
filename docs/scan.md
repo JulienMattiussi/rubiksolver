@@ -7,7 +7,7 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 
 ## Les puzzles scannables
 
-`scannable` (`lib/editor/scan/plan.ts`) : 26 modèles sur 75.
+`scannable` (`lib/editor/scan/plan.ts`) : 26 modèles sur 75, et le 3x3 miroir.
 
 - **En grille**, tout se déduit des dimensions (`scanPlan`) : les cubes du
   2x2 au 6x6, les cuboïdes et les plats sans saisie propre (1x2x3, Floppy,
@@ -28,9 +28,11 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 - **Par ses contours** (`scan` : un `OutlineScan`, `outlines.ts`) : le
   Floppy Ghost, tout argenté, lu d'une seule photo (voir « Par les
   contours » plus bas).
+- **Par les tailles de ses stickers** : le 3x3 miroir (`mirrorScan` sur sa
+  carte ; voir « Le cube miroir » plus bas).
 
 Restent dehors les puzzles dont une information n'est pas une couleur
-(miroirs, super cubes, soudés, engrenages...), les autres puzzles qui se
+(les autres miroirs, super cubes, soudés, engrenages...), les autres puzzles qui se
 déforment (Camouflage, Purple, Fashion-V, AI Cube), et le Tori (ses
 arêtes, de minces amandes au bord des faces).
 
@@ -47,7 +49,8 @@ montrée en miroir ; une lampe torche quand le téléphone la propose, Chrome
 sur Android).
 
 1. **La consigne** (`ScanInstruction`) s'affiche en grand devant l'image,
-   puis glisse à sa place en haut. Elle dit la face à montrer :
+   puis glisse à sa place en haut, où tenir le puzzle en gras (« **face à
+   l'objectif** », « **en haut** »). Elle dit la face à montrer :
    - par ses couleurs, quand les centres disent les faces (`told` : un 3x3,
      le Megaminx) : « le centre vert face à l'objectif, le blanc en haut »,
      chaque couleur précédée de sa pastille (`ColorWords`) ;
@@ -59,10 +62,14 @@ sur Android).
      miroir) voit le puzzle de l'autre côté : « tournez vers la gauche »
      y devient « vers la droite », la flèche inversée ; la flèche d'une bascule
      vers l'objectif y part de la face vue par l'utilisateur, par-dessus, vers
-     l'écran. Le puzzle y est filmé de dos : tourné vers la droite, il montre
-     ses côtés dans l'autre ordre (la gauche après la face), puis son dessus
-     et son dessous à l'envers ; la lecture les remet dans l'ordre du plan
-     (`readScan(..., behind)`, `read.ts`). Une face à reprendre
+     l'écran. Tourné ainsi, le puzzle montre ses faces dans l'image miroir des
+     gestes d'un téléphone (gauche et droite échangées : la face de gauche
+     après celle de devant, le dessus et le dessous tenus la gauche en
+     haut ; constaté sur une tour et sur un miroir) : le plan est alors bâti
+     dans cet ordre (`orderFor`, `scanPlan(..., behind)`, `scanStore.behind`),
+     pour tous les modèles, faces nommées par leur couleur comprises (un
+     3x3 : « vers la droite : le centre orange ») ; consigne, vérification
+     du centre à la prise et lecture le suivent. Une face à reprendre
      ne redit pas le geste qui y menait : seulement la face, et sa photo.
 2. **Le cadre** (`ScanFrame`), en pointillé, de la forme de la face (grille,
    bande, pentagone, carré), sous la consigne et au-dessus des boutons
@@ -88,7 +95,8 @@ sur Android).
    quel sens.
 
 `?scandebug` dans l'adresse écrit dans chaque case sa mesure (clarté,
-saturation, teinte), pour régler les seuils.
+saturation, teinte), pour régler les seuils ; sur un miroir, il écrit dans
+la console les rectangles trouvés sur chaque face, pour rejouer la lecture.
 
 ## La lecture d'une face
 
@@ -198,3 +206,55 @@ Sur des images synthétiques (tenue quelconque, de face ou de dos, zoom de
 plus ou moins 10 %, fond de n'importe quelle clarté, bruit, reflet sombre),
 les états sont lus exactement. Reste à régler sur le vrai puzzle la largeur
 du cadre noir des stickers (`border`, 2,5 mm estimés sur photos).
+
+## Le cube miroir (3x3)
+
+Tout doré ou argenté, ses pièces se reconnaissent à leurs tailles : sur une
+face, chaque sticker est aussi large et aussi haut que les couches qu'il
+couvre. Ses épaisseurs sont celles d'un vrai Mirror Blocks mesuré
+(`LAYER_THICKNESS.mirror`, 8 à 28 mm, couche du milieu 18 mm).
+
+- **Les faces sont nommées par leur épaisseur** (« la face très fine face à
+  l'objectif, la très épaisse en haut », `scanMovesSized`) : ses centres
+  mesurent tous 1 x 1, et tourner toutes ses autres pièces autour d'eux
+  donne encore un cube ; les tailles seules ne peuvent pas dire comment il
+  est tenu. On reconnaît une face à son centre, d'autant plus enfoncé
+  qu'elle est fine.
+- **L'ordre** commence par les deux faces les plus faciles à repérer (leurs
+  centres sont les plus enfoncés) : la fine (12 mm) face à l'objectif, la
+  très fine (8 mm) en haut ; puis les gestes du scan font le tour
+  (`sizedOrder`). Devant une caméra tournée vers soi (un portable), « vers
+  la droite » amène les côtés dans l'autre ordre, puis le dessus et le
+  dessous à l'envers : les faces y sont nommées dans cet ordre, pour que
+  le nom et le geste s'accordent, et la lecture essaie les deux ordres, la
+  moins chère l'emportant (un cube montré dans l'autre sens est lu quand
+  même).
+- **Le cadre** ne trace que le centre (« positionnez le centre de la face dans le cadre »)
+  (`ScanFace.mark`), et ses quatre côtés prolongés en traits qui
+  s'estompent (`CenterCuts`) : seul le centre est fixe, les autres stickers
+  s'appuient sur ces coupes et dépassent d'au plus 2,1 couches du milieu de
+  chaque côté (cinq de côté au total). Pas de points dans les cases ; la
+  prise attend le tap et une seconde d'immobilité, et garde une image du
+  cadre de 480 pixels (`useFaceReading`).
+- **Les stickers** sont trouvés par OpenCV dans un worker
+  (`workers/stickersWorker.ts`, `stickers.ts`) : le clair séparé du corps
+  noir, découpé le long des bords (Canny) pour séparer les stickers
+  voisins, chaque région presque rectangulaire gardée ; puis le clair
+  entier, pour un sticker qu'une rayure ou de l'encre avait cassé.
+  OpenCV.js (9,9 Mo, 3 compressé) est préchargé dès qu'un 3x3 miroir
+  s'affiche, la page au repos, sauf en économie de données
+  (`usePreloadStickers`), puis gardé en cache un an (`vercel.json`).
+- **Le placement** (`sized.ts`) : les coupes sont des plans, donc chaque
+  sticker s'appuie sur les droites du centre ; une arête contre un de ses
+  côtés, un coin contre deux, chaque rectangle une fois au plus.
+- **La lecture** (`sizedRead.ts`) : chaque pièce, connue par ses
+  épaisseurs, mise au moindre coût (la méthode hongroise) ; la part du
+  liseré noir (propre à chaque marque) et le léger rétrécissement des
+  couches épaisses sur la photo sont ajustés sur le scan, et la lecture la
+  moins chère qui fait un cube l'emporte.
+
+Sur six photos d'un vrai cube, les arêtes en place et les coins mélangés
+(référence figée : `tests/unit/editor/fixtures/mirrorScan.json`), la
+lecture retrouve l'état exact, que l'appli a résolu sur le vrai cube ; sur
+un scan dans l'appli d'un cube résolu devant la caméra d'un portable
+(`mirrorSolvedLaptop.json`), elle le lit résolu.

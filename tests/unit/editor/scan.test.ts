@@ -31,7 +31,7 @@ const sampleGrid = (pixels: Pixels, rows: number, cols: number) =>
 
 /** Every puzzle a camera can scan; those whose form the scan finds
  *  (the towers) apart. */
-const SCANNABLE = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter(scannable)
+const SCANNABLE = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter((s) => scannable(s))
 // Read from their cells (not a face out of shape, nor one read whole).
 const SCANNED = SCANNABLE.filter((shape) => !scanPlan(shape)[0]?.open && !scanPlan(shape)[0]?.whole)
 const OUT_OF_SHAPE = SCANNABLE.filter((shape) => scanPlan(shape)[0]?.open)
@@ -54,7 +54,7 @@ describe('scan plan', () => {
   it('says which puzzles it was tried on for real', () => {
     const tried = (Object.keys(SHAPE_SCAN_TRIED) as CubeShape[]).filter((s) => SHAPE_SCAN_TRIED[s])
     expect(tried).toEqual(['2', '3', '4', '224'])
-    expect(tried.every(scannable)).toBe(true)
+    expect(tried.every((s) => scannable(s))).toBe(true)
   })
 
   it('tells a face by its center, only where every face has one', () => {
@@ -392,6 +392,26 @@ describe('reading a scan', () => {
         [3, 2, 2],
       ]),
     ).toEqual([1, 0, 2])
+  })
+
+  // A laptop's camera: told to turn it "to the right", as the mirrored
+  // picture shows, the user turns it the other way round; every face is
+  // asked, checked and read as it then comes.
+  it.each(SCANNED)('reads a scrambled %s shown to a laptop’s camera', (shape) => {
+    const { faces, edit } = scanOf(shape, 8, true)
+    expect(readScan(shape, faces, true)).toEqual({ ok: true, edit })
+  })
+
+  it('names a 3x3’s faces as a laptop’s gestures bring them: left and right swapped', () => {
+    const named = scanPlan('3', 'classic', true).map((f) => [f.frontColor, f.upColor])
+    expect(named).toEqual([
+      ['G', 'W'],
+      ['O', 'W'],
+      ['B', 'W'],
+      ['R', 'W'],
+      ['W', 'O'],
+      ['Y', 'O'],
+    ])
   })
 
   it.each(SCANNED)('reads a scrambled %s back', (shape) => {

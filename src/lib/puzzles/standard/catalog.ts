@@ -19,6 +19,7 @@ export const STANDARD = {
     scramble: 20,
     advanced: ['slice', 'wide'],
     mirror: true,
+    mirrorScan: true,
     scanTried: true,
   },
   '4': {

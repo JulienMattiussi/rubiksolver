@@ -50,7 +50,8 @@ export interface PuzzleModel {
    *  form found from what its faces show (`forms`: the towers); or face
    *  by face, each a ring round its center (the Megaminx); or from one
    *  picture, by its pieces' outlines (the Floppy Ghost, all silver). */
-  readonly scan?: 'grid' | 'square' | 'forms' | (() => readonly RingFace[]) | OutlineScan
+  readonly scan?:
+    'grid' | 'square' | 'forms' | ((behind: boolean) => readonly RingFace[]) | OutlineScan
   /** How it is entered (lib/editor/entry.ts), when not by painting its
    *  stickers alone. */
   readonly entry?: {

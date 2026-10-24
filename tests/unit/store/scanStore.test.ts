@@ -15,6 +15,20 @@ import { scanPlan } from '@/lib/editor/scan/plan'
 import { ghostScan } from '@/lib/puzzles/flat/ghostScan'
 import { ghostPicture } from '../editor/ghostPictures'
 import { seededRng } from '../../helpers'
+import { findStickers } from '@/workers/findStickers'
+
+// The worker (OpenCV) and the reading of a mirror stood in for: what the
+// store does with them is what is tested (sized.test.ts reads a real one).
+const MIRROR_EDIT = cubeToEdit(
+  applyMoves(solvedCube('3'), scrambleTurns('3', 10, seededRng(9), solvedCube('3'))),
+)
+vi.mock('@/workers/findStickers', () => ({
+  findStickers: vi.fn(async () => []),
+  warmStickers: vi.fn(),
+}))
+vi.mock('@/lib/editor/scan/sizedRead', () => ({
+  readSized: () => ({ ok: true, edit: MIRROR_EDIT }),
+}))
 
 beforeEach(() => {
   vi.useFakeTimers()
@@ -74,13 +88,13 @@ describe('scan store', () => {
     const { faces } = scanOf('3', 5)
     faces[3]![0] = { lab: labOf(150, 40, 200) }
     faces.forEach((cells, i) => {
-      useScan.getState().take(cells, `face ${i}`)
+      useScan.getState().take(cells, { photo: `face ${i}` })
       vi.runAllTimers()
     })
     useScan.getState().read()
     vi.runAllTimers()
     expect(useScan.getState()).toMatchObject({ face: 3, missed: true })
-    expect(useScan.getState().pictures[3]).toBe('face 3')
+    expect(useScan.getState().kept[3]?.photo).toBe('face 3')
   })
 
   it('opens the paint in the form it found a tower in, no form to pick', () => {
@@ -111,11 +125,41 @@ describe('scan store', () => {
     useScan.getState().start()
     const cube = ghostScan.states()[777]!
     const cells = scanPlan('ghost')[0]!.cells.map(() => ({ lab: labOf(200, 200, 200) }))
-    useScan.getState().take(cells, 'photo', ghostPicture(cube, { turn: 2 }, seededRng(3)))
+    useScan
+      .getState()
+      .take(cells, { photo: 'photo', light: ghostPicture(cube, { turn: 2 }, seededRng(3)) })
     vi.runAllTimers()
     expect(useScan.getState().status).toBe('complete')
-    useScan.getState().read(true)
+    // Read either way, a laptop's camera too.
+    useScan.getState().setBehind(true)
+    useScan.getState().read()
     vi.runAllTimers()
     expect(useEditor.getState()).toMatchObject({ edit: cubeToEdit(cube), fromScan: true })
+    useScan.getState().setBehind(false)
+  })
+
+  it('reads a mirror by its stickers, found in the worker, into the editor', async () => {
+    useCube.getState().setShape('3')
+    useCube.getState().setVariant('mirror')
+    useEditor.getState().enter()
+    useScan.getState().start()
+    const plan = scanPlan('3', 'mirror')
+    expect(plan.every((f) => f.sized)).toBe(true)
+    const image = { width: 4, height: 4, rgba: new Uint8ClampedArray(64) }
+    for (const face of plan) {
+      useScan.getState().take(
+        face.cells.map(() => ({ lab: labOf(200, 180, 90) })),
+        { image },
+      )
+      vi.runAllTimers()
+    }
+    expect(useScan.getState().status).toBe('complete')
+    useScan.getState().read()
+    vi.runAllTimers()
+    await vi.waitFor(() => expect(useScan.getState().open).toBe(false))
+    // Each face's stickers looked for, then read.
+    expect(findStickers).toHaveBeenCalledTimes(6)
+    expect(useEditor.getState()).toMatchObject({ edit: MIRROR_EDIT, fromScan: true })
+    useCube.getState().setVariant('classic')
   })
 })

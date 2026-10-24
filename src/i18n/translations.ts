@@ -37,6 +37,10 @@ const en: Translations = {
 export const LOCALES = { fr, en }
 export type Locale = keyof typeof LOCALES
 
-/** A step's name in these translations (its key if it has none). */
-export const stepName = (t: Translations, key: string): string =>
-  (t.steps as Record<string, string>)[key] ?? key
+/** A step's name in these translations (its key if it has none); on a
+ *  mirror cube (`sizes`), the tutorial's own, which names a side by its
+ *  thickness rather than its color. */
+export const stepName = (t: Translations, key: string, sizes = false): string =>
+  (sizes ? t.tutorialMirror.titles[key] : undefined) ??
+  (t.steps as Record<string, string>)[key] ??
+  key

@@ -204,47 +204,67 @@ export const UI_EN: typeof UI_FR = {
   scanCheck: 'Scan done: check carefully that the model shown matches your puzzle, then apply.',
   scanTake: 'Scan the face',
   scanTakeHint: 'Place the puzzle in the frame, then tap the button to scan the face.',
+  scanTakeHintSized:
+    'Place the center of the face in the frame, then tap the button to scan the face.',
   scanHolding: 'Hold the puzzle still…',
   scanNothing: 'Nothing held still in the frame: place the puzzle again and retry.',
   scanMoves: {
     first: (front: string, up: string) =>
-      `Hold the camera still in front of the puzzle, the ${front} center facing the lens and ${up} on top, the face filling the frame, in a well-lit place.`,
+      `Hold the camera still in front of the puzzle, the ${front} center **facing the lens** and ${up} **on top**, the face filling the frame, in a well-lit place.`,
     turn: (front: string, up: string) =>
-      `Turn the cube a quarter turn to the left: the ${front} center facing the lens, ${up} still on top.`,
+      `Turn the cube a quarter turn **to the left**: the ${front} center **facing the lens**, ${up} **still on top**.`,
     tilt: (front: string, up: string) =>
-      `Tilt the top of the cube toward the lens: the ${front} center facing the lens, ${up} on top.`,
+      `Tilt the top of the cube **toward the lens**: the ${front} center **facing the lens**, ${up} **on top**.`,
     flip: (front: string, up: string) =>
-      `Turn the cube half round: the ${front} center facing the lens, ${up} still on top.`,
+      `Turn the cube **half round**: the ${front} center **facing the lens**, ${up} **still on top**.`,
     below: (front: string, up: string) =>
-      `Turn the puzzle to the left: the ${front} center facing the lens, ${up} still at the bottom.`,
-    show: (front: string, up: string) => `Show the ${front} center to the lens, ${up} on top.`,
+      `Turn the puzzle **to the left**: the ${front} center **facing the lens**, ${up} **still at the bottom**.`,
+    show: (front: string, up: string) =>
+      `Show the ${front} center **to the lens**, ${up} **on top**.`,
     // The camera facing you (a laptop's): your left is its right.
     turnMirrored: (front: string, up: string) =>
-      `Turn the cube a quarter turn to the right: the ${front} center facing the lens, ${up} still on top.`,
+      `Turn the cube a quarter turn **to the right**: the ${front} center **facing the lens**, ${up} **still on top**.`,
     belowMirrored: (front: string, up: string) =>
-      `Turn the puzzle to the right: the ${front} center facing the lens, ${up} still at the bottom.`,
+      `Turn the puzzle **to the right**: the ${front} center **facing the lens**, ${up} **still at the bottom**.`,
     // A puzzle out of shape names no color (`told` never): as below.
     // A puzzle read whole names no color either.
     anchored: () =>
-      'Hold the camera still in front of a large face of the puzzle, its middle piece in the marked shape, in a well-lit place.',
+      'Hold the camera still in front of a large face of the puzzle, its middle piece **in the marked shape**, in a well-lit place.',
     upright: () =>
-      'Hold the camera still in front of the puzzle, its longest side upright, its middle small cubes in the outlined cells.',
+      'Hold the camera still in front of the puzzle, its longest side **upright**, its middle small cubes **in the outlined cells**.',
+  },
+  // A mirror's faces, named by their thickness (its centers all alike).
+  scanMovesSized: {
+    first: (front: string, up: string) =>
+      `Hold the camera still in front of the cube, the ${front} face **toward the lens** and the ${up} face **on top**, the center of the face **in the frame**, in a well-lit place. A face shows by its center: the deeper it sits, the thinner the face.`,
+    turn: (front: string, up: string) =>
+      `Turn the cube a quarter turn **to the left**: the ${front} face **toward the lens**, the ${up} face **still on top**.`,
+    turnMirrored: (front: string, up: string) =>
+      `Turn the cube a quarter turn **to the right**: the ${front} face **toward the lens**, the ${up} face **still on top**.`,
+    tilt: (front: string, up: string) =>
+      `Tilt the top of the cube **toward the lens**: the ${front} face **toward the lens**, the ${up} face **on top**.`,
+    flip: (front: string, up: string) =>
+      `Give the cube a **half turn**: the ${front} face **toward the lens**, the ${up} face **still on top**.`,
+    show: (front: string, up: string) =>
+      `Show the ${front} face **to the lens**, the ${up} face **on top**, the center of the face **in the frame**.`,
   },
   scanMovesAny: {
     first:
-      'Hold the camera still in front of the puzzle, any face shaped like the frame facing the lens and filling it, in a well-lit place.',
-    turn: 'Turn the puzzle to the left up to the next face, its top staying on top.',
-    below: 'Turn the puzzle to the left up to the next face, its bottom staying at the bottom.',
-    turnMirrored: 'Turn the puzzle to the right up to the next face, its top staying on top.',
+      'Hold the camera still in front of the puzzle, any face shaped like the frame **facing the lens** and filling it, in a well-lit place.',
+    turn: 'Turn the puzzle **to the left** up to the next face, its top **staying on top**.',
+    below:
+      'Turn the puzzle **to the left** up to the next face, its bottom **staying at the bottom**.',
+    turnMirrored:
+      'Turn the puzzle **to the right** up to the next face, its top **staying on top**.',
     belowMirrored:
-      'Turn the puzzle to the right up to the next face, its bottom staying at the bottom.',
-    tilt: 'Show the top: tilt the top of the puzzle toward the lens, the top face comes to face the lens.',
-    flip: 'Turn the puzzle half round: the face at the back comes to face the lens.',
-    show: 'Show the next face to the lens.',
+      'Turn the puzzle **to the right** up to the next face, its bottom **staying at the bottom**.',
+    tilt: 'Show the top: tilt the top of the puzzle **toward the lens**, the top face comes **to face the lens**.',
+    flip: 'Turn the puzzle **half round**: the face at the back comes **to face the lens**.',
+    show: 'Show the next face **to the lens**.',
     anchored:
-      'Hold the camera still in front of a large face of the puzzle, its middle piece in the marked shape, in a well-lit place.',
+      'Hold the camera still in front of a large face of the puzzle, its middle piece **in the marked shape**, in a well-lit place.',
     upright:
-      'Hold the camera still in front of the puzzle, its longest side upright, its middle small cubes in the outlined cells.',
+      'Hold the camera still in front of the puzzle, its longest side **upright**, its middle small cubes **in the outlined cells**.',
   },
   scanAgain: 'The face to take again, as it was taken',
   scanMissed: 'Cube not detected properly: take this face again, held as in the picture.',

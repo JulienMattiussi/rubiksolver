@@ -4,6 +4,7 @@ import type { Point } from '@/lib/editor/scan/layout'
 import type { ScanFace } from '@/lib/editor/scan/plan'
 import type { CellSample } from '@/lib/editor/scan/sample'
 import { COLOR_HEX } from '@/three/core/colors'
+import { CenterCuts } from './CenterCuts'
 
 interface ScanFrameProps {
   /** The frame on screen (frame.ts). */
@@ -25,6 +26,7 @@ interface ScanFrameProps {
 /** The frame a face is aimed into: its outline dashed, its lines faint,
  *  its center's cell outlined (if it tells the face), or its core's cells,
  *  or the shape its anchor goes in (a face read whole, which shows no dots);
+ *  a mirror's, its center and the cuts from it, no outline;
  *  green while its
  *  colors hold. Each cell shows what it reads, as a dot: the cube color it
  *  seems to be (a ring when not surely, nothing when none), or on a puzzle
@@ -61,14 +63,20 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }:
             className="stroke-white/25"
           />
         ))}
-        <polygon
-          points={points(face.outline)}
-          strokeWidth={2}
-          strokeDasharray="6 4"
-          strokeLinejoin="round"
-          className={`transition-colors ${stroke}`}
-        />
-        {face.mark && (
+        {/* A mirror's face: no outline (only its center is fixed), its
+            center and the cuts from it. */}
+        {face.sized && face.mark ? (
+          <CenterCuts square={face.mark.map(at)} stroke={stroke} />
+        ) : (
+          <polygon
+            points={points(face.outline)}
+            strokeWidth={2}
+            strokeDasharray="6 4"
+            strokeLinejoin="round"
+            className={`transition-colors ${stroke}`}
+          />
+        )}
+        {face.mark && !face.sized && (
           <polygon
             points={points(face.mark)}
             strokeWidth={2}
@@ -89,6 +97,7 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }:
         )}
       </svg>
       {!face.whole &&
+        !face.sized &&
         cells.map((cell, i) => {
           const point = face.points[i]
           if (!point) return null

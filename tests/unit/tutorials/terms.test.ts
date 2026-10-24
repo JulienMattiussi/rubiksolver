@@ -1,3 +1,4 @@
+import { LOCALES, stepName } from '@/i18n/translations'
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
 import { FACE_NORMAL } from '@/lib/core/geometry'
@@ -59,6 +60,22 @@ describe('tutorial glossary', () => {
       expect(mirror.thicknessTerm('fine', true).length).toBeGreaterThan(
         mirror.thicknessTerm('fine', false).length,
       )
+    }
+  })
+})
+
+describe('a mirror cube’s solve steps', () => {
+  it('are named by thickness, never by color, in both languages', () => {
+    const colors = {
+      fr: /\b(blanc|blanche|jaune|vert|verte|bleu|rouge|orange)s?\b/i,
+      en: /\b(white|yellow|green|blue|red|orange)\b/i,
+    }
+    for (const [locale, t] of Object.entries(LOCALES)) {
+      for (const key of Object.keys(t.steps)) {
+        expect(stepName(t, key, true), `${locale} ${key}`).not.toMatch(
+          colors[locale as 'fr' | 'en'],
+        )
+      }
     }
   })
 })

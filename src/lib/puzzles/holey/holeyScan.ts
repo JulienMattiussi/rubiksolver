@@ -39,9 +39,27 @@ const ORDER: readonly Shown[] = [
   ...(['DR', 'DL', 'DBL', 'B'] as const).map((f): Shown => [f, 'D', 'below', 'bottom', FIFTH]),
 ]
 
-export const holeyScan = (): RingFace[] =>
+/** Left and right swapped: the gestures' mirror image, which a camera
+ *  facing the user (`behind`, a laptop's) films (lib/editor/scan/plan.ts,
+ *  `orderFor`). */
+const SWAPPED: Record<MegaFace, MegaFace> = {
+  U: 'U',
+  F: 'F',
+  B: 'B',
+  D: 'D',
+  R: 'L',
+  L: 'R',
+  BR: 'BL',
+  BL: 'BR',
+  DR: 'DL',
+  DL: 'DR',
+  DBR: 'DBL',
+  DBL: 'DBR',
+}
+
+export const holeyScan = (behind: boolean): RingFace[] =>
   ORDER.map(([front, side, move, flat, angle]) =>
-    megaRing(front, side, {
+    megaRing(behind ? SWAPPED[front] : front, behind ? SWAPPED[side] : side, {
       move,
       ...(flat === 'bottom' && { bottom: true as const }),
       ...(angle !== undefined && { angle }),

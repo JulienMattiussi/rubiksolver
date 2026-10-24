@@ -206,49 +206,67 @@ export const UI_FR = {
     'Scan terminé : vérifiez bien que le modèle représenté est conforme à votre puzzle, puis validez.',
   scanTake: 'Scanner la face',
   scanTakeHint: 'Positionnez le puzzle dans le cadre, puis touchez le bouton pour scanner la face.',
+  scanTakeHintSized:
+    'Positionnez le centre de la face dans le cadre, puis touchez le bouton pour scanner la face.',
   scanHolding: 'Tenez le puzzle immobile…',
   scanNothing: 'Rien de stable dans le cadre : repositionnez le puzzle et réessayez.',
   scanMoves: {
     first: (front: string, up: string) =>
-      `Positionnez la caméra immobile devant le puzzle, le centre ${front} face à l’objectif et le ${up} en haut, la face remplissant le cadre, dans un endroit éclairé.`,
+      `Positionnez la caméra immobile devant le puzzle, le centre ${front} **face à l’objectif** et le ${up} **en haut**, la face remplissant le cadre, dans un endroit éclairé.`,
     turn: (front: string, up: string) =>
-      `Tournez le cube d’un quart de tour vers la gauche : le centre ${front} face à l’objectif, le ${up} toujours en haut.`,
+      `Tournez le cube d’un quart de tour **vers la gauche** : le centre ${front} **face à l’objectif**, le ${up} **toujours en haut**.`,
     tilt: (front: string, up: string) =>
-      `Basculez le haut du cube vers l’objectif : le centre ${front} face à l’objectif, le ${up} en haut.`,
+      `Basculez le haut du cube **vers l’objectif** : le centre ${front} **face à l’objectif**, le ${up} **en haut**.`,
     flip: (front: string, up: string) =>
-      `Faites faire un demi-tour au cube : le centre ${front} face à l’objectif, le ${up} toujours en haut.`,
+      `Faites faire un **demi-tour** au cube : le centre ${front} **face à l’objectif**, le ${up} **toujours en haut**.`,
     below: (front: string, up: string) =>
-      `Tournez le puzzle vers la gauche : le centre ${front} face à l’objectif, le ${up} toujours en bas.`,
+      `Tournez le puzzle **vers la gauche** : le centre ${front} **face à l’objectif**, le ${up} **toujours en bas**.`,
     show: (front: string, up: string) =>
-      `Montrez le centre ${front} face à l’objectif, le ${up} en haut.`,
+      `Montrez le centre ${front} **face à l’objectif**, le ${up} **en haut**.`,
     // The camera facing you (a laptop's): your left is its right.
     turnMirrored: (front: string, up: string) =>
-      `Tournez le cube d’un quart de tour vers la droite : le centre ${front} face à l’objectif, le ${up} toujours en haut.`,
+      `Tournez le cube d’un quart de tour **vers la droite** : le centre ${front} **face à l’objectif**, le ${up} **toujours en haut**.`,
     belowMirrored: (front: string, up: string) =>
-      `Tournez le puzzle vers la droite : le centre ${front} face à l’objectif, le ${up} toujours en bas.`,
+      `Tournez le puzzle **vers la droite** : le centre ${front} **face à l’objectif**, le ${up} **toujours en bas**.`,
     // A puzzle out of shape names no color (`told` never): as below.
     // A puzzle read whole names no color either.
     anchored: () =>
-      'Positionnez la caméra immobile devant une grande face du puzzle, sa pièce centrale dans la forme marquée, dans un endroit éclairé.',
+      'Positionnez la caméra immobile devant une grande face du puzzle, sa pièce centrale **dans la forme marquée**, dans un endroit éclairé.',
     upright: () =>
-      'Positionnez la caméra immobile devant le puzzle, son côté le plus long à la verticale, ses petits cubes du milieu dans les cases encadrées.',
+      'Positionnez la caméra immobile devant le puzzle, son côté le plus long **à la verticale**, ses petits cubes du milieu **dans les cases encadrées**.',
+  },
+  // A mirror's faces, named by their thickness (its centers all alike).
+  scanMovesSized: {
+    first: (front: string, up: string) =>
+      `Positionnez la caméra immobile devant le cube, la face ${front} **face à l’objectif** et la face ${up} **en haut**, le centre de la face **dans le cadre**, dans un endroit éclairé. Une face se reconnaît à son centre : plus il est enfoncé, plus elle est fine.`,
+    turn: (front: string, up: string) =>
+      `Tournez le cube d’un quart de tour **vers la gauche** : la face ${front} **face à l’objectif**, la face ${up} **toujours en haut**.`,
+    turnMirrored: (front: string, up: string) =>
+      `Tournez le cube d’un quart de tour **vers la droite** : la face ${front} **face à l’objectif**, la face ${up} **toujours en haut**.`,
+    tilt: (front: string, up: string) =>
+      `Basculez le haut du cube **vers l’objectif** : la face ${front} **face à l’objectif**, la face ${up} **en haut**.`,
+    flip: (front: string, up: string) =>
+      `Faites faire un **demi-tour** au cube : la face ${front} **face à l’objectif**, la face ${up} **toujours en haut**.`,
+    show: (front: string, up: string) =>
+      `Montrez la face ${front} **face à l’objectif**, la face ${up} **en haut**, le centre de la face **dans le cadre**.`,
   },
   scanMovesAny: {
     first:
-      'Positionnez la caméra immobile devant le puzzle, n’importe quelle face de la forme du cadre face à l’objectif et le remplissant, dans un endroit éclairé.',
-    turn: 'Tournez le puzzle vers la gauche jusqu’à la face suivante, le dessus restant en haut.',
-    below: 'Tournez le puzzle vers la gauche jusqu’à la face suivante, le dessous restant en bas.',
+      'Positionnez la caméra immobile devant le puzzle, n’importe quelle face de la forme du cadre **face à l’objectif** et le remplissant, dans un endroit éclairé.',
+    turn: 'Tournez le puzzle **vers la gauche** jusqu’à la face suivante, le dessus **restant en haut**.',
+    below:
+      'Tournez le puzzle **vers la gauche** jusqu’à la face suivante, le dessous **restant en bas**.',
     turnMirrored:
-      'Tournez le puzzle vers la droite jusqu’à la face suivante, le dessus restant en haut.',
+      'Tournez le puzzle **vers la droite** jusqu’à la face suivante, le dessus **restant en haut**.',
     belowMirrored:
-      'Tournez le puzzle vers la droite jusqu’à la face suivante, le dessous restant en bas.',
-    tilt: 'Montrez le dessus : basculez le haut du puzzle vers l’objectif, la face du dessus vient face à l’objectif.',
-    flip: 'Faites faire un demi-tour au puzzle : la face de derrière vient face à l’objectif.',
-    show: 'Montrez la face suivante à l’objectif.',
+      'Tournez le puzzle **vers la droite** jusqu’à la face suivante, le dessous **restant en bas**.',
+    tilt: 'Montrez le dessus : basculez le haut du puzzle **vers l’objectif**, la face du dessus vient **face à l’objectif**.',
+    flip: 'Faites faire un **demi-tour** au puzzle : la face de derrière vient **face à l’objectif**.',
+    show: 'Montrez la face suivante **à l’objectif**.',
     anchored:
-      'Positionnez la caméra immobile devant une grande face du puzzle, sa pièce centrale dans la forme marquée, dans un endroit éclairé.',
+      'Positionnez la caméra immobile devant une grande face du puzzle, sa pièce centrale **dans la forme marquée**, dans un endroit éclairé.',
     upright:
-      'Positionnez la caméra immobile devant le puzzle, son côté le plus long à la verticale, ses petits cubes du milieu dans les cases encadrées.',
+      'Positionnez la caméra immobile devant le puzzle, son côté le plus long **à la verticale**, ses petits cubes du milieu **dans les cases encadrées**.',
   },
   scanAgain: 'La face à reprendre, telle qu’elle a été prise',
   scanMissed: 'Cube mal détecté : reprenez cette face, tenue comme sur la photo.',

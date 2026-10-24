@@ -65,8 +65,9 @@ export function showsFace(cells: readonly CellSample[], face: ScanFace): boolean
   // A face of a puzzle out of shape: black sides and the background
   // between its stickers; some sticker at least.
   if (face.open) return guesses.some((g) => g.sure)
-  // A face read whole: its anchor lit in the middle (its seams are dark).
-  if (face.whole) return guesses[(guesses.length - 1) >> 1]?.color != null
+  // A face read whole, or by its stickers' sizes: its anchor, its center,
+  // lit in the middle (its seams are dark; a mirror's bumps, black sides).
+  if (face.whole || face.sized) return guesses[(guesses.length - 1) >> 1]?.color != null
   if (!face.named) return guesses.every((g) => g.color !== null)
   const middle = face.told && face.center !== null ? guesses[face.center]?.color : face.frontColor
   return !!middle && family(middle) === family(face.frontColor) && guesses.every((g) => g.sure)
