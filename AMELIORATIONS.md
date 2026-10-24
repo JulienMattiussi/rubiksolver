@@ -5,46 +5,44 @@ envisagées.
 
 ## Le scan à l'appareil photo : réglages et autres formes
 
-**Constat.** Le scan (`lib/editor/scan/`) couvre les cubes, les cuboïdes,
-les plats sans saisie propre, le Void Cube, l'Edge Only, les six cubes
-diagonaux, le Megaminx et le Holey Megaminx (tous ceux-là essayés sur
-images synthétiques seulement : les douze
-couleurs du Megaminx restent à éprouver sous une vraie lumière, `DRIFT`
-dans `capture.ts`) ; ses seuils (les bandes de teinte et les
-marges d'assurance de `color.ts`, `HOLD_MS` dans `capture.ts`, `FORCED`
-dans `classify.ts`, `TURNED` dans `orient.ts`) ne sont réglés que sur des
-images synthétiques et des essais à la webcam (3x3, 4x4). Une face tenue
-tournée n'est retrouvée à coup sûr que sur un cube à grille : un cuboïde ou un plat
-a trop peu de pièces, une face lue dans l'autre sens peut encore faire de
-vraies pièces (une tranche de Floppy à l'envers), et l'état lu est alors
-faux mais possible ; il faut le tenir comme la consigne le dit. De même, sur le Dino, le Rex et
-l'Edge Only, dont seules quelques arêtes touchent deux faces, une face
-tournée n'est pas retrouvée (elle est redemandée) ; sur le Skewb, une fois
-sur dix environ quand toutes ses faces sont tournées, l'état lu est faux. Un cube
-pair tourné à droite au lieu de gauche n'est pas retrouvé (la face
-redemandée en boucle).
+**Constat.** Le scan (`lib/editor/scan/`, détail dans `docs/scan.md`) n'a
+été essayé en vrai que sur le 2x2, le 3x3, le 4x4, la tour 2x2x4 et le 3x3
+miroir ; les autres (cuboïdes, plats, troués, diagonaux, Megaminx, tour
+2x3x4, Floppy Ghost) ne l'ont été que sur images synthétiques, leur bouton
+marqué d'une fiole. Ses seuils (bandes de teinte et marges de `color.ts`,
+`HOLD_MS` et `DRIFT` dans `capture.ts`, `FORCED` dans `classify.ts`,
+`TURNED` dans `orient.ts`, `border` du Ghost estimé sur des photos de
+commerçant) ne sont réglés que sur ces quelques essais.
 
-La forme d'une tour est trouvée en confrontant ses formes aux images
-(`forms.ts`) : essayé sur images synthétiques seulement. Un fond blanc
-ressemble à un sticker blanc et un fond noir à un côté noir : seule la
-lecture des couleurs départage alors les formes, ce qu'elle ne fera pas
-toujours ; une tour mal centrée multiplie les placements possibles. Les
-formes sont énumérées à l'ouverture du scan (environ 1 s sur un portable,
-sans doute plus sur un téléphone, le fil de l'interface bloqué pendant
-l'annonce de la première face) : à faire dans un worker. Le Camouflage, le Purple, le Fashion-V
-et l'AI Cube pourraient suivre le même chemin.
+- **Une face tenue tournée** n'est retrouvée à coup sûr que sur un cube à
+  grille : sur un cuboïde, un plat, le Dino, le Rex ou l'Edge Only, une
+  face lue dans l'autre sens peut encore faire de vraies pièces (état faux
+  mais possible) ou être redemandée ; sur le Skewb, une fois sur dix
+  environ quand toutes ses faces sont tournées, l'état lu est faux.
+- **Le sens de rotation** : le plan suit la caméra (gestes en miroir sur un
+  portable, `orderFor`), mais un utilisateur qui tourne quand même dans
+  l'autre sens n'est rattrapé que sur le miroir (sa lecture essaie les deux
+  ordres) ; ailleurs, la face est redemandée ou l'état lu faux.
+- **« Rien de stable »** s'affiche aussi quand le puzzle est immobile mais
+  montre une autre face que celle demandée (un mauvais centre) : un message
+  propre l'aiderait.
+- **Les formes d'une tour** sont énumérées à l'ouverture du scan (environ
+  1 s, le fil de l'interface bloqué pendant l'annonce de la première face) :
+  à faire dans un worker.
+- **Le miroir** : seul le 3x3 se scanne (le 2x2 n'a pas de centre pour
+  étalon, le 4x4 en a quatre) ; la correction de perspective par la
+  profondeur des pièces n'est pas faite ; la détection (OpenCV) n'est pas
+  testée sous Vitest (son chargement y reste bloqué), seulement par les
+  rectangles figés de deux vrais scans et l'usage.
+- **Restent hors du scan** le Tori (ses arêtes, de minces amandes au bord
+  des faces), les autres miroirs, les super cubes, les soudés, les
+  engrenages, et parmi ceux qui se déforment le Camouflage, le Purple, le
+  Fashion-V et l'AI Cube (qui pourraient suivre le chemin des tours).
 
-Reste hors du scan, parmi les troués, le Tori : ses arêtes sont de minces
-amandes au bord des faces (une grille lirait son grand anneau de centre ;
-il lui faudrait une disposition propre, lue sur une bande au bord, sans
-doute de biais). À faire avec le vrai puzzle en main.
-
-**Pistes.** Régler les seuils sur de vraies photos (sous lampe chaude,
-cube sans stickers, reflets) et en faire des tests. Sur un cuboïde, dire
-quel bout va en haut dès la première face (« le blanc en haut ») même sans
-centre, pour que la tenue lève l'ambiguïté. Essayer aussi l'ordre inverse
-des côtés. Les tranches d'un Floppy (un sticker de haut) demandent la
-caméra tout près : vérifier qu'un téléphone fait encore la mise au point.
+**Pistes.** Régler les seuils sur de vraies photos (lampe chaude, reflets)
+et en faire des tests, comme les rectangles figés du miroir. Essayer les
+deux sens de rotation sur toute lecture par gestes, comme le miroir, et
+garder la moins chère. Le Ghost, dès le puzzle reçu.
 
 ## Les puzzles « Rainbow » : la coupe dans le coup
 

@@ -32,7 +32,7 @@ export default function App() {
   // A mirror cube that scans: OpenCV loaded ahead, the page once idle.
   usePreloadStickers(shape, variant)
   // On a phone, the puzzle is framed in the space above the panel (Scene's
-  // `covered`): open, the top fifth of the screen; folded, all above its
+  // `covered`): open, a fifth of what shows under the top bar; folded, all above its
   // bar; going down, the bar's height already, so the puzzle grows as the
   // panel goes.
   const panel = useRef<HTMLDivElement>(null)
@@ -80,7 +80,10 @@ export default function App() {
             editing || home
               ? 'max-h-[48vh] sm:max-h-full'
               : open
-                ? 'max-h-[80vh] sm:max-h-full'
+                ? // The puzzle a fifth of what shows, under the top bar (56 px)
+                  // and over the panel's margin (12 px): of the visible
+                  // height (dvh), a phone's address bar left out.
+                  'max-h-[calc(80dvh-68px)] sm:max-h-full'
                 : 'max-h-full'
           }`}
         >

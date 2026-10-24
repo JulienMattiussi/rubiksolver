@@ -98,7 +98,8 @@ panneau se **replie** en une barre compacte : la méthode et le Tutoriel à
 côté, Mélanger et Résoudre (Arrêter à la place de Résoudre pendant un
 mélange ou une résolution) ; Mélanger et Résoudre le replient, Tutoriel le
 déplie, le tutoriel passant alors avant le choix du cube. Ouvert, il laisse
-au cube le cinquième haut de l'écran et défile en lui-même (son cadre
+au cube le cinquième de la hauteur visible sous la barre du titre (en
+`dvh` : la barre d'adresse d'un téléphone comptée) et défile en lui-même (son cadre
 reste entier). Le puzzle est cadré entre le haut de l'écran et le haut du
 panneau : le canvas garde sa taille, c'est la caméra qui se décale
 (`ViewRegion`, au même rythme et sur la même courbe que le panneau, qui
