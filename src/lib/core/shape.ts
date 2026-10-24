@@ -34,18 +34,21 @@ type Point = readonly [number, number, number]
  *   middle layer + thickness(pos) = size: the solved cube is a perfect cube.
  *   Middle layers of the same axis are necessarily equal (a piece moves freely
  *   between them), so on a 4x4 only the two end layers differ.
- * - **the six values are distinct**, close to the Mirror Blocks proportions
- *   (12.5 / 19 / 25.5 mm layers on a 57 mm cube) but grouped rather than
- *   shared. A thickness therefore identifies its color: the shape of a piece
- *   tells exactly which piece it is, which is what lets the editor paint
- *   thicknesses instead of colors. The real puzzle reuses one pair on all
- *   three axes, which leaves pieces of identical shape (its three all-but-one
- *   -thick corners, for instance); here each axis gets its own pair, like a
- *   core offset by a different amount along each axis.
+ * - **the six values are distinct**, those of a real Mirror Blocks
+ *   (measured 2026-10-24): outer layers of 8 to 28 mm in steps of 4 mm, the
+ *   middle 18 mm, each axis its own pair (8 and 28, 12 and 24, 16 and 20 mm).
+ *   A thickness therefore identifies its color: the shape of a piece tells
+ *   exactly which piece it is, which is what lets the editor paint
+ *   thicknesses instead of colors.
+ * - **mounted as the real puzzle**: its three thick layers (U, R and B) meet
+ *   at a corner, the three thin ones at the opposite one, the way they turn
+ *   round it the real Mirror Blocks' (green, in front, thinner than blue; the
+ *   other way, the cube was its mirror image).
  */
 export const LAYER_THICKNESS: Record<CubeVariant, Record<CubeColor, number>> = {
   classic: { W: 1, Y: 1, G: 1, B: 1, O: 1, R: 1 },
-  mirror: { O: 0.54, Y: 0.68, B: 0.78, G: 1.22, W: 1.32, R: 1.46 },
+  // In middle layers (18 mm): 8, 12, 16, 20, 24 and 28 mm.
+  mirror: { O: 8 / 18, Y: 12 / 18, G: 16 / 18, B: 20 / 18, W: 24 / 18, R: 28 / 18 },
 }
 
 /** What a sticker tells on each variant: its color, or (all alike, a

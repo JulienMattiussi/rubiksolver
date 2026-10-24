@@ -22,7 +22,7 @@ describe('tutorial glossary', () => {
     expect(keys(cube2, false)).toEqual(['termCorner', ...turning])
     // Thinnest first: the mirror's six thicknesses.
     expect(keys(cube3, true).slice(5)).toEqual(
-      ['O', 'Y', 'B', 'G', 'W', 'R'].map((c) => `termThickness${c}`),
+      ['O', 'Y', 'G', 'B', 'W', 'R'].map((c) => `termThickness${c}`),
     )
   })
 

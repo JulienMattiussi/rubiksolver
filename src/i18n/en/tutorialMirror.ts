@@ -6,8 +6,8 @@ export const TUTORIAL_MIRROR_EN: typeof TUTORIAL_MIRROR_FR = {
   thickness: {
     O: 'very thin',
     Y: 'thin',
-    B: 'less thin',
-    G: 'less thick',
+    G: 'less thin',
+    B: 'less thick',
     W: 'thick',
     R: 'very thick',
   },

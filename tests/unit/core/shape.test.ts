@@ -36,7 +36,7 @@ describe('layer thickness tables', () => {
     // What makes painting thicknesses equivalent to painting colors.
     const values = Object.values(LAYER_THICKNESS.mirror)
     expect(new Set(values).size).toBe(values.length)
-    expect(byThickness(LAYER_THICKNESS.mirror)).toEqual(['O', 'Y', 'B', 'G', 'W', 'R'])
+    expect(byThickness(LAYER_THICKNESS.mirror)).toEqual(['O', 'Y', 'G', 'B', 'W', 'R'])
   })
 
   it('grows a mirror cubie outward from its inner face', () => {

@@ -12,8 +12,8 @@ export const TUTORIAL_MIRROR_FR = {
   thickness: {
     O: 'très fine',
     Y: 'fine',
-    B: 'moins fine',
-    G: 'moins épaisse',
+    G: 'moins fine',
+    B: 'moins épaisse',
     W: 'épaisse',
     R: 'très épaisse',
   } as Record<CubeColor, string>,

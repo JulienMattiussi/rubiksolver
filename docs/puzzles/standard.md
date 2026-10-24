@@ -254,11 +254,15 @@ avoir : un axe à une seule couche porte ses deux grandes faces sur les mêmes
 pièces, donc elles ne peuvent pas avoir d'épaisseur.
 
 La correspondance est **couleur -> épaisseur** (`LAYER_THICKNESS`), **bijective** :
-les six épaisseurs sont distinctes (groupées en fines et épaisses pour garder
-l'allure du puzzle, chaque axe ayant sa paire, comme un noyau décentré
-différemment sur chaque axe). Une forme désigne donc une pièce et une seule,
-ce qui rend la **saisie par épaisseurs** possible et supprime les pièces
-d'apparence identique du vrai Mirror Blocks. Cette table suffit à tout déduire :
+les six épaisseurs sont distinctes, celles d'un vrai Mirror Blocks mesuré
+(couches extérieures de 8 à 28 mm par pas de 4 mm, couche du milieu de
+18 mm, chaque axe sa paire : 8 et 28, 12 et 24, 16 et 20 mm). Une forme
+désigne donc une pièce et une seule, ce qui rend la **saisie par
+épaisseurs** possible. Elle est montée comme le vrai puzzle : ses trois
+couches épaisses (blanc en haut, rouge à droite, bleu derrière) se
+rejoignent en un coin, dans le même sens que sur le vrai Mirror Blocks (le
+vert, devant, est plus fin que le bleu ; l'inverse en faisait son reflet
+dans un miroir). Cette table suffit à tout déduire :
 
 - l'épaisseur d'un cubie selon un axe est celle de la couleur du sticker qui
   regarde cet axe ; sans sticker sur cet axe, le cubie est dans une couche du

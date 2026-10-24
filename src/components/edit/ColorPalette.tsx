@@ -12,7 +12,7 @@ import { COLOR_HEX, VARIANT_SKIN } from '@/three/core/colors'
 import { SECTION_LABEL } from '@/components/ui/styles'
 
 /** Width of a thickness swatch. The scale is stretched over the whole button:
- *  the real thicknesses (a mirror's span 0.54..1.46) are too close to tell two
+ *  the real thicknesses (a mirror's span 0.44..1.56) are too close to tell two
  *  neighbors apart in a 5 rem chip. Order and the thin/thick grouping are
  *  preserved. */
 function swatchWidth(thickness: number, all: readonly number[]): string {
