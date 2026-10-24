@@ -136,7 +136,8 @@ describe('scan store', () => {
     vi.runAllTimers()
     expect(useEditor.getState()).toMatchObject({ edit: cubeToEdit(cube), fromScan: true })
     useScan.getState().setBehind(false)
-  })
+    // Its 30 720 states listed, then each pose scored: some seconds.
+  }, 30_000)
 
   it('reads a mirror by its stickers, found in the worker, into the editor', async () => {
     useCube.getState().setShape('3')

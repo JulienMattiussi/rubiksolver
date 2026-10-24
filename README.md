@@ -88,6 +88,18 @@ pieces complete themselves, and no impossible piece or color count can be entere
 solvability is then checked. A puzzle that changes shape is entered in the shape it is
 in, picked among thumbnails, and a few are entered piece by piece.
 
+#### Or show it to the camera
+
+On a phone or a laptop, **scan** the puzzle instead: show it face by face, as the
+instructions say (where to turn it, with an arrow), and each face is taken on its own
+once it is still in the frame. The whole puzzle is then read at once, its colors
+matched to real pieces, and painted in the editor, to check and correct before
+validating. 26 of the 75 puzzles scan: the cubes from 2x2 to 6x6 and the cuboids, the
+Megaminx, the diagonal cubes (Skewb, Dino, Rex...), the 2x2x4 and 2x3x4 towers, whose
+shape the scan finds by itself, the all-silver Floppy Ghost, read from one picture by
+the outlines of its pieces, and the 3x3 mirror, read by the sizes of its stickers.
+Everything stays in the browser: no picture leaves the device.
+
 ### And also
 
 A link per puzzle and language to share (`#/en/megaminx`), a saved state to compare
@@ -149,6 +161,10 @@ solve in disguise.
   (pieces to place one at a time, or figures to recognize), each with its targets, how
   to hold the puzzle and how to find its formulas. The engine knows no puzzle: a
   tutorial for another puzzle, or another method, only declares its own stages.
+- **A mirror cube is scanned by shape, not color.** All its stickers are silver, so
+  the scan finds them as rectangles (OpenCV, in a worker, loaded only once a mirror is
+  shown), sets them round the face's center along its cut lines, and turns their sizes
+  into layer thicknesses; the pieces are then matched to them at the lowest cost.
 - **Every formula is tested before a method uses it.** The methods draw on several
   sources (the usual speedcubing methods, [fan2cube.fr](https://www.fan2cube.fr),
   [francocube.com](https://www.francocube.com), the puzzles' own manuals) and on our own
@@ -181,6 +197,7 @@ Tailwind CSS v4, Zustand, Vitest and Testing Library, Playwright.
 | [docs/puzzles/](docs/puzzles)          | Each puzzle: model, rendering, method, input                          |
 | [docs/methods.md](docs/methods.md)     | Each method, its puzzles and its steps                                |
 | [docs/interface.md](docs/interface.md) | The interface in detail                                               |
+| [docs/scan.md](docs/scan.md)           | The camera scan: puzzles, gestures, how a picture is read             |
 | [AMELIORATIONS.md](AMELIORATIONS.md)   | Known limits and ideas                                                |
 
 The project documentation is written in French.

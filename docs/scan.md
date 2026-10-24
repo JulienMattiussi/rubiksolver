@@ -200,7 +200,7 @@ l'objectif, sa pièce centrale dans le pentagone tracé dans le cadre
 (`ScanFace.mark`), sans points dans les cases ; le cadre est tenu immobile
 une seconde (ses 5 x 5 cases, mesurées comme celles d'un Megaminx), puis la
 prise garde, avec la photo, la clarté de chaque pixel du cadre
-(`useFaceReading`, `scanStore.lights`) que lit `readScan`.
+(`useFaceReading`, `light` dans `scanStore.kept`) que lit `readScan`.
 
 Sur des images synthétiques (tenue quelconque, de face ou de dos, zoom de
 plus ou moins 10 %, fond de n'importe quelle clarté, bruit, reflet sombre),

@@ -297,4 +297,5 @@ de la plus fine à la plus épaisse, les stickers peints sont dorés, et
 `EditView` donne à chaque emplacement la forme de ses stickers **déjà peints**
 (un axe non peint garde 1). Comme les pièces ne grandissent que vers
 l'extérieur, une saisie à moitié faite ne se chevauche jamais : la pièce prend
-sa forme au fur et à mesure.
+sa forme au fur et à mesure. Le 3x3 miroir se saisit aussi à l'appareil photo, par les
+tailles de ses stickers (voir « Le cube miroir » dans [docs/scan.md](../scan.md)).

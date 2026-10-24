@@ -15,6 +15,7 @@ import { useCube } from '@/store/cubeStore'
 import { scanDebug, useScan } from '@/store/scanStore'
 import { Bolded } from '@/components/ui/Bolded'
 import { Button } from '@/components/ui/Button'
+import { SCAN_WHERE } from '@/components/ui/styles'
 import { Cheer } from '@/components/celebration/Cheer'
 import { ErrorAlert } from '../ErrorAlert'
 import { ColorWords } from './ColorWords'
@@ -194,7 +195,7 @@ export function ScanView() {
               !missed && (
                 <p>
                   <ScanMoveArrow face={face} mirrored={mirrored} />
-                  <Bolded text={t.scanMovesAny[wording]} strong="font-extrabold text-amber-200" />
+                  <Bolded text={t.scanMovesAny[wording]} strong={SCAN_WHERE} />
                 </p>
               )
             )}

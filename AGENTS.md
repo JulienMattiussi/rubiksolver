@@ -140,9 +140,11 @@ src/
 │   ├── editor/          # La saisie : entry (ce que le modèle déclare : étapes, peinture), steps (leur
 │   │                    #   enchaînement), edit (la table de stickers, buildCube), editorTables, validate,
 │   │                    #   modes/ (un mode par fichier : form, canvas et faceViews, joints, toggles,
-│   │                    #   colors, pieces), scan/ (la saisie à l'appareil photo, docs/scan.md : plan (les faces,
-│   │                    #   `PuzzleModel.scan`), layout (grille, anneau, carré), frame, color, sample, capture,
-│   │                    #   anchors (les couleurs), orient (les faces tenues tournées), assign et classify (la lecture))
+│   │                    #   colors, pieces), scan/ (la saisie à l'appareil photo, docs/scan.md : plan (les faces dans l'ordre,
+│   │                    #   `PuzzleModel.scan`) et planFaces (chacune bâtie), layout (grille, anneau, carré), frame, color, sample, capture,
+│   │                    #   anchors (les couleurs), orient (les faces tenues tournées), assign et classify (la lecture),
+│   │                    #   read (le point d'entrée), box et forms (les tours), outlines (le Floppy Ghost), sized et
+│   │                    #   sizedRead (le miroir))
 │   ├── teach/           # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
 │   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), stages (sortes d'étapes et leurs
 │   │                    #   pas), project (étape d'un petit puzzle relevée sur un grand), scene (tons, flèches),

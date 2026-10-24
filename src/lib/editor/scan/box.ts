@@ -11,7 +11,8 @@ import type { CubeShape } from '../../core/shapes'
 import type { Cube } from '../../core/types'
 import { stickerId } from '../editorTables'
 import { formsOf, lookOf } from '../modes/form'
-import { axisOf, boxSides, ORDER, orderFor } from './plan'
+import { ORDER, orderFor } from './plan'
+import { axisOf, boxSides } from './planFaces'
 
 /**
  * A puzzle that changes shape, scanned as the box it turns in (pure): its

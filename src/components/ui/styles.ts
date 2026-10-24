@@ -4,6 +4,9 @@
  *  panel is its frame, as the entry's; its heading sets it apart). */
 export const SECTION_BOX = 'flex flex-col gap-3'
 
+/** A scan's instruction: where to hold the puzzle, read at a glance. */
+export const SCAN_WHERE = 'font-extrabold text-amber-200'
+
 /** What sets two blocks stacked in one panel apart (the phone's single
  *  card: setup, then solve): a thin line. */
 export const SECTION_RULE = 'border-t border-slate-700/60 pt-5'

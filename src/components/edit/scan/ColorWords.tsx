@@ -2,9 +2,7 @@ import { Fragment, type ReactNode } from 'react'
 import type { Color } from '@/lib/core/types'
 import { COLOR_HEX, VARIANT_SKIN } from '@/three/core/colors'
 import { Bolded } from '@/components/ui/Bolded'
-
-/** Where to hold the puzzle, in bold: read at a glance. */
-const WHERE = 'font-extrabold text-amber-200'
+import { SCAN_WHERE } from '@/components/ui/styles'
 
 /** A text naming colors, each name led by a swatch of its color (the
  *  first time it comes, in the order they come), or on a mirror, of its
@@ -27,7 +25,7 @@ export function ColorWords({
     if (at < from) continue
     parts.push(
       <Fragment key={color}>
-        <Bolded text={text.slice(from, at)} strong={WHERE} />
+        <Bolded text={text.slice(from, at)} strong={SCAN_WHERE} />
         <span
           aria-hidden
           className="mr-1 inline-block rounded-sm align-middle ring-1 ring-black/40"
@@ -48,7 +46,7 @@ export function ColorWords({
   return (
     <>
       {parts}
-      <Bolded text={text.slice(from)} strong={WHERE} />
+      <Bolded text={text.slice(from)} strong={SCAN_WHERE} />
     </>
   )
 }
