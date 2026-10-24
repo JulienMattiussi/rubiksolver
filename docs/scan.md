@@ -36,7 +36,7 @@ Restent dehors les puzzles dont une information n'est pas une couleur
 déforment (Camouflage, Purple, Fashion-V, AI Cube), et le Tori (ses
 arêtes, de minces amandes au bord des faces).
 
-Seuls le 2x2, le 3x3, le 4x4 et la tour 2x2x4 ont été essayés en vrai (`scanTried` sur
+Seuls le 2x2, le 3x3 (et son miroir), le 4x4 et la tour 2x2x4 ont été essayés en vrai (`scanTried` sur
 leur carte) ; sur les autres, le bouton « Utiliser l'appareil photo » porte
 une fiole : « Cette fonction n'a pas encore été testée et validée sur ce
 modèle ».
@@ -246,7 +246,9 @@ couvre. Ses épaisseurs sont celles d'un vrai Mirror Blocks mesuré
   (`usePreloadStickers`), puis gardé en cache un an (`vercel.json`).
 - **Le placement** (`sized.ts`) : les coupes sont des plans, donc chaque
   sticker s'appuie sur les droites du centre ; une arête contre un de ses
-  côtés, un coin contre deux, chaque rectangle une fois au plus.
+  côtés, un coin contre deux, chaque rectangle une fois au plus ; un centre
+  qu'un reflet ou l'usure a cassé se déduit de ses voisins (la place qu'ils
+  laissent, moins les joints, carrée).
 - **La lecture** (`sizedRead.ts`) : chaque pièce, connue par ses
   épaisseurs, mise au moindre coût (la méthode hongroise) ; la part du
   liseré noir (propre à chaque marque) et le léger rétrécissement des
@@ -257,4 +259,5 @@ Sur six photos d'un vrai cube, les arêtes en place et les coins mélangés
 (référence figée : `tests/unit/editor/fixtures/mirrorScan.json`), la
 lecture retrouve l'état exact, que l'appli a résolu sur le vrai cube ; sur
 un scan dans l'appli d'un cube résolu devant la caméra d'un portable
-(`mirrorSolvedLaptop.json`), elle le lit résolu.
+(`mirrorSolvedLaptop.json`), elle le lit résolu ; un cube mélangé, scanné
+dans l'appli, a été lu juste.

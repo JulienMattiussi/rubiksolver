@@ -40,6 +40,52 @@ const REACH = 0.35
 /** How much of the center's side an edge's sticker must run along. */
 const ALONG = 0.6
 
+/** Between two neighbors, the share of the room each seam takes (two black
+ *  frames): a center's sticker is some three quarters of it. */
+const SEAM = 0.13
+
+/** The center when none was found at the marked point (a glint, ink, a
+ *  scratch broke it): the room its neighbors leave round the point, less
+ *  a seam on each side, square; none if no two neighbors face each other
+ *  across it. */
+function centerAround(
+  rects: readonly Rect[],
+  [px, py]: readonly [number, number],
+): Rect | undefined {
+  const across = (r: Rect) => r[1] <= py && py <= r[1] + r[3]
+  const along = (r: Rect) => r[0] <= px && px <= r[0] + r[2]
+  const most = (values: number[], pick: (...v: number[]) => number) =>
+    values.length ? pick(...values) : undefined
+  const left = most(
+    rects.filter((r) => across(r) && r[0] + r[2] <= px).map((r) => r[0] + r[2]),
+    Math.max,
+  )
+  const right = most(
+    rects.filter((r) => across(r) && r[0] >= px).map((r) => r[0]),
+    Math.min,
+  )
+  const top = most(
+    rects.filter((r) => along(r) && r[1] + r[3] <= py).map((r) => r[1] + r[3]),
+    Math.max,
+  )
+  const bottom = most(
+    rects.filter((r) => along(r) && r[1] >= py).map((r) => r[1]),
+    Math.min,
+  )
+  const span =
+    left !== undefined && right !== undefined
+      ? right - left
+      : top !== undefined && bottom !== undefined
+        ? bottom - top
+        : undefined
+  if (span === undefined) return undefined
+  const [seam, side] = [SEAM * span, (1 - 2 * SEAM) * span]
+  // Each axis from a neighbor past the seam, or round the point.
+  const start = (near: number | undefined, far: number | undefined, at: number) =>
+    near !== undefined ? near + seam : far !== undefined ? far - seam - side : at - side / 2
+  return [start(left, right, px), start(top, bottom, py), side, side]
+}
+
 const overlap = (a0: number, a1: number, b0: number, b1: number) =>
   Math.max(0, Math.min(a1, b1) - Math.max(a0, b0))
 
@@ -47,7 +93,8 @@ const overlap = (a0: number, a1: number, b0: number, b1: number) =>
  *  (the marked cell's middle). */
 export function placeStickers(rects: readonly Rect[], at: readonly [number, number]): Placed {
   const holds = ([x, y, w, h]: Rect) => x <= at[0] && at[0] <= x + w && y <= at[1] && at[1] <= y + h
-  const center = rects.filter(holds).sort((a, b) => a[2] * a[3] - b[2] * b[3])[0]
+  const center =
+    rects.filter(holds).sort((a, b) => a[2] * a[3] - b[2] * b[3])[0] ?? centerAround(rects, at)
   const placed = new Map<string, Rect>()
   if (!center) return placed
   placed.set(slotKey([0, 0]), center)

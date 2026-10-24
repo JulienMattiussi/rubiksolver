@@ -26,6 +26,27 @@ describe('a mirror cube read by its stickers’ sizes', () => {
     }
   })
 
+  it('rebuilds a center none was found for, from its neighbors', () => {
+    // A real face whose center a glint broke (2026-10-24): left and right
+    // neighbors face each other across the frame's middle, one above.
+    const rects: Rect[] = [
+      [294, 360, 34, 29],
+      [110, 304, 70, 110],
+      [288, 301, 72, 51],
+      [303, 205, 77, 94],
+      [85, 205, 99, 92],
+      [193, 71, 90, 116],
+      [111, 53, 72, 136],
+      [297, 48, 119, 141],
+    ]
+    const placed = placeStickers(rects, [240, 240])
+    const [x, y, w, h] = placed.get(slotKey([0, 0]))!
+    // The room between them (184 to 303), less a seam each side; square.
+    expect([Math.round(x), Math.round(w), Math.round(h)]).toEqual([199, 88, 88])
+    expect(Math.round(y)).toBe(202)
+    expect(placed.size).toBe(8)
+  })
+
   it('places nothing without a center at the marked point', () => {
     expect(placeStickers(faces[0]!.rects, [5, 5]).size).toBe(0)
   })

@@ -21,8 +21,9 @@ export function ScanButton() {
   const scanning = useScan((s) => s.open)
   const start = useScan((s) => s.start)
   if (!scannable(shape, variant) || !hasCamera()) return null
-  // A mirror's scan, by its stickers' sizes, is new: untried in the app.
-  const untried = tellsSizes(variant) || !SHAPE_SCAN_TRIED[shape]
+  // A mirror's scan, by its stickers' sizes, tried on the 3x3 (the only one
+  // that scans so, 2026-10-24).
+  const untried = !tellsSizes(variant) && !SHAPE_SCAN_TRIED[shape]
   return (
     <>
       <Button variant="edit" onClick={start}>
