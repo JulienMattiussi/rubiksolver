@@ -277,7 +277,8 @@ R D` répété, un seul pas, la première couche se défaisant en route).
   « Les N formules à retenir » (`FormulaRecap` : chaque étape et ses
   formules, lues dans les `algorithms` qu'elle déclare, écrites dans la
   notation choisie, une formule enseignée deux fois comptée une fois), un
-  bouton pour le fermer, et le feu d'artifice.
+  bouton pour le fermer, et le feu d'artifice ; sur téléphone, le panneau
+  se replie pour le laisser voir au-dessus du puzzle.
 - **Autour** : la solution précalculée de la méthode n'est pas montrée
   (`useAutoPlan` s'en abstient) ; ce qui remplacerait le cube suivi est
   grisé (mélange, réinitialisation, saisie, restauration) ; choisir un

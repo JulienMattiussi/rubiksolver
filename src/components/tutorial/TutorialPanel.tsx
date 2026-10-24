@@ -61,13 +61,16 @@ export function TutorialPanel() {
   const showRecap = useTutorialTrack((s) => s.showRecap)
   const termsShown = useTutorialTrack((s) => s.termsShown)
   // The end come (every stage shown, the puzzle solved): the cup, and the
-  // fireworks with it, not before.
+  // fireworks with it, not before; on a phone, the panel folded to show
+  // them over the puzzle.
   const over = !step
+  const fold = useView((s) => s.setFolded)
   useEffect(() => {
     if (!over) return
     cheer()
     playThrough(id)
-  }, [over, cheer, playThrough, id])
+    fold(true)
+  }, [over, cheer, playThrough, id, fold])
   // The stage of the step shown, noted (a stage skipped over is then shown
   // in passing, see useTutorial).
   useEffect(() => {
