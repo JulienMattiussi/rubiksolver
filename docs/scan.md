@@ -7,13 +7,13 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 
 ## Les puzzles scannables
 
-`scannable` (`lib/editor/scan/plan.ts`) : 31 modèles sur 75, et le 3x3 miroir.
+`scannable` (`lib/editor/scan/plan.ts`) : 32 modèles sur 76, et le 3x3 miroir.
 
 - **En grille**, tout se déduit des dimensions (`scanPlan`) : les cubes du
   2x2 au 6x6, les cuboïdes et les plats sans saisie propre (1x2x3, Floppy,
   Domino, tours...). Un modèle troué le déclare (`PuzzleModel.scan:
 'grid'`) : le Void Cube, l'Edge Only, leurs trous sautés.
-- **En carré** (`scan: 'square'`) : les cubes diagonaux (Skewb, Master
+- **En carré** (`scan: 'square'`) : les cubes diagonaux (Skewb, Ivy Cube, Master
   Skewb, Dino, Rex, Curvy Copter et Copter III). Le modèle dit quels stickers
   sont sur la face et comment elle tourne ; leur dessin dit où chacun se
   voit (`three/core/scanDrawing.ts` : le milieu de son polygone, ses
@@ -49,7 +49,7 @@ Restent dehors les puzzles dont une information n'est pas une couleur
 déforment (Camouflage, Purple, Fashion-V, AI Cube), et le Tori (ses
 arêtes, de minces amandes au bord des faces).
 
-Seuls le 2x2, le 3x3 (et son miroir), le 4x4, la tour 2x2x4 et le Skewb ont été essayés en vrai (`scanTried` sur
+Seuls le 2x2, le 3x3 (et son miroir), le 4x4, la tour 2x2x4, le Skewb et l'Ivy Cube ont été essayés en vrai (`scanTried` sur
 leur carte) ; sur les autres, le bouton « Utiliser l'appareil photo » porte
 une fiole : « Cette fonction n'a pas encore été testée et validée sur ce
 modèle ».

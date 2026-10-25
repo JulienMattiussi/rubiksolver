@@ -141,6 +141,16 @@ export const dinoGuide = (cut: Pick<RainbowMove, 'rex' | 'skewb'> = {}): GuideGr
   },
 ]
 
+/** The Ivy Cube's four corners, the top's then the bottom's. */
+export const ivyGuide = (): GuideGroup[] => [
+  {
+    section: 'dinoCorners',
+    rows: (['L', 'u', 'R', 'd'] as const).map((triangle) =>
+      thirds({ triangle, dino: true, skewb: true }),
+    ),
+  },
+]
+
 /** The Master Skewb's corners' outer layers, then its four inner ones. */
 export const masterSkewbGuide = (): GuideGroup[] => {
   const turn = (triangle: RainbowCorner, slice?: true) =>

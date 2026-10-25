@@ -14,6 +14,10 @@ export const METHODS_FR = {
     name: 'Croix puis coins',
     desc: 'Toutes les arêtes, puis tous les coins, chaque étape avec une seule formule, le cube tenu de la face qu’il faut.',
   },
+  ivyFaces: {
+    name: 'Face par face',
+    desc: 'Une face, ses deux coins tournés puis son centre, la face opposée, puis les quatre centres restants.',
+  },
   cfop: {
     name: 'Fridrich (CFOP)',
     desc: 'La méthode des speedcubers : deux couches par paires coin-arête, la dernière en deux algorithmes.',

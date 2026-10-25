@@ -4,7 +4,15 @@ import { gap, type Point } from '@/lib/editor/scan/layout'
 import { scanPlan } from '@/lib/editor/scan/plan'
 import { drawnFace } from '@/three/core/scanDrawing'
 
-const DIAGONAL: readonly CubeShape[] = ['skewb', 'dino', 'rex', 'masterSkewb', 'copter', 'copter3']
+const DIAGONAL: readonly CubeShape[] = [
+  'skewb',
+  'ivy',
+  'dino',
+  'rex',
+  'masterSkewb',
+  'copter',
+  'copter3',
+]
 const PYRAMIDS: readonly CubeShape[] = ['pyra', 'tetra', 'pyra4', 'pyra5', 'jing']
 
 /** Whether a point lies inside a convex outline (either way round). */

@@ -20,6 +20,17 @@ export const DIAGONAL = {
     pad: 'skewb',
     scanTried: true,
   },
+  // The Ivy Cube (shared/skewbs.ts): a Skewb with one set of corners, its
+  // centers leaves.
+  ivy: {
+    moves: 'rainbow',
+    label: 'Ivy Cube',
+    slug: 'ivy-cube',
+    dims: [3, 3, 3],
+    scramble: 12,
+    pad: 'ivy',
+    scanTried: true,
+  },
   // The Master Skewb (shared/rainbow.ts): the Skewb and the Rex Cube in
   // one; its pieces within +-4, its box says so.
   masterSkewb: {

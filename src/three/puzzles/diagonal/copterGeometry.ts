@@ -1,6 +1,7 @@
 import { normalIndex } from '@/lib/core/geometry'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import { colorFacing, type P3, type PiecePolygon } from '../../core/polygons'
+import { faceAxes, onFace as onFaceOf } from './faceFan'
 
 /**
  * Geometry of the Curvy Copters (lib/puzzles/diagonal/copter.ts), drawn on
@@ -34,13 +35,6 @@ interface CopterShape {
 
 const CURVY: CopterShape = { scale: 4, leaf: 2, circle: 1, corner: 0.42 }
 const CURVY3: CopterShape = { scale: 6, leaf: 3, circle: 1.25, corner: 0.5 }
-
-/** A face's normal and the two axes across it. */
-function faceAxes(normal: Vec3): { axis: number; a: number; b: number } {
-  const axis = normal.findIndex((v) => v !== 0)
-  const [a, b] = [0, 1, 2].filter((i) => i !== axis) as [number, number]
-  return { axis, a, b }
-}
 
 /** The logic slot (as a key) of the piece at (u, v) on a face, or none on a
  *  cut. */
@@ -91,14 +85,8 @@ function slotAt(shape: CopterShape, normal: Vec3, u: number, v: number): string 
 }
 
 /** A point of a face in the scene. */
-function onFace(normal: Vec3, u: number, v: number, lift = 0): P3 {
-  const { axis, a, b } = faceAxes(normal)
-  const p = [0, 0, 0]
-  p[axis] = normal[axis]! * (1 + lift)
-  p[a] = u
-  p[b] = v
-  return p.map((x) => x * SCENE) as P3
-}
+const onFace = (normal: Vec3, u: number, v: number, lift = 0): P3 =>
+  onFaceOf(normal, u, v, lift, SCENE)
 
 const OUTLINES = new Map<string, [number, number][]>()
 

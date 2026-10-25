@@ -17,12 +17,16 @@ import {
   scrambleMasterSkewb,
   scrambleSkewbU,
   SKEWB_CUBE_SYMMETRIES,
+  IVY_TURNS,
+  scrambleIvy,
+  SKEWB_SYMMETRIES,
   SKEWB_TURNS,
+  solvedIvy,
   solvedMasterSkewb,
   solvedSkewb,
 } from '../shared/skewbs'
 import { asSeenThin, withRealThinEdges } from '../shared/thinEdges'
-import { copterGuide, dinoGuide, masterSkewbGuide } from '../guides'
+import { copterGuide, dinoGuide, ivyGuide, masterSkewbGuide } from '../guides'
 import { fisherSolved, windmillSolved, withMarks } from './fisher'
 
 // Cubes whose faces are no grid: scanned each sticker where its drawing
@@ -43,6 +47,15 @@ export const DIAGONAL_MODELS = {
     turns: () => SKEWB_TURNS,
     scramble: (length, rng) => scrambleSkewbU(length, rng),
     guide: () => dinoGuide({ skewb: true }),
+  },
+  // A Skewb with one set of corners: held the 12 ways that keep them.
+  ivy: {
+    solved: solvedIvy,
+    scan: 'square',
+    symmetries: SKEWB_SYMMETRIES,
+    turns: () => IVY_TURNS,
+    scramble: (length, rng) => scrambleIvy(length, rng),
+    guide: ivyGuide,
   },
   // The Curvy Copters: a cube, as the Skewb, held 24 ways.
   copter: {

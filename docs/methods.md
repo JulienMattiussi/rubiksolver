@@ -111,3 +111,4 @@ Leurs étapes sont décrites dans la fiche de chaque puzzle (section
 | Les sommets d'abord (`crystalCornersFirst`)     | Pyraminx Crystal                                                               | [polyhedron](puzzles/polyhedron.md)                                                 |
 | Le haut d'abord (`skewbTopFirst`)               | Skewb, Skewb Ultimate                                                          | [diagonal](puzzles/diagonal.md), [polyhedron](puzzles/polyhedron.md)                |
 | Skewb d'abord (`skewbFirst`)                    | Master Skewb                                                                   | [diagonal](puzzles/diagonal.md)                                                     |
+| Face par face (`ivyFaces`)                      | Ivy Cube                                                                       | [diagonal](puzzles/diagonal.md)                                                     |

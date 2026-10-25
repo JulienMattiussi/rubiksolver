@@ -13,6 +13,10 @@ export const METHODS_EN: typeof METHODS_FR = {
     name: 'Cross then corners',
     desc: 'Every edge, then every corner, each step with a single formula, the cube held by whichever face it takes.',
   },
+  ivyFaces: {
+    name: 'Face by face',
+    desc: 'One face, its two corners turned then its center, the opposite face, then the four centers left.',
+  },
   cfop: {
     name: 'Fridrich (CFOP)',
     desc: 'The speedcubers’ method: two layers by corner-edge pairs, the last one in two algorithms.',

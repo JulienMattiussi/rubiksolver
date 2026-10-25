@@ -4,6 +4,7 @@ import { dinoPolygons } from '../shared/dinoGeometry'
 import { fisherPolygons, fisherThumbnail } from './fisherGeometry'
 import { rexCut, rexPolygons } from './rexGeometry'
 import { skewbPolygons } from './skewbGeometry'
+import { ivyPolygons, ivyThumbnail } from './ivyGeometry'
 import { masterSkewbPolygons } from './masterSkewbGeometry'
 import {
   copter3Polygons,
@@ -18,6 +19,7 @@ export const DIAGONAL_DRAWINGS = {
   dino: { polygons: dinoPolygons, yaw: 0 },
   // Held as the Dino.
   skewb: { polygons: skewbPolygons, yaw: 0 },
+  ivy: { polygons: ivyPolygons, yaw: 0, thumbnail: ivyThumbnail },
   masterSkewb: { polygons: masterSkewbPolygons, yaw: 0 },
   rex: { polygons: rexPolygons, yaw: 0, cut: rexCut },
   copter: { polygons: copterPolygons, yaw: 0, thumbnail: copterThumbnail },

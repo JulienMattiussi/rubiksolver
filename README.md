@@ -8,12 +8,12 @@
 real methods, or learn to solve the 3x3, the 2x2, the 4x4, the 5x5, the super cubes, the Floppy, the 1x2x3, the Floppy Ghost, the Pyraminx, the Pyramorphinx, the Skewb, the Gear Cube Ultimate or the 2x2x4 tower yourself with a guided tutorial.**
 
 [**Try it**](https://rubiksolver.yavadeus.dev) &nbsp;·&nbsp;
-[The puzzles](#75-puzzles-12-families) &nbsp;·&nbsp;
+[The puzzles](#76-puzzles-12-families) &nbsp;·&nbsp;
 [How it works](#how-it-works) &nbsp;·&nbsp;
 [Technical docs](AGENTS.md)
 
 <a href="https://rubiksolver.yavadeus.dev">
-  <img src="docs/images/banner.png" width="820" alt="Rubik Solver: 75 puzzles, from the 2x2 to the Gear Cube, to enter and solve step by step.">
+  <img src="docs/images/banner.png" width="820" alt="Rubik Solver: 76 puzzles, from the 2x2 to the Gear Cube, to enter and solve step by step.">
 </a>
 
 <sub>
@@ -96,8 +96,8 @@ On a phone or a laptop, **scan** the puzzle instead: show it face by face, as th
 instructions say (where to turn it, with an arrow), and each face is taken on its own
 once it is still in the frame. The whole puzzle is then read at once, its colors
 matched to real pieces, and painted in the editor, to check and correct before
-validating. 26 of the 75 puzzles scan: the cubes from 2x2 to 6x6 and the cuboids, the
-Megaminx, the diagonal cubes (Skewb, Dino, Rex...), the 2x2x4 and 2x3x4 towers, whose
+validating. 32 of the 76 puzzles scan: the cubes from 2x2 to 6x6 and the cuboids, the
+Megaminx, the pyramids, the diagonal cubes (Skewb, Ivy Cube, Dino, Rex...), the 2x2x4 and 2x3x4 towers, whose
 shape the scan finds by itself, the all-silver Floppy Ghost, read from one picture by
 the outlines of its pieces, and the 3x3 mirror, read by the sizes of its stickers.
 Everything stays in the browser: no picture leaves the device.
@@ -108,7 +108,7 @@ A link per puzzle and language to share (`#/en/megaminx`), a saved state to comp
 two methods on the same scramble, mirror versions of the 2x2, 3x3 and 4x4, a mobile
 layout, and fireworks when a move solves the puzzle.
 
-## 75 puzzles, 12 families
+## 76 puzzles, 12 families
 
 <img src="docs/images/picker.png" width="820" alt="The puzzle picker: its twelve categories, each drawn from its puzzles' shapes.">
 
@@ -122,7 +122,7 @@ layout, and fireworks when a move solves the puzzle.
 | **Polyhedra**     | Megaminx, Pyraminx Crystal, FTO, 4-Trajber's Octahedron, Octahedron VTO, GEM-0, Rainbow, Skewb Ultimate                          |
 | **Cylinders**     | 2-Star Prism (UFO), 4-Star Prism, Hockey Puck, Barrel, Dino Cylinder                                                             |
 | **Gears**         | Gear Cube, Gear Cube Ultimate, Gear Cube Extreme                                                                                 |
-| **Diagonal cuts** | Skewb, Master Skewb, Dino Cube, Rex Cube, Curvy Copter, Curvy Copter III, Fisher Cube, Windmill                                  |
+| **Diagonal cuts** | Skewb, Ivy Cube, Master Skewb, Dino Cube, Rex Cube, Curvy Copter, Curvy Copter III, Fisher Cube, Windmill                        |
 | **Holey**         | Holey Megaminx, Void Cube, Tori, Edge Only                                                                                       |
 | **Twisted**       | Purple, Z-Twist, Quarter Cube, Latch Cube, Fashion-V                                                                             |
 | **Bandaged**      | AI Cube, RoadBlock-I, BigBlock, Squarebik, Fused, Bandage Cube, Quad, Stripe, QuadStripe, FusedStripe, Detour, Diamond, Alcatraz |

@@ -21,6 +21,12 @@ const DINO_GROUPS: readonly Group[] = [
   { key: 'dinoBottom', layers: ['D', 'R', 'd', 'r'] },
 ]
 
+/** The Ivy Cube's four corners, the top's then the bottom's. */
+const IVY_GROUPS: readonly Group[] = [
+  { key: 'dinoTop', layers: ['L', 'u'] },
+  { key: 'dinoBottom', layers: ['R', 'd'] },
+]
+
 /** The Master Skewb's: the Dino's corners, then its inner slices (named
  *  by their bottom corner). */
 const MASTER_GROUPS: readonly Group[] = [
@@ -29,7 +35,7 @@ const MASTER_GROUPS: readonly Group[] = [
 ]
 
 /** The puzzles turning the Rainbow's way, each with its own pad. */
-type RainbowVariant = Extract<PadKind, 'rainbow' | 'dino' | 'rex' | 'skewb' | 'masterSkewb'>
+type RainbowVariant = Extract<PadKind, 'rainbow' | 'dino' | 'rex' | 'skewb' | 'ivy' | 'masterSkewb'>
 
 /** Each variant's groups and the flags its turns carry: the Rex Cube, the
  *  Skewb Ultimate and the Master Skewb turn as the Dino Cube does. */
@@ -41,6 +47,7 @@ const VARIANTS: Record<
   dino: { groups: DINO_GROUPS, flags: { dino: true } },
   rex: { groups: DINO_GROUPS, flags: { dino: true, rex: true } },
   skewb: { groups: DINO_GROUPS, flags: { dino: true, skewb: true } },
+  ivy: { groups: IVY_GROUPS, flags: { dino: true, skewb: true } },
   masterSkewb: { groups: MASTER_GROUPS, flags: { dino: true, master: true } },
 }
 

@@ -67,6 +67,48 @@ son inverse, depuis un côté puis un autre (trois fois au plus). Le côté
 devant n'est nommé qu'une fois un sommet du haut placé : sa couleur se lit
 sur lui, le centre de ce côté pouvant être ailleurs.
 
+## L'Ivy Cube (`ivy`)
+
+ruwix.com/twisty-puzzles/ivy-cube (Eitan Cher, 2009) : un Skewb réduit à un
+seul clan de sommets (`lib/puzzles/shared/skewbs.ts`, `solvedIvy`,
+`IVY_CORNERS`) : L, R, u et d (le produit de leurs coordonnées vaut -1), les
+quatre autres pris dans les feuilles des centres : là où se rejoignent sans
+sommet les feuilles jaune, rouge et bleue, comme sur un vrai. Chaque sommet tourne par tiers la moitié du cube
+de son côté : lui-même, sur place, et les trois centres autour
+(`IVY_TURNS`, les tours du Skewb de ce clan). Ses sommets ne quittent
+jamais leur place, ils ne font que tourner : 3^4 × 6!/2 = 29 160 états. 12
+tenues, celles qui gardent les places de ses sommets (`SKEWB_SYMMETRIES`,
+celles du Skewb Ultimate). Notation et pavé du Dino, réduits à ses quatre
+sommets (le haut L, u ; le bas R, d). Mélange : des tours de ses sommets, jamais
+deux fois le même de suite (`scrambleIvy`).
+
+**Rendu** (`three/puzzles/diagonal/ivyGeometry.ts`) : sur chaque face, ses
+deux sommets à deux coins opposés du carré, chacun la partie de la face
+au-delà du cercle de rayon 2 centré sur l'autre ; entre eux, à l'intérieur
+des deux cercles, la feuille du centre. Ce que prend le tour d'un sommet est la partie du cube dans la sphère de
+rayon 2 centrée sur lui (ses arcs sur les faces). Les calottes de ces
+sphères, à l'intérieur du cube, en plastique, ferment les coupes : chaque
+morceau est porté par la pièce qui occupe cet endroit (`capsOf`), dans
+aucune autre sphère par le sommet, dans celle d'un autre sommet par leur
+feuille commune, dans deux autres par la feuille de ces deux-là, dans les
+trois (le cœur) par aucune. Ainsi, pendant un tour, tout ce qui est dans
+la sphère du sommet tourne avec lui, et rien de fixe ne traverse le morceau
+qui tourne. Chaque région est un éventail de
+triangles (`faceFan.ts`, partagé avec les Curvy Copters), un sommet depuis
+son coin, une feuille depuis son milieu.
+
+**Résolution** (`methods/diagonal/ivy.ts`, méthode **Face par face**,
+d'après ruwix) : ses sommets ne bougeant pas, ils disent comment le tenir
+(`skewbKit`, la tenue calée sur eux plutôt que sur le centre du haut). (1)
+la face blanche : ses deux sommets tournés blanc en haut, puis son centre ;
+(2) la face jaune, en face, de même ; (3) les quatre centres restants, un à
+un. Chaque étape joue le moins de tours possible ; la correction finale de
+la page (un sommet décalé d'un tiers) n'arrive jamais, les sommets étant
+tournés d'abord. Ses formules (`L' U U L`, `R U R' U'`), dans une notation
+que la page ne définit pas, ne sont pas reprises.
+
+**Scan** : en carré, comme le Skewb, chaque sticker où son dessin le montre.
+
 ## Le Master Skewb (`masterSkewb`)
 
 fan2cube.fr/masterskewb1 à 3 (Katsuhiko Okamoto, 2003) : le Skewb et le Rex

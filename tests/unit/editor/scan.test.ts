@@ -57,7 +57,7 @@ describe('scan plan', () => {
 
   it('says which puzzles it was tried on for real', () => {
     const tried = (Object.keys(SHAPE_SCAN_TRIED) as CubeShape[]).filter((s) => SHAPE_SCAN_TRIED[s])
-    expect(tried).toEqual(['2', '3', '4', '224', 'skewb'])
+    expect(tried).toEqual(['2', '3', '4', '224', 'skewb', 'ivy'])
     expect(tried.every((s) => scannable(s))).toBe(true)
   })
 

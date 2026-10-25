@@ -4,9 +4,9 @@ import { MASTER_SLICES, RAINBOW_CORNERS, RAINBOW_TRIANGLES, SQUARE_COLOR } from 
 import { DINO_TURNS } from './dinoRex'
 
 /**
- * The Skewbs: the Skewb, the Skewb Ultimate and the Master Skewb, the
- * Rainbow's mechanism (rainbow.ts) cut through the middle, their corners
- * turning half the puzzle (the Master Skewb's, a layer or a slice).
+ * The Skewbs: the Skewb, the Skewb Ultimate, the Master Skewb and the Ivy
+ * Cube, the Rainbow's mechanism (rainbow.ts) cut through the middle, their
+ * corners turning half the puzzle (the Master Skewb's, a layer or a slice).
  */
 
 /**
@@ -197,6 +197,41 @@ export function scrambleMasterSkewb(length: number, rng: () => number): RainbowM
     const last = moves[moves.length - 1]
     if (last && axis(last) === axis(move)) continue
     moves.push(move)
+  }
+  return moves
+}
+
+/**
+ * The Ivy Cube (Eitan Cher, 2009): a Skewb with only one set of corners,
+ * the other set's (their coordinates' signs multiplying to -1: L, R, u, d),
+ * the other four inside the leaves of its centers, where the yellow, red
+ * and blue leaves meet with no corner as on a real one. Each of its corners
+ * turns by thirds the half of the puzzle on its side: itself, in its place,
+ * and the three centers around it. Its corners never leave their places:
+ * they only turn there.
+ */
+export const IVY_CORNERS: readonly RainbowCorner[] = RAINBOW_TRIANGLES.filter(
+  (t) => RAINBOW_CORNERS[t][0] * RAINBOW_CORNERS[t][1] * RAINBOW_CORNERS[t][2] < 0,
+)
+
+export function solvedIvy(): Cube {
+  const own = new Set(IVY_CORNERS.map((t) => RAINBOW_CORNERS[t].join()))
+  return solvedSkewb().filter((c) => c.stickers.length === 1 || own.has(c.position.join()))
+}
+
+/** Every Ivy Cube turn, both ways: its four corners'. */
+export const IVY_TURNS: readonly RainbowMove[] = SKEWB_TURNS.filter((m) =>
+  IVY_CORNERS.includes(m.triangle),
+)
+
+/** An Ivy Cube scramble: turns of its corners, never the same twice in a
+ *  row. */
+export function scrambleIvy(length: number, rng: () => number): RainbowMove[] {
+  const moves: RainbowMove[] = []
+  while (moves.length < length) {
+    const triangle = IVY_CORNERS[Math.floor(rng() * IVY_CORNERS.length)]!
+    if (triangle === moves[moves.length - 1]?.triangle) continue
+    moves.push({ triangle, amount: rng() < 0.5 ? 1 : 2, dino: true, skewb: true })
   }
   return moves
 }

@@ -49,12 +49,15 @@ export const notPetal = (c: Cubie) =>
 
 /** The bricks for a shape held by `generators` (whole-puzzle turns of its
  *  vectors: the Skewb Ultimate's twelve holdings, the Skewb's 24), among
- *  those that bring its top center home the first that `fits` (the Skewb's
- *  corners in their own four: its two sets of corners never mix). */
+ *  those that bring its top center home (or that `anchored` says: the Ivy
+ *  Cube's, its corners, which never leave their places) the first that
+ *  `fits` (the Skewb's corners in their own four: its two sets of corners
+ *  never mix). */
 export function skewbKit(
   shape: CubeShape,
   generators: readonly ((v: Vec3) => Vec3)[],
   fits: (upright: Cube) => boolean = () => true,
+  anchored?: (upright: Cube) => boolean,
 ) {
   const SOLVED = solvedCube(shape)
 
@@ -85,11 +88,13 @@ export function skewbKit(
   )!.position
   const TOP_CENTER = keyOf(SOLVED.find(at(TOP))!)
 
+  const topHome = (upright: Cube) => keyOf(upright.find(at(TOP))!) === TOP_CENTER
+
   /** The holding that brings the top center home, and the inverse turn. */
   function holdingOf(cube: Cube): { turn: (v: Vec3) => Vec3; back: (v: Vec3) => Vec3 } {
     const turn = HOLDINGS.find((h) => {
       const upright = turned(cube, h)
-      return keyOf(upright.find(at(TOP))!) === TOP_CENTER && fits(upright)
+      return (anchored ?? topHome)(upright) && fits(upright)
     })!
     const back = HOLDINGS.find((h) =>
       (

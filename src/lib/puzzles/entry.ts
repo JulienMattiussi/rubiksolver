@@ -24,6 +24,7 @@ export type PadKind =
   | 'dino'
   | 'rex'
   | 'skewb'
+  | 'ivy'
   | 'masterSkewb'
   | 'gear'
 

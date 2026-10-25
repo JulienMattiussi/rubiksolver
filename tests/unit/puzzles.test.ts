@@ -95,6 +95,7 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'copter', pieces: 44, stickers: 72, orientations: 24, painted: 72, scramble: 30 },
   { shape: 'copter3', pieces: 74, stickers: 102, orientations: 24, painted: 102, scramble: 30 },
   { shape: 'skewb', pieces: 14, stickers: 30, orientations: 24, painted: 30, scramble: 15 },
+  { shape: 'ivy', pieces: 10, stickers: 18, orientations: 12, painted: 18, scramble: 12 },
   {
     shape: 'masterSkewb',
     pieces: 50,

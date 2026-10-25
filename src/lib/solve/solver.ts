@@ -9,6 +9,7 @@ import { proveFourByFour } from '../methods/standard/solver4/proof'
 import { solveMorph } from '../methods/pyramid/morph'
 import { BARREL_PLAN } from '../methods/round/barrel'
 import { BEGINNER_PLAN, CFOP_PLAN } from '../methods/standard/layers3'
+import { IVY_PLAN } from '../methods/diagonal/ivy'
 import { twistPlan } from '../methods/twisted/twist'
 import { fisherPlan } from '../methods/diagonal/fisher'
 import { mmorphPlan } from '../methods/pyramid/mmorph'
@@ -214,6 +215,8 @@ const SOLVE_METHODS = [
   { id: 'dinoLayers', plans: { dino: DINO_PLAN } },
   { id: 'dinoCylLayers', plans: { dinoCyl: DINO_CYL_PLAN } },
   { id: 'rexEdgesFirst', plans: { rex: REX_PLAN } },
+  // The Ivy Cube face by face (ruwix.com), held by its corners.
+  { id: 'ivyFaces', plans: { ivy: IVY_PLAN } },
   {
     id: 'skewbTopFirst',
     plans: { skewb: taught('skewb', 'skewbTopFirst'), skewbU: SKEWB_U_PLAN },
