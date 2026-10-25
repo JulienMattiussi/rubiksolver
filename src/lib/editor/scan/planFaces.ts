@@ -150,7 +150,8 @@ const unit = (v: readonly number[]): Vec3 => {
 }
 
 /** A polyhedron's flat faces, in order (its model's, `PuzzleModel.scan:
- *  { flat }`): each its stickers, at their pieces' places across it, in a
+ *  { flat }`): each its stickers (those it says it shows, `shown`), at
+ *  their pieces' places across it, in a
  *  frame of its shape (a regular polygon, as many sides as the ways the
  *  puzzle shows it turned), which the view replaces by where its drawing
  *  shows them. The ways it can be held turned are the puzzle's own
@@ -164,15 +165,16 @@ export function flatFaces(shape: CubeShape, faces: readonly FlatFace[]) {
     const across = dot(face.up, n)
     const up = unit(face.up.map((x, a) => x - across * n[a]!))
     const right = cross(up, n)
+    const shown =
+      face.shown ??
+      ((position: Vec3, normal: Vec3) => (same(normal, face.normal) ? position : null))
     const on = solved.flatMap((c, i) =>
-      c.stickers
-        .filter((s) => same(s.normal, face.normal))
-        .map((s) => ({
-          i,
-          color: s.color,
-          id: stickerId(c.position, normalIndex(s.normal)),
-          at: [dot(c.position, right), dot(c.position, up)] as Point,
-        })),
+      c.stickers.flatMap((s) => {
+        const at = shown(c.position, s.normal)
+        if (!at) return []
+        const id = stickerId(c.position, normalIndex(s.normal))
+        return [{ i, color: s.color, id, at: [dot(at, right), dot(at, up)] as Point }]
+      }),
     )
     const index = new Map(on.map((s, k) => [s.id, k]))
     // Each orientation keeping the face: where it takes each cell's sticker.
@@ -181,9 +183,7 @@ export function flatFaces(shape: CubeShape, faces: readonly FlatFace[]) {
       const turn = on.map(({ i, color }) => {
         const c = turned[i]!
         const s = c.stickers.find((t) => t.color === color)!
-        return same(s.normal, face.normal)
-          ? (index.get(stickerId(c.position, normalIndex(s.normal))) ?? -1)
-          : -1
+        return index.get(stickerId(c.position, normalIndex(s.normal))) ?? -1
       })
       if (!turn.includes(-1)) turns.set(turn.join(), turn)
     }

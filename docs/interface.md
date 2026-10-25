@@ -115,7 +115,9 @@ sur une tour déformée), puis par éloignement de la boîte ; survoler une
 vignette montre la forme en 3D.
 
 **Saisie à l'appareil photo** (`ScanView`) : sur un puzzle scannable, le
-panneau de peinture offre « Utiliser l'appareil photo » ; on montre chaque
+panneau de peinture offre « Utiliser l'appareil photo » (dès le choix de
+la forme sur une tour, dès les soudures sur un soudé, que le scan
+trouve) ; on montre chaque
 face à la caméra, on touche « Scanner la face », la face est prise dès
 qu'elle tient immobile, et le puzzle lu est peint dans l'éditeur, à vérifier
 et valider. Le détail (puzzles, parcours, lecture) :

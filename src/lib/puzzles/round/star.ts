@@ -30,7 +30,7 @@ import type { StarShape } from '../../core/shapes'
 
 /** Center direction of each slot (one star point), counterclockwise seen
  *  from above. Valley k lies between slots k and k + 1. */
-const SLOTS: readonly (readonly [number, number])[] = [
+export const STAR_SLOTS: readonly (readonly [number, number])[] = [
   [1, 0],
   [1, -1],
   [0, -1],
@@ -41,9 +41,9 @@ const SLOTS: readonly (readonly [number, number])[] = [
 
 /** Color of each valley (the two faces forming it): orange, white, yellow,
  *  red, violet, pink going clockwise, i.e. backwards through the slots. */
-const VALLEY_COLORS: readonly Color[] = ['O', 'P', 'V', 'R', 'Y', 'W']
-const TOP: Color = 'G'
-const BOTTOM: Color = 'B'
+export const VALLEY_COLORS: readonly Color[] = ['O', 'P', 'V', 'R', 'Y', 'W']
+export const STAR_TOP: Color = 'G'
+export const STAR_BOTTOM: Color = 'B'
 
 /** Height of each ring's layer: the outer ones at 2, the inner ones at 1
  *  (the screw, between them, at 0). */
@@ -63,9 +63,9 @@ const DOWN: Vec3 = [0, -1, 0]
 const inRightHalf = (p: Vec3): boolean => p[0] - p[2] > 0
 
 function point(slot: number, y: number): Cubie {
-  const [q, r] = SLOTS[slot]!
+  const [q, r] = STAR_SLOTS[slot]!
   const stickers: Sticker[] = [
-    { normal: y > 0 ? UP : DOWN, color: y > 0 ? TOP : BOTTOM },
+    { normal: y > 0 ? UP : DOWN, color: y > 0 ? STAR_TOP : STAR_BOTTOM },
     { normal: HEX_NORMALS[(slot + 5) % 6]!, color: VALLEY_COLORS[(slot + 5) % 6]! },
     { normal: HEX_NORMALS[slot]!, color: VALLEY_COLORS[slot]! },
   ]
@@ -77,8 +77,8 @@ function screwHalf(position: Vec3): Cubie {
   return {
     position,
     stickers: [
-      { normal: UP, color: TOP },
-      { normal: DOWN, color: BOTTOM },
+      { normal: UP, color: STAR_TOP },
+      { normal: DOWN, color: STAR_BOTTOM },
     ],
   }
 }
@@ -88,7 +88,7 @@ function screwHalf(position: Vec3): Cubie {
 export function solvedStar(shape: StarShape): Cube {
   const rings = [...STAR_RINGS[shape]].sort((a, b) => Math.abs(RING_Y[b]) - Math.abs(RING_Y[a]))
   return [
-    ...rings.flatMap((ring) => SLOTS.map((_, k) => point(k, RING_Y[ring]))),
+    ...rings.flatMap((ring) => STAR_SLOTS.map((_, k) => point(k, RING_Y[ring]))),
     screwHalf([1, 0, -1]),
     screwHalf([-1, 0, 1]),
   ]
@@ -180,7 +180,7 @@ export function starRotation(move: StarMove): {
 } {
   if ('slash' in move) {
     // About the horizontal axis through the right half, toward slot 1.
-    const [x, , z] = starToCartesian([SLOTS[1]![0], 0, SLOTS[1]![1]])
+    const [x, , z] = starToCartesian([STAR_SLOTS[1]![0], 0, STAR_SLOTS[1]![1]])
     const length = Math.hypot(x, z)
     return { axis: [x / length, 0, z / length], angle: Math.PI }
   }

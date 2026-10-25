@@ -46,6 +46,9 @@ export const TWISTED_MODELS = {
     scramble: scrambleQuarter,
     // Read when called: cube.ts, which defines it, loads after this file.
     isSolved: (cube) => colorsSolved(cube),
+    // Scanned as a 3x3, its centers' marks set by hand after (its card's
+    // `scanUnseen`).
+    scan: 'grid',
     // Its faces stand where their marks say, a click turning a center.
     entry: {
       paint: { by: 'colors', toggles: centerToggles(() => true) },
@@ -58,6 +61,8 @@ export const TWISTED_MODELS = {
     solved: () => withLatchMark(solvedCube('3')),
     turnAllowed: latchTurns,
     scramble: (length, rng, start) => scrambleLatch(length, rng, start),
+    // Scanned as a 3x3: its arrows go with its colors.
+    scan: 'grid',
     entry: {
       seen: (cube, held) => withoutLatchMark(held(cube)),
       built: (cube) => withLatchMark(cube),

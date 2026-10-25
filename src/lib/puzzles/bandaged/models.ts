@@ -35,6 +35,8 @@ function bandaged(blocks: readonly Block[]): PuzzleModel {
     solved: solvedOne,
     turnAllowed: cutsNoBlock,
     isSolved: (cube) => colorsSolved(withoutMarks(cube)),
+    // Scanned as a 3x3: its joints follow from where its colors stand.
+    scan: 'grid',
     turns: turnsOf,
     scramble: (length, rng, start) => scrambleBandaged(turnsOf())(length, rng, start),
     entry: {

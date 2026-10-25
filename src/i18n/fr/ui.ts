@@ -208,6 +208,8 @@ export const UI_FR = {
   scanUnseen: {
     sideCenters:
       'L’appareil photo ne voit pas le sens des centres de côté : vérifiez chacun, un clic sur un centre le fait tourner.',
+    centerMarks:
+      'L’appareil photo ne voit pas le repère des centres : placez chacun comme sur votre puzzle, un clic sur un centre le fait tourner.',
   },
   scanTake: 'Scanner la face',
   scanTakeHint: 'Positionnez le puzzle dans le cadre, puis touchez le bouton pour scanner la face.',

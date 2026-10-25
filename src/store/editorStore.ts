@@ -12,7 +12,7 @@ import {
   type StepKind,
 } from '@/lib/editor/entry'
 import { nextPiece } from '@/lib/editor/modes/pieces'
-import { jointsFit, matchesJoints, paintTile, splitAt } from '@/lib/editor/modes/joints'
+import { jointsFit, jointsOf, matchesJoints, paintTile, splitAt } from '@/lib/editor/modes/joints'
 import { nextToggle } from '@/lib/editor/modes/toggles'
 import { nextStep, partsDone, settingsOf, startSettings, type Settings } from '@/lib/editor/steps'
 import {
@@ -329,14 +329,20 @@ export const useEditor = create<EditorStore>((set, get) => {
         fromScan: false,
       })),
 
-    scanned: (edit, form) =>
+    scanned: (edit, form) => {
+      // A bandaged puzzle's joints, from where its colors put its pieces
+      // (its model fuses those that stand together): its colors next.
+      const shape = currentShape()
+      const joints = stepOf(shape, 'joints') ? jointsOf(buildCube(edit, shape, form)) : undefined
       set({
         edit,
         ...(form && { form, phase: 'paint' as const, preview: undefined }),
+        ...(joints && { joints, phase: 'paint' as const }),
         error: null,
         failedStep: null,
         fromScan: true,
-      }),
+      })
+    },
 
     apply: () => {
       const { edit, form, parts, toggles, joints } = get()

@@ -9,12 +9,15 @@ import { ErrorAlert } from './ErrorAlert'
  *  hint, its counter if it has one, its error if refused, then the buttons
  *  to accept it or cancel the entry. */
 export function PhasePanel({
+  top,
   hint,
   counter,
   error,
   accept,
   onAccept,
 }: {
+  /** Above the hint (a scan, which can do the step's work). */
+  top?: ReactNode
   hint: string
   counter?: ReactNode
   /** The error to show, if the step was refused. */
@@ -27,6 +30,7 @@ export function PhasePanel({
   const cancel = useEditor((s) => s.cancel)
   return (
     <div className="flex flex-col gap-5">
+      {top}
       <p className="text-xs leading-relaxed text-slate-400">{hint}</p>
       {counter}
       {error && <ErrorAlert>{error}</ErrorAlert>}

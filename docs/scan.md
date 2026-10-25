@@ -7,13 +7,17 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 
 ## Les puzzles scannables
 
-`scannable` (`lib/editor/scan/plan.ts`) : 41 modèles sur 76, et le 3x3 miroir.
+`scannable` (`lib/editor/scan/plan.ts`) : 56 modèles sur 76, et le 3x3 miroir.
 
 - **En grille**, tout se déduit des dimensions (`scanPlan`) : les cubes du
   2x2 au 6x6, les cuboïdes et les plats sans saisie propre (1x2x3, Floppy,
   Domino, tours...). Un modèle saisi autrement le déclare (`PuzzleModel.scan:
 'grid'`) : le Void Cube, l'Edge Only, leurs trous sautés ; le Barrel, dont
-  la saisie choisit le sens de ses arêtes minces ; le Windmill, en grille mais encadré
+  la saisie choisit le sens de ses arêtes minces ; le Latch Cube, ses
+  flèches suivant ses couleurs ; le Quarter Cube, le repère de ses centres
+  placé à la main ensuite (`scanUnseen: 'centerMarks'`) ; les soudés sur un
+  3x3, leurs soudures déduites des couleurs lues (voir
+  [puzzles/bandaged.md](puzzles/bandaged.md)) ; le Windmill, en grille mais encadré
   comme le miroir (`scan: 'centered'`, `centeredFaces` : le centre de la
   face dans la case marquée, les coupes en filigrane, de la marge autour, son
   centre n'étant pas forcément au milieu de son volume) ; le sens de ses
@@ -61,6 +65,12 @@ HTTPS : on l'essaie sur un déploiement Vercel.
   Megaminx, calculés sur ses normales ; aucun de ses tours ne gardant une
   face en place, sa face dit elle-même ses côtés (`FlatFace.sides`), et il
   se tient comme la consigne le dit.
+- **Par leurs faces planes** enfin, les prismes en étoile (`starScan.ts`) :
+  le dessus, le dessous et des côtés vus en face d'un creux, chacun
+  montrant les faces de plusieurs branches (`FlatFace.shown` : où chaque
+  sticker se montre sur la photo, au lieu des seuls stickers tournés vers
+  elle) ; 4 photos pour le 2-Star, 5 pour le 4-Star (voir
+  [puzzles/round.md](puzzles/round.md)).
 - **Par leur forme** (`scan: 'forms'`) : les tours 2x2x4 et 2x3x4, qui se
   déforment. Elles se scannent comme la boîte où tourne leur mécanisme, et
   le scan trouve leur forme : plus besoin de la choisir parmi les

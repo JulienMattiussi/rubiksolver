@@ -46,6 +46,16 @@ dit dans quel sens elle est posée, et l'éditeur complète sa face cachée
 les stickers visibles). La palette
 montre les couleurs de la forme (`shapeColors` : rose et violet en plus).
 
+**Scan** (`starScan.ts`, voir [docs/scan.md](../scan.md)) : un côté, un creux
+face à l'objectif, puis le côté opposé d'un demi-tour, le dessus basculé
+vers l'objectif, le dessous d'un demi-tour : 4 photos. Vu en face d'un
+creux, un côté montre les deux faces du creux et, au-delà des branches qui
+l'entourent, une face de chacune des branches suivantes (celles d'un tiers
+de tour plus loin penchent trop, cachées) : chaque branche y montre un
+côté, qui avec son dessus ou son dessous la dit. Le 4-Star, dont les
+branches internes n'ont pas de dessus visible, montre trois côtés, un tiers
+de tour l'un après l'autre (toutes les faces vues) : 5 photos.
+
 **Le 4-Star Prism** (`star4`, fan2cube.fr/4-star1) : un Super Square-1 en
 étoile, quatre étages (H, h, b, B ; `U`, `u`, `d`, `D` dans le modèle) qui
 tournent chacun seul, le slash traversant tout. Les étages externes sont à

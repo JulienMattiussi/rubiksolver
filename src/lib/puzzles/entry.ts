@@ -29,7 +29,7 @@ export type PadKind =
   | 'gear'
 
 /** What a camera scan cannot see (see `PuzzleEntry.scanUnseen`). */
-export type ScanUnseen = 'sideCenters'
+export type ScanUnseen = 'sideCenters' | 'centerMarks'
 
 /** The hint the editor gives, when not the usual one (EditPanel.tsx). */
 export type EditHint = 'twist' | 'camo' | 'roadblock' | 'quarter' | 'gear' | 'gearPlain'
@@ -61,7 +61,8 @@ export interface PuzzleEntry {
    *  the button says it is untried: see `SHAPE_SCAN_TRIED`). */
   readonly scanTried?: true
   /** What its camera scan cannot see, its colors telling nothing of it
-   *  (a Windmill's side centers' way round, shown by their shape): the
+   *  (a Windmill's side centers' way round, shown by their shape; a
+   *  Quarter Cube's centers' marks): the
    *  editor asks to check it after a scan. */
   readonly scanUnseen?: ScanUnseen
   /** Its mirror scanned by the sizes of its stickers (lib/editor/scan/

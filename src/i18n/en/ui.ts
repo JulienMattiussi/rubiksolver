@@ -205,6 +205,8 @@ export const UI_EN: typeof UI_FR = {
   scanUnseen: {
     sideCenters:
       'The camera cannot see which way the side centers lie: check each one, a click on a center turns it.',
+    centerMarks:
+      'The camera cannot see the centers’ marks: set each one as on your puzzle, a click on a center turns it.',
   },
   scanTake: 'Scan the face',
   scanTakeHint: 'Place the puzzle in the frame, then tap the button to scan the face.',

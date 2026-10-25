@@ -7,6 +7,7 @@ import { asSeenThin, thinEdgesSolved, withRealThinEdges } from '../shared/thinEd
 import { DINO_TURNS, scrambleDino } from '../shared/dinoRex'
 import { solvedDinoCyl } from './dinoCyl'
 import { PUCK_TURNS, puckSolved, scramblePuck, solvedPuck } from './puck'
+import { starScan } from './starScan'
 import { hiddenStarSticker, scrambleStar, solvedStar, STAR_SYMMETRIES, starTurnsOf } from './star'
 
 /** A star prism: its rings and slash. */
@@ -17,6 +18,8 @@ const star = (shape: StarShape): PuzzleModel => ({
   scramble: (length, rng) => scrambleStar(shape, length, rng),
   guide: () => starGuide(shape),
   entry: { hidden: hiddenStarSticker },
+  // By its sides, its top and its bottom (starScan.ts).
+  scan: starScan(shape),
 })
 
 export const ROUND_MODELS = {

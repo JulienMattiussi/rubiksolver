@@ -444,7 +444,7 @@ dans l'éditeur, à valider. Tout se déduit des dimensions (`scanPlan`,
 `layout.ts`), sauf d'un modèle qui déclare son scan (`PuzzleModel.scan` :
 en grille, en carré placé par son dessin, en anneaux, en faces planes
 (les pyramides, `pyraScan.ts` ; les octaèdres, `octScan.ts` ; le Skewb
-Ultimate, `dodecaScan.ts`), ou par sa forme,
+Ultimate, `dodecaScan.ts` ; les prismes en étoile, `starScan.ts`), ou par sa forme,
 que le scan trouve : `forms.ts`, les tours, calées par leur cœur, `box.ts` ;
 le Floppy Ghost, argenté, se lit à ses contours, d'une seule photo, `outlines.ts` ; le 3x3 miroir,
 aux tailles de ses stickers, trouvés par OpenCV dans un worker, `sized.ts`, `sizedRead.ts`). Le détail :

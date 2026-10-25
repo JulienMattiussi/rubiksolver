@@ -62,6 +62,10 @@ peintes.
   dit. « Modifier » reprend les soudures de l'état. Un soudé à une seule
   forme (BigBlock, Squarebik, Fused) se peint directement, ses blocs
   pré-remplis.
+- **Scan** (`scan: 'grid'`, comme un 3x3) : proposé dès l'étape des
+  soudures ; les couleurs lues, ses soudures s'en déduisent (les pièces
+  d'un bloc que les couleurs remettent côte à côte, `marksFromColors`) et
+  l'éditeur passe aux couleurs, à vérifier (`scanned`, `editorStore`).
 - **Rendu** (`bandagedGeometry.ts`) : chaque cubie va jusqu'au bout de sa
   case, sans jour, du côté de ses voisins de bloc, son sticker aussi : un
   bloc se lit comme une seule pièce, ses stickers comme une seule tuile,

@@ -369,6 +369,21 @@ describe('editor store: a bandaged puzzle', () => {
     expect(editor().mode).toBe('play')
   })
 
+  it('takes its joints from where a scan put its colors, on to its colors', () => {
+    useCube.getState().setShape('stripe')
+    const editor = () => useEditor.getState()
+    // A scrambled state, as a scan reads it: its colors only.
+    useCube.getState().scramble()
+    drain()
+    const cube = useCube.getState().cube
+    editor().enter()
+    expect(editor().phase).toBe('joints')
+    editor().scanned(cubeToEdit(cube))
+    expect(editor().phase).toBe('paint')
+    expect(editor().joints.length).toBe(jointsOf(cube).length)
+    expect(editor().apply()).toBe(true)
+  })
+
   it('leaves at once when entered from the current state', () => {
     useCube.getState().setShape('stripe')
     useEditor.getState().enterFromCurrent()

@@ -92,6 +92,29 @@ describe('a scanned face as its drawing shows it', () => {
     }
   })
 
+  it.each(['star', 'star4'] as const)(
+    'reads each sticker of a %s apart, inside its outline',
+    (shape) => {
+      const plan = scanPlan(shape)
+      // Its sides (three on a 4-star), its top, its bottom.
+      expect(plan.map((f) => f.move)).toEqual(
+        shape === 'star'
+          ? ['first', 'flip', 'tilt', 'flip']
+          : ['first', 'turn', 'turn', 'tilt', 'flip'],
+      )
+      for (const planned of plan) {
+        const face = drawnFace(shape, planned)
+        expect(face).not.toBe(planned)
+        face.points.forEach((p) => expect(inside(p, face.outline)).toBe(true))
+        face.points.forEach((p, i) =>
+          face.points
+            .slice(i + 1)
+            .forEach((q) => expect(gap(p, q)).toBeGreaterThan(2 * face.reach)),
+        )
+      }
+    },
+  )
+
   // An octahedron's faces, triangles (the GEM-0's, their corners cut).
   const OCTAHEDRA: readonly CubeShape[] = ['oct4', 'vto', 'gem', 'fto']
   it.each(OCTAHEDRA)('reads each sticker of a %s inside its triangle, as planned', (shape) => {

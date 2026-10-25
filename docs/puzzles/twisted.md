@@ -134,6 +134,10 @@ permutations restent paires (chaque face tourne autant dans un sens que
 dans l'autre), les 3-cycles suffisent. Chaque coup de la solution est
 vérifié jouable.
 
+**Scan** : en grille, comme un 3x3 ; l'appareil ne voyant pas le repère
+des centres, l'éditeur demande ensuite de les placer d'un clic
+(`scanUnseen: 'centerMarks'` sur sa carte).
+
 ## Le Latch Cube (`latch`)
 
 Le Latch Cube (fan2cube.fr/latchcube1 et 2, Katsuhiko Okamoto, 2010) : un
@@ -170,6 +174,8 @@ début de chaque formule, donc les variantes qui passent (tenues de chaque
 façon, préparées par un ou deux coups) sont triées une fois. La position
 START de la page (une croix de flèches noires en bas) n'est pas reprise :
 la recherche s'en passe.
+
+**Scan** : en grille, comme un 3x3 : ses flèches suivent ses couleurs.
 
 ## Le Fashion-V (`fashion`)
 

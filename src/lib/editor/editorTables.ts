@@ -155,7 +155,7 @@ export function tablesFor(shape: CubeShape, form?: Cube): SlotTables {
       // place (the Purple's minis): any turn of a piece, the check after.
       placements:
         boxed && !SHAPE_SHIFTS[shape]
-          ? computePlacements(shape, paintableSlots)
+          ? computePlacements(shape, paintableSlots, fixed)
           : turnedPlacements(shape, paintableSlots, fixed),
       budgets: computeBudgets(shape, fixed),
     }
@@ -267,6 +267,7 @@ function handOf(at: Vec3): string {
 function computePlacements(
   shape: CubeShape,
   paintableSlots: readonly Slot[],
+  fixed: Set<number>,
 ): Map<string, PlacementOption[]> {
   const solved = entrySolved(shape)
   const perSlot = new Map<string, Map<string, PlacementOption>>()
@@ -277,7 +278,11 @@ function computePlacements(
       if (!bucket) return // fixed piece / core
       const colors: Placement = {}
       for (const s of cubie.stickers) colors[normalIndex(s.normal)] = s.color
-      bucket.set(placementKey(colors), { colors, pieceKey: pieceKeyOf(cubie, solved[i]!.position) })
+      // Two pieces alike, one of them fixed (a star prism's screw halves):
+      // the placement is the one that moves, which has a budget.
+      const key = placementKey(colors)
+      if (fixed.has(i) && bucket.has(key)) return
+      bucket.set(key, { colors, pieceKey: pieceKeyOf(cubie, solved[i]!.position) })
     })
   }
   return new Map([...perSlot].map(([k, m]) => [k, [...m.values()]]))

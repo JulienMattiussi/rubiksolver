@@ -153,6 +153,11 @@ export interface FlatFace {
   /** Its sides, when the puzzle's turns do not say (a Skewb Ultimate's
    *  pentagon, which no turn of it keeps in place). */
   readonly sides?: number
+  /** Where each sticker of the solved puzzle shows on it, in the model's
+   *  frame (null: not on it), when not only those facing its normal, at
+   *  their piece: a star prism's side, seen across a valley, shows the
+   *  faces of several (its points' kites, its screw's discs). */
+  readonly shown?: (position: Vec3, normal: Vec3) => readonly number[] | null
   readonly frontColor: Color
   readonly upColor: Color
   readonly move: ScanMove
@@ -161,7 +166,7 @@ export interface FlatFace {
 
 /** The solid a puzzle scanned by its flat faces is, drawn in its gestures'
  *  arrows (none: a cube). */
-type Solid = 'pyramid' | 'octahedron' | 'dodecahedron'
+type Solid = 'pyramid' | 'octahedron' | 'dodecahedron' | 'prism'
 
 /** A model scanned by its flat faces, in order (`behind`: shown to a
  *  camera facing the user, its gestures mirrored). */

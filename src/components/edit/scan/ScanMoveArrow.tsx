@@ -80,7 +80,7 @@ const head = (g: Gesture) => {
 
 /** The way to turn the puzzle for a face (none for the first one, nor one
  *  told by its colors alone), drawn above its instruction: a cube (or the
- *  solid it is: a pyramid, an octahedron, a dodecahedron) in relief, the arrow round it,
+ *  solid it is: a pyramid, an octahedron, a dodecahedron, a prism) in relief, the arrow round it,
  *  how far it turns. */
 export function ScanMoveArrow({
   face,
@@ -122,6 +122,14 @@ export function ScanMoveArrow({
             <polygon points="35,10 35,32 48,28" className="fill-white/15" />
             <polygon points="22,28 35,32 35,48" className="fill-white/20" />
             <polygon points="35,32 48,28 35,48" className="fill-white/10" />
+          </>
+        ) : face.solid === 'prism' ? (
+          <>
+            <polygon points="22,20 30,14 42,14 50,20 42,26 30,26" className="fill-white/35" />
+            <polygon
+              points="22,20 30,26 42,26 50,20 50,36 42,42 30,42 22,36"
+              className="fill-white/20"
+            />
           </>
         ) : face.solid === 'dodecahedron' ? (
           <>

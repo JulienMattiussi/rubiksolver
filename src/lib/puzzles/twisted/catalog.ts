@@ -14,6 +14,7 @@ export const TWISTED = {
     dims: [3, 3, 3],
     scramble: 30,
     editHint: 'quarter',
+    scanUnseen: 'centerMarks',
   },
   // The Latch Cube (latch.ts): a 3x3x3, its faces turning the way their
   // arrows say.
