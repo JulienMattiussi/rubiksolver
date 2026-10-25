@@ -37,10 +37,18 @@ const GESTURES: Record<
   // Its top point backward, its bottom coming to the lens: the tilt the
   // other way round.
   topple: { c: [36, 25], a: [10, -10], b: [0, 19], from: -170, to: 10, deep: true },
+  // Turned upside down: a half turn toward the lens, round its top, then
+  // under it (dashed, behind).
+  upend: {
+    c: [36, 25],
+    a: [10, -10],
+    b: [0, 19],
+    from: 10,
+    to: -170,
+    deep: true,
+    behind: [-170, -350],
+  },
 }
-
-/** The pyramid's gestures: a pyramid drawn, not a cube. */
-const PYRAMID = new Set<ScanFace['move']>(['spin', 'topple'])
 
 const rad = (deg: number) => (deg * Math.PI) / 180
 
@@ -71,13 +79,14 @@ const head = (g: Gesture) => {
 }
 
 /** The way to turn the puzzle for a face (none for the first one, nor one
- *  told by its colors alone), drawn above its instruction: a cube (or a
- *  pyramid) in relief, the arrow round it, how far it turns. */
+ *  told by its colors alone), drawn above its instruction: a cube (or the
+ *  solid it is: a pyramid, an octahedron, a dodecahedron) in relief, the arrow round it,
+ *  how far it turns. */
 export function ScanMoveArrow({
   face,
   mirrored = false,
 }: {
-  face: Pick<ScanFace, 'move' | 'angle'>
+  face: Pick<ScanFace, 'move' | 'angle' | 'solid'>
   /** The camera faces the user: the turn goes the other way round. */
   mirrored?: boolean
 }) {
@@ -102,10 +111,22 @@ export function ScanMoveArrow({
         />
       )}
       <g className="stroke-white/70" strokeWidth={1} strokeLinejoin="round">
-        {PYRAMID.has(move) ? (
+        {face.solid === 'pyramid' ? (
           <>
             <polygon points="35,12 22,40 38,44" className="fill-white/20" />
             <polygon points="35,12 38,44 48,34" className="fill-white/10" />
+          </>
+        ) : face.solid === 'octahedron' ? (
+          <>
+            <polygon points="35,10 22,28 35,32" className="fill-white/30" />
+            <polygon points="35,10 35,32 48,28" className="fill-white/15" />
+            <polygon points="22,28 35,32 35,48" className="fill-white/20" />
+            <polygon points="35,32 48,28 35,48" className="fill-white/10" />
+          </>
+        ) : face.solid === 'dodecahedron' ? (
+          <>
+            <polygon points="27,16 41,16 48,26 35,24 22,26" className="fill-white/30" />
+            <polygon points="22,26 35,24 48,26 44,40 26,40" className="fill-white/20" />
           </>
         ) : (
           <>

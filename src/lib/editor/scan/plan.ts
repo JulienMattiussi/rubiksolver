@@ -14,6 +14,7 @@ import type { FaceLayout, Point } from './layout'
 import type { OutlineScan } from './outlines'
 import {
   boxFaces,
+  centeredFaces,
   flatFaces,
   gridFaces,
   ringFaces,
@@ -40,12 +41,23 @@ import {
  *  left, its top staying on top (`turn`) or its bottom at the bottom
  *  (`below`), tilted toward the lens, turned half round; a polyhedron
  *  turned left about its top point (`spin`), its bottom raised toward the
- *  lens (`topple`); `show`: told by
+ *  lens (`topple`), turned upside down, its bottom point up (`upend`);
+ *  `show`: told by
  *  its colors alone (a Megaminx's twelve faces); `upright`: the first face
  *  of a puzzle out of shape, its long side upright; `anchored`: the one
  *  face of a puzzle read whole, its anchor in the shape marked (`whole`). */
 export type ScanMove =
-  'first' | 'upright' | 'anchored' | 'turn' | 'below' | 'tilt' | 'flip' | 'show' | 'spin' | 'topple'
+  | 'first'
+  | 'upright'
+  | 'anchored'
+  | 'turn'
+  | 'below'
+  | 'tilt'
+  | 'flip'
+  | 'show'
+  | 'spin'
+  | 'topple'
+  | 'upend'
 
 export interface ScanFace extends FaceLayout {
   readonly move: ScanMove
@@ -90,6 +102,13 @@ export interface ScanFace extends FaceLayout {
    *  held still; its `mark`, where the piece that never moves goes. */
   readonly whole?: OutlineScan
   readonly mark?: readonly Point[]
+  /** The solid a polyhedron is, scanned by its flat faces (its gestures'
+   *  arrows draw it; none: a cube). */
+  readonly solid?: Solid
+  /** A grid face framed round its center as a mirror cube's
+   *  (`PuzzleModel.scan: 'centered'`): its cuts drawn from its center's
+   *  cell, no outline, its cells read where a grid's are. */
+  readonly centered?: true
   /** A mirror cube's face, read by the sizes of its stickers (sized.ts),
    *  named by its thickness: its picture kept whole, its center in `mark`. */
   readonly sized?: true
@@ -119,6 +138,8 @@ export interface RingFace {
   readonly bottom?: true
   readonly move?: ScanMove
   readonly angle?: number
+  /** Its cuts through its middle (a Pyraminx Crystal's), drawn so. */
+  readonly deep?: true
 }
 
 /** A flat face of a polyhedron as its model declares it (`PuzzleModel.scan:
@@ -129,16 +150,24 @@ export interface FlatFace {
   readonly normal: Vec3
   readonly up: Vec3
   readonly pointDown?: true
+  /** Its sides, when the puzzle's turns do not say (a Skewb Ultimate's
+   *  pentagon, which no turn of it keeps in place). */
+  readonly sides?: number
   readonly frontColor: Color
   readonly upColor: Color
   readonly move: ScanMove
   readonly angle?: number
 }
 
+/** The solid a puzzle scanned by its flat faces is, drawn in its gestures'
+ *  arrows (none: a cube). */
+type Solid = 'pyramid' | 'octahedron' | 'dodecahedron'
+
 /** A model scanned by its flat faces, in order (`behind`: shown to a
  *  camera facing the user, its gestures mirrored). */
 export interface FlatScan {
   readonly flat: (behind: boolean) => readonly FlatFace[]
+  readonly solid: Solid
 }
 
 /** The six colors a camera can name. */
@@ -220,16 +249,18 @@ export function scanPlan(
     const flat = typeof own === 'object' && 'flat' in own
     const faces: Omit<ScanFace, 'told' | 'named'>[] =
       typeof own === 'object' && 'flat' in own
-        ? flatFaces(shape, own.flat(behind))
+        ? flatFaces(shape, own.flat(behind)).map((face) => ({ ...face, solid: own.solid }))
         : typeof own === 'object'
           ? wholeFaces(shape, own)
-          : own === 'square'
-            ? squareFaces(shape, order)
-            : own === 'forms'
-              ? boxFaces(shape, order)
-              : rings
-                ? ringFaces(shape, rings)
-                : gridFaces(shape, order)
+          : own === 'centered'
+            ? centeredFaces(shape, order)
+            : own === 'square'
+              ? squareFaces(shape, order)
+              : own === 'forms'
+                ? boxFaces(shape, order)
+                : rings
+                  ? ringFaces(shape, rings)
+                  : gridFaces(shape, order)
     // Centers tell the faces only if every face has one, where they stay
     // (not a Skewb's, which move about, nor a pyramid's).
     const told =

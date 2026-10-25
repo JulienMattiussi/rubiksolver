@@ -151,7 +151,7 @@ hors de sa colonne, un coin coupé laisse une encoche, une arête entière
 dépasse : il se déforme, sans blocage. Rendu (`three/core/cutSolid.ts`, partagé
 avec le Fisher Cube) : chaque pièce est sa case du 3x3 (ouverte vers
 l'extérieur) coupée par les plans du solide, portée par la rotation qui
-l'amène où elle est. **Saisie** pièce par pièce.
+l'amène où elle est. **Saisie** pièce par pièce ; **scan** en grille, comme un 3x3.
 
 **Résolution** (`methods/round/barrel.ts`, méthode **Par couches**, d'après la
 page) : la couche du bas comme un Rubik's Cube ; les arêtes du milieu

@@ -96,17 +96,20 @@ function fan(region: ReturnType<typeof regionOf>, normal: Vec3, scale: number, l
   ])
 }
 
-/** How far from the square's corners a sticker stops: its tips, too thin
- *  to hold, left to the plastic (alone in the air once the piece beside
- *  them turns away). */
-const TIP = 0.15
+/** How far from the square's corners a corner's sticker stops: its two
+ *  tips, too thin to hold, left to the plastic (alone in the air once the
+ *  leaf beside them turns away). A leaf keeps its own. */
+const TIP = 0.4
 
-/** A region without its tips: its ring's points near a corner of the
- *  square dropped. */
-const trimmed = (region: ReturnType<typeof regionOf>): ReturnType<typeof regionOf> => ({
-  ...region,
-  ring: region.ring.filter(([u, v]) => Math.hypot(1 - Math.abs(u), 1 - Math.abs(v)) > TIP),
-})
+/** A corner's region without its tips: its ring's points near a corner of
+ *  the square dropped (a leaf's, as it is). */
+const trimmed = (region: ReturnType<typeof regionOf>): ReturnType<typeof regionOf> =>
+  region.closed
+    ? region
+    : {
+        ...region,
+        ring: region.ring.filter(([u, v]) => Math.hypot(1 - Math.abs(u), 1 - Math.abs(v)) > TIP),
+      }
 
 const unit = (normal: Vec3) => normal.map((v) => v + 0) as unknown as P3
 

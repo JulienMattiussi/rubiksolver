@@ -14,7 +14,7 @@ import {
   vtoThumbnail,
 } from './octGeometry'
 import { RAINBOW_ORIENT, RAINBOW_YAW, rainbowPolygons } from './rainbowGeometry'
-import { skewbUPolygons, skewbUThumbnail } from './skewbUGeometry'
+import { real, skewbUPolygons, skewbUThumbnail } from './skewbUGeometry'
 
 /** The Megaminx, its top up, a face in front. */
 export const MEGAMINX_DRAWING: PolyDrawing = {
@@ -38,5 +38,5 @@ export const POLYHEDRON_DRAWINGS = {
   // Held as the Megaminx.
   crystal: { polygons: crystalPolygons, yaw: 0, thumbnail: crystalThumbnail },
   // Held as the Dino.
-  skewbU: { polygons: skewbUPolygons, yaw: 0, thumbnail: skewbUThumbnail },
+  skewbU: { polygons: skewbUPolygons, yaw: 0, thumbnail: skewbUThumbnail, direction: real },
 } satisfies Partial<Record<CubeShape, PolyDrawing>>

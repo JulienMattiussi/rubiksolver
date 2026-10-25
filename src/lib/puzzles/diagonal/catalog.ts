@@ -70,5 +70,12 @@ export const DIAGONAL = {
   // The Fisher Cube (fisher.ts): a 3x3x3 cut to a cube turned an eighth.
   fisher: { label: 'Fisher Cube', slug: 'fisher-cube', dims: [3, 3, 3], scramble: 20 },
   // The Windmill (fisher.ts): the same, its solid turned less.
-  windmill: { label: 'Windmill', slug: 'windmill', dims: [3, 3, 3], scramble: 20 },
+  // Its side centers' way round shows by their shape, not their colors.
+  windmill: {
+    label: 'Windmill',
+    slug: 'windmill',
+    dims: [3, 3, 3],
+    scramble: 20,
+    scanUnseen: 'sideCenters',
+  },
 } satisfies Record<string, PuzzleEntry>

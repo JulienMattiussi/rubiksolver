@@ -14,14 +14,14 @@ import { turnCells } from '@/lib/editor/scan/orient'
 import { gridLayout } from '@/lib/editor/scan/layout'
 import { scannable, scanPlan } from '@/lib/editor/scan/plan'
 import { sampleFace, type Pixels } from '@/lib/editor/scan/sample'
-import { SHAPE_DIMS, SHAPE_SCAN_TRIED, type CubeShape } from '@/lib/core/shapes'
+import { SHAPE_DIMS, SHAPE_SCAN_TRIED, SHAPE_SCAN_UNSEEN, type CubeShape } from '@/lib/core/shapes'
 import {
   MEGA_FACES,
   megaAround,
   megaSlotAt,
   solvedMegaminx,
 } from '@/lib/puzzles/polyhedron/megaminx'
-import type { Color } from '@/lib/core/types'
+import { MARK, type Color } from '@/lib/core/types'
 import { seededRng } from '../../helpers'
 import { boxScanOf, facePicture, picture, RGB, scanOf } from './scanPictures'
 
@@ -387,6 +387,13 @@ describe('scan colors', () => {
   })
 })
 
+/** A scan's reading, what it cannot see left out (a Windmill's side
+ *  centers' way round, their hidden marks: checked by hand after it). */
+const seen = (shape: CubeShape, read: ReturnType<typeof readScan>) =>
+  SHAPE_SCAN_UNSEEN[shape] && read.ok
+    ? { ...read, edit: Object.fromEntries(Object.entries(read.edit).filter(([, c]) => c !== MARK)) }
+    : read
+
 describe('reading a scan', () => {
   it('assigns the cheapest way', () => {
     expect(
@@ -403,7 +410,7 @@ describe('reading a scan', () => {
   // asked, checked and read as it then comes.
   it.each(SCANNED)('reads a scrambled %s shown to a laptop’s camera', (shape) => {
     const { faces, edit } = scanOf(shape, 8, true)
-    expect(readScan(shape, faces, true)).toEqual({ ok: true, edit })
+    expect(seen(shape, readScan(shape, faces, true))).toEqual(seen(shape, { ok: true, edit }))
   })
 
   it('names a 3x3’s faces as a laptop’s gestures bring them: left and right swapped', () => {
@@ -420,7 +427,7 @@ describe('reading a scan', () => {
 
   it.each(SCANNED)('reads a scrambled %s back', (shape) => {
     const { faces, edit } = scanOf(shape, 7)
-    expect(readScan(shape, faces)).toEqual({ ok: true, edit })
+    expect(seen(shape, readScan(shape, faces))).toEqual(seen(shape, { ok: true, edit }))
   })
 
   it('turns the cells of a face a quarter clockwise', () => {
@@ -434,9 +441,12 @@ describe('reading a scan', () => {
   // A cube's faces held turned are found back; a cuboid's or a flat one's
   // may make real pieces either way (a Floppy's edge read backward), and
   // so may those whose only pieces on two faces are a few edges (the Edge
-  // Only, the Dino, the Rex: then a face is asked again): held as told,
-  // they read back above.
-  const FEW_EDGES: readonly CubeShape[] = ['edge', 'dino', 'rex']
+  // Only, the Dino, the Rex: then a face is asked again), and the
+  // 4-Trajber's, whose pieces each show one sticker only (none tells how a
+  // face was held), and the FTO's, whose centers do, and the Rainbow's,
+  // scanned by its squares, each piece seen by two stickers only: held as
+  // told, they read back above.
+  const FEW_EDGES: readonly CubeShape[] = ['edge', 'dino', 'rex', 'oct4', 'fto', 'rainbow']
   const CUBES = SCANNED.filter(
     (shape) => new Set(SHAPE_DIMS[shape]).size === 1 && !FEW_EDGES.includes(shape),
   )
@@ -449,7 +459,7 @@ describe('reading a scan', () => {
         const face = scanPlan(shape)[f]!
         return turnCells(cells, face, Math.floor(rng() * face.turns.length))
       })
-      expect(readScan(shape, held)).toEqual({ ok: true, edit })
+      expect(seen(shape, readScan(shape, held))).toEqual(seen(shape, { ok: true, edit }))
     }
   })
 

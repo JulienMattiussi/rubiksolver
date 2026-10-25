@@ -71,9 +71,10 @@ export function gridLayout(rows: number, cols: number): FaceLayout {
 /** A regular polygon of `sides`, a flat side on top (or at the bottom,
  *  turned half round), round its center: the center, then the edges
  *  clockwise from that side, then the corners (the proportions of a
- *  Megaminx's face). It turns by a side at a time. */
-export function ringLayout(sides: number, bottom = false): FaceLayout {
-  const layout = flatTopRing(sides)
+ *  Megaminx's face; `deep`, its cuts through the middle, a Pyraminx
+ *  Crystal's). It turns by a side at a time. */
+export function ringLayout(sides: number, bottom = false, deep = false): FaceLayout {
+  const layout = flatTopRing(sides, deep)
   if (!bottom) return layout
   const { width, height } = layout
   const half = ([x, y]: Point): Point => [width - x, height - y]
@@ -85,7 +86,7 @@ export function ringLayout(sides: number, bottom = false): FaceLayout {
   }
 }
 
-function flatTopRing(sides: number): FaceLayout {
+function flatTopRing(sides: number, deep: boolean): FaceLayout {
   const step = (2 * Math.PI) / sides
   // Clockwise from the top, y down; corners half a step on.
   const at = (k: number, r: number): Point => {
@@ -116,6 +117,16 @@ function flatTopRing(sides: number): FaceLayout {
     const [p, q] = [inner(k - 1), inner(k)]
     return [meet(p, q, corner(k - 2), corner(k - 1)), meet(p, q, corner(k), corner(k + 1))]
   }
+  // Cut deep (a Pyraminx Crystal's): through the middle, parallel to a
+  // side, across to the same two sides.
+  const deepCut = (k: number): [Point, Point] => {
+    const [p, q] = [corner(k - 1), corner(k)]
+    const along: Point = [q[0] - p[0], q[1] - p[1]]
+    return [
+      meet([0, 0], along, corner(k - 2), corner(k - 1)),
+      meet([0, 0], along, corner(k), corner(k + 1)),
+    ]
+  }
   const turn = (by: number) => [
     0,
     ...ks.map((k) => 1 + ((k + by) % sides)),
@@ -127,7 +138,7 @@ function flatTopRing(sides: number): FaceLayout {
     points: points.map(move),
     reach: 0.07,
     outline: ks.map((k) => move(corner(k))),
-    lines: ks.map((k) => cut(k).map(move) as [Point, Point]),
+    lines: ks.map((k) => (deep ? deepCut(k) : cut(k)).map(move) as [Point, Point]),
     turns: ks.map(turn),
   }
 }

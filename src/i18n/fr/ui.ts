@@ -204,8 +204,16 @@ export const UI_FR = {
   scanUntried: 'Cette fonction n’a pas encore été testée et validée sur ce modèle',
   scanCheck:
     'Scan terminé : vérifiez bien que le modèle représenté est conforme à votre puzzle, puis validez.',
+  /** What a scan cannot see, to check after it (by `ScanUnseen`). */
+  scanUnseen: {
+    sideCenters:
+      'L’appareil photo ne voit pas le sens des centres de côté : vérifiez chacun, un clic sur un centre le fait tourner.',
+  },
   scanTake: 'Scanner la face',
   scanTakeHint: 'Positionnez le puzzle dans le cadre, puis touchez le bouton pour scanner la face.',
+  /** The first face of a puzzle framed round its center (a Windmill's). */
+  scanFirstCentered: (front: string, up: string) =>
+    `Positionnez la caméra immobile devant le puzzle, le centre ${front} **face à l’objectif** et le ${up} **en haut**, le centre de la face **dans la case marquée**, dans un endroit éclairé.`,
   scanTakeHintSized:
     'Positionnez le centre de la face dans le cadre, puis touchez le bouton pour scanner la face.',
   scanHolding: 'Tenez le puzzle immobile…',
@@ -234,6 +242,8 @@ export const UI_FR = {
       'Tournez la pyramide d’un tiers de tour **vers la gauche**, la pointe du haut **restant en haut**.',
     spinMirrored: () =>
       'Tournez la pyramide d’un tiers de tour **vers la droite**, la pointe du haut **restant en haut**.',
+    upend: () =>
+      'Retournez le puzzle **tête en bas**, d’un demi-tour vers l’objectif : la pointe du bas vient **en haut**.',
     topple: () =>
       'Montrez le dessous : basculez la pointe du haut **en arrière**, la face du dessous vient **face à l’objectif**.',
     // A puzzle out of shape names no color (`told` never): as below.
@@ -274,6 +284,8 @@ export const UI_FR = {
     spin: 'Tournez la pyramide d’un tiers de tour **vers la gauche**, la pointe du haut **restant en haut**.',
     spinMirrored:
       'Tournez la pyramide d’un tiers de tour **vers la droite**, la pointe du haut **restant en haut**.',
+    upend:
+      'Retournez le puzzle **tête en bas**, d’un demi-tour vers l’objectif : la pointe du bas vient **en haut**.',
     topple:
       'Montrez le dessous : basculez la pointe du haut **en arrière**, la face du dessous vient **face à l’objectif**.',
     anchored:

@@ -22,8 +22,8 @@ const DIAGONALS: readonly Vec3[] = [
   [-1, 1, 1],
 ]
 
-/** A face's real outward direction. */
-const real = (n: Vec3): P3 => {
+/** A face's real outward direction (the drawing's `direction`). */
+export const real = (n: Vec3): P3 => {
   const v = n.map((x) => (Math.abs(x) === 2 ? Math.sign(x) * PHI : x))
   const length = Math.hypot(...v)
   return v.map((x) => x / length) as P3

@@ -6,7 +6,7 @@
  */
 
 import { CATALOG, CATEGORY_OF } from '../puzzles/catalog'
-import type { EditHint, MoveFamily, PadKind, PuzzleEntry } from '../puzzles/entry'
+import type { EditHint, MoveFamily, PadKind, PuzzleEntry, ScanUnseen } from '../puzzles/entry'
 import type { Color, Dims, Face } from './types'
 
 /** The puzzles the app can build, by id (also the picker's option values):
@@ -135,6 +135,11 @@ export const SHAPE_EDIT_HINT: Record<CubeShape, EditHint | undefined> = each((e)
 /** Shapes whose camera scan was tried on the real puzzle (lib/editor/scan/):
  *  the others' button says it is untried yet. */
 export const SHAPE_SCAN_TRIED: Record<CubeShape, boolean> = each((e) => e.scanTried === true)
+
+/** What each shape's camera scan cannot see, to check after it. */
+export const SHAPE_SCAN_UNSEEN: Record<CubeShape, ScanUnseen | undefined> = each(
+  (e) => e.scanUnseen,
+)
 
 /** Shapes whose mirror scans by its stickers' sizes (sizedRead.ts). */
 export const SHAPE_MIRROR_SCAN: Record<CubeShape, boolean> = each((e) => e.mirrorScan === true)

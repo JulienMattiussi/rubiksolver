@@ -75,6 +75,34 @@ export function gridFaces(shape: CubeShape, order: typeof ORDER) {
   })
 }
 
+/** A grid puzzle's faces read as a grid, but framed round their center as
+ *  a mirror cube's (`centered`): its cells in the middle of a frame two
+ *  cells wider each way, no grid drawn, its center's cell marked, where a
+ *  puzzle out of shape puts its center (the Windmill's need not sit in the
+ *  middle of its solid). */
+export function centeredFaces(shape: CubeShape, order: typeof ORDER) {
+  return gridFaces(shape, order).map((face) => ({
+    ...face,
+    width: face.width + 2,
+    height: face.height + 2,
+    points: face.points.map(([x, y]): Point => [x + 1, y + 1]),
+    outline: [
+      [0, 0],
+      [face.width + 2, 0],
+      [face.width + 2, face.height + 2],
+      [0, face.height + 2],
+    ] as Point[],
+    lines: [],
+    mark: [
+      [2, 2],
+      [3, 2],
+      [3, 3],
+      [2, 3],
+    ] as Point[],
+    centered: true as const,
+  }))
+}
+
 /** A cube whose faces are no grid, in `order`: each face its stickers, at
  *  their pieces' places across it (a frame 2 units wide, its middle at
  *  1, 1), which the view replaces by where its drawing shows them; turned
@@ -159,7 +187,7 @@ export function flatFaces(shape: CubeShape, faces: readonly FlatFace[]) {
       })
       if (!turn.includes(-1)) turns.set(turn.join(), turn)
     }
-    const frame = polygonFrame(turns.size, face.pointDown)
+    const frame = polygonFrame(face.sides ?? turns.size, face.pointDown)
     const scale = fitScale(
       on.map((s) => s.at),
       frame.outline,
@@ -274,7 +302,7 @@ export function ringFaces(shape: CubeShape, rings: readonly RingFace[]) {
   return rings.map((ring, f) =>
     withoutHoles(
       {
-        ...ringLayout((ring.cells.length - 1) / 2, ring.bottom),
+        ...ringLayout((ring.cells.length - 1) / 2, ring.bottom, ring.deep),
         ...ring,
         move: ring.move ?? (f ? 'show' : 'first'),
         angle: ring.angle ?? null,

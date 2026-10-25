@@ -5,6 +5,7 @@ import { parseMoves } from '@/lib/core/notation'
 import { methodsFor } from '@/lib/solve/solver'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cubie } from '@/lib/core/types'
+import { tablesFor } from '@/lib/editor/editorTables'
 import { seededRng } from '../../../helpers'
 
 const SOLVED = solvedCube('oct4')
@@ -90,5 +91,13 @@ describe("4-Trajber's Octahedron", () => {
       ).toBe(true)
     }
     expect(parities).toBeGreaterThan(0)
+  })
+
+  it('takes the three edges of a color as one kind in the editor (one sticker, no hand)', () => {
+    // An edge has two coordinates as far out (3, 3, 1): no farthest axis,
+    // so no mirror kinds as a 6x6's obliques have.
+    const edges = [...tablesFor('oct4').budgets].filter(([key]) => key.startsWith('C:1,3,3'))
+    expect(edges).toHaveLength(8)
+    for (const [, n] of edges) expect(n).toBe(3)
   })
 })

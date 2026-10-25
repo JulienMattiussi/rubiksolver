@@ -241,13 +241,17 @@ function pieceKeyOf(cubie: Cubie, solvedPosition: Vec3): string {
 /** Which of two mirror kinds a center is, when its face holds both (a
  *  6x6's obliques, off the diagonals): the sign of the turn from its nearer
  *  coordinate to its farther one, seen from its face (the axis it is
- *  farthest along), which no turn changes. Empty for any other piece. */
+ *  farthest along, alone), which no turn changes. Empty for any other
+ *  piece. */
 function handOf(at: Vec3): string {
   const size = at.map(Math.abs)
   const axis = size.indexOf(Math.max(...size))
   const [u, v] = [(axis + 1) % 3, (axis + 2) % 3]
   const [a, b] = [at[u]!, at[v]!]
-  if (a === 0 || b === 0 || size[u] === size[v] || size[u] === size[axis]) return ''
+  // No farthest axis (a 4-Trajber's edge: two coordinates as far), or two
+  // nearer ones alike: no mirror kinds.
+  if (a === 0 || b === 0 || size[u] === size[v] || size[u] === size[axis] || size[v] === size[axis])
+    return ''
   // u then v is a positive turn about the axis: (axis, u, v) is cyclic.
   const sign = Math.sign(at[axis]!) * Math.sign(a) * Math.sign(b) * (size[u]! < size[v]! ? 1 : -1)
   return sign > 0 ? '+' : '-'

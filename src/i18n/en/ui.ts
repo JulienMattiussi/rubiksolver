@@ -202,8 +202,14 @@ export const UI_EN: typeof UI_FR = {
   scanStart: 'Use the camera',
   scanUntried: 'This feature has not been tested and validated on this model yet',
   scanCheck: 'Scan done: check carefully that the model shown matches your puzzle, then apply.',
+  scanUnseen: {
+    sideCenters:
+      'The camera cannot see which way the side centers lie: check each one, a click on a center turns it.',
+  },
   scanTake: 'Scan the face',
   scanTakeHint: 'Place the puzzle in the frame, then tap the button to scan the face.',
+  scanFirstCentered: (front: string, up: string) =>
+    `Hold the camera still in front of the puzzle, the ${front} center **facing the lens** and ${up} **on top**, the center of the face **in the marked cell**, in a well-lit place.`,
   scanTakeHintSized:
     'Place the center of the face in the frame, then tap the button to scan the face.',
   scanHolding: 'Hold the puzzle still…',
@@ -231,6 +237,8 @@ export const UI_EN: typeof UI_FR = {
       'Turn the pyramid a third of a turn **to the left**, its top point **staying on top**.',
     spinMirrored: () =>
       'Turn the pyramid a third of a turn **to the right**, its top point **staying on top**.',
+    upend: () =>
+      'Turn the puzzle **upside down**, half round toward the lens: its bottom point comes **on top**.',
     topple: () =>
       'Show the bottom: tip the top point **backward**, the bottom face comes **to face the lens**.',
     // A puzzle out of shape names no color (`told` never): as below.
@@ -271,6 +279,8 @@ export const UI_EN: typeof UI_FR = {
     spin: 'Turn the pyramid a third of a turn **to the left**, its top point **staying on top**.',
     spinMirrored:
       'Turn the pyramid a third of a turn **to the right**, its top point **staying on top**.',
+    upend:
+      'Turn the puzzle **upside down**, half round toward the lens: its bottom point comes **on top**.',
     topple:
       'Show the bottom: tip the top point **backward**, the bottom face comes **to face the lens**.',
     anchored:

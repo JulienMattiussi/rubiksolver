@@ -7,20 +7,31 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 
 ## Les puzzles scannables
 
-`scannable` (`lib/editor/scan/plan.ts`) : 32 modèles sur 76, et le 3x3 miroir.
+`scannable` (`lib/editor/scan/plan.ts`) : 41 modèles sur 76, et le 3x3 miroir.
 
 - **En grille**, tout se déduit des dimensions (`scanPlan`) : les cubes du
   2x2 au 6x6, les cuboïdes et les plats sans saisie propre (1x2x3, Floppy,
-  Domino, tours...). Un modèle troué le déclare (`PuzzleModel.scan:
-'grid'`) : le Void Cube, l'Edge Only, leurs trous sautés.
+  Domino, tours...). Un modèle saisi autrement le déclare (`PuzzleModel.scan:
+'grid'`) : le Void Cube, l'Edge Only, leurs trous sautés ; le Barrel, dont
+  la saisie choisit le sens de ses arêtes minces ; le Windmill, en grille mais encadré
+  comme le miroir (`scan: 'centered'`, `centeredFaces` : le centre de la
+  face dans la case marquée, les coupes en filigrane, de la marge autour, son
+  centre n'étant pas forcément au milieu de son volume) ; le sens de ses
+  centres de côté se voit à leur forme, pas à leur couleur : l'éditeur
+  demande de le vérifier après le scan (`scanUnseen` sur sa carte), et la
+  lecture ne tient compte que des stickers vus (ses repères cachés sur
+  aucune face).
 - **En carré** (`scan: 'square'`) : les cubes diagonaux (Skewb, Ivy Cube, Master
-  Skewb, Dino, Rex, Curvy Copter et Copter III). Le modèle dit quels stickers
+  Skewb, Dino, Rex, Curvy Copter et Copter III), et le Rainbow par ses six
+  carrés seulement (ses pièces s'y reconnaissent, leurs triangles suivent). Le modèle dit quels stickers
   sont sur la face et comment elle tourne ; leur dessin dit où chacun se
   voit (`three/core/scanDrawing.ts` : le milieu de son polygone, ses
   contours en filigrane).
 - **En anneaux** (`scan` : une fonction du modèle) : le Megaminx
   (`megaminxScan.ts`) et le Holey Megaminx (`holeyScan.ts`), chaque face
-  un pentagone, son centre, ses arêtes puis ses coins.
+  un pentagone, son centre, ses arêtes puis ses coins ; le Pyraminx
+  Crystal, ses pièces, par les gestes du Holey Megaminx, ses coupes passant
+  par le milieu de la face (`RingFace.deep`).
 - **Par leurs faces planes** (`scan: { flat }`) : les pyramides
   (Pyraminx, Tetraminx, Master et Professor Pyraminx, Jing), quatre faces
   triangulaires (`pyraScan.ts`). Le modèle déclare chaque face (sa normale,
@@ -28,12 +39,28 @@ HTTPS : on l'essaie sur un déploiement Vercel.
   tenir tournée (les orientations du puzzle qui la gardent en place : 3
   pour un triangle) et son cadre, un polygone régulier (`polygonFrame`) ;
   le dessin place les stickers (`drawnFace`, la face convertie dans le
-  repère du dessin), la face remplissant le cadre d'un côté à l'autre
-  (`fitScale` : le Tetraminx, coins coupés, comme le Pyraminx). La face
+  repère du dessin), la face remplissant le cadre. Une face que ses
+  stickers ne remplissent pas (le Tetraminx, pointes coupées : un hexagone ;
+  le Jing, côtés bombés ; un carré du Rainbow, sur une pointe) est encadrée
+  par leur enveloppe, sans les coins coupés de leurs stickers, au milieu du
+  cadre (`drawnFace`). La face
   verte d'abord, pointe en haut ; deux tiers de tour vers la gauche
   (`spin`, 120°), la pointe du haut restant en haut ; puis la pointe
   basculée en arrière, le dessous face à l'objectif (`topple`, 109°), une
   pointe en bas. Une icône de pyramide remplace le cube de la flèche.
+- **Par leurs faces planes** aussi, les octaèdres (le 4-Trajber, le VTO, le
+  GEM-0, le FTO : `octScan.ts`), huit faces triangulaires : la face rouge d'abord,
+  pointe en haut ; trois quarts de tour vers la gauche (`turn`) ; le puzzle
+  retourné tête en bas d'un demi-tour vers l'objectif (`upend`) ; trois
+  quarts de tour encore. Une icône d'octaèdre dessine leurs gestes (`solid`
+  sur leur plan). Les pièces du 4-Trajber ne montrant qu'un sticker chacune
+  (et les centres du FTO), rien ne dit dans quel sens une face a été
+  tenue : ils se tiennent comme la consigne le dit, pointe en haut.
+- **Par leurs faces planes** encore, le Skewb Ultimate (`dodecaScan.ts`),
+  douze faces pentagonales de quatre stickers, par les gestes du Holey
+  Megaminx, calculés sur ses normales ; aucun de ses tours ne gardant une
+  face en place, sa face dit elle-même ses côtés (`FlatFace.sides`), et il
+  se tient comme la consigne le dit.
 - **Par leur forme** (`scan: 'forms'`) : les tours 2x2x4 et 2x3x4, qui se
   déforment. Elles se scannent comme la boîte où tourne leur mécanisme, et
   le scan trouve leur forme : plus besoin de la choisir parmi les
@@ -88,7 +115,11 @@ sur Android).
    bande, pentagone, carré), sous la consigne et au-dessus des boutons
    (`frame.ts`) ; il garde sa taille d'une face à l'autre (la place
    réservée à la consigne ne fait que grandir), pour ne pas faire rapprocher
-   ou éloigner le puzzle ; ses découpes en filigrane, la case du centre entourée.
+   ou éloigner le puzzle ; ses découpes en filigrane, la case du centre entourée
+   (de la forme de la face : un pentagone sur un Megaminx). Une face qu'une
+   seule pièce situe (le centre d'un miroir, d'un Windmill, la pièce
+   centrale du Floppy Ghost) n'a pas de contour : cette pièce, et ses côtés
+   prolongés en traits qui s'estompent (`CenterCuts`).
 3. **Le tap** (`ScanTake`, au milieu de l'écran ; la barre d'espace sur un
    portable) : rien ne distinguant un puzzle d'un mur, c'est l'utilisateur
    qui dit que le puzzle est en place. Avant, rien n'est lu (pas de points
@@ -213,7 +244,7 @@ photo suffit (le dos montre les mêmes contours, en miroir). La lecture
 
 Le parcours n'a qu'une face (`move: 'anchored'`) : une grande face face à
 l'objectif, sa pièce centrale dans le pentagone tracé dans le cadre
-(`ScanFace.mark`), sans points dans les cases ; le cadre est tenu immobile
+(`ScanFace.mark`, ses côtés prolongés, sans contour), sans points dans les cases ; le cadre est tenu immobile
 une seconde (ses 5 x 5 cases, mesurées comme celles d'un Megaminx), puis la
 prise garde, avec la photo, la clarté de chaque pixel du cadre
 (`useFaceReading`, `light` dans `scanStore.kept`) que lit `readScan`.

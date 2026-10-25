@@ -12,6 +12,8 @@ const DIAGONAL: readonly CubeShape[] = [
   'masterSkewb',
   'copter',
   'copter3',
+  // Its squares, drawn in a frame of its own (`orient`).
+  'rainbow',
 ]
 const PYRAMIDS: readonly CubeShape[] = ['pyra', 'tetra', 'pyra4', 'pyra5', 'jing']
 
@@ -70,6 +72,50 @@ describe('a scanned face as its drawing shows it', () => {
         }),
       )
       expect(face.lines.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('frames a flat face by what its stickers fill: a Tetraminx’s, its tips cut', () => {
+    const corners = (shape: CubeShape) =>
+      scanPlan(shape).map((f) => drawnFace(shape, f).outline.length)
+    expect(corners('pyra')).toEqual([3, 3, 3, 3])
+    expect(corners('tetra')).toEqual([6, 6, 6, 6])
+  })
+
+  it('reads each sticker of a Skewb Ultimate inside its pentagon', () => {
+    const plan = scanPlan('skewbU')
+    expect(new Set(plan.map((f) => f.frontColor)).size).toBe(12)
+    for (const planned of plan) {
+      const face = drawnFace('skewbU', planned)
+      expect(face.outline).toHaveLength(5)
+      face.points.forEach((p) => expect(inside(p, face.outline)).toBe(true))
+    }
+  })
+
+  // An octahedron's faces, triangles (the GEM-0's, their corners cut).
+  const OCTAHEDRA: readonly CubeShape[] = ['oct4', 'vto', 'gem', 'fto']
+  it.each(OCTAHEDRA)('reads each sticker of a %s inside its triangle, as planned', (shape) => {
+    const plan = scanPlan(shape)
+    expect(plan.map((f) => f.move)).toEqual([
+      'first',
+      'turn',
+      'turn',
+      'turn',
+      'upend',
+      'turn',
+      'turn',
+      'turn',
+    ])
+    // Each of its eight faces once.
+    expect(new Set(plan.map((f) => f.frontColor)).size).toBe(8)
+    for (const planned of plan) {
+      const face = drawnFace(shape, planned)
+      expect(face).not.toBe(planned)
+      face.points.forEach((p, i) => expect(inside(p, face.outline), `${shape} ${i}`).toBe(true))
+      const off = (turn: readonly number[]) =>
+        face.points.reduce((sum, p, i) => sum + gap(p, planned.points[turn[i]!]!), 0)
+      const [held, ...others] = planned.turns.map(off)
+      for (const other of others) expect(held).toBeLessThan(other)
     }
   })
 

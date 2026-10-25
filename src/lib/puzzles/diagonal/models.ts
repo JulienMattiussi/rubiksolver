@@ -104,6 +104,10 @@ export const DIAGONAL_MODELS = {
   },
   windmill: {
     solved: () => withMarks(solvedCube('3'), true),
+    // A 3x3's grid, framed round its center (which need not sit in the
+    // middle of its solid); its side centers' way round, unseen, checked
+    // after.
+    scan: 'centered',
     isSolved: (cube) => windmillSolved(cube, isSolved),
     entry: { paint: BY_PIECES },
   },

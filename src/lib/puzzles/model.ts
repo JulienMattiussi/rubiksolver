@@ -44,7 +44,9 @@ export interface PuzzleModel {
    *  layers, the Curvy Copter III's edges). */
   readonly describe?: (turn: Turn) => MoveDescription
   /** How a camera scans it (lib/editor/scan/plan.ts), though built
-   *  otherwise: as a grid, its holes skipped (the Void Cube); as a cube
+   *  otherwise: as a grid, its holes skipped (the Void Cube), or its frame
+   *  drawn round its center as a mirror cube's, room left round it for a
+   *  puzzle out of shape (`centered`: the Windmill); as a cube
    *  whose faces are no grid, each sticker where its drawing shows it
    *  (`square`: the Skewb, the Rex Cube...); as the box it turns in, its
    *  form found from what its faces show (`forms`: the towers); or face
@@ -54,6 +56,7 @@ export interface PuzzleModel {
    *  the pyramids). */
   readonly scan?:
     | 'grid'
+    | 'centered'
     | 'square'
     | 'forms'
     | ((behind: boolean) => readonly RingFace[])

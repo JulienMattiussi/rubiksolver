@@ -249,4 +249,7 @@ pour `cubeShape`. Ses arêtes du milieu montrent aussi leur sens, sa géométrie
 suivant la pièce (`cutSolid.ts` retrouve la rotation d'une pièce sticker
 par sticker, ses deux repères ayant la même couleur). Mêmes méthodes, même
 saisie que le Fisher Cube, l'« état singulier » de la page (un centre seul
-tourné d'un quart) compris.
+tourné d'un quart) compris. Il se scanne en grille, comme un 3x3, le cadre centré sur le centre de la
+face comme celui du miroir ; le sens de ses centres
+de côté ne se voyant qu'à leur forme, l'éditeur demande de le vérifier après
+le scan.

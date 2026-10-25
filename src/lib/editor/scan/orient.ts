@@ -72,9 +72,12 @@ export function orientFaces(
   const indexOf = (ks: readonly number[], over: readonly number[]) =>
     over.reduceRight((index, f, j) => index * ways[f]! + ks[j]!, 0)
 
-  // What each piece on several faces costs, for each turn of those faces.
+  // What each piece on several faces costs, for each turn of those faces
+  // (its stickers seen only: a hidden mark, a Windmill's center's way
+  // round, is on none).
   const pieces = tables.paintableSlots.flatMap((slot) => {
-    const on = [...new Set(slot.stickers.map((s) => faceOf.get(s.id)!))]
+    const shown = slot.stickers.filter((s) => faceOf.has(s.id))
+    const on = [...new Set(shown.map((s) => faceOf.get(s.id)!))]
     if (on.length < 2) return []
     const options = tables.placements.get(slot.key) ?? []
     const count = on.reduce((n, f) => n * ways[f]!, 1)
@@ -83,7 +86,7 @@ export function orientFaces(
       let best = Infinity
       for (const option of options) {
         let cost = 0
-        for (const s of slot.stickers) {
+        for (const s of shown) {
           const f = faceOf.get(s.id)!
           cost += costs[f]![ks[on.indexOf(f)]!]!.get(s.id)!.get(option.colors[s.ni]!) ?? Infinity
         }

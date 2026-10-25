@@ -44,6 +44,7 @@ export const ROUND_MODELS = {
   // 3x3); its middle edges show one color: their way round does not count.
   barrel: {
     solved: () => solvedCube('3').filter((c) => c.stickers.length > 0),
+    scan: 'grid',
     isSolved: thinEdgesSolved,
     // Piece by piece, its middle edges the way round the editor offers, the
     // one making it reachable.

@@ -138,6 +138,8 @@ export function ScanView() {
   // What a face told by its center (or a mirror's, by its thickness) says.
   const toldText = (front: string, up: string) => {
     const key = missed ? 'show' : wording
+    // Framed round its center: the first face's center in the marked cell.
+    if (face.centered && key === 'first') return t.scanFirstCentered(front, up)
     if (!face.sized) return t.scanMoves[key](front, up)
     const sized = t.scanMovesSized
     return (sized[key as keyof typeof sized] ?? sized.show)(front, up)
@@ -235,7 +237,7 @@ export function ScanView() {
           armed={armed}
           nothing={nothing}
           onArm={arm}
-          hint={face.sized ? t.scanTakeHintSized : undefined}
+          hint={face.sized || face.centered ? t.scanTakeHintSized : undefined}
         />
       )}
 

@@ -24,9 +24,9 @@ interface ScanFrameProps {
 }
 
 /** The frame a face is aimed into: its outline dashed, its lines faint,
- *  its center's cell outlined (if it tells the face), or its core's cells,
- *  or the shape its anchor goes in (a face read whole, which shows no dots);
- *  a mirror's, its center and the cuts from it, no outline;
+ *  its center's cell outlined (if it tells the face), or its core's cells;
+ *  a mirror's, or one read whole (which shows no dots), the piece it is
+ *  framed by and the cuts from it, no outline;
  *  green while its
  *  colors hold. Each cell shows what it reads, as a dot: the cube color it
  *  seems to be (a ring when not surely, nothing when none), or on a puzzle
@@ -46,6 +46,12 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }:
     const from = Math.min(...marked.map((p) => p[axis])) - half
     return [from, Math.max(...marked.map((p) => p[axis])) + half - from] as const
   }
+  // A center on a face that is no rectangle (a Megaminx's pentagon): marked
+  // in the face's shape, as wide as halfway to the stickers round it.
+  const shaped =
+    face.center !== null && face.outline.length !== 4
+      ? centerShape(face.outline, face.points, face.center).map(at)
+      : null
   return (
     <div
       aria-hidden
@@ -64,9 +70,10 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }:
           />
         ))}
         {/* A mirror's face: no outline (only its center is fixed), its
-            center and the cuts from it. */}
-        {face.sized && face.mark ? (
-          <CenterCuts square={face.mark.map(at)} stroke={stroke} />
+            center and the cuts from it; a face framed as a mirror's, and
+            one read whole (its anchor and the cuts from it), alike. */}
+        {face.mark ? (
+          <CenterCuts mark={face.mark.map(at)} stroke={stroke} />
         ) : (
           <polygon
             points={points(face.outline)}
@@ -76,24 +83,25 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }:
             className={`transition-colors ${stroke}`}
           />
         )}
-        {face.mark && !face.sized && (
+        {shaped ? (
           <polygon
-            points={points(face.mark)}
+            points={shaped.map((p) => p.join(',')).join(' ')}
             strokeWidth={2}
             strokeLinejoin="round"
             className={`transition-colors ${stroke}`}
           />
-        )}
-        {marked.length > 0 && (
-          <rect
-            x={span(0)[0]}
-            y={span(1)[0]}
-            width={span(0)[1]}
-            height={span(1)[1]}
-            rx={6}
-            strokeWidth={2}
-            className={`transition-colors ${stroke}`}
-          />
+        ) : (
+          marked.length > 0 && (
+            <rect
+              x={span(0)[0]}
+              y={span(1)[0]}
+              width={span(0)[1]}
+              height={span(1)[1]}
+              rx={6}
+              strokeWidth={2}
+              className={`transition-colors ${stroke}`}
+            />
+          )
         )}
       </svg>
       {!face.whole &&
@@ -116,6 +124,33 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }:
     </div>
   )
 }
+
+/** The face's outline shrunk round its center's cell: its inradius the
+ *  share of the gap to the nearest other cell. */
+function centerShape(outline: readonly Point[], points: readonly Point[], center: number) {
+  const [cx, cy] = points[center]!
+  const middle = outline.reduce<Point>(
+    (m, p) => [m[0] + p[0] / outline.length, m[1] + p[1] / outline.length],
+    [0, 0],
+  )
+  const inradius = Math.min(
+    ...outline.map((a, i) => {
+      const b = outline[(i + 1) % outline.length]!
+      const [dx, dy] = [b[0] - a[0], b[1] - a[1]]
+      return Math.abs((middle[0] - a[0]) * dy - (middle[1] - a[1]) * dx) / Math.hypot(dx, dy)
+    }),
+  )
+  const nearest = Math.min(
+    ...points.flatMap((p, i) => (i === center ? [] : [Math.hypot(p[0] - cx, p[1] - cy)])),
+  )
+  const scale = (CENTER_SHARE * nearest) / inradius
+  return outline.map(([x, y]): Point => [
+    cx + (x - middle[0]) * scale,
+    cy + (y - middle[1]) * scale,
+  ])
+}
+
+const CENTER_SHARE = 0.55
 
 /** A cell's dot: its guessed color, filled when sure; or its measure. */
 function CellDot({ cell, named }: { cell: CellSample; named: boolean }) {

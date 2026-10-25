@@ -28,6 +28,9 @@ export type PadKind =
   | 'masterSkewb'
   | 'gear'
 
+/** What a camera scan cannot see (see `PuzzleEntry.scanUnseen`). */
+export type ScanUnseen = 'sideCenters'
+
 /** The hint the editor gives, when not the usual one (EditPanel.tsx). */
 export type EditHint = 'twist' | 'camo' | 'roadblock' | 'quarter' | 'gear' | 'gearPlain'
 
@@ -57,6 +60,10 @@ export interface PuzzleEntry {
   /** Its camera scan was tried on the real puzzle and works (elsewhere,
    *  the button says it is untried: see `SHAPE_SCAN_TRIED`). */
   readonly scanTried?: true
+  /** What its camera scan cannot see, its colors telling nothing of it
+   *  (a Windmill's side centers' way round, shown by their shape): the
+   *  editor asks to check it after a scan. */
+  readonly scanUnseen?: ScanUnseen
   /** Its mirror scanned by the sizes of its stickers (lib/editor/scan/
    *  sizedRead.ts: the 3x3's), its faces named by their thickness. */
   readonly mirrorScan?: true

@@ -35,6 +35,10 @@ des commutateurs de la forme de ceux de la page (T, K, pris au Super Revenge :
 de tranches (comme les ailes du 5x5), et non par paires avec les formules
 du VTO de la page, dont l'effet est tout de même vérifié en test.
 
+**Scan** : face par face, comme un octaèdre (`octScan.ts`, voir
+[docs/scan.md](../scan.md)) ; ses pièces ne montrant qu'un sticker chacune,
+il se tient comme la consigne le dit, pointe en haut.
+
 ## L'Octahedron VTO (`vto`) et le GEM-0 (`gem`)
 
 Le Vertex Turning Octahedron (fan2cube.fr/VTO1 et 2) est un **3x3x3 taillé
@@ -79,6 +83,9 @@ au GEM-0 `[H D]` ((HP) -> (HD) -> (AD)) ;
 en permutation paire (un quart de tour est un 4-cycle d'arêtes et un quart
 de sommet) : les 3-cycles suffisent.
 
+**Scan** : face par face, comme un octaèdre (`octScan.ts`, voir
+[docs/scan.md](../scan.md)).
+
 ## Le FTO (`fto`)
 
 Le FTO, Face Turning Octahedron (fan2cube.fr/FTO1 et 2) : un octaèdre comme le VTO, mais ce sont ses huit faces qui tournent,
@@ -100,6 +107,10 @@ nommée par la face opposée est la même, à l'envers (`namedSlice`). **Rendu**
 (`three/puzzles/polyhedron/ftoGeometry.ts`) : chaque pièce est l'octaèdre coupé par ses
 couches le long des quatre axes, posé sur sa face du bas (`FTO_ORIENT`),
 comme la page le tient. **Saisie** des couleurs, comme les cubes (24 tenues).
+
+**Scan** : face par face, comme un octaèdre (`octScan.ts`, voir
+[docs/scan.md](../scan.md)), pointe en haut ; ses centres ne montrant qu'un
+sticker chacun, il se tient comme la consigne le dit.
 
 **Résolution** (`methods/polyhedron/fto.ts`, méthode **Sommets, centres, arêtes**, la
 méthode 2 de la page) : (1) les sommets placés et tournés, le moins de
@@ -146,6 +157,13 @@ d'après la page) : (1) le triangle du haut, ses trois pièces placées par
 recherche (`solvePieces`) ; (2) les autres par 3-cycles, avec les deux
 commutateurs de la page, « placer à gauche » `[H' G']` et « placer à
 droite » `[H D]`.
+
+**Scan** : ses six carrés seulement, comme un Skewb (`scan: 'square'`, voir
+[docs/scan.md](../scan.md)) : chaque pièce se reconnaît à ses deux couleurs
+de carré et ne tourne jamais sur place, ses couleurs de triangle viennent
+avec elle. Un carré tenu face à l'objectif, le carré du dessus à plat, se
+présente sur une pointe : le cadre est un losange. Chaque pièce n'étant vue
+que par deux stickers, il se tient comme la consigne le dit.
 
 ## Le Megaminx (`megaminx`)
 
@@ -205,6 +223,10 @@ d'un cran du haut, il en fait un de trois voisines) et retournées
 Sur les étapes du haut, seules les formules tenues le haut en haut servent
 (tout le reste est fait), ce qui garde le calcul court.
 
+**Scan** : comme le Holey Megaminx (`holeyScan.ts`, aucun centre ne dit
+ses faces), ses coupes tracées par le milieu de la face (voir
+[docs/scan.md](../scan.md)).
+
 ## Le Skewb Ultimate (`skewbU`)
 
 Le Skewb Ultimate (fan2cube.fr/skewbultimate1 et 2) est un
@@ -230,3 +252,7 @@ tournés par [BO], [O'B'], [OH], [B'E'] ; (3) centres placés par [OH'],
 [BO'], [B'E'][HE], [H'E'][HO] ; (4) retournés par [HE']²[EB']² (conjugué par
 les précédentes) ; (5) sommets du bas tournés par K = [BO']⁴ et Z = [OH']⁴,
 déjà à leur place (« les sommets libres suivent les sommets liés »).
+
+**Scan** : face par face, ses faces planes avec les gestes du Holey
+Megaminx (`dodecaScan.ts`, voir [docs/scan.md](../scan.md)) ; le dessin
+reçoit ses normales en vraies directions (`direction`, 2 lu φ).

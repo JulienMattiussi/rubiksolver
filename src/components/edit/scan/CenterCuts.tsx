@@ -1,61 +1,32 @@
 import type { Point } from '@/lib/editor/scan/layout'
 
-/** How far a cut runs past the center, in its sides, and in how many
+/** How far a cut runs past the mark, in its longest side, and in how many
  *  steps it fades. */
 const REACH = 1.6
 const STEPS = 8
 
-/** A mirror cube's center, as framed (its corners on screen), and its four
- *  sides carried on: the cuts its other stickers lean on, fading out (only
- *  the center is fixed, the rest of the face comes as its pieces do). */
-export function CenterCuts({ square, stroke }: { square: readonly Point[]; stroke: string }) {
-  const xs = square.map((p) => p[0])
-  const ys = square.map((p) => p[1])
-  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]
-  const reach = REACH * (x1 - x0)
-  // From each corner, outward along both sides through it.
-  const rays: [Point, Point][] = [
-    [
-      [x0, y0],
-      [-1, 0],
-    ],
-    [
-      [x0, y1],
-      [-1, 0],
-    ],
-    [
-      [x1, y0],
-      [1, 0],
-    ],
-    [
-      [x1, y1],
-      [1, 0],
-    ],
-    [
-      [x0, y0],
-      [0, -1],
-    ],
-    [
-      [x1, y0],
-      [0, -1],
-    ],
-    [
-      [x0, y1],
-      [0, 1],
-    ],
-    [
-      [x1, y1],
-      [0, 1],
-    ],
-  ]
+/** The one piece a face is framed by, as framed (its corners on screen, in
+ *  order): a mirror cube's center, a Floppy Ghost's anchor; and its sides
+ *  carried on both ways, the cuts the rest of the face leans on, fading out
+ *  (only that piece is fixed, the rest comes as its pieces do). */
+export function CenterCuts({ mark, stroke }: { mark: readonly Point[]; stroke: string }) {
+  const sides = mark.map((a, i) => [a, mark[(i + 1) % mark.length]!] as const)
+  const reach = REACH * Math.max(...sides.map(([a, b]) => Math.hypot(b[0] - a[0], b[1] - a[1])))
+  // From each corner, outward along each side through it.
+  const rays = sides.flatMap(([a, b]): [Point, Point][] => {
+    const length = Math.hypot(b[0] - a[0], b[1] - a[1])
+    const [dx, dy] = [(b[0] - a[0]) / length, (b[1] - a[1]) / length]
+    return [
+      [b, [dx, dy]],
+      [a, [-dx, -dy]],
+    ]
+  })
   return (
     <>
-      <rect
-        x={x0}
-        y={y0}
-        width={x1 - x0}
-        height={y1 - y0}
+      <polygon
+        points={mark.map((p) => p.join(',')).join(' ')}
         strokeWidth={2}
+        strokeLinejoin="round"
         className={`transition-colors ${stroke}`}
       />
       {rays.flatMap(([[x, y], [dx, dy]], r) =>

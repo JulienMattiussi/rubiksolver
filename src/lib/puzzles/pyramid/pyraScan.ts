@@ -57,4 +57,4 @@ function faces(behind: boolean): FlatFace[] {
   ]
 }
 
-export const PYRA_SCAN: FlatScan = { flat: faces }
+export const PYRA_SCAN: FlatScan = { flat: faces, solid: 'pyramid' }

@@ -4,7 +4,7 @@ import { isComplete, progress } from '@/lib/editor/edit'
 import { entryOf, stepOf, type EntryStep } from '@/lib/editor/entry'
 import { placedCount } from '@/lib/editor/modes/pieces'
 import { partsDone } from '@/lib/editor/steps'
-import { SHAPE_EDIT_HINT } from '@/lib/core/shapes'
+import { SHAPE_EDIT_HINT, SHAPE_SCAN_UNSEEN } from '@/lib/core/shapes'
 import { tellsSizes } from '@/lib/core/shape'
 import type { EditHint } from '@/lib/puzzles/entry'
 import { stepName, type Translations } from '@/i18n/translations'
@@ -125,6 +125,8 @@ function PaintPanel() {
 
   const byPieces = paint.by === 'pieces'
   const hint = SHAPE_EDIT_HINT[shape]
+  // What the scan could not see, to check (a Windmill's side centers).
+  const unseen = SHAPE_SCAN_UNSEEN[shape]
   const { filled, total } = progress(edit, shape, form)
   const { placed, total: slots } = byPieces ? placedCount(edit, shape) : { placed: 0, total: 0 }
   const complete = isComplete(edit, shape, form) && partsDone(shape, parts)
@@ -161,7 +163,10 @@ function PaintPanel() {
       {fromScan && (
         <p className="flex gap-2 rounded-lg bg-sky-500/15 px-3 py-2 text-sm text-sky-100 ring-1 ring-inset ring-sky-400/40">
           <ScanEye className="mt-0.5 size-4 shrink-0" aria-hidden />
-          {t.scanCheck}
+          <span>
+            {t.scanCheck}
+            {unseen && <> {t.scanUnseen[unseen]}</>}
+          </span>
         </p>
       )}
 
