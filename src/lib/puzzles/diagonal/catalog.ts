@@ -18,6 +18,7 @@ export const DIAGONAL = {
     dims: [3, 3, 3],
     scramble: 15,
     pad: 'skewb',
+    scanTried: true,
   },
   // The Master Skewb (shared/rainbow.ts): the Skewb and the Rex Cube in
   // one; its pieces within +-4, its box says so.

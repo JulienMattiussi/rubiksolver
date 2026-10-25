@@ -26,7 +26,9 @@ export function ScanButton() {
   const untried = !tellsSizes(variant) && !SHAPE_SCAN_TRIED[shape]
   return (
     <>
-      <Button variant="edit" onClick={start}>
+      {/* Not again while it is open: the space bar, taking a face, would
+          otherwise press this button behind it and start over. */}
+      <Button variant="edit" onClick={() => !useScan.getState().open && start()}>
         <Camera className="size-4" aria-hidden />
         {t.scanStart}
         {untried && (

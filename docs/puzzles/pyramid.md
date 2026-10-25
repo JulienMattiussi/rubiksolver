@@ -18,8 +18,8 @@ sommet pour les autres). Découpé en cellules unitaires : pointes en 2v,
 centres en v, arêtes en v + w, noyau à l'origine ; une couche prend ce qui
 est du côté du sommet (produit scalaire positif), une pointe ce qui est au
 bout (produit scalaire 6). Les normales des faces sont `TET_NORMALS`
-(indices 12 à 15). Couleurs : jaune dessous, vert devant, rouge à droite,
-bleu à gauche. Un coup est un `PyraMove` (`vertex`, `amount` 1 ou 2,
+(indices 12 à 15). Couleurs, celles d'un vrai Pyraminx : bleu dessous, vert devant, rouge à
+droite, jaune à gauche. Un coup est un `PyraMove` (`vertex`, `amount` 1 ou 2,
 `tip`).
 
 **Notation hybride**, chacune selon son usage : en international (WCA), la

@@ -9,6 +9,10 @@ export const METHODS_EN: typeof METHODS_FR = {
     name: 'Ofapel',
     desc: 'Corners before edges: the first face, the top corners, the top edges, then the end in the middle slice.',
   },
+  crossCorners: {
+    name: 'Cross then corners',
+    desc: 'Every edge, then every corner, each step with a single formula, the cube held by whichever face it takes.',
+  },
   cfop: {
     name: 'Fridrich (CFOP)',
     desc: 'The speedcubers’ method: two layers by corner-edge pairs, the last one in two algorithms.',

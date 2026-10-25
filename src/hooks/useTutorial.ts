@@ -5,7 +5,7 @@ import { invertMoves } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
 import { formulaUnderWay } from '@/lib/teach/keep'
 import { cubeShape, stateKey } from '@/lib/core/cube'
-import { arrowedSubjects, tonesOf, type Tone } from '@/lib/teach/scene'
+import { tonesOf, type Tone } from '@/lib/teach/scene'
 import {
   alreadyDoneStep,
   legendStep,
@@ -123,7 +123,8 @@ export function useTutorial(): TutorialView {
       pick,
       step.placed,
       step.focus,
-      arrowedSubjects(read, moves, step),
+      // The pieces it works on, never hatched.
+      step.subjects,
     )
     // Played: the piece that stood in the way only moved like the others.
     return review ? tones.map((t) => (t === 'slot' ? 'moved' : t)) : tones

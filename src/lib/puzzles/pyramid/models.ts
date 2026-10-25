@@ -7,6 +7,7 @@ import { BY_PIECES, PICK_FORM } from '../../editor/entry'
 import { asSeenMorphinx, mmorphSolved, withCenterMarks, withRealCorners } from './mmorph'
 import { solvedMorph } from './morph'
 import { PYRA_SYMMETRIES, pyraTurnsOf, scramblePyraminx, solvedPyra } from './pyraminx'
+import { PYRA_SCAN } from './pyraScan'
 
 const pyra = (shape: PyraShape): PuzzleModel => ({
   solved: () => solvedPyra(shape),
@@ -14,6 +15,7 @@ const pyra = (shape: PyraShape): PuzzleModel => ({
   turns: () => pyraTurnsOf(shape),
   scramble: (length, rng) => scramblePyraminx(shape, length, rng),
   guide: () => pyraGuide(shape),
+  scan: PYRA_SCAN,
 })
 
 let MMORPH_HELD: Cube[] | undefined

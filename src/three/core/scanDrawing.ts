@@ -1,14 +1,16 @@
 import { dot, cross } from '@/lib/core/geometry'
+import type { Vec3 } from '@/lib/core/types'
 import { solvedCube } from '@/lib/core/cube'
 import type { CubeShape } from '@/lib/core/shapes'
 import { stickerId } from '@/lib/editor/editorTables'
-import type { Point } from '@/lib/editor/scan/layout'
+import { fitScale, type Point } from '@/lib/editor/scan/layout'
 import type { ScanFace } from '@/lib/editor/scan/plan'
 import { isPolyDrawn, polyDrawing } from './polyDrawing'
 import type { P3 } from './polygons'
 
 /**
- * A face of a cube whose faces are no grid (the Skewb, the Rex Cube...),
+ * A face of a cube whose faces are no grid (the Skewb, the Rex Cube...), or
+ * a polyhedron's flat face (a pyramid's),
  * as its drawing shows it, for the camera scan (lib/editor/scan/plan.ts
  * says which sticker is on it, `seen`; the drawing says where): each
  * sticker read round the middle of its polygon, the polygons' sides drawn
@@ -59,7 +61,16 @@ export function drawnFace(shape: CubeShape, face: ScanFace): ScanFace {
   const key = `${shape}|${face.cells.join()}`
   const known = DRAWN.get(key)
   if (known) return known
-  const { normal, up } = face.seen
+  // The face's normal and way up, turned to the drawing's frame (a pyramid's
+  // is not its model's), made unit and square to each other.
+  const toDrawing = drawing.direction ?? ((v: Vec3) => [...v] as Vec3)
+  const unit = (v: readonly number[]): Vec3 => {
+    const length = Math.hypot(...v)
+    return [v[0]! / length, v[1]! / length, v[2]! / length]
+  }
+  const normal = unit(toDrawing(face.seen.normal))
+  const tilted = toDrawing(face.seen.up)
+  const up = unit(tilted.map((x, a) => x - dot(tilted, normal) * normal[a]!))
   const right = cross(up, normal)
   const index = new Map(face.cells.map((id, i) => [id, i]))
   // Each cell's polygons, across the face (right, up).
@@ -74,9 +85,13 @@ export function drawnFace(shape: CubeShape, face: ScanFace): ScanFace {
   }
   if (drawn.some((polygons) => !polygons.length)) return face
   const all = drawn.flat(2)
+  const { middle } = face.seen
   const half = Math.max(...all.flatMap(([a, b]) => [Math.abs(a), Math.abs(b)]))
-  // In the plan's frame: 2 units wide, its middle at 1, 1, y down.
-  const place = ([a, b]: Point): Point => [1 + a / half, 1 - b / half]
+  // In the plan's frame, y down: a flat face's filling its outline side to
+  // side; else 2 units wide, its middle at 1, 1.
+  const scale = middle ? fitScale(all, face.outline, middle) : 0
+  const place = ([a, b]: Point): Point =>
+    middle ? [middle[0] + scale * a, middle[1] - scale * b] : [1 + a / half, 1 - b / half]
   const shapes = drawn.map((polygons) => polygons.map((points) => points.map(place)))
   const cells = shapes.map((polygons) => {
     const parts = polygons.map(measure)

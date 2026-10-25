@@ -18,9 +18,11 @@ interface OrbitLike {
 
 /** Where the camera looks at a face from: in front of it, a little above
  *  (the top still in sight; for the top or bottom, a little in front), or
- *  raised as `lift` says. */
+ *  raised as `lift` says (not toward that face itself, or its back: no
+ *  raise, the usual view). */
 function facingFrom(normal: readonly number[], lift?: Lift): THREE.Vector3 {
   const n = new THREE.Vector3(...normal)
+  if (lift && Math.abs(n.dot(new THREE.Vector3(...lift.toward))) > 0.5) lift = undefined
   const above = lift
     ? new THREE.Vector3(...lift.toward)
     : Math.abs(n.y) > 0.5

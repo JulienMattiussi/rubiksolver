@@ -6,7 +6,7 @@ Chaque méthode, ses puzzles et ses étapes (registre : `src/lib/solve/solver.ts
 enseigne est ce tutoriel joué jusqu'au bout (`lib/teach/method.ts`) : ses
 étapes sont celles du tutoriel, chacune résolue par les formules qu'il
 propose l'une après l'autre ; la solution affichée est donc ce qu'il
-enseigne. C'est le cas de **Par couches** sur le 3x3 et le 2x2, d'**Ofapel** sur le 3x3, de **Coins puis arêtes** sur le Floppy, le 1x2x3 et le Floppy Ghost, de la
+enseigne. C'est le cas de **Par couches** sur le 3x3 et le 2x2, d'**Ofapel** et de **Croix puis coins** sur le 3x3, de **Coins puis arêtes** sur le Floppy, le 1x2x3 et le Floppy Ghost, de la
 **Réduction** du 4x4, du 5x5 et des super cubes, de **Centres d'abord** sur le Pyraminx, de **Comme
 un Pocket** sur le Pyramorphinx du **Haut d'abord** sur le Skewb, de **Coins d'abord** sur le Gear Cube Ultimate et de **Deux Pockets** sur la tour 2x2x4 ; leurs étapes sont décrites avec leur
 tutoriel ([standard](puzzles/standard.md), [pyramid](puzzles/pyramid.md), [diagonal](puzzles/diagonal.md), [gear](puzzles/gear.md), [tower](puzzles/tower.md)).
@@ -32,6 +32,11 @@ nombres d'étapes ci-dessous ne la comptent pas.
   « coins d'abord » qui joue son tutoriel (voir plus haut) : croix, coins
   du bas, coins du haut placés puis tournés, arêtes du haut remontées de la
   couronne du milieu, puis la fin en tranche `M` - 6 étapes.
+- **Croix puis coins** (`crossCorners`, 3x3) : toutes les arêtes, puis
+  tous les coins, qui joue son tutoriel (voir plus haut) : croix, arêtes du
+  milieu, arêtes du haut, coins du bas placés, coins du haut placés, coins
+  tournés - 6 étapes, chacune par une seule formule, le cube tenu de la
+  face qu'il faut ([standard](puzzles/standard.md)).
 - **Fridrich / CFOP** (`cfop`, 3x3, Void Cube, Z-Twist, Barrel, Fisher Cube, Windmill et Master Morphinx) : Croix, puis **F2L** (paires coin+arête
   par colonne), puis **OLL**, puis **PLL** - 4 étapes.
 - **Réduction** (`reduction` et `reductionCfop`, 4x4, 5x5 et 6x6, Super

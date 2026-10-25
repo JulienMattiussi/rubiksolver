@@ -10,6 +10,10 @@ export const METHODS_FR = {
     name: 'Ofapel',
     desc: 'Les coins avant les arêtes : la première face, les coins du haut, les arêtes du haut, puis la fin en tranche du milieu.',
   },
+  crossCorners: {
+    name: 'Croix puis coins',
+    desc: 'Toutes les arêtes, puis tous les coins, chaque étape avec une seule formule, le cube tenu de la face qu’il faut.',
+  },
   cfop: {
     name: 'Fridrich (CFOP)',
     desc: 'La méthode des speedcubers : deux couches par paires coin-arête, la dernière en deux algorithmes.',

@@ -113,6 +113,9 @@ const SOLVE_METHODS = [
   },
   // A corners first variant, the end in the M slice (francocube's Ofapel).
   { id: 'ofapel', plans: { '3': taught('3', 'ofapel') } },
+  // Every edge, then every corner, each step by one formula, the cube held
+  // whichever way brings its pieces where the formula takes them.
+  { id: 'crossCorners', plans: { '3': taught('3', 'crossCorners') } },
   {
     id: 'cfop',
     plans: {

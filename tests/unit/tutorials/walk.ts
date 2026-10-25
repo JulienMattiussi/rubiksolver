@@ -26,6 +26,19 @@ export function walk(tutorial: Tutorial, start: Cube, max: number) {
   return { steps, cube }
 }
 
+/** A walk that never goes back (docs/tutorials.md, rule 2): its stages in
+ *  order, and within one, its count never down from a step to the next. */
+export function expectSteady(steps: readonly TutorialStep[]) {
+  const stages = steps.map((s) => s.stage ?? 0)
+  expect(stages.join()).toBe([...stages].sort((a, b) => a - b).join())
+  steps.forEach((s, i) => {
+    const next = steps[i + 1]
+    if (next?.key === s.key && s.progress && next.progress) {
+      expect(next.progress.done, s.key).toBeGreaterThanOrEqual(s.progress.done)
+    }
+  })
+}
+
 /** Every stage titled and hinted, and every word of its glossary (those of
  *  any rendering) said, in both languages. */
 export function expectTexts(tutorial: Tutorial) {

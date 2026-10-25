@@ -45,6 +45,9 @@ export interface PieceStage {
   /** Its moves one by one with their words beside them (see
    *  `TutorialStep.words`). */
   readonly words?: true
+  /** Its pieces worked where they stand (corners turned in place): a
+   *  piece's place is its own. */
+  readonly inPlace?: true
   /** The side it finishes (see `TutorialStep.shows`). */
   readonly shows?: Vec3
   /** The sequences its formulas end on, read in its hold. */
@@ -95,8 +98,9 @@ export interface FigureStage {
    *  their arrows from top face to top face, or following `marker`). */
   readonly subjects?: (cube: Cube) => number[]
   readonly marker?: Color
-  /** The side it works on, its outward normal (see `TutorialStep.side`). */
-  readonly side?: Vec3
+  /** The side it works on, its outward normal (see `TutorialStep.side`),
+   *  or read on the state (none there: no arrow). */
+  readonly side?: Vec3 | ((cube: Cube) => Vec3 | undefined)
   /** The side it finishes (see `TutorialStep.shows`). */
   readonly shows?: Vec3
   readonly progress: (cube: Cube) => { done: number; total: number }
@@ -134,6 +138,7 @@ function figureStep(
   const moves =
     now?.seen && now.seen.hold === hold ? now.seen.moves.map((m) => frame.played(hold, m)) : null
   const fromBegun = found?.seen?.moves.map((m) => frame.played(hold, m))
+  const side = typeof def.side === 'function' ? def.side(cube) : def.side
   return {
     kind: 'figure',
     ...(fromBegun && { outcome: def.progress(applyMoves(begun, fromBegun)) }),
@@ -144,9 +149,10 @@ function figureStep(
     ...(def.algorithms && { algorithms: def.algorithms }),
     ...(found && { figure: found.figure.key }),
     ...(def.focus && { focus: def.focus(cube) }),
-    ...(def.subjects && { subjects: def.subjects(cube) }),
+    // Its subjects, by default the pieces it highlights.
+    ...((def.subjects ?? def.focus) && { subjects: (def.subjects ?? def.focus)!(cube) }),
     ...(def.marker && { marker: def.marker }),
-    ...(def.side && { side: def.side }),
+    ...(side && { side }),
     ...(def.shows && { shows: def.shows }),
     placed: kept,
     suggestion: null,
@@ -176,9 +182,12 @@ function pieceStep(def: PieceStage, cube: Cube, begun: Cube, kept: number[]): Tu
     ...(def.shows && { shows: def.shows }),
     ...(def.algorithms && { algorithms: def.algorithms }),
     placed,
-    suggestion: { piece: next.piece(cube), slot: next.slot },
+    suggestion: {
+      piece: next.piece(cube),
+      slot: def.inPlace ? cube[next.piece(cube)]!.position : next.slot,
+    },
     pickable: def.pickable ? def.pickable(cube, placed) : free.map((t) => t.piece(cube)),
-    slots: () => free.map((t) => t.slot),
+    slots: (piece) => (def.inPlace ? [cube[piece]!.position] : free.map((t) => t.slot)),
     formula: (pick) => {
       if (!pick) return null
       const moves = def.formula(cube, pick, { begun, placed, targetsKept })

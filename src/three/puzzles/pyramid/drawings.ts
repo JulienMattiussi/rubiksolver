@@ -8,10 +8,16 @@ import { PYRA_YAW, pyraDirection, pyraPolygons } from './pyraGeometry'
 export const PYRAMID_DRAWINGS = {
   pyra: { polygons: pyraPolygons(3), yaw: PYRA_YAW, direction: pyraDirection },
   // The Pyraminx's cells, its cut tips colored.
-  tetra: { polygons: pyraPolygons(3, true), yaw: PYRA_YAW },
-  pyra4: { polygons: pyraPolygons(4), yaw: PYRA_YAW },
-  pyra5: { polygons: pyraPolygons(5), yaw: PYRA_YAW },
-  jing: { polygons: jingPolygons, yaw: PYRA_YAW, thumbnail: jingThumbnail, cut: jingCut },
+  tetra: { polygons: pyraPolygons(3, true), yaw: PYRA_YAW, direction: pyraDirection },
+  pyra4: { polygons: pyraPolygons(4), yaw: PYRA_YAW, direction: pyraDirection },
+  pyra5: { polygons: pyraPolygons(5), yaw: PYRA_YAW, direction: pyraDirection },
+  jing: {
+    polygons: jingPolygons,
+    yaw: PYRA_YAW,
+    thumbnail: jingThumbnail,
+    cut: jingCut,
+    direction: pyraDirection,
+  },
   morph: { polygons: morphPolygons, yaw: PYRA_YAW, orient: MORPH_ORIENT },
   // On a face, as the Pyramorphinx.
   mmorph: {

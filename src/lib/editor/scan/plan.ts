@@ -12,7 +12,15 @@ import { MODELS } from '../../puzzles/models'
 import type { SlotTables } from '../editorTables'
 import type { FaceLayout, Point } from './layout'
 import type { OutlineScan } from './outlines'
-import { boxFaces, gridFaces, ringFaces, sizedFaces, squareFaces, wholeFaces } from './planFaces'
+import {
+  boxFaces,
+  flatFaces,
+  gridFaces,
+  ringFaces,
+  sizedFaces,
+  squareFaces,
+  wholeFaces,
+} from './planFaces'
 
 /**
  * How a puzzle is scanned with a camera, face by face (pure, no React): the
@@ -30,12 +38,14 @@ import { boxFaces, gridFaces, ringFaces, sizedFaces, squareFaces, wholeFaces } f
 
 /** How the puzzle is turned to show a face, from the one before: turned
  *  left, its top staying on top (`turn`) or its bottom at the bottom
- *  (`below`), tilted toward the lens, turned half round; `show`: told by
+ *  (`below`), tilted toward the lens, turned half round; a polyhedron
+ *  turned left about its top point (`spin`), its bottom raised toward the
+ *  lens (`topple`); `show`: told by
  *  its colors alone (a Megaminx's twelve faces); `upright`: the first face
  *  of a puzzle out of shape, its long side upright; `anchored`: the one
  *  face of a puzzle read whole, its anchor in the shape marked (`whole`). */
 export type ScanMove =
-  'first' | 'upright' | 'anchored' | 'turn' | 'below' | 'tilt' | 'flip' | 'show'
+  'first' | 'upright' | 'anchored' | 'turn' | 'below' | 'tilt' | 'flip' | 'show' | 'spin' | 'topple'
 
 export interface ScanFace extends FaceLayout {
   readonly move: ScanMove
@@ -56,10 +66,16 @@ export interface ScanFace extends FaceLayout {
    *  Skewb whose centers move) the puzzle is held any way, shown by
    *  gestures, its colors told apart among themselves. */
   readonly told: boolean
-  /** On a cube whose faces are no grid (`PuzzleModel.scan: 'square'`): its
-   *  normal and the one on top, for its drawing to say where each sticker
-   *  shows (the view replaces the layout by it). */
-  readonly seen?: { readonly normal: Vec3; readonly up: Vec3 }
+  /** On a cube whose faces are no grid (`PuzzleModel.scan: 'square'`), or
+   *  a polyhedron's flat face (`flat`): its normal and the way up, for its
+   *  drawing to say where each sticker shows (the view replaces the layout
+   *  by it); on a flat face, the frame's middle, the face filling its
+   *  outline side to side. */
+  readonly seen?: {
+    readonly normal: Vec3
+    readonly up: Vec3
+    readonly middle?: Point
+  }
   /** Its colors have names a camera can tell (a cube's six); else the
    *  scan reads its measures only, its colors told at the end (a
    *  Megaminx's twelve). */
@@ -103,6 +119,26 @@ export interface RingFace {
   readonly bottom?: true
   readonly move?: ScanMove
   readonly angle?: number
+}
+
+/** A flat face of a polyhedron as its model declares it (`PuzzleModel.scan:
+ *  { flat }`): its outward normal, the way up across it (toward its corner
+ *  on top, or the middle of its side on top, `pointDown`), its colors, and
+ *  the gesture that shows it. */
+export interface FlatFace {
+  readonly normal: Vec3
+  readonly up: Vec3
+  readonly pointDown?: true
+  readonly frontColor: Color
+  readonly upColor: Color
+  readonly move: ScanMove
+  readonly angle?: number
+}
+
+/** A model scanned by its flat faces, in order (`behind`: shown to a
+ *  camera facing the user, its gestures mirrored). */
+export interface FlatScan {
+  readonly flat: (behind: boolean) => readonly FlatFace[]
 }
 
 /** The six colors a camera can name. */
@@ -180,23 +216,29 @@ export function scanPlan(
     const own = MODELS[shape]?.scan
     const order = orderFor(behind)
     const rings = typeof own === 'function' ? own(behind) : undefined
+    // A polyhedron scanned by its flat faces.
+    const flat = typeof own === 'object' && 'flat' in own
     const faces: Omit<ScanFace, 'told' | 'named'>[] =
-      typeof own === 'object'
-        ? wholeFaces(shape, own)
-        : own === 'square'
-          ? squareFaces(shape, order)
-          : own === 'forms'
-            ? boxFaces(shape, order)
-            : rings
-              ? ringFaces(shape, rings)
-              : gridFaces(shape, order)
+      typeof own === 'object' && 'flat' in own
+        ? flatFaces(shape, own.flat(behind))
+        : typeof own === 'object'
+          ? wholeFaces(shape, own)
+          : own === 'square'
+            ? squareFaces(shape, order)
+            : own === 'forms'
+              ? boxFaces(shape, order)
+              : rings
+                ? ringFaces(shape, rings)
+                : gridFaces(shape, order)
     // Centers tell the faces only if every face has one, where they stay
-    // (not a Skewb's, which move about).
-    const told = own !== 'square' && own !== 'forms' && faces.every((face) => face.center !== null)
+    // (not a Skewb's, which move about, nor a pyramid's).
+    const told =
+      !flat && own !== 'square' && own !== 'forms' && faces.every((face) => face.center !== null)
     // A puzzle read by its outlines names no color (its colors only tell
     // its pieces apart, all silver).
     const named =
-      typeof own !== 'object' && shapeColors(shape).every((color) => CUBE_COLORS.includes(color))
+      (typeof own !== 'object' || flat) &&
+      shapeColors(shape).every((color) => CUBE_COLORS.includes(color))
     plan = faces.map((face) => ({ ...face, told, named }))
     PLANS.set(key, plan)
   }

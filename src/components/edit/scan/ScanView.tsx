@@ -73,6 +73,12 @@ export function ScanView() {
   const top = cardBottom + 8
   const rect = frameOnScreen(screen, face, top, BUTTONS_PX)
 
+  // Opened, nothing behind it keeps the focus: the space bar, which takes a
+  // face, would press the button that opened it (and start over).
+  useEffect(() => {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+  }, [])
+
   useEffect(() => {
     const resize = () => setScreen(screenSize())
     window.addEventListener('resize', resize)
@@ -126,7 +132,7 @@ export function ScanView() {
   // A camera facing the user (a laptop's): turning the puzzle to the
   // user's right brings the next face, as a mirror shows it.
   const wording =
-    mirrored && (face.move === 'turn' || face.move === 'below')
+    mirrored && (face.move === 'turn' || face.move === 'below' || face.move === 'spin')
       ? (`${face.move}Mirrored` as const)
       : face.move
   // What a face told by its center (or a mirror's, by its thickness) says.

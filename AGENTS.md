@@ -136,12 +136,13 @@ src/
 │   │                    #   se lit, une méthode `asItStands` au registre), permutation (parité),
 │   │                    #   once (mémoïsation paresseuse), rotations (les tours en main retirés : Uw' Dw
 │   │                    #   sur la 2x2x4), placeTable (places, macros et Dijkstra :
-│   │                    #   Megaminx, AI Cube)
+│   │                    #   Megaminx, AI Cube ; stickerPlaces, les places de chaque sticker, et placeChain,
+│   │                    #   la plus courte suite de macros : AI Cube, 3x3 croix puis coins)
 │   ├── editor/          # La saisie : entry (ce que le modèle déclare : étapes, peinture), steps (leur
 │   │                    #   enchaînement), edit (la table de stickers, buildCube), editorTables, validate,
 │   │                    #   modes/ (un mode par fichier : form, canvas et faceViews, joints, toggles,
 │   │                    #   colors, pieces), scan/ (la saisie à l'appareil photo, docs/scan.md : plan (les faces dans l'ordre,
-│   │                    #   `PuzzleModel.scan`) et planFaces (chacune bâtie), layout (grille, anneau, carré), frame, color, sample, capture,
+│   │                    #   `PuzzleModel.scan`) et planFaces (chacune bâtie), layout (grille, anneau, carré, polygone), frame, color, sample, capture,
 │   │                    #   anchors (les couleurs), orient (les faces tenues tournées), assign et classify (la lecture),
 │   │                    #   read (le point d'entrée), box et forms (les tours), outlines (le Floppy Ghost), sized et
 │   │                    #   sizedRead (le miroir))
@@ -158,7 +159,8 @@ src/
 │   │                    #   standard/cube3 et cube3LastLayer (le 3x3), cube2 (le 2x2), cornerTrigger (ce que
 │   │                    #   partagent les cubes : coins jaunes, tour du haut, formule lue dans une tenue),
 │   │                    #   terms (vocabulaire des cubes), en méthode débutant ; ofapel, ofapelKit et
-│   │                    #   ofapelEnd (le 3x3 par Ofapel) ;
+│   │                    #   ofapelEnd (le 3x3 par Ofapel) ; crossCorners et crossCornersKit (le 3x3
+│   │                    #   croix puis coins : une formule par étape, le cube tenu de 24 façons) ;
 │   │                    #   cube4 (réduction, puis les étapes du 3x3 projetées), bigCenters (leur étape des
 │   │                    #   centres, partagée avec le 5x5), cube5 et pair5 (le 5x5,
 │   │                    #   ses arêtes une aile à la fois), reduced (un grand cube réduit lu comme un 3x3),
@@ -210,6 +212,7 @@ docs/
 ├── methods.md           # Chaque méthode, ses puzzles et ses étapes
 ├── interface.md         # Le détail de l'interface
 ├── scan.md              # Le scan à l'appareil photo : puzzles, parcours, lecture
+├── tutorials.md         # Écrire un bon tutoriel : règles, démarche, vérifications
 └── images/              # Les captures du README (en anglais) et sa bannière
 public/                  # favicon, apple-touch-icon, og.png (aperçu de partage), robots.txt, sitemap.xml
 ```
@@ -439,7 +442,8 @@ couleurs telles que la lumière les montre ; `orient.ts` : les faces tenues
 tournées ; `assign.ts` : les vraies pièces au moindre coût) et le peint
 dans l'éditeur, à valider. Tout se déduit des dimensions (`scanPlan`,
 `layout.ts`), sauf d'un modèle qui déclare son scan (`PuzzleModel.scan` :
-en grille, en carré placé par son dessin, en anneaux, ou par sa forme,
+en grille, en carré placé par son dessin, en anneaux, en faces planes
+(les pyramides, `pyraScan.ts`), ou par sa forme,
 que le scan trouve : `forms.ts`, les tours, calées par leur cœur, `box.ts` ;
 le Floppy Ghost, argenté, se lit à ses contours, d'une seule photo, `outlines.ts` ; le 3x3 miroir,
 aux tailles de ses stickers, trouvés par OpenCV dans un worker, `sized.ts`, `sizedRead.ts`). Le détail :
@@ -500,6 +504,12 @@ par une flèche et des pièces mises en valeur), feu d'artifice quand un coup r�
 
 ### Le tutoriel (`src/lib/teach/`, `src/lib/tutorials/`)
 
+**Avant d'écrire ou de retoucher un tutoriel, lire
+[docs/tutorials.md](docs/tutorials.md)** : ses règles (un objectif clair
+par pas, jamais de recul, pas de pas pour tenir le cube, une flèche par
+pièce travaillée et une seule à la fois, coups décrits la première fois),
+la démarche et les vérifications.
+
 Un tutoriel est **déclaré, pas codé**, comme une méthode, et le moteur ne
 connaît aucun modèle : il manipule n'importe quel coup de l'appli
 (`Turn`), lit les positions et les stickers des pièces, et reçoit du
@@ -552,14 +562,17 @@ trouve), et la consigne de tenue nomme alors la face plutôt que le centre
 l'état où le pas commence (`targets` en fonction : les coins autour du
 repère). Une formule qui ne fait que tourner le cube entier (un `Move`
 `whole`, noté `x y z` : le 2x2 retourné, jaune en bas) ne montre ni pièce
-gênante ni hachures. Une figure peut se résoudre par la plus courte chaîne de
+gênante ni hachures ; une formule qui commence par là se lit depuis la
+tenue qu'elle donne (consigne, flèches, hachures : `heldFor`,
+`lib/teach/scene.ts`), d'un seul pas. Une figure peut se résoudre par la plus courte chaîne de
 gestes appris (`firstGesture`, `lib/teach/macros.ts` : tenue, tour du
 haut, algorithme), dont chaque pas joue le premier geste ; à longueur égale,
 celui qui avance le plus (`rank`), et une figure « détour » dit quand aucun
 n'avance (le 2x2 et ses Sunes).
 
 Chaque étape déclare aussi la face qu'elle travaille (`side`, une normale :
-flèches et vue), celle qu'elle achève (`shows` : une croix, une face, vers
+flèches et vue ; lue sur l'état pour une étape de figures dont la face
+change d'un pas à l'autre), celle qu'elle achève (`shows` : une croix, une face, vers
 laquelle la vue se tourne quand la formule qui finit l'étape est jouée) et si ses coups gardent leur description (`words`) : aucune
 règle d'affichage ne dépend d'un numéro d'étape, d'une face ni d'une sorte
 de coup écrite dans le code commun. Les **tenues** (`TutorialPlan.frame`,

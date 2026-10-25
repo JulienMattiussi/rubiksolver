@@ -7,7 +7,7 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 
 ## Les puzzles scannables
 
-`scannable` (`lib/editor/scan/plan.ts`) : 26 modèles sur 75, et le 3x3 miroir.
+`scannable` (`lib/editor/scan/plan.ts`) : 31 modèles sur 75, et le 3x3 miroir.
 
 - **En grille**, tout se déduit des dimensions (`scanPlan`) : les cubes du
   2x2 au 6x6, les cuboïdes et les plats sans saisie propre (1x2x3, Floppy,
@@ -21,6 +21,19 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 - **En anneaux** (`scan` : une fonction du modèle) : le Megaminx
   (`megaminxScan.ts`) et le Holey Megaminx (`holeyScan.ts`), chaque face
   un pentagone, son centre, ses arêtes puis ses coins.
+- **Par leurs faces planes** (`scan: { flat }`) : les pyramides
+  (Pyraminx, Tetraminx, Master et Professor Pyraminx, Jing), quatre faces
+  triangulaires (`pyraScan.ts`). Le modèle déclare chaque face (sa normale,
+  son haut, son geste) ; le plan en tire ses stickers, les façons de la
+  tenir tournée (les orientations du puzzle qui la gardent en place : 3
+  pour un triangle) et son cadre, un polygone régulier (`polygonFrame`) ;
+  le dessin place les stickers (`drawnFace`, la face convertie dans le
+  repère du dessin), la face remplissant le cadre d'un côté à l'autre
+  (`fitScale` : le Tetraminx, coins coupés, comme le Pyraminx). La face
+  verte d'abord, pointe en haut ; deux tiers de tour vers la gauche
+  (`spin`, 120°), la pointe du haut restant en haut ; puis la pointe
+  basculée en arrière, le dessous face à l'objectif (`topple`, 109°), une
+  pointe en bas. Une icône de pyramide remplace le cube de la flèche.
 - **Par leur forme** (`scan: 'forms'`) : les tours 2x2x4 et 2x3x4, qui se
   déforment. Elles se scannent comme la boîte où tourne leur mécanisme, et
   le scan trouve leur forme : plus besoin de la choisir parmi les
@@ -36,7 +49,7 @@ Restent dehors les puzzles dont une information n'est pas une couleur
 déforment (Camouflage, Purple, Fashion-V, AI Cube), et le Tori (ses
 arêtes, de minces amandes au bord des faces).
 
-Seuls le 2x2, le 3x3 (et son miroir), le 4x4 et la tour 2x2x4 ont été essayés en vrai (`scanTried` sur
+Seuls le 2x2, le 3x3 (et son miroir), le 4x4, la tour 2x2x4 et le Skewb ont été essayés en vrai (`scanTried` sur
 leur carte) ; sur les autres, le bouton « Utiliser l'appareil photo » porte
 une fiole : « Cette fonction n'a pas encore été testée et validée sur ce
 modèle ».
@@ -79,7 +92,10 @@ sur Android).
 3. **Le tap** (`ScanTake`, au milieu de l'écran ; la barre d'espace sur un
    portable) : rien ne distinguant un puzzle d'un mur, c'est l'utilisateur
    qui dit que le puzzle est en place. Avant, rien n'est lu (pas de points
-   qui inciteraient à attendre qu'ils soient tous justes).
+   qui inciteraient à attendre qu'ils soient tous justes). Le bouton qui a
+   ouvert le scan perd le focus et ne relance pas un scan ouvert : sans
+   cela, la barre d'espace pressée entre deux faces le pressait, et le scan
+   repartait de zéro.
 4. **La prise** (`useFaceReading`, `capture.ts`) : « Tenez le puzzle
    immobile… » ; chaque case montre ce qu'elle lit (un point de sa couleur,
    un anneau quand ce n'est pas sûr) ; la face est prise quand ses couleurs

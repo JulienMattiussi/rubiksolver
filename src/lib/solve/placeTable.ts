@@ -1,4 +1,5 @@
-import type { Turn } from '../core/types'
+import { applyMove } from '../core/turn'
+import type { Cube, Cubie, Dims, Move, Turn, Vec3 } from '../core/types'
 
 /**
  * A puzzle's places, as a search reads them when its formulas act the same
@@ -43,6 +44,41 @@ export function placesOf<P, T extends Turn>(
       if (!table) tables.set(k, (table = Int16Array.from(places, (p) => follow(p, turn))))
       return table
     },
+  }
+}
+
+/** A cubie's first sticker (by color): the one its place follows. */
+export const firstSticker = (c: Cubie) => c.stickers.reduce((m, s) => (s.color < m.color ? s : m))
+
+/** A place's key: its cell and the normal of the sticker it follows. */
+const keyOf = (position: readonly number[], normal: readonly number[]) =>
+  `${position.join()}|${normal.join()}`
+
+/**
+ * A puzzle turned by face moves, its places every sticker of its solved
+ * state (`solved`, on its `mechanism`), a turn followed by a one-sticker
+ * probe: the place at a cell and normal (`at`), a piece's (`placeOf`, by
+ * its first sticker).
+ */
+export function stickerPlaces(solved: Cube, mechanism: Dims) {
+  const list = solved.flatMap((c) =>
+    c.stickers.map((s) => ({ position: c.position, normal: s.normal })),
+  )
+  const index = new Map(list.map((p, i) => [keyOf(p.position, p.normal), i]))
+  const at = (position: readonly number[], normal: readonly number[]) =>
+    index.get(keyOf(position, normal))!
+  const places = placesOf<(typeof list)[number], Move>(list, {
+    slot: (p) => p.position.join(),
+    follow: ({ position, normal }, move) => {
+      const [probe] = applyMove([{ position, stickers: [{ normal, color: 'W' }] }], move, mechanism)
+      return at(probe!.position, probe!.stickers[0]!.normal)
+    },
+    key: (m) => `${m.face}${m.amount}${m.depth ?? ''}${m.wide ? 'w' : ''}${m.whole ? 'x' : ''}`,
+  })
+  return {
+    places,
+    at: at as (position: Vec3, normal: Vec3) => number,
+    placeOf: (c: Cubie) => at(c.position, firstSticker(c).normal),
   }
 }
 
@@ -105,4 +141,45 @@ export function route<T extends Turn>(
       }
     }
   }
+}
+
+/**
+ * The fewest macros (by index) taking some pieces' places (`from`) to a
+ * goal, breadth first, states told apart by `key` (by default, all their
+ * places: less when the goal reads less, their cells only), the chain
+ * going only through states that `through` lets by; null if none does
+ * within the depth.
+ */
+export function placeChain(
+  from: readonly number[],
+  macros: readonly Int16Array[],
+  goal: (places: readonly number[]) => boolean,
+  {
+    key = (places) => places.join(),
+    depth = Infinity,
+    through = () => true,
+  }: {
+    key?: (places: readonly number[]) => string
+    depth?: number
+    through?: (places: readonly number[]) => boolean
+  } = {},
+): number[] | null {
+  if (goal(from)) return []
+  const seen = new Set([key(from)])
+  let frontier = [{ places: from, chain: [] as number[] }]
+  for (let level = 1; level <= depth && frontier.length; level++) {
+    const next: typeof frontier = []
+    for (const { places, chain } of frontier) {
+      for (const [i, to] of macros.entries()) {
+        const moved = places.map((p) => to[p]!)
+        if (goal(moved)) return [...chain, i]
+        const k = key(moved)
+        if (seen.has(k)) continue
+        seen.add(k)
+        if (through(moved)) next.push({ places: moved, chain: [...chain, i] })
+      }
+    }
+    frontier = next
+  }
+  return null
 }

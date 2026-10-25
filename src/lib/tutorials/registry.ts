@@ -4,6 +4,7 @@ import type { Tutorial } from '../teach/tutorial'
 import { CUBE2_TUTORIAL } from './standard/cube2'
 import { OFAPEL_TUTORIAL } from './standard/ofapel'
 import { CUBE3_TUTORIAL } from './standard/cube3'
+import { CROSS_CORNERS_TUTORIAL } from './standard/crossCorners'
 import { CUBE4_TUTORIAL } from './standard/cube4'
 import { CUBE5_TUTORIAL } from './standard/cube5'
 import { SUPER4_TUTORIAL, SUPER5_TUTORIAL } from './standard/superCubes'
@@ -45,6 +46,7 @@ const TUTORIALS: Partial<Record<CubeShape, readonly TutorialEntry[]>> = {
   '3': [
     { method: 'beginner', tutorial: CUBE3_TUTORIAL },
     { method: 'ofapel', tutorial: OFAPEL_TUTORIAL },
+    { method: 'crossCorners', tutorial: CROSS_CORNERS_TUTORIAL },
   ],
 }
 

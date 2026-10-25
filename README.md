@@ -38,7 +38,7 @@ Up / Page Down and the arrows.
 
 <img src="docs/images/solve.png" width="820" alt="A scrambled 3x3 with the layer-by-layer method: its seven named steps on the right, each with its moves.">
 
-On the 3x3 alone: **layer by layer, Ofapel, CFOP, Roux, Petrus and ZZ**. The 4x4, 5x5 and 6x6
+On the 3x3 alone: **layer by layer, Ofapel, cross then corners, CFOP, Roux, Petrus and ZZ**. The 4x4, 5x5 and 6x6
 are solved by **reduction** (centers, edge pairing, parity, then as a 3x3), small
 puzzles also get an **optimal** solution, and every other puzzle has a method of its
 own.
@@ -55,7 +55,9 @@ while the letters are new. Play it with a button, or by hand on the move pad: th
 tutorial follows your moves, adapts when you stray, and can take you back to where the
 step began. Pick another piece if you like, and the formula changes with it. The 3x3 has
 a second one, Ofapel's method from francocube: the first face, then the top corners before
-the edges, the cube tipped on its side to end in the middle slice. The 2x2 has its own, the
+the edges, the cube tipped on its side to end in the middle slice; and a third, cross then
+corners: every edge, then every corner, each step with a single formula, the cube turned in
+hand to bring its pieces where the formula takes them. The 2x2 has its own, the
 four steps and three formulas of its maker's manual: the yellow face built on top, its
 corners placed, then the cube turned over for the white face and its corners.
 The Pyraminx has one too, laid flat, in five stages from the centers to the flipped edges, and

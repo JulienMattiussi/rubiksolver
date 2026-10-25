@@ -116,8 +116,8 @@ export interface TutorialStep {
   /** How far the stage will have come once its formula played (from where
    *  it began): what to check then. */
   readonly outcome?: { readonly done: number; readonly total: number }
-  /** The pieces a figure step works on: those its formula moves keep their
-   *  colors, an arrow each to where it goes. */
+  /** The pieces a figure step works on: those its formula moves or turns
+   *  keep their colors (never hatched), an arrow each to where it goes. */
   readonly subjects?: readonly number[]
   /** The side the step works on (its outward normal; the last layer's:
    *  the top): its subjects' arrows go from face to face there (those

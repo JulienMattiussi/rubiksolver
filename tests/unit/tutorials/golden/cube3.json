@@ -1517,7 +1517,54 @@
     "moves": "R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U2",
     "formulas": {},
     "tones": "ppppsptsspspssssssppppspsst",
-    "arrows": [],
+    "arrows": [
+     {
+      "piece": 6,
+      "from": [
+       -1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       -1,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "piece": 26,
+      "from": [
+       1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       1,
+       0,
+       0
+      ],
+      "to": [
+       1,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U2",
      "shown": "R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U2",
@@ -2894,7 +2941,54 @@
     "moves": "U R' D' R D R' D' R D R' D' R D R' D' R D U2 R' D' R D R' D' R D U",
     "formulas": {},
     "tones": "ppppspsstpspssssssppppsptss",
-    "arrows": [],
+    "arrows": [
+     {
+      "piece": 8,
+      "from": [
+       -1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       -1,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "piece": 24,
+      "from": [
+       1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       1,
+       0,
+       0
+      ],
+      "to": [
+       1,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "R' D' R D R' D' R D R' D' R D R' D' R D U2 R' D' R D R' D' R D U",
      "shown": "U R' D' R D R' D' R D R' D' R D R' D' R D U2 R' D' R D R' D' R D U",
@@ -4206,7 +4300,54 @@
     "moves": "U R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U",
     "formulas": {},
     "tones": "ppppspsstpspssssssppppsptss",
-    "arrows": [],
+    "arrows": [
+     {
+      "piece": 8,
+      "from": [
+       -1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       -1,
+       0,
+       0
+      ],
+      "to": [
+       -1,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "piece": 24,
+      "from": [
+       1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       1,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U",
      "shown": "U R' D' R D R' D' R D U2 R' D' R D R' D' R D R' D' R D R' D' R D U",
@@ -5379,7 +5520,7 @@
     "suggestion": null,
     "moves": "F R U R' U' F'",
     "formulas": {},
-    "tones": "ppppspmsmpspssssssppppspmmm",
+    "tones": "ppppspmsmpspssssssppppspmsm",
     "arrows": [
      {
       "piece": 15,
@@ -5426,6 +5567,29 @@
        1,
        0
       ]
+     },
+     {
+      "piece": 25,
+      "from": [
+       1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       1,
+       0,
+       0
+      ],
+      "to": [
+       0,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       0,
+       -1
+      ]
      }
     ],
     "followed": {
@@ -5468,8 +5632,54 @@
     "suggestion": null,
     "moves": "B L U L' U' B'",
     "formulas": {},
-    "tones": "ppppspmmmpspsssssmppppspmsm",
+    "tones": "ppppspmsmpspssssssppppspmsm",
     "arrows": [
+     {
+      "piece": 7,
+      "from": [
+       -1,
+       1,
+       0
+      ],
+      "fromNormal": [
+       -1,
+       0,
+       0
+      ],
+      "to": [
+       0,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       0,
+       1
+      ]
+     },
+     {
+      "piece": 17,
+      "from": [
+       0,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       1,
+       0
+      ],
+      "to": [
+       0,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       0,
+       -1
+      ]
+     },
      {
       "piece": 25,
       "from": [
@@ -5965,7 +6175,100 @@
     "moves": "R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D U",
     "formulas": {},
     "tones": "ppppsptstpspssssssppppsptst",
-    "arrows": [],
+    "arrows": [
+     {
+      "piece": 6,
+      "from": [
+       -1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       -1
+      ],
+      "to": [
+       -1,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "piece": 8,
+      "from": [
+       -1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       0,
+       0,
+       1
+      ],
+      "to": [
+       -1,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "piece": 24,
+      "from": [
+       1,
+       1,
+       -1
+      ],
+      "fromNormal": [
+       1,
+       0,
+       0
+      ],
+      "to": [
+       1,
+       1,
+       -1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "piece": 26,
+      "from": [
+       1,
+       1,
+       1
+      ],
+      "fromNormal": [
+       1,
+       0,
+       0
+      ],
+      "to": [
+       1,
+       1,
+       1
+      ],
+      "toNormal": [
+       0,
+       1,
+       0
+      ]
+     }
+    ],
     "followed": {
      "rest": "D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D U",
      "shown": "R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U R' D' R D R' D' R D U",

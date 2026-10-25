@@ -42,6 +42,10 @@ describe('scan plan', () => {
       expect.arrayContaining(['2', '3', '4', '5', '6', '123', '331', '332', '334']),
     )
     expect(SCANNED).toEqual(expect.arrayContaining(['void', 'edge', 'megaminx', 'holey']))
+    // The pyramids by their flat faces; not those that change shape.
+    expect(SCANNED).toEqual(expect.arrayContaining(['pyra', 'tetra', 'pyra4', 'pyra5', 'jing']))
+    expect(scannable('morph')).toBe(false)
+    expect(scannable('mmorph')).toBe(false)
     expect(OUT_OF_SHAPE).toEqual(['224', '234'])
     // Read whole, by the outlines of its silver pieces (outlines.test.ts).
     expect(scannable('ghost')).toBe(true)
@@ -53,7 +57,7 @@ describe('scan plan', () => {
 
   it('says which puzzles it was tried on for real', () => {
     const tried = (Object.keys(SHAPE_SCAN_TRIED) as CubeShape[]).filter((s) => SHAPE_SCAN_TRIED[s])
-    expect(tried).toEqual(['2', '3', '4', '224'])
+    expect(tried).toEqual(['2', '3', '4', '224', 'skewb'])
     expect(tried.every((s) => scannable(s))).toBe(true)
   })
 

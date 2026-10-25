@@ -5,7 +5,7 @@ import { formatMoves, parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cube, Turn } from '@/lib/core/types'
 import { formulaUnderWay } from '@/lib/teach/keep'
-import { arrowedSubjects, arrowsOf, tonesOf } from '@/lib/teach/scene'
+import { arrowsOf, tonesOf } from '@/lib/teach/scene'
 import type { TutorialPick } from '@/lib/teach/tutorial'
 import { tutorialFor } from '@/lib/tutorials/registry'
 import { seededRng } from '../../helpers'
@@ -57,7 +57,7 @@ function record(cube: Cube) {
     moves: notation(moves),
     formulas,
     tones: moves
-      ? tonesOf(cube, moves, pick, step.placed, step.focus, arrowedSubjects(cube, moves, step))
+      ? tonesOf(cube, moves, pick, step.placed, step.focus, step.subjects)
           .map((t) => t[0])
           .join('')
       : null,

@@ -156,3 +156,45 @@ export function squareLayout(points: readonly Point[]): FaceLayout {
     turns: quarter.includes(-1) ? [ids] : [ids, times(1), times(2), times(3)],
   }
 }
+
+/** A regular polygon of `sides` round its middle, its corners at radius 1,
+ *  a corner on top (a side on top, `pointDown`): a polyhedron's flat face
+ *  (a pyramid's triangle). */
+export function polygonFrame(sides: number, pointDown = false) {
+  const corners = Array.from({ length: sides }, (_, k): Point => {
+    const angle = Math.PI / 2 - (2 * Math.PI * (k + (pointDown ? 0.5 : 0))) / sides
+    return [Math.cos(angle), -Math.sin(angle)]
+  })
+  const [left, top] = [Math.min(...corners.map((c) => c[0])), Math.min(...corners.map((c) => c[1]))]
+  const move = ([x, y]: Point): Point => [x - left, y - top]
+  return {
+    width: Math.max(...corners.map((c) => c[0])) - left,
+    height: Math.max(...corners.map((c) => c[1])) - top,
+    outline: corners.map(move),
+    middle: move([0, 0]),
+  }
+}
+
+/** How much to scale points (round a frame's middle, y up) so that they fit
+ *  its convex outline, the farthest across each side `share` of the way to
+ *  it: a face fills its frame side to side (a Tetraminx's, its corners cut,
+ *  as well as a Pyraminx's). */
+export function fitScale(
+  points: readonly Point[],
+  outline: readonly Point[],
+  middle: Point,
+  share = 1,
+): number {
+  let scale = Infinity
+  outline.forEach((a, i) => {
+    const b = outline[(i + 1) % outline.length]!
+    const length = Math.hypot(b[0] - a[0], b[1] - a[1])
+    // The side's normal (y down), outward, and how far out it lies.
+    let [nx, ny] = [(b[1] - a[1]) / length, (a[0] - b[0]) / length]
+    let d = (a[0] - middle[0]) * nx + (a[1] - middle[1]) * ny
+    if (d < 0) [nx, ny, d] = [-nx, -ny, -d]
+    const out = Math.max(...points.map(([x, y]) => x * nx - y * ny))
+    if (out > 0) scale = Math.min(scale, (share * d) / out)
+  })
+  return scale
+}

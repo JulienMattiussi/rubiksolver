@@ -1,11 +1,11 @@
 import { Check } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { Turn } from '@/lib/core/types'
-import { markedOn, occupantOf, pieceColors, turnsWhole } from '@/lib/teach/scene'
-import { applyMoves } from '@/lib/core/turn'
+import { heldFor, markedOn, occupantOf, pieceColors, turnsWhole } from '@/lib/teach/scene'
 import { cubeShape } from '@/lib/core/cube'
 import { formulaSegments } from '@/lib/teach/segments'
 import type { TutorialView } from '@/hooks/useTutorial'
+import { useCube } from '@/store/cubeStore'
 import { useView } from '@/store/viewStore'
 import { useTutorialTrack } from '@/store/tutorialTrack'
 import { formatMove } from '@/lib/core/notation'
@@ -27,6 +27,7 @@ import { useTutorialTexts } from './useTutorialTexts'
 export function Instructions({ view, busy }: { view: TutorialView; busy: boolean }) {
   const tx = useTutorialTexts()
   const viewToward = useView((s) => s.viewToward)
+  const pushMove = useCube((s) => s.pushMove)
   const learnt = useTutorialTrack((s) => s.learnt)
   const { cube, step, pick, hold, frame, shown, review } = view
   if (!step || !hold) return null
@@ -35,9 +36,18 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
   // pieces' frame's on a puzzle with no centers).
   const frontNormal = frame.front(hold)
   // A formula turning the whole puzzle only (the cube held another way):
-  // told as the way to hold it once turned, nothing to play.
+  // told as the way to hold it once turned, nothing to play. One starting
+  // so: the way to hold it told as once turned too (looked at once played
+  // as well: `cube` is then where it began).
   const turning = shown !== null && turnsWhole(shown.moves)
-  const held = turning && !review ? applyMoves(cube, shown.moves) : cube
+  // Read on what is left to play (turns played by hand since are on the
+  // cube already).
+  const holding = shown ? heldFor(cube, shown.moves.slice(shown.done)) : null
+  const held = holding?.held ?? cube
+  // Those first turns are the way to hold it: its words play them (those
+  // left), the rest is to play.
+  const lead = shown && !turning ? heldFor(cube, shown.moves).lead.length : 0
+  const toTurn = turning || busy || review ? [] : (holding?.lead ?? [])
   const front = view.tutorial?.faceColor(held, frontNormal) ?? null
   // And the side held down (the holds turn round the top).
   const down = view.tutorial?.faceColor(held, frame.down) ?? null
@@ -147,8 +157,12 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
           <button
             key="hold"
             type="button"
-            onClick={() => viewToward(frontNormal, liftFor(step))}
-            title={tx.facingTitle}
+            onClick={() =>
+              toTurn.length
+                ? toTurn.forEach((m) => pushMove(m))
+                : viewToward(frontNormal, liftFor(step))
+            }
+            title={toTurn.length ? tx.turnTitle : tx.facingTitle}
             className="rounded text-left underline decoration-dotted underline-offset-2 hover:text-white focus-visible:outline-2 focus-visible:outline-sky-400"
           >
             {/* Told by a piece of the legend (a puzzle with no color to
@@ -195,7 +209,13 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
         : []),
     ...(turning
       ? []
-      : [shown ? <div key="play">{play(shown.moves, shown.done)}</div> : tx.noFormula]),
+      : [
+          shown ? (
+            <div key="play">{play(shown.moves.slice(lead), Math.max(0, shown.done - lead))}</div>
+          ) : (
+            tx.noFormula
+          ),
+        ]),
     pick
       ? pictured(
           (tx.placed[step.key] ?? tx.check)(

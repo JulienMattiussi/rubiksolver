@@ -14,12 +14,14 @@ import { cutSolidPolygons } from '../../core/cutSolid'
 /** How far the faces lie along their (unnormalized) normals. */
 const FAR = 2.4
 
-/** Each face's color, by its normal: the one opposite (1, 1, 1) below. */
+/** Each face's color, by its normal: the one opposite (1, 1, 1) below,
+ *  blue, as on the other pyramids (yellow and blue as a real one wears
+ *  them). */
 const FACE_COLOR: Record<string, Color> = {
-  '-1,-1,-1': 'Y',
+  '-1,-1,-1': 'B',
   '-1,1,1': 'G',
   '1,-1,1': 'R',
-  '1,1,-1': 'B',
+  '1,1,-1': 'Y',
 }
 
 const pieces = cutSolidPolygons(

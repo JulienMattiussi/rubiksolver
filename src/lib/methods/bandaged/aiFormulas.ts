@@ -1,9 +1,9 @@
 import { isBlock } from '../../puzzles/bandaged/ai'
 import { solvedCube } from '../../core/cube'
 import { invertMoves, simplifyMoves } from '../../core/moves'
-import { macroOf as placeMacro, placesOf, route, type Macro } from '../../solve/placeTable'
+import { macroOf as placeMacro, route, stickerPlaces, type Macro } from '../../solve/placeTable'
 import { applyMove, turnAllowed } from '../../core/turn'
-import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
+import type { Cube, Face, Move, Vec3 } from '../../core/types'
 import { once } from '../../solve/once'
 
 /**
@@ -28,28 +28,11 @@ export const inner = (amount: 1 | 2 | 3): Move => ({ face: 'U', amount, depth: 2
 /** The big blocks below: the standard holding, which the formulas keep. */
 export const standard = (cube: Cube) => cube.filter(isBlock).every((c) => c.position[1] < 0)
 
-/** A place: a small piece's cell and the normal of its first sticker (by
- *  color), as `cell|normal`; every sticker of a 4x4x4's small cubie. */
-export const keyOf = (position: readonly number[], normal: readonly number[]) =>
-  `${position.join()}|${normal.join()}`
-const PLACE_LIST: { position: Vec3; normal: Vec3 }[] = solvedCube('4').flatMap((c) =>
-  c.stickers.map((s) => ({ position: c.position, normal: s.normal })),
-)
-export const PLACE = new Map(PLACE_LIST.map((p, i) => [keyOf(p.position, p.normal), i]))
+/** Its places: every sticker of a 4x4x4's small cubie. */
+const PLACES = stickerPlaces(solvedCube('4'), MECHANISM)
+export const { at: placeAt, placeOf } = PLACES
 
-export const first = (c: Cubie) => c.stickers.reduce((m, s) => (s.color < m.color ? s : m))
-export const placeOf = (c: Cubie) => PLACE.get(keyOf(c.position, first(c).normal))!
-
-/** Where each place goes as a move is played (a one-sticker probe). */
-const PLACES = placesOf<(typeof PLACE_LIST)[number], Move>(PLACE_LIST, {
-  slot: (p) => p.position.join(),
-  follow: ({ position, normal }, move) => {
-    const [probe] = applyMove([{ position, stickers: [{ normal, color: 'W' }] }], move, MECHANISM)
-    return PLACE.get(keyOf(probe!.position, probe!.stickers[0]!.normal))!
-  },
-  key: (m) => `${m.face}${m.amount}${m.depth ?? ''}${m.wide ? 'w' : ''}`,
-})
-export const macroOf = (moves: readonly Move[]) => placeMacro(PLACES, moves)
+export const macroOf = (moves: readonly Move[]) => placeMacro(PLACES.places, moves)
 
 /** The standard holding's blocks, to check a formula plays out from there
  *  and leaves them below. */

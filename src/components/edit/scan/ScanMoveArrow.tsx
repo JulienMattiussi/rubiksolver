@@ -32,7 +32,15 @@ const GESTURES: Record<
   tilt: { c: [36, 25], a: [10, -10], b: [0, 19], from: 10, to: -170, deep: true },
   // A half turn about the vertical: round its back, then its front.
   flip: { c: [33, 31], a: [24, 0], b: [0, 9], from: -10, to: 190, behind: [190, 350] },
+  // A pyramid turned left about its top point, a third of a turn.
+  spin: { c: [33, 34], a: [24, 0], b: [0, 9], from: -10, to: 130 },
+  // Its top point backward, its bottom coming to the lens: the tilt the
+  // other way round.
+  topple: { c: [36, 25], a: [10, -10], b: [0, 19], from: -170, to: 10, deep: true },
 }
+
+/** The pyramid's gestures: a pyramid drawn, not a cube. */
+const PYRAMID = new Set<ScanFace['move']>(['spin', 'topple'])
 
 const rad = (deg: number) => (deg * Math.PI) / 180
 
@@ -63,8 +71,8 @@ const head = (g: Gesture) => {
 }
 
 /** The way to turn the puzzle for a face (none for the first one, nor one
- *  told by its colors alone), drawn above its instruction: a cube in
- *  relief, the arrow round it, how far it turns. */
+ *  told by its colors alone), drawn above its instruction: a cube (or a
+ *  pyramid) in relief, the arrow round it, how far it turns. */
 export function ScanMoveArrow({
   face,
   mirrored = false,
@@ -94,9 +102,18 @@ export function ScanMoveArrow({
         />
       )}
       <g className="stroke-white/70" strokeWidth={1} strokeLinejoin="round">
-        <polygon points="22,20 28,14 48,14 42,20" className="fill-white/35" />
-        <polygon points="42,20 48,14 48,34 42,40" className="fill-white/10" />
-        <rect x="22" y="20" width="20" height="20" className="fill-white/20" />
+        {PYRAMID.has(move) ? (
+          <>
+            <polygon points="35,12 22,40 38,44" className="fill-white/20" />
+            <polygon points="35,12 38,44 48,34" className="fill-white/10" />
+          </>
+        ) : (
+          <>
+            <polygon points="22,20 28,14 48,14 42,20" className="fill-white/35" />
+            <polygon points="42,20 48,14 48,34 42,40" className="fill-white/10" />
+            <rect x="22" y="20" width="20" height="20" className="fill-white/20" />
+          </>
+        )}
       </g>
       <g transform={mirrored && !g.deep ? 'translate(66 0) scale(-1 1)' : undefined}>
         <path d={arc(g, g.from, g.to)} {...line} className="stroke-amber-300" />

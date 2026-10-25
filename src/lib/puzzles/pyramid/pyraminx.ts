@@ -62,9 +62,10 @@ export const PYRA_CORNERS: Record<PyraVertex, Vec3> = {
   B: [-1, 1, -1],
 }
 
-/** Color of the face opposite each corner: yellow below, green in front,
- *  red on the right (opposite L), blue on the left (opposite R). */
-export const PYRA_FACE_COLOR: Record<PyraVertex, Color> = { U: 'Y', L: 'R', R: 'B', B: 'G' }
+/** Color of the face opposite each corner, as a real Pyraminx wears them:
+ *  blue below, green in front, red on the right (opposite L), yellow on the
+ *  left (opposite R). */
+export const PYRA_FACE_COLOR: Record<PyraVertex, Color> = { U: 'B', L: 'R', R: 'Y', B: 'G' }
 
 const add = (a: Vec3, b: Vec3): Vec3 => [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
 

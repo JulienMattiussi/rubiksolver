@@ -66,12 +66,13 @@ describe('method registry', () => {
     ])
   })
 
-  it('offers Ofapel, Roux, Petrus and ZZ on the 3x3 only', () => {
+  it('offers Ofapel, cross then corners, Roux, Petrus and ZZ on the 3x3 only', () => {
     const ids = (shape: CubeShape) => methodsFor(shape).map((m) => m.id)
-    expect(ids('3')).toEqual(['beginner', 'ofapel', 'cfop', 'roux', 'petrus', 'zz'])
+    expect(ids('3')).toEqual(['beginner', 'ofapel', 'crossCorners', 'cfop', 'roux', 'petrus', 'zz'])
     for (const shape of ['2', '4', '123'] as const) {
       expect(ids(shape)).not.toContain('roux')
       expect(ids(shape)).not.toContain('ofapel')
+      expect(ids(shape)).not.toContain('crossCorners')
     }
   })
 })

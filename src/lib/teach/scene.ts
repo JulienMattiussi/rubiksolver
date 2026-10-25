@@ -1,3 +1,5 @@
+import { cubeShape, turnDims } from '../core/cube'
+import { invertMoves } from '../core/moves'
 import { applyMoves } from '../core/turn'
 import {
   isFaceMove,
@@ -28,6 +30,18 @@ export type Tone = 'target' | 'slot' | 'placed' | 'subject' | 'moved' | 'still'
 export const turnsWhole = (moves: readonly Turn[]) =>
   moves.length > 0 && moves.every((m) => isFaceMove(m) && m.whole)
 
+/** A formula's first turns of the whole puzzle (`lead`: how to hold it for
+ *  the rest), the puzzle so held (`held`), and the rest. */
+export function heldFor(cube: Cube, moves: readonly Turn[]) {
+  const first = moves.findIndex((m) => !(isFaceMove(m) && m.whole))
+  const lead = first < 0 ? moves : moves.slice(0, first)
+  return {
+    lead,
+    held: lead.length ? applyMoves(cube, lead) : cube,
+    rest: moves.slice(lead.length),
+  }
+}
+
 export function tonesOf(
   cube: Cube,
   moves: readonly Turn[],
@@ -37,15 +51,17 @@ export function tonesOf(
   subjects: readonly number[] = [],
 ): Tone[] {
   if (turnsWhole(moves)) return cube.map((_, i) => (pick && i === pick.piece ? 'target' : 'still'))
-  const after = applyMoves(cube, moves)
+  // Moved by the formula held as its first turns of the whole puzzle say.
+  const { held, rest } = heldFor(cube, moves)
+  const after = applyMoves(held, rest)
   return cube.map((c, i) => {
     if ((pick && i === pick.piece) || focus.includes(i)) return 'target'
     if (pick && c.position.join() === pick.slot.join()) return 'slot'
     if (placed.includes(i)) return 'placed'
-    const a = after[i]!
+    const [a, h] = [after[i]!, held[i]!]
     const moved =
-      a.position.join() !== c.position.join() ||
-      a.stickers.some((s, k) => s.normal.join() !== c.stickers[k]!.normal.join())
+      a.position.join() !== h.position.join() ||
+      a.stickers.some((s, k) => s.normal.join() !== h.stickers[k]!.normal.join())
     return moved ? (subjects.includes(i) ? 'subject' : 'moved') : 'still'
   })
 }
@@ -85,44 +101,70 @@ export function markerPath(
 }
 
 /** A formula's arrows: the pick's (its marker sticker's way), or, with no
- *  pick, one for each subject it moves, on the step's side: its marker
- *  sticker's way if the step has one, when it comes to that side (the
- *  white brought up), else from that side's face to the same where it
- *  lands. */
+ *  pick, one for each subject it moves or turns in place: its marker
+ *  sticker's way if the step has one, else, on the step's side, from that
+ *  side's face (or the sticker brought to it) to the same where it lands,
+ *  else its first sticker's way. A formula starting by turning the whole
+ *  puzzle: its arrows read so held, drawn on the puzzle as it stands. */
 export function arrowsOf(
   cube: Cube,
   moves: readonly Turn[],
   step: TutorialStep,
   pick: TutorialPick | null,
 ): Arrow[] {
-  if (moves.length === 0) return []
-  if (pick) return [markerPath(cube, moves, pick.piece, step.marker)]
-  const side = step.side
-  if (!side) return []
-  const after = applyMoves(cube, moves)
-  return (step.subjects ?? []).flatMap((i) => {
-    if (cube[i]!.position.join() === after[i]!.position.join()) return []
-    if (step.marker) {
-      // Only the marker stickers brought to that side: the figure next.
-      const path = markerPath(cube, moves, i, step.marker)
-      return path.toNormal.join() === side.join() ? [path] : []
+  if (moves.length === 0 || turnsWhole(moves)) return []
+  const { lead, held, rest } = heldFor(cube, moves)
+  if (lead.length) {
+    const back = invertMoves(lead)
+    const dims = turnDims(cubeShape(cube))
+    const unturned = (position: Vec3, normal: Vec3) => {
+      const [probe] = applyMoves([{ position, stickers: [{ normal, color: 'W' }] }], back, dims)
+      return { position: probe!.position, normal: probe!.stickers[0]!.normal }
     }
-    return [
-      {
-        piece: i,
-        from: cube[i]!.position,
-        fromNormal: side,
-        to: after[i]!.position,
-        toNormal: side,
-      },
-    ]
+    return arrowsOf(held, rest, step, pick).map((a) => {
+      const from = unturned(a.from, a.fromNormal)
+      const to = unturned(a.to, a.toNormal)
+      return {
+        piece: a.piece,
+        from: from.position,
+        fromNormal: from.normal,
+        to: to.position,
+        toNormal: to.normal,
+      }
+    })
+  }
+  if (pick) return [markerPath(cube, moves, pick.piece, step.marker)]
+  const { side, marker } = step
+  const after = applyMoves(cube, moves)
+  const same = (a: readonly number[], b: readonly number[]) => a.join() === b.join()
+  return (step.subjects ?? []).flatMap((i): Arrow[] => {
+    const [c, a] = [cube[i]!, after[i]!]
+    const arrow = (fromNormal: Vec3, toNormal: Vec3): Arrow[] =>
+      // Turned round that face itself (no way to show it): none.
+      same(c.position, a.position) && same(fromNormal, toNormal)
+        ? []
+        : [{ piece: i, from: c.position, fromNormal, to: a.position, toNormal }]
+    const moved =
+      !same(c.position, a.position) ||
+      c.stickers.some((s, k) => !same(s.normal, a.stickers[k]!.normal))
+    if (!moved) return []
+    // Its marker sticker's way (the white brought up), or, with no side, its
+    // first sticker's.
+    if (marker || !side) {
+      const path = markerPath(cube, moves, i, marker)
+      return arrow(path.fromNormal, path.toNormal)
+    }
+    // On the side: from that face to the same where it lands; a piece not on
+    // it yet (brought there, or turned in place), from the sticker the
+    // formula brings to it.
+    const on = c.stickers.some((s) => same(s.normal, side))
+    if (on && !same(c.position, a.position)) return arrow(side, side)
+    const k = a.stickers.findIndex((s) => same(s.normal, side))
+    if (k >= 0) return arrow(c.stickers[k]!.normal, side)
+    const path = markerPath(cube, moves, i)
+    return arrow(path.fromNormal, path.toNormal)
   })
 }
-
-/** The subjects a formula moves with an arrow (the others it moves, the
- *  white taken off the top, are hatched as any piece moved). */
-export const arrowedSubjects = (cube: Cube, moves: readonly Turn[], step: TutorialStep) =>
-  arrowsOf(cube, moves, step, null).map((a) => a.piece)
 
 /** The subjects whose marker sticker a formula leaves on the step's side
  *  (the corners white up once it is played), by index. */

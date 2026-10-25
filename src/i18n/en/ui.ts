@@ -226,6 +226,13 @@ export const UI_EN: typeof UI_FR = {
       `Turn the cube a quarter turn **to the right**: the ${front} center **facing the lens**, ${up} **still on top**.`,
     belowMirrored: (front: string, up: string) =>
       `Turn the puzzle **to the right**: the ${front} center **facing the lens**, ${up} **still at the bottom**.`,
+    // A polyhedron's flat faces are never told by their colors: as below.
+    spin: () =>
+      'Turn the pyramid a third of a turn **to the left**, its top point **staying on top**.',
+    spinMirrored: () =>
+      'Turn the pyramid a third of a turn **to the right**, its top point **staying on top**.',
+    topple: () =>
+      'Show the bottom: tip the top point **backward**, the bottom face comes **to face the lens**.',
     // A puzzle out of shape names no color (`told` never): as below.
     // A puzzle read whole names no color either.
     anchored: () =>
@@ -261,15 +268,20 @@ export const UI_EN: typeof UI_FR = {
     tilt: 'Show the top: tilt the top of the puzzle **toward the lens**, the top face comes **to face the lens**.',
     flip: 'Turn the puzzle **half round**: the face at the back comes **to face the lens**.',
     show: 'Show the next face **to the lens**.',
+    spin: 'Turn the pyramid a third of a turn **to the left**, its top point **staying on top**.',
+    spinMirrored:
+      'Turn the pyramid a third of a turn **to the right**, its top point **staying on top**.',
+    topple:
+      'Show the bottom: tip the top point **backward**, the bottom face comes **to face the lens**.',
     anchored:
       'Hold the camera still in front of a large face of the puzzle, its middle piece **in the marked shape**, in a well-lit place.',
     upright:
       'Hold the camera still in front of the puzzle, its longest side **upright**, its middle small cubes **in the outlined cells**.',
   },
   scanAgain: 'The face to take again, as it was taken',
-  scanMissed: 'Cube not detected properly: take this face again, held as in the picture.',
+  scanMissed: 'Puzzle not detected properly: take this face again, held as in the picture.',
   scanChecking: 'Checking the face…',
-  scanReading: 'Reading the cube…',
+  scanReading: 'Reading the puzzle…',
   scanDenied: 'The camera could not be opened: allow it in the browser settings, then try again.',
   torchOn: 'Turn the light on',
   torchOff: 'Turn the light off',

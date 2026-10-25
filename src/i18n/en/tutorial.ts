@@ -8,6 +8,7 @@ import { CUBE2_EN } from './tutorials/cube2'
 import { CUBES_EN } from './tutorials/cubes'
 import { MORPH_EN } from './tutorials/morph'
 import { OFAPEL_EN } from './tutorials/ofapel'
+import { CROSS_CORNERS_EN } from './tutorials/crossCorners'
 import { PYRAMIDS_EN } from './tutorials/pyramids'
 import { PYRAMINX_EN } from './tutorials/pyraminx'
 import { SKEWB_EN } from './tutorials/skewb'
@@ -27,6 +28,7 @@ const TEXTS = mergeTexts([
   PYRAMINX_EN,
   MORPH_EN,
   OFAPEL_EN,
+  CROSS_CORNERS_EN,
   SKEWB_EN,
   GEAR_EN,
   TOWER_EN,
@@ -58,6 +60,8 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   facingFace: (color: string, down: string) =>
     `Hold the ${color} side facing you, the ${down} side down.`,
   holding: TEXTS.holding,
+  /** The hold's words, when the whole cube must turn for it: they turn it. */
+  turnTitle: 'Turn the whole cube to hold it so',
   facingTitle: 'Turn the view to face it',
   piece: (kind, colors) => `the ${colors.join('-')} ${PIECES_EN[kind] ?? 'piece'}`,
   labelled: (kind: string, label: string) => `${PIECES_EN[kind] ?? 'piece'} ${label}`.trim(),

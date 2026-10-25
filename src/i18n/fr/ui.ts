@@ -228,6 +228,14 @@ export const UI_FR = {
       `Tournez le cube d’un quart de tour **vers la droite** : le centre ${front} **face à l’objectif**, le ${up} **toujours en haut**.`,
     belowMirrored: (front: string, up: string) =>
       `Tournez le puzzle **vers la droite** : le centre ${front} **face à l’objectif**, le ${up} **toujours en bas**.`,
+    // A polyhedron's flat faces are never told by their colors (its
+    // centers move, or it has none): as below.
+    spin: () =>
+      'Tournez la pyramide d’un tiers de tour **vers la gauche**, la pointe du haut **restant en haut**.',
+    spinMirrored: () =>
+      'Tournez la pyramide d’un tiers de tour **vers la droite**, la pointe du haut **restant en haut**.',
+    topple: () =>
+      'Montrez le dessous : basculez la pointe du haut **en arrière**, la face du dessous vient **face à l’objectif**.',
     // A puzzle out of shape names no color (`told` never): as below.
     // A puzzle read whole names no color either.
     anchored: () =>
@@ -263,15 +271,20 @@ export const UI_FR = {
     tilt: 'Montrez le dessus : basculez le haut du puzzle **vers l’objectif**, la face du dessus vient **face à l’objectif**.',
     flip: 'Faites faire un **demi-tour** au puzzle : la face de derrière vient **face à l’objectif**.',
     show: 'Montrez la face suivante **à l’objectif**.',
+    spin: 'Tournez la pyramide d’un tiers de tour **vers la gauche**, la pointe du haut **restant en haut**.',
+    spinMirrored:
+      'Tournez la pyramide d’un tiers de tour **vers la droite**, la pointe du haut **restant en haut**.',
+    topple:
+      'Montrez le dessous : basculez la pointe du haut **en arrière**, la face du dessous vient **face à l’objectif**.',
     anchored:
       'Positionnez la caméra immobile devant une grande face du puzzle, sa pièce centrale **dans la forme marquée**, dans un endroit éclairé.',
     upright:
       'Positionnez la caméra immobile devant le puzzle, son côté le plus long **à la verticale**, ses petits cubes du milieu **dans les cases encadrées**.',
   },
   scanAgain: 'La face à reprendre, telle qu’elle a été prise',
-  scanMissed: 'Cube mal détecté : reprenez cette face, tenue comme sur la photo.',
+  scanMissed: 'Puzzle mal détecté : reprenez cette face, tenue comme sur la photo.',
   scanChecking: 'Vérification de la face…',
-  scanReading: 'Lecture du cube…',
+  scanReading: 'Lecture du puzzle…',
   scanDenied:
     'Impossible d’ouvrir l’appareil photo : autorisez-le dans les réglages du navigateur, puis réessayez.',
   torchOn: 'Allumer la lampe',

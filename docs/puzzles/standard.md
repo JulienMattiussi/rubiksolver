@@ -50,6 +50,32 @@ formules » de la page. Les étapes 1 à 5 lisent le cube remis debout une
 fois basculé, et une rotation du cube entier ne compte pas comme un
 dérangement (`keepsPlaced`). Environ 120 coups.
 
+**Le 3x3 croix puis coins** (son tutoriel,
+`lib/tutorials/standard/crossCorners.ts` et `crossCornersKit.ts`, d'où sa
+méthode) : toutes les arêtes, puis tous les coins, chaque étape par une
+seule formule jouée le cube tenu n'importe comment (une face en haut, une
+devant : 24 tenues). (1) La croix, celle du tutoriel débutant ; (2) les
+arêtes du milieu par `F U R U' R' F' U'` (échange les arêtes du haut
+devant et à gauche, retourne celle de droite ; deux fois de suite, retourne
+sur place les deux premières), le haut tourné à volonté ; (3) les arêtes du
+haut par la même formule, le haut en haut ; (4) les coins du bas dans leurs
+cases, tournés n'importe comment, par `L' F R F' L F R' F'` (trois coins de
+la face avant en cycle, aucune arête touchée) ; (5) ceux du haut par la
+même, tenue la face du haut devant soi (elle ne fait alors tourner que des
+coins du haut) ; (6) tous les coins tournés par `R U2 R' U' R U' R' L' U2 L
+U L' U L` (les deux coins du haut à droite, chacun dans son sens). Chaque
+pas joue la plus courte suite de ses tenues, cherchée sur le cube lu ses
+centres chez eux (`canonical`) et sur les seules places des stickers
+(`placeChain`, `solve/placeTable.ts`) ; la première se joue sur le cube tel
+qu'il est, en un seul pas : tourné d'abord (`x`, `z`) si une autre face
+doit monter, puis la formule, la bonne face devant ; la consigne de tenue,
+les flèches (sur la face où joue la formule) et les hachures se lisent
+depuis cette tenue. Le cube reste tourné, les étapes
+suivantes le lisent où il est. Une étape à but relatif (une arête du
+milieu de plus) ne passe que par des états qui n'en ont pas moins, d'abord
+dans leurs cases puis bien tournées : chaque formule rapproche, aucune ne
+fait reculer. Environ 200 coups.
+
 **Le 4x4 par réduction** (`src/lib/methods/standard/solver4/`) : repère absolu = `FACE_COLOR`
 (les centres d'une couleur étant indiscernables, le schéma standard est
 toujours constructible). (1) **Centres** : par comptage, pièce par pièce (D,

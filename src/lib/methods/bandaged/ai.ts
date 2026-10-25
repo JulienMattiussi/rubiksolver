@@ -7,12 +7,10 @@ import type { MethodPlan } from '../../solve/solverKit'
 import {
   centerRoute,
   inner,
-  keyOf,
   macroOf,
   MECHANISM,
   meet,
-  first,
-  PLACE,
+  placeAt,
   placeOf,
   standard,
   wide,
@@ -23,6 +21,7 @@ import { solveOptimal2 } from '../standard/cube2'
 import { colorsOf, withStickers } from '../../core/pieces'
 import { permutationIsOdd } from '../../solve/permutation'
 import { found, searchFormulas } from '../../solve/formulaSearch'
+import { firstSticker } from '../../solve/placeTable'
 
 /**
  * AI Cube, "méthode des Blocs", after fan2cube.fr (AIcube2): make it a
@@ -97,7 +96,7 @@ function wanted(cube: Cube): { home: Cubie; position: Vec3; normal: Vec3 }[] {
         sign(piece.position) !== sign(home.position)
       )
         continue
-      const f = first(piece)
+      const f = firstSticker(piece)
       out.push({ home: piece, position: turn(piece.position), normal: turn(f.normal) })
     }
   }
@@ -110,7 +109,7 @@ const atPlace = (cube: Cube, w: { home: Cubie; position: Vec3; normal: Vec3 }) =
     (c) =>
       !isBlock(c) && c.position.join() === w.position.join() && colorsOf(c) === colorsOf(w.home),
   )
-  return !!piece && first(piece).normal.join() === w.normal.join()
+  return !!piece && firstSticker(piece).normal.join() === w.normal.join()
 }
 
 const wingsDone = (cube: Cube) =>
@@ -153,7 +152,7 @@ function placeAll(kind: (c: Cubie) => boolean) {
     // an even permutation (3-cycles make no other).
     let assigned = kind === isWing ? undefined : evenAssignment(state, targets)
     for (const [index, w] of targets.entries()) {
-      const target = PLACE.get(keyOf(w.position, w.normal))!
+      const target = placeAt(w.position, w.normal)
       const cell = w.position.join()
       // Home already (a center: the one the assignment sends there).
       if (assigned ? assigned[index] === target : atPlace(state, w)) {
