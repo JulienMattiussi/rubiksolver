@@ -103,7 +103,11 @@ bascules et passe aux couleurs). Le Gear Cube se lit comme un 3x3 (ses
 agrafes sans couleur, le point d'une arête tombe sur son engrenage).
 L'Ultimate et l'Extreme (`scan: 'gears'`, `lib/editor/scan/gears.ts`)
 lisent chaque arête deux fois, sur son agrafe (son sticker) et sur son
-engrenage (sa partie), là où le dessin de la face les montre ; un
+engrenage (sa partie), là où le dessin de la face les montre ; une
+agrafe, un crochet fin bordé de blanc, noir dedans et autour, se lit sur
+toute sa zone : le noir écarté, le tiers le plus coloré du reste donne sa
+couleur, rien de coloré n'en ressortant d'une blanche (`FaceLayout.thin`,
+`sample.ts` ; mis au point sur des photos réelles, 2026-10-26) ; un
 engrenage montre la paire de ses agrafes dans un sens ou dans l'autre, le
 plus proche des deux. Les centres du dessus et du dessous de l'Extreme
 bougent : ses faces se montrent par les gestes, pas par leurs centres

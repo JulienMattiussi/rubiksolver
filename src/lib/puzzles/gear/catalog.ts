@@ -25,6 +25,8 @@ export const GEAR = {
     scheme: { F: 'E', R: 'V', L: 'R' },
     pad: 'gear',
     scanBefore: 'alignGears',
+    // Tried on the real one, 2026-10-26.
+    scanTried: true,
     editHint: 'gear',
   },
   gearX: {

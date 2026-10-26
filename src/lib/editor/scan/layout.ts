@@ -17,6 +17,10 @@ export interface FaceLayout {
   readonly points: readonly Point[]
   /** How far round each point it is read, each way. */
   readonly reach: number
+  /** Points where a thin piece shows round black (a Gear Cube's clips,
+   *  rimmed white): read wider (`reach`), as the most colored part of what
+   *  is not black (sample.ts). */
+  readonly thin?: { readonly points: readonly number[]; readonly reach: number }
   /** The frame's outline, and its lines in watermark. */
   readonly outline: readonly Point[]
   readonly lines: readonly (readonly [Point, Point])[]

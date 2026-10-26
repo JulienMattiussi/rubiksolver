@@ -45,8 +45,9 @@ const clamp = (v: number, size: number) => Math.min(size - 1, Math.max(0, v))
  *  order. */
 export function sampleFace(pixels: Pixels, layout: FaceLayout): CellSample[] {
   const scale = pixels.width / layout.width
-  const reach = layout.reach * scale
-  return layout.points.map(([px, py]) => {
+  return layout.points.map(([px, py], point) => {
+    const thin = layout.thin?.points.includes(point)
+    const reach = (thin ? layout.thin!.reach : layout.reach) * scale
     const labs: Lab[] = []
     for (let i = 0; i < READS; i++) {
       for (let j = 0; j < READS; j++) {
@@ -63,11 +64,31 @@ export function sampleFace(pixels: Pixels, layout: FaceLayout): CellSample[] {
         labs.push(labOf(pixels.data[k]!, pixels.data[k + 1]!, pixels.data[k + 2]!))
       }
     }
+    if (thin) return { lab: thinLab(labs) }
     const tinted = labs.filter(colored)
     if (tinted.length < COLORED * labs.length) return { lab: medianLab(labs) }
     tinted.sort((p, q) => Math.hypot(q[1], q[2]) - Math.hypot(p[1], p[2]))
     return { lab: medianLab(tinted.slice(0, Math.ceil(tinted.length / 2))) }
   })
+}
+
+/** How dark black plastic is, at most; the share of the rest a thin
+ *  piece's color is read on, the most colored. */
+const BLACK = 30
+const THIN_SHARE = 0.3
+
+/**
+ * A thin piece read round black (a Gear Cube's clip: a narrow bracket,
+ * rimmed white, black within and round it): what is not black is its rim
+ * and its color, so the most colored part of it is its color; nothing
+ * colored stands out of a white one. Real photos, 2026-10-26: colored
+ * clips read 22 to 54 in chroma, their hue right, white ones 6.
+ */
+function thinLab(labs: readonly Lab[]): Lab {
+  const lit = labs.filter((lab) => lab[0] >= BLACK)
+  if (!lit.length) return medianLab([...labs])
+  lit.sort((p, q) => Math.hypot(q[1], q[2]) - Math.hypot(p[1], p[2]))
+  return medianLab(lit.slice(0, Math.max(1, Math.round(lit.length * THIN_SHARE))))
 }
 
 /** Several pictures of one face merged, cell by cell (the steady seconds

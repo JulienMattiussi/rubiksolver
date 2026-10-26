@@ -93,7 +93,7 @@ Restent dehors les puzzles dont une information n'est pas une couleur
 déforment (Camouflage, Purple, Fashion-V, AI Cube), et le Tori (ses
 arêtes, de minces amandes au bord des faces).
 
-Seuls le 2x2, le 3x3 (et son miroir), le 4x4, la tour 2x2x4, le Skewb et l'Ivy Cube ont été essayés en vrai (`scanTried` sur
+Seuls le 2x2, le 3x3 (et son miroir), le 4x4, la tour 2x2x4, le Gear Cube Ultimate, le Skewb et l'Ivy Cube ont été essayés en vrai (`scanTried` sur
 leur carte) ; sur les autres, le bouton « Utiliser l'appareil photo » porte
 une fiole : « Cette fonction n'a pas encore été testée et validée sur ce
 modèle ».
@@ -111,7 +111,8 @@ sur Android).
    - par ses couleurs, quand les centres disent les faces (`told` : un 3x3,
      le Megaminx ; chaque face a un centre qu'aucun coup ne déplace, ce que
      ne sont pas ceux du dessus et du dessous du Gear Cube Extreme) : « le centre vert face à l'objectif, le blanc en haut »,
-     chaque couleur précédée de sa pastille (`ColorWords`) ;
+     chaque couleur précédée de sa pastille (`ColorWords`), le geste qui y
+     mène dessiné au-dessus (`ScanMoveArrow`) ;
    - sinon par un geste (un cube pair, un cuboïde, un Skewb dont les
      centres bougent, le Holey Megaminx) : n'importe quelle face de la forme
      du cadre d'abord, puis tourné vers la gauche, basculé vers l'objectif,

@@ -185,8 +185,9 @@ export function ScanView() {
                 again where it stands), only what it is. */}
             {face.told ? (
               <p>
-                {/* A mirror's faces, named, still come by a gesture. */}
-                {face.sized && !missed && <ScanMoveArrow face={face} mirrored={mirrored} />}
+                {/* Named by its colors, a face still comes by a gesture:
+                    the way to turn the puzzle drawn above the words. */}
+                {!missed && <ScanMoveArrow face={face} mirrored={mirrored} />}
                 <ColorWords
                   text={toldText(color(face.frontColor), color(face.upColor))}
                   colors={[face.frontColor, face.upColor].map((c) => ({

@@ -277,9 +277,11 @@ const scaled = ([x, y]: Point): Point => [x * 2, y * 2]
 export const GEAR = 'gear:'
 
 /** How far in from its side a gear and a clip show, in a face 3 cells
- *  wide (the drawing's centroids: 31 and 99 of 300). */
+ *  wide: the drawing's gear (31 of 300); a real Ultimate's clip, a bracket
+ *  round black, read on all of it (photos, 2026-10-26). */
 const GEAR_IN = 0.31
-const CLIP_IN = 0.99
+const CLIP_IN = 0.95
+const CLIP_REACH = 0.22
 
 /** The points of a grid face of a 3x3 with gears: each edge cell's clip,
  *  its gear's besides where it has one (`geared`, by cell). */
@@ -306,7 +308,8 @@ function gearLayout(grid: FaceLayout, geared: readonly boolean[]) {
     })
     if (!turn.includes(-1)) turns.push(turn)
   }
-  return { points: all, gears, turns }
+  const clips = [1, 3, 5, 7].filter((i) => geared[i])
+  return { points: all, gears, turns, thin: { points: clips, reach: CLIP_REACH } }
 }
 
 /** Whether the piece holding a sticker has a gear (a spin). */
@@ -325,11 +328,12 @@ function gearedCells(shape: CubeShape, cells: readonly string[]): boolean[] {
  *  each edge read on its clip and on its gear. */
 export function gearFaces(shape: CubeShape, order: typeof ORDER) {
   return gridFaces(shape, order).map((face) => {
-    const { points, gears, turns } = gearLayout(face, gearedCells(shape, face.cells))
+    const { points, gears, turns, thin } = gearLayout(face, gearedCells(shape, face.cells))
     return {
       ...face,
       points,
       turns,
+      thin,
       reach: GEAR_REACH,
       cells: [...face.cells, ...gears.map((i) => `${GEAR}${face.cells[i]!}`)],
       gears: true as const,
@@ -337,8 +341,7 @@ export function gearFaces(shape: CubeShape, order: typeof ORDER) {
   })
 }
 
-/** How far round its point a gear's or a clip's color is read (a clip is
- *  thin). */
+/** How far round its point a gear's color is read, or a corner's. */
 const GEAR_REACH = 0.06
 
 /** Cells across the frame of a face read whole, held still by them. */
