@@ -393,6 +393,18 @@ describe('editor store: a bandaged puzzle', () => {
   })
 })
 
+describe('editor store: a Gear Cube scanned', () => {
+  it('takes its gears lined up: its pivots at rest, its gears as read, on to its colors', () => {
+    useCube.getState().setShape('gearU')
+    const editor = () => useEditor.getState()
+    editor().enter()
+    expect(editor().phase).toBe('toggles')
+    editor().scanned(cubeToEdit(solvedCube('gearU')), undefined, { a: 'W' })
+    expect(editor()).toMatchObject({ phase: 'paint', toggles: {}, parts: { a: 'W' } })
+    editor().cancel()
+  })
+})
+
 describe('preferences kept between visits', () => {
   it('writes the notation and the speed chosen', () => {
     stubStorage()

@@ -9,6 +9,7 @@ import {
   stepOf,
   togglesAt,
   type EditStickers,
+  type Parts,
   type StepKind,
 } from '@/lib/editor/entry'
 import { nextPiece } from '@/lib/editor/modes/pieces'
@@ -29,7 +30,7 @@ import { tablesFor } from '@/lib/editor/editorTables'
 import { findFaces } from '@/workers/findFaces'
 import { validateCube, type ValidationError } from '@/lib/editor/validate'
 import type { Color, Cube, Vec3 } from '@/lib/core/types'
-import type { CubeShape } from '@/lib/core/shapes'
+import { SHAPE_SCAN_BEFORE, type CubeShape } from '@/lib/core/shapes'
 import { useCube } from './cubeStore'
 
 /** Shape of the cube being edited (the game's cube). */
@@ -104,7 +105,7 @@ interface EditorStore extends Settings {
   clearAll: () => void
   /** The colors a camera scan read (lib/editor/scan/), to check and apply,
    *  in the form it found a puzzle that changes shape in (no form to pick). */
-  scanned: (edit: EditStickers, form?: Cube) => void
+  scanned: (edit: EditStickers, form?: Cube, parts?: Parts) => void
   /** The colors entered come from a scan, not yet checked by eye (the
    *  panel asks to). */
   fromScan: boolean
@@ -329,18 +330,23 @@ export const useEditor = create<EditorStore>((set, get) => {
         fromScan: false,
       })),
 
-    scanned: (edit, form) => {
+    scanned: (edit, form, parts) => {
       // A bandaged puzzle's joints, from where its colors put its pieces
       // (its model fuses those that stand together): its colors next.
       const shape = currentShape()
       const joints = stepOf(shape, 'joints') ? jointsOf(buildCube(edit, shape, form)) : undefined
       // A Fashion-V's cuts, as its form found them (shown if one goes back).
       const cuts = form && stepOf(shape, 'cuts')?.cuts.of(form)
+      // Set as asked before the scan (a Gear Cube's gears lined up): its
+      // toggles at rest, its colors next.
+      const atRest = SHAPE_SCAN_BEFORE[shape] !== undefined
       set({
         edit,
         ...(form && { form, phase: 'paint' as const, preview: undefined }),
         ...(joints && { joints, phase: 'paint' as const }),
         ...(cuts && { cuts }),
+        ...(atRest && { toggles: {}, phase: 'paint' as const }),
+        ...(parts && { parts }),
         error: null,
         failedStep: null,
         fromScan: true,

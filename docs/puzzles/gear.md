@@ -97,6 +97,18 @@ refuse un engrenage qui n'a pas leurs couleurs), et les pose
 de travers (`gearsAligned` : pivot nul ou d'un demi-tour). Le décompte et la palette comptent aussi les faces des
 engrenages (le décompte des parties, `count`).
 
+**Scan** : la carte demande d'abord de réaligner les engrenages
+(`scanBefore: 'alignGears'`), leurs pivots alors au repos (le scan vide les
+bascules et passe aux couleurs). Le Gear Cube se lit comme un 3x3 (ses
+agrafes sans couleur, le point d'une arête tombe sur son engrenage).
+L'Ultimate et l'Extreme (`scan: 'gears'`, `lib/editor/scan/gears.ts`)
+lisent chaque arête deux fois, sur son agrafe (son sticker) et sur son
+engrenage (sa partie), là où le dessin de la face les montre ; un
+engrenage montre la paire de ses agrafes dans un sens ou dans l'autre, le
+plus proche des deux. Les centres du dessus et du dessous de l'Extreme
+bougent : ses faces se montrent par les gestes, pas par leurs centres
+(un centre ne dit sa face que si aucun coup ne le déplace).
+
 **Le Gear Cube** (`gearCube`) : la même mécanique, agrafes sans couleur
 (noires) et couleurs standard. Seul l'engrenage se voit : des agrafes
 retournées d'un demi-tour, l'engrenage d'un demi-tour en arrière dessus,

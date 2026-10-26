@@ -9,13 +9,14 @@ import {
 } from '../../core/shapes'
 import type { Color, Cube, CubeColor, Face, Vec3 } from '../../core/types'
 import { MODELS } from '../../puzzles/models'
-import type { SlotTables } from '../editorTables'
+import { tablesFor, type SlotTables } from '../editorTables'
 import type { FaceLayout, Point } from './layout'
 import type { OutlineScan } from './outlines'
 import {
   boxFaces,
   centeredFaces,
   flatFaces,
+  gearFaces,
   halvesFaces,
   gridFaces,
   ringFaces,
@@ -110,6 +111,9 @@ export interface ScanFace extends FaceLayout {
    *  (`PuzzleModel.scan: 'centered'`): its cuts drawn from its center's
    *  cell, no outline, its cells read where a grid's are. */
   readonly centered?: true
+  /** A Gear Cube's face, its gears read besides its clips (gears.ts):
+   *  its gears' cells after its stickers'. */
+  readonly gears?: true
   /** A face of a puzzle whose cells hold halves (a Fashion-V's), taken
    *  as 6 x 6 sub-cells (halves.ts): its `cells` name them only. */
   readonly halves?: true
@@ -263,19 +267,36 @@ export function scanPlan(
           ? wholeFaces(shape, own)
           : own === 'centered'
             ? centeredFaces(shape, order)
-            : own === 'halves'
-              ? halvesFaces(shape, order)
-              : own === 'square'
-                ? squareFaces(shape, order)
-                : own === 'forms'
-                  ? boxFaces(shape, order)
-                  : rings
-                    ? ringFaces(shape, rings)
-                    : gridFaces(shape, order)
+            : own === 'gears'
+              ? gearFaces(shape, order)
+              : own === 'halves'
+                ? halvesFaces(shape, order)
+                : own === 'square'
+                  ? squareFaces(shape, order)
+                  : own === 'forms'
+                    ? boxFaces(shape, order)
+                    : rings
+                      ? ringFaces(shape, rings)
+                      : gridFaces(shape, order)
     // Centers tell the faces only if every face has one, where they stay
-    // (not a Skewb's, which move about, nor a pyramid's).
+    // (not a Skewb's, which move about, nor a pyramid's, nor a Gear Cube
+    // Extreme's top and bottom ones, which its slices take away): pieces no
+    // turn moves (the editor's, never painted).
+    const fixed = new Set(
+      tablesFor(shape)
+        .slots.filter((s) => !s.paintable)
+        .flatMap((s) => s.stickers.map((st) => st.id)),
+    )
     const told =
-      !flat && own !== 'square' && own !== 'forms' && faces.every((face) => face.center !== null)
+      !flat &&
+      own !== 'square' &&
+      own !== 'forms' &&
+      faces.every(
+        (face) =>
+          face.center !== null &&
+          // (A Fashion-V's cells are its faces' sub-cells: its centers stay.)
+          (face.halves || fixed.has(face.cells[face.center]!)),
+      )
     // A puzzle read by its outlines names no color (its colors only tell
     // its pieces apart, all silver).
     const named =

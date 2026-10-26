@@ -33,10 +33,12 @@ const sampleGrid = (pixels: Pixels, rows: number, cols: number) =>
  *  (the towers) apart. */
 const SCANNABLE = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter((s) => scannable(s))
 // Read from their cells (not a face out of shape, nor one read whole).
-// (halves.test.ts reads those whose cells hold halves.)
-const SCANNED = SCANNABLE.filter(
-  (shape) => !scanPlan(shape)[0]?.open && !scanPlan(shape)[0]?.whole && !scanPlan(shape)[0]?.halves,
-)
+// (halves.test.ts reads those whose cells hold halves, gears.test.ts the
+// Gear Cubes whose gears are read apart.)
+const SCANNED = SCANNABLE.filter((shape) => {
+  const first = scanPlan(shape)[0]
+  return !first?.open && !first?.whole && !first?.halves && !first?.gears
+})
 const OUT_OF_SHAPE = SCANNABLE.filter((shape) => scanPlan(shape)[0]?.open)
 
 describe('scan plan', () => {
@@ -447,9 +449,18 @@ describe('reading a scan', () => {
   // Only, the Dino, the Rex: then a face is asked again), and the
   // 4-Trajber's, whose pieces each show one sticker only (none tells how a
   // face was held), and the FTO's, whose centers do, and the Rainbow's,
-  // scanned by its squares, each piece seen by two stickers only: held as
-  // told, they read back above.
-  const FEW_EDGES: readonly CubeShape[] = ['edge', 'dino', 'rex', 'oct4', 'fto', 'rainbow']
+  // scanned by its squares, each piece seen by two stickers only, and the
+  // plain Gear Cube's, whose edges' clips bear no color (an edge reads the
+  // same either way round): held as told, they read back above.
+  const FEW_EDGES: readonly CubeShape[] = [
+    'edge',
+    'dino',
+    'rex',
+    'oct4',
+    'fto',
+    'rainbow',
+    'gearCube',
+  ]
   const CUBES = SCANNED.filter(
     (shape) => new Set(SHAPE_DIMS[shape]).size === 1 && !FEW_EDGES.includes(shape),
   )

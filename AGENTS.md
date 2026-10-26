@@ -144,7 +144,7 @@ src/
 │   │                    #   colors, pieces), scan/ (la saisie à l'appareil photo, docs/scan.md : plan (les faces dans l'ordre,
 │   │                    #   `PuzzleModel.scan`) et planFaces (chacune bâtie), layout (grille, anneau, carré, polygone), frame, color, sample, capture,
 │   │                    #   anchors (les couleurs), orient (les faces tenues tournées), assign et classify (la lecture),
-│   │                    #   read (le point d'entrée), box et forms (les tours), halves (le Fashion-V, ses demi-cubies), outlines (le Floppy Ghost), sized et
+│   │                    #   read (le point d'entrée), box et forms (les tours), halves (le Fashion-V, ses demi-cubies), gears (les Gear Cubes, leurs engrenages), outlines (le Floppy Ghost), sized et
 │   │                    #   sizedRead (le miroir))
 │   ├── teach/           # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
 │   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), stages (sortes d'étapes et leurs

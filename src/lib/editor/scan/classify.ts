@@ -1,5 +1,5 @@
 import { emptyEdit } from '../edit'
-import type { EditStickers } from '../entry'
+import type { EditStickers, Parts } from '../entry'
 import { anchorsOf } from './anchors'
 import { cheapestAssignment } from './assign'
 import { distance, type Lab } from './color'
@@ -27,7 +27,13 @@ const NEVER = 1e6
 const FORCED = 25
 
 export type ScanReading =
-  | { readonly ok: true; readonly edit: EditStickers; readonly form?: Cube }
+  | {
+      readonly ok: true
+      readonly edit: EditStickers
+      readonly form?: Cube
+      /** Parts read apart from the stickers (a Gear Cube's gears). */
+      readonly parts?: Parts
+    }
   | { readonly ok: false; readonly face: number }
 
 /** A scan read against its plan and tables (one form of a puzzle that

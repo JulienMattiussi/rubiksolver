@@ -54,13 +54,15 @@ export interface PuzzleModel {
    *  picture, by its pieces' outlines (the Floppy Ghost, all silver); or
    *  by its flat faces, each where its drawing shows its stickers (`flat`:
    *  the pyramids); or its faces in 6 x 6, its cells' halves found from
-   *  their colors (`halves`: the Fashion-V). */
+   *  their colors (`halves`: the Fashion-V); or as a 3x3, its edges read
+   *  on their clips and their gears (`gears`: the Gear Cube Ultimate). */
   readonly scan?:
     | 'grid'
     | 'centered'
     | 'square'
     | 'forms'
     | 'halves'
+    | 'gears'
     | ((behind: boolean) => readonly RingFace[])
     | OutlineScan
     | FlatScan

@@ -10,6 +10,7 @@ export const GEAR = {
     dims: [3, 3, 3],
     scramble: 20,
     pad: 'gear',
+    scanBefore: 'alignGears',
     editHint: 'gearPlain',
   },
   // Violet in place of red, red in place of orange, dark green.
@@ -23,6 +24,7 @@ export const GEAR = {
     scramble: 20,
     scheme: { F: 'E', R: 'V', L: 'R' },
     pad: 'gear',
+    scanBefore: 'alignGears',
     editHint: 'gear',
   },
   gearX: {
@@ -33,6 +35,7 @@ export const GEAR = {
     dims: [3, 3, 3],
     scramble: 25,
     pad: 'gear',
+    scanBefore: 'alignGears',
     editHint: 'gear',
   },
 } satisfies Record<string, PuzzleEntry>

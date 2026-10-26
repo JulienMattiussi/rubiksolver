@@ -8,6 +8,9 @@ import { gearEntry } from './gearEntry'
 
 /** A 3x3 in its own colors, its edges gears. */
 const gears = (shape: CubeShape, wholeSlices: boolean): PuzzleModel => ({
+  // Scanned its gears lined up (its card's `scanBefore`): as a 3x3, its
+  // edges read on their gears; on their clips too when these bear colors.
+  scan: hasColoredClips(shape) ? 'gears' : 'grid',
   guide: () => gearGuide(shape, plainFaces(shape)),
   solved: () => {
     const colors = faceColorsOf(shape)

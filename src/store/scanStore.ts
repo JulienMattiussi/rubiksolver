@@ -150,7 +150,7 @@ export const useScan = create<ScanStore>((set, get) => {
   const done = (reading: ScanReading) => {
     const faces = get().faces
     if (reading.ok) {
-      useEditor.getState().scanned(reading.edit, reading.form)
+      useEditor.getState().scanned(reading.edit, reading.form, reading.parts)
       get().close()
       return
     }

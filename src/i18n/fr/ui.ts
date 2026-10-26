@@ -211,6 +211,11 @@ export const UI_FR = {
     centerMarks:
       'L’appareil photo ne voit pas le repère des centres : placez chacun comme sur votre puzzle, un clic sur un centre le fait tourner.',
   },
+  /** What to do before a scan (by `ScanBefore`). */
+  scanBefore: {
+    alignGears:
+      'Avant le scan, réalignez les engrenages : chacun à plat sur son arête, dans le prolongement des faces.',
+  },
   scanTake: 'Scanner la face',
   scanTakeHint: 'Positionnez le puzzle dans le cadre, puis touchez le bouton pour scanner la face.',
   /** The first face of a puzzle framed round its center (a Windmill's). */

@@ -31,6 +31,10 @@ export type PadKind =
 /** What a camera scan cannot see (see `PuzzleEntry.scanUnseen`). */
 export type ScanUnseen = 'sideCenters' | 'centerMarks'
 
+/** What to do to the puzzle before a camera scan (see
+ *  `PuzzleEntry.scanBefore`). */
+export type ScanBefore = 'alignGears'
+
 /** The hint the editor gives, when not the usual one (EditPanel.tsx). */
 export type EditHint = 'twist' | 'camo' | 'roadblock' | 'quarter' | 'gear' | 'gearPlain'
 
@@ -65,6 +69,9 @@ export interface PuzzleEntry {
    *  Quarter Cube's centers' marks): the
    *  editor asks to check it after a scan. */
   readonly scanUnseen?: ScanUnseen
+  /** What to do to it before a scan, which then takes it so (a Gear
+   *  Cube's gears lined up: their pivots at rest, `toggles` cleared). */
+  readonly scanBefore?: ScanBefore
   /** Its mirror scanned by the sizes of its stickers (lib/editor/scan/
    *  sizedRead.ts: the 3x3's), its faces named by their thickness. */
   readonly mirrorScan?: true

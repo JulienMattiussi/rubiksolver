@@ -89,9 +89,10 @@ function StepPanel({ step }: { step: EntryStep }) {
   const { hint, accept, error: refused } = stepTexts(t, step)
   return (
     <PhasePanel
-      // Its joints or its cuts found by the scan, from its colors, rather
-      // than clicked.
-      top={step.kind === 'joints' || step.kind === 'cuts' ? <ScanButton /> : undefined}
+      // What the step sets found by the scan, rather than clicked: its
+      // joints or its cuts from its colors, its toggles at rest as asked
+      // first (a Gear Cube's gears lined up). None where it cannot scan.
+      top={<ScanButton />}
       hint={hint}
       counter={
         step.kind === 'joints' ? (

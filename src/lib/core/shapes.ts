@@ -6,7 +6,14 @@
  */
 
 import { CATALOG, CATEGORY_OF } from '../puzzles/catalog'
-import type { EditHint, MoveFamily, PadKind, PuzzleEntry, ScanUnseen } from '../puzzles/entry'
+import type {
+  EditHint,
+  MoveFamily,
+  PadKind,
+  PuzzleEntry,
+  ScanBefore,
+  ScanUnseen,
+} from '../puzzles/entry'
 import type { Color, Dims, Face } from './types'
 
 /** The puzzles the app can build, by id (also the picker's option values):
@@ -139,6 +146,11 @@ export const SHAPE_SCAN_TRIED: Record<CubeShape, boolean> = each((e) => e.scanTr
 /** What each shape's camera scan cannot see, to check after it. */
 export const SHAPE_SCAN_UNSEEN: Record<CubeShape, ScanUnseen | undefined> = each(
   (e) => e.scanUnseen,
+)
+
+/** What to do to each shape before its camera scan. */
+export const SHAPE_SCAN_BEFORE: Record<CubeShape, ScanBefore | undefined> = each(
+  (e) => e.scanBefore,
 )
 
 /** Shapes whose mirror scans by its stickers' sizes (sizedRead.ts). */

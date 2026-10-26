@@ -208,6 +208,10 @@ export const UI_EN: typeof UI_FR = {
     centerMarks:
       'The camera cannot see the centers’ marks: set each one as on your puzzle, a click on a center turns it.',
   },
+  scanBefore: {
+    alignGears:
+      'Before the scan, line the gears up: each flat on its edge, in line with the faces.',
+  },
   scanTake: 'Scan the face',
   scanTakeHint: 'Place the puzzle in the frame, then tap the button to scan the face.',
   scanFirstCentered: (front: string, up: string) =>

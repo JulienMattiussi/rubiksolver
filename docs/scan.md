@@ -7,7 +7,7 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 
 ## Les puzzles scannables
 
-`scannable` (`lib/editor/scan/plan.ts`) : 57 modèles sur 76, et le 3x3 miroir.
+`scannable` (`lib/editor/scan/plan.ts`) : 60 modèles sur 76, et le 3x3 miroir.
 
 - **En grille**, tout se déduit des dimensions (`scanPlan`) : les cubes du
   2x2 au 6x6, les cuboïdes et les plats sans saisie propre (1x2x3, Floppy,
@@ -75,6 +75,10 @@ HTTPS : on l'essaie sur un déploiement Vercel.
   déforment. Elles se scannent comme la boîte où tourne leur mécanisme, et
   le scan trouve leur forme : plus besoin de la choisir parmi les
   vignettes (voir « La forme d'une tour » plus bas).
+- **Par ses engrenages** : les Gear Cubes, leurs engrenages réalignés
+  d'abord (`scanBefore` sur leur carte, rappelé sous le bouton) ;
+  l'Ultimate et l'Extreme lus aussi sur leurs engrenages (`scan: 'gears'`,
+  `gears.ts` ; voir [puzzles/gear.md](puzzles/gear.md)).
 - **Par ses moitiés** (`scan: 'halves'`, `halves.ts`) : le Fashion-V,
   chaque face en 6 x 6 pour voir ses demi-cubies, sa forme déduite de ses
   couleurs (voir [puzzles/twisted.md](puzzles/twisted.md)).
@@ -105,7 +109,8 @@ sur Android).
    puis glisse à sa place en haut, où tenir le puzzle en gras (« **face à
    l'objectif** », « **en haut** »). Elle dit la face à montrer :
    - par ses couleurs, quand les centres disent les faces (`told` : un 3x3,
-     le Megaminx) : « le centre vert face à l'objectif, le blanc en haut »,
+     le Megaminx ; chaque face a un centre qu'aucun coup ne déplace, ce que
+     ne sont pas ceux du dessus et du dessous du Gear Cube Extreme) : « le centre vert face à l'objectif, le blanc en haut »,
      chaque couleur précédée de sa pastille (`ColorWords`) ;
    - sinon par un geste (un cube pair, un cuboïde, un Skewb dont les
      centres bougent, le Holey Megaminx) : n'importe quelle face de la forme
