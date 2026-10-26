@@ -96,8 +96,8 @@ On a phone or a laptop, **scan** the puzzle instead: show it face by face, as th
 instructions say (where to turn it, with an arrow), and each face is taken on its own
 once it is still in the frame. The whole puzzle is then read at once, its colors
 matched to real pieces, and painted in the editor, to check and correct before
-validating. 56 of the 76 puzzles scan: the cubes from 2x2 to 6x6 and the cuboids, the
-Megaminx and the other dodecahedra, the pyramids, the octahedra, the Rainbow, the star prisms, the Latch and Quarter cubes, the bandaged 3x3s (their bonds found from their colors), the diagonal cubes (Skewb, Ivy Cube, Dino, Rex...), the 2x2x4 and 2x3x4 towers, whose
+validating. 57 of the 76 puzzles scan: the cubes from 2x2 to 6x6 and the cuboids, the
+Megaminx and the other dodecahedra, the pyramids, the octahedra, the Rainbow, the star prisms, the Latch and Quarter cubes, the bandaged 3x3s (their bonds found from their colors), the Fashion-V (its halves too), the diagonal cubes (Skewb, Ivy Cube, Dino, Rex...), the 2x2x4 and 2x3x4 towers, whose
 shape the scan finds by itself, the all-silver Floppy Ghost, read from one picture by
 the outlines of its pieces, and the 3x3 mirror, read by the sizes of its stickers.
 Everything stays in the browser: no picture leaves the device.

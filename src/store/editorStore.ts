@@ -334,10 +334,13 @@ export const useEditor = create<EditorStore>((set, get) => {
       // (its model fuses those that stand together): its colors next.
       const shape = currentShape()
       const joints = stepOf(shape, 'joints') ? jointsOf(buildCube(edit, shape, form)) : undefined
+      // A Fashion-V's cuts, as its form found them (shown if one goes back).
+      const cuts = form && stepOf(shape, 'cuts')?.cuts.of(form)
       set({
         edit,
         ...(form && { form, phase: 'paint' as const, preview: undefined }),
         ...(joints && { joints, phase: 'paint' as const }),
+        ...(cuts && { cuts }),
         error: null,
         failedStep: null,
         fromScan: true,

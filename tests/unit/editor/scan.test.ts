@@ -33,7 +33,10 @@ const sampleGrid = (pixels: Pixels, rows: number, cols: number) =>
  *  (the towers) apart. */
 const SCANNABLE = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter((s) => scannable(s))
 // Read from their cells (not a face out of shape, nor one read whole).
-const SCANNED = SCANNABLE.filter((shape) => !scanPlan(shape)[0]?.open && !scanPlan(shape)[0]?.whole)
+// (halves.test.ts reads those whose cells hold halves.)
+const SCANNED = SCANNABLE.filter(
+  (shape) => !scanPlan(shape)[0]?.open && !scanPlan(shape)[0]?.whole && !scanPlan(shape)[0]?.halves,
+)
 const OUT_OF_SHAPE = SCANNABLE.filter((shape) => scanPlan(shape)[0]?.open)
 
 describe('scan plan', () => {

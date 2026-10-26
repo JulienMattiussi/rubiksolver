@@ -198,6 +198,18 @@ l'autre, ou une arête pleine de l'équateur, quatre en tout), puis la
 recherche de forme en trouve un état (aucun : la saisie le dit), sur lequel
 on peint les couleurs ; « Modifier » part de l'état où il se trouve.
 
+**Scan** (`scan: 'halves'`, `lib/editor/scan/halves.ts`), proposé dès
+l'étape des demi-cubies : chaque face en 6 x 6, chaque case de son 3 x 3
+en 2 x 2 (une moitié remplit la part de sa case de son côté de la coupe),
+les centres disant les faces, comme un 3x3. Chaque façon dont une case
+peut tenir ses pièces fait des pièces des couleurs lues, qu'une vraie
+pièce de même rôle (moitié extérieure, intérieure, ou pièce entière)
+montre ou non : deux moitiés d'une même couleur se trahissent par leurs
+autres faces (vert et blanc n'est jamais une arête pleine, vert et rouge
+en est une). La moins chère de chaque case, la moins chère ensemble que la
+recherche de forme accepte, donne la forme, lue ensuite comme celle d'une
+tour (`classify.ts`) ; l'étape des demi-cubies reprend ses coupes.
+
 **Rendu** (`three/puzzles/twisted/fashionGeometry.ts`) : le cube qu'il reste,
 chaque demi-pièce moitié moins épaisse le long de son axe fin (la verticale
 qu'elle avait résolue, tournée avec elle : celui où regarde sa couleur du

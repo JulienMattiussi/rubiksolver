@@ -246,6 +246,32 @@ export function boxSides(dims: Dims, front: Face, up: Face): [number, number] {
   return [dims[axisOf(u)]!, dims[axisOf(r)]!]
 }
 
+/** A puzzle whose cells hold halves (halves.ts): each face its 3 x 3
+ *  cells drawn, each read as 2 x 2 sub-cells; its center telling it, held
+ *  as told (no turn). */
+export function halvesFaces(shape: CubeShape, order: typeof ORDER) {
+  const colors = faceColorsOf(shape)
+  const grid = gridLayout(HALVES, HALVES)
+  const cells = gridLayout(3, 3)
+  return order.map(({ front, up, move }) => ({
+    ...grid,
+    lines: cells.lines.map(([a, b]) => [scaled(a), scaled(b)] as const),
+    turns: [grid.points.map((_, i) => i)],
+    move,
+    angle: GRID_ANGLES[move] ?? null,
+    frontColor: colors[front],
+    upColor: colors[up],
+    cells: grid.points.map((_, i) => `${front}${i}`),
+    // The top left of its middle four.
+    center: (HALVES / 2 - 1) * HALVES + HALVES / 2 - 1,
+    halves: true as const,
+  }))
+}
+
+/** Sub-cells across a face read by halves; a cell's point in them. */
+export const HALVES = 6
+const scaled = ([x, y]: Point): Point => [x * 2, y * 2]
+
 /** Cells across the frame of a face read whole, held still by them. */
 const WHOLE_CELLS = 5
 

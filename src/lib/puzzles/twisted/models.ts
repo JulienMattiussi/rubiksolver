@@ -71,6 +71,8 @@ export const TWISTED_MODELS = {
   // A thin layer alone only when its half is laid (fashion.ts).
   fashion: {
     turnAllowed: fashionTurns,
+    // Its faces in 6 x 6, its halves found from their colors (halves.ts).
+    scan: 'halves',
     scramble: (length, rng, start) => scrambleFashion(length, rng, start),
     format: (move, labels) => formatFashionMove(move, labels),
     describe: (turn) => describeFashionMove(turn as Move),

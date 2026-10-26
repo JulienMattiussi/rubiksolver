@@ -7,7 +7,7 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 
 ## Les puzzles scannables
 
-`scannable` (`lib/editor/scan/plan.ts`) : 56 modèles sur 76, et le 3x3 miroir.
+`scannable` (`lib/editor/scan/plan.ts`) : 57 modèles sur 76, et le 3x3 miroir.
 
 - **En grille**, tout se déduit des dimensions (`scanPlan`) : les cubes du
   2x2 au 6x6, les cuboïdes et les plats sans saisie propre (1x2x3, Floppy,
@@ -75,6 +75,9 @@ HTTPS : on l'essaie sur un déploiement Vercel.
   déforment. Elles se scannent comme la boîte où tourne leur mécanisme, et
   le scan trouve leur forme : plus besoin de la choisir parmi les
   vignettes (voir « La forme d'une tour » plus bas).
+- **Par ses moitiés** (`scan: 'halves'`, `halves.ts`) : le Fashion-V,
+  chaque face en 6 x 6 pour voir ses demi-cubies, sa forme déduite de ses
+  couleurs (voir [puzzles/twisted.md](puzzles/twisted.md)).
 - **Par ses contours** (`scan` : un `OutlineScan`, `outlines.ts`) : le
   Floppy Ghost, tout argenté, lu d'une seule photo (voir « Par les
   contours » plus bas).

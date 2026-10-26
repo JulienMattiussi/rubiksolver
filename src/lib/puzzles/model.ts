@@ -53,12 +53,14 @@ export interface PuzzleModel {
    *  by face, each a ring round its center (the Megaminx); or from one
    *  picture, by its pieces' outlines (the Floppy Ghost, all silver); or
    *  by its flat faces, each where its drawing shows its stickers (`flat`:
-   *  the pyramids). */
+   *  the pyramids); or its faces in 6 x 6, its cells' halves found from
+   *  their colors (`halves`: the Fashion-V). */
   readonly scan?:
     | 'grid'
     | 'centered'
     | 'square'
     | 'forms'
+    | 'halves'
     | ((behind: boolean) => readonly RingFace[])
     | OutlineScan
     | FlatScan

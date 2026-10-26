@@ -37,7 +37,14 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }:
   const at = ([x, y]: Point): Point => [(mirrored ? face.width - x : x) * unit, y * unit]
   const stroke = holding ? 'stroke-emerald-400' : 'stroke-white/90'
   const points = (ps: readonly Point[]) => ps.map((p) => at(p).join(',')).join(' ')
-  const marked = (face.center !== null ? [face.center] : (core ?? [])).flatMap((i) => {
+  // A face read by halves: its center fills the middle four sub-cells.
+  const middle = (face.width / 2 - 1) * face.width + face.width / 2 - 1
+  const centers = face.halves
+    ? [middle, middle + 1, middle + face.width, middle + face.width + 1]
+    : face.center !== null
+      ? [face.center]
+      : (core ?? [])
+  const marked = centers.flatMap((i) => {
     const point = face.points[i]
     return point ? [at(point)] : []
   })

@@ -16,6 +16,7 @@ import {
   boxFaces,
   centeredFaces,
   flatFaces,
+  halvesFaces,
   gridFaces,
   ringFaces,
   sizedFaces,
@@ -109,6 +110,9 @@ export interface ScanFace extends FaceLayout {
    *  (`PuzzleModel.scan: 'centered'`): its cuts drawn from its center's
    *  cell, no outline, its cells read where a grid's are. */
   readonly centered?: true
+  /** A face of a puzzle whose cells hold halves (a Fashion-V's), taken
+   *  as 6 x 6 sub-cells (halves.ts): its `cells` name them only. */
+  readonly halves?: true
   /** A mirror cube's face, read by the sizes of its stickers (sized.ts),
    *  named by its thickness: its picture kept whole, its center in `mark`. */
   readonly sized?: true
@@ -259,13 +263,15 @@ export function scanPlan(
           ? wholeFaces(shape, own)
           : own === 'centered'
             ? centeredFaces(shape, order)
-            : own === 'square'
-              ? squareFaces(shape, order)
-              : own === 'forms'
-                ? boxFaces(shape, order)
-                : rings
-                  ? ringFaces(shape, rings)
-                  : gridFaces(shape, order)
+            : own === 'halves'
+              ? halvesFaces(shape, order)
+              : own === 'square'
+                ? squareFaces(shape, order)
+                : own === 'forms'
+                  ? boxFaces(shape, order)
+                  : rings
+                    ? ringFaces(shape, rings)
+                    : gridFaces(shape, order)
     // Centers tell the faces only if every face has one, where they stay
     // (not a Skewb's, which move about, nor a pyramid's).
     const told =

@@ -2,6 +2,7 @@ import { tablesFor } from '../editorTables'
 import type { CubeShape } from '../../core/shapes'
 import { readFaces, type ScanReading } from './classify'
 import { cubeToEdit } from '../edit'
+import { readHalves } from './halves'
 import { readForms } from './forms'
 import { readOutlines, type Picture } from './outlines'
 import { scanPlan } from './plan'
@@ -26,6 +27,7 @@ export function readScan(
     const read = pictures[0] && readOutlines(whole, pictures[0])
     return read?.ok ? { ok: true, edit: cubeToEdit(read.cube) } : { ok: false, face: 0 }
   }
+  if (plan[0]?.halves) return readHalves(shape, taken, behind)
   return plan[0]?.open
     ? readForms(shape, taken, behind)
     : readFaces({ shape, plan, tables: tablesFor(shape) }, taken).reading
