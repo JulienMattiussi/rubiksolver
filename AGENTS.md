@@ -154,7 +154,8 @@ src/
 │   │                    #   macros (la plus courte chaîne de gestes appris vers un but, jouée par une étape :
 │   │                    #   eachHold, gestureChain, chainFigure, chainedPieces ; asGestures : les formules
 │   │                    #   d'une méthode déclinées en gestes), method (la méthode
-│   │                    #   qu'un tutoriel enseigne, en MethodPlan)
+│   │                    #   qu'un tutoriel enseigne, en MethodPlan), example (une formule de
+│   │                    #   l'aide-mémoire montrée sur le puzzle résolu qu'elle défait)
 │   ├── tutorials/       # Les tutoriels : registry (par forme, un par méthode), un dossier par catégorie :
 │   │                    #   standard/cube3 et cube3LastLayer (le 3x3), cube2 (le 2x2), cornerTrigger (ce que
 │   │                    #   partagent les cubes : coins jaunes, tour du haut, formule lue dans une tenue),
@@ -189,7 +190,8 @@ src/
 │                        #   solve/ (SolveArea : la résolution ou le tutoriel), tutorial/, home/, celebration/
 ├── store/               # Zustand : cubeStore (cube, file de coups, solution), editorStore, savedStore,
 │                        #   viewStore, router, scanStore (le scan, face par face), tutorialStore (pick, formules jouées, coups à la main, arrêt),
-│                        #   tutorialTrack (étapes montrées, 💪 et fin, coups déjà montrés)
+│                        #   tutorialTrack (étapes montrées, 💪 et fin, coups déjà montrés),
+│                        #   exampleStore (la formule de l'aide-mémoire montrée par-dessus le cube)
 ├── hooks/               # useAutoPlan (solution dans le worker), useCamera, useFaceReading et usePreloadStickers (le scan), useIsDesktop,
 │                        #   useSolveShortcuts, useTutorial
 ├── i18n/                # fr/ et en/ (ui, methods, steps, moveSentences : phrases longues du guide et

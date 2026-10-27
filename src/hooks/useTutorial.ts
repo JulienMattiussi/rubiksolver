@@ -19,6 +19,7 @@ import { tutorialFor } from '@/lib/tutorials/registry'
 import { selectBusy, useCube } from '@/store/cubeStore'
 import { useTutorialStore } from '@/store/tutorialStore'
 import { useTutorialTrack } from '@/store/tutorialTrack'
+import { useExample } from '@/store/exampleStore'
 
 export interface TutorialView {
   /** The state the step reads: the cube's, or, looking at a formula just
@@ -229,5 +230,27 @@ export function useTutorial(): TutorialView {
     shown,
     tones,
     click,
+  }
+}
+
+/** The tutorial as the scene shows it: the reminder's formula on its
+ *  example while one is shown (its pieces' tones and arrows, nothing to
+ *  click), else as it stands on the cube (`useTutorial`). */
+export function useTutorialShown(): TutorialView {
+  const live = useTutorial()
+  const example = useExample((s) => s.example)
+  const busy = useCube(selectBusy)
+  if (!example || !live.tutorial) return live
+  const { cube, moves, step } = example
+  return {
+    ...OFF,
+    cube,
+    frame: live.frame,
+    stages: live.stages,
+    tutorial: live.tutorial,
+    step,
+    hold: step.hold(null),
+    moves: [...moves],
+    tones: busy ? null : tonesOf(cube, moves, null, [], [], step.subjects),
   }
 }

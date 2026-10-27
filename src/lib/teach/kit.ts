@@ -100,7 +100,13 @@ const keyOf = (stage?: { key: string } | ProjectedStage) =>
 /** A stage's formulas, each sequence whole. */
 function recapOf(stage: PieceStage | FigureStage | ProjectedStage): RecapStage {
   const own = 'inner' in stage ? stage.inner : stage
-  return { key: own.key, formulas: (own.algorithms ?? []).map((sequence) => sequence.flat()) }
+  const side = own.kind === 'figures' ? own.side : undefined
+  return {
+    key: own.key,
+    formulas: (own.algorithms ?? []).map((sequence) => sequence.flat()),
+    ...(own.marker && { marker: own.marker }),
+    ...(side && { side: typeof side === 'function' ? side : () => side }),
+  }
 }
 
 /** A cube's piece by its stickers: one a center, two an edge, three a corner. */

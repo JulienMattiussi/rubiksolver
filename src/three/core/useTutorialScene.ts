@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Cube, Turn } from '@/lib/core/types'
 import { arrowsOf, type Arrow } from '@/lib/teach/scene'
-import { useTutorial } from '@/hooks/useTutorial'
+import { useTutorialShown } from '@/hooks/useTutorial'
 import { useView } from '@/store/viewStore'
 import type { ModelProps } from './CubeModel'
 import { useArrowTurns } from './useArrowTurns'
@@ -27,7 +27,7 @@ export function useTutorialScene(cube: Cube): {
 } {
   const previewed = usePreviewed()
   const previewing = useView((s) => s.preview) !== null
-  const tutorial = useTutorial()
+  const tutorial = useTutorialShown()
   const { tones, pick, moves, step } = tutorial
   const arrows = tones && !tutorial.review && step && moves ? arrowsOf(cube, moves, step, pick) : []
   // Several arrows take turns; the one shown says which pieces stand out:

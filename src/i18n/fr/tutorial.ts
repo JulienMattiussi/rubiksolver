@@ -14,6 +14,7 @@ import { SKEWB_FR } from './tutorials/skewb'
 import { GEAR_FR } from './tutorials/gear'
 import { TOWER_FR } from './tutorials/tower'
 import { mergeTexts } from '../tutorialTexts'
+import { listFr } from './list'
 
 /** Each tutorial's texts, by key, in one (see i18n/tutorialTexts.ts). */
 const TEXTS = mergeTexts([
@@ -137,7 +138,13 @@ export const TUTORIAL_FR = {
   recap: 'Aide-mémoire',
   recapTitle: (n: number) => (n === 1 ? 'La formule à retenir' : `Les ${n} formules à retenir`),
   recapByHand: 'Sans formule, à la main',
+  /** A stage's formulas listed at an earlier stage (by their numbers). */
+  recapSame: (formulas: number, stages: readonly number[]) =>
+    `${formulas > 1 ? 'Les formules' : 'La formule'} ${stages.length > 1 ? 'des étapes' : 'de l’étape'} ${listFr(stages.map(String))}`,
   recapBack: 'Revenir au tutoriel',
+  /** A formula of the reminder shown on the cube, or no more. */
+  recapShow: 'Voir la formule sur le cube',
+  recapHide: 'Ne plus voir la formule sur le cube',
   terms: TEXTS.terms,
   /** The legend of the hatched pieces, under the step's hint. */
   legendMoved:

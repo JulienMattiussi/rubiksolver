@@ -4,7 +4,7 @@ import { normalIndex } from '@/lib/core/geometry'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cubie, Vec3 } from '@/lib/core/types'
 import type { Arrow } from '@/lib/teach/scene'
-import { useCube } from '@/store/cubeStore'
+import { useShownCube } from '@/store/exampleStore'
 import { polygonsHull } from './hull'
 import { PolyModel } from './PolyModel'
 import { polyDrawing, type PolyDrawing } from './polyDrawing'
@@ -33,7 +33,7 @@ function stickerFace(
  *  the cubes, the tutorial showing on it as on them (useTutorialScene): an
  *  arrow goes from a sticker's center, as drawn, to where it lands. */
 export function PolyView() {
-  const cube = useCube((s) => s.cube)
+  const cube = useShownCube()
   const { groupRef, isTurning } = useTurnAnimation()
   const { model, arrows, moves, fade } = useTutorialScene(cube)
   const drawing = polyDrawing(cubeShape(cube))

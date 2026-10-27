@@ -229,7 +229,11 @@ R D` répété, un seul pas, la première couche se défaisant en route).
   termes. Un tutoriel déjà mené à son terme (gardé
   entre deux visites, `tutorialTrack.playedThrough`) offre en dessous un
   « Aide-mémoire » : ses étapes et leurs formules, à la place du pas,
-  jusqu'à « Revenir au tutoriel ». Sur un miroir, tous les textes nomment les
+  jusqu'à « Revenir au tutoriel ». L'œil devant une formule la montre sur
+  le cube, tenu de face : le cube résolu, la formule défaite, avec les
+  flèches des pièces qu'elle remet en place ; le vrai cube, et la
+  progression, reviennent au premier coup, en quittant l'aide-mémoire ou
+  en cliquant à nouveau l'œil. Sur un miroir, tous les textes nomment les
   faces et les pièces par leur épaisseur, de très fine à très épaisse
   (« l'arête aux faces fine et moins épaisse »). Sur un puzzle qui a une
   légende (le Floppy Ghost), une page « La légende » suit le vocabulaire :

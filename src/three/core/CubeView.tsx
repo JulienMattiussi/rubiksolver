@@ -2,6 +2,7 @@ import { cubeDims } from '@/lib/core/cube'
 import { LAYER_THICKNESS } from '@/lib/core/shape'
 import { applyMoves } from '@/lib/core/turn'
 import { useCube } from '@/store/cubeStore'
+import { useShownCube } from '@/store/exampleStore'
 import { useMemo } from 'react'
 import { CubeModel } from './CubeModel'
 import { cubiesHull, faceCenter } from './hull'
@@ -16,7 +17,7 @@ import { useTutorialScene } from './useTutorialScene'
  *  placed yet are hatched, and a click picks a piece or its place (see
  *  useTutorialScene). */
 export function CubeView() {
-  const cube = useCube((s) => s.cube)
+  const cube = useShownCube()
   const variant = useCube((s) => s.variant)
   const { groupRef, isTurning, halfRef, isHalfTurning, turnSpin, progress } = useTurnAnimation()
   const { model, arrows, moves, fade } = useTutorialScene(cube)

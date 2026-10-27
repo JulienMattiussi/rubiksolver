@@ -15,6 +15,7 @@ import { SKEWB_EN } from './tutorials/skewb'
 import { GEAR_EN } from './tutorials/gear'
 import { TOWER_EN } from './tutorials/tower'
 import { mergeTexts } from '../tutorialTexts'
+import { listEn } from './list'
 
 const TEXTS = mergeTexts([
   CUBES_EN,
@@ -110,7 +111,11 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   recapTitle: (n: number) =>
     n === 1 ? 'The formula to remember' : `The ${n} formulas to remember`,
   recapByHand: 'No formula, by hand',
+  recapSame: (formulas, stages) =>
+    `The ${formulas > 1 ? 'formulas' : 'formula'} of ${stages.length > 1 ? 'stages' : 'stage'} ${listEn(stages.map(String))}`,
   recapBack: 'Back to the tutorial',
+  recapShow: 'See the formula on the cube',
+  recapHide: 'Stop showing the formula on the cube',
   terms: TEXTS.terms,
   legendMoved:
     'The hatched cubes will be moved by the formula, with no effect on the expected result.',

@@ -30,6 +30,10 @@ export type Sequence = readonly (readonly Turn[])[]
 export interface RecapStage {
   readonly key: string
   readonly formulas: readonly (readonly Turn[])[]
+  /** How its arrows read, a formula shown on the puzzle: the sticker they
+   *  follow, the side they go round (read on the state). */
+  readonly marker?: Color
+  readonly side?: (cube: Cube) => Vec3 | undefined
 }
 
 /**
