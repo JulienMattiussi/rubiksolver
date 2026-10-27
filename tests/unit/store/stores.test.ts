@@ -259,7 +259,7 @@ describe('saved store', () => {
 })
 
 describe('solvedByTurn', () => {
-  it('fires when a turn solves the cube, never on a reset', () => {
+  it('fires when a turn solves the cube, never on a reset or a scramble', () => {
     let shows = 0
     const unsubscribe = useCube.subscribe((next, prev) => {
       if (solvedByTurn(prev, next)) shows++
@@ -273,6 +273,10 @@ describe('solvedByTurn', () => {
     expect(shows).toBe(1)
     play('F')
     useCube.getState().reset()
+    expect(shows).toBe(1)
+    // A scramble passing by the solved state on its way.
+    useCube.setState({ queue: parseMoves("R R' U"), scrambling: true })
+    drain()
     expect(shows).toBe(1)
     unsubscribe()
   })

@@ -4,7 +4,7 @@ import { solvedCube } from '@/lib/core/cube'
 import { FACE_NORMAL } from '@/lib/core/geometry'
 import { parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
-import { termStep } from '@/lib/teach/tutorial'
+import { termStep, termsOn } from '@/lib/teach/tutorial'
 import { tutorialFor } from '@/lib/tutorials/registry'
 import { TUTORIAL_EN } from '@/i18n/en/tutorial'
 import { TUTORIAL_MIRROR_EN } from '@/i18n/en/tutorialMirror'
@@ -17,7 +17,7 @@ const cube2 = tutorialFor('2', 'beginner')!
 describe('tutorial glossary', () => {
   it('names the kinds of pieces first, the thicknesses on a mirror only', () => {
     const keys = (tutorial: typeof cube3, mirror: boolean) =>
-      tutorial.glossary.filter((t) => !t.only || (mirror && t.only === 'mirror')).map((t) => t.key)
+      termsOn(tutorial, mirror ? 'mirror' : 'classic').map((t) => t.key)
     const turning = ['termClockwise', 'termCounterclockwise']
     expect(keys(cube3, false)).toEqual(['termCenter', 'termEdge', 'termCorner', ...turning])
     expect(keys(cube2, false)).toEqual(['termCorner', ...turning])

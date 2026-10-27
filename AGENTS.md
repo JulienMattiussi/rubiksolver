@@ -542,7 +542,8 @@ liste d'étapes, et `tutorialOf` en fait le pas où en est un état (sa sorte,
   deux (`thenProject`) ;
 - avant les étapes, le **vocabulaire** (`glossary`, l'étape 0) : chaque
   terme (`Term`) allume ses pièces et dit d'où les regarder, un pas par
-  terme, « Passer » les saute ; puis, sur un puzzle dont les pièces se
+  terme, « Passer » les saute, et l'icône à droite du titre d'étape les
+  rouvre ensuite tous dans une fenêtre (`GlossaryButton`, `termsOn`, la légende comprise) ; puis, sur un puzzle dont les pièces se
   reconnaissent à leur forme (le Floppy Ghost, tout argenté), la
   **légende** (`legend` : un nom par pièce, A, B... ou 1, 2...) : une page
   qui les dessine seules, à l'endroit et à l'envers (`pieceDrawing`,

@@ -439,10 +439,26 @@ test('tutorial: a formula applied, looked at, undone; a move by hand finished', 
   const panel = page.getByRole('region', { name: 'Tutoriel' })
   // The words first (step 0): one on, then past them.
   await expect(panel.getByRole('heading', { name: 'Le vocabulaire' })).toBeVisible()
+  // Back only from the second word on, a word at a time.
+  const previous = panel.getByRole('button', { name: 'Retour', exact: true })
+  await expect(previous).toBeHidden()
   await panel.getByRole('button', { name: 'Suivant' }).click()
   await expect(panel.getByText(/^Une arête/)).toBeVisible()
+  await previous.click()
+  await expect(panel.getByText(/^Un centre/)).toBeVisible()
   await panel.getByRole('button', { name: 'Passer' }).click()
   await expect(panel.getByText('Construire la croix jaune')).toBeVisible()
+  // Nothing played yet: back to the last word, then on again.
+  await panel.getByRole('button', { name: 'Revenir au vocabulaire' }).click()
+  await expect(panel.getByText(/^Le sens anti-horaire/)).toBeVisible()
+  await panel.getByRole('button', { name: 'Suivant' }).click()
+  await expect(panel.getByText('Construire la croix jaune')).toBeVisible()
+  // The words at hand from any step, over the page.
+  await panel.getByRole('button', { name: 'Revoir le vocabulaire' }).click()
+  const words = page.getByRole('dialog', { name: 'Le vocabulaire' })
+  await expect(words.getByText(/^Une arête/)).toBeVisible()
+  await words.getByRole('button', { name: 'Fermer le vocabulaire' }).click()
+  await expect(words).toBeHidden()
   // The cube it follows cannot be replaced meanwhile.
   await expect(page.getByRole('button', { name: 'Mélanger' })).toBeDisabled()
   await expect(page.getByRole('button', { name: 'Réinitialiser' })).toBeDisabled()

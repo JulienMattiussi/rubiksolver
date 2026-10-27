@@ -219,7 +219,11 @@ R D` répété, un seul pas, la première couche se défaisant en route).
 - **Le vocabulaire** (« Étape 0 ») : avant les étapes, un pas par terme
   (centre, arête, coin ; sur un miroir, les six épaisseurs), ses pièces en
   bleu et la vue tournée vers elles ; « Suivant » passe au terme suivant,
-  « Passer » va à l'étape 1. Un tutoriel déjà mené à son terme (gardé
+  « Retour » au précédent (sauf sur le premier), « Passer » va à l'étape 1,
+  d'où « Revenir au vocabulaire » ramène à sa dernière page tant qu'aucun
+  coup n'est joué. Ensuite, une icône à droite du titre d'étape
+  (« Revoir le vocabulaire ») rouvre tous ses termes dans une fenêtre, sans
+  toucher à l'avancement (pas sur ses propres pages). Un tutoriel déjà mené à son terme (gardé
   entre deux visites, `tutorialTrack.playedThrough`) offre en dessous un
   « Aide-mémoire » : ses étapes et leurs formules, à la place du pas,
   jusqu'à « Revenir au tutoriel ». Sur un miroir, tous les textes nomment les
@@ -227,8 +231,8 @@ R D` répété, un seul pas, la première couche se défaisant en route).
   (« l'arête aux faces fine et moins épaisse »). Sur un puzzle qui a une
   légende (le Floppy Ghost), une page « La légende » suit le vocabulaire :
   chaque pièce nommée (coin A, arête 1...), dessinée seule à l'endroit et
-  à l'envers ; ensuite une icône à droite du titre d'étape la rouvre dans
-  une fenêtre, et les consignes nomment les pièces ainsi, leur miniature à
+  à l'envers ; ensuite la fenêtre du vocabulaire la montre après ses
+  termes, et les consignes nomment les pièces ainsi, leur miniature à
   côté.
 - **Le panneau** : l'étape (« Étape 4 sur 7 », son but, son avancement,
   sa consigne, la légende des hachures), puis quatre **consignes

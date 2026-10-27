@@ -10,6 +10,7 @@ import {
   alreadyDoneStep,
   legendStep,
   termStep,
+  termsOn,
   type Tutorial,
   type TutorialPick,
   type TutorialStep,
@@ -131,7 +132,7 @@ export function useTutorial(): TutorialView {
   }, [step, moves, busy, read, pick, review])
   // The glossary first (step 0): each word's pieces lit, one at a time,
   // those of this rendering only; then the legend, if any.
-  const terms = tutorial?.glossary.filter((term) => !term.only || term.only === variant) ?? []
+  const terms = tutorial ? termsOn(tutorial, variant) : []
   const pages = terms.length + (tutorial?.legend ? 1 : 0)
   const term = active && !review ? terms[termsShown] : undefined
   if (tutorial && term) {

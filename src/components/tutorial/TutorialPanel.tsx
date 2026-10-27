@@ -1,4 +1,5 @@
 import {
+  ArrowLeft,
   ArrowRight,
   GraduationCap,
   NotebookText,
@@ -26,6 +27,12 @@ import { GoldTrophy } from './GoldTrophy'
 import { StepHeading } from './StepHeading'
 import { liftFor } from './liftFor'
 import { turnsWhole } from '@/lib/teach/scene'
+
+/** The panel's least height on a desktop (a word of the glossary with its
+ *  turn playing, the reminder's button under it once offered): its
+ *  buttons, at the bottom, move less from page to page. */
+const panel = (reminder: boolean) =>
+  `${SECTION_BOX} ${reminder ? 'sm:min-h-[33rem]' : 'sm:min-h-[30rem]'}`
 
 /** In place of the solve block while the tutorial is on: its step
  *  (`StepHeading`) and its instructions (`Instructions`), applying the
@@ -106,7 +113,7 @@ export function TutorialPanel() {
     if (hold && view.shown) learn(view.shown.moves.map((m) => formatMove(frame.inHold(hold, m))))
     apply({ key: step.key, moves }, pick)
   }
-  // Nothing played yet: back to the glossary's start instead of undoing.
+  // Nothing played yet: back to the glossary's last page instead of undoing.
   const toGlossary = !played && !manual && view.glossary > 0
   const keys: TutorialKeys = recapShown
     ? { back: () => showRecap(false) }
@@ -125,7 +132,7 @@ export function TutorialPanel() {
               ...((review ? !busy : canApply) && { ahead: review ? next : applyFormula }),
               ...(!busy &&
                 (toGlossary || played || manual) && {
-                  back: toGlossary ? () => setTermsShown(0) : undo,
+                  back: toGlossary ? () => setTermsShown(view.glossary - 1) : undo,
                 }),
             }
   useTutorialShortcuts(keys)
@@ -156,10 +163,10 @@ export function TutorialPanel() {
   // The reminder asked for: shown in place of the step, until back.
   if (recapShown && tutorial) {
     return (
-      <section aria-label={t.tutorial.button} className={SECTION_BOX}>
+      <section aria-label={t.tutorial.button} className={panel(playedThrough)}>
         {header}
         <FormulaRecap tutorial={tutorial} />
-        <Button onClick={() => showRecap(false)} {...backKeys}>
+        <Button className="mt-auto" onClick={() => showRecap(false)} {...backKeys}>
           <Undo2 className="size-4" aria-hidden />
           {t.tutorial.recapBack}
         </Button>
@@ -167,7 +174,7 @@ export function TutorialPanel() {
     )
   }
   return (
-    <section aria-label={t.tutorial.button} className={SECTION_BOX}>
+    <section aria-label={t.tutorial.button} className={panel(playedThrough)}>
       {header}
       {step && (
         <StepHeading
@@ -201,6 +208,7 @@ export function TutorialPanel() {
           </p>
           <Button
             variant="solve"
+            className="mt-auto"
             onClick={() => showStage(step.stage!)}
             disabled={busy}
             {...aheadKeys}
@@ -211,17 +219,29 @@ export function TutorialPanel() {
         </>
       )}
       {/* A word of the glossary (or the legend after them): on to the next,
-          or past them all. */}
+          back to the one before (but on the first), or past them all. */}
       {words && (
-        <div className="flex flex-col gap-2">
+        <div className="mt-auto flex flex-col gap-2">
           <Button variant="solve" onClick={showTerm} {...aheadKeys}>
             <ArrowRight className="size-4" aria-hidden />
             {t.tutorial.next}
           </Button>
-          <Button onClick={() => setTermsShown(view.term?.count ?? 0)}>
-            <SkipForward className="size-4" aria-hidden />
-            {t.tutorial.skipTerms}
-          </Button>
+          <div className="flex gap-2">
+            {termsShown > 0 && (
+              <Button
+                className="flex-1"
+                onClick={() => setTermsShown(termsShown - 1)}
+                {...backKeys}
+              >
+                <ArrowLeft className="size-4" aria-hidden />
+                {t.tutorial.previousTerm}
+              </Button>
+            )}
+            <Button className="flex-1" onClick={() => setTermsShown(view.term?.count ?? 0)}>
+              <SkipForward className="size-4" aria-hidden />
+              {t.tutorial.skipTerms}
+            </Button>
+          </div>
           {playedThrough && (
             <Button onClick={() => showRecap(true)}>
               <NotebookText className="size-4" aria-hidden />
@@ -233,7 +253,7 @@ export function TutorialPanel() {
       {step && step.kind !== 'toCome' && step.kind !== 'alreadyDone' && !words && (
         <>
           <Instructions view={view} busy={busy} />
-          <div className="flex flex-col gap-2">
+          <div className="mt-auto flex flex-col gap-2">
             {review ? (
               <Button variant="solve" onClick={next} disabled={busy} {...aheadKeys}>
                 <ArrowRight className="size-4" aria-hidden />
@@ -245,9 +265,13 @@ export function TutorialPanel() {
                 {manual ? t.tutorial.finish : t.tutorial.apply}
               </Button>
             )}
-            {/* Nothing played yet: back to the glossary's start instead. */}
+            {/* Nothing played yet: back to the glossary's last page instead. */}
             {toGlossary ? (
-              <Button onClick={() => setTermsShown(0)} disabled={busy} {...backKeys}>
+              <Button
+                onClick={() => setTermsShown(view.glossary - 1)}
+                disabled={busy}
+                {...backKeys}
+              >
                 <Undo2 className="size-4" aria-hidden />
                 {t.tutorial.backToGlossary}
               </Button>

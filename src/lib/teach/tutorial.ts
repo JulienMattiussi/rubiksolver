@@ -175,6 +175,11 @@ export interface Tutorial {
   readonly legend?: Legend
 }
 
+/** The words of its glossary on this rendering (a mirror cube's
+ *  thicknesses on it only). */
+export const termsOn = (tutorial: Tutorial, variant: CubeVariant): readonly Term[] =>
+  tutorial.glossary.filter((term) => !term.only || term.only === variant)
+
 /** A word of the glossary, shown before the stages (step 0): its pieces
  *  lit, `index` of `count`. */
 export const termStep = (

@@ -1,10 +1,11 @@
 import type { CubeShape } from '@/lib/core/shapes'
-import type { Tutorial, TutorialStep } from '@/lib/teach/tutorial'
+import { termsOn, type Tutorial, type TutorialStep } from '@/lib/teach/tutorial'
 import { stepName } from '@/i18n/translations'
 import { useI18n } from '@/i18n/i18nStore'
 import { Bolded } from '@/components/ui/Bolded'
+import { useCube } from '@/store/cubeStore'
+import { GlossaryButton } from './GlossaryButton'
 import { HatchedCubie } from './HatchedCubie'
-import { LegendButton, LegendIcon } from './LegendButton'
 import { LegendGrid } from './LegendGrid'
 import { ProgressCount } from './ProgressCount'
 import { TermDemo } from './TermDemo'
@@ -15,7 +16,7 @@ import { useTutorialTexts } from './useTutorialTexts'
 const MAX_DOTS = 12
 
 /** A tutorial step's heading: its rank among the stages, its goal (and the
- *  pieces' legend at hand, on a puzzle that has one), how far it has come
+ *  glossary and the pieces' legend at hand, when it has them), how far it has come
  *  (dots and words), what it asks, and the hatched pieces' legend. On the
  *  legend's own page, the legend. */
 export function StepHeading({
@@ -41,6 +42,9 @@ export function StepHeading({
   // A word of the glossary (step 0): its words in place of a hint.
   const term = step.kind === 'term'
   const legend = step.kind === 'legend'
+  // Its words at hand from the steps (and their icon on their own pages).
+  const variant = useCube((s) => s.variant)
+  const terms = tutorial ? termsOn(tutorial, variant) : []
   const told = term ? tx.termCount : legend ? undefined : tx.progress[step.key]
   return (
     <div>
@@ -51,13 +55,11 @@ export function StepHeading({
         <h3 className="text-sm font-semibold text-white">
           {term ? tx.glossary : legend ? tx.legend : (tx.titles[step.key] ?? stepName(t, step.key))}
         </h3>
-        {tutorial?.legend &&
-          (legend ? (
-            // Its icon, as the button opening it from the steps shows it.
-            <LegendIcon className="m-1 size-4 shrink-0 text-amber-300" />
-          ) : (
-            <LegendButton tutorial={tutorial} shape={shape} />
-          ))}
+        {/* From the steps: the glossary and the legend at hand (not on
+            their own pages). */}
+        {tutorial && !term && !legend && (terms.length > 0 || tutorial.legend) && (
+          <GlossaryButton tutorial={tutorial} terms={terms} shape={shape} />
+        )}
       </div>
       {progress && told && (
         <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-300">

@@ -93,6 +93,9 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
     'This first, preliminary step is to learn and understand the words used to describe and handle the cube.',
   termCount: (n, total) => `Word ${n} of ${total}`,
   skipTerms: 'Skip',
+  previousTerm: 'Back',
+  glossaryOpen: 'See the words again',
+  glossaryClose: 'Close the words',
   keysAhead: 'Shortcut: Space or right arrow',
   keysBack: 'Shortcut: left arrow or Backspace',
   legend: 'The legend',
@@ -100,8 +103,6 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   legendKinds: { corner: 'The corners', edge: 'The edges' },
   legendFront: 'Front',
   legendBack: 'Back',
-  legendOpen: 'See the pieces’ legend',
-  legendClose: 'Close the legend',
   backToGlossary: 'Back to the words',
   recap: 'Cheat sheet',
   recapTitle: (n: number) =>

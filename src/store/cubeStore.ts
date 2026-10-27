@@ -123,9 +123,14 @@ export const selectSolved = (s: CubeStore): boolean => isSolved(s.cube)
 
 /** Whether a turn just solved the puzzle: the one that ended (`prev` had it
  *  under way) left it solved, unsolved before. A reset, a new puzzle or a
- *  restored state do not count: no turn brought them. */
+ *  restored state do not count: no turn brought them; nor does a scramble
+ *  passing by the solved state on its way. */
 export const solvedByTurn = (prev: CubeStore, next: CubeStore): boolean =>
-  prev.active !== null && next.active === null && !isSolved(prev.cube) && isSolved(next.cube)
+  prev.active !== null &&
+  next.active === null &&
+  !prev.scrambling &&
+  !isSolved(prev.cube) &&
+  isSolved(next.cube)
 
 const lengthsOf = (steps: readonly SolveStep[]) => steps.map((s) => s.moves.length)
 

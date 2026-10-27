@@ -116,6 +116,9 @@ export const TUTORIAL_FR = {
     'La première étape, préliminaire, est d’acquérir et de comprendre le vocabulaire qui sera utilisé pour décrire et manipuler le cube.',
   termCount: (n: number, total: number) => `Mot ${n} sur ${total}`,
   skipTerms: 'Passer',
+  previousTerm: 'Retour',
+  glossaryOpen: 'Revoir le vocabulaire',
+  glossaryClose: 'Fermer le vocabulaire',
   /** The keys pressing the tutorial's buttons, on their tooltips. */
   keysAhead: 'Raccourci : Espace ou flèche droite',
   keysBack: 'Raccourci : flèche gauche ou retour arrière',
@@ -125,8 +128,6 @@ export const TUTORIAL_FR = {
   legendKinds: { corner: 'Les coins', edge: 'Les arêtes' } as Record<string, string>,
   legendFront: 'Endroit',
   legendBack: 'Envers',
-  legendOpen: 'Voir la légende des pièces',
-  legendClose: 'Fermer la légende',
   backToGlossary: 'Revenir au vocabulaire',
   /** The reminder: the stages and their formulas (at the end, or asked for
    *  once the tutorial played through). */
