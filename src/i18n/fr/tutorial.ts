@@ -119,6 +119,9 @@ export const TUTORIAL_FR = {
   previousTerm: 'Retour',
   glossaryOpen: 'Revoir le vocabulaire',
   glossaryClose: 'Fermer le vocabulaire',
+  /** A mirror cube's thicknesses, in the glossary's window. */
+  thicknesses: 'Les épaisseurs',
+  thicknessMiddle: 'En pointillés : une tranche du milieu.',
   /** The keys pressing the tutorial's buttons, on their tooltips. */
   keysAhead: 'Raccourci : Espace ou flèche droite',
   keysBack: 'Raccourci : flèche gauche ou retour arrière',

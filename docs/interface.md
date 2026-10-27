@@ -223,7 +223,10 @@ R D` répété, un seul pas, la première couche se défaisant en route).
   d'où « Revenir au vocabulaire » ramène à sa dernière page tant qu'aucun
   coup n'est joué. Ensuite, une icône à droite du titre d'étape
   (« Revoir le vocabulaire ») rouvre tous ses termes dans une fenêtre, sans
-  toucher à l'avancement (pas sur ses propres pages). Un tutoriel déjà mené à son terme (gardé
+  toucher à l'avancement (pas sur ses propres pages). Sur un miroir,
+  la fenêtre finit par l'échelle des six épaisseurs, de très fine à très
+  épaisse (`ThicknessScale`), à la place de leurs six
+  termes. Un tutoriel déjà mené à son terme (gardé
   entre deux visites, `tutorialTrack.playedThrough`) offre en dessous un
   « Aide-mémoire » : ses étapes et leurs formules, à la place du pas,
   jusqu'à « Revenir au tutoriel ». Sur un miroir, tous les textes nomment les

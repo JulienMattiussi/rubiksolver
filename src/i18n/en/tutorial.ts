@@ -96,6 +96,8 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   previousTerm: 'Back',
   glossaryOpen: 'See the words again',
   glossaryClose: 'Close the words',
+  thicknesses: 'The thicknesses',
+  thicknessMiddle: 'Dashed: a middle layer.',
   keysAhead: 'Shortcut: Space or right arrow',
   keysBack: 'Shortcut: left arrow or Backspace',
   legend: 'The legend',

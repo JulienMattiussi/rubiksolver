@@ -7,6 +7,10 @@ import { PIECES_FR } from './tutorial'
  * names a side by how thick it is, and replaces the text it stands for (the
  * texts with no color in them stay as they are).
  */
+/** What thicknesses are. */
+const INTRO =
+  'Sur un cube miroir, toutes les faces ont la même couleur : on les reconnaît à leur épaisseur, de très fine à très épaisse.'
+
 export const TUTORIAL_MIRROR_FR = {
   /** Each color's thickness, from the thinnest. */
   thickness: {
@@ -34,7 +38,10 @@ export const TUTORIAL_MIRROR_FR = {
       'Une **paire** : les deux arêtes de mêmes épaisseurs, côte à côte et dans le même sens.',
   } as Record<string, string>,
   thicknessTerm: (name: string, first: boolean) =>
-    `${first ? 'Sur un cube miroir, toutes les faces ont la même couleur : on les reconnaît à leur épaisseur, de très fine à très épaisse. ' : ''}En bleu, les pièces qui ont une face **${name}**.`,
+    `${first ? `${INTRO} ` : ''}En bleu, les pièces qui ont une face **${name}**.`,
+  /** What thicknesses are: the first one's words, the scale's in the
+   *  glossary's window. */
+  thicknessIntro: INTRO,
   /** A side to hold in front, center or not. */
   facing: (name: string, down: string) =>
     `Tourne vers toi la face ${name}, la face ${down} en bas.`,

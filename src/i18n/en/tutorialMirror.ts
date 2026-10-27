@@ -2,6 +2,9 @@ import type { TUTORIAL_MIRROR_FR } from '../fr/tutorialMirror'
 import { listEn } from './list'
 import { PIECES_EN } from './tutorial'
 
+const INTRO =
+  'On a mirror cube every face has the same color: you tell them by their thickness, from very thin to very thick.'
+
 export const TUTORIAL_MIRROR_EN: typeof TUTORIAL_MIRROR_FR = {
   thickness: {
     O: 'very thin',
@@ -25,7 +28,8 @@ export const TUTORIAL_MIRROR_EN: typeof TUTORIAL_MIRROR_FR = {
       'An **edge**: two wings of the same thicknesses, side by side and the same way round.',
   },
   thicknessTerm: (name, first) =>
-    `${first ? 'On a mirror cube every face has the same color: you tell them by their thickness, from very thin to very thick. ' : ''}In blue, the pieces with a **${name}** face.`,
+    `${first ? `${INTRO} ` : ''}In blue, the pieces with a **${name}** face.`,
+  thicknessIntro: INTRO,
   facing: (name, down) => `Turn the ${name} face toward you, the ${down} face down.`,
   checkFigure: 'Check the new figure the thick faces draw on top.',
   checks: {

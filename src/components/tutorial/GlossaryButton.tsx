@@ -1,16 +1,23 @@
 import { BookA, X } from 'lucide-react'
 import { useId, useState } from 'react'
 import type { CubeShape } from '@/lib/core/shapes'
+import { tellsSizes } from '@/lib/core/shape'
+import { useCube } from '@/store/cubeStore'
+import { THICKNESSES } from '@/lib/tutorials/standard/terms'
 import type { Term, Tutorial } from '@/lib/teach/tutorial'
 import { Bolded } from '@/components/ui/Bolded'
 import { Modal } from '@/components/ui/Modal'
 import { LegendGrid } from './LegendGrid'
+import { ThicknessScale } from './ThicknessScale'
 import { TermDemo } from './TermDemo'
 import { useTutorialTexts } from './useTutorialTexts'
 
+const THICKNESS_KEYS = new Set(THICKNESSES.map((term) => term.key))
+
 /** The glossary at hand from any step: an icon beside the step's title,
  *  opening over the page its words one after the other (their pieces lit
- *  on its own pages only), then the pieces' legend, if any. */
+ *  on its own pages only), then the pieces' legend, if any, or a mirror
+ *  cube's thicknesses (drawn, in place of their words). */
 export function GlossaryButton({
   tutorial,
   terms,
@@ -23,6 +30,9 @@ export function GlossaryButton({
   const tx = useTutorialTexts()
   const [open, setOpen] = useState(false)
   const titleId = useId()
+  const sizes = tellsSizes(useCube((s) => s.variant))
+  // A mirror's thicknesses drawn by their scale, not said one by one.
+  const words = sizes ? terms.filter((term) => !THICKNESS_KEYS.has(term.key)) : terms
   return (
     <>
       <button
@@ -53,7 +63,7 @@ export function GlossaryButton({
           </div>
           <div className="mt-3 max-h-[70vh] overflow-y-auto">
             <ul className="space-y-3">
-              {terms.map((term) => (
+              {words.map((term) => (
                 <li key={term.key} className="text-sm leading-relaxed text-slate-200">
                   <Bolded text={tx.term(term.key)} />
                   {term.demo && <TermDemo turn={term.demo} />}
@@ -61,11 +71,12 @@ export function GlossaryButton({
               ))}
             </ul>
             {tutorial.legend && (
-              <section className={terms.length > 0 ? 'mt-4 border-t border-slate-700 pt-3' : ''}>
+              <section className={words.length > 0 ? 'mt-4 border-t border-slate-700 pt-3' : ''}>
                 <h3 className="text-sm font-semibold text-white">{tx.legend}</h3>
                 <LegendGrid tutorial={tutorial} shape={shape} />
               </section>
             )}
+            {sizes && <ThicknessScale />}
           </div>
         </Modal>
       )}
