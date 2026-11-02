@@ -3,7 +3,7 @@ import { watch, watchAfter } from '@/lib/editor/scan/capture'
 import { labOf } from '@/lib/editor/scan/color'
 import { frameOnScreen, screenToPicture } from '@/lib/editor/scan/frame'
 import type { Picture } from '@/lib/editor/scan/outlines'
-import type { Kept } from '@/store/scanStore'
+import { savePicture, type Kept } from '@/store/scanStore'
 import type { FaceImage } from '@/workers/findStickers'
 import type { ScanFace } from '@/lib/editor/scan/plan'
 import { sampleFace, type CellSample } from '@/lib/editor/scan/sample'
@@ -117,6 +117,7 @@ export function useFaceReading({
         // A tap again for the next face.
         setArmed(false)
         const light = face.whole ? lightOf(ctx.getImageData(0, 0, width, height)) : undefined
+        if (face.whole) savePicture(canvas.current)
         const image = face.sized
           ? imageOf(video, crop, (wide.current ??= document.createElement('canvas')))
           : undefined

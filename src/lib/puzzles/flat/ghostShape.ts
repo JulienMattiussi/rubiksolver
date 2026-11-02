@@ -1,7 +1,7 @@
 import { colorsOf } from '../../core/pieces'
 import type { Cubie, Face } from '../../core/types'
 import { clip, type P2 } from '../../core/plane'
-import { ghostSlot, solvedGhost } from './ghost'
+import { GHOST_TOP_AXIS, ghostSlot, solvedGhost } from './ghost'
 
 /**
  * The Floppy Ghost's shape, flat (pure): the square plate cut by the
@@ -12,23 +12,24 @@ import { ghostSlot, solvedGhost } from './ghost'
  * about all pass through it. Its drawing (three/puzzles/flat/ghostGeometry.ts)
  * extrudes it; its scan reads it from a picture.
  *
- * The pentagram is slanted (its top cut 9 degrees off the square's top)
- * and a little below the square's center, as on fan2cube's picture: no
- * piece is then the same either way up, so a piece lying the wrong way
- * always shows.
+ * The pentagram is slanted (its top cut 5 degrees off the square's top):
+ * no piece is then the same either way up, so a piece lying the wrong way
+ * always shows. Its slant, size and place are measured on the real puzzle
+ * (a 55 mm square, its cuts traced on a photo, a regular pentagram to a
+ * hundredth of the square): its center a hair below the square's.
  */
 
 /** Half the square's side. */
 const HALF = 1.5
 /** Where the pentagram's center lies in the square (from the square's center). */
-const CENTER: readonly [number, number] = [0, -0.15]
+const CENTER: readonly [number, number] = [0, -0.02]
 /** From the pentagram's center to each of its cuts. */
-const RHO = 0.8
+const RHO = 0.84
 
 export type P3 = readonly [number, number, number]
 
-/** Side k's outward direction, 81 - 72k degrees (its turn's axis). */
-const sideAngle = (k: number) => ((81 - 72 * k) * Math.PI) / 180
+/** Side k's outward direction (its turn's axis). */
+const sideAngle = (k: number) => ((GHOST_TOP_AXIS - 72 * k) * Math.PI) / 180
 
 /** The square, in the pentagram's frame. */
 const SQUARE: P2[] = [

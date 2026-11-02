@@ -87,6 +87,16 @@ export function scanDebug(): boolean {
   }
 }
 
+/** A face read whole (outlines.ts), debugged: the very picture read,
+ *  downloaded as a PNG, to replay its reading in a test. */
+export function savePicture(canvas: HTMLCanvasElement): void {
+  if (!scanDebug()) return
+  const link = document.createElement('a')
+  link.href = canvas.toDataURL('image/png')
+  link.download = `scan-${shape()}-${Date.now()}.png`
+  link.click()
+}
+
 /** The faces taken so far, each one's cells in Lab, in the console. */
 function logScan(when: string, faces: readonly (readonly CellSample[] | undefined)[]) {
   if (!scanDebug()) return

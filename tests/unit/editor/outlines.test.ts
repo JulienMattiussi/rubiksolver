@@ -7,6 +7,7 @@ import { readScan } from '@/lib/editor/scan/read'
 import { ghostScan } from '@/lib/puzzles/flat/ghostScan'
 import { seededRng } from '../../helpers'
 import { ghostPicture, type Shot } from './ghostPictures'
+import LAPTOP from './fixtures/ghostSolvedLaptop.json'
 
 const STATES = ghostScan.states()
 
@@ -47,6 +48,22 @@ describe('a Floppy Ghost read by its outlines', () => {
 
   it('reads through a dark reflection on a sticker', () => {
     expect(reads(12345, { shadow: { at: [115, 60], radius: 9 } }, 3)).toBe(true)
+  })
+
+  it('reads held in a hand, over a background lighter than its stickers', () => {
+    const rng = seededRng(11)
+    for (let i = 0; i < 6; i++) {
+      const state = Math.floor(rng() * STATES.length)
+      const shot: Shot = { turn: rng() * 2 * Math.PI, background: 85, stripes: 12, sticker: 55 }
+      expect(reads(state, shot, i), `state ${state}`).toBe(true)
+    }
+  }, 30_000)
+
+  it('reads the real one, solved, on a laptop as light as its stickers', () => {
+    // The picture the scan reads (192 px), from a photo: its lightness, a byte a pixel.
+    const light = Uint8Array.from(atob(LAPTOP.light), (c) => c.charCodeAt(0))
+    const reading = readOutlines(ghostScan, { width: LAPTOP.width, height: LAPTOP.height, light })
+    expect(reading.ok && stateKey(reading.cube)).toBe(stateKey(STATES[0]!))
   })
 
   it('reads nothing when no anchor shows in the middle', () => {

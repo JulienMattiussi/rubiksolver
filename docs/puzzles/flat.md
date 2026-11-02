@@ -65,8 +65,9 @@ arêtes (les branches de l'étoile) et cinq sommets (entre deux branches). Un
 coup **retourne un côté** d'un demi-tour, autour de l'axe qui passe par le
 centre perpendiculairement à sa coupe : son arête se retourne sur place,
 ses deux sommets s'échangent en se retournant. Le pentagramme est incliné
-(9° comme sur le schéma de la page) et un peu décentré : chaque pièce a sa
-forme, qu'un coup couche de travers, donc le puzzle se déforme.
+(5°, relevé sur le vrai puzzle, comme sa taille et sa place, un poil sous
+le centre) : chaque pièce a sa forme, qu'un coup couche de travers, donc le
+puzzle se déforme.
 
 **Modèle entier** (`lib/puzzles/flat/ghost.ts`, puzzle sans grille, `isGridless`) : 10
 emplacements tous les 36° autour du centre (pairs : arêtes, impairs :

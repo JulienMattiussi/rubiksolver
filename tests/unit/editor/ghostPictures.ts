@@ -11,8 +11,12 @@ export interface Shot {
   /** Bigger or smaller than its frame says, and off its middle (pixels). */
   readonly zoom?: number
   readonly shift?: P2
-  /** The background's lightness, and the noise on every pixel. */
+  /** The background's lightness (with `stripes`, light and dark bands
+   *  that wide, as a hand's fingers), the stickers' (dimmed by a reflection
+   *  of the room), and the noise on every pixel. */
   readonly background?: number
+  readonly stripes?: number
+  readonly sticker?: number
   readonly noise?: number
   /** A dark patch on the picture (a reflection): its middle, its radius. */
   readonly shadow?: { readonly at: P2; readonly radius: number }
@@ -24,7 +28,7 @@ const SIZE = 160
  *  bodies, over a background. */
 export function ghostPicture(cube: Cube, shot: Shot, rng: () => number): Picture {
   const { turn = 0, mirrored = false, zoom = 1, shift = [0, 0] } = shot
-  const { background = 60, noise = 6, shadow } = shot
+  const { background = 60, stripes, sticker = 80, noise = 6, shadow } = shot
   const scale = (zoom * SIZE) / (2 * outlineReach(ghostScan))
   const pieces = cube.map((cubie) => {
     const outline = ghostScan.outline(cubie)
@@ -38,7 +42,8 @@ export function ghostPicture(cube: Cube, shot: Shot, rng: () => number): Picture
       const px = c * qx + s * qy
       const p: P2 = [mirrored ? -px : px, -s * qx + c * qy]
       const piece = pieces.find((pc) => inside(pc.outline, p))
-      let l = !piece ? background : inside(piece.sticker, p) ? 80 : 8
+      const behind = stripes && Math.floor(x / stripes) % 2 ? background - 30 : background
+      let l = !piece ? behind : inside(piece.sticker, p) ? sticker : 8
       if (shadow && Math.hypot(x - shadow.at[0], y - shadow.at[1]) < shadow.radius) l = 15
       light[y * SIZE + x] = l + (rng() - 0.5) * 2 * noise
     }

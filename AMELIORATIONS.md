@@ -11,8 +11,8 @@ miroir ; les autres (cuboïdes, plats, troués, diagonaux, Megaminx, tour
 2x3x4, Floppy Ghost) ne l'ont été que sur images synthétiques, leur bouton
 marqué d'une fiole. Ses seuils (bandes de teinte et marges de `color.ts`,
 `HOLD_MS` et `DRIFT` dans `capture.ts`, `FORCED` dans `classify.ts`,
-`TURNED` dans `orient.ts`, `border` du Ghost estimé sur des photos de
-commerçant) ne sont réglés que sur ces quelques essais.
+`TURNED` dans `orient.ts`, `border` du Ghost vérifié sur une photo du
+vrai puzzle) ne sont réglés que sur ces quelques essais.
 
 - **Une face tenue tournée** n'est retrouvée à coup sûr que sur un cube à
   grille : sur un cuboïde, un plat, le Dino, le Rex ou l'Edge Only, une
@@ -42,7 +42,13 @@ commerçant) ne sont réglés que sur ces quelques essais.
 **Pistes.** Régler les seuils sur de vraies photos (lampe chaude, reflets)
 et en faire des tests, comme les rectangles figés du miroir. Essayer les
 deux sens de rotation sur toute lecture par gestes, comme le miroir, et
-garder la moins chère. Le Ghost, dès le puzzle reçu.
+garder la moins chère. Le Ghost : sa géométrie est relevée et une photo
+résolue bien de face est figée en test, mais un scan tenu à la main (penché,
+éclairé d'un côté) se lit encore mal, le score global au pixel ne
+départageant pas les états proches. Piste en cours : reconnaître chaque
+sticker par sa forme (ses côtés et leurs angles) dans son emplacement, repéré
+par les coins du pentagone ; la tenue est alors trouvée sans ambiguïté, il
+reste à détecter les stickers que l'ombre assombrit.
 
 ## Les puzzles « Rainbow » : la coupe dans le coup
 

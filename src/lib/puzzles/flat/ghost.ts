@@ -18,8 +18,11 @@ import type { Color, Cube, Cubie, Face, GhostMove, GhostSide, Vec3 } from '../..
  * m: the edge of side m / 2, odd: the corner after it). Sticker normals are
  * the front and back (z) and the plane directions every 18 degrees
  * (`PLANE_NORMALS`, index j at 18j). Side k's axis lies at 81 - 72k
- * degrees, so its half turn reflects the plane about it:
+ * degrees in this model, so its half turn reflects the plane about it:
  *   slot m -> 4k - m (mod 10), direction j -> 9 - 8k - j (mod 20), z -> -z.
+ * These angles only name slots and directions: the real pentagram is
+ * slanted otherwise (`GHOST_TOP_AXIS`), which the drawing and the turn's
+ * animation follow.
  * Positions are integer points near each slot's direction, only ever told
  * apart (`GHOST_SLOTS`); the drawing (three/puzzles/flat/ghostGeometry.ts) holds the
  * real shapes.
@@ -128,9 +131,14 @@ export function applyGhostMove(cube: Cube, move: GhostMove): Cube {
   })
 }
 
+/** The top side's axis on the real puzzle, in degrees from the square's
+ *  bottom edge (measured on a photo: its top cut 5 degrees off the
+ *  square's top); side k's lies 72k degrees clockwise from it. */
+export const GHOST_TOP_AXIS = 85
+
 /** The axis a side turns about, in the renderer's frame (x right, y up). */
 export function ghostAxis(side: GhostSide): [number, number, number] {
-  const angle = ((81 - 72 * GHOST_SIDES.indexOf(side)) * Math.PI) / 180
+  const angle = ((GHOST_TOP_AXIS - 72 * GHOST_SIDES.indexOf(side)) * Math.PI) / 180
   return [Math.cos(angle), Math.sin(angle), 0]
 }
 

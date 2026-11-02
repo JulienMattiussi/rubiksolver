@@ -162,7 +162,8 @@ sur Android).
 
 `?scandebug` dans l'adresse écrit dans chaque case sa mesure (clarté,
 saturation, teinte), pour régler les seuils ; sur un miroir, il écrit dans
-la console les rectangles trouvés sur chaque face, pour rejouer la lecture.
+la console les rectangles trouvés sur chaque face, pour rejouer la lecture ;
+sur un puzzle lu par ses contours, il télécharge l'image lue (PNG).
 
 ## La lecture d'une face
 
@@ -269,9 +270,15 @@ prise garde, avec la photo, la clarté de chaque pixel du cadre
 (`useFaceReading`, `light` dans `scanStore.kept`) que lit `readScan`.
 
 Sur des images synthétiques (tenue quelconque, de face ou de dos, zoom de
-plus ou moins 10 %, fond de n'importe quelle clarté, bruit, reflet sombre),
-les états sont lus exactement. Reste à régler sur le vrai puzzle la largeur
-du cadre noir des stickers (`border`, 2,5 mm estimés sur photos).
+plus ou moins 10 %, fond de n'importe quelle clarté ou rayé comme une main,
+stickers ternes, bruit, reflet sombre),
+les états sont lus exactement. Sur le vrai puzzle, la lecture tient à la
+géométrie : un pentagramme incliné de 9° au lieu de 5°, ou un pentagone 6 %
+trop petit, et un autre état l'emporte de peu. Elle a donc été relevée sur
+une photo (`ghostShape.ts`), et la photo d'un Ghost résolu posé sur un
+portable aussi clair que ses stickers est figée en test
+(`fixtures/ghostSolvedLaptop.json`). Un scan tenu à la main, penché et
+éclairé d'un côté, se lit encore mal : voir `AMELIORATIONS.md`.
 
 ## Le cube miroir (3x3)
 
