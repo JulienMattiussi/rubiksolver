@@ -124,8 +124,6 @@ export const UI_FR = {
     faces: 'Faces',
     deep: 'Sommets',
   },
-  noSuchLayer: (faceName: string, kind: LayerKind) =>
-    `Pas de ${kind === 'wide' || kind === 'wide3' ? 'coup large' : 'tranche interne'} pour la ${faceName} sur ce puzzle`,
   jammedTurn: (faceName: string) =>
     `Bloqué : la ${faceName} ne peut pas tourner dans cette position`,
   layerLabel: 'Couche tournée',

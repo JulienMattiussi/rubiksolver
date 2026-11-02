@@ -113,6 +113,16 @@ export const TUTORIAL_EN: typeof TUTORIAL_FR = {
   recapByHand: 'No formula, by hand',
   recapSame: (formulas, stages) =>
     `The ${formulas > 1 ? 'formulas' : 'formula'} of ${stages.length > 1 ? 'stages' : 'stage'} ${listEn(stages.map(String))}`,
+  recapTimes: (times) => {
+    const said = (n: number) => (n === 1 ? 'once' : n === 2 ? 'twice' : `${n} times`)
+    return times.length === 1
+      ? `${said(times[0]!)} in a row`
+      : times.length === 2
+        ? times[1] === 2
+          ? 'once or twice in a row'
+          : `${times[0]} or ${times[1]} times in a row`
+        : `${times[0]} to ${times[times.length - 1]} times in a row`
+  },
   recapBack: 'Back to the tutorial',
   recapShow: 'See the formula on the cube',
   recapHide: 'Stop showing the formula on the cube',

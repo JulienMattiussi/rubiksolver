@@ -4,6 +4,7 @@ import { allTurnsOf, moveSet } from '../../core/moveSet'
 import { solvePieces } from '../../solve/pieceSearch'
 import type { MethodPlan } from '../../solve/solverKit'
 import type { Cube, Move, Vec3 } from '../../core/types'
+import { parseMoves } from '../../core/notation'
 import { DESCEND_CORNER, SWAP_CORNERS } from './domino'
 
 /**
@@ -53,3 +54,20 @@ export const SLIM_TOWER_PLAN: MethodPlan = [
     phases: [solveWith([...EQUATOR, ...CORNERS], 'U', [SWAP_CORNERS])],
   },
 ]
+
+/*
+ * The formulas of the Slim Tower's manual (QiYi MoFangGe, "223 Cube
+ * Tutorial"), corners then edges, as printed but formula 4, which reads
+ * R2 U2 R2 U2, three times nothing (its drawing shows two moves: R2 U2).
+ * Formula 2 ends with the whole tower turned a quarter (its last U' is
+ * Dw' then the tower turned round): read as it then stands.
+ */
+
+/** Played three times: the two top corners across the top swapped. */
+export const SLIM_OPPOSITE = parseMoves('R2 U D R2 U')
+/** The two right top corners swapped, the tower then turned a quarter. */
+export const SLIM_ADJACENT = parseMoves("U2 F2 R2 U R2 Uw' R2 D R2 U' R2 U'")
+/** The middle's edges swapped two by two, front and back. */
+export const SLIM_PAIRS = parseMoves('R2 2U2 R2')
+/** Played three times: the two right edges of the middle swapped. */
+export const SLIM_EDGE_SWAP = parseMoves('R2 U2')

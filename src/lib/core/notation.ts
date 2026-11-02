@@ -3,7 +3,7 @@ import { FACES, invertMove, SLICES } from './moves'
 import { MODELS } from '../puzzles/models'
 import { faceLayers } from './geometry'
 import { isFaceTurn, kindOf } from './moveKind'
-import type { CubeShape } from './shapes'
+import { SHAPE_SLICE_LETTERS, type CubeShape } from './shapes'
 import type { Dims, Face, Move, Turn } from './types'
 
 /**
@@ -31,8 +31,9 @@ export const AMOUNT_SUFFIX = { 1: '', 2: '2', 3: "'" } as const
 /**
  * Human-readable notation for a move: `U`, `U2`, `U'`, `2U`, `Uw2`... Given
  * the puzzle's `dims`, the inner slice of a 3-layer axis reads as M, E or S
- * (`2L` is M, `2R` is M', which turns the same slice the other way); given
- * its shape, as its model writes it, if it does (the Fashion-V).
+ * (`2L` is M, `2R` is M', which turns the same slice the other way), or
+ * as its shape names it (`SHAPE_SLICE_LETTERS`); given its shape, as its
+ * model writes it, if it does (the Fashion-V).
  */
 export function formatMove(
   move: Turn,
@@ -51,7 +52,8 @@ export function formatMove(
   if (dims && move.depth && !move.wide && faceLayers(dims, move.face) === 3) {
     const slice = SLICES.find((s) => s.face === move.face || s.opposite === move.face)!
     const amount = slice.face === move.face ? move.amount : invertMove(move).amount
-    return slice.letter + AMOUNT_SUFFIX[amount]
+    const letter = (shape && SHAPE_SLICE_LETTERS[shape][slice.letter as 'M']) ?? slice.letter
+    return letter + AMOUNT_SUFFIX[amount]
   }
   const suffix = AMOUNT_SUFFIX[move.amount]
   // A wide turn of three layers is written 3Rw (a 6x6's), of two Rw.

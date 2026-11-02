@@ -42,6 +42,14 @@ export function heldFor(cube: Cube, moves: readonly Turn[]) {
   }
 }
 
+/** Where a formula takes a pick: its place, but where it lands if the
+ *  formula leaves the whole puzzle turned (a 2x2x3's formula 2: its pick
+ *  home among the others, a place further round). */
+function landingOf(cube: Cube, pick: TutorialPick, moves: readonly Turn[]): Vec3 {
+  if (moves.length === 0 || heldFor(cube, moves).lead.length > 0) return pick.slot
+  return applyMoves(cube, moves)[pick.piece]!.position
+}
+
 export function tonesOf(
   cube: Cube,
   moves: readonly Turn[],
@@ -54,9 +62,10 @@ export function tonesOf(
   // Moved by the formula held as its first turns of the whole puzzle say.
   const { held, rest } = heldFor(cube, moves)
   const after = applyMoves(held, rest)
+  const slot = pick && landingOf(cube, pick, moves).join()
   return cube.map((c, i) => {
     if ((pick && i === pick.piece) || focus.includes(i)) return 'target'
-    if (pick && c.position.join() === pick.slot.join()) return 'slot'
+    if (c.position.join() === slot) return 'slot'
     if (placed.includes(i)) return 'placed'
     const [a, h] = [after[i]!, held[i]!]
     const moved =
@@ -189,7 +198,7 @@ export function pieceColors(
     .map((s) => s.color)
 }
 
-/** The piece standing where a pick goes (null: none, the pick's own, or
+/** The piece standing where a pick goes (`landingOf`; null: none, the pick's own, or
  *  the formula only turning the whole puzzle). */
 export function occupantOf(
   cube: Cube,
@@ -197,6 +206,7 @@ export function occupantOf(
   moves: readonly Turn[] = [],
 ): number | null {
   if (turnsWhole(moves)) return null
-  const at = cube.findIndex((c, i) => i !== pick.piece && c.position.join() === pick.slot.join())
+  const slot = landingOf(cube, pick, moves).join()
+  const at = cube.findIndex((c, i) => i !== pick.piece && c.position.join() === slot)
   return at < 0 ? null : at
 }

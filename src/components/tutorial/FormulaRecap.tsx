@@ -3,7 +3,7 @@ import { cubeDims, cubeShape, solvedCube } from '@/lib/core/cube'
 import { formatMove } from '@/lib/core/notation'
 import type { Turn } from '@/lib/core/types'
 import { formulaExample } from '@/lib/teach/example'
-import type { RecapStage, Tutorial } from '@/lib/teach/tutorial'
+import type { RecapFormula, RecapStage, Tutorial } from '@/lib/teach/tutorial'
 import { stepName } from '@/i18n/translations'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { selectBusy, useCube } from '@/store/cubeStore'
@@ -29,7 +29,7 @@ export function FormulaRecap({ tutorial }: { tutorial: Tutorial }) {
   const shownId = useExample((s) => s.example?.id)
   const toggle = useExample((s) => s.toggle)
   const viewToward = useView((s) => s.viewToward)
-  const show = (stage: RecapStage, formula: readonly Turn[], id: string) => {
+  const show = (stage: RecapStage, formula: RecapFormula, id: string) => {
     if (shownId !== id) viewToward(tutorial.frame.front(tutorial.frame.holds[0]!))
     toggle({ id, ...formulaExample(tutorial, solvedCube(shape), stage, formula) })
   }
@@ -38,7 +38,7 @@ export function FormulaRecap({ tutorial }: { tutorial: Tutorial }) {
   const firstAt = new Map<string, number>()
   tutorial.recap.forEach((stage, i) =>
     stage.formulas.forEach((formula) => {
-      if (!firstAt.has(write(formula))) firstAt.set(write(formula), i)
+      if (!firstAt.has(write(formula.moves))) firstAt.set(write(formula.moves), i)
     }),
   )
   const count = firstAt.size
@@ -46,10 +46,10 @@ export function FormulaRecap({ tutorial }: { tutorial: Tutorial }) {
   // the stages listing those it shares (by their numbers).
   const rows = tutorial.recap.map((stage, i) => {
     const own = stage.formulas.flatMap((formula, f) =>
-      firstAt.get(write(formula)) === i ? [{ formula, id: `${stage.key}/${f}` }] : [],
+      firstAt.get(write(formula.moves)) === i ? [{ formula, id: `${stage.key}/${f}` }] : [],
     )
     const earlier = stage.formulas
-      .map((formula) => firstAt.get(write(formula))!)
+      .map((formula) => firstAt.get(write(formula.moves))!)
       .filter((at) => at < i)
     const stages = [...new Set(earlier)].sort((a, b) => a - b).map((at) => at + 1)
     return { stage, own, shared: earlier.length, stages }
@@ -83,7 +83,7 @@ export function FormulaRecap({ tutorial }: { tutorial: Tutorial }) {
                     disabled={busy}
                     aria-pressed={shown}
                     title={label}
-                    aria-label={`${label} : ${write(formula)}`}
+                    aria-label={`${label} : ${write(formula.moves)}`}
                     className={`shrink-0 rounded p-0.5 focus-visible:outline-2 focus-visible:outline-sky-400 disabled:opacity-40 ${
                       shown ? 'text-sky-300' : 'text-slate-400 hover:text-white'
                     }`}
@@ -94,11 +94,19 @@ export function FormulaRecap({ tutorial }: { tutorial: Tutorial }) {
                       <Eye className="size-4" aria-hidden />
                     )}
                   </button>
-                  <code
-                    className={`font-mono text-sm ${shown ? 'text-sky-200' : 'text-amber-200'}`}
-                  >
-                    {write(formula)}
-                  </code>
+                  <span>
+                    <code
+                      className={`font-mono text-sm ${shown ? 'text-sky-200' : 'text-amber-200'}`}
+                    >
+                      {write(formula.moves)}
+                    </code>
+                    {/* Played more than once in a row: how many times. */}
+                    {formula.times.some((n) => n !== 1) && (
+                      <span className="ml-1.5 text-xs whitespace-nowrap text-slate-400">
+                        {t.tutorial.recapTimes(formula.times)}
+                      </span>
+                    )}
+                  </span>
                 </div>
               )
             })}

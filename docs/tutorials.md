@@ -160,7 +160,11 @@ Les règles :
   descriptions coup par coup (`words`) tant que les lettres s'apprennent.
 - Une formule apprise s'affiche comme un bloc, déclaré dans `algorithms`
   de l'étape ; jouée deux fois de suite, elle s'affiche une fois avec « 2
-  fois de suite ».
+  fois de suite ». Une formule jouée plus d'une fois de suite déclare
+  combien (`times` de l'étape : `[3]`, `[1, 2]`...), que l'aide-mémoire
+  affiche et dont il joue le plus petit nombre sur son exemple ; les
+  marches des tests vérifient que chaque formule jouée l'est un nombre
+  de fois déclaré.
 - Les textes ne citent pas de formule en lettres (la notation peut être
   française ou internationale) : les coups s'affichent toujours par
   `formatMove`.

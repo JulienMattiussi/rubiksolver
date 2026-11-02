@@ -93,7 +93,7 @@ Restent dehors les puzzles dont une information n'est pas une couleur
 déforment (Camouflage, Purple, Fashion-V, AI Cube), et le Tori (ses
 arêtes, de minces amandes au bord des faces).
 
-Seuls le 2x2, le 3x3 (et son miroir), le 4x4, la tour 2x2x4, le Gear Cube Ultimate, le Skewb et l'Ivy Cube ont été essayés en vrai (`scanTried` sur
+Seuls le 2x2, le 3x3 (et son miroir), le 4x4, les tours 2x2x3 et 2x2x4, le Gear Cube Ultimate, le Skewb et l'Ivy Cube ont été essayés en vrai (`scanTried` sur
 leur carte) ; sur les autres, le bouton « Utiliser l'appareil photo » porte
 une fiole : « Cette fonction n'a pas encore été testée et validée sur ce
 modèle ».

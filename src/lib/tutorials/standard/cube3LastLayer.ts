@@ -206,6 +206,7 @@ const TOP_CORNERS_STAGE: FigureStage = {
   subjects: (cube) => topPieces(cube, 3),
   progress: (cube) => ({ done: cornersHome(cube).length, total: 4 }),
   algorithms: [[CORNERS]],
+  times: [[1, 2]],
 }
 
 // ---------------------------------------------------------------------------
@@ -259,7 +260,9 @@ const TOP_TWIST_STAGE: FigureStage = {
       c.stickers.length === 3 && c.position[1] === 1 && colorAt(c, 'U') !== W ? [i] : [],
     ),
   progress: (cube) => ({ done: cornersUp(cube).length, total: 4 }),
+  // A corner turned a third by two of them, two thirds by four.
   algorithms: [[TWIST]],
+  times: [[2, 4]],
 }
 
 /** The last layer's stages, in order. */

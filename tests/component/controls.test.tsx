@@ -230,16 +230,23 @@ describe('<Controls />', () => {
     ).toBeInTheDocument()
   })
 
-  it('on the slim tower, offers wide turns on U and D only', async () => {
+  it('on the slim tower, offers wide turns on U and D only, its middle named M', async () => {
     const user = userEvent.setup()
     render(<Controls />)
     await pickCube(user, 'Tours', '2x2x3 (Slim Tower)')
-    // Its sides are two layers deep: no wide turn there.
+    // Its sides are two layers deep: no button at all for a wide turn or a
+    // slice there (a pad shows only the turns its puzzle makes).
     expect(
-      screen.getByRole('button', {
-        name: 'Pas de coup large pour la face de droite sur ce puzzle',
+      screen.queryByRole('button', {
+        name: 'Tourner les deux couches de la face de droite dans le sens horaire',
       }),
-    ).toBeDisabled()
+    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^2[RLFB]/ })).not.toBeInTheDocument()
+    // Its middle layer, as its manual names it: M, not E.
+    expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual(
+      expect.arrayContaining(['M', "M'"]),
+    )
+    expect(screen.queryByText('E')).not.toBeInTheDocument()
     await user.click(
       screen.getByRole('button', {
         name: 'Tourner les deux couches de la face du haut dans le sens horaire',

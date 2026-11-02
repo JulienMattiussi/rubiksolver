@@ -1,8 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
 import { DESCEND_CORNER, SWAP_CORNERS } from '@/lib/methods/tower/domino'
+import {
+  SLIM_ADJACENT,
+  SLIM_EDGE_SWAP,
+  SLIM_OPPOSITE,
+  SLIM_PAIRS,
+} from '@/lib/methods/tower/slimTower'
 import { movesFor } from '@/lib/core/moves'
-import { formatMoves } from '@/lib/core/notation'
+import { formatMoves, parseMoves } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
 import type { Move, Vec3 } from '@/lib/core/types'
 import { validateCube } from '@/lib/editor/validate'
@@ -29,14 +35,25 @@ function effect(moves: readonly Move[]): string[] {
 }
 
 describe('Slim Tower (2x2x3)', () => {
-  it('turns U, D and their blocks freely, its sides by half turns only', () => {
-    expect(formatMoves(movesFor('223'))).toBe("U Uw U2 Uw2 U' Uw' D Dw D2 Dw2 D' Dw' L2 R2 F2 B2")
+  it('turns U, D, its middle layer and their blocks freely, its sides by half turns only', () => {
+    expect(formatMoves(movesFor('223'))).toBe(
+      "U 2U Uw U2 2U2 Uw2 U' 2U' Uw' D Dw D2 Dw2 D' Dw' L2 R2 F2 B2",
+    )
   })
 
   it('takes the Domino formulas: descend swaps two equator edges along, swap is pure', () => {
     expect(effect(DESCEND_CORNER)).toContain('UFR->DFR')
     expect(effect(DESCEND_CORNER)).toContain('FL->FR')
     expect(effect(SWAP_CORNERS)).toEqual(['UBR->UFR', 'UFR->UBR'])
+  })
+
+  it("takes its manual's formulas, the fourth corrected: each swaps just what it says", () => {
+    const thrice = (m: readonly Move[]) => [...m, ...m, ...m]
+    expect(effect(thrice(SLIM_OPPOSITE))).toEqual(['UBR->UFL', 'UFL->UBR'])
+    // The second leaves the whole tower turned a quarter: turned back here.
+    expect(effect([...SLIM_ADJACENT, ...parseMoves("Dw' U")])).toEqual(['UBR->UFR', 'UFR->UBR'])
+    expect(effect(SLIM_PAIRS)).toEqual(['BL->BR', 'BR->BL', 'FL->FR', 'FR->FL'])
+    expect(effect(thrice(SLIM_EDGE_SWAP))).toEqual(['BR->FR', 'FR->BR'])
   })
 
   it('rejects a twisted corner', () => {

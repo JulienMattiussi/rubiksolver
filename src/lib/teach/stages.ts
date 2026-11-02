@@ -52,6 +52,9 @@ export interface PieceStage {
   readonly shows?: Vec3
   /** The sequences its formulas end on, read in its hold. */
   readonly algorithms?: readonly Sequence[]
+  /** How many times in a row each of `algorithms` is played, its counts
+   *  (see `RecapFormula.times`; none: once each). */
+  readonly times?: readonly (readonly number[])[]
   /** The pieces one may pick, the placed ones given (by default, its
    *  targets not placed). */
   readonly pickable?: (cube: Cube, placed: readonly number[]) => number[]
@@ -105,6 +108,9 @@ export interface FigureStage {
   readonly shows?: Vec3
   readonly progress: (cube: Cube) => { done: number; total: number }
   readonly algorithms?: readonly Sequence[]
+  /** How many times in a row each of `algorithms` is played, its counts
+   *  (see `RecapFormula.times`; none: once each). */
+  readonly times?: readonly (readonly number[])[]
 }
 
 /** A piece stage's targets, read on a state. */

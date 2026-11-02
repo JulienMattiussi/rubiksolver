@@ -35,8 +35,9 @@ export interface TutorialPlan {
   readonly frame?: HoldFrame
   /** The color of a side (its outward normal), for a puzzle with no
    *  center there (a 2x2: from its anchor corner); by default, the center's
-   *  there. */
-  readonly faceColor?: (cube: Cube, normal: Vec3) => Color | null
+   *  there. Read on the state, or where the step began (a 2x2x3 held the
+   *  way it was then, its formula under way). */
+  readonly faceColor?: (cube: Cube, normal: Vec3, begun: Cube) => Color | null
   /** The words its steps use, shown first (see `Tutorial.glossary`). */
   readonly glossary?: readonly Term[]
   /** See `Tutorial.pieceKind` (by default, a cube's), `outside` and
@@ -97,13 +98,16 @@ const isDone = (stage: Stage, cube: Cube): boolean =>
 const keyOf = (stage?: { key: string } | ProjectedStage) =>
   !stage ? '' : 'inner' in stage ? stage.inner.key : stage.key
 
-/** A stage's formulas, each sequence whole. */
+/** A stage's formulas, each sequence whole, with its counts. */
 function recapOf(stage: PieceStage | FigureStage | ProjectedStage): RecapStage {
   const own = 'inner' in stage ? stage.inner : stage
   const side = own.kind === 'figures' ? own.side : undefined
   return {
     key: own.key,
-    formulas: (own.algorithms ?? []).map((sequence) => sequence.flat()),
+    formulas: (own.algorithms ?? []).map((sequence, i) => ({
+      moves: sequence.flat(),
+      times: own.times?.[i] ?? [1],
+    })),
     ...(own.marker && { marker: own.marker }),
     ...(side && { side: typeof side === 'function' ? side : () => side }),
   }
@@ -155,8 +159,8 @@ export function tutorialOf(plan: TutorialPlan): Tutorial {
     ...(plan.holding && { holding: plan.holding }),
     // The plan's own colors first (a 4x4's, its centers not yet one face
     // each), else the center there.
-    faceColor: (cube, normal) => {
-      const color = plan.faceColor?.(cube, normal) ?? null
+    faceColor: (cube, normal, begun = cube) => {
+      const color = plan.faceColor?.(cube, normal, begun) ?? null
       if (color) return { color, center: false }
       const center = centerColor(cube, normal)
       return center ? { color: center, center: true } : null

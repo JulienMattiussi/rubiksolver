@@ -1,20 +1,22 @@
 import { invertMoves } from '../core/moves'
 import { applyMoves } from '../core/turn'
 import type { Cube, Turn } from '../core/types'
-import type { RecapStage, Tutorial, TutorialStep } from './tutorial'
+import type { RecapFormula, RecapStage, Tutorial, TutorialStep } from './tutorial'
 
 /** A formula of the reminder shown on the puzzle, held the usual way: the
- *  turns it makes (`moves`), on the solved puzzle with them undone, so that
+ *  turns it makes (`moves`: played the fewest times it is, three times
+ *  for one always played so), on the solved puzzle with them undone, so that
  *  playing it solves it again, and a step reading it so, the pieces it puts
  *  back its subjects (an arrow each, their colors kept). */
 export function formulaExample(
   tutorial: Tutorial,
   solved: Cube,
   stage: RecapStage,
-  formula: readonly Turn[],
+  formula: RecapFormula,
 ): { cube: Cube; moves: Turn[]; step: TutorialStep } {
   const hold = tutorial.frame.holds[0]!
-  const moves = formula.map((turn) => tutorial.frame.played(hold, turn))
+  const once = formula.moves.map((turn) => tutorial.frame.played(hold, turn))
+  const moves = Array.from({ length: Math.min(...formula.times) }, () => once).flat()
   const cube = applyMoves(solved, invertMoves(moves))
   const same = (a: readonly number[], b: readonly number[]) => a.join() === b.join()
   const subjects = cube.flatMap((c, i) => {

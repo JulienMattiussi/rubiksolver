@@ -108,6 +108,13 @@ export type InnerTurn = 'slice' | 'wide' | 'slice3' | 'wide3'
 
 export const SHAPE_INNER_TURNS: Record<CubeShape, readonly InnerTurn[]> = each((e) => e.inner ?? [])
 
+/** A puzzle's middle slices named otherwise than the 3x3's M, E and S,
+ *  by the letter they replace (the Slim Tower's middle layer is M, as its
+ *  maker's manual writes it, not E). */
+export type SliceLetters = Partial<Record<'M' | 'E' | 'S', string>>
+
+export const SHAPE_SLICE_LETTERS: Record<CubeShape, SliceLetters> = each((e) => e.slices ?? {})
+
 /**
  * Turns a puzzle takes beyond its everyday ones, offered apart (the pad's
  * "advanced" tab) and never scrambled with: the 3x3's middle slices (M, E, S)

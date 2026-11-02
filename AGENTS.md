@@ -173,7 +173,8 @@ src/
 │   │                    #   légende), flatKit (ce que partagent le Floppy et le 1x2x3) ;
 │   │                    #   diagonal/skewb (Le haut d'abord, de francocube), skewbHolds, skewbTerms ;
 │   │                    #   gear/gearUltimate (le Gear Cube Ultimate, Coins d'abord), gearTerms ;
-│   │                    #   tower/tower224 (la tour 2x2x4, Deux Pockets), towerTerms
+│   │                    #   tower/tower224 (la tour 2x2x4, Deux Pockets), tower/tower223 (la Slim
+│                    #   Tower, Coins puis arêtes, d'après sa notice), towerTerms
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
 │                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)
@@ -246,8 +247,10 @@ Holey Megaminx du Megaminx, reprend simplement celui de son parent) :
   `EditPanel`). Aucun code commun ne teste le nom d'un puzzle : ce qui le
   distingue est un champ de sa carte ou un crochet de son modèle.
   `inner` déclare les couches intérieures que tourne son mécanisme (tranches
-  et/ou coups larges, sur tout axe d'au moins 3 couches) ; le pad grise les
-  faces sans cette sorte de couche. Sa clé est l'identifiant de forme
+  et/ou coups larges, sur tout axe d'au moins 3 couches) ; le pad ne montre
+  que les faces qui ont cette sorte de couche ; `slices` renomme ses tranches
+  du milieu quand le puzzle les nomme autrement que le 3x3 (la 2x2x3 : `M`,
+  comme sa notice). Sa clé est l'identifiant de forme
   (`CubeShape` est l'ensemble des clés du catalogue) ; les tables de
   `core/shapes.ts` (`SHAPE_DIMS`, `SHAPE_LABEL`...) en sont dérivées ;
 - **son modèle** (`lib/puzzles/<catégorie>/models.ts`, type `PuzzleModel`),
@@ -638,6 +641,11 @@ par `golden.test.ts` (référence `golden/cube3.json`, écrite par le test :
 - **Factoriser, pas dupliquer** ; un composant par fichier ; viser < ~300
   lignes par fichier.
 - **Pas de code mort** : tout export est utilisé ou testé (`make knip`).
+- **Le pad suit le modèle** : il ne montre que les coups que le puzzle fait
+  vraiment (`movesFor`), jamais un bouton fantôme pour une couche qu'il n'a
+  pas ; seul un coup que la position bloque reste grisé. Ses lettres sont
+  celles du puzzle, celles de sa notice quand il en a une (`slices` sur sa
+  carte).
 - **Logique pure entièrement testée** (`src/lib/`).
 - **Éléments factorisables isolés** : chaque brique réutilisable est un
   composant, un hook ou une fonction dans son propre fichier, testé quand la

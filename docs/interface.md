@@ -41,8 +41,10 @@ mobile et en saisie, une seule carte) :
   derrière elle : externe, large ; sur le Pyraminx, les pointes et les faces
   opposées) et « Internes » (les tranches) ; en arrivant sur un puzzle, le
   pad s'ouvre sur le premier onglet où un coup passe. Des libellés de quatre
-  caractères (`3Uw'`) mettent deux paires par rangée au lieu de trois. Un
-  coup que l'état bloque (tours qui se déforment, Purple, soudés...) reste
+  caractères (`3Uw'`) mettent deux paires par rangée au lieu de trois.
+  Chaque sorte de couche ne montre que les faces qui l'ont (aucun bouton pour
+  un coup que le puzzle ne fait pas : la 2x2x3 n'a de tranche qu'au milieu,
+  nommée `M` comme sur sa notice). Un coup que l'état bloque (tours qui se déforment, Purple, soudés...) reste
   grisé ; un puzzle
   qui ne tourne pas comme un cube a son propre pad, nommé par le `pad` de sa
   carte et construit par `padFor`).
@@ -263,7 +265,9 @@ R D` répété, un seul pas, la première couche se défaisant en route).
   pavé de coups aussi pendant le tutoriel : `R` tourne la face qu'on voit
   à droite.
 - **Sur le cube** : la pièce visée scintille en bleu et l'emplacement en
-  ambre (`usePulse`), les pièces que la formule déplace sans les placer
+  ambre (`usePulse` ; là où la formule la pose, une case plus loin quand
+  elle finit en tournant le puzzle entier, la formule 2 de la 2x2x3 :
+  `landingOf`), les pièces que la formule déplace sans les placer
   sont hachurées (`hatchTexture`, celle qui occupe l'emplacement aussi),
   et une flèche va de la face du sticker
   repère à celle où il arrive (`TutorialArrow` : un demi-cercle autour du
@@ -290,7 +294,9 @@ R D` répété, un seul pas, la première couche se défaisant en route).
   le cube (`StageCheer`) ; la fin du tutoriel, une coupe, « Résolu, bravo ! »,
   « Les N formules à retenir » (`FormulaRecap` : chaque étape et ses
   formules, lues dans les `algorithms` qu'elle déclare, écrites dans la
-  notation choisie, une formule enseignée deux fois comptée une fois), un
+  notation choisie, suivies du nombre de fois de suite qu'on les joue
+  quand ce n'est pas une seule, « 3 fois de suite », « 1 ou 2 fois de
+  suite » (`times`), une formule enseignée deux fois comptée une fois), un
   bouton pour le fermer, et le feu d'artifice ; sur téléphone, le panneau
   se replie pour le laisser voir au-dessus du puzzle.
 - **Autour** : la solution précalculée de la méthode n'est pas montrée

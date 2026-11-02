@@ -126,8 +126,6 @@ export const UI_EN: typeof UI_FR = {
     faces: 'Faces',
     deep: 'Corners',
   },
-  noSuchLayer: (faceName: string, kind: LayerKind) =>
-    `No ${kind === 'wide' || kind === 'wide3' ? 'wide turn' : 'inner slice'} for the ${faceName} on this puzzle`,
   jammedTurn: (faceName: string) => `Jammed: the ${faceName} cannot turn in this position`,
   layerLabel: 'Turned layer',
   vtoLayerKinds: { wide: 'Corners', outer: 'Tips' },

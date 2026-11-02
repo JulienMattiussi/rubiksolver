@@ -25,6 +25,9 @@ export interface TutorialView {
   /** The state the step reads: the cube's, or, looking at a formula just
    *  played, the one it was played on. */
   cube: Cube
+  /** Where the step began, before the turns by hand since (by default,
+   *  `cube`). */
+  begun?: Cube
   /** Looking at the formula just played (its step, pick and moves shown
    *  done; the pieces where they went, no arrow), before `next`. */
   review: boolean
@@ -186,7 +189,12 @@ export function useTutorial(): TutorialView {
       moves: [],
     }
   }
-  if (!step) return { ...OFF, cube }
+  // Solved: no step, the tutorial kept for its reminder's formulas shown.
+  if (!step) {
+    return tutorial
+      ? { ...OFF, cube, tutorial, frame: tutorial.frame, stages: tutorial.stages }
+      : { ...OFF, cube }
+  }
   // Looking at a formula played, its step may be over: all its pieces placed.
   const live = review && tutorial ? tutorial.stepOf(cube) : step
   const total = step.progress?.total
@@ -217,6 +225,7 @@ export function useTutorial(): TutorialView {
   }
   return {
     cube: read,
+    begun,
     review,
     progress,
     step,

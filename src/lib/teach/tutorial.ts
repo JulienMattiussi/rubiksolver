@@ -25,11 +25,19 @@ export interface TutorialPick {
  *  middle edges' insertion: out of the way, then back), shown apart. */
 export type Sequence = readonly (readonly Turn[])[]
 
-/** A stage as the reminder shows it: its key and the formulas it teaches,
- *  whole (none: a stage solved by hand). */
+/** A formula as the reminder shows it: whole, and how many times in a row
+ *  it is played (the counts it may take: `[1]` once, `[1, 2]` once or
+ *  twice, `[3]` three times). */
+export interface RecapFormula {
+  readonly moves: readonly Turn[]
+  readonly times: readonly number[]
+}
+
+/** A stage as the reminder shows it: its key and the formulas it teaches
+ *  (none: a stage solved by hand). */
 export interface RecapStage {
   readonly key: string
-  readonly formulas: readonly (readonly Turn[])[]
+  readonly formulas: readonly RecapFormula[]
   /** How its arrows read, a formula shown on the puzzle: the sticker they
    *  follow, the side they go round (read on the state). */
   readonly marker?: Color
@@ -162,8 +170,13 @@ export interface Tutorial {
   readonly openings: readonly string[]
   /** The color of the side of this outward normal, and whether a center
    *  shows it (the 3x3's) or the pieces' frame only (a 2x2's, from its
-   *  anchor corner): what the user is told to hold in front. */
-  readonly faceColor: (cube: Cube, normal: Vec3) => { color: Color; center: boolean } | null
+   *  anchor corner): what the user is told to hold in front. `begun`: where
+   *  the step began (by default, the state). */
+  readonly faceColor: (
+    cube: Cube,
+    normal: Vec3,
+    begun?: Cube,
+  ) => { color: Color; center: boolean } | null
   /** The words it uses, shown before its stages (step 0). */
   readonly glossary: readonly Term[]
   /** What kind of piece a piece is, its name's key (a cube's by its

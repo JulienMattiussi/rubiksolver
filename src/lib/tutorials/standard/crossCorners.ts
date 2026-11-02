@@ -71,7 +71,7 @@ const wayStage = (
   stage: number,
   chainOf: (cube: Cube) => Way[] | null,
   figures: Record<string, string>,
-  rest: Pick<FigureStage, 'done' | 'progress' | 'subjects' | 'algorithms' | 'focus'>,
+  rest: Pick<FigureStage, 'done' | 'progress' | 'subjects' | 'algorithms' | 'times' | 'focus'>,
 ): FigureStage => {
   const lead = leadOf(chainOf)
   return {
@@ -129,6 +129,7 @@ const MIDDLE = wayStage('stepTutorialCrossCornersMiddle', 2, middleChain, EDGE_F
   progress: (cube) => ({ done: count(readPlaced(cube, isMiddleEdge), 'inCell'), total: 4 }),
   subjects: (cube) => indicesOf(cube, isMiddleEdge),
   algorithms: [[SWAP]],
+  times: [[1, 2]],
 })
 
 const TOP_SWAPS = [
@@ -146,6 +147,7 @@ const TOP_EDGES = wayStage('stepTutorialCrossCornersTopEdges', 3, topEdgesChain,
   progress: (cube) => ({ done: count(readPlaced(cube, topEdge), 'home'), total: 4 }),
   subjects: (cube) => indicesOf(cube, topEdge),
   algorithms: [[SWAP]],
+  times: [[1, 2]],
 })
 
 // ---------------------------------------------------------------------------

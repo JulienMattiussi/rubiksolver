@@ -18,6 +18,10 @@ export const TOWER_EN: TutorialTexts = {
       'Turn a half of the tower: its bars tip over with it, and lying bars stand up.',
   },
   terms: {
+    termSlimEdge:
+      'An **edge**: a piece with two faces, in the middle layer of the tower. There are four.',
+    termSlimMiddle:
+      'A **middle turn**: only the middle layer turns, between the top and the bottom.',
     termTowerCorner:
       'A **corner**: a piece with three faces, at both ends of the tower, four at the top and four at the bottom.',
     termTowerMiddle:
@@ -32,6 +36,12 @@ export const TOWER_EN: TutorialTexts = {
       'A **layer turn**: only the top (or bottom) layer turns, possible when it is a full square.',
   },
   progress: {
+    stepSlimBottom: (done: number, total: number) =>
+      `${done} corner${done > 1 ? 's' : ''} of ${total} in place`,
+    stepSlimTop: (done: number, total: number) =>
+      `${done} corner${done > 1 ? 's' : ''} of ${total} in place`,
+    stepSlimEdges: (done: number, total: number) =>
+      `${done} edge${done > 1 ? 's' : ''} of ${total} in place`,
     stepTowerShape: (done: number, total: number) =>
       `${done} bar${done > 1 ? 's' : ''} of ${total} standing`,
     stepTowerInnerDown: (done: number, total: number) =>
@@ -44,6 +54,9 @@ export const TOWER_EN: TutorialTexts = {
       `${done} corner${done > 1 ? 's' : ''} of ${total} in place`,
   },
   titles: {
+    stepSlimBottom: 'Place the bottom corners',
+    stepSlimTop: 'Place the top corners',
+    stepSlimEdges: 'Place the middle edges',
     stepTowerShape: 'Get the tower back in shape',
     stepTowerInnerDown: 'Place the bottom middles',
     stepTowerInnerUp: 'Place the top middles',
@@ -51,6 +64,12 @@ export const TOWER_EN: TutorialTexts = {
     stepTowerOuterUp: 'Place the top corners',
   },
   hints: {
+    stepSlimBottom:
+      'Place the four bottom corners, one at a time, with a few turns: no formula at this step, everyone does it their own way.',
+    stepSlimTop:
+      'The bottom corners stay in place. Two opposite top corners swap with a formula played three times, two neighboring ones with another, played once. Turn the top first if need be.',
+    stepSlimEdges:
+      'Only the middle edges are left. A formula swaps them two by two; another, played three times, swaps two neighboring edges. The corners no longer move.',
     stepTowerShape:
       'Stand the lying bars up, two at a time, with wide turns: the tower gets its shape back.',
     stepTowerInnerDown:

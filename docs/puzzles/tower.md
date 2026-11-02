@@ -236,9 +236,32 @@ les formules A et B pour ses deux Pockets.
 La **Slim Tower** (`[2, 3, 2]`, `methods/tower/slimTower.ts`, d'après
 fan2cube.fr/tower2231 et tower2232) est un Domino debout : U et D en quarts de
 tour, avec leurs blocs `Uw`/`Dw` (le `H*` de fan2cube, qui fait tourner
-l'équateur avec), et les côtés en demi-tours seulement ; elle ne se déforme
-pas. Le coup large sur son axe de 3 couches vient de `inner` sur sa carte.
+l'équateur avec), son équateur seul (nommé `M` comme sur la notice du fabricant,
+`slices` sur sa carte, et non `E` comme sur le 3x3), et les côtés en demi-tours seulement ; elle ne se déforme pas.
+La tranche et le coup large sur son axe de 3 couches viennent de `inner` sur
+sa carte.
 Méthode **Équateur puis coins** : (I) l'équateur, intuitivement ; (II) les coins du bas avec la
 formule de descente du Domino, qui échange au passage deux arêtes de
 l'équateur, d'où une descente deux par deux ; (III) les coins du haut avec
 l'échange du Domino, pur sur ce puzzle.
+
+Méthode **Coins puis arêtes**, celle de sa notice (QiYi MoFangGe, « 223 Cube
+Tutorial »), enseignée par son tutoriel (`tutorials/tower/tower223.ts`, la
+méthode est ce tutoriel joué jusqu'au bout) : (I) les coins du bas, un par un,
+par les tours les plus courts (la notice laisse cette étape à chacun) ;
+(II) les coins du haut, deux opposés échangés par `R2 U D R2 U` joué trois
+fois, deux voisins par `U2 F2 R2 U R2 Uw' R2 D R2 U' R2 U'` ; (III) les
+arêtes du milieu, échangées deux à deux par `R2 M2 R2`, ou deux voisines par
+`R2 U2` joué trois fois. La deuxième formule laisse la tour entière tournée
+d'un quart de tour (son `U'` final revient à `Dw'` suivi de ce quart de
+tour) : le tutoriel la joue telle quelle et relit ensuite la tour comme elle
+se tient. Seule la quatrième est fausse, et corrigée ici : imprimée
+`R2 U2 R2 U2`, elle ne fait rien jouée trois fois (son dessin ne montre que
+`R2 U2`). L'effet de chacune est vérifié
+dans `tests/unit/puzzles/tower/slimTower.test.ts`. Sans centre, la tour
+n'a pas de tenue imposée : le tutoriel la lit dans celle des huit (debout,
+dans un sens ou l'autre, un côté devant) qui garde le plus de coins du bas
+déjà placés, puis le plus de pièces, et dit ses côtés par les couleurs
+qu'ils auront dans cette tenue (`holdOf`) ; une formule garde les pièces
+placées si elles le restent toutes ensemble, la tour tournée d'un bloc
+autour de sa hauteur au besoin.

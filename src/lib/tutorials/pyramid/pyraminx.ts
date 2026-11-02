@@ -199,6 +199,7 @@ export const PYRAMINX_TUTORIAL = tutorialOf({
       stage: 3,
       targets: BOTTOM.map(edgeTarget),
       algorithms: [[HOOK]],
+      times: [[1, 2, 3]],
       // Held with the slot in front: the hook reads [gd'] there.
       hold: (_, pick, next) =>
         BOTTOM.find(([v, w]) => sameAt(edgeAt(v, w), (pick ?? next).slot))![2],

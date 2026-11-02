@@ -6,8 +6,8 @@ envisagées.
 ## Le scan à l'appareil photo : réglages et autres formes
 
 **Constat.** Le scan (`lib/editor/scan/`, détail dans `docs/scan.md`) n'a
-été essayé en vrai que sur le 2x2, le 3x3, le 4x4, la tour 2x2x4 et le 3x3
-miroir ; les autres (cuboïdes, plats, troués, diagonaux, Megaminx, tour
+été essayé en vrai que sur le 2x2, le 3x3, le 4x4, les tours 2x2x3 et
+2x2x4 et le 3x3 miroir ; les autres (cuboïdes, plats, troués, diagonaux, Megaminx, tour
 2x3x4, Floppy Ghost) ne l'ont été que sur images synthétiques, leur bouton
 marqué d'une fiole. Ses seuils (bandes de teinte et marges de `color.ts`,
 `HOLD_MS` et `DRIFT` dans `capture.ts`, `FORCED` dans `classify.ts`,

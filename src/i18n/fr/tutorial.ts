@@ -141,6 +141,14 @@ export const TUTORIAL_FR = {
   /** A stage's formulas listed at an earlier stage (by their numbers). */
   recapSame: (formulas: number, stages: readonly number[]) =>
     `${formulas > 1 ? 'Les formules' : 'La formule'} ${stages.length > 1 ? 'des étapes' : 'de l’étape'} ${listFr(stages.map(String))}`,
+  /** How many times in a row a formula of the reminder is played (never
+   *  once alone: nothing said). */
+  recapTimes: (times: readonly number[]) =>
+    times.length === 1
+      ? `${times[0]} fois de suite`
+      : times.length === 2
+        ? `${times[0]} ou ${times[1]} fois de suite`
+        : `${times[0]} à ${times[times.length - 1]} fois de suite`,
   recapBack: 'Revenir au tutoriel',
   /** A formula of the reminder shown on the cube, or no more. */
   recapShow: 'Voir la formule sur le cube',

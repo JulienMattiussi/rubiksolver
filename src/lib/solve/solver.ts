@@ -201,7 +201,6 @@ const SOLVE_METHODS = [
       alcatraz: ALCATRAZ_PLAN,
     },
   },
-  { id: 'equatorFirst', plans: { '223': SLIM_TOWER_PLAN } },
   { id: 'centersFirst', plans: { pyra: taught('pyra', 'centersFirst'), tetra: TETRAMINX_PLAN } },
   { id: 'wingsFirst', plans: { pyra4: PYRAMINX4_PLAN, pyra5: PYRAMINX5_PLAN } },
   { id: 'jingCornersFirst', plans: { jing: JING_PLAN } },
@@ -243,9 +242,12 @@ const SOLVE_METHODS = [
       '123': taught('123', 'cornersFirst'),
       '331': taught('331', 'cornersFirst'),
       ghost: taught('ghost', 'cornersFirst'),
+      '223': taught('223', 'cornersFirst'),
       bigBlock: BIG_BLOCK_PLAN,
     },
   },
+  // After Corners then edges: the 2x2x3's manual method first.
+  { id: 'equatorFirst', plans: { '223': SLIM_TOWER_PLAN } },
   {
     id: 'optimal',
     plans: {

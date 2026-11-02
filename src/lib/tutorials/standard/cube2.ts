@@ -250,6 +250,7 @@ export const CUBE2_TUTORIAL = tutorialOf({
       subjects: topCorners,
       progress: (cube) => ({ done: matched(cube, 1), total: 4 }),
       algorithms: [[CYCLE]],
+      times: [[1, 2]],
     },
     {
       kind: 'figures',
@@ -285,6 +286,7 @@ export const CUBE2_TUTORIAL = tutorialOf({
       subjects: topCorners,
       progress: (cube) => ({ done: matched(cube, 1), total: 4 }),
       algorithms: [[CYCLE]],
+      times: [[1, 2]],
     },
   ],
 })

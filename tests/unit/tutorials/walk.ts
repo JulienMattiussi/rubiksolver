@@ -1,7 +1,8 @@
 import { expect } from 'vitest'
 import { isSolved } from '@/lib/core/cube'
 import { applyMoves } from '@/lib/core/turn'
-import type { Cube } from '@/lib/core/types'
+import type { Cube, Turn } from '@/lib/core/types'
+import { formulaSegments, sameTurn } from '@/lib/teach/segments'
 import type { Tutorial, TutorialStep } from '@/lib/teach/tutorial'
 import { TUTORIAL_EN } from '@/i18n/en/tutorial'
 import { TUTORIAL_FR } from '@/i18n/fr/tutorial'
@@ -12,7 +13,8 @@ import { TUTORIAL_FR } from '@/i18n/fr/tutorial'
  */
 
 /** The steps from a state to the solve, each suggestion's formula played
- *  (each found), `max` steps at most. */
+ *  (each found, each of its formulas played in a row as many times as the
+ *  reminder says), `max` steps at most. */
 export function walk(tutorial: Tutorial, start: Cube, max: number) {
   let cube = start
   const steps: TutorialStep[] = []
@@ -21,9 +23,29 @@ export function walk(tutorial: Tutorial, start: Cube, max: number) {
     const moves = step.formula(step.suggestion)
     expect(moves, step.key).not.toBeNull()
     steps.push(step)
+    expectTimes(tutorial, step, moves!)
     cube = applyMoves(cube, moves!)
   }
   return { steps, cube }
+}
+
+/** Each formula of a step played in a row a number of times its reminder
+ *  declares (`RecapFormula.times`). */
+function expectTimes(tutorial: Tutorial, step: TutorialStep, moves: readonly Turn[]) {
+  const known = step.algorithms ?? []
+  const recap = tutorial.recap.find((s) => s.key === step.key)
+  const { frame } = tutorial
+  for (const segment of formulaSegments(moves, known, frame)) {
+    if (segment.kind !== 'sequence') continue
+    const formula = recap?.formulas.find(
+      (f) =>
+        f.moves.length === segment.moves.length &&
+        frame.holds.some((hold) =>
+          segment.moves.every((m, j) => sameTurn(frame.inHold(hold, m), f.moves[j]!)),
+        ),
+    )
+    if (formula) expect(formula.times, step.key).toContain(segment.times)
+  }
 }
 
 /** A walk that never goes back (docs/tutorials.md, rule 2): its stages in

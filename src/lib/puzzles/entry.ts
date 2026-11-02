@@ -1,5 +1,5 @@
 import type { Color, Dims, Face } from '../core/types'
-import type { CubeVariant, InnerTurn } from '../core/shapes'
+import type { CubeVariant, InnerTurn, SliceLetters } from '../core/shapes'
 
 /** The families of puzzles turning by their own kind of moves (see
  *  core/moveKind.ts). */
@@ -57,6 +57,9 @@ export interface PuzzleEntry {
   readonly shifts?: true
   /** Inner layers its mechanism turns (see `SHAPE_INNER_TURNS`). */
   readonly inner?: readonly InnerTurn[]
+  /** Its middle slices named otherwise than the 3x3's (see
+   *  `SHAPE_SLICE_LETTERS`). */
+  readonly slices?: SliceLetters
   /** Turns offered apart and never scrambled (see `SHAPE_ADVANCED_TURNS`). */
   readonly advanced?: readonly ('slice' | 'wide')[]
   /** Sold as a mirror puzzle too (see `supportsMirror`). */

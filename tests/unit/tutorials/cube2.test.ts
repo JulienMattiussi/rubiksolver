@@ -129,7 +129,7 @@ describe('2x2 tutorial', () => {
 
 describe('2x2 tutorial reminder', () => {
   it('lists its stages and their three formulas, the first taught twice', () => {
-    const recap = tutorial.recap.map((s) => [s.key, s.formulas.map((f) => formatMoves(f))])
+    const recap = tutorial.recap.map((s) => [s.key, s.formulas.map((f) => formatMoves(f.moves))])
     expect(recap).toEqual([
       ['stepTutorialFace2', []],
       ['stepTutorialLayer2', [PLL_AB]],

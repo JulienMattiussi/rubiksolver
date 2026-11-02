@@ -48,14 +48,14 @@ export function Instructions({ view, busy }: { view: TutorialView; busy: boolean
   // left), the rest is to play.
   const lead = shown && !turning ? heldFor(cube, shown.moves).lead.length : 0
   const toTurn = turning || busy || review ? [] : (holding?.lead ?? [])
-  const front = view.tutorial?.faceColor(held, frontNormal) ?? null
+  const front = view.tutorial?.faceColor(held, frontNormal, view.begun) ?? null
   // And the side held down (the holds turn round the top).
-  const down = view.tutorial?.faceColor(held, frame.down) ?? null
-  const up = view.tutorial?.faceColor(held, [
-    0 - frame.down[0],
-    0 - frame.down[1],
-    0 - frame.down[2],
-  ])
+  const down = view.tutorial?.faceColor(held, frame.down, view.begun) ?? null
+  const up = view.tutorial?.faceColor(
+    held,
+    [0 - frame.down[0], 0 - frame.down[1], 0 - frame.down[2]],
+    view.begun,
+  )
   // A piece named by its colors, or by its label on a puzzle told by shape.
   const legend = view.tutorial?.legend
   const name = (index: number) => {

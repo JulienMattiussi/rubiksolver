@@ -1,7 +1,6 @@
 import { cubeDims, cubeShape } from '@/lib/core/cube'
 import { describeMove } from '@/lib/app/moveGuide'
 import { turnAllowed } from '@/lib/core/turn'
-import { FACE_NORMAL, faceOfNormal, mapVec } from '@/lib/core/geometry'
 import {
   advancedMovesFor,
   FACES,
@@ -34,9 +33,10 @@ type PadTab = LayerKind | 'advanced'
  * them, plus the turns kept apart, `advancedMovesFor`: the 3x3's M, E, S and
  * wide turns), they are stacked, each under its name, when they all fit in
  * six rows; past that, a selector picks the kind the buttons turn, and on a
- * new puzzle the pad opens on the first one where a turn goes. A face
- * without that kind of layer (a slim tower's side) or a turn the state jams
- * (a tower's incomplete end, see `turnAllowed`) stays disabled.
+ * new puzzle the pad opens on the first one where a turn goes. Each kind
+ * shows only the faces that have that kind of layer (no button for a turn
+ * the model does not make: a slim tower's sides have no slice); a turn the
+ * state jams (a tower's incomplete end, see `turnAllowed`) stays disabled.
  * Hovering or focusing a button highlights the pieces it would turn. In the
  * tutorial, the pad reads as the puzzle is held for its step
  * (`tutorialStore.hold`): `R` turns the side on your right. With `corners`
@@ -63,12 +63,15 @@ export function MovePad({ disabled, corners }: { disabled: boolean; corners?: bo
     (k === 'advanced' ? advanced : moves.filter((m) => layerKindOf(m) === k)).some((m) =>
       turnAllowed(cube, m),
     )
-  const faces = FACES.filter((face) => moves.some((m) => m.face === face))
+  /** The faces a kind of layer turns: its buttons, and only them. */
+  const facesOf = (kind: LayerKind) =>
+    FACES.filter((face) => moves.some((m) => m.face === face && layerKindOf(m) === kind))
   const advancedLayers = advanced.filter(
     (m, i) => !advanced.slice(0, i).some((n) => sameLayer(n, m)),
   )
   /** The rows of buttons a tab shows, three layers a row. */
-  const rowsOf = (k: PadTab) => Math.ceil((k === 'advanced' ? advancedLayers : faces).length / 3)
+  const rowsOf = (k: PadTab) =>
+    Math.ceil((k === 'advanced' ? advancedLayers : facesOf(k)).length / 3)
   /** The third layer is the middle one (a 5x5's 3R): named by R, U and F
    *  only, never by their opposite faces. */
   const middle = !moves.some((m) => layerKindOf(m) === 'slice3' && ['L', 'D', 'B'].includes(m.face))
@@ -83,33 +86,25 @@ export function MovePad({ disabled, corners }: { disabled: boolean; corners?: bo
   const grid = (tabShown: PadTab) => {
     const kind: LayerKind = tabShown === 'advanced' ? 'outer' : tabShown
     const turn = (face: Face, amount: 1 | 2 | 3): Move => layerMove(face, amount, kind)
-    /** The face has this kind of layer (the slim tower's sides have no wide
-     *  turn: their axis is two layers deep). */
-    const offered = (face: Face) => moves.some((m) => m.face === face && layerKindOf(m) === kind)
-    /** A middle slice is shown once, under the face that names it (2U for
-     *  E, not 2D as well). */
-    const opposite = (face: Face) => faceOfNormal(mapVec(FACE_NORMAL[face], (v) => -v + 0))
-    const named = (face: Face) => offered(face) || !offered(opposite(face))
+    const faces = facesOf(kind)
 
-    const button = (move: Move, exists: boolean, ghost: boolean) => {
+    const button = (move: Move, ghost: boolean) => {
       const name = t.faceNames[move.face]
       // Held another way (the tutorial): the button names a side where it
       // stands, and turns that side of the puzzle.
       const played = held(move)
-      const jammed = exists && !turnAllowed(cube, played)
-      const title = !exists
-        ? t.noSuchLayer(name, kind)
-        : jammed
-          ? t.jammedTurn(name)
-          : tabShown === 'advanced'
-            ? t.describeMove(describeMove(move, shape))
-            : move.amount === 2
-              ? t.moveTitleHalf(name)
-              : t.moveTitle(name, move.amount === 1, kind)
+      const jammed = !turnAllowed(cube, played)
+      const title = jammed
+        ? t.jammedTurn(name)
+        : tabShown === 'advanced'
+          ? t.describeMove(describeMove(move, shape))
+          : move.amount === 2
+            ? t.moveTitleHalf(name)
+            : t.moveTitle(name, move.amount === 1, kind)
       return (
         <PadButton
           key={formatMove(move)}
-          move={exists ? played : null}
+          move={played}
           label={formatMove(move, labels, dims, shape)}
           title={title}
           disabled={disabled || jammed}
@@ -119,49 +114,45 @@ export function MovePad({ disabled, corners }: { disabled: boolean; corners?: bo
       )
     }
 
-    /** One layer's buttons: both quarter turns, or the half turn alone. */
-    const pair = (
-      key: string,
-      layer: (amount: 1 | 2 | 3) => Move,
-      quarter: boolean,
-      exists: boolean,
-    ) => (
-      <div key={key} className={TURN_PAIR}>
-        {quarter ? (
-          <>
-            {button(layer(1), exists, false)}
-            {button(layer(3), exists, true)}
-          </>
-        ) : (
-          button(layer(2), exists, false)
-        )}
-      </div>
-    )
+    // Labels of four characters (a 6x6's 3Uw') want two pairs a row.
+    const wide = faces.some((f) => formatMove(turn(f, 3), labels, dims, shape).length > 3)
+
+    /** One layer's buttons: both quarter turns, the one written without a
+     *  prime first (a slice named otherwise than its face: the slim tower's
+     *  M is its 2U'), or the half turn alone; a column wide at least, a
+     *  row not full stretched to the pad's width (justified). */
+    const pair = (key: string, layer: (amount: 1 | 2 | 3) => Move, quarter: boolean) => {
+      const primed = formatMove(layer(1), labels, dims, shape).endsWith("'")
+      const [first, second] = primed ? [layer(3), layer(1)] : [layer(1), layer(3)]
+      return (
+        <div key={key} className={`${TURN_PAIR} ${wide ? HALF_ROW : THIRD_ROW}`}>
+          {quarter ? (
+            <>
+              {button(first, false)}
+              {button(second, true)}
+            </>
+          ) : (
+            button(layer(2), false)
+          )}
+        </div>
+      )
+    }
 
     return (
-      // Labels of four characters (a 6x6's 3Uw') want two pairs a row.
-      <div
-        className={`grid gap-2 ${
-          faces.some((f) => formatMove(turn(f, 3), labels, dims, shape).length > 3)
-            ? 'grid-cols-2'
-            : 'grid-cols-3'
-        }`}
-      >
+      <div className="flex flex-wrap gap-2">
         {tabShown === 'advanced'
           ? advancedLayers.map((layer) =>
               pair(
                 formatMove(layer),
                 (amount) => ({ ...layer, amount }),
                 advanced.some((m) => sameLayer(m, layer) && m.amount === 1),
-                true,
               ),
             )
-          : faces.filter(named).map((face) =>
+          : faces.map((face) =>
               pair(
                 face,
                 (amount) => turn(face, amount),
-                moves.some((m) => m.face === face && m.amount === 1),
-                offered(face),
+                moves.some((m) => m.face === face && layerKindOf(m) === kind && m.amount === 1),
               ),
             )}
       </div>
@@ -183,6 +174,11 @@ export function MovePad({ disabled, corners }: { disabled: boolean; corners?: bo
     </div>
   )
 }
+
+/** A pair's width: a third (or a half) of the row, less the gaps between,
+ *  grown to fill a row not full. */
+const THIRD_ROW = 'grow basis-[calc((100%-1rem)/3)]'
+const HALF_ROW = 'grow basis-[calc((100%-0.5rem)/2)]'
 
 /** Whether a kind of layer turns an outer face (alone or with the layers
  *  behind it): the pad's outer tab. */

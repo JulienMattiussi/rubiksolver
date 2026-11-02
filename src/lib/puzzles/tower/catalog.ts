@@ -7,7 +7,10 @@ export const TOWER = {
     slug: 'slim-tower',
     dims: [2, 3, 2],
     scramble: 20,
-    inner: ['wide'],
+    inner: ['slice', 'wide'],
+    // Its middle layer, as its manual names it.
+    slices: { E: 'M' },
+    scanTried: true,
   },
   // Sold blue below, yellow behind.
   '224': {

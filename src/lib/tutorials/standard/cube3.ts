@@ -173,6 +173,7 @@ export const FIRST_LAYERS: readonly PieceStage[] = [
     marker: Y,
     words: true,
     algorithms: [[TRIGGER]],
+    times: [[1, 2, 3, 4, 5]],
     // Held with the slot front right: its trigger reads R U R' U'.
     hold: (_, pick, next) => pairOf(pick?.slot ?? next.slot)[0] as Hold,
     formula: (cube, pick) => cornerFormula(cube, pick, Y),
