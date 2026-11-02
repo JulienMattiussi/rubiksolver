@@ -1,10 +1,8 @@
-import { faceColorsOf, solvedCube, turnDims } from '../../core/cube'
-import { faceOfNormal } from '../../core/geometry'
+import { solvedCube, turnDims } from '../../core/cube'
 import { CUBE_HOLDS } from '../../core/hold'
 import { applyMoves } from '../../core/turn'
 import { invertMoves } from '../../core/moves'
-import { colorsOf, sameAt } from '../../core/pieces'
-import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
+import type { Cube, Cubie, Face, Move } from '../../core/types'
 import {
   barAxis,
   barOf,
@@ -13,7 +11,6 @@ import {
   DESCEND_INNER,
   isBottomCorner,
   isCorner,
-  isHome,
   isMiddle,
   layoutKey,
   PIVOT,
@@ -21,9 +18,9 @@ import {
   SWAP,
   SWAP_INNER,
 } from '../../methods/tower/tower'
-import { tutorialOf, type Target } from '../../teach/kit'
+import { tutorialOf } from '../../teach/kit'
 import { chainedPieces, eachHold, gestureChain, perState, type Gesture } from '../../teach/macros'
-import type { TutorialPick } from '../../teach/tutorial'
+import { towerKit } from './towerKit'
 import { TOWER_GLOSSARY } from './towerTerms'
 
 /**
@@ -42,13 +39,13 @@ import { TOWER_GLOSSARY } from './towerTerms'
  *      (a descent turns the inner Pocket's front half over, the next puts
  *      it back), then swapped.
  * Each step plays the shortest chain of its formulas, each from the hold it
- * reads in, the top turned before it if need be. The two middles of a
+ * reads in, the top turned before it if need be, the tower read the way
+ * that keeps the most pieces placed (`towerKit`). The two middles of a
  * column are twins (the same colors): either may go to either place.
  */
 
 const SOLVED = solvedCube('224')
 const MECHANISM = turnDims('224')
-const COLORS = faceColorsOf('224')
 
 const homesOf = (keep: (c: Cubie) => boolean) => SOLVED.filter(keep).map((c) => c.position)
 const below = (c: Cubie) => c.position[1]! < 0
@@ -57,7 +54,13 @@ const MIDDLES_UP = homesOf((c) => isMiddle(c) && !below(c))
 const CORNERS_DOWN = homesOf((c) => isCorner(c) && below(c))
 const CORNERS_UP = homesOf((c) => isCorner(c) && !below(c))
 
-const pieceAt = (cube: Cube, at: Vec3) => cube.find((c) => sameAt(c.position, at))
+const { targetsOf, faceColor, placeChain } = towerKit('224', [
+  MIDDLES_DOWN,
+  MIDDLES_UP,
+  CORNERS_DOWN,
+  CORNERS_UP,
+])
+
 const indicesOf = (cube: Cube, keep: (c: Cubie) => boolean) =>
   cube.flatMap((c, i) => (keep(c) ? [i] : []))
 
@@ -67,27 +70,6 @@ const turn = (face: Face, amount: number, wide = false): Move[] =>
     ? []
     : [{ face, amount: (amount % 4) as 1 | 2 | 3, ...(wide && { depth: 2, wide: true }) }]
 const TURNS = [0, 1, 2, 3]
-
-/** A place as a target: the piece the solved tower has there, by its
- *  colors (a middle's twin will do: `interchangeable`), placed when it
- *  stands there home. */
-function target(at: Vec3): Target {
-  const colors = colorsOf(pieceAt(SOLVED, at)!)
-  const twin = isMiddle(pieceAt(SOLVED, at)!)
-  return {
-    // Of twins, one not home yet.
-    piece: (cube) => {
-      const mine = indicesOf(cube, (c) => colorsOf(c) === colors)
-      return mine.find((i) => !isHome(cube[i]!)) ?? mine[0]!
-    },
-    slot: at,
-    placed: (cube) => {
-      const c = pieceAt(cube, at)
-      return c !== undefined && colorsOf(c) === colors && isHome(c)
-    },
-    ...(twin && { interchangeable: true as const }),
-  }
-}
 
 /** The shortest chain of a step's gestures bringing its pieces (`keep`) to
  *  a goal, told apart by `key`; of chains as long, the one of the shortest
@@ -107,23 +89,6 @@ const chainOf = (
   })
 const shortestFirst = (gestures: readonly Gesture[]) =>
   [...gestures].sort((a, b) => a.moves.length - b.moves.length)
-
-/** A piece stage's chain: the pick's place home, those home where the step
- *  began kept home (and `also`, what earlier steps leave). */
-const placeChain =
-  (
-    gestures: readonly Gesture[],
-    places: readonly Vec3[],
-    keep: (c: Cubie) => boolean,
-    key: (pieces: Cube) => string,
-    also: (pieces: Cube) => boolean = () => true,
-  ) =>
-  (cube: Cube, pick: TutorialPick, begun: Cube) => {
-    const targets = places.map(target)
-    const kept = targets.filter((t) => t.placed(begun) || sameAt(t.slot, pick.slot))
-    const goal = (pieces: Cube) => kept.every((t) => t.placed(pieces)) && also(pieces)
-    return chainOf(cube, gestures, goal, keep, key)
-  }
 
 // ---------------------------------------------------------------------------
 // 1. Back in shape
@@ -213,35 +178,28 @@ const innerLook = (pieces: Cube) => layoutKey(pieces.filter(isMiddle))
 const INNER_DOWN = placeChain(
   [...prepared(DESCEND_INNER, 'descend', true), ...layerTurns('D', true)],
   MIDDLES_DOWN,
-  isMiddle,
-  innerLook,
+  { keep: isMiddle, key: innerLook },
 )
 const INNER_UP = placeChain(
   [...prepared(SWAP_INNER, 'swap', true, true), ...topTurns(true)],
   [...MIDDLES_DOWN, ...MIDDLES_UP],
-  isMiddle,
-  innerLook,
+  { keep: isMiddle, key: innerLook },
 )
-/** The middles home: what the outer Pocket's formulas must leave. */
-const middlesHome = (pieces: Cube) => pieces.filter(isMiddle).every(isHome)
+// The outer Pocket's formulas leave the middles home: kept too.
 const OUTER_DOWN = placeChain(
   [...prepared(DESCEND, 'descend', false), ...layerTurns('D', false)],
-  CORNERS_DOWN,
-  (c) => isMiddle(c) || isCorner(c),
-  // All the goal reads: the middles and the bottom corners.
-  (pieces) => layoutKey(pieces.filter((c) => isMiddle(c) || isBottomCorner(c))),
-  middlesHome,
+  [...MIDDLES_DOWN, ...MIDDLES_UP, ...CORNERS_DOWN],
+  {
+    keep: (c) => isMiddle(c) || isCorner(c),
+    // All the goal reads: the middles and the bottom corners.
+    key: (pieces) => layoutKey(pieces.filter((c) => isMiddle(c) || isBottomCorner(c))),
+  },
 )
 const OUTER_UP = placeChain(
   [...prepared(SWAP, 'swap', false, true), ...topTurns(false)],
   [...CORNERS_DOWN, ...CORNERS_UP],
-  isCorner,
-  (pieces) => layoutKey(pieces.filter(isCorner)),
+  { keep: isCorner, key: (pieces) => layoutKey(pieces.filter(isCorner)) },
 )
-
-/** A side's color: the solved tower's there (no center says it: the side
- *  it will be once solved). */
-const faceColor = (_: Cube, normal: Vec3) => COLORS[faceOfNormal(normal)]
 
 /** A tower piece: a corner, or a middle. */
 const pieceKind = (c: Cubie) => (isCorner(c) ? 'corner' : isMiddle(c) ? 'middle' : 'piece')
@@ -271,7 +229,7 @@ export const TOWER_TUTORIAL = tutorialOf({
       kind: 'pieces',
       key: 'stepTowerInnerDown',
       stage: 2,
-      targets: MIDDLES_DOWN.map(target),
+      targets: targetsOf(MIDDLES_DOWN),
       algorithms: [[DESCEND_INNER]],
       ...chainedPieces(INNER_DOWN, CUBE_HOLDS),
     },
@@ -279,7 +237,7 @@ export const TOWER_TUTORIAL = tutorialOf({
       kind: 'pieces',
       key: 'stepTowerInnerUp',
       stage: 3,
-      targets: MIDDLES_UP.map(target),
+      targets: targetsOf(MIDDLES_UP),
       algorithms: [[SWAP_INNER]],
       ...chainedPieces(INNER_UP, CUBE_HOLDS),
     },
@@ -287,7 +245,7 @@ export const TOWER_TUTORIAL = tutorialOf({
       kind: 'pieces',
       key: 'stepTowerOuterDown',
       stage: 4,
-      targets: CORNERS_DOWN.map(target),
+      targets: targetsOf(CORNERS_DOWN),
       algorithms: [[DESCEND]],
       ...chainedPieces(OUTER_DOWN, CUBE_HOLDS),
     },
@@ -295,7 +253,7 @@ export const TOWER_TUTORIAL = tutorialOf({
       kind: 'pieces',
       key: 'stepTowerOuterUp',
       stage: 5,
-      targets: CORNERS_UP.map(target),
+      targets: targetsOf(CORNERS_UP),
       algorithms: [[SWAP]],
       ...chainedPieces(OUTER_UP, CUBE_HOLDS),
     },

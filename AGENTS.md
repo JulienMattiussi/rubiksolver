@@ -174,7 +174,8 @@ src/
 │   │                    #   diagonal/skewb (Le haut d'abord, de francocube), skewbHolds, skewbTerms ;
 │   │                    #   gear/gearUltimate (le Gear Cube Ultimate, Coins d'abord), gearTerms ;
 │   │                    #   tower/tower224 (la tour 2x2x4, Deux Pockets), tower/tower223 (la Slim
-│                    #   Tower, Coins puis arêtes, d'après sa notice), towerTerms
+│   │                    #   Tower, Coins puis arêtes, d'après sa notice), towerKit (ce que partagent
+│   │                    #   leurs tutoriels : la tenue lue sur l'état, la plus courte chaîne de gestes), towerTerms
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
 │                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
 ├── three/               # Rendu 3D (React Three Fiber)

@@ -1,5 +1,4 @@
 import { faceColorsOf, isBoxed } from '../../core/cube'
-import { atHome } from '../../core/pieces'
 import { normalIndex } from '../../core/geometry'
 import { invertMoves } from '../../core/moves'
 import { parseMoves } from '../../core/notation'
@@ -58,9 +57,6 @@ export const SWAP_INNER = toInner(SWAP)
 
 export const isCorner = (c: Cubie): boolean => c.stickers.length === 3
 export const isMiddle = (c: Cubie): boolean => c.stickers.length === 2
-
-/** Home in the tower (twins either way round, see `atHome`). */
-export const isHome = (c: Cubie): boolean => atHome(c, '224')
 
 const COLORS = faceColorsOf('224')
 const UP_DOWN: readonly Color[] = [COLORS.U, COLORS.D]

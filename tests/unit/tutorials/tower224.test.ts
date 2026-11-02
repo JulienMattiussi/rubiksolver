@@ -89,6 +89,16 @@ describe('2x2x4 tower tutorial', () => {
     }
   })
 
+  it('reads the tower the way keeping its pieces placed: its bottom half turned', () => {
+    const cube = applyMoves(SOLVED, parseMoves('Dw'))
+    expect(tutorial.stepOf(cube)?.key).toBe('stepTowerInnerUp')
+    // Its sides told as held so: blue still down, another side in front.
+    expect(tutorial.faceColor(cube, [0, -1, 0])?.color).toBe('B')
+    expect(tutorial.faceColor(cube, [0, 0, 1])?.color).not.toBe(
+      tutorial.faceColor(SOLVED, [0, 0, 1])?.color,
+    )
+  })
+
   it('reads the tower as it stands, upside down too', () => {
     const solve = methodsFor('224').find((m) => m.id === 'twoPockets')!.solve
     // Its Pockets read the other way round: three turns, not the inner

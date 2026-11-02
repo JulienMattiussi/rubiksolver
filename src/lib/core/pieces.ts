@@ -52,13 +52,17 @@ export function hasColors(cubie: Cubie, colors: readonly Color[]): boolean {
 }
 
 /** Each way of holding a puzzle without fixed colors (no centers): each
- *  color of `solved` renamed to the standard one of the face it is on then. */
-export function colorRenames(solved: Cube): Map<Color, Color>[] {
+ *  color of `solved` renamed to the one of the face it is on then (the
+ *  standard ones, or the puzzle's own: a 2x2x4's). */
+export function colorRenames(
+  solved: Cube,
+  colors: Readonly<Record<Face, Color>> = FACE_COLOR,
+): Map<Color, Color>[] {
   return AXIS_ROTATIONS.map(
     (turn) =>
       new Map(
         solved.flatMap((c) =>
-          c.stickers.map((s) => [s.color, FACE_COLOR[faceOfNormal(turn(s.normal))]] as const),
+          c.stickers.map((s) => [s.color, colors[faceOfNormal(turn(s.normal))]] as const),
         ),
       ),
   )

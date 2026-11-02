@@ -54,8 +54,11 @@ elle se présente : elle la résout tenue de la façon (parmi les huit qui
 gardent son côté long vertical) où le plus de pièces sont déjà chez elles,
 ses coups renommés pour la tour telle qu'elle est (`bestHolding`,
 `asItStands` au registre) ; tenue à l'envers, ses Pockets se lisent dans
-l'autre sens au lieu d'être retournés. Le tutoriel, lui, garde la tour à
-l'endroit. La remise en forme est une étape de
+l'autre sens au lieu d'être retournés. Le tutoriel la lit de même, dans
+celle des huit tenues qui garde le plus de pièces placées, étape par
+étape dans l'ordre (le bas du Pocket intérieur d'abord), et dit ses côtés
+par les couleurs qu'ils auront dans cette tenue (`towerKit`, partagé avec
+la 2x2x3). La remise en forme est une étape de
 figures (le pivot, ou un coup large qui lui amène deux barres couchées) ;
 les autres placent une pièce à la fois, les milieux jumeaux
 interchangeables. Une tour sans centre dit ses côtés par la couleur qu'ils
@@ -262,6 +265,6 @@ dans `tests/unit/puzzles/tower/slimTower.test.ts`. Sans centre, la tour
 n'a pas de tenue imposée : le tutoriel la lit dans celle des huit (debout,
 dans un sens ou l'autre, un côté devant) qui garde le plus de coins du bas
 déjà placés, puis le plus de pièces, et dit ses côtés par les couleurs
-qu'ils auront dans cette tenue (`holdOf`) ; une formule garde les pièces
+qu'ils auront dans cette tenue (`towerKit`) ; une formule garde les pièces
 placées si elles le restent toutes ensemble, la tour tournée d'un bloc
 autour de sa hauteur au besoin.
