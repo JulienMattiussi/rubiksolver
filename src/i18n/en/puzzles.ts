@@ -605,4 +605,103 @@ export const PUZZLES_EN: typeof PUZZLES_FR = {
     methods:
       'One method: bring it back into shape, join the two halves of each edge, and only a Domino is left to solve.',
   },
+  '2': {
+    summary:
+      'The 2x2, the Rubik’s Cube’s little brother: eight corners, nothing else, and the best way to start. Turn it in 3D and learn to solve it step by step.',
+    about:
+      'The 2x2 has only **eight corners**, no edge nor center, and fits in the palm of your hand. You would think it simple, and it almost is: **3,674,160 positions**, against more than 43 quintillion for the 3x3. With no center to go by, it still asks for a little method. **The ideal first step** toward the bigger cubes.',
+    methodsTitle: 'Four steps, three algorithms',
+    methods:
+      'The beginner method: a first face, then the other face’s corners, placed and twisted with just three algorithms. The tutorial teaches it step by step; the Optimal method shows the shortest way.',
+  },
+  '3': {
+    summary:
+      'The 3x3 Rubik’s Cube, the icon: seven methods, from beginner to speedcubing, and three step-by-step tutorials. Turn it in 3D and learn to solve it.',
+    about:
+      'The 3x3 is **the Rubik’s Cube**, the one everybody has held once without ever finishing it. More than 43 quintillion positions, and yet **a few algorithms are enough** to beat it. The thrill of your first solved cube stays with you, and a whole world of methods opens up after it.',
+    methodsTitle: 'From first solve to speed',
+    methods:
+      'Three tutorials to learn: the beginner method, layer by layer; Ofapel, which places the corners before the edges; the cross then the corners, a single algorithm per step. Then the fast solvers’ methods, CFOP, Roux, Petrus and ZZ, to watch unfold step by step.',
+  },
+  '4': {
+    summary:
+      'The 4x4, Rubik’s Revenge: no fixed center, edges in two pieces, and surprising parities. Turn it in 3D and learn to solve it step by step.',
+    about:
+      'The 4x4 looks like a bigger 3x3, but it has **no fixed center**: you decide where each color goes. Its edges come in two pieces you must pair up, and at the very end it keeps **parities** the 3x3 never shows. A real milestone, and a great feeling once you are past it.',
+    methodsTitle: 'Bring it back to a 3x3',
+    methods:
+      'Reduction: gather the centers, then the edges, and finish it as a 3x3, parities included. The tutorial teaches it step by step; a variant finishes with CFOP.',
+  },
+  '5': {
+    summary:
+      'The 5x5, Professor’s Cube: lots of pieces, but a familiar logic. Turn it in 3D and learn to solve it step by step, centers and edges included.',
+    about:
+      'The 5x5 impresses with its number of pieces, but there is something reassuring about it: **its fixed centers**, as on the 3x3. The work is long, gathering the centers then the edges, and each step moves steadily forward. **A fine patience session**, ending on familiar ground.',
+    methodsTitle: 'Reduce, again',
+    methods:
+      'Reduction: gather the centers, then the edges, piece by piece, and finish it as a 3x3. The tutorial guides you step by step; a variant finishes with CFOP.',
+  },
+  '6': {
+    summary:
+      'The 6x6, a big cube with no fixed center: a long project, but a method that never changes. Turn it in 3D and solve it step by step.',
+    about:
+      'The 6x6 stacks the 4x4’s difficulties with the size of the big cubes: **no fixed center**, edges in four pieces, and parities at the end. Yet it asks for **no new idea**, only persistence. A summit for those who loved the 4x4.',
+    methodsTitle: 'Reduce, always',
+    methods:
+      'Two methods, by reduction: gather the centers, then the edges, and finish it as a 3x3, layer by layer or with CFOP.',
+  },
+  super4: {
+    summary:
+      'The Super Revenge, a 4x4 whose centers have a way up: the same puzzle, one more demand. Turn it in 3D and learn to solve it step by step.',
+    about:
+      'The Super Revenge is a 4x4 in every way, except that **its centers carry a picture**: each one must find its exact place, the right way up. The cube can look solved when it is not, which makes **one last challenge** for those who already master the 4x4.',
+    methodsTitle: 'The 4x4, then its centers',
+    methods:
+      'The 4x4’s reduction, then the centers each put back in its place and the right way up. The tutorial teaches it step by step; a variant finishes with CFOP.',
+  },
+  super5: {
+    summary:
+      'The Super Professor, a 5x5 whose centers have a way up: every piece counts. Turn it in 3D and learn to solve it step by step.',
+    about:
+      'The Super Professor is a 5x5 where **each center carries a picture**: gathering the colors is no longer enough, every piece must find its exact place, the right way up. **A more demanding** 5x5, for those who want to see things through.',
+    methodsTitle: 'The 5x5, then its centers',
+    methods:
+      'The 5x5’s reduction, then the centers each put back in its place and the right way up. The tutorial teaches it step by step; a variant finishes with CFOP.',
+  },
+  '2m': {
+    summary:
+      'The mirror 2x2, all shiny: its pieces are read by their thickness, not their color. Turn it in 3D and learn to solve it step by step.',
+    about:
+      'The mirror 2x2 has only one color, shiny as a mirror, but **layers of different thicknesses**: scrambled, it becomes a sculpture full of bumps that catches the light. You solve it like a 2x2, except that **you read shapes instead of colors**. A fresh look at a familiar puzzle.',
+    methodsTitle: 'A 2x2 read differently',
+    methods:
+      'The 2x2’s methods, beginner and Optimal. The tutorial speaks in thicknesses, from the thinnest to the thickest.',
+  },
+  '3m': {
+    summary:
+      'The Mirror Cube, a shiny 3x3 that turns into a sculpture: it is solved by shape. Turn it in 3D and learn to solve it step by step.',
+    about:
+      'The Mirror Cube is a single-colored 3x3 whose **layers are not all the same thickness**. Scrambled, it becomes a block full of reliefs where light plays on every facet; solved, a perfect cube again, smooth as an ingot. The mechanism is the 3x3’s, but **your eye must read the shapes**, which changes everything: even a seasoned 3x3 solver gets caught out.',
+    methodsTitle: 'The 3x3, in relief',
+    methods:
+      'All the 3x3’s methods, with their three tutorials, which then speak in thicknesses rather than colors.',
+  },
+  '4m': {
+    summary:
+      'The mirror 4x4, all in relief: a 4x4 solved by eye, without a single color. Turn it in 3D and learn to solve it step by step.',
+    about:
+      'The mirror 4x4 stacks two challenges: the 4x4’s, with no fixed center, and the mirror’s, where **everything is read by thickness**. Scrambled, it is a sculpture with a thousand sparkling facets; solved, a perfect cube. **For patient eyes**, and for the joy of seeing it square up again.',
+    methodsTitle: 'Reduction, by eye',
+    methods:
+      'The 4x4’s reduction: gather the centers, then the edges, and finish it as a 3x3. The tutorial speaks in thicknesses; a variant finishes with CFOP.',
+  },
+  qiyi2m: {
+    summary:
+      'Qiyi’s mirror 2x2 has only two layer thicknesses: a shiny 2x2 with twin corners. Turn it in 3D and solve it step by step.',
+    about:
+      'Qiyi’s 2x2 is a mirror apart: its layers come in **only two thicknesses**, one thick and one thin on each axis. So it has a big corner, a small one, and six others that are **twins by threes**, free to take each other’s place. Shiny like every mirror, and baffling even for those who know the mirror 2x2.',
+    methodsTitle: 'Like a 2x2',
+    methods:
+      'Solve it like a 2x2, with the beginner or the Optimal method, reading its two thicknesses as two colors.',
+  },
 }

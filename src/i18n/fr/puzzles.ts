@@ -613,4 +613,103 @@ export const PUZZLES_FR = {
     methods:
       'Une méthode : le remettre en forme, réunir les deux moitiés de chaque arête, et il ne reste plus qu’un Domino à résoudre.',
   },
+  '2': {
+    summary:
+      'Le 2x2, petit frère du Rubik’s Cube : huit coins, rien d’autre, la meilleure façon de commencer. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le 2x2 n’a que **huit coins**, pas d’arête ni de centre, et tient dans le creux de la main. On le croirait simple, et il l’est presque : **3 674 160 positions**, contre plus de 43 milliards de milliards pour le 3x3. Sans centre pour se repérer, il demande pourtant un peu de méthode. **Le premier pas idéal** vers les grands cubes.',
+    methodsTitle: 'Quatre étapes, trois formules',
+    methods:
+      'La méthode débutant : une première face, puis les coins de l’autre, placés et tournés avec trois formules seulement. Le tutoriel vous l’apprend pas à pas ; la méthode Optimale montre le chemin le plus court.',
+  },
+  '3': {
+    summary:
+      'Le Rubik’s Cube 3x3, l’icône : sept méthodes, du débutant au speedcubing, et trois tutoriels pas à pas. Manipulez-le en 3D et apprenez à le résoudre.',
+    about:
+      'Le 3x3, c’est **le Rubik’s Cube**, celui que tout le monde a tenu un jour sans jamais le finir. Plus de 43 milliards de milliards de positions, et pourtant **quelques formules suffisent** pour en venir à bout. Le déclic du premier cube résolu ne s’oublie pas, et c’est ensuite tout un monde de méthodes qui s’ouvre.',
+    methodsTitle: 'Du premier cube à la vitesse',
+    methods:
+      'Trois tutoriels pour apprendre : la méthode débutant, couche par couche ; Ofapel, qui place les coins avant les arêtes ; la croix puis les coins, une seule formule par étape. Puis les méthodes des rapides, CFOP, Roux, Petrus et ZZ, à regarder se dérouler étape par étape.',
+  },
+  '4': {
+    summary:
+      'Le 4x4, Rubik’s Revenge : pas de centre fixe, des arêtes en deux morceaux, des parités surprenantes. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le 4x4 ressemble à un 3x3 en plus grand, mais il n’a **pas de centre fixe** : c’est à vous de décider où va chaque couleur. Ses arêtes sont en deux morceaux qu’il faut réunir, et à la toute fin, il réserve **des parités** que le 3x3 ne connaît pas. Un vrai palier, et une grande satisfaction une fois franchi.',
+    methodsTitle: 'Le ramener à un 3x3',
+    methods:
+      'La réduction : réunir les centres, puis les arêtes, et le finir comme un 3x3, parités comprises. Le tutoriel vous l’apprend pas à pas ; une variante finit avec CFOP.',
+  },
+  '5': {
+    summary:
+      'Le 5x5, Professor’s Cube : beaucoup de pièces, mais une logique familière. Manipulez-le en 3D et apprenez à le résoudre pas à pas.',
+    about:
+      'Le 5x5 impressionne par son nombre de pièces, mais il a quelque chose de rassurant : **ses centres fixes**, comme sur le 3x3. Le travail est long, réunir les centres puis les arêtes, et chaque étape avance sûrement. **Une belle séance de patience**, qui se termine en terrain connu.',
+    methodsTitle: 'Réduire, encore',
+    methods:
+      'La réduction : réunir les centres, puis les arêtes, morceau par morceau, et le finir comme un 3x3. Le tutoriel vous guide pas à pas ; une variante finit avec CFOP.',
+  },
+  '6': {
+    summary:
+      'Le 6x6, un grand cube sans centre fixe : un long chantier, mais une méthode qui ne change pas. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le 6x6 cumule les difficultés du 4x4 et l’ampleur des grands cubes : **pas de centre fixe**, des arêtes en quatre morceaux, et des parités en fin de parcours. Il ne demande pourtant **aucune idée nouvelle**, seulement de la constance. Un sommet pour qui a aimé le 4x4.',
+    methodsTitle: 'Réduire, toujours',
+    methods:
+      'Deux méthodes, par réduction : réunir les centres, puis les arêtes, et le finir comme un 3x3, couche par couche ou avec CFOP.',
+  },
+  super4: {
+    summary:
+      'Le Super Revenge, un 4x4 dont les centres ont un sens : le même puzzle, une exigence de plus. Manipulez-le en 3D et apprenez à le résoudre pas à pas.',
+    about:
+      'Le Super Revenge a tout d’un 4x4, sauf que **ses centres portent un dessin** : chacun doit retrouver sa place exacte, et dans le bon sens. Le cube peut paraître résolu alors qu’il ne l’est pas, ce qui donne **un dernier défi** à qui maîtrise déjà le 4x4.',
+    methodsTitle: 'Le 4x4, puis ses centres',
+    methods:
+      'La réduction du 4x4, puis les centres remis chacun à sa place et dans son sens. Le tutoriel vous l’apprend pas à pas ; une variante finit avec CFOP.',
+  },
+  super5: {
+    summary:
+      'Le Super Professor, un 5x5 dont les centres ont un sens : chaque pièce compte. Manipulez-le en 3D et apprenez à le résoudre pas à pas.',
+    about:
+      'Le Super Professor est un 5x5 où **chaque centre porte un dessin** : il ne suffit plus de réunir les couleurs, chaque pièce doit retrouver sa place exacte, et dans le bon sens. Un 5x5 **plus exigeant**, pour qui veut aller au bout des choses.',
+    methodsTitle: 'Le 5x5, puis ses centres',
+    methods:
+      'La réduction du 5x5, puis les centres remis chacun à sa place et dans son sens. Le tutoriel vous l’apprend pas à pas ; une variante finit avec CFOP.',
+  },
+  '2m': {
+    summary:
+      'Le 2x2 miroir, tout brillant : ses pièces se lisent à leur épaisseur, pas à leur couleur. Manipulez-le en 3D et apprenez à le résoudre pas à pas.',
+    about:
+      'Le 2x2 miroir n’a qu’une couleur, brillante comme un miroir, mais **des couches d’épaisseurs différentes** : mélangé, il devient une sculpture tout en bosses qui accroche la lumière. On le résout comme un 2x2, à ceci près qu’**il faut lire les formes au lieu des couleurs**. Un regard neuf sur un puzzle connu.',
+    methodsTitle: 'Un 2x2 qui se lit autrement',
+    methods:
+      'Les méthodes du 2x2, la débutant et l’Optimale. Le tutoriel parle en épaisseurs, de la plus fine à la plus épaisse.',
+  },
+  '3m': {
+    summary:
+      'Le Mirror Cube, un 3x3 brillant qui se déforme en sculpture : il se résout aux formes. Manipulez-le en 3D et apprenez à le résoudre pas à pas.',
+    about:
+      'Le Mirror Cube est un 3x3 d’une seule couleur, dont **les couches n’ont pas la même épaisseur**. Mélangé, il devient un bloc tout en reliefs où la lumière joue sur chaque facette ; résolu, il redevient un cube parfait, lisse comme un lingot. Le mécanisme est celui du 3x3, mais **l’œil doit lire les formes**, ce qui change tout : même un habitué du 3x3 s’y laisse surprendre.',
+    methodsTitle: 'Le 3x3, version relief',
+    methods:
+      'Toutes les méthodes du 3x3, avec leurs trois tutoriels, qui parlent alors en épaisseurs plutôt qu’en couleurs.',
+  },
+  '4m': {
+    summary:
+      'Le 4x4 miroir, tout en reliefs : un 4x4 qu’on résout à l’œil, sans une couleur. Manipulez-le en 3D et apprenez à le résoudre pas à pas.',
+    about:
+      'Le 4x4 miroir cumule deux défis : celui du 4x4, sans centre fixe, et celui du miroir, où **tout se lit aux épaisseurs**. Mélangé, c’est une sculpture aux mille facettes qui scintille ; résolu, un cube parfait. **Pour les yeux patients**, et pour le plaisir de le voir se remettre d’aplomb.',
+    methodsTitle: 'La réduction, à l’œil',
+    methods:
+      'La réduction du 4x4 : réunir les centres, puis les arêtes, et le finir comme un 3x3. Le tutoriel parle en épaisseurs ; une variante finit avec CFOP.',
+  },
+  qiyi2m: {
+    summary:
+      'Le 2x2 miroir de Qiyi n’a que deux épaisseurs de couche : un 2x2 brillant aux coins jumeaux. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le 2x2 de Qiyi est un miroir à part : ses couches n’ont que **deux épaisseurs**, une épaisse et une fine sur chaque axe. Il a donc un gros coin, un petit, et six autres **jumeaux trois par trois**, qui peuvent prendre la place l’un de l’autre. Brillant comme tous les miroirs, et déroutant même pour qui connaît le 2x2 miroir.',
+    methodsTitle: 'Comme un 2x2',
+    methods:
+      'On le résout comme un 2x2, par la méthode débutant ou l’Optimale, en lisant ses deux épaisseurs comme deux couleurs.',
+  },
 }
