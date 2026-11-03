@@ -18,7 +18,7 @@ test('loads, renders the cube canvas and the controls', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
 
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
 
   await expect(page.getByRole('heading', { name: 'Rubik Solver' })).toBeVisible()
   await expect(page.locator('canvas:not([aria-hidden])')).toBeVisible()
@@ -31,7 +31,7 @@ test('loads, renders the cube canvas and the controls', async ({ page }) => {
 test('scrambles then solves back to a solved cube', async ({ page }) => {
   // Beginner-method solutions are long; the animation can take a while.
   test.setTimeout(120000)
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
 
   // Fastest animation so the whole flow runs quickly.
   await page.getByLabel('Vitesse').fill('100')
@@ -57,7 +57,7 @@ test('mirror cube: the variant is a skin, it keeps the state and renders', async
   test.setTimeout(120000)
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
   await page.getByLabel('Vitesse').fill('100')
 
   const scramble = page.getByRole('button', { name: 'Mélanger' })
@@ -71,7 +71,7 @@ test('mirror cube: the variant is a skin, it keeps the state and renders', async
 
   // A mirror size switch mounts fine too (the 4x4 has middle layers).
   await pickCube(page, 'Miroirs', '4x4 (Revenge) miroir')
-  await expect(page.getByText('Cube résolu')).toBeVisible()
+  await expect(page.getByText('Cube résolu', { exact: true })).toBeVisible()
   await expect(page.locator('canvas:not([aria-hidden])')).toBeVisible()
 
   // The editor paints thicknesses instead of colors, and still applies.
@@ -86,7 +86,7 @@ test('mirror cube: the variant is a skin, it keeps the state and renders', async
 
 test('1x2x3: half turns only, scramble then solve optimally', async ({ page }) => {
   test.setTimeout(120000)
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
 
   await page.getByLabel('Vitesse').fill('100')
   await pickCube(page, 'Plats', '1x2x3')
@@ -109,7 +109,7 @@ test('1x2x3: half turns only, scramble then solve optimally', async ({ page }) =
 
 test('2x2: switch size, scramble, then solve with the optimal method', async ({ page }) => {
   test.setTimeout(120000)
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
 
   await page.getByLabel('Vitesse').fill('100')
   await pickCube(page, 'Standards', '2x2 (Pocket)')
@@ -131,7 +131,7 @@ test('2x2: switch size, scramble, then solve with the optimal method', async ({ 
 test('4x4: switch size, scramble, then solve by reduction', async ({ page }) => {
   // Reduction solutions run to ~300 turns; even at max speed this takes a while.
   test.setTimeout(300000)
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
 
   await page.getByLabel('Vitesse').fill('100')
   await pickCube(page, 'Standards', '4x4 (Revenge)')
@@ -149,7 +149,7 @@ test('4x4: switch size, scramble, then solve by reduction', async ({ page }) => 
 })
 
 test('4x4 cube editor: movable centers count toward the 96 stickers', async ({ page }) => {
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
 
   await pickCube(page, 'Standards', '4x4 (Revenge)')
   await page.getByRole('button', { name: 'Modifier', exact: true }).click()
@@ -162,7 +162,7 @@ test('4x4 cube editor: movable centers count toward the 96 stickers', async ({ p
 })
 
 test('cube editor: enter, fill from current state, apply', async ({ page }) => {
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
 
   // Blank entry shows the palette, then cancel back to play.
   await page.getByRole('button', { name: 'Saisir', exact: true }).click()
@@ -183,7 +183,7 @@ test('cube editor: enter, fill from current state, apply', async ({ page }) => {
 })
 
 test('move guide: every turn of the current puzzle, a jammed one marked', async ({ page }) => {
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
   await pickCube(page, 'Tours', '2x2x4')
   await page.getByRole('button', { name: 'Guide des mouvements' }).click()
   const guide = page.getByRole('dialog', { name: 'Guide des mouvements' })
@@ -203,7 +203,7 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
   test.setTimeout(120000)
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
   const puzzles: [string, string][] = [
     ['Standards', '2x2 (Pocket)'],
     ['Standards', '3x3'],
@@ -284,7 +284,7 @@ for (const [category, name, complete] of ENTERED) {
     test.setTimeout(180000)
     const errors: string[] = []
     page.on('pageerror', (e) => errors.push(e.message))
-    await page.goto('/#/fr/3x3')
+    await page.goto('/fr/3x3')
     await page.getByLabel('Vitesse').fill('100')
     await pickCube(page, category, name)
     await page.getByRole('button', { name: 'Mélanger' }).click()
@@ -298,13 +298,13 @@ for (const [category, name, complete] of ENTERED) {
     const solve = page.getByRole('button', { name: 'Résoudre' })
     await expect(solve).toBeEnabled({ timeout: 60000 })
     await solve.click()
-    await expect(page.getByText('Cube résolu')).toBeVisible({ timeout: 90000 })
+    await expect(page.getByText('Cube résolu', { exact: true })).toBeVisible({ timeout: 90000 })
     expect(errors).toEqual([])
   })
 }
 
 test('tower entry: pick the form it stands in, then paint on it', async ({ page }) => {
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
   await pickCube(page, 'Tours', '2x2x4')
   await page.getByRole('button', { name: 'Saisir', exact: true }).click()
   await expect(page.getByText('Dans quelle forme est votre puzzle ?')).toBeVisible()
@@ -320,19 +320,41 @@ test('tower entry: pick the form it stands in, then paint on it', async ({ page 
 test('address: a link opens its puzzle and language, back returns to the previous one', async ({
   page,
 }) => {
-  await page.goto('/#/en/floppy-ghost')
+  await page.goto('/en/floppy-ghost')
   await expect(page.getByRole('button', { name: 'Cube choice: Floppy Ghost' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Scramble' })).toBeVisible()
   await page.getByRole('button', { name: /^Cube choice/ }).click()
   await page.getByRole('button', { name: /^Pyramids,/ }).click()
   await page.getByRole('button', { name: 'Pyraminx', exact: true }).click()
-  await expect(page).toHaveURL(/#\/en\/pyraminx$/)
+  await expect(page).toHaveURL(/\/en\/pyraminx$/)
   await page.getByRole('group', { name: 'Language' }).getByRole('button', { name: 'fr' }).click()
-  await expect(page).toHaveURL(/#\/fr\/pyraminx$/)
+  await expect(page).toHaveURL(/\/fr\/pyraminx$/)
   await page.goBack()
   await page.goBack()
-  await expect(page).toHaveURL(/#\/en\/floppy-ghost$/)
+  await expect(page).toHaveURL(/\/en\/floppy-ghost$/)
   await expect(page.getByRole('button', { name: 'Cube choice: Floppy Ghost' })).toBeVisible()
+})
+
+test('address: an old link’s hash opens its puzzle, the path put in its place', async ({
+  page,
+}) => {
+  await page.goto('/#/en/floppy-ghost')
+  await expect(page).toHaveURL(/\/en\/floppy-ghost$/)
+  await expect(page.getByRole('button', { name: 'Cube choice: Floppy Ghost' })).toBeVisible()
+})
+
+test('a puzzle’s page: beside it on a wide screen, in a dialog otherwise', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 })
+  await page.goto('/fr/gear-cube-ultimate')
+  const methods = page.getByText(/^Une seule méthode pour en venir à bout/).first()
+  await expect(methods).toBeVisible()
+  await expect(page.getByRole('button', { name: 'À propos de ce puzzle' })).toBeHidden()
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await expect(methods).toBeHidden()
+  await page.getByRole('button', { name: 'À propos de ce puzzle' }).click()
+  const dialog = page.getByRole('dialog', { name: 'À propos de ce puzzle' })
+  await expect(dialog.getByRole('heading', { name: 'Gear Cube Ultimate' })).toBeVisible()
+  await expect(dialog.getByText(/^Une seule méthode pour en venir à bout/)).toBeVisible()
 })
 
 test('home page: a gallery to choose from, the solve block grayed, the title leads back', async ({
@@ -341,7 +363,7 @@ test('home page: a gallery to choose from, the solve block grayed, the title lea
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
   await page.goto('/')
-  await expect(page).toHaveURL(/#\/fr$/)
+  await expect(page).toHaveURL(/\/fr$/)
   await expect(
     page.getByRole('heading', {
       name: /^Choisissez votre modèle dans la galerie, parmi les \d+ disponibles$/,
@@ -354,11 +376,11 @@ test('home page: a gallery to choose from, the solve block grayed, the title lea
     page.getByText('Choisissez un modèle pour voir les choix de solution.'),
   ).toBeVisible()
   await expect(page.getByRole('button', { name: 'Résoudre' })).toBeDisabled()
-  await page.getByRole('button', { name: 'Floppy Ghost' }).click()
-  await expect(page).toHaveURL(/#\/fr\/floppy-ghost$/)
+  await page.getByRole('link', { name: 'Floppy Ghost' }).click()
+  await expect(page).toHaveURL(/\/fr\/floppy-ghost$/)
   await expect(page.locator('canvas:not([aria-hidden])')).toBeVisible()
   await page.getByRole('button', { name: 'Rubik Solver' }).click()
-  await expect(page).toHaveURL(/#\/fr$/)
+  await expect(page).toHaveURL(/\/fr$/)
   await expect(
     page.getByRole('heading', {
       name: /^Choisissez votre modèle dans la galerie, parmi les \d+ disponibles$/,
@@ -373,7 +395,7 @@ test('Camouflage entry: its shape face by face, then the stickers left to paint'
   test.setTimeout(120000)
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
-  await page.goto('/#/fr/camouflage')
+  await page.goto('/fr/camouflage')
   await page.getByLabel('Vitesse').fill('100')
   await page.getByRole('button', { name: 'Mélanger' }).click()
   const fromCurrent = page.getByRole('button', { name: 'Modifier', exact: true })
@@ -399,7 +421,7 @@ test('Camouflage entry: its shape face by face, then the stickers left to paint'
 test('bandaged entry: its joints first, a form it cannot take refused', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
-  await page.goto('/#/fr/stripe')
+  await page.goto('/fr/stripe')
   await page.getByRole('button', { name: 'Saisir', exact: true }).click()
   // Its three bars left to fuse, no 2x2.
   await expect(page.getByLabel('Pièces 2x1 à souder : 3')).toBeVisible()
@@ -427,7 +449,7 @@ test('tutorial: a formula applied, looked at, undone; a move by hand finished', 
   test.setTimeout(90000)
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
   await page.getByLabel('Vitesse').fill('100')
   // Solved: nothing to learn yet.
   const tutorial = page.getByRole('button', { name: 'Tutoriel', exact: true })
@@ -487,7 +509,7 @@ test('tutorial: a formula applied, looked at, undone; a move by hand finished', 
 
 test('tutorial: Space and the arrows press its buttons on and back', async ({ page }) => {
   test.setTimeout(90000)
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
   await page.getByLabel('Vitesse').fill('100')
   await page.getByRole('button', { name: 'Mélanger' }).click()
   const tutorial = page.getByRole('button', { name: 'Tutoriel', exact: true })
@@ -512,7 +534,7 @@ test('tutorial: Space and the arrows press its buttons on and back', async ({ pa
 test('phone: scrambling or solving from the open panel folds it', async ({ page }) => {
   test.setTimeout(90000)
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
   await expect(page.getByRole('button', { name: 'Replier le menu' })).toBeVisible()
   await page.getByRole('button', { name: 'Mélanger' }).click()
   const unfold = page.getByRole('button', { name: 'Déplier le menu' })
@@ -527,7 +549,7 @@ test('phone: scrambling or solving from the open panel folds it', async ({ page 
 test('phone: the folded bar stops a scramble or a solution in Solve’s place', async ({ page }) => {
   test.setTimeout(90000)
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/#/fr/3x3')
+  await page.goto('/fr/3x3')
   await page.getByRole('button', { name: 'Replier le menu' }).click()
   // The panel goes down first, then turns into its bar (Enter gone).
   await expect(page.getByRole('button', { name: 'Saisir', exact: true })).toBeHidden()

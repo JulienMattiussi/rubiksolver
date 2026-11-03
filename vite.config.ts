@@ -4,10 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 import { resolve } from 'path'
 
 export default defineConfig({
-  // Relative base: the built app runs from any path (domain root OR a subpath
-  // like a GitHub Pages project site) without host-specific config. Safe here
-  // because navigation is state-based, with no client-side router.
-  base: './',
+  // From the domain's root: each puzzle has its own path (`/fr/3x3`, see
+  // lib/app/route.ts), whose pages all load the same assets.
+  base: '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

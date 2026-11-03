@@ -3,7 +3,7 @@ import type { Locale } from '@/i18n/translations'
 import { goTo } from '@/store/router'
 import { SegmentedToggle } from '@/components/ui/SegmentedToggle'
 
-/** French / English language switch, through the address (`#/en/...`). */
+/** French / English language switch, through the address (`/en/...`). */
 export function LanguageToggle() {
   const t = useI18n((s) => s.t)
   const locale = useI18n((s) => s.locale)

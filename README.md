@@ -105,7 +105,7 @@ Everything stays in the browser: no picture leaves the device.
 
 ### And also
 
-A link per puzzle and language to share (`#/en/megaminx`), a saved state to compare
+A link per puzzle and language to share (`/en/megaminx`), a saved state to compare
 two methods on the same scramble, mirror versions of the 2x2, 3x3 and 4x4, a mobile
 layout, and fireworks when a move solves the puzzle.
 

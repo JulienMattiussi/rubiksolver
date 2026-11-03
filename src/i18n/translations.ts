@@ -2,8 +2,8 @@
 // the `Translations` type). Values are content, not code. Each language is
 // in its folder: the interface (ui.ts, with the turns' sentences from
 // moveSentences.ts), the tutorial (tutorial.ts; on a mirror cube,
-// tutorialMirror.ts), the methods (methods.ts)
-// and their steps (steps.ts).
+// tutorialMirror.ts), the methods (methods.ts), their steps (steps.ts)
+// and what each puzzle's page says of it (puzzles.ts).
 
 import { METHODS_EN } from './en/methods'
 import { STEPS_EN } from './en/steps'
@@ -15,11 +15,14 @@ import { TUTORIAL_MIRROR_EN } from './en/tutorialMirror'
 import { METHODS_FR } from './fr/methods'
 import { STEPS_FR } from './fr/steps'
 import { UI_FR } from './fr/ui'
+import { PUZZLES_FR } from './fr/puzzles'
+import { PUZZLES_EN } from './en/puzzles'
 
 const fr = {
   ...UI_FR,
   methods: METHODS_FR,
   steps: STEPS_FR,
+  puzzles: PUZZLES_FR,
   tutorial: TUTORIAL_FR,
   tutorialMirror: TUTORIAL_MIRROR_FR,
 }
@@ -30,6 +33,7 @@ const en: Translations = {
   ...UI_EN,
   methods: METHODS_EN,
   steps: STEPS_EN,
+  puzzles: PUZZLES_EN,
   tutorial: TUTORIAL_EN,
   tutorialMirror: TUTORIAL_MIRROR_EN,
 }

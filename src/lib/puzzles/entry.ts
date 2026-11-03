@@ -61,7 +61,7 @@ export type EditHint = 'twist' | 'camo' | 'roadblock' | 'quarter' | 'gear' | 'ge
 export interface PuzzleEntry {
   /** Its name in the picker, the same in every language. */
   readonly label: string
-  /** Its name in the address (`#/fr/floppy-ghost`, see route.ts), the same
+  /** Its name in the address (`/fr/floppy-ghost`, see route.ts), the same
    *  in every language, so a link works whatever the reader's. */
   readonly slug: string
   /** Layer counts along x, y and z (the box of one without a grid). */

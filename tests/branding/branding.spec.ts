@@ -29,7 +29,7 @@ async function scrambled(page: Page, address: string) {
 }
 
 test('share preview and README banner', async ({ page }) => {
-  await page.goto('/#/en')
+  await page.goto('/en')
   const count = Number(await homeHeading(page).locator('span').textContent())
   // One drawing per category: the first of each card of the picker (its
   // tutorial badge, an icon, aside).
@@ -66,14 +66,14 @@ test('touch icon', async ({ page }) => {
 test('README screenshots', async ({ page }) => {
   test.setTimeout(240000)
   await page.setViewportSize(SCREEN)
-  await page.goto('/#/en')
+  await page.goto('/en')
   await expect(homeHeading(page)).toBeVisible()
   await page.screenshot({ path: 'docs/images/home.png' })
   await page.getByRole('button', { name: /^Cube choice/ }).click()
   await page.waitForTimeout(500) // the dialog's fade-in
   await page.screenshot({ path: 'docs/images/picker.png' })
 
-  await scrambled(page, '/#/en/3x3')
+  await scrambled(page, '/en/3x3')
   await page.screenshot({ path: 'docs/images/solve.png' })
   // The tutorial on that scramble: its first step, its arrow.
   await page.getByRole('button', { name: 'Tutorial', exact: true }).click()
@@ -85,6 +85,6 @@ test('README screenshots', async ({ page }) => {
   await page.waitForTimeout(2500) // the first moves play
   await page.screenshot({ path: 'docs/images/guide.png' })
 
-  await scrambled(page, '/#/en/megaminx')
+  await scrambled(page, '/en/megaminx')
   await page.screenshot({ path: 'docs/images/megaminx.png' })
 })

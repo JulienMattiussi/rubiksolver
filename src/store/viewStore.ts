@@ -28,6 +28,10 @@ interface ViewStore {
    *  of its main actions); scrambling and solving fold it. */
   folded: boolean
   setFolded: (folded: boolean) => void
+  /** Whether the puzzle's page is open in its dialog (AboutButton,
+   *  AboutDialog), where the screen leaves no room for its cards. */
+  aboutOpen: boolean
+  setAboutOpen: (open: boolean) => void
 }
 
 export const useView = create<ViewStore>((set) => ({
@@ -40,4 +44,6 @@ export const useView = create<ViewStore>((set) => ({
   setPreview: (preview) => set({ preview }),
   folded: false,
   setFolded: (folded) => set({ folded }),
+  aboutOpen: false,
+  setAboutOpen: (aboutOpen) => set({ aboutOpen }),
 }))

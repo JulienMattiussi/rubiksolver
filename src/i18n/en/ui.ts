@@ -16,6 +16,7 @@ import {
 } from './moveSentences'
 import type { StarLayer } from '../fr/moveSentences'
 import type { UI_FR } from '../fr/ui'
+import { listEn } from './list'
 
 /** A line's first letter, capitalized. */
 const cap = (word: string) => word.charAt(0).toUpperCase() + word.slice(1)
@@ -26,6 +27,25 @@ export const UI_EN: typeof UI_FR = {
   metaDescription:
     'Dozens of interactive 3D twisty puzzles, from the Rubik’s Cube to the Megaminx: turn, scramble or enter your own, then learn to solve it step by step.',
   madeWith: { before: 'Made with', love: 'love', by: 'by' },
+  puzzleTitle: (name: string) => `${name}: step-by-step solution | Rubik Solver`,
+  puzzleDescription: (name: string, methods: readonly string[]) =>
+    `The ${name} in 3D, to turn, scramble or enter, then to solve step by step with the ${listEn(
+      methods,
+    )} method${methods.length > 1 ? 's' : ''}.`,
+  puzzleMethods: (methods: readonly string[], taught: readonly string[]) =>
+    (methods.length > 1
+      ? `${methods.length} methods to solve it, your pick: ${listEn(methods)}.`
+      : `One method to solve it: ${methods[0] ?? ''}.`) +
+    (taught.length === 0
+      ? ''
+      : methods.length === 1
+        ? ' Its tutorial teaches it step by step.'
+        : taught.length === 1
+          ? ` The ${taught[0]} method has its tutorial, to learn it step by step.`
+          : ` ${listEn(taught)} have their tutorial, to learn them step by step.`),
+  aboutPuzzle: 'About this puzzle',
+  aboutPuzzleLabel: 'The puzzle',
+  aboutMethodsLabel: 'Solving it',
   moves: 'Turns',
   scramble: 'Scramble',
   solve: 'Solve',

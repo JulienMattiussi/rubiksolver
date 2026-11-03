@@ -129,7 +129,7 @@ export const SHAPE_ADVANCED_TURNS: Record<CubeShape, readonly ('slice' | 'wide')
 /** Name of each shape in the picker (identical in every language). */
 export const SHAPE_LABEL: Record<CubeShape, string> = each((e) => e.label)
 
-/** Name of each shape in the address (`#/fr/floppy-ghost`, see route.ts):
+/** Name of each shape in the address (`/fr/floppy-ghost`, see route.ts):
  *  the same in every language, so a link works whatever the reader's. */
 export const SHAPE_SLUG: Record<CubeShape, string> = each((e) => e.slug)
 

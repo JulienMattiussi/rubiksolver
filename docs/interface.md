@@ -316,11 +316,12 @@ remplissait déjà comprises (`tutorialStore.cheer`), jamais à un coup. Rien po
 qui demande moins d'animations (`prefers-reduced-motion`).
 
 **Adresse** (`lib/app/route.ts`, `store/router.ts`, sans bibliothèque) : l'URL
-dit la langue et le puzzle, `#/fr/floppy-ghost`, `#/en/3x3-mirror`, ou
-l'**accueil** quand elle ne nomme pas de puzzle (`#/fr`, et la racine du
-site, complétée en `#/<langue détectée>`). L'accueil (`useRoute.home`)
-remplace la scène 3D par une galerie (`HomeGallery` : quelques modèles variés, un
-clic ouvre le puzzle, puis la saisie, le guide et la résolution présentés en
+dit la langue et le puzzle, `/fr/floppy-ghost`, `/en/3x3-mirror`, ou
+l'**accueil** quand elle ne nomme pas de puzzle (`/fr`, et la racine du
+site, complétée en `/<langue détectée>`) ; un ancien lien
+(`#/fr/floppy-ghost`) est lu de même, puis son chemin remplace le `#`. L'accueil (`useRoute.home`)
+remplace la scène 3D par une galerie (`HomeGallery` : quelques modèles variés, des liens vers leur page,
+qu'un clic ouvre dans l'app, puis la saisie, le guide et la résolution présentés en
 trois cartes) ; le panneau de gauche n'y garde que le choix du cube, sur
 « Choisissez un modèle », et celui de droite le bloc de résolution grisé
 avec une invitation (`SolvePanel home`, sans calcul de solution). Le titre
@@ -339,10 +340,43 @@ l'adresse : elles sont gardées d'une visite à l'autre dans le navigateur
 (`lib/app/storage.ts`, comme les états mémorisés), la vitesse en deux
 réglages, celui du mélange et de la résolution et celui du tutoriel (plus
 lent par défaut), l'un ou l'autre selon que le tutoriel est ouvert
-(`cubeStore.speedMode`). La langue donne aussi le `lang` du document et sa meta
-description (`App.tsx`) ; celle d'`index.html` est bilingue, puisqu'un
-robot qui n'exécute pas le JavaScript ne voit qu'une adresse (le `#` n'est
-pas envoyé au serveur).
+(`cubeStore.speedMode`). La langue et le puzzle donnent aussi le `lang` du document, son titre et
+sa meta description (`App.tsx`, `seo/head.ts`), les mêmes que ceux de la
+page écrite au build pour cette adresse (voir « Le référencement » dans
+AGENTS.md).
+
+**La page d'un puzzle** (`components/about/`, `seo/about.ts`) : une
+accroche, pas une fiche technique. Deux textes courts, écrits pour chaque
+puzzle (`i18n/*/puzzles.ts`) : ce qu'il est à manipuler, avec un ressenti
+et un avis, puis ses méthodes vues de loin, le tutoriel mis en avant,
+jamais leurs étapes (le panneau les donne), sous une accroche à elles
+(`methodsTitle`), le nom du puzzle en tête de l'autre ; quelques mots en
+gras (entre `**`, `Bolded`). Un puzzle sans les siens dit
+ses méthodes seules, nommées depuis le registre, celles d'un tutoriel
+signalées.
+
+Sur un écran assez large, deux cartes de part et d'autre du puzzle, à côté
+de celles du panneau dont elles gardent le fond, la bordure, les coins,
+l'ombre et les marges, en miroir et de même hauteur (`AboutCards`) : une
+rubrique ambrée (« Le puzzle », « Sa résolution »), un titre en dégradé,
+la première phrase en chapô. Au repos, chaque carte est coupée en biais du
+côté du puzzle et bornée au-dessus de son sommet ; son texte, posé comme
+dans une carte ordinaire, s'efface vers la coupe et vers le bas (un masque
+flouté), une pastille « … » disant qu'il y a la suite (`SlantedCard` :
+fond et bordure d'un même tracé arrondi, `roundedPath`). Elle s'ouvre en
+rectangle pour tout montrer : au survol, après un instant, pour qu'y
+passer en allant vers un panneau ne l'ouvre pas ; au clavier, aussitôt,
+sa bordure en bleu (les cartes viennent après les panneaux dans l'ordre
+de tabulation ; Échap la referme) ; et à l'arrivée sur le site, jusqu'au
+premier geste (clic, touche, molette) ou huit secondes (`useArrival`, une
+fois par visite). La place est calculée sur la fenêtre (`useAboutShape` :
+la largeur moins les deux panneaux et le puzzle, que la caméra cadre aux
+deux tiers de la hauteur) ; les cartes sont cachées pendant la saisie et
+le tutoriel. Sinon, une icône (i) à côté de la langue (dans la barre du
+haut sur un téléphone, `AboutButton`) ouvre la page dans une boîte de
+dialogue native (`AboutDialog`), toujours dans la page et seulement
+cachée tant qu'elle est fermée : le texte y est pour un moteur de
+recherche comme pour le lecteur, sans copie.
 
 Le recentrage caméra transite par `viewStore` (`resetToken`) lu par
 `CameraReset` dans le `<Canvas>`.

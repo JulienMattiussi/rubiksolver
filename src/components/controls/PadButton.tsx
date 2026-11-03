@@ -44,7 +44,8 @@ export function PadButton({ move, label, title, disabled, ghost, compact, dense 
         onBlur={hide}
         onClick={() => move && pushMove(move)}
         variant={ghost ? 'ghost' : undefined}
-        className={`flex-1 rounded-none whitespace-nowrap ${dense ? '' : 'min-w-0'} ${
+        // The pair clips what overflows it: the focus ring drawn inside.
+        className={`flex-1 rounded-none whitespace-nowrap focus-visible:-outline-offset-2! ${dense ? '' : 'min-w-0'} ${
           dense ? 'h-7 px-0 py-0! text-xs' : compact ? 'px-0 text-xs tracking-tight' : 'px-2'
         }`}
         aria-label={title}

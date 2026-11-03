@@ -15,6 +15,7 @@ import {
   STAR_LAYER_FR,
   type StarLayer,
 } from './moveSentences'
+import { listFr } from './list'
 
 /** The interface's texts and move titles (the source; English mirrors it). */
 export const UI_FR = {
@@ -25,6 +26,27 @@ export const UI_FR = {
   metaDescription:
     'Des dizaines de casse-tête 3D interactifs, du Rubik’s Cube au Megaminx : manipulez, mélangez ou saisissez le vôtre, puis apprenez à le résoudre étape par étape.',
   madeWith: { before: 'Fait avec', love: 'amour', by: 'par' },
+  /** A puzzle's page (seo/about.ts): its title, then its description and
+   *  its methods where its own words (puzzles.ts) have none. */
+  puzzleTitle: (name: string) => `${name} : solution pas à pas | Rubik Solver`,
+  puzzleDescription: (name: string, methods: readonly string[]) =>
+    `${name} en 3D, à manipuler, mélanger ou saisir, puis à résoudre pas à pas avec ${
+      methods.length > 1 ? 'les méthodes' : 'la méthode'
+    } ${listFr(methods)}.`,
+  puzzleMethods: (methods: readonly string[], taught: readonly string[]) =>
+    (methods.length > 1
+      ? `${methods.length} méthodes pour le résoudre, au choix : ${listFr(methods)}.`
+      : `Une méthode pour le résoudre : ${methods[0] ?? ''}.`) +
+    (taught.length === 0
+      ? ''
+      : methods.length === 1
+        ? ' Son tutoriel vous l’apprend pas à pas.'
+        : taught.length === 1
+          ? ` La méthode ${taught[0]} a son tutoriel, pour l’apprendre pas à pas.`
+          : ` ${listFr(taught)} ont leur tutoriel, pour les apprendre pas à pas.`),
+  aboutPuzzle: 'À propos de ce puzzle',
+  aboutPuzzleLabel: 'Le puzzle',
+  aboutMethodsLabel: 'Sa résolution',
   moves: 'Rotations',
   scramble: 'Mélanger',
   solve: 'Résoudre',

@@ -191,7 +191,8 @@ src/
 │                        #   (gear/ : pas de drawings.ts, ses pièces, sa vue de saisie et sa vignette sont à lui,
 │                        #   déclarées dans views.ts) ; shared/ : dinoGeometry (Dino Cube, Edge Only)
 ├── components/          # UI : ui/ (primitives), controls/ (panneau, pads de coups faits de useTurnButton, padFor), picker/, guide/, edit/ (scan/ : la caméra),
-│                        #   solve/ (SolveArea : la résolution ou le tutoriel), tutorial/, home/, celebration/
+│                        #   solve/ (SolveArea : la résolution ou le tutoriel), tutorial/, home/, celebration/,
+│                        #   about/ (la page d'un puzzle : deux cartes en biais de part et d'autre, ou une fenêtre)
 ├── store/               # Zustand : cubeStore (cube, file de coups, solution), editorStore, savedStore,
 │                        #   viewStore, router, scanStore (le scan, face par face), tutorialStore (pick, formules jouées, coups à la main, arrêt),
 │                        #   tutorialTrack (étapes montrées, 💪 et fin, coups déjà montrés),
@@ -200,11 +201,15 @@ src/
 │                        #   useSolveShortcuts, useTutorial
 ├── i18n/                # fr/ et en/ (ui, methods, steps, moveSentences : phrases longues du guide et
 │                        #   courtes du tutoriel, tutorial : phrases communes, tutorials/ : les textes de chaque tutoriel,
-│                        #   tutorialMirror ; EN typé sur FR), tutorialTexts (leur forme), translations
+│                        #   tutorialMirror, puzzles : ce que la page d'un puzzle dit de lui ; EN typé sur FR),
+│                        #   tutorialTexts (leur forme), translations
 │                        #   (les assemble), i18nStore
 ├── workers/             # solveWorker : la solution hors du fil de l'interface ; stickersWorker (et findStickers,
 │                        #   stickers) : les stickers d'un miroir trouvés par OpenCV ; facesWorker (et
 │                        #   findFaces) : la forme retrouvée de ses faces (Camouflage, Purple)
+├── seo/                 # Les pages des moteurs de recherche : about (ce que la page d'un puzzle dit de lui),
+│                        #   head (titre, description), page (Page, adresse complète), PageHead et PageBody
+│                        #   (l'en-tête et le texte d'une page), pages (chaque page écrite au build, sitemap)
 └── assets/gear/         # Masques des pièces du Gear Cube (scripts/gear_face.py)
 tests/
 ├── unit/                # Vitest : conformance de tous les puzzles (puzzles.test.ts), puis rangés comme le code :
@@ -220,14 +225,26 @@ docs/
 ├── scan.md              # Le scan à l'appareil photo : puzzles, parcours, lecture
 ├── tutorials.md         # Écrire un bon tutoriel : règles, démarche, vérifications
 └── images/              # Les captures du README (en anglais) et sa bannière
-public/                  # favicon, apple-touch-icon, og.png (aperçu de partage), robots.txt, sitemap.xml
+public/                  # favicon, apple-touch-icon, og.png (aperçu de partage), robots.txt
+scripts/                 # prerender.mjs (les pages écrites au build), gear_face.py
 ```
 
 Le site est déployé sur Vercel (`vercel.json` : build Vite servi depuis
-`dist/`, cache d'un an sur `assets/`, dont les noms changent à chaque build).
-Le référencement et l'aperçu de partage (titre, description, Open Graph,
-JSON-LD, URL publique `https://rubiksolver.yavadeus.dev`) sont écrits dans
-`index.html`, seule page que voit un robot. L'image `public/og.png`, l'icône
+`dist/`, adresses sans `.html` (`cleanUrls`), toute autre adresse servie
+par `index.html`, cache d'un an sur `assets/`, dont les noms changent à
+chaque build). **Le référencement** : chaque langue et chaque puzzle a sa
+page (`/fr/gear-cube-ultimate`), écrite au build (`npm run build` lance
+`scripts/prerender.mjs`, qui charge `src/seo/pages.tsx` par Vite) depuis
+`index.html`, son gabarit : son titre, sa description, son adresse
+canonique et celle de l'autre langue (`hreflang`), l'aperçu de partage, son
+JSON-LD et, dans la racine que l'app redessine, le texte de la page du
+puzzle (`AboutText`), plus le `sitemap.xml`. Ce texte (`seo/about.ts`)
+est celui que l'app montre (`components/about/`), une accroche plutôt
+qu'une fiche technique : ses propres mots (`i18n/*/puzzles.ts`, par
+`cubeKindId`, seul le Gear Cube Ultimate pour l'instant : l'accroche du
+résultat de recherche, ce qu'il est à manipuler, ses méthodes vues de
+loin), sinon ses méthodes nommées depuis le registre ; jamais un texte
+pour les seuls robots. L'image `public/og.png`, l'icône
 `public/apple-touch-icon.png`, la bannière et les captures de `docs/images/`
 sont redessinées par `make branding` (`tests/branding/`, un projet Playwright
 que seule cette commande lance, puisqu'il réécrit des fichiers du dépôt) : à
@@ -512,7 +529,9 @@ dessinées par le code, `three/core/isometric.ts`), pad de coups construit
 depuis les coups de la forme, guide des mouvements, solution jouée dans les
 deux sens et au clavier, tutoriel (on résout soi-même, pas à pas, guidé
 par une flèche et des pièces mises en valeur), feu d'artifice quand un coup résout, adresse
-`#/<langue>/<puzzle>` (l'accueil sinon). Le détail : [docs/interface.md](docs/interface.md).
+`/<langue>/<puzzle>` (l'accueil sinon), la page du puzzle (ce qu'il est, ses
+méthodes) de part et d'autre de lui sur un grand écran, dans une fenêtre
+sinon. Le détail : [docs/interface.md](docs/interface.md).
 
 ### Le tutoriel (`src/lib/teach/`, `src/lib/tutorials/`)
 

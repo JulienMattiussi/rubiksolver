@@ -1,4 +1,5 @@
 import { CUBE_KINDS, cubeCategory, HOME_KINDS, SHAPE_LABEL, type CubeKind } from '@/lib/core/shapes'
+import { routePath } from '@/lib/app/route'
 import { useI18n } from '@/i18n/i18nStore'
 import { goTo } from '@/store/router'
 import { PuzzleIcon } from '@/components/picker/PuzzleIcon'
@@ -8,11 +9,13 @@ const FEATURES: readonly Feature[] = ['edit', 'guide', 'solve']
 
 /**
  * The home page's center, in place of the 3D scene: a gallery of a few
- * models (a click opens one, through the address), then what the app does
- * with it. On desktop it stays between the two panel cards.
+ * models (links to their pages: a click opens one in the app, through the
+ * address), then what the app does with it. On desktop it stays between
+ * the two panel cards.
  */
 export function HomeGallery() {
   const t = useI18n((s) => s.t)
+  const locale = useI18n((s) => s.locale)
   const nameOf = (kind: CubeKind) => t.cubeKind(SHAPE_LABEL[kind.shape], kind.variant)
   return (
     <div className="absolute inset-0 overflow-auto">
@@ -36,9 +39,14 @@ export function HomeGallery() {
           <ul className="flex flex-wrap justify-center gap-3">
             {HOME_KINDS.map((kind) => (
               <li key={`${kind.shape}${kind.variant}`}>
-                <button
-                  type="button"
-                  onClick={() => goTo({ kind })}
+                <a
+                  href={routePath(locale, kind)}
+                  // In the app, unless asked elsewhere (a new tab).
+                  onClick={(e) => {
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+                    e.preventDefault()
+                    goTo({ kind })
+                  }}
                   aria-label={nameOf(kind)}
                   className="group flex w-32 flex-col items-center gap-2 rounded-2xl border border-slate-700/60 bg-slate-900/60 p-3 text-center shadow-lg shadow-black/20 transition duration-200 hover:-translate-y-1 hover:border-sky-400/60 hover:bg-slate-800/80 hover:shadow-sky-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
                 >
@@ -52,7 +60,7 @@ export function HomeGallery() {
                   <span className="-mt-1.5 text-[11px] text-slate-400">
                     {t.cubeCategories[cubeCategory(kind)]}
                   </span>
-                </button>
+                </a>
               </li>
             ))}
           </ul>

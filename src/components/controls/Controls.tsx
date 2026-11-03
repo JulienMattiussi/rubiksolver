@@ -19,6 +19,7 @@ import { TutorialButton } from '@/components/solve/TutorialButton'
 import { FEATURE_ICON } from '@/components/ui/features'
 import { useRoute } from '@/store/router'
 import { AppTitle } from './AppTitle'
+import { AboutButton } from '@/components/about/AboutButton'
 
 const CARD =
   'pointer-events-auto flex min-h-0 w-full flex-col gap-5 overflow-auto rounded-2xl border border-slate-700/70 bg-slate-900/85 p-5 shadow-2xl backdrop-blur sm:max-h-full sm:w-80'
@@ -67,7 +68,10 @@ export function Controls() {
         <section aria-label={t.title} className={CARD}>
           <header className="flex items-center justify-between gap-3">
             {title}
-            <LanguageToggle />
+            <div className="flex items-center gap-2">
+              {!home && <AboutButton />}
+              <LanguageToggle />
+            </div>
           </header>
           {setup}
           <Credit />

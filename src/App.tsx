@@ -6,7 +6,6 @@ import { Controls } from '@/components/controls/Controls'
 import { TopBar } from '@/components/controls/TopBar'
 import { useI18n } from '@/i18n/i18nStore'
 import { cubeShape } from '@/lib/core/cube'
-import { SHAPE_LABEL } from '@/lib/core/shapes'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { useRoute } from '@/store/router'
@@ -16,6 +15,8 @@ import { StageCheer } from '@/components/celebration/StageCheer'
 import { Scene } from '@/three/core/Scene'
 import { FaceArrows } from '@/components/edit/FaceArrows'
 import { usePreloadStickers } from '@/hooks/usePreloadStickers'
+import { AboutCards } from '@/components/about/AboutCards'
+import { headOf } from '@/seo/head'
 
 /** A phone's folded panel, its height while it goes down (px, measured
  *  once folded), and the margin below it (p-3). */
@@ -44,16 +45,14 @@ export default function App() {
   const covered = !phone
     ? 0
     : (fold.closing || panelHeight === 0 ? FOLDED_BAR : panelHeight) + PANEL_MARGIN
+  // The page's language, title and description: those written for its
+  // address at build time (seo/pages.tsx), kept as the reader moves on.
   useEffect(() => {
     document.documentElement.lang = locale
-    document.querySelector('meta[name="description"]')?.setAttribute('content', t.metaDescription)
-  }, [locale, t])
-  // The page's title names the puzzle shown.
-  useEffect(() => {
-    document.title = home
-      ? t.pageTitle
-      : `Rubik Solver - ${t.cubeKind(SHAPE_LABEL[shape], variant)}`
-  }, [home, t, shape, variant])
+    const { title, description } = headOf(t, home ? undefined : { shape, variant })
+    document.title = title
+    document.querySelector('meta[name="description"]')?.setAttribute('content', description)
+  }, [locale, t, home, shape, variant])
 
   return (
     <main className="relative h-full w-full overflow-hidden">
@@ -90,6 +89,9 @@ export default function App() {
           <Controls />
         </div>
       </div>
+      {/* The puzzle's page, on both sides of it on a wide screen: after the
+          panel, so the keyboard reaches the controls first. */}
+      {!home && <AboutCards />}
       <TopBar />
       {/* A turn that solves the puzzle sets off a little show. */}
       <Fireworks />
