@@ -497,4 +497,31 @@ export const PUZZLES_EN: typeof PUZZLES_FR = {
     methods:
       'Two methods: one first brings it back to a cube, then puts the split corner’s colors back; the other finds the shortest solution in one go.',
   },
+  '123': {
+    summary:
+      'Six cubes in a rectangle that only turn by half turns: the 1x2x3 is the ideal puzzle to start with. Turn it in 3D and solve it step by step.',
+    about:
+      'The 1x2x3 sits in your hand like a small rectangle of six cubes, and only turns by **half turns**. You get to know it quickly, and that is its charm: **only 96 positions**, against more than 43 quintillion for a Rubik’s Cube. The perfect playground to understand what an algorithm is before taking on the big ones.',
+    methodsTitle: 'A first step',
+    methods:
+      'The corners first, placed one by one, then the bottom edge flipped by a single algorithm. The tutorial guides you turn by turn; the Optimal method always finds the shortest way.',
+  },
+  '331': {
+    summary:
+      'A Rubik’s Cube squashed into a single layer: the Floppy looks simple, but it has a trick up its sleeve. Turn it in 3D and solve it step by step.',
+    about:
+      'The Floppy is a Rubik’s Cube **squashed into a single layer**: nine pieces, and faces that only make half turns. Its edges never leave their place, they only flip, while the corners travel. It seems trivial, yet it keeps **a little surprise** for when the last edges need flipping. A quick and rewarding way in.',
+    methodsTitle: 'Corners, then edges',
+    methods:
+      'First place the corners one by one, then a single algorithm flips the edges two at a time. The tutorial teaches it step by step; the Optimal method shows the shortest way.',
+  },
+  ghost: {
+    summary:
+      'A silver plate cut along a star, changing shape at every turn: the Floppy Ghost is solved by eye. Turn it in 3D and solve it step by step.',
+    about:
+      'All silver, the Floppy Ghost can only be read by its shapes: a square plate cut along **a five-pointed star**, set slightly askew. Every turn flips a side over, and the plate juts out at unlikely angles. With no color to go by, **your eye does the work**: you learn to know each piece by its outline. A beautiful object, and a real test of observation.',
+    methodsTitle: 'Every piece has a name',
+    methods:
+      'First place the corners, flip them, then finish with the edges, each time with a short algorithm. The tutorial gives each piece a name to find your way; the Optimal method finds the shortest way.',
+  },
 }

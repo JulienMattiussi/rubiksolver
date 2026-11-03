@@ -86,7 +86,8 @@ export type Cube = readonly Cubie[]
  *   (SiGN notation `2R`): the middle slice M/E/S of a 3x3, an inner slice of
  *   a 4x4;
  * - `{ face, amount, depth: 2, wide: true }`: wide turn, outer + inner layers
- *   together (`Rw`); with `depth: 3`, three layers (a 6x6's `3Rw`). `wide`
+ *   together (`Rw`); with `depth: 3`, three layers (a 6x6's `3Rw`; `4`, a
+ *   Meffert's Pocket Cube's half beyond its core). `wide`
  *   never appears without `depth`, and `depth: 1` / `wide: false` are never
  *   used.
  */
@@ -95,7 +96,7 @@ export interface Move {
   readonly amount: 1 | 2 | 3
   /** Inner layer selector: 2 = second layer in from `face`, 3 = the third
    *  (a 5x5's middle slice, a 6x6's inner one). Absent = outer. */
-  readonly depth?: 2 | 3
+  readonly depth?: 2 | 3 | 4
   /** Wide turn: layers 1..depth turn together. Requires `depth`. */
   readonly wide?: true
   /** The whole puzzle turned as `face` turns (x, y, z: held another way,

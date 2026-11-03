@@ -2,33 +2,25 @@ import { cubeDims, cubeShape } from '@/lib/core/cube'
 import { formatMove } from '@/lib/core/notation'
 import { describeMove } from '@/lib/app/moveGuide'
 import { turnAllowed } from '@/lib/core/turn'
-import type { Face, Move } from '@/lib/core/types'
+import type { Move } from '@/lib/core/types'
+import type { LayerGroup } from '@/lib/puzzles/entry'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { PadGroups } from './PadGroups'
 import { PadHeader } from './PadHeader'
 import { useTurnButton } from './useTurnButton'
 
-/** The Fashion-V's turns, by group: its blocks (each side's column, each
- *  half), then its thin layers (H and h, b and B), which only go when their
- *  half is laid. */
-const GROUPS: { key: 'blocks' | 'thin'; layers: Omit<Move, 'amount'>[] }[] = [
-  {
-    key: 'blocks',
-    layers: (['U', 'D', 'L', 'R', 'F', 'B'] as Face[]).map((face) => ({
-      face,
-      depth: 2,
-      wide: true,
-    })),
-  },
-  {
-    key: 'thin',
-    layers: [{ face: 'U' }, { face: 'U', depth: 2 }, { face: 'D', depth: 2 }, { face: 'D' }],
-  },
-]
-
-/** Rotation pad of the Fashion-V, in fan2cube's notation (fashion.ts). */
-export function FashionPad({ disabled }: { disabled: boolean }) {
+/** Rotation pad of a puzzle whose face turns go by groups, each under its
+ *  title (the Fashion-V's blocks then thin layers, Meffert's Pocket Cube's
+ *  halves then the thin layers by its small corner), in its own notation
+ *  (its model's `format`), a turn grayed while it jams. */
+export function LayerPad({
+  groups,
+  disabled,
+}: {
+  groups: readonly LayerGroup[]
+  disabled: boolean
+}) {
   const t = useI18n((s) => s.t)
   const labels = useI18n(selectMoveLabels)
   const cube = useCube((s) => s.cube)
@@ -44,7 +36,7 @@ export function FashionPad({ disabled }: { disabled: boolean }) {
     <div>
       <PadHeader />
       <PadGroups
-        groups={GROUPS.map((g) => ({ ...g, title: t.fashionGroups[g.key] }))}
+        groups={groups.map((g) => ({ ...g, title: t.padGroups[g.key] }))}
         layerKey={(layer) => formatMove({ ...layer, amount: 1 }, labels, dims, shape)}
         pair={(layer) => (
           <>

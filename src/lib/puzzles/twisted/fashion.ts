@@ -1,6 +1,7 @@
 import { FACE_SPEC } from '../../core/geometry'
 import { applyMove } from '../../core/turn'
 import { AMOUNT_SUFFIX, type FaceLabels } from '../../core/notation'
+import type { LayerGroup } from '../entry'
 import type { Cube, Face, Move } from '../../core/types'
 import type { MoveDescription } from '../../core/guide'
 
@@ -80,9 +81,23 @@ export function scrambleFashion(length: number, rng: () => number, start: Cube):
   return moves
 }
 
-/** A turn as fan2cube writes the Fashion-V's: a side's block by its face
- *  (D for Rw), a half by its face and a star (H* for Uw), a thin layer by
- *  its face (H), the one under it in lowercase (h). */
+/** Its pad: its blocks (each side's column, each half), then its thin
+ *  layers (H and h, b and B), which only go when their half is laid. */
+export const FASHION_PAD: readonly LayerGroup[] = [
+  {
+    key: 'blocks',
+    layers: (['U', 'D', 'L', 'R', 'F', 'B'] as const).map((face) => ({
+      face,
+      depth: 2,
+      wide: true,
+    })),
+  },
+  {
+    key: 'thin',
+    layers: [{ face: 'U' }, { face: 'U', depth: 2 }, { face: 'D', depth: 2 }, { face: 'D' }],
+  },
+]
+
 /** What a Fashion-V's turn does: a side's block, a half, a thin layer or
  *  the one under it. */
 export function describeFashionMove(move: Move): MoveDescription {
@@ -92,6 +107,9 @@ export function describeFashionMove(move: Move): MoveDescription {
   return { kind: 'fashion', face: move.face, layer, turn }
 }
 
+/** A turn as fan2cube writes the Fashion-V's: a side's block by its face
+ *  (D for Rw), a half by its face and a star (H* for Uw), a thin layer by
+ *  its face (H), the one under it in lowercase (h). */
 export function formatFashionMove(move: Move, labels: FaceLabels): string {
   const letter = labels[move.face]
   const vertical = move.face === 'U' || move.face === 'D'

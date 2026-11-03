@@ -3,7 +3,7 @@ import { isBoxed, isSolved, solvedCube } from '@/lib/core/cube'
 import { movesFor, scrambleTurns } from '@/lib/core/moves'
 import { formatMove } from '@/lib/core/notation'
 import { applyMove, applyMoves, turnAllowed } from '@/lib/core/turn'
-import type { Cube } from '@/lib/core/types'
+import type { Cube, Move } from '@/lib/core/types'
 import { cubeToEdit, emptyEdit, progress } from '@/lib/editor/edit'
 import { paint } from '@/lib/editor/modes/colors'
 import { formOf } from '@/lib/editor/modes/form'
@@ -13,6 +13,11 @@ import { aBroken, solvePurple } from '@/lib/puzzles/twisted/purpleStates'
 import { seededRng } from '../../../helpers'
 
 const SOLVED = solvedCube('purple')
+
+/** Its outer turns: a half beyond the core (U, R, F's, wide) is the
+ *  opposite one, held otherwise, so they reach every state as it stands. */
+const OUTER = movesFor('purple').filter((m) => !m.wide)
+const HALF = { depth: 4, wide: true } as const
 
 /** A state entered as one would: its form, then each sticker painted (the
  *  editor completing what it can). */
@@ -44,13 +49,43 @@ describe("Meffert's Pocket Cube", () => {
     expect(core.stickers).toHaveLength(0)
   })
 
-  it('turns, solved, only the three faces away from A', () => {
-    const faces = new Set(
-      movesFor('purple')
-        .filter((m) => turnAllowed(SOLVED, m))
-        .map((m) => m.face),
+  it('turns, solved, its six halves, not the thin layers by A', () => {
+    const allowed = movesFor('purple').filter((m) => turnAllowed(SOLVED, m))
+    const layers = new Set(
+      allowed.map((m) => formatMove({ ...m, amount: 1 }, undefined, undefined, 'purple')),
     )
-    expect([...faces].sort()).toEqual(['B', 'D', 'L'])
+    expect([...layers].sort()).toEqual(['B', 'D', 'F', 'L', 'R', 'U'])
+    expect(allowed.filter((m) => m.face === 'U').every((m) => m.wide)).toBe(true)
+  })
+
+  it('turns its top half as its bottom one the other way, held otherwise', () => {
+    // Both halves of an axis turned: the whole puzzle, solved still.
+    const turned = applyMoves(SOLVED, [
+      { face: 'U', amount: 1, ...HALF },
+      { face: 'D', amount: 3 },
+    ])
+    expect(turned).not.toEqual(SOLVED)
+    expect(isSolved(turned)).toBe(true)
+  })
+
+  it('is solved held any way, its turns named as it stands', () => {
+    for (let seed = 0; seed < 5; seed++) {
+      const scrambled = applyMoves(SOLVED, scrambleTurns('purple', 25, seededRng(seed), SOLVED))
+      // Turned over by both halves of two axes.
+      const held = applyMoves(scrambled, [
+        { face: 'R', amount: 1, ...HALF },
+        { face: 'L', amount: 3 },
+        { face: 'F', amount: 2, ...HALF },
+        { face: 'B', amount: 2 },
+      ])
+      const solution = solvePurple(held)
+      let state = held
+      for (const move of solution) {
+        expect(turnAllowed(state, move)).toBe(true)
+        state = applyMove(state, move)
+      }
+      expect(isSolved(state)).toBe(true)
+    }
   })
 
   it('leaves its box with any turn, and comes back with four', () => {
@@ -63,7 +98,7 @@ describe("Meffert's Pocket Cube", () => {
   })
 
   it('takes 1160 shapes, none of them stuck, 13 turns apart at most', () => {
-    const moves = movesFor('purple')
+    const moves = OUTER
     const seen = new Set([look(SOLVED)])
     let frontier = [SOLVED]
     let depth = 0
@@ -89,7 +124,7 @@ describe("Meffert's Pocket Cube", () => {
   })
 
   it('takes 41760 states with the colors of A, 35 of them a cube but unsolved', () => {
-    const moves = movesFor('purple')
+    const moves = OUTER
     // The big cubes are alike: only where they stand counts, and A's minis.
     const key = (cube: Cube) =>
       cube
@@ -177,7 +212,10 @@ describe("Meffert's Pocket Cube", () => {
     expect(progress(emptyEdit('purple'), 'purple')).toMatchObject({ filled: 24, total: 33 })
   })
 
-  it('is written like a cube', () => {
-    expect(formatMove({ face: 'L', amount: 3 })).toBe("L'")
+  it('is written like a cube, its thin layers by A in lowercase', () => {
+    const write = (move: Move) => formatMove(move, undefined, undefined, 'purple')
+    expect(write({ face: 'L', amount: 3 })).toBe("L'")
+    expect(write({ face: 'U', amount: 1, ...HALF })).toBe('U')
+    expect(write({ face: 'R', amount: 2 })).toBe('r2')
   })
 })

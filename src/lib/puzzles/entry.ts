@@ -1,4 +1,4 @@
-import type { Color, CubeColor, Dims, Face } from '../core/types'
+import type { Color, CubeColor, Dims, Face, Move } from '../core/types'
 import type { CubeVariant, InnerTurn, SliceLetters } from '../core/shapes'
 
 /** How a mirror puzzle looks (lib/core/shape.ts): its layers' thicknesses
@@ -21,6 +21,13 @@ export type MirrorScan = 'center' | 'cross'
 export type MoveFamily =
   'star' | 'pyra' | 'ghost' | 'sectors' | 'rainbow' | 'mega' | 'gear' | 'copter'
 
+/** A group of a pad's face turns, under its title (`padGroups`): the
+ *  Fashion-V's and Meffert's Pocket Cube's (components/controls/LayerPad.tsx). */
+export type LayerGroup = {
+  readonly key: 'blocks' | 'thin' | 'halves' | 'byA'
+  readonly layers: readonly Omit<Move, 'amount'>[]
+}
+
 /** The pad of turns a puzzle shows (components/controls/padFor.tsx): its
  *  faces' unless it turns otherwise ('vto': its faces' too, its corners,
  *  wide, before its tips). */
@@ -32,6 +39,7 @@ export type PadKind =
   | 'ghost'
   | 'copter'
   | 'fashion'
+  | 'purple'
   | 'sectors'
   | 'mega'
   | 'crystal'

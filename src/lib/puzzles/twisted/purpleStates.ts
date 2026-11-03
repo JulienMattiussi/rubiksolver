@@ -1,6 +1,7 @@
 import { solvedCube } from '../../core/cube'
 import { applyMove } from '../../core/turn'
-import { type Cube, type Face, type Move } from '../../core/types'
+import { AXIS_ROTATIONS, FACE_NORMAL } from '../../core/geometry'
+import { type Cube, type Face, type Move, type Vec3 } from '../../core/types'
 import { SHAPE_DIMS } from '../../core/shapes'
 import { purpleBoxed, purpleTurns } from './purple'
 
@@ -65,7 +66,7 @@ function searchTree() {
     for (const { state, look: from } of frontier) {
       for (const move of TURNS) {
         // Its own jam test and mechanism: no need to tell its shape again.
-        if (!purpleTurns(state, move.face)) continue
+        if (!purpleTurns(state, move)) continue
         const after = applyMove(state, move, SHAPE_DIMS.purple)
         const look = lookOf(after)
         if (tree.has(look)) continue
@@ -78,19 +79,35 @@ function searchTree() {
   return tree
 }
 
+/** The state held another way about its core, and its turns' faces back. */
+function heldBy(cube: Cube, rotate: (v: Vec3) => Vec3): Cube {
+  return cube.map((c) => ({
+    position: rotate(c.position),
+    stickers: c.stickers.map((s) => ({ normal: rotate(s.normal), color: s.color })),
+  }))
+}
+
 /** A shortest solution: the tree's path to the state, undone (a turn that
- *  went still goes back: the pieces it moved stay clear of every cut).
- *  Throws on a state no turns reach. */
+ *  went still goes back: the pieces it moved stay clear of every cut). Held
+ *  otherwise than the tree's states (both halves of an axis turned), it is
+ *  solved as held the tree's way, its turns' faces turned back. Throws on a
+ *  state no turns reach. */
 export function solvePurple(cube: Cube): Move[] {
   const paths = searchTree()
-  const moves: Move[] = []
-  let look = lookOf(cube)
-  if (!paths.has(look)) throw new Error('solvePurple: no turns reach this state')
-  for (let at = paths.get(look); at; at = paths.get(look)) {
-    moves.push({ face: at.move.face, amount: (4 - at.move.amount) as 1 | 2 | 3 })
-    look = at.from
+  for (const rotate of AXIS_ROTATIONS) {
+    let look = lookOf(heldBy(cube, rotate))
+    if (!paths.has(look)) continue
+    // The face that, held this way, is the tree's.
+    const back = (face: Face) =>
+      FACES.find((f) => rotate(FACE_NORMAL[f]).join() === FACE_NORMAL[face].join())!
+    const moves: Move[] = []
+    for (let at = paths.get(look); at; at = paths.get(look)) {
+      moves.push({ face: back(at.move.face), amount: (4 - at.move.amount) as 1 | 2 | 3 })
+      look = at.from
+    }
+    return moves
   }
-  return moves
+  throw new Error('solvePurple: no turns reach this state')
 }
 
 /** The fewest turns that make Meffert's Pocket Cube a cube again, whatever A's colors. */
@@ -102,7 +119,7 @@ export function purpleToCube(cube: Cube): Move[] {
     for (const { state, moves } of frontier) {
       if (purpleBoxed(state)) return moves
       for (const move of TURNS) {
-        if (!purpleTurns(state, move.face)) continue
+        if (!purpleTurns(state, move)) continue
         const after = applyMove(state, move, SHAPE_DIMS.purple)
         const look = lookOf(after)
         if (seen.has(look)) continue
@@ -125,7 +142,7 @@ export function scramblePurple(length: number, rng: () => number, start: Cube): 
   let state = start
   while (moves.length < length || (!aBroken(state) && moves.length < length + EXTRA)) {
     const last = moves[moves.length - 1]?.face
-    const ahead = TURNS.filter((m) => purpleTurns(state, m.face)).map((move) => ({
+    const ahead = TURNS.filter((m) => purpleTurns(state, m)).map((move) => ({
       move,
       after: applyMove(state, move, SHAPE_DIMS.purple),
     }))

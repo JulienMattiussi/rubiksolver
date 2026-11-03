@@ -10,6 +10,7 @@ export const TWISTED = {
     dims: [5, 5, 5],
     scramble: 25,
     shifts: true,
+    pad: 'purple',
   },
   // The Z-Twist (twist.ts): a 3x3x3, shaped otherwise.
   twist: { label: 'Z-Twist', slug: 'z-twist', dims: [3, 3, 3], scramble: 20, editHint: 'twist' },

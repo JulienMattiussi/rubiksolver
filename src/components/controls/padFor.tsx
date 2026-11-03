@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react'
 import { SHAPE_PAD, type CubeShape } from '@/lib/core/shapes'
 import type { PadKind } from '@/lib/puzzles/entry'
+import { FASHION_PAD } from '@/lib/puzzles/twisted/fashion'
+import { PURPLE_PAD } from '@/lib/puzzles/twisted/purple'
 import { FtoPad } from './FtoPad'
 import { GearPad } from './GearPad'
 import { GhostPad } from './GhostPad'
 import { CopterPad } from './CopterPad'
-import { FashionPad } from './FashionPad'
+import { LayerPad } from './LayerPad'
 import { MegaPad } from './MegaPad'
 import { MovePad } from './MovePad'
 import { SectorPad } from './SectorPad'
@@ -21,7 +23,8 @@ const PADS: Record<PadKind, (disabled: boolean) => ReactNode> = {
   pyra: (disabled) => <PyraPad disabled={disabled} />,
   ghost: (disabled) => <GhostPad disabled={disabled} />,
   copter: (disabled) => <CopterPad disabled={disabled} />,
-  fashion: (disabled) => <FashionPad disabled={disabled} />,
+  fashion: (disabled) => <LayerPad groups={FASHION_PAD} disabled={disabled} />,
+  purple: (disabled) => <LayerPad groups={PURPLE_PAD} disabled={disabled} />,
   sectors: (disabled) => <SectorPad disabled={disabled} />,
   mega: (disabled) => <MegaPad disabled={disabled} />,
   crystal: (disabled) => <MegaPad disabled={disabled} crystal />,

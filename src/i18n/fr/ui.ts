@@ -163,7 +163,12 @@ export const UI_FR = {
   editCube: 'Saisir',
   editHintCuts:
     'Placez d’abord les demi-cubies comme ils sont : cliquez une case pour faire défiler leur position (couchés, debout d’un côté ou de l’autre, ou une arête pleine de l’équateur, quatre en tout). Validez, puis peignez les couleurs.',
-  fashionGroups: { blocks: 'Blocs', thin: 'Couches fines' },
+  padGroups: {
+    blocks: 'Blocs',
+    thin: 'Couches fines',
+    halves: 'Moitiés',
+    byA: 'Tranches du petit coin',
+  },
   acceptCuts: 'Valider les demi-cubies',
   changeCuts: 'Changer les demi-cubies',
   wholeEdgesOf: (n: number) => `${n} / 4 arêtes pleines`,

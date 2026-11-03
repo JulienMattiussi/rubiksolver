@@ -231,12 +231,18 @@ export function scrambleTurns(
   return scramble(shape, length, rng, start)
 }
 
-/** One turn of every layer a puzzle has, gridless ones included: what moves
- *  or turns its pieces at all (the editor's fixed pieces). */
+/** One turn of every layer a puzzle has, gridless ones included, but a wide
+ *  turn of all its layers but one: that is only the last one's turn, the
+ *  puzzle held otherwise (Meffert's Pocket Cube's halves beyond its core).
+ *  What moves or turns its pieces as it stands (the editor's fixed pieces,
+ *  its forms). */
 export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
   const own = MODELS[shape]?.turns
   if (own) return own()
-  return movesFor(shape)
+  const dims = turnDims(shape)
+  return movesFor(shape).filter(
+    (move) => !(move.wide && move.depth === faceLayers(dims, move.face) - 1),
+  )
 }
 
 /**

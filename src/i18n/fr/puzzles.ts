@@ -505,4 +505,31 @@ export const PUZZLES_FR = {
     methods:
       'Deux méthodes : l’une le ramène d’abord à un cube, puis remet en place les couleurs du coin découpé ; l’autre trouve d’un coup la solution la plus courte.',
   },
+  '123': {
+    summary:
+      'Six cubes en rectangle qui ne tournent que par demi-tours : le 1x2x3 est le casse-tête idéal pour débuter. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le 1x2x3 tient dans la main comme un petit rectangle de six cubes, et ne se tourne que par **demi-tours**. On en fait vite le tour, et c’est tout son charme : **96 positions seulement**, contre plus de 43 milliards de milliards pour un Rubik’s Cube. Le terrain de jeu parfait pour comprendre ce qu’est une formule avant de s’attaquer aux grands.',
+    methodsTitle: 'Un premier pas',
+    methods:
+      'Les coins d’abord, placés un à un, puis l’arête du bas retournée par une seule formule. Le tutoriel vous guide coup par coup ; la méthode Optimale, elle, trouve toujours le chemin le plus court.',
+  },
+  '331': {
+    summary:
+      'Un Rubik’s Cube aplati en une seule couche : le Floppy paraît simple, il a plus d’un tour dans son sac. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Floppy, c’est un Rubik’s Cube **aplati en une seule couche** : neuf pièces, et des faces qui ne font que des demi-tours. Ses arêtes ne quittent jamais leur place, elles se retournent seulement, tandis que les coins voyagent. On le croit trivial, il réserve pourtant **une petite surprise** au moment de retourner les dernières arêtes. Une entrée en matière rapide et gratifiante.',
+    methodsTitle: 'Les coins, puis les arêtes',
+    methods:
+      'On place d’abord les coins un à un, puis une seule formule retourne les arêtes deux par deux. Le tutoriel vous l’apprend pas à pas ; la méthode Optimale montre le chemin le plus court.',
+  },
+  ghost: {
+    summary:
+      'Une plaque argentée taillée en étoile, qui se déforme à chaque coup : le Floppy Ghost se résout à l’œil. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Tout argenté, le Floppy Ghost ne se lit qu’à ses formes : une plaque carrée découpée selon **une étoile à cinq branches**, posée légèrement de travers. Chaque coup retourne un côté, et la plaque part en angles improbables. Sans couleur pour se repérer, **c’est l’œil qui travaille** : on apprend à reconnaître chaque pièce à son contour. Un bel objet, et un vrai défi d’observation.',
+    methodsTitle: 'Chaque pièce a son nom',
+    methods:
+      'On place d’abord les coins, on les retourne, puis on finit par les arêtes, chaque fois avec une formule courte. Le tutoriel donne un nom à chaque pièce pour s’y retrouver ; la méthode Optimale trouve le chemin le plus court.',
+  },
 }

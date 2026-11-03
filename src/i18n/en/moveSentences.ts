@@ -167,7 +167,18 @@ export function describeEn(d: MoveDescription): string {
     const n = Math.abs(d.twelfths)
     const notches = n === 1 ? 'one notch' : `${n} notches`
     const sense = d.twelfths > 0 ? 'clockwise' : 'counterclockwise'
-    return `Turn the ${d.layer === 'U' ? 'top' : 'bottom'} disc ${notches} (${30 * n}°) ${sense}, as seen from above.`
+    return `Turn the ${d.layer === 'U' ? 'top' : 'bottom'} disc ${notches} (${30 * n}°) ${sense}, as seen from ${d.layer === 'U' ? 'above' : 'below'}.`
+  }
+  if (d.kind === 'purple') {
+    const sense =
+      d.turn === 'half'
+        ? 'a half turn'
+        : `a quarter turn ${d.turn === 'cw' ? 'clockwise' : 'counterclockwise'}, as seen from that side`
+    const what =
+      d.layer === 'half'
+        ? `${HALF_NAMES_EN[d.face]} (all on that side of the middle cut)`
+        : `the thin layer of the ${FACE_NAMES_EN[d.face]}, the small corner's, alone`
+    return `Turn ${what} ${sense}, unless a big cube straddles its cut.`
   }
   if (d.kind === 'fashion') {
     const sense =
@@ -269,7 +280,14 @@ export function describeShortEn(d: MoveDescription): string {
   if (d.kind === 'puckSlash') return 'Turn the right half of the disc a half turn (the pivot)'
   if (d.kind === 'puckLayer') {
     const n = Math.abs(d.twelfths)
-    return `Turn the ${d.layer === 'U' ? 'top' : 'bottom'} disc ${n === 1 ? 'one notch' : `${n} notches`} ${senseEn(d.twelfths > 0)}, seen from above`
+    return `Turn the ${d.layer === 'U' ? 'top' : 'bottom'} disc ${n === 1 ? 'one notch' : `${n} notches`} ${senseEn(d.twelfths > 0)}, seen from ${d.layer === 'U' ? 'above' : 'below'}`
+  }
+  if (d.kind === 'purple') {
+    const what =
+      d.layer === 'half' ? HALF_NAMES_EN[d.face] : `the thin layer of the ${FACE_NAMES_EN[d.face]}`
+    return d.turn === 'half'
+      ? `Turn ${what} a half turn`
+      : `Turn ${what} ${senseEn(d.turn === 'cw')}, seen from that side`
   }
   if (d.kind === 'fashion') {
     const face = FACE_NAMES_EN[d.face]

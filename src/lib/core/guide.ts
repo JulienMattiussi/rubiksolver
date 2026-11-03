@@ -70,8 +70,9 @@ export type MoveDescription =
       readonly slice?: 1 | 2 | 3 | 4
     }
   | {
-      /** A Hockey Puck's layer turned some twelfths (signed: clockwise seen
-       *  from above when positive), or its slash. */
+      /** A Hockey Puck's or a Square-1's layer turned some twelfths (signed:
+       *  clockwise when positive, the top seen from above, the bottom from
+       *  below), or its slash. */
       readonly kind: 'puckLayer'
       readonly layer: 'U' | 'D'
       readonly twelfths: number
@@ -90,6 +91,13 @@ export type MoveDescription =
       readonly kind: 'fashion'
       readonly face: Face
       readonly layer: 'block' | 'half' | 'thin' | 'inner'
+      readonly turn: 'cw' | 'ccw' | 'half'
+    }
+  | {
+      /** A Meffert's Pocket Cube's turn: a half, or the thin layer by A. */
+      readonly kind: 'purple'
+      readonly face: Face
+      readonly layer: 'half' | 'thin'
       readonly turn: 'cw' | 'ccw' | 'half'
     }
   | {

@@ -57,7 +57,7 @@ plus souvent celle de fan2cube (voir leur fiche dans `docs/puzzles/`).
 > sur le 3x3 ; de deux en deux sur un nombre pair de couches, `{-3,-1,1,3}`
 > sur le 4x4, pour rester entier). **Rien n'y suppose un cube** : une forme
 > n'est qu'un triplet de nombres de couches (`SHAPE_DIMS`). Un `Move` désigne une face + éventuellement
-> `depth: 2` (tranche interne ; `3` : la troisième couche, tranche du milieu d'un 5x5 ou `3R` du 6x6) et `wide` (couches 1 à `depth`), ou `whole` (le puzzle entier tenu autrement, `x y z`) ; `moveSlab` en déduit
+> `depth: 2` (tranche interne ; `3` : la troisième couche, tranche du milieu d'un 5x5 ou `3R` du 6x6 ; `4` large : la moitié du Meffert's Pocket Cube au-delà de son cœur) et `wide` (couches 1 à `depth`), ou `whole` (le puzzle entier tenu autrement, `x y z`) ; `moveSlab` en déduit
 > la tranche tournée (l'intervalle entre deux plans de coupe), source unique
 > partagée par `applyMove`, l'animation et l'aperçu (`turnedBy`). Les coups
 > agissent sur le **mécanisme** (`turnDims`) : le puzzle lui-même, sauf un

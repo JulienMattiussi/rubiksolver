@@ -9,7 +9,16 @@ import { asSeenThin, thinEdgesSolved } from '../shared/thinEdges'
 import { centerToggles, withCenterSpins, withTurnedCenters } from './twist'
 import { FASHION_CUTS } from './fashionEntry'
 import { turnedKeys } from '../../editor/modes/toggles'
-import { purpleBoxed, purpleSolved, purpleTurns, solvedPurple, turnAboutA } from './purple'
+import {
+  describePurpleMove,
+  formatPurpleMove,
+  purpleBoxed,
+  purpleLayers,
+  purpleSolved,
+  purpleTurns,
+  solvedPurple,
+  turnAboutA,
+} from './purple'
 import { scramblePurple } from './purpleStates'
 import { PURPLE_FACE_ENTRY } from './purpleViews'
 import { SECTOR_TURNS } from '../shared/sectors'
@@ -26,10 +35,14 @@ import {
 
 export const TWISTED_MODELS = {
   // Its box is off its core, which its coordinates are about; held only
-  // about its diagonal through A.
+  // about its diagonal through A. Each axis its two halves and its thin
+  // layer by A (purple.ts).
   purple: {
     solved: solvedPurple,
-    turnAllowed: (cube, move) => purpleTurns(cube, move.face),
+    turnAllowed: purpleTurns,
+    layers: purpleLayers,
+    format: (move, labels) => formatPurpleMove(move, labels),
+    describe: (turn) => describePurpleMove(turn as Move),
     boxed: purpleBoxed,
     isSolved: purpleSolved,
     symmetries: [turnAboutA],

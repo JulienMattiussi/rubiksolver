@@ -21,13 +21,33 @@ et 1, et une face tourne ce qui est au-delà de sa coupe (2 ou plus) :
 exactement la tranche externe d'un 5x5 (`dims` `[5, 5, 5]` de sa carte), donc le
 moteur des cubes le fait tourner tel quel (`Move`, pad, guide, `shifts` de
 sa carte ; le mélange est le sien, voir plus bas). Seul `turnAllowed` lui est propre : un gros cube centré sur
-une coupe la chevauche et bloque la face (`purpleTurns`). Résolu, seules L,
-D et B tournent. `isBoxed` lit sa propre boîte (de -5 à 3, `purpleBoxed`) ;
-une seule symétrie, le tiers de tour autour de sa diagonale par A (3
+une coupe la chevauche et bloque la face (`purpleTurns`).
+
+**Ses coups** : ses deux coupes d'un axe se valent ; résolu, celle du côté
+de A (en 1) détache une tranche fine, l'autre (en -1) le coupe en deux
+moitiés. Le pad (`LayerPad`, `PURPLE_PAD`) montre donc, par axe, ses
+**deux moitiés** (D, L et B : leur couche externe ; U, R et F : la moitié
+au-delà du cœur, un coup large de 4 couches sur 5, `PURPLE_HALF`), toujours
+possibles ensemble, puis les **tranches du petit coin** (u, r, f : la
+couche externe de U, R et F, `formatPurpleMove`). Tourner une moitié, c'est
+tourner l'autre en sens inverse, le puzzle tenu autrement : tourner les
+deux d'un même axe tourne le puzzle entier autour de son cœur. Tout ce qui
+lit son état vaut donc quelle que soit la façon de le tenir : `isBoxed`
+(sa boîte de 8 de large sur chaque axe, `purpleBoxed`), `purpleSolved`
+(chaque couleur de A sur le côté de la boîte où pointe sa normale) et
+`solvePurple` (l'état tenu de chacune des 24 façons jusqu'à le trouver
+dans l'arbre, ses coups ramenés à la tenue d'origine). Ses lettres, elles,
+sont celles de la tenue résolue : une fois le puzzle entier tourné, la
+tranche « u » n'est plus forcément celle du petit coin. La saisie ignore
+ces coups larges (un coup de toutes les couches sauf une n'est que
+l'autre, tenu autrement, `layerTurnsOf`) : ses formes se cherchent comme
+avant, et les trois mini-cubes de A à un sticker restent pré-remplis. Une seule
+symétrie déclarée, le tiers de tour autour de sa diagonale par A (3
 orientations).
 
-**1 160 formes** atteignables (les gros cubes étant pareils), à 13 coups
-au plus, aucune bloquée ; avec les couleurs de A, **41 760 états**, à 30
+**1 160 formes** atteignables par ses couches externes (les gros cubes
+étant pareils ; une moitié au-delà du cœur n'en ajoute pas, à la tenue
+près), à 13 coups au plus, aucune bloquée ; avec les couleurs de A, **41 760 états**, à 30
 coups au plus, dont 35 en forme de cube mais pas résolus : testé en
 parcourant tout l'espace.
 

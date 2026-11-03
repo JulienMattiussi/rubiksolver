@@ -170,7 +170,18 @@ export function describeFr(d: MoveDescription): string {
     const n = Math.abs(d.twelfths)
     const notches = n === 1 ? 'd’un cran' : `de ${n} crans`
     const sense = d.twelfths > 0 ? 'des aiguilles' : 'inverse des aiguilles'
-    return `On tourne le disque ${d.layer === 'U' ? 'du haut' : 'du bas'} ${notches} (${30 * n}°) dans le sens ${sense} d’une montre, vu de dessus.`
+    return `On tourne le disque ${d.layer === 'U' ? 'du haut' : 'du bas'} ${notches} (${30 * n}°) dans le sens ${sense} d’une montre, vu de ${d.layer === 'U' ? 'dessus' : 'dessous'}.`
+  }
+  if (d.kind === 'purple') {
+    const sense =
+      d.turn === 'half'
+        ? 'd’un demi-tour'
+        : `d’un quart de tour dans le sens ${d.turn === 'cw' ? 'des aiguilles' : 'inverse des aiguilles'} d’une montre, vu de ce côté`
+    const what =
+      d.layer === 'half'
+        ? `${HALF_NAMES_FR[d.face]} (tout ce qui est de ce côté de la coupe du milieu)`
+        : `la tranche fine de la ${FACE_NAMES_FR[d.face]}, celle du petit coin, seule`
+    return `On tourne ${what} ${sense}, si aucun gros cube ne chevauche sa coupe.`
   }
   if (d.kind === 'fashion') {
     const sense =
@@ -285,7 +296,16 @@ export function describeShortFr(d: MoveDescription): string {
   if (d.kind === 'puckSlash') return 'Demi-tour de la moitié droite du disque (le pivot)'
   if (d.kind === 'puckLayer') {
     const n = Math.abs(d.twelfths)
-    return `Rotation du disque ${d.layer === 'U' ? 'du haut' : 'du bas'} ${n === 1 ? 'd’un cran' : `de ${n} crans`} ${senseFr(d.twelfths > 0)}, vu de dessus`
+    return `Rotation du disque ${d.layer === 'U' ? 'du haut' : 'du bas'} ${n === 1 ? 'd’un cran' : `de ${n} crans`} ${senseFr(d.twelfths > 0)}, vu de ${d.layer === 'U' ? 'dessus' : 'dessous'}`
+  }
+  if (d.kind === 'purple') {
+    const what =
+      d.layer === 'half'
+        ? of(HALF_NAMES_FR[d.face])
+        : `de la tranche fine de la ${FACE_NAMES_FR[d.face]}`
+    return d.turn === 'half'
+      ? `Demi-tour ${what}`
+      : `Rotation ${what} ${senseFr(d.turn === 'cw')}, vu de ce côté`
   }
   if (d.kind === 'fashion') {
     const face = FACE_NAMES_FR[d.face]

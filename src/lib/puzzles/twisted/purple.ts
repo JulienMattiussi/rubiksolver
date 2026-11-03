@@ -1,5 +1,8 @@
 import { FACE_SPEC, mapVec } from '../../core/geometry'
-import type { Color, Cube, Cubie, Face, Sticker, Vec3 } from '../../core/types'
+import type { MoveDescription } from '../../core/guide'
+import { AMOUNT_SUFFIX, type FaceLabels } from '../../core/notation'
+import type { LayerGroup } from '../entry'
+import type { Color, Cube, Cubie, Face, Move, Sticker, Vec3 } from '../../core/types'
 
 /**
  * Meffert's Pocket Cube (sold all violet but one corner): a 2x2x2 whose corner piece A,
@@ -18,6 +21,12 @@ import type { Color, Cube, Cubie, Face, Sticker, Vec3 } from '../../core/types'
  * along it (at -2 or less), as on a 5x5's grid (its outer slab), so the
  * engine turns it as is. A big cube centered on a cut (at 1 or -1) straddles
  * it and jams that face; a mini cube never does.
+ *
+ * Its two cuts on an axis are alike: solved, the one by A (at 1) takes off
+ * a thin layer, the other (at -1) splits it in halves, both of which turn
+ * (D's outer layer, U's wide one). Turning the one half or the other is the
+ * same, held another way: whatever way it stands about its core, it is
+ * boxed, solved, and solved by the same turns, turned.
  */
 
 /** Half the width of a piece: its coordinates' parity tells (minis even). */
@@ -57,33 +66,86 @@ export function solvedPurple(): Cube {
   return [...bigs, ...minis]
 }
 
-/** Whether every piece is back in the solved box (-5 to 3): then they fill
- *  it, and Meffert's Pocket Cube is a cube again. */
-export const purpleBoxed = (cube: Cube): boolean =>
-  cube.every((c) => c.position.every((v) => v - half(c) >= -5 && v + half(c) <= 3))
+/** The box around its pieces, on each axis: its low and high sides. */
+function boxOf(cube: Cube): { lo: Vec3; hi: Vec3 } {
+  const lo = mapVec([0, 1, 2], (a) => Math.min(...cube.map((c) => c.position[a]! - half(c))))
+  const hi = mapVec([0, 1, 2], (a) => Math.max(...cube.map((c) => c.position[a]! + half(c))))
+  return { lo, hi }
+}
 
-/** Whether Meffert's Pocket Cube is solved: a cube again, A's colors outside (on its
- *  minis at 2 along their normal, which points out), one a face. Held
- *  turned about A, its colors go round: still solved. */
+/** Whether it is a cube again: its pieces, 8 wide on every axis, fill
+ *  their box (as wide as the solved one, -5 to 3, wherever it stands: held
+ *  another way, after both halves of an axis turned, it lies elsewhere about
+ *  its core). */
+export const purpleBoxed = (cube: Cube): boolean => {
+  const { lo, hi } = boxOf(cube)
+  return [0, 1, 2].every((a) => hi[a]! - lo[a]! === 8)
+}
+
+/** Whether Meffert's Pocket Cube is solved: a cube again, A's colors outside (each
+ *  sticker on the side of the box its normal points to), one a face. Held
+ *  turned about A, or another way, its colors go round: still solved. */
 export function purpleSolved(cube: Cube): boolean {
   if (!purpleBoxed(cube)) return false
-  const faceColor = new Map<number, Color>()
+  const { lo, hi } = boxOf(cube)
+  const faceColor = new Map<string, Color>()
   for (const c of cube) {
     for (const s of c.stickers) {
       if (s.color === 'V') continue
       const a = s.normal.findIndex((v) => v !== 0)
-      if (s.normal[a] !== 1 || c.position[a] !== 2) return false
-      if ((faceColor.get(a) ?? s.color) !== s.color) return false
-      faceColor.set(a, s.color)
+      const side = s.normal[a]! > 0 ? hi[a] : lo[a]
+      if (c.position[a]! + s.normal[a]! * half(c) !== side) return false
+      const face = s.normal.join()
+      if ((faceColor.get(face) ?? s.color) !== s.color) return false
+      faceColor.set(face, s.color)
     }
   }
   return new Set(faceColor.values()).size === 3
 }
 
-/** Whether a face can turn: no big cube straddles its cut. */
-export function purpleTurns(cube: Cube, face: Face): boolean {
-  const { coordIndex, dir } = FACE_SPEC[face]
-  return !cube.some((c) => half(c) === 2 && c.position[coordIndex] === dir)
+/** Whether a face can turn: no big cube straddles its cut. A half on the
+ *  far side of the core (a wide turn) turns on the opposite face's cut. */
+export function purpleTurns(cube: Cube, move: Pick<Move, 'face' | 'wide'>): boolean {
+  const { coordIndex, dir } = FACE_SPEC[move.face]
+  const cut = move.wide ? -dir : dir
+  return !cube.some((c) => half(c) === 2 && c.position[coordIndex] === cut)
+}
+
+/** A half seen from U, R or F, beyond the cut that splits the solved puzzle
+ *  in two: a wide turn of four of its five layers. */
+const PURPLE_HALF: Pick<Move, 'depth' | 'wide'> = { depth: 4, wide: true }
+
+/** The faces whose outer layer is the thin one by A (held as solved). */
+const NEAR_A: readonly Face[] = ['U', 'R', 'F']
+
+/** The layers a face turns: U, R and F their half, then their thin layer by
+ *  A; D, L and B their half (their outer layer). */
+export const purpleLayers = (face: Face): readonly Pick<Move, 'depth' | 'wide'>[] =>
+  NEAR_A.includes(face) ? [PURPLE_HALF, {}] : [{}]
+
+/** Its pad: the halves, each axis's two side by side, then the thin layers. */
+export const PURPLE_PAD: readonly LayerGroup[] = [
+  {
+    key: 'halves',
+    layers: (['U', 'D', 'R', 'L', 'F', 'B'] as const).map((face) =>
+      NEAR_A.includes(face) ? { face, ...PURPLE_HALF } : { face },
+    ),
+  },
+  { key: 'byA', layers: NEAR_A.map((face) => ({ face })) },
+]
+
+const isThin = (move: Move) => NEAR_A.includes(move.face) && !move.wide
+
+/** What a turn does: a half, or the thin layer by A. */
+export function describePurpleMove(move: Move): MoveDescription {
+  const turn = move.amount === 2 ? 'half' : move.amount === 1 ? 'cw' : 'ccw'
+  return { kind: 'purple', face: move.face, layer: isThin(move) ? 'thin' : 'half', turn }
+}
+
+/** A half by its face's letter, the thin layer by A in lowercase (u). */
+export function formatPurpleMove(move: Move, labels: FaceLabels): string {
+  const letter = labels[move.face]
+  return (isThin(move) ? letter.toLowerCase() : letter) + AMOUNT_SUFFIX[move.amount]
 }
 
 /** Meffert's Pocket Cube held another way that keeps its box: a third of a turn about
