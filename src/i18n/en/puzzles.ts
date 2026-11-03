@@ -227,4 +227,76 @@ export const PUZZLES_EN: typeof PUZZLES_FR = {
     methods:
       'You bring it back to a Rubik’s Cube: by laying its bars the right way, you free the slices that need turning, then solve it as a 3x3.',
   },
+  oct4: {
+    summary:
+      'The 4-Trajber’s Octahedron, a 4x4 disguised as an eight-color octahedron: if you know the 4x4, you will soon feel at home. Turn it in 3D and solve it.',
+    about:
+      'Under its eight triangular faces, the 4-Trajber’s Octahedron hides **a 4x4 cut into an octahedron**: it turns exactly like one, but each piece shows a single color. The disguise is so good that it takes a while to recognize your old companion, then everything feels familiar, and fun to rediscover from a new angle.',
+    methodsTitle: 'An old companion',
+    methods:
+      'It is solved one kind of piece after another, corners, centers then edges, with commutators borrowed from a well-known cube.',
+  },
+  vto: {
+    summary:
+      'The Octahedron VTO turns by its corners, a quarter turn: a 3x3 cut into an octahedron, with Pyraminx faces. Turn it in 3D and solve it.',
+    about:
+      'The Octahedron VTO is **a 3x3 cut into an octahedron**: its six corners turn, a quarter turn, and their tips can also turn alone. Each face, cut into nine triangles, recalls a Pyraminx, so you keep wavering between the two logics. Baffling at first, it proves far less difficult than it looks.',
+    methodsTitle: 'Like a Pyraminx',
+    methods:
+      'First match its centers by turning the corners, as on a Pyraminx, then sort the edges with a few short formulas.',
+  },
+  gem: {
+    summary:
+      'The GEM-0, an octahedron with its tips planed into golden squares: a jewel that turns like a 3x3. Turn it in 3D and solve it step by step.',
+    about:
+      'The GEM-0 is a VTO whose **tips have been planed into golden squares**, each bearing an emblem: it takes on the look of a jewel and now turns like a 3x3, by quarter turns. The most beautiful of the octahedra, almost too precious to dare scramble.',
+    methodsTitle: 'The centers first',
+    methods:
+      'As on a Pyraminx, first match its centers by turning the squares, then sort the edges: a short, elegant method, like the puzzle itself.',
+  },
+  fto: {
+    summary:
+      'The FTO, an octahedron whose eight faces turn by thirds: lively, deep, and like nothing you know. Turn it in 3D and solve it step by step.',
+    about:
+      'The FTO turns **its eight faces**, a third of a turn, each one carrying along pieces of its neighbors. It scrambles in an instant and looks like nothing you know, neither cube nor Pyraminx. A lively, deep puzzle that makes you build new reflexes.',
+    methodsTitle: 'One piece at a time',
+    methods:
+      'One kind of piece after another, corners, centers then edges, each with a 3-cycle that touches nothing else. Methodical, with no bad surprise.',
+  },
+  rainbow: {
+    summary:
+      'The Rainbow, a cuboctahedron with turning triangles: only twelve pieces, but a real puzzle. Turn it in 3D and solve it step by step.',
+    about:
+      'The Rainbow blends **six squares and eight triangles**, and the triangles are what turn, each one cycling the three pieces at its corners. It has only twelve pieces, each with four colors, and yet it holds out surprisingly long. A rare shape, very elegant, that will not be tamed at the first try.',
+    methodsTitle: 'One triangle, then the rest',
+    methods:
+      'Complete a first triangle, then all the others with two commutators; the last one falls into place on its own, like a reward.',
+  },
+  megaminx: {
+    summary:
+      'The Megaminx, the twelve-faced Rubik’s Cube: more pieces, but a familiar logic. Turn it in 3D and learn to solve it step by step.',
+    about:
+      'The Megaminx is **a Rubik’s Cube with twelve pentagonal faces**: more pieces, more colors, and a feeling of vertigo at the first scramble. Yet anyone who can solve a 3x3 soon finds their bearings: the same ideas, just longer to unfold. A marathon rather than a sprint, and a huge satisfaction at the finish.',
+    methodsTitle: 'The extended star',
+    methods:
+      'It is solved like a Rubik’s Cube layer by layer, gaining a neighboring face at each step, up to the top, which is finished last.',
+  },
+  crystal: {
+    summary:
+      'The Pyraminx Crystal, a Megaminx cut deeper, with no centers: twelve faces that intertwine. Turn it in 3D and solve it step by step.',
+    about:
+      'The Pyraminx Crystal takes the Megaminx’s shape, but its cuts plunge to the center of the neighboring faces: **it has no centers left**, and each turn shakes up a large part of the puzzle. The usual landmarks vanish, and everything must be rebuilt from the corners. Splendid once scrambled, and a real challenge for Megaminx fans.',
+    methodsTitle: 'The corners first',
+    methods:
+      'Like the Megaminx layer by layer, but always placing the corners before the edges, since no center gives the colors anymore.',
+  },
+  skewbU: {
+    summary:
+      'The Skewb Ultimate, a Skewb cut into a dodecahedron: twelve faces for a familiar mechanism. Turn it in 3D and solve it step by step.',
+    about:
+      'The Skewb Ultimate looks like a Megaminx, but it is **a Skewb disguised as a dodecahedron**: each turn tips a whole half of the puzzle. Its slanted faces blur the landmarks, and you search a long time for where the centers hide. Once you see through the disguise, it solves like its big brother, with the same pleasure.',
+    methodsTitle: 'The top first',
+    methods:
+      'The Skewb’s method, fitted to its shape: finish the top first, then all the rest by turning only the bottom.',
+  },
 }

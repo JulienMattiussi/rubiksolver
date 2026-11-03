@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { CUBE_KINDS, cubeKindId } from '@/lib/core/shapes'
-import { LOCALES } from '@/i18n/translations'
+import { LOCALES, type Translations } from '@/i18n/translations'
 import { PUZZLES_FR } from '@/i18n/fr/puzzles'
 import { PUZZLES_EN } from '@/i18n/en/puzzles'
 import { aboutOf } from '@/seo/about'
@@ -19,14 +19,17 @@ describe('a puzzle’s page', () => {
   })
 
   it('names its methods where it has no words of its own yet, the taught ones put forward', () => {
-    const about = aboutOf(LOCALES.fr, { shape: '3', variant: 'mirror' })
+    // Without any words of their own.
+    const bare = (locale: 'fr' | 'en') => ({ ...LOCALES[locale], puzzles: {} }) as Translations
+    const about = aboutOf(bare('fr'), { shape: '3', variant: 'mirror' })
     expect(about.summary).toMatch(/^3x3 miroir en 3D, .* avec les méthodes .*\.$/)
     expect(about.about).toBeUndefined()
+    expect(about.methodsTitle).toBeUndefined()
     expect(about.methods).toMatch(
       /^7 méthodes pour le résoudre, au choix : Par couches, .* et ZZ\./,
     )
     expect(about.methods).toMatch(/ont leur tutoriel, pour les apprendre pas à pas\.$/)
-    expect(aboutOf(LOCALES.en, { shape: 'megaminx', variant: 'classic' }).methods).toMatch(
+    expect(aboutOf(bare('en'), { shape: 'megaminx', variant: 'classic' }).methods).toMatch(
       /^One method to solve it: [^.]+\.$/,
     )
   })

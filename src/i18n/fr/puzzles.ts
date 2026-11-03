@@ -235,4 +235,76 @@ export const PUZZLES_FR = {
     methods:
       'On le ramène à un Rubik’s Cube : en couchant ses barres dans le bon sens, on libère les tranches qu’il faut tourner, puis on le résout comme un 3x3.',
   },
+  oct4: {
+    summary:
+      'Le 4-Trajber’s Octahedron, un 4x4 déguisé en octaèdre à huit couleurs : qui connaît le 4x4 s’y retrouve vite. Manipulez-le en 3D et résolvez-le.',
+    about:
+      'Sous ses huit faces triangulaires, le 4-Trajber’s Octahedron cache **un 4x4 taillé en octaèdre** : il tourne exactement comme lui, mais chaque pièce n’y montre qu’une couleur. Le déguisement est si réussi qu’on met un moment à reconnaître son vieux compagnon, puis tout devient familier, et plaisant à redécouvrir sous un nouvel angle.',
+    methodsTitle: 'Un vieux compagnon',
+    methods:
+      'On le résout une sorte de pièce après l’autre, sommets, centres puis arêtes, avec des commutateurs empruntés à un cube bien connu.',
+  },
+  vto: {
+    summary:
+      'L’Octahedron VTO tourne par ses sommets, d’un quart de tour : un 3x3 taillé en octaèdre, aux faces de Pyraminx. Manipulez-le en 3D et résolvez-le.',
+    about:
+      'L’Octahedron VTO est **un 3x3 taillé en octaèdre** : ce sont ses six sommets qui tournent, d’un quart de tour, et leurs pointes peuvent aussi tourner seules. Chaque face, découpée en neuf triangles, rappelle un Pyraminx, si bien qu’on hésite sans cesse entre les deux logiques. Déroutant au premier contact, il se révèle bien moins difficile qu’il n’en a l’air.',
+    methodsTitle: 'Comme un Pyraminx',
+    methods:
+      'On accorde d’abord ses centres en tournant les sommets, comme sur un Pyraminx, puis on range les arêtes avec quelques formules courtes.',
+  },
+  gem: {
+    summary:
+      'Le GEM-0, un octaèdre aux pointes rabotées en carrés dorés : un bijou qui tourne comme un 3x3. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le GEM-0 est un VTO dont on a **raboté les pointes en carrés dorés**, ornés d’un emblème : il prend l’allure d’un bijou et tourne désormais comme un 3x3, par quarts de tour. Le plus beau des octaèdres, presque trop précieux pour qu’on ose le mélanger.',
+    methodsTitle: 'Les centres d’abord',
+    methods:
+      'Comme sur un Pyraminx, on accorde d’abord ses centres en tournant les carrés, puis on range les arêtes : une méthode courte et élégante, à l’image du puzzle.',
+  },
+  fto: {
+    summary:
+      'Le FTO, un octaèdre dont les huit faces tournent par tiers : vif, profond, et sans rien de connu. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le FTO fait tourner **ses huit faces**, d’un tiers de tour, et chacune emporte au passage des pièces de ses voisines. Il se mélange en un instant et ne ressemble à rien de connu, ni cube ni Pyraminx. Un puzzle vif et profond, qui oblige à se construire de nouveaux réflexes.',
+    methodsTitle: 'Une pièce à la fois',
+    methods:
+      'Une sorte de pièce après l’autre, sommets, centres puis arêtes, chacune par un 3-cycle qui ne touche à rien d’autre. Méthodique et sans mauvaise surprise.',
+  },
+  rainbow: {
+    summary:
+      'Le Rainbow, un cuboctaèdre aux triangles qui tournent : douze pièces seulement, mais un vrai casse-tête. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Rainbow mêle **six carrés et huit triangles**, et ce sont les triangles qui tournent, chacun faisant circuler les trois pièces de ses coins. Il n’a que douze pièces, chacune aux quatre couleurs, et pourtant il résiste étonnamment longtemps. Une forme rare, d’une grande élégance, qui ne se laisse pas apprivoiser au premier essai.',
+    methodsTitle: 'Un triangle, puis les autres',
+    methods:
+      'On complète un premier triangle, puis tous les autres avec deux commutateurs ; le dernier se range tout seul, comme une récompense.',
+  },
+  megaminx: {
+    summary:
+      'Le Megaminx, le Rubik’s Cube à douze faces : plus de pièces, mais une logique familière. Manipulez-le en 3D et apprenez à le résoudre pas à pas.',
+    about:
+      'Le Megaminx, c’est **un Rubik’s Cube à douze faces pentagonales** : plus de pièces, plus de couleurs, et une impression de vertige au premier mélange. Pourtant, qui sait résoudre un 3x3 y retrouve vite ses repères : les mêmes idées, simplement plus longues à dérouler. Un marathon plus qu’un sprint, et une immense satisfaction à l’arrivée.',
+    methodsTitle: 'L’étoile prolongée',
+    methods:
+      'On le résout comme un Rubik’s Cube par couches, en gagnant une face voisine à chaque étape, jusqu’au haut, qui se termine en dernier.',
+  },
+  crystal: {
+    summary:
+      'Le Pyraminx Crystal, un Megaminx coupé plus profond, sans centres : douze faces qui s’entremêlent. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Pyraminx Crystal reprend la forme du Megaminx, mais ses coupes plongent jusqu’au centre des faces voisines : **il n’a plus de centres**, et chaque coup bouscule une large part du puzzle. Les repères habituels s’évanouissent, il faut tout reconstruire à partir des sommets. Splendide une fois mélangé, et un vrai défi pour les amateurs de Megaminx.',
+    methodsTitle: 'Les sommets d’abord',
+    methods:
+      'Comme le Megaminx par couches, mais en plaçant toujours les sommets avant les arêtes, puisque plus aucun centre ne donne les couleurs.',
+  },
+  skewbU: {
+    summary:
+      'Le Skewb Ultimate, un Skewb taillé en dodécaèdre : douze faces pour un mécanisme familier. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Skewb Ultimate a l’allure d’un Megaminx, mais c’est **un Skewb déguisé en dodécaèdre** : chaque coup fait basculer toute une moitié du puzzle. Ses faces penchées brouillent les repères, et l’on cherche longtemps où se cachent les centres. Une fois le déguisement percé, il se résout comme son grand frère, avec un plaisir intact.',
+    methodsTitle: 'Le haut d’abord',
+    methods:
+      'La méthode du Skewb, adaptée à sa forme : on termine d’abord le haut, puis tout le reste en ne tournant que le bas.',
+  },
 }
