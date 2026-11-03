@@ -299,4 +299,148 @@ export const PUZZLES_EN: typeof PUZZLES_FR = {
     methods:
       'The Skewb’s method, fitted to its shape: finish the top first, then all the rest by turning only the bottom.',
   },
+  pyra: {
+    summary:
+      'The Pyraminx, the turning pyramid: four corners, a crystal-clear logic. The ideal puzzle to start with, with its step-by-step tutorial.',
+    about:
+      'The Pyraminx is the dream way into puzzles that are not cubes: **a pyramid whose every corner turns**, with its layer or its tip alone. Its tips are set with a single turn, and the rest follows a crystal-clear logic. You think it complicated, it solves in no time, and you cannot stop scrambling it.',
+    methodsTitle: 'The centers first',
+    methods:
+      'First match its centers, with a single turn each, then sort the edges with three formulas to remember. The tutorial guides you step by step, until you solve it on your own.',
+  },
+  tetra: {
+    summary:
+      'The Tetraminx, a Pyraminx without its tips: the same pyramid, pared down. Turn it in 3D and solve it step by step.',
+    about:
+      'The Tetraminx is **a Pyraminx with its tips taken off**: four truncated corners, and nothing else changes. Pared down, it goes straight to the point, and it is probably the gentlest pyramid to start with.',
+    methodsTitle: 'The Pyraminx’s essentials',
+    methods:
+      'The Pyraminx’s method, without the tips step: the centers first, a turn each, then the edges with three formulas.',
+  },
+  pyra4: {
+    summary:
+      'The Master Pyraminx, a four-layer Pyraminx: more pieces, more slices, and twins to tell apart. Turn it in 3D and solve it step by step.',
+    about:
+      'The Master Pyraminx enlarges the pyramid to **four layers**, each slice turning on its own. Its pieces multiply, some come in pairs of twins you must learn to tell apart, and the little Pyraminx suddenly feels far away. A fine step up for anyone who already masters its little brother.',
+    methodsTitle: 'From easy to subtle',
+    methods:
+      'Treat it as a big Pyraminx: the easy pieces first, then the edges, which come in pairs of twins, with commutators, those formulas that swap three pieces without touching the rest.',
+  },
+  pyra5: {
+    summary:
+      'The Professor Pyraminx, five layers and seven kinds of pieces: the biggest of the pyramids. Turn it in 3D and solve it step by step.',
+    about:
+      'The Professor Pyraminx takes the pyramid to **five layers and seven kinds of pieces**. Scrambled, it is **a sea of small triangles**, of an almost artistic beauty, that you would hesitate to solve. Yet each piece ends up in its place with flawless logic: a test of patience, and a superb object.',
+    methodsTitle: 'The same method, scaled up',
+    methods:
+      'The Master Pyraminx’s method, extended: the easy pieces first, then the edges and the centers with commutators, one family of pieces after another.',
+  },
+  jing: {
+    summary:
+      'The Pyraminx Jing, a pyramid cut through its heart: each corner tips half the puzzle. Turn it in 3D and solve it step by step.',
+    about:
+      'The Pyraminx Jing cuts **beyond the center**: each corner tips a whole half of the pyramid, its centers included. The scramble soon gets dizzying, far more than on a Pyraminx, but it has only fourteen pieces, and you end up untangling its logic with pleasure.',
+    methodsTitle: 'The corners in one turn',
+    methods:
+      'The corners first, a turn each, then the edges and centers with commutators, those formulas that move only three pieces.',
+  },
+  morph: {
+    summary:
+      'The Pyramorphinx, a 2x2 disguised as a pyramid that changes shape at every turn. Turn it in 3D and learn to solve it with its tutorial.',
+    about:
+      'The Pyramorphinx looks like a Pyraminx, but it is **a 2x2 cut from a pyramid**: at the first quarter turn, it changes into an unexpected outline. The contrast between its pyramid look and its cube moves is delightfully unsettling. If you know the 2x2 you solve it fast, and everyone else learns two puzzles at once.',
+    methodsTitle: 'Like a Pocket',
+    methods:
+      'Its eight pieces are the corners of a 2x2, and it is solved as one. The tutorial teaches it step by step, taking its changing shape into account.',
+  },
+  mmorph: {
+    summary:
+      'The Master Morphinx, a Rubik’s Cube cut from a pyramid, forever changing shape. Solve it step by step, with the method of your choice.',
+    about:
+      'The Master Morphinx is **a Rubik’s Cube disguised as a pyramid**: a 3x3’s mechanism, cut from a tetrahedron. At the first turn, the pyramid breaks up into strange shapes, and you doubt you are dealing with a cube. A disguise as good as the Fisher Cube’s, and just as much fun to see through.',
+    methodsTitle: 'A 3x3 under the pyramid',
+    methods:
+      'Four 3x3 methods to choose from, layer by layer, CFOP, Petrus or ZZ, played on its colors, with a last step to turn its centers the right way round.',
+  },
+  dinoCyl: {
+    summary:
+      'The Dino Cylinder, a Dino Cube cut into a cylinder, with extra corners. Turn it in 3D and solve it step by step.',
+    about:
+      'The Dino Cylinder keeps the Dino Cube’s mechanism, but cut into **a cylinder as tall as it is wide**, with extra corners that pivot in place. Its round outline fools the eye: you look for faces where there are only curves. A gentle, original puzzle, as delightful in hand as on the shelf.',
+    methodsTitle: 'The corners as a compass',
+    methods:
+      'It is solved layer by layer with a single formula that cycles three edges; its corners, which never leave their place, tell you how to hold it.',
+  },
+  puck: {
+    summary:
+      'The Hockey Puck, a puck of twenty-four turning, flipping pieces, numbered on top. Turn it in 3D and put each number back in place.',
+    about:
+      'The Hockey Puck is shaped like a puck: **two layers of twelve pieces**, numbered on top, turning on each other and flipping by halves. The numbers make it a puzzle of figures more than colors, and putting 1 to 12 back in order becomes strangely addictive.',
+    methodsTitle: 'Sorting the numbers',
+    methods:
+      'First separate the numbered pieces from the others, then sort each layer by swapping pieces, until the ring of numbers is back.',
+  },
+  barrel: {
+    summary:
+      'The Barrel, a Rubik’s Cube with its edges planed into an eight-sided barrel, four extra colors. Solve it step by step, with the method of your choice.',
+    about:
+      'The Barrel is a Rubik’s Cube whose **four vertical edges have been planed off**: it becomes an eight-sided barrel, with four extra colors on the cuts. The familiar cube feels strangely new, and solving it holds a nice surprise: its middle edges have no visible way round, which simplifies the end.',
+    methodsTitle: 'Four ways to go',
+    methods:
+      'Four methods to choose from, layer by layer, CFOP, Petrus or ZZ, as on a 3x3. Its middle edges, whose way round does not show, make the end lighter.',
+  },
+  star: {
+    summary:
+      'The 2-Star Prism, a six-pointed star that turns and flips: the Square-1 family, made gentler. Turn it in 3D and solve it step by step.',
+    about:
+      'The 2-Star Prism is **a six-pointed star** on two layers: you turn the top or the bottom, then flip a whole half in one sharp move. From the Square-1 family, it has its baffling mechanism, but with only twelve pieces and two colors, it is tamed much sooner. A charming little object, almost a pocket jewel.',
+    methodsTitle: 'Sort, then arrange',
+    methods:
+      'First separate the two colors, one on top, the other below, then arrange everything with a single swap formula.',
+  },
+  star4: {
+    summary:
+      'The 4-Star Prism, two nested stars on four layers: a star-shaped Super Square-1. Turn it in 3D and solve it step by step.',
+    about:
+      'The 4-Star Prism stacks **four layers that each turn on their own**, crossed by the same flip: in truth, two nested 2-Star Prisms sharing their axis. Behind its big-brother looks lies a crystal-clear logic: you only need to solve one star after the other. A fine lesson in breaking a problem down.',
+    methodsTitle: 'One star, then the other',
+    methods:
+      'It is solved as two 2-Star Prisms, one after the other, with the same formula for both.',
+  },
+  holey: {
+    summary:
+      'The Holey Megaminx, a Megaminx with no centers, see-through: the same puzzle, in lace. Turn it in 3D and solve it step by step.',
+    about:
+      'The Holey Megaminx is a Megaminx with **its twelve centers taken out**: holes in their place, through which you see right across the puzzle. Lighter, almost lacy, it turns exactly like its big brother, but with no centers to give the colors, you need to pay extra attention.',
+    methodsTitle: 'The extended star',
+    methods:
+      'The Megaminx’s method, unchanged: layer by layer, gaining a neighboring face at each step, up to the top. The pieces already placed serve as landmarks.',
+  },
+  void: {
+    summary:
+      'The Void Cube, a Rubik’s Cube with no centers, see-through: six methods to solve it. Turn it in 3D and pick yours.',
+    about:
+      'The Void Cube is **a Rubik’s Cube with no centers**, each face pierced by a big hole. Without them, nothing tells a face’s color anymore, and the middle slices turn into real pranksters: they move edges without touching the corners, so two edges sometimes remain to swap at the very end. A very elegant cube, more mischievous than it looks.',
+    methodsTitle: 'Six paths to choose from',
+    methods:
+      'Six methods to choose from: the great 3x3 methods, layer by layer, CFOP, Roux, Petrus and ZZ, and one of its own, starting with the bottom corners to give the colors.',
+  },
+  tori: {
+    summary:
+      'The Tori, a Rubik’s Cube with no corners and rounded shapes: nothing but centers and edges. Turn it in 3D and solve it step by step.',
+    about:
+      'The Tori is **a Rubik’s Cube with no corners**: six ring-shaped centers and twelve edges slender as almonds, in a cube of rounded shapes. It is almost a sculpture, and solving it, freed of the corners, is light and quick.',
+    methodsTitle: 'The extended cross',
+    methods:
+      'Nothing but edges to place around the fixed centers, with very simple commutators: a short method, ideal for fun.',
+  },
+  edge: {
+    summary:
+      'The Edge Only, a Rubik’s Cube reduced to its twelve edges, each face pierced by a square hole. Turn it in 3D and solve it step by step.',
+    about:
+      'The Edge Only takes minimalism all the way: **no centers, no corners**, only the twelve edges of a Rubik’s Cube, each face pierced by a square hole. With no fixed landmark, you first wonder where to start, then the puzzle reveals a delightful simplicity.',
+    methodsTitle: 'Nothing but edges',
+    methods:
+      'Edges, more edges, placed with very simple commutators: the Tori’s method, without even the centers as a guide.',
+  },
 }

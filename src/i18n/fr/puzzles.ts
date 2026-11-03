@@ -307,4 +307,148 @@ export const PUZZLES_FR = {
     methods:
       'La méthode du Skewb, adaptée à sa forme : on termine d’abord le haut, puis tout le reste en ne tournant que le bas.',
   },
+  pyra: {
+    summary:
+      'Le Pyraminx, la pyramide qui tourne : quatre sommets, une logique limpide. Le casse-tête idéal pour débuter, avec son tutoriel pas à pas.',
+    about:
+      'Le Pyraminx est la porte d’entrée rêvée des casse-têtes qui ne sont pas des cubes : **une pyramide dont chaque sommet tourne**, avec sa couche ou sa seule pointe. Ses pointes se règlent d’un simple tour, et le reste suit une logique limpide. On le croit compliqué, il se résout en un rien de temps, et l’on n’arrête plus de le mélanger.',
+    methodsTitle: 'Les centres d’abord',
+    methods:
+      'On accorde d’abord ses centres, d’un simple tour chacun, puis on range les arêtes avec trois formules à retenir. Le tutoriel vous guide pas à pas, jusqu’à le résoudre seul.',
+  },
+  tetra: {
+    summary:
+      'Le Tetraminx, un Pyraminx sans ses pointes : la même pyramide, en plus épuré. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Tetraminx, c’est **un Pyraminx dont on a ôté les pointes** : quatre sommets tronqués, et rien d’autre ne change. Plus épuré, il va droit à l’essentiel, et c’est sans doute la plus douce des pyramides pour s’initier.',
+    methodsTitle: 'L’essentiel du Pyraminx',
+    methods:
+      'La méthode du Pyraminx, sans l’étape des pointes : les centres d’abord, d’un tour chacun, puis les arêtes avec trois formules.',
+  },
+  pyra4: {
+    summary:
+      'Le Master Pyraminx, un Pyraminx à quatre étages : plus de pièces, plus de tranches, et des jumelles à départager. Manipulez-le en 3D et résolvez-le.',
+    about:
+      'Le Master Pyraminx agrandit la pyramide à **quatre étages**, dont chaque tranche tourne séparément. Ses pièces se multiplient, certaines vont par paires de jumelles qu’il faut apprendre à distinguer, et le petit Pyraminx semble soudain bien loin. Une belle marche à gravir pour qui maîtrise déjà son petit frère.',
+    methodsTitle: 'Du facile au subtil',
+    methods:
+      'On le traite comme un grand Pyraminx : les pièces faciles d’abord, puis les arêtes, qui vont par paires de jumelles, par commutateurs, ces formules qui échangent trois pièces sans toucher au reste.',
+  },
+  pyra5: {
+    summary:
+      'Le Professor Pyraminx, cinq étages et sept sortes de pièces : la plus grande des pyramides. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Professor Pyraminx pousse la pyramide jusqu’à **cinq étages et sept sortes de pièces**. Mélangé, c’est **un océan de petits triangles**, d’une beauté presque artistique, qu’on hésiterait à résoudre. Pourtant chaque pièce finit par trouver sa place avec une logique imparable : un défi de patience, et un objet superbe.',
+    methodsTitle: 'La même méthode, en grand',
+    methods:
+      'La méthode du Master Pyraminx, étendue : les pièces faciles d’abord, puis les arêtes et les centres par commutateurs, une famille de pièces après l’autre.',
+  },
+  jing: {
+    summary:
+      'Le Pyraminx Jing, une pyramide coupée en plein cœur : chaque sommet fait basculer la moitié du puzzle. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Pyraminx Jing coupe **au-delà du centre** : chaque sommet fait basculer toute une moitié de la pyramide, ses centres compris. Le mélange devient vite vertigineux, bien plus que sur un Pyraminx, mais il ne compte que quatorze pièces, et l’on finit par en démêler la logique avec plaisir.',
+    methodsTitle: 'Les coins d’un tour',
+    methods:
+      'Les sommets d’abord, d’un tour chacun, puis les arêtes et les centres par commutateurs, ces formules qui ne déplacent que trois pièces.',
+  },
+  morph: {
+    summary:
+      'Le Pyramorphinx, un 2x2 déguisé en pyramide qui se déforme à chaque coup. Manipulez-le en 3D et apprenez à le résoudre avec son tutoriel.',
+    about:
+      'Le Pyramorphinx a l’air d’un Pyraminx, mais c’est **un 2x2 taillé dans une pyramide** : au premier quart de tour, il se déforme en une silhouette inattendue. Le contraste entre son allure de pyramide et ses gestes de cube est délicieusement troublant. Qui connaît le 2x2 le résout vite, et les autres apprennent deux puzzles d’un coup.',
+    methodsTitle: 'Comme un Pocket',
+    methods:
+      'Ses huit pièces sont les coins d’un 2x2, et il se résout comme tel. Le tutoriel vous l’enseigne pas à pas, en tenant compte de sa forme changeante.',
+  },
+  mmorph: {
+    summary:
+      'Le Master Morphinx, un Rubik’s Cube taillé dans une pyramide, qui se déforme sans cesse. Résolvez-le pas à pas, avec la méthode de votre choix.',
+    about:
+      'Le Master Morphinx est **un Rubik’s Cube déguisé en pyramide** : le mécanisme d’un 3x3, taillé dans un tétraèdre. Au premier coup, la pyramide se disloque en formes étranges, et l’on doute d’avoir affaire à un cube. Un déguisement aussi réussi que celui du Fisher Cube, et tout aussi réjouissant à percer.',
+    methodsTitle: 'Un 3x3 sous la pyramide',
+    methods:
+      'Quatre méthodes du 3x3 au choix, par couches, CFOP, Petrus ou ZZ, jouées sur ses couleurs, avec une dernière étape pour remettre ses centres dans le bon sens.',
+  },
+  dinoCyl: {
+    summary:
+      'Le Dino Cylinder, un Dino Cube taillé en cylindre, avec des sommets en plus. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Dino Cylinder reprend la mécanique du Dino Cube, mais taillé en **cylindre aussi haut que large**, avec des sommets en plus qui pivotent sur place. Sa silhouette ronde trompe l’œil : on cherche des faces là où il n’y a que des courbes. Un puzzle doux et original, qui ravit autant en main que sur l’étagère.',
+    methodsTitle: 'Les sommets pour boussole',
+    methods:
+      'On le résout étage par étage avec une seule formule, qui fait tourner trois arêtes ; ses sommets, qui ne quittent jamais leur place, indiquent comment le tenir.',
+  },
+  puck: {
+    summary:
+      'Le Hockey Puck, un palet de vingt-quatre pièces qui tournent et basculent, numérotées sur le dessus. Manipulez-le en 3D et remettez chaque numéro en place.',
+    about:
+      'Le Hockey Puck a la forme d’un palet : **deux étages de douze pièces**, numérotées sur le dessus, qui tournent l’un sur l’autre et basculent par moitiés. Les numéros en font un puzzle de chiffres plus que de couleurs, et remettre 1 à 12 dans l’ordre devient étrangement addictif.',
+    methodsTitle: 'Trier les numéros',
+    methods:
+      'On sépare d’abord les pièces numérotées des autres, puis on range chaque étage par échanges de pièces, jusqu’à retrouver la ronde des numéros.',
+  },
+  barrel: {
+    summary:
+      'Le Barrel, un Rubik’s Cube aux arêtes rabotées en tonneau à huit côtés, quatre couleurs en plus. Résolvez-le pas à pas, avec la méthode de votre choix.',
+    about:
+      'Le Barrel est un Rubik’s Cube dont **les quatre arêtes verticales ont été rabotées** : il devient un tonneau à huit côtés, avec quatre couleurs de plus sur les coupes. Le cube familier paraît étrangement neuf, et sa résolution réserve une bonne surprise : ses arêtes du milieu n’ont pas de sens visible, ce qui simplifie la fin.',
+    methodsTitle: 'Quatre façons de faire',
+    methods:
+      'Quatre méthodes au choix, par couches, CFOP, Petrus ou ZZ, comme sur un 3x3. Ses arêtes du milieu, dont le sens ne se voit pas, rendent la fin plus légère.',
+  },
+  star: {
+    summary:
+      'Le 2-Star Prism, une étoile à six branches qui tourne et bascule : la famille du Square-1, en plus doux. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le 2-Star Prism est **une étoile à six branches** sur deux étages : on tourne le haut ou le bas, puis l’on fait basculer toute une moitié d’un coup sec. De la famille du Square-1, il en a la mécanique déroutante, mais avec douze pièces et deux couleurs seulement, il se laisse dompter bien plus vite. Un petit objet charmant, presque un bijou de poche.',
+    methodsTitle: 'Trier, puis ranger',
+    methods:
+      'On sépare d’abord les deux couleurs, l’une en haut, l’autre en bas, puis l’on range tout avec une seule formule d’échange.',
+  },
+  star4: {
+    summary:
+      'Le 4-Star Prism, deux étoiles emboîtées sur quatre étages : un Super Square-1 en forme d’étoile. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le 4-Star Prism superpose **quatre étages qui tournent chacun seul**, traversés par le même basculement : en réalité, deux 2-Star Prism emboîtés qui partagent leur axe. Sous ses airs de grand frère, il cache une logique limpide : il suffit de résoudre une étoile après l’autre. Une belle leçon de décomposition.',
+    methodsTitle: 'Une étoile, puis l’autre',
+    methods:
+      'On le résout comme deux 2-Star Prism, l’un après l’autre, avec la même formule pour les deux.',
+  },
+  holey: {
+    summary:
+      'Le Holey Megaminx, un Megaminx sans centres, troué de part en part : le même casse-tête, en dentelle. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Holey Megaminx, c’est un Megaminx dont on a **retiré les douze centres** : des trous à leur place, à travers lesquels on voit le puzzle de part en part. Plus léger, presque en dentelle, il tourne exactement comme son grand frère, mais sans centres pour dire les couleurs, il faut redoubler d’attention.',
+    methodsTitle: 'L’étoile prolongée',
+    methods:
+      'La méthode du Megaminx, sans changement : par couches, en gagnant une face voisine à chaque étape, jusqu’au haut. Ce sont les pièces déjà placées qui servent de repère.',
+  },
+  void: {
+    summary:
+      'Le Void Cube, un Rubik’s Cube sans centres, troué de part en part : six méthodes pour le résoudre. Manipulez-le en 3D et choisissez la vôtre.',
+    about:
+      'Le Void Cube est **un Rubik’s Cube sans centres**, chaque face percée d’un grand trou. Sans eux, plus rien ne dit la couleur d’une face, et les tranches du milieu deviennent de vraies farceuses : elles déplacent des arêtes sans toucher aux sommets, si bien qu’il reste parfois deux arêtes à échanger à la toute fin. Un cube d’une grande élégance, plus malicieux qu’il n’y paraît.',
+    methodsTitle: 'Six chemins possibles',
+    methods:
+      'Six méthodes au choix : les grandes méthodes du 3x3, par couches, CFOP, Roux, Petrus et ZZ, et une qui lui est propre, commençant par les sommets du bas pour donner les couleurs.',
+  },
+  tori: {
+    summary:
+      'Le Tori, un Rubik’s Cube sans coins aux formes arrondies : rien que des centres et des arêtes. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Tori est **un Rubik’s Cube sans coins** : six centres en anneaux percés et douze arêtes effilées comme des amandes, dans un cube aux formes arrondies. Il tient presque de la sculpture, et sa résolution, débarrassée des coins, se fait légère et rapide.',
+    methodsTitle: 'La croix prolongée',
+    methods:
+      'Rien que des arêtes à placer autour des centres fixes, avec des commutateurs très simples : une méthode courte, idéale pour s’amuser.',
+  },
+  edge: {
+    summary:
+      'L’Edge Only, un Rubik’s Cube réduit à ses douze arêtes, chaque face percée d’un trou carré. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'L’Edge Only pousse l’épure jusqu’au bout : **ni centres ni coins**, seulement les douze arêtes d’un Rubik’s Cube, chaque face percée d’un trou carré. Sans aucun repère fixe, on se demande d’abord par où commencer, puis le puzzle révèle une simplicité réjouissante.',
+    methodsTitle: 'Rien que des arêtes',
+    methods:
+      'Des arêtes, encore des arêtes, placées par des commutateurs très simples : la méthode du Tori, sans même les centres pour guide.',
+  },
 }
