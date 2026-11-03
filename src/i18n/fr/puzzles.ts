@@ -532,4 +532,85 @@ export const PUZZLES_FR = {
     methods:
       'On place d’abord les coins, on les retourne, puis on finit par les arêtes, chaque fois avec une formule courte. Le tutoriel donne un nom à chaque pièce pour s’y retrouver ; la méthode Optimale trouve le chemin le plus court.',
   },
+  '223': {
+    summary:
+      'La Slim Tower, un 2x2 étiré d’un étage : tout tourne, mais les côtés seulement par demi-tours. Manipulez-la en 3D et apprenez à la résoudre pas à pas.',
+    about:
+      'La Slim Tower ressemble à un 2x2 qu’on aurait étiré d’un étage. Le haut et le bas tournent librement, mais **les côtés ne font que des demi-tours**, ce qui la rend plus docile qu’elle n’en a l’air. Elle se prend en main très vite et reste plaisante longtemps : **une première tour idéale**, sans piège de forme.',
+    methodsTitle: 'Deux chemins',
+    methods:
+      'Deux méthodes : les coins puis les arêtes du milieu, celle de sa notice, que le tutoriel enseigne pas à pas ; ou l’équateur d’abord, à l’intuition, puis les coins avec les formules du Domino.',
+  },
+  '224': {
+    summary:
+      'La tour 2x2x4 se couche, dépasse et se tord à chaque coup de côté. Manipulez-la en 3D et apprenez à la résoudre pas à pas.',
+    about:
+      'Au repos, la 2x2x4 est une tour bien sage. Au premier coup de côté, **sa moitié se couche et dépasse** devant et derrière, et la tour devient une sculpture improbable. Retrouver sa forme est déjà un petit casse-tête. Bonne nouvelle : elle cache **deux 2x2 empilés**, et qui sait résoudre un 2x2 a déjà fait la moitié du chemin.',
+    methodsTitle: 'Deux 2x2 en un',
+    methods:
+      'Une méthode : la remettre en forme, puis résoudre l’un après l’autre les deux 2x2 qu’elle renferme. Le tutoriel vous guide pas à pas, de la remise en forme jusqu’à la résolution.',
+  },
+  '234': {
+    summary:
+      'Une colonne tourne, et la tour 2x3x4 se déforme : un drôle d’objet, plus logique qu’il n’y paraît. Manipulez-la en 3D et résolvez-la pas à pas.',
+    about:
+      'La 2x3x4 n’a rien de régulier : trois de large, quatre de haut, deux d’épaisseur. **Ses colonnes de côté se couchent d’un quart de tour** et la font déborder, tandis que tout le reste ne tourne que par demi-tours, et seulement quand la forme le permet. Déroutante d’abord, elle devient vite **une affaire de patience** plus que de chance.',
+    methodsTitle: 'La forme, puis le reste',
+    methods:
+      'Une méthode : la remettre en forme, puis placer sommets, arêtes et équateur avec des formules qui ne la déforment plus.',
+  },
+  '332': {
+    summary:
+      'Le Domino, un 3x3 à deux étages dont les côtés ne font que des demi-tours : parfait pour progresser. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Domino, c’est un Rubik’s Cube **sans couche du milieu** : deux étages, un haut et un bas qui tournent librement, des côtés qui ne font que des demi-tours. Ses pièces n’ont pas de sens, seule leur place compte, ce qui le rend **lisible et apaisant**. Une belle étape entre le 2x2 et le 3x3, et la clé de toute une famille de tours.',
+    methodsTitle: 'Les coins, puis les arêtes',
+    methods:
+      'On place d’abord les coins du bas puis ceux du haut, et l’on finit par les arêtes, chaque fois avec une formule courte qui ne dérange rien d’autre.',
+  },
+  '334': {
+    summary:
+      'La tour 3x3x4, deux Dominos emboîtés : qui sait résoudre l’un sait presque résoudre l’autre. Manipulez-la en 3D et résolvez-la pas à pas.',
+    about:
+      'Avec ses quatre étages, la 3x3x4 a l’allure d’un Rubik’s Cube qui aurait grandi. Ses côtés ne font que des demi-tours, et l’on découvre vite qu’elle cache **deux Dominos emboîtés**, l’un à l’extérieur, l’autre à l’intérieur. Son petit piège : **les pièces de l’intérieur vont par paires jumelles**, qu’on apprend à voir comme une seule.',
+    methodsTitle: 'Double Domino',
+    methods:
+      'Une méthode : résoudre le Domino de l’extérieur, puis celui de l’intérieur, avec les mêmes formules jouées deux fois.',
+  },
+  '443': {
+    summary:
+      'La tour 4x4x3, un 4x4 tassé sur trois étages : de quoi découvrir la réduction sans tout le poids d’un 4x4. Manipulez-la en 3D et résolvez-la pas à pas.',
+    about:
+      'La 4x4x3 a la base d’un 4x4 mais seulement trois étages, et ses côtés ne font que des demi-tours. Moins impressionnante qu’un grand cube, elle en garde l’essentiel : **réunir les pièces pareilles** avant de résoudre le reste. Une **porte d’entrée en douceur** vers les grands puzzles.',
+    methodsTitle: 'Réduire, puis finir',
+    methods:
+      'Une méthode : réunir centres et arêtes pour la ramener à une tour de trois de large, puis la finir comme telle.',
+  },
+  '445': {
+    summary:
+      'La tour 4x4x5, haute et carrée : réunir ses pièces jumelles avant de la finir. Manipulez-la en 3D et résolvez-la pas à pas.',
+    about:
+      'Cinq étages sur une base de 4x4 : la 4x4x5 impressionne, posée sur la table. Ses côtés ne font que des demi-tours, ce qui calme un peu le jeu, mais il faut d’abord **regrouper les pièces jumelles** avant d’y voir clair. **Un long chantier**, de ceux qu’on savoure.',
+    methodsTitle: 'Du grand au petit',
+    methods:
+      'Une méthode : réunir centres et arêtes jusqu’à n’avoir plus qu’une tour de trois de large, que l’on finit ensuite comme telle.',
+  },
+  '554': {
+    summary:
+      'La tour 5x5x4, une base de 5x5 sur quatre étages : un grand puzzle qu’on ramène à plus petit. Manipulez-la en 3D et résolvez-la pas à pas.',
+    about:
+      'La 5x5x4 est la plus massive des tours : la largeur d’un 5x5, mais quatre étages seulement, et des côtés qui ne font que des demi-tours. Beaucoup de pièces, mais **une logique qui ne change pas** : on réunit ce qui va ensemble, et le grand puzzle redevient petit. **Gratifiante pour qui aime les longues séances.**',
+    methodsTitle: 'Réunir, puis résoudre',
+    methods:
+      'Une méthode : rassembler centres et arêtes pour la ramener à une tour de trois de large, puis la terminer comme telle.',
+  },
+  camo: {
+    summary:
+      'Le Camouflage cache un 4x4 sous des rangées épaisses et fines : chaque coup de côté le déforme. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Vu de dessus, le Camouflage est un 4x4 aux rangées inégales, **épaisses au bord, fines au milieu**, sur deux étages seulement. Au premier coup de côté, ses pièces se couchent et dépassent : il porte bien son nom, sa vraie forme se cache. Il faut **l’œil pour la forme autant que pour les couleurs**, et c’est tout son sel.',
+    methodsTitle: 'Retour au Domino',
+    methods:
+      'Une méthode : le remettre en forme, réunir les deux moitiés de chaque arête, et il ne reste plus qu’un Domino à résoudre.',
+  },
 }

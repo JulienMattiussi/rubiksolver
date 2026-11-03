@@ -524,4 +524,85 @@ export const PUZZLES_EN: typeof PUZZLES_FR = {
     methods:
       'First place the corners, flip them, then finish with the edges, each time with a short algorithm. The tutorial gives each piece a name to find your way; the Optimal method finds the shortest way.',
   },
+  '223': {
+    summary:
+      'The Slim Tower, a 2x2 stretched by one layer: everything turns, but the sides only by half turns. Turn it in 3D and learn to solve it step by step.',
+    about:
+      'The Slim Tower looks like a 2x2 stretched by one layer. The top and bottom turn freely, but **the sides only make half turns**, which makes it tamer than it looks. You get the hang of it very quickly and it stays fun for a long time: **an ideal first tower**, with no shape trap.',
+    methodsTitle: 'Two paths',
+    methods:
+      'Two methods: the corners then the middle edges, the one from its manual, which the tutorial teaches step by step; or the equator first, by intuition, then the corners with the Domino’s algorithms.',
+  },
+  '224': {
+    summary:
+      'The 2x2x4 tower lies down, sticks out and twists at every side turn. Turn it in 3D and learn to solve it step by step.',
+    about:
+      'At rest, the 2x2x4 is a well-behaved tower. At the first side turn, **its half lies down and sticks out** front and back, and the tower becomes an unlikely sculpture. Getting its shape back is already a little puzzle. Good news: it hides **two stacked 2x2s**, and anyone who can solve a 2x2 is already halfway there.',
+    methodsTitle: 'Two 2x2s in one',
+    methods:
+      'One method: bring it back into shape, then solve the two 2x2s inside it one after the other. The tutorial guides you step by step, from getting its shape back to the solve.',
+  },
+  '234': {
+    summary:
+      'One column turns, and the 2x3x4 tower changes shape: an odd object, more logical than it seems. Turn it in 3D and solve it step by step.',
+    about:
+      'Nothing about the 2x3x4 is regular: three wide, four tall, two deep. **Its side columns lie down with a quarter turn** and make it overflow, while everything else only turns by half turns, and only when the shape allows. Baffling at first, it soon becomes **a matter of patience** rather than luck.',
+    methodsTitle: 'Shape first, then the rest',
+    methods:
+      'One method: bring it back into shape, then place corners, edges and equator with algorithms that no longer bend it.',
+  },
+  '332': {
+    summary:
+      'The Domino, a two-layer 3x3 whose sides only make half turns: perfect to make progress. Turn it in 3D and solve it step by step.',
+    about:
+      'The Domino is a Rubik’s Cube **without its middle layer**: two layers, a top and a bottom that turn freely, sides that only make half turns. Its pieces have no orientation, only their place matters, which makes it **clear and soothing**. A fine step between the 2x2 and the 3x3, and the key to a whole family of towers.',
+    methodsTitle: 'Corners, then edges',
+    methods:
+      'First place the bottom corners then the top ones, and finish with the edges, each time with a short algorithm that disturbs nothing else.',
+  },
+  '334': {
+    summary:
+      'The 3x3x4 tower, two Dominoes nested: solve one and you can almost solve the other. Turn it in 3D and solve it step by step.',
+    about:
+      'With its four layers, the 3x3x4 looks like a Rubik’s Cube that grew up. Its sides only make half turns, and you soon find out it hides **two nested Dominoes**, one outside, one inside. Its little trap: **the inner pieces come in twin pairs**, which you learn to see as one.',
+    methodsTitle: 'Double Domino',
+    methods:
+      'One method: solve the outer Domino, then the inner one, with the same algorithms played twice.',
+  },
+  '443': {
+    summary:
+      'The 4x4x3 tower, a 4x4 squeezed onto three layers: a way into reduction without the whole weight of a 4x4. Turn it in 3D and solve it step by step.',
+    about:
+      'The 4x4x3 has a 4x4’s base but only three layers, and its sides only make half turns. Less daunting than a big cube, it keeps the essence: **gathering matching pieces** before solving the rest. **A gentle way in** to the big puzzles.',
+    methodsTitle: 'Reduce, then finish',
+    methods:
+      'One method: pair up centers and edges to bring it down to a tower three wide, then finish it as such.',
+  },
+  '445': {
+    summary:
+      'The 4x4x5 tower, tall and square: gather its twin pieces before finishing it. Turn it in 3D and solve it step by step.',
+    about:
+      'Five layers on a 4x4 base: the 4x4x5 is impressive standing on the table. Its sides only make half turns, which calms things down a little, but you must first **gather the twin pieces** before seeing clearly. **A long project**, the kind you savor.',
+    methodsTitle: 'From big to small',
+    methods:
+      'One method: pair up centers and edges until only a tower three wide is left, then finish it as such.',
+  },
+  '554': {
+    summary:
+      'The 5x5x4 tower, a 5x5 base on four layers: a big puzzle you bring down to a smaller one. Turn it in 3D and solve it step by step.',
+    about:
+      'The 5x5x4 is the most massive of the towers: the width of a 5x5, but only four layers, and sides that only make half turns. Lots of pieces, but **a logic that never changes**: gather what belongs together, and the big puzzle becomes small again. **Rewarding for those who love long sessions.**',
+    methodsTitle: 'Gather, then solve',
+    methods:
+      'One method: bring centers and edges together to reduce it to a tower three wide, then finish it as such.',
+  },
+  camo: {
+    summary:
+      'The Camouflage hides a 4x4 under thick and thin rows: every side turn changes its shape. Turn it in 3D and solve it step by step.',
+    about:
+      'Seen from above, the Camouflage is a 4x4 with uneven rows, **thick at the edge, thin in the middle**, on only two layers. At the first side turn, its pieces lie down and stick out: it lives up to its name, its true shape hides. You need **an eye for shape as much as for colors**, and that is its whole charm.',
+    methodsTitle: 'Back to the Domino',
+    methods:
+      'One method: bring it back into shape, join the two halves of each edge, and only a Domino is left to solve.',
+  },
 }
