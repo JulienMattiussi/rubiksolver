@@ -318,7 +318,7 @@ export const useEditor = create<EditorStore>((set, get) => {
       }),
 
     cycleAt: (slotKey) =>
-      set((s) => ({ edit: nextPiece(s.edit, currentShape(), slotKey), error: null })),
+      set((s) => ({ edit: nextPiece(s.edit, currentShape(), slotKey, s.form), error: null })),
 
     clearAll: () =>
       set((s) => ({

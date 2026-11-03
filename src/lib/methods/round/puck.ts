@@ -1,7 +1,8 @@
 import { allTurnsOf } from '../../core/moveSet'
-import { PUCK_COLORS, puckNumber, puckPlace, puckSolved } from '../../puzzles/round/puck'
+import { PUCK_COLORS, puckNumber, puckSolved } from '../../puzzles/round/puck'
+import { sectorPlace } from '../../puzzles/shared/sectors'
 import type { MethodPlan } from '../../solve/solverKit'
-import type { Cube, PuckMove, PuckSteps } from '../../core/types'
+import type { Cube, SectorMove, SectorSteps } from '../../core/types'
 import { once } from '../../solve/once'
 import { permutationIsOdd } from '../../solve/permutation'
 
@@ -11,7 +12,7 @@ import { permutationIsOdd } from '../../solve/permutation'
  *
  *   1. Isolate   the numbered pieces on top, the plain ones below, by short
  *                searches on where the numbered ones are
- *   2. Bottom    its colors in order, by swaps: K = / B / 1-B / -1 / swaps
+ *   2. Bottom    its colors in order, by swaps: K = / -B / 1+B / -1 / swaps
  *                the two top pieces either side of the slash's line, and
  *                the two bottom ones; its kin (`SWAPS`) swap two pieces d
  *                slots apart on each layer,
@@ -32,7 +33,7 @@ const PLAIN = 100
 function slotsOf(cube: Cube): Slots {
   const slots: Slots = []
   for (const c of cube) {
-    const place = puckPlace(c.position)
+    const place = sectorPlace(c.position)
     if (!place) continue
     slots[place.z > 0 ? place.m : 12 + place.m] =
       puckNumber(c) ?? PLAIN + PUCK_COLORS.indexOf(c.stickers[0]!.color)
@@ -42,7 +43,7 @@ function slotsOf(cube: Cube): Slots {
 
 const mod = (a: number, n: number) => ((a % n) + n) % n
 
-function apply(slots: readonly number[], move: PuckMove): Slots {
+function apply(slots: readonly number[], move: SectorMove): Slots {
   const out = [...slots]
   if ('flip' in move) {
     for (let m = 0; m <= 5; m++) {
@@ -51,19 +52,21 @@ function apply(slots: readonly number[], move: PuckMove): Slots {
     }
   } else {
     const base = move.layer === 'U' ? 0 : 12
-    for (let m = 0; m < 12; m++) out[base + mod(m + move.steps, 12)] = slots[base + m]!
+    // The bottom turns clockwise seen from below (shared/sectors.ts).
+    const k = move.layer === 'U' ? move.steps : -move.steps
+    for (let m = 0; m < 12; m++) out[base + mod(m + k, 12)] = slots[base + m]!
   }
   return out
 }
-const play = (slots: readonly number[], moves: readonly PuckMove[]): Slots =>
+const play = (slots: readonly number[], moves: readonly SectorMove[]): Slots =>
   moves.reduce<Slots>(apply, [...slots])
 
-const turn = (layer: 'U' | 'D', k: number): PuckMove[] =>
-  mod(k, 12) ? [{ layer, steps: mod(k, 12) as PuckSteps }] : []
-const FLIP: PuckMove = { flip: true }
+const turn = (layer: 'U' | 'D', k: number): SectorMove[] =>
+  mod(k, 12) ? [{ layer, steps: mod(k, 12) as SectorSteps }] : []
+const FLIP: SectorMove = { flip: true }
 
 /** / (a, b) / (c, d) / (e, f) /: top turned a, bottom b, and so on. */
-const slashes = (...k: readonly number[]): PuckMove[] => [
+const slashes = (...k: readonly number[]): SectorMove[] => [
   FLIP,
   ...turn('U', k[0]!),
   ...turn('D', k[1]!),
@@ -77,18 +80,18 @@ const slashes = (...k: readonly number[]): PuckMove[] => [
 ]
 
 /** K and its kin, by the distance d (1 to 6) between the two pieces they
- *  swap on each layer, all else in place: / dB / 1-B / -1 (1-d)B /, K
+ *  swap on each layer, all else in place: / -dB / 1+B / -1 (d-1)B /, K
  *  itself d = 1 (found by trying every turn between four slashes; their
  *  effects are asserted in tests/unit/puzzles/round/puck.test.ts). */
-export const SWAPS: readonly PuckMove[][] = [1, 2, 3, 4, 5, 6].map((d) =>
-  slashes(0, d, 1, 11, 11, mod(1 - d, 12)),
+export const SWAPS: readonly SectorMove[][] = [1, 2, 3, 4, 5, 6].map((d) =>
+  slashes(0, -d, 1, 1, 11, mod(d - 1, 12)),
 )
 
 const ID = Array.from({ length: 24 }, (_, i) => i)
 
 /** A swap's moves and the slots it swaps on each layer. */
 interface Swap {
-  readonly moves: PuckMove[]
+  readonly moves: SectorMove[]
   readonly top: readonly number[]
   readonly bottom: readonly number[]
 }
@@ -117,7 +120,7 @@ const numberedOnTop = (slots: Slots) => slots.slice(0, 12).filter((p) => p < PLA
 /** 1: the numbered pieces on top, one more at a time. A search on where
  *  the numbered ones are, each step the two layers turned then the slash
  *  (only the slash changes which are on top). */
-function isolate(cube: Cube): PuckMove[] {
+function isolate(cube: Cube): SectorMove[] {
   const steps = Array.from({ length: 144 }, (_, i) => [
     ...turn('U', Math.floor(i / 12)),
     ...turn('D', i % 12),
@@ -125,11 +128,11 @@ function isolate(cube: Cube): PuckMove[] {
   ])
   const mask = (s: Slots) => s.map((p) => (p < PLAIN ? 1 : 0)).join('')
   let slots = slotsOf(cube)
-  const all: PuckMove[] = []
+  const all: SectorMove[] = []
   for (let guard = 0; numberedOnTop(slots) < 12; guard++) {
     if (guard > 12) throw new Error('puck: cannot isolate')
     const want = numberedOnTop(slots) + 1
-    const seen = new Map<string, { from: string; step: PuckMove[] } | null>([[mask(slots), null]])
+    const seen = new Map<string, { from: string; step: SectorMove[] } | null>([[mask(slots), null]])
     let frontier = [slots]
     let found: Slots | undefined
     for (let depth = 0; depth < 4 && !found && frontier.length; depth++) {
@@ -148,7 +151,7 @@ function isolate(cube: Cube): PuckMove[] {
       frontier = next
     }
     if (!found) throw new Error('puck: cannot isolate')
-    const path: PuckMove[] = []
+    const path: SectorMove[] = []
     for (let k = mask(found); seen.get(k); k = seen.get(k)!.from) path.unshift(...seen.get(k)!.step)
     // The turns before a slash only matter for it: once isolated, the last
     // step's are kept (the next steps turn as they like).
@@ -161,9 +164,9 @@ function isolate(cube: Cube): PuckMove[] {
 const isolated = (cube: Cube) => numberedOnTop(slotsOf(cube)) === 12
 
 /** 2: the bottom's colors in order, slot after slot, by swaps. */
-function sortBottom(cube: Cube): PuckMove[] {
+function sortBottom(cube: Cube): SectorMove[] {
   let slots = slotsOf(cube)
-  const all: PuckMove[] = []
+  const all: SectorMove[] = []
   for (let i = 0; i < 12; i++) {
     const want = PLAIN + (i >> 1)
     if (slots[12 + i] === want) continue
@@ -181,7 +184,7 @@ const bottomDone = (cube: Cube) => {
 }
 
 /** The 3-cycles on top: two swaps of one bottom pair, a, a + d, a + 2d. */
-let CYCLES: { moves: PuckMove[]; to: number[] }[] | undefined
+let CYCLES: { moves: SectorMove[]; to: number[] }[] | undefined
 function topCycles() {
   if (CYCLES) return CYCLES
   // Both swaps on one bottom pair, as far apart as the top ones.
@@ -207,14 +210,14 @@ function topCycles() {
 
 /** 3: the top's numbers in order (its turn free), slot after slot, each
  *  piece brought by 3-cycles that leave the placed ones alone. */
-function sortTop(cube: Cube): PuckMove[] {
+function sortTop(cube: Cube): SectorMove[] {
   let slots = slotsOf(cube)
   const top = () => slots.slice(0, 12)
   // The turn aimed at: one 3-cycles can reach (an even permutation away).
   const even = (r: number) => !permutationIsOdd(top().map((p) => mod(p - 1 - r, 12)))
   const r = Array.from({ length: 12 }, (_, k) => k).find(even)!
   const want = (m: number) => mod(m + r, 12) + 1
-  const all: PuckMove[] = []
+  const all: SectorMove[] = []
   for (let i = 0; i < 12; i++) {
     if (slots[i] === want(i)) continue
     // The fewest 3-cycles, touching none of the slots already placed,
@@ -240,7 +243,7 @@ function sortTop(cube: Cube): PuckMove[] {
       frontier = next
     }
     if (!back.has(i)) throw new Error('puck: top left unsorted')
-    const path: PuckMove[] = []
+    const path: SectorMove[] = []
     for (let k = i; back.get(k); k = back.get(k)!.from) path.unshift(...back.get(k)!.cycle.moves)
     slots = play(slots, path)
     all.push(...path)
@@ -254,7 +257,7 @@ const topDone = (cube: Cube) => {
 }
 
 /** 4: the top turned onto the bottom's colors. */
-const align = (cube: Cube): PuckMove[] => turn('U', -slotsOf(cube).indexOf(1))
+const align = (cube: Cube): SectorMove[] => turn('U', -slotsOf(cube).indexOf(1))
 
 const ALL = allTurnsOf('puck')
 

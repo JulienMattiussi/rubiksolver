@@ -443,4 +443,13 @@ export const PUZZLES_EN: typeof PUZZLES_FR = {
     methods:
       'Edges, more edges, placed with very simple commutators: the Tori’s method, without even the centers as a guide.',
   },
+  square1: {
+    summary:
+      'The Square-1, a cube that changes shape from the very first turn: getting its shape back is a challenge in itself. Turn it in 3D and solve it step by step.',
+    about:
+      'The Square-1 looks tame while it is square, but **a single turn is enough to bend it** into unlikely outlines. Its layers turn by notches, its right half flips over, and its pieces of two sizes spread about as you move them. **Getting the cube shape back** is a victory already, then everything falls into place with a few formulas: baffling, and terribly endearing.',
+    methodsTitle: 'Two roads to the cube',
+    methods:
+      'Two methods, both starting by giving it back its cube shape: one sorts the corners before the edges, the other builds a whole face before finishing the second. Pick your road.',
+  },
 }

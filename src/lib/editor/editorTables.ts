@@ -148,16 +148,22 @@ export function tablesFor(shape: CubeShape, form?: Cube): SlotTables {
       ? solved.map((c, i) => toSlot(shape, c, fixed.has(i)))
       : form.map((c) => toSlot(shape, c, fixedPoses.has(pose(c))))
     const paintableSlots = slots.filter((s) => s.paintable)
+    let placements: Map<string, PlacementOption[]> | undefined
     tables = {
       slots,
       paintableSlots,
       byKey: new Map(slots.map((s) => [s.key, s])),
       // A puzzle that shifts can come back to its box with pieces turned in
       // place (the Purple's minis): any turn of a piece, the check after.
-      placements:
-        boxed && !SHAPE_SHIFTS[shape]
-          ? computePlacements(shape, paintableSlots, fixed)
-          : turnedPlacements(shape, paintableSlots, fixed),
+      // Worked out when first asked (a Square-1 put piece by piece, never
+      // scanned, never asks: its pieces turn by twelfths).
+      get placements() {
+        placements ??=
+          boxed && !SHAPE_SHIFTS[shape]
+            ? computePlacements(shape, paintableSlots, fixed)
+            : turnedPlacements(shape, paintableSlots, fixed)
+        return placements
+      },
       budgets: computeBudgets(shape, fixed),
     }
     TABLES.set(key, tables)

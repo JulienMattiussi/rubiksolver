@@ -51,7 +51,8 @@ export function PolyEditView() {
   const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
   const drawing = polyDrawing(shape)
   const clickingJoints = phase === 'joints'
-  const pieces = phase === 'paint' && entersByPieces(shape) ? piecesIn(edit, shape) : undefined
+  const pieces =
+    phase === 'paint' && entersByPieces(shape) ? piecesIn(edit, shape, form) : undefined
   // What a click turns round now: the toggles step's, or the paint's own.
   const turning: TogglesSpec | undefined = togglesAt(shape, phase)
   // The sticker under the pointer (its slot's key, then its normal index).

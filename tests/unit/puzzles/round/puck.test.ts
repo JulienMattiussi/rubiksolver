@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube } from '@/lib/core/cube'
 import { SWAPS } from '@/lib/methods/round/puck'
 import { formatMoves, NOTATION_FR, NOTATION_US } from '@/lib/core/notation'
-import { parsePuckMoves, puckNumber, puckPlace } from '@/lib/puzzles/round/puck'
+import { puckNumber } from '@/lib/puzzles/round/puck'
+import { parseSectorMoves, sectorPlace } from '@/lib/puzzles/shared/sectors'
 import { applyMoves } from '@/lib/core/turn'
-import type { Cube, PuckMove } from '@/lib/core/types'
+import type { Cube, SectorMove } from '@/lib/core/types'
 
 const SOLVED = solvedCube('puck')
 
@@ -14,7 +15,7 @@ function layers(cube: Cube): [string[], string[]] {
   const top: string[] = []
   const bottom: string[] = []
   for (const c of cube) {
-    const place = puckPlace(c.position)
+    const place = sectorPlace(c.position)
     if (!place) continue
     const label = String(puckNumber(c) ?? '.')
     if (place.z > 0) top[place.m] = label
@@ -25,7 +26,7 @@ function layers(cube: Cube): [string[], string[]] {
 
 describe('Hockey Puck', () => {
   it('writes its turns as the star prisms do, and reads them back', () => {
-    const moves = parsePuckMoves('/ B / 1-B / -1 /', NOTATION_FR)
+    const moves = parseSectorMoves('/ B / 1-B / -1 /', NOTATION_FR)
     expect(formatMoves(moves, NOTATION_FR)).toBe('/ B / 1 -B / -1 /')
     expect(formatMoves(moves, NOTATION_US)).toBe('/ D / 1 -D / -1 /')
   })
@@ -43,7 +44,7 @@ describe('Hockey Puck', () => {
   it('swaps two pieces of each layer, d sectors apart, with K and its kin', () => {
     SWAPS.forEach((moves, i) => {
       const d = i + 1
-      const after = applyMoves(SOLVED, moves as PuckMove[])
+      const after = applyMoves(SOLVED, moves as SectorMove[])
       const [top] = layers(after)
       const moved = top.flatMap((n, m) => (n !== String(m + 1) ? [m] : []))
       expect(moved).toHaveLength(2)
@@ -52,9 +53,10 @@ describe('Hockey Puck', () => {
   })
 
   it('is solved however its whole is turned, not with its top turned alone', () => {
+    // Both layers the same way: the bottom counted from below.
     const whole = applyMoves(SOLVED, [
       { layer: 'U', steps: 2 },
-      { layer: 'D', steps: 2 },
+      { layer: 'D', steps: 10 },
     ])
     expect(isSolved(whole)).toBe(true)
     expect(isSolved(applyMoves(SOLVED, [{ layer: 'U', steps: 2 }]))).toBe(false)

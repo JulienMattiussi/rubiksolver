@@ -5,7 +5,7 @@ import {
   isGearMove,
   isGhostMove,
   isMegaMove,
-  isPuckMove,
+  isSectorMove,
   isPyraMove,
   isRainbowMove,
   isStarMove,
@@ -14,7 +14,7 @@ import {
   type GhostMove,
   type MegaMove,
   type Move,
-  type PuckMove,
+  type SectorMove,
   type PyraMove,
   type RainbowMove,
   type StarMove,
@@ -69,13 +69,13 @@ import {
 } from './pyramid/pyraminx'
 import { formatPyraMove } from './pyramid/pyraNotation'
 import {
-  applyPuckMove,
-  formatPuckMove,
-  invertPuckMove,
-  puckRotation,
-  puckTurns,
-  simplifyPuckMoves,
-} from './round/puck'
+  applySectorMove,
+  formatSectorMove,
+  invertSectorMove,
+  sectorRotation,
+  sectorTurns,
+  simplifySectorMoves,
+} from './shared/sectors'
 import {
   applyStarMove,
   formatStarMove,
@@ -192,15 +192,15 @@ const COPTER: MoveKind<CopterMove> = {
   describe: (move) => ({ kind: 'copterEdge', edge: move.edge }),
 }
 
-const PUCK: MoveKind<PuckMove> = {
-  is: isPuckMove,
-  format: formatPuckMove,
-  invert: invertPuckMove,
+const SECTORS: MoveKind<SectorMove> = {
+  is: isSectorMove,
+  format: formatSectorMove,
+  invert: invertSectorMove,
   sameLayer: (a, b) => ('flip' in a ? 'flip' in b : 'layer' in b && a.layer === b.layer),
-  simplify: simplifyPuckMoves,
-  turned: byPlace(puckTurns),
-  rotation: puckRotation,
-  apply: (cube, move) => applyPuckMove(cube, move),
+  simplify: simplifySectorMoves,
+  turned: byPlace(sectorTurns),
+  rotation: sectorRotation,
+  apply: (cube, move) => applySectorMove(cube, move),
   sight: () => ({ kind: 'home' }),
   describe: (move) => {
     if ('flip' in move) return { kind: 'puckSlash' }
@@ -295,7 +295,7 @@ export const MOVE_KINDS: readonly MoveKind<Turn>[] = [
   PYRA,
   GHOST,
   COPTER,
-  PUCK,
+  SECTORS,
   RAINBOW,
   MEGA,
   GEAR,

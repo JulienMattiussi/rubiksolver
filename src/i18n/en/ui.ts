@@ -103,9 +103,9 @@ export const UI_EN: typeof UI_FR = {
   megaUpper: 'Upper half',
   megaLower: 'Lower half',
   ghostTurnTitle: (side: GhostSide) => `Flip ${SIDE_NAMES_EN[side]} over (half turn)`,
-  puckTurnTitle: (layer: 'U' | 'D', clockwise: boolean) =>
+  sectorTurnTitle: (layer: 'U' | 'D', clockwise: boolean) =>
     `Turn the ${layer === 'U' ? 'top' : 'bottom'} disc one notch ${clockwise ? 'clockwise' : 'counterclockwise'}`,
-  puckSlashTitle: 'Pivot: flip the right half over',
+  sectorSlashTitle: 'Pivot: flip the right half over',
   rainbowTurnTitle: (triangle: RainbowCorner, clockwise: boolean) =>
     `Turn ${TRIANGLE_NAMES_EN[triangle]} a third ${clockwise ? 'clockwise' : 'counterclockwise'}`,
   dinoTurnTitle: (corner: RainbowCorner, clockwise: boolean) =>
@@ -342,6 +342,30 @@ export const UI_EN: typeof UI_FR = {
   formTile: (n: number, tips: number) =>
     `Shape ${n}${n === 1 ? ' (original)' : `, ${tips} cube${tips > 1 ? 's' : ''} sticking out`}`,
   changeForm: 'Change shape',
+  formStages: {
+    top: {
+      title: 'The top',
+      hint: 'Look at your Square-1 from above. Pick the drawing of the same shape, then turn it with the arrows until its pieces sit in the same places (the dashed line is the middle’s split).',
+      choice: (n: number) => `Top outline ${n}`,
+    },
+    bottom: {
+      title: 'The bottom',
+      hint: 'Look at it from below, and do the same.',
+      choice: (n: number) => `Bottom outline ${n}`,
+    },
+    middle: {
+      title: 'The middle',
+      hint: 'Does its middle layer make a square, or is its right half flipped?',
+      choice: (_: number, key: string) => (key === 'flipped' ? 'Middle flipped' : 'Middle square'),
+    },
+  },
+  formStageOf: (n: number, of: number) => `Shape, step ${n} of ${of}`,
+  formTurn: (clockwise: boolean) =>
+    `Turn this outline one notch ${clockwise ? 'clockwise' : 'counterclockwise'}`,
+  formTurnHint: 'Turn it as yours stands',
+  formBack: 'Back',
+  formNext: 'Next',
+  formDone: 'Put the colors',
   saveState: 'Save',
   saveStateTitle: 'Save this state to come back to it (replaces the previous one)',
   savedAlready: 'This state is already saved',

@@ -115,6 +115,25 @@ export const DODECA_NORMALS: readonly Vec3[] = [1, -1].flatMap((s) =>
   ]),
 )
 
+/** The twelve directions of a layer turning by twelfths (shared/sectors.ts:
+ *  the Hockey Puck, the Square-1), clockwise from the one just right of the
+ *  top line, in the plane z = 0: sector m's middle at 75 - 30m degrees. The
+ *  slash, about the x axis, sends m to 5 - m. */
+export const SECTOR_NORMALS: readonly Vec3[] = [
+  [2, 6, 0],
+  [4, 4, 0],
+  [6, 2, 0],
+  [6, -2, 0],
+  [4, -4, 0],
+  [2, -6, 0],
+  [-2, -6, 0],
+  [-4, -4, 0],
+  [-6, -2, 0],
+  [-6, 2, 0],
+  [-4, 4, 0],
+  [-2, 6, 0],
+]
+
 const HEX_INDEX = new Map([
   // First, so that a dodecahedron normal some other puzzle already has
   // ((2, 0, -1), (-2, 0, 1): the star's) keeps that one's index.
@@ -123,13 +142,14 @@ const HEX_INDEX = new Map([
   ...TET_NORMALS.map((n, i): [string, number] => [n.join(), 12 + i]),
   ...DUAL_NORMALS.map((n, i): [string, number] => [n.join(), 16 + i]),
   ...SLANTED_NORMALS.map((n, i): [string, number] => [n.join(), 20 + i]),
+  ...SECTOR_NORMALS.map((n, i): [string, number] => [n.join(), 48 + i]),
 ])
 
 /** Index of a sticker normal, for compact hashing and sticker ids: 0..5 for
  *  the cube faces (R L U D F B), 6..11 for the hexagonal side faces, 12..15
  *  for the Pyraminx's, 16..19 for the diagonals opposite them, 20..35 for
  *  the Floppy Ghost's slanted sides (one base-36 digit each), 36..47 for
- *  the dodecahedron's (two). */
+ *  the dodecahedron's, 48..59 for the sectors' (two). */
 export function normalIndex(n: Vec3): number {
   const zeros = (n[0] === 0 ? 1 : 0) + (n[1] === 0 ? 1 : 0) + (n[2] === 0 ? 1 : 0)
   if (zeros === 2) {
@@ -155,7 +175,9 @@ export function normalOfIndex(index: number): Vec3 {
           ? DUAL_NORMALS[index - 16]
           : index < 36
             ? SLANTED_NORMALS[index - 20]
-            : DODECA_NORMALS[index - 36]
+            : index < 48
+              ? DODECA_NORMALS[index - 36]
+              : SECTOR_NORMALS[index - 48]
   if (!normal) throw new Error(`normalOfIndex: no normal ${index}`)
   return normal
 }

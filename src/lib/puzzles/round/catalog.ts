@@ -13,12 +13,12 @@ export const ROUND = {
   },
   // The Hockey Puck (puck.ts) is no grid: its slots sit within +-6 in its plane, one layer thick.
   puck: {
-    moves: 'puck',
+    moves: 'sectors',
     label: 'Hockey Puck',
     slug: 'hockey-puck',
     dims: [13, 13, 1],
     scramble: 25,
-    pad: 'puck',
+    pad: 'sectors',
   },
   // The Barrel (barrel.ts): a 3x3x3, its upright edges cut off.
   barrel: { label: 'Barrel', slug: 'barrel', dims: [3, 3, 3], scramble: 20 },

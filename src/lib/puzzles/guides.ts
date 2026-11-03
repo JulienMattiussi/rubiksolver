@@ -4,8 +4,8 @@ import type {
   Face,
   GearMove,
   MegaMove,
-  PuckMove,
-  PuckSteps,
+  SectorMove,
+  SectorSteps,
   PyraMove,
   RainbowCorner,
   RainbowMove,
@@ -67,11 +67,11 @@ export const copterGuide = (): GuideGroup[] => [
 
 /** The Hockey Puck's layers, one to three twelfths either way, then its
  *  slash. */
-export const puckGuide = (): GuideGroup[] => {
-  const layer = (layer: 'U' | 'D'): PuckMove[][] =>
-    [1, 2, 3].map((k): PuckMove[] => [
-      { layer, steps: k as PuckSteps },
-      { layer, steps: (12 - k) as PuckSteps },
+export const sectorGuide = (): GuideGroup[] => {
+  const layer = (layer: 'U' | 'D'): SectorMove[][] =>
+    [1, 2, 3].map((k): SectorMove[] => [
+      { layer, steps: k as SectorSteps },
+      { layer, steps: (12 - k) as SectorSteps },
     ])
   return [
     { section: 'rings', rows: [...layer('U'), ...layer('D')] },

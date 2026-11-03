@@ -1,12 +1,13 @@
 import type { CubeShape, StarShape } from '../../core/shapes'
-import { dinoGuide, puckGuide, starGuide } from '../guides'
+import { dinoGuide, sectorGuide, starGuide } from '../guides'
 import { solvedCube } from '../../core/cube'
 import type { PuzzleModel } from '../model'
 import { BY_PIECES } from '../../editor/entry'
 import { asSeenThin, thinEdgesSolved, withRealThinEdges } from '../shared/thinEdges'
 import { DINO_TURNS, scrambleDino } from '../shared/dinoRex'
 import { solvedDinoCyl } from './dinoCyl'
-import { PUCK_TURNS, puckSolved, scramblePuck, solvedPuck } from './puck'
+import { puckSolved, scramblePuck, solvedPuck } from './puck'
+import { SECTOR_TURNS } from '../shared/sectors'
 import { starScan } from './starScan'
 import { hiddenStarSticker, scrambleStar, solvedStar, STAR_SYMMETRIES, starTurnsOf } from './star'
 
@@ -32,9 +33,9 @@ export const ROUND_MODELS = {
     solved: solvedPuck,
     isSolved: puckSolved,
     symmetries: [],
-    turns: () => PUCK_TURNS,
+    turns: () => SECTOR_TURNS,
     scramble: (length, rng) => scramblePuck(length, rng),
-    guide: puckGuide,
+    guide: sectorGuide,
   },
   dinoCyl: {
     entry: { paint: BY_PIECES },

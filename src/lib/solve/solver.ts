@@ -54,6 +54,8 @@ import { SKEWB_U_PLAN } from '../methods/polyhedron/skewbU'
 import { MASTER_SKEWB_PLAN } from '../methods/diagonal/masterSkewb'
 import { TOWER334_PLAN } from '../methods/tower/tower334'
 import { FASHION_PLAN } from '../methods/twisted/fashion'
+import { SQUARE1_CORNERS_PLAN } from '../methods/twisted/square1CornersFirst'
+import { SQUARE1_FACE_PLAN } from '../methods/twisted/square1FaceFirst'
 import { TOWER443_PLAN, TOWER445_PLAN } from '../methods/tower/tower44'
 import { TOWER554_PLAN } from '../methods/tower/tower554'
 import { TOWER234_PLAN } from '../methods/tower/tower234'
@@ -229,6 +231,8 @@ const SOLVE_METHODS = [
     plans: { gearCube: GEAR_PLAN, gearU: taught('gearU', 'gearCornersFirst') },
   },
   { id: 'gearEquatorFirst', plans: { gearX: GEAR_EXTREME_PLAN } },
+  { id: 'square1CornersFirst', plans: { square1: SQUARE1_CORNERS_PLAN } },
+  { id: 'square1FaceFirst', plans: { square1: SQUARE1_FACE_PLAN } },
   { id: 'shapeFirst', plans: { purple: PURPLE_SHAPE_FIRST_PLAN } },
   { id: 'extendedCross', plans: { tori: TORI_PLAN, edge: EDGE_ONLY_PLAN } },
   { id: 'voidCornersFirst', plans: { void: VOID_CUBE_PLAN } },

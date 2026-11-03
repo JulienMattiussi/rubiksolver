@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { normalIndex } from '@/lib/core/geometry'
-import { puckNumber, puckPlace } from '@/lib/puzzles/round/puck'
+import { puckNumber } from '@/lib/puzzles/round/puck'
+import { sectorPlace } from '@/lib/puzzles/shared/sectors'
 import type { Cubie } from '@/lib/core/types'
 import type { DecalPlace, P3, PiecePolygon } from '../../core/polygons'
 
@@ -83,7 +84,7 @@ const SHAPES = new Map<string, PiecePolygon[]>()
 
 /** Every polygon of a piece, as it stands (or a half of the center). */
 export function puckPolygons(cubie: Cubie): PiecePolygon[] {
-  const place = puckPlace(cubie.position)
+  const place = sectorPlace(cubie.position)
   const color = cubie.stickers[0]?.color
   const outward = cubie.stickers[0]?.normal[2]
   const id = place ? `${place.m}:${place.z}:${color}:${outward}` : cubie.position.join()
@@ -129,17 +130,17 @@ export function puckPolygons(cubie: Cubie): PiecePolygon[] {
  *  they would show as dark teeth), the center's top only. */
 export const puckThumbnail = (cubie: Cubie): PiecePolygon[] =>
   puckPolygons(cubie).filter(
-    (p, i) => p.paint !== 'body' || (!puckPlace(cubie.position) && i === 0),
+    (p, i) => p.paint !== 'body' || (!sectorPlace(cubie.position) && i === 0),
   )
 
 /** Whether a piece has a number to show: a top piece. */
 export const numbered = (cubie: Cubie): boolean =>
-  puckPlace(cubie.position) !== undefined && puckNumber(cubie) !== undefined
+  sectorPlace(cubie.position) !== undefined && puckNumber(cubie) !== undefined
 
 /** Where a piece's number lies: in the middle of its numbered face,
  *  upright from the rim. */
 export function puckNumberPlace(cubie: Cubie): DecalPlace {
-  const place = puckPlace(cubie.position)!
+  const place = sectorPlace(cubie.position)!
   const up = cubie.stickers[0]!.normal[2]
   const mid = 75 - 30 * place.m
   const r = (OUTER + INNER) / 2

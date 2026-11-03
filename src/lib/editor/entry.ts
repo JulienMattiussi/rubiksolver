@@ -9,7 +9,8 @@ import { MODELS } from '../puzzles/models'
  * painted or put piece by piece. The editor (store, panels, views) runs
  * the steps a model lists, knowing the modes only, never a puzzle:
  *
- *   form     its form picked among thumbnails (modes/form.ts)
+ *   form     its form picked among thumbnails (modes/form.ts), or in stages
+ *            when its forms are too many (`stages`: the Square-1's)
  *   canvas   its shape told face by face on canvases (modes/canvas.ts)
  *   cuts     its half-cubies laid, cell by cell (modes/cuts.ts)
  *   joints   its pieces fused, joint by joint (modes/joints.ts)
@@ -116,8 +117,37 @@ export interface PartsSpec {
   readonly of: (cube: Cube) => Parts
 }
 
+/** A choice a stage of a form offers: its key, and how many ways round it
+ *  can stand (a Square-1's layer, turned a twelfth at a time). */
+interface FormOption {
+  readonly key: string
+  readonly ways: number
+}
+
+/** A stage's pick: a choice, and the way round it stands. */
+export interface FormPick {
+  readonly key: string
+  readonly way: number
+}
+
+/** A form chosen in stages rather than among thumbnails, too many to offer
+ *  (the Square-1's 340): each stage's choices given the earlier picks. */
+export interface FormStages {
+  /** The stages, by name (their texts, `t.formStages[name]`). */
+  readonly stages: readonly ('top' | 'bottom' | 'middle')[]
+  readonly options: (stage: number, picks: readonly FormPick[]) => readonly FormOption[]
+  /** The form the picks make (a stage not picked yet: its first choice). */
+  readonly form: (picks: readonly FormPick[]) => Cube
+  /** What a stage's pick looks like, seen from above: the pieces to draw. */
+  readonly picture: (stage: number, picks: readonly FormPick[]) => Cube
+  /** A state's picks, to enter it as it stands. */
+  readonly of: (cube: Cube) => readonly FormPick[]
+  /** Its pictures show the slash's cut, along their y axis. */
+  readonly cut?: true
+}
+
 export type EntryStep =
-  | { readonly kind: 'form' }
+  | { readonly kind: 'form'; readonly stages?: FormStages }
   | { readonly kind: 'canvas'; readonly faces: FaceEntry; readonly later?: true }
   | { readonly kind: 'cuts'; readonly cuts: CutsSpec }
   | { readonly kind: 'joints'; readonly joints: JointsSpec }

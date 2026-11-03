@@ -21,6 +21,9 @@ export interface PuzzleModel {
   /** Whether a face turn can go now (blocked by a piece, a bar, a face's
    *  way round...). */
   readonly turnAllowed?: (cube: Cube, move: Move) => boolean
+  /** Whether a turn of its own kind can go now (the Square-1's slash, a
+   *  corner across its cut); all go otherwise. */
+  readonly ownTurnAllowed?: (cube: Cube, turn: Turn) => boolean
   /** Whether it stands in its box, when its pieces' cells do not say. */
   readonly boxed?: (cube: Cube) => boolean
   /** Whether it is solved, when one color per face does not say. */

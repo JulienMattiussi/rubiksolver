@@ -89,10 +89,13 @@ couleur ; les couleurs vont par paires (1-2 rouge, 3-4 vert, 5-6 jaune, 7-8
 orange, 9-10 bleu, 11-12 violet), le bas sous le haut, comme le vrai
 puzzle. (fan2cube.fr/puck1 décrit un autre puck, d'un seul étage.)
 
-**Modèle entier** (`lib/puzzles/round/puck.ts`, puzzle sans grille) : secteur m (0 à 11)
-dans le plan x, y, l'étage du haut à z = 1, celui du bas à z = -1 ; un tour
-de k crans envoie m sur m + k, le slash le secteur m (0 à 5) de chaque
-étage sur le secteur 5 - m de l'autre. La face cachée d'une pièce (contre
+**Modèle entier** (`lib/puzzles/round/puck.ts`, puzzle sans grille), sur la
+mécanique partagée avec le Square-1 (`lib/puzzles/shared/sectors.ts`, voir
+[twisted.md](twisted.md)) : secteur m (0 à 11) dans le plan x, y, l'étage
+du haut à z = 1, celui du bas à z = -1 ; un tour de k crans, dans le sens
+horaire vu de son côté (le bas vu de dessous, comme l'écrit fan2cube),
+envoie m sur m + k en haut, m - k en bas ; le slash le secteur m (0 à 5) de
+chaque étage sur le secteur 5 - m de l'autre. La face cachée d'une pièce (contre
 l'autre étage) dit, pour le modèle seul, laquelle c'est (`puckNumber`) ; le
 dessin la peint sombre. `puckSolved` : les numéros dans l'ordre en haut,
 chaque paire sur sa couleur, le tout tourné comme on veut. Notation des
@@ -109,9 +112,9 @@ moitié droite basculant avec le slash.
 **Résolution** (`methods/round/puck.ts`, méthode **Isoler puis permuter**, aucune
 page ne l'enseignant) : (1) isoler les pièces numérotées en haut, par une
 recherche sur leur répartition, chaque pas étant des tours puis le slash ;
-(2) ranger les couleurs du bas par échanges : K = / B / 1-B / -1 / échange
+(2) ranger les couleurs du bas par échanges : K = / -B / 1+B / -1 / échange
 les deux pièces du haut de part et d'autre de la coupe et les deux du bas,
-et sa famille `SWAPS` (/ dB / 1-B / -1 (1-d)B /) en échange d'éloignées de
+et sa famille `SWAPS` (/ -dB / 1+B / -1 (d-1)B /) en échange d'éloignées de
 d crans, des
 tours avant et après visant n'importe quelle paire ; (3) ranger les numéros
 du haut par 3-cycles, deux échanges de la même paire du bas (qui revient) ;

@@ -87,7 +87,7 @@ indiscernables ainsi font échouer le chargement du module (`core/cube.ts`).
 
 **Les coups** : un coup est un `Turn`, l'union de `Move` (les cubes) et des
 coups des puzzles qui ne tournent pas comme un cube (`StarMove`, `PyraMove`,
-`GhostMove`, `PuckMove`, `RainbowMove`, `GearMove`, `MegaMove`, `CopterMove`) ; le code
+`GhostMove`, `SectorMove`, `RainbowMove`, `GearMove`, `MegaMove`, `CopterMove`) ; le code
 générique (file d'animation, rendu, notation) prend un `Turn` et demande
 à la sorte du coup (`kindOf`, `core/moveKind.ts` : un `MoveKind` dit comment
 écrire, inverser, fusionner, jouer et animer ses coups ; les sortes sont
@@ -122,7 +122,8 @@ src/
 │   │   │                #     catalog.ts, models.ts et le module de chaque puzzle qui en a un (star.ts, gear.ts...)
 │   │   └── shared/      #   ce qui sert à plusieurs catégories (rainbow : le modèle des sommets qui tournent
 │   │                    #     et leur notation ; dinoRex et skewbs : les puzzles qui en dérivent ;
-│   │                    #     thinEdges : les arêtes sans sens visible)
+│   │                    #     thinEdges : les arêtes sans sens visible ; sectors : les étages par
+│   │                    #     douzièmes et le slash, du Hockey Puck et du Square-1)
 │   ├── methods/         # Les méthodes, un dossier par catégorie, un fichier par méthode ou famille
 │   │   ├── standard/    #   3x3 (algs : le catalogue des formules des cubes, layers3, roux, petrus, zz, recenter, pieces3), 2x2 (cube2), 2x2 Qiyi (qiyi2 : lu comme un 2x2), super cubes,
 │   │   │                #     solver4/ solver5/ solver6/ (réductions des 4x4, 5x5 et 6x6)
@@ -329,7 +330,8 @@ atteindre** (`goal`), **les coups qu'elle a le droit d'utiliser** (`moves`, un
 `MoveSet`) et ses phases (le travail). `buildSteps` vérifie ce contrat à chaque
 résolution : une étape qui s'arrête avant son objectif, glisse un coup
 interdit ou un coup que le puzzle bloque à ce moment (`turnAllowed` : un
-soudé, le Latch Cube) lève une exception ; la solution n'est simplifiée que
+soudé, le Latch Cube ; `ownTurnAllowed` pour ses coups d'une autre sorte : le
+slash du Square-1) lève une exception ; la solution n'est simplifiée que
 si ses coups passent encore. Une solution complète perd enfin les tours en
 main que font ses coups d'étage (`Uw' Dw` sur la 2x2x4 : la tour tournée
 d'un bloc), les coups suivants nommés comme le puzzle est alors tenu
@@ -406,15 +408,15 @@ l'étape suivante). Le store (`editorStore`), le panneau (`EditPanel`, une
 `CutsView`) déroulent ces étapes sans jamais nommer un puzzle. Les modes,
 chacun son module de `lib/editor/modes/` :
 
-| Mode                                   | Ce qu'on fait                                             | Puzzles                                                                        |
-| -------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `form` (`form.ts`)                     | choisir la forme parmi des vignettes                      | tours 2x2x4 et 2x3x4, Pyramorphinx, AI Cube                                    |
-| `canvas` (`canvas.ts`, `faceViews.ts`) | dire sa forme face par face sur des canevas               | Purple, Camouflage                                                             |
-| `cuts`                                 | poser ses demi-cubies case par case                       | Fashion-V                                                                      |
-| `joints` (`joints.ts`)                 | souder ses pièces joint par joint                         | soudés dont les blocs bougent                                                  |
-| `toggles` (`toggles.ts`)               | tourner quelque chose d'un clic (barres, pivots, centres) | RoadBlock-I, Gear Cubes ; Z-Twist et Quarter pendant la peinture               |
-| peinture `colors` (`colors.ts`)        | peindre sticker par sticker                               | par défaut                                                                     |
-| peinture `pieces` (`pieces.ts`)        | poser les pièces une à une                                | Ghost, Puck, Dino Cylinder, Barrel, Master Morphinx, Z-Twist, Fisher, Windmill |
+| Mode                                   | Ce qu'on fait                                             | Puzzles                                                                                  |
+| -------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `form` (`form.ts`)                     | choisir la forme parmi des vignettes, ou en étapes        | tours 2x2x4 et 2x3x4, Pyramorphinx, AI Cube ; Square-1 en étapes (`stages`)              |
+| `canvas` (`canvas.ts`, `faceViews.ts`) | dire sa forme face par face sur des canevas               | Purple, Camouflage                                                                       |
+| `cuts`                                 | poser ses demi-cubies case par case                       | Fashion-V                                                                                |
+| `joints` (`joints.ts`)                 | souder ses pièces joint par joint                         | soudés dont les blocs bougent                                                            |
+| `toggles` (`toggles.ts`)               | tourner quelque chose d'un clic (barres, pivots, centres) | RoadBlock-I, Gear Cubes ; Z-Twist et Quarter pendant la peinture                         |
+| peinture `colors` (`colors.ts`)        | peindre sticker par sticker                               | par défaut                                                                               |
+| peinture `pieces` (`pieces.ts`)        | poser les pièces une à une                                | Ghost, Puck, Dino Cylinder, Barrel, Master Morphinx, Z-Twist, Fisher, Windmill, Square-1 |
 
 La peinture peut aussi déclarer des bascules à elle (`paint.toggles`), une
 façon de peindre plusieurs stickers d'un coup (`paint.together` : une barre
@@ -647,7 +649,8 @@ par `golden.test.ts` (référence `golden/cube3.json`, écrite par le test :
 - **État entier, sans flottants** : les normales restent unitaires et les
   positions sur la grille entière du mécanisme (bornée par son `SHAPE_DIMS` :
   `{-3,-1,1,3}` sur le 4x4, ±4 sur le Professor Pyraminx et le Rex, ±6 sur
-  le Hockey Puck). Ne
+  le Hockey Puck, ±8 sur le Square-1, dont les coins se posent entre deux
+  secteurs). Ne
   pas introduire de trigonométrie dans la logique du cube ; l'angle visuel est
   calculé par `turnRotation` uniquement pour l'animation.
 - **Tailwind v4** : `@import 'tailwindcss'`, pas de `tailwind.config.js`.

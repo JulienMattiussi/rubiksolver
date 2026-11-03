@@ -18,7 +18,8 @@ export type MirrorScan = 'center' | 'cross'
 
 /** The families of puzzles turning by their own kind of moves (see
  *  core/moveKind.ts). */
-export type MoveFamily = 'star' | 'pyra' | 'ghost' | 'puck' | 'rainbow' | 'mega' | 'gear' | 'copter'
+export type MoveFamily =
+  'star' | 'pyra' | 'ghost' | 'sectors' | 'rainbow' | 'mega' | 'gear' | 'copter'
 
 /** The pad of turns a puzzle shows (components/controls/padFor.tsx): its
  *  faces' unless it turns otherwise ('vto': its faces' too, its corners,
@@ -31,7 +32,7 @@ export type PadKind =
   | 'ghost'
   | 'copter'
   | 'fashion'
-  | 'puck'
+  | 'sectors'
   | 'mega'
   | 'crystal'
   | 'fto'

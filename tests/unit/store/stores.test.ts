@@ -160,6 +160,17 @@ describe('cube store', () => {
     expect(selectScrambling(useCube.getState())).toBe(false)
   })
 
+  it('drops a turn the queued ones would jam (a Square-1 slash after its corner crossed the cut)', () => {
+    useCube.getState().loadCube(solvedCube('square1'))
+    // Two twelfths of the top, still waiting: a corner across the cut.
+    useCube.getState().pushMove({ layer: 'U', steps: 2 })
+    useCube.getState().pushMove({ flip: true })
+    expect(useCube.getState().queue).toEqual([{ layer: 'U', steps: 2 }])
+    useCube.getState().pushMove({ layer: 'U', steps: 1 })
+    useCube.getState().pushMove({ flip: true })
+    expect(useCube.getState().queue).toHaveLength(3)
+  })
+
   it('drops the solution when the cube is turned by hand', () => {
     useCube.getState().loadCube(applyMoves(solvedCube(), parseMoves('R')))
     useCube.getState().prepareSolution()

@@ -30,4 +30,15 @@ export const TWISTED = {
     inner: ['slice', 'wide'],
     pad: 'fashion',
   },
+  // The Square-1 (square1.ts) turns as the Hockey Puck, its corners two
+  // twelfths wide: no grid, its slots within +-8 in its plane, three layers.
+  square1: {
+    moves: 'sectors',
+    label: 'Square-1',
+    slug: 'square-1',
+    dims: [17, 17, 3],
+    scramble: 30,
+    pad: 'sectors',
+    shifts: true,
+  },
 } satisfies Record<string, PuzzleEntry>

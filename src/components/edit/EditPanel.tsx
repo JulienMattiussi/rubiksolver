@@ -132,7 +132,9 @@ function PaintPanel() {
   // What the scan could not see, to check (a Windmill's side centers).
   const unseen = SHAPE_SCAN_UNSEEN[shape]
   const { filled, total } = progress(edit, shape, form)
-  const { placed, total: slots } = byPieces ? placedCount(edit, shape) : { placed: 0, total: 0 }
+  const { placed, total: slots } = byPieces
+    ? placedCount(edit, shape, form)
+    : { placed: 0, total: 0 }
   const complete = isComplete(edit, shape, form) && partsDone(shape, parts)
   // Parts painted apart count with the stickers: every face to paint.
   const counted = paint.parts?.count(parts)

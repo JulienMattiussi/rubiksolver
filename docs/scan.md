@@ -7,7 +7,7 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 
 ## Les puzzles scannables
 
-`scannable` (`lib/editor/scan/plan.ts`) : 61 modèles sur 77, dont le 2x2 Qiyi
+`scannable` (`lib/editor/scan/plan.ts`) : 61 modèles sur 78, dont le 2x2 Qiyi
 miroir, et le 3x3 miroir.
 
 - **En grille**, tout se déduit des dimensions (`scanPlan`) : les cubes du

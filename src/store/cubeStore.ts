@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { readStored, writeStored } from '@/lib/app/storage'
 import { MAX_TURN_DURATION, MIN_TURN_DURATION } from '@/lib/app/speed'
 import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/core/cube'
-import { applyMove } from '@/lib/core/turn'
+import { applyMove, turnAllowed } from '@/lib/core/turn'
 import { invertMoves, scrambleTurns } from '@/lib/core/moves'
 import { stepEnd, stepStart } from '@/lib/solve/progress'
 import { methodsFor, type MethodId, type SolveStep } from '@/lib/solve/solver'
@@ -191,12 +191,17 @@ export const useCube = create<CubeStore>((set, get) => ({
   plannedFor: null,
 
   pushMove: (move) =>
-    set((s) => ({
-      queue: [...s.queue, move],
-      solving: false,
-      scrambling: false,
-      ...clearSolution(),
-    })),
+    set((s) => {
+      // Played after the turn under way and those waiting: a turn the state
+      // they lead to jams (a Square-1's slash, a corner across its cut) is
+      // dropped.
+      const ahead = [...(s.active ? [s.active] : []), ...s.queue].reduce(
+        (cube, turn) => applyMove(cube, turn),
+        s.cube,
+      )
+      if (!turnAllowed(ahead, move)) return {}
+      return { queue: [...s.queue, move], solving: false, scrambling: false, ...clearSolution() }
+    }),
 
   scramble: () =>
     set((s) => ({

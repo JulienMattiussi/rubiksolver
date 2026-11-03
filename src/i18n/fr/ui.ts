@@ -102,9 +102,9 @@ export const UI_FR = {
   megaUpper: 'Moitié haute',
   megaLower: 'Moitié basse',
   ghostTurnTitle: (side: GhostSide) => `Retourner ${SIDE_NAMES_FR[side]} (demi-tour)`,
-  puckTurnTitle: (layer: 'U' | 'D', clockwise: boolean) =>
+  sectorTurnTitle: (layer: 'U' | 'D', clockwise: boolean) =>
     `Tourner le disque ${layer === 'U' ? 'du haut' : 'du bas'} d’un cran dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
-  puckSlashTitle: 'Pivot : retourner la moitié droite',
+  sectorSlashTitle: 'Pivot : retourner la moitié droite',
   rainbowTurnTitle: (triangle: RainbowCorner, clockwise: boolean) =>
     `Tourner ${TRIANGLE_NAMES_FR[triangle]} d’un tiers dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
   dinoTurnTitle: (corner: RainbowCorner, clockwise: boolean) =>
@@ -353,6 +353,32 @@ export const UI_FR = {
   formTile: (n: number, tips: number) =>
     `Forme ${n}${n === 1 ? ' (d’origine)' : `, ${tips} cube${tips > 1 ? 's' : ''} isolé${tips > 1 ? 's' : ''}`}`,
   changeForm: 'Changer de forme',
+  /** A form chosen in stages (StagedFormPicker): the Square-1's. */
+  formStages: {
+    top: {
+      title: 'Le dessus',
+      hint: 'Regardez votre Square-1 par le dessus. Choisissez le dessin qui a la même forme, puis tournez-le avec les flèches jusqu’à ce que ses pièces tombent aux mêmes places (le pointillé, c’est la fente du milieu).',
+      choice: (n: number) => `Contour du dessus ${n}`,
+    },
+    bottom: {
+      title: 'Le dessous',
+      hint: 'Regardez-le par le dessous, et faites de même.',
+      choice: (n: number) => `Contour du dessous ${n}`,
+    },
+    middle: {
+      title: 'Le milieu',
+      hint: 'Son étage du milieu forme-t-il un carré, ou sa moitié droite est-elle retournée ?',
+      choice: (_: number, key: string): string =>
+        key === 'flipped' ? 'Milieu retourné' : 'Milieu carré',
+    },
+  },
+  formStageOf: (n: number, of: number) => `Forme, étape ${n} sur ${of}`,
+  formTurn: (clockwise: boolean) =>
+    `Tourner ce contour d’un cran dans le sens ${clockwise ? 'horaire' : 'anti-horaire'}`,
+  formTurnHint: 'Tournez-le comme le vôtre',
+  formBack: 'Retour',
+  formNext: 'Suivant',
+  formDone: 'Poser les couleurs',
   saveState: 'Mémoriser',
   saveStateTitle: 'Mémoriser cet état pour y revenir (remplace le précédent)',
   savedAlready: 'Cet état est déjà mémorisé',

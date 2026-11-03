@@ -88,8 +88,9 @@ export function halfTurnedBy(cube: Cube, move: Turn): (index: number) => boolean
  * - inner slices are not part of it (a wide then an outer turn makes one).
  */
 export function turnAllowed(cube: Cube, move: Turn): boolean {
-  // Another kind's: its pieces are whole (a star's sectors, a Pyraminx's...).
-  if (!isFaceTurn(move)) return true
+  // Another kind's: its pieces are whole (a star's sectors, a Pyraminx's...),
+  // unless its model says otherwise (the Square-1's slash).
+  if (!isFaceTurn(move)) return MODELS[cubeShape(cube)]?.ownTurnAllowed?.(cube, move) ?? true
   if (move.whole) return true
   const shape = cubeShape(cube)
   const own = MODELS[shape]?.turnAllowed

@@ -5,6 +5,7 @@ import { quarterPolygons } from './quarterGeometry'
 import { latchPolygons, latchThumbnail, UNPAINTED } from './latchGeometry'
 import { fashionPolygons } from './fashionGeometry'
 import { twistPolygons, twistThumbnail } from './twistGeometry'
+import { SQUARE1_ORIENT, square1Polygons, square1Thumbnail } from './square1Geometry'
 
 /** Upright as the cubes. */
 export const TWISTED_DRAWINGS = {
@@ -27,4 +28,11 @@ export const TWISTED_DRAWINGS = {
     }),
   },
   fashion: { polygons: fashionPolygons, yaw: 0 },
+  // Its model lying in its plane, as the Hockey Puck's: stood up as a cube.
+  square1: {
+    polygons: square1Polygons,
+    thumbnail: square1Thumbnail,
+    yaw: 0,
+    orient: SQUARE1_ORIENT,
+  },
 } satisfies Partial<Record<CubeShape, PolyDrawing>>

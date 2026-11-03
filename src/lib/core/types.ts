@@ -149,9 +149,9 @@ export interface GhostMove {
 
 /** A Hockey Puck turn (puck.ts): a layer turned some twelfths, clockwise
  *  seen from above, or the slash. */
-export type PuckSteps = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
-export type PuckMove =
-  { readonly layer: 'U' | 'D'; readonly steps: PuckSteps } | { readonly flip: true }
+export type SectorSteps = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
+export type SectorMove =
+  { readonly layer: 'U' | 'D'; readonly steps: SectorSteps } | { readonly flip: true }
 
 /** A triangle of the Rainbow, as the puzzle is held (a square in front):
  *  the four around the front square (U above, D below, L left, R right),
@@ -216,7 +216,15 @@ export interface CopterMove {
 }
 
 export type Turn =
-  Move | StarMove | PyraMove | GhostMove | PuckMove | RainbowMove | GearMove | MegaMove | CopterMove
+  | Move
+  | StarMove
+  | PyraMove
+  | GhostMove
+  | SectorMove
+  | RainbowMove
+  | GearMove
+  | MegaMove
+  | CopterMove
 
 /** The color of a hidden mark: a sticker no one sees, which tells a
  *  piece's state its colors do not (a bandaged puzzle's blocks, the Fisher
@@ -239,7 +247,7 @@ export const isGhostMove = (turn: Turn): turn is GhostMove => 'side' in turn
 export const isCopterMove = (turn: Turn): turn is CopterMove => 'edge' in turn
 
 /** Whether a turn is the Hockey Puck's. */
-export const isPuckMove = (turn: Turn): turn is PuckMove => 'layer' in turn || 'flip' in turn
+export const isSectorMove = (turn: Turn): turn is SectorMove => 'layer' in turn || 'flip' in turn
 
 /** Whether a turn is the Megaminx's. */
 export const isMegaMove = (turn: Turn): turn is MegaMove => 'megaFace' in turn

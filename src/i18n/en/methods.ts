@@ -165,6 +165,14 @@ export const METHODS_EN: typeof METHODS_FR = {
     name: 'Centers then edges',
     desc: 'Like a Pyraminx: match the centers by turning the corners, then sort the edges.',
   },
+  square1CornersFirst: {
+    name: 'Corners first',
+    desc: 'The cube first, then the bottom and top corners, lastly the edges, each kind of piece by its formula.',
+  },
+  square1FaceFirst: {
+    name: 'Face by face',
+    desc: 'The cube first, then a whole face and its crown, lastly the other’s corners, edges and middle.',
+  },
   gearEquatorFirst: {
     name: 'Equator then corners',
     desc: 'The equator first, intuitively, then each kind of piece, the gears last.',

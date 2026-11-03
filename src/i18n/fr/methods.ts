@@ -166,6 +166,14 @@ export const METHODS_FR = {
     name: 'Centres puis arêtes',
     desc: 'Comme un Pyraminx : accorder les centres en tournant les sommets, puis ranger les arêtes.',
   },
+  square1CornersFirst: {
+    name: 'Les sommets d’abord',
+    desc: 'Le cube d’abord, puis les sommets du bas et du haut, enfin les arêtes, chaque sorte de pièce par sa formule.',
+  },
+  square1FaceFirst: {
+    name: 'Face par face',
+    desc: 'Le cube d’abord, puis une face entière et sa couronne, enfin les coins, les arêtes et le milieu de l’autre.',
+  },
   gearEquatorFirst: {
     name: 'Équateur puis coins',
     desc: 'L’équateur d’abord, à l’intuition, puis chaque sorte de pièce, les engrenages en dernier.',

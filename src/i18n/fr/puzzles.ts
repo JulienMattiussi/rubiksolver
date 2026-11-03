@@ -451,4 +451,13 @@ export const PUZZLES_FR = {
     methods:
       'Des arêtes, encore des arêtes, placées par des commutateurs très simples : la méthode du Tori, sans même les centres pour guide.',
   },
+  square1: {
+    summary:
+      'Le Square-1, un cube qui se déforme dès le premier coup : retrouver sa forme est déjà un défi. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Square-1 a l’air sage tant qu’il est carré, mais **un seul coup suffit à le déformer** en silhouettes improbables. Ses étages tournent par crans, sa moitié droite bascule, et ses pièces de deux tailles se répartissent au gré des mouvements. **Retrouver la forme du cube** est déjà une victoire, puis tout se range avec quelques formules : déroutant, et terriblement attachant.',
+    methodsTitle: 'Deux chemins vers le cube',
+    methods:
+      'Deux méthodes, qui commencent toutes deux par lui rendre sa forme de cube : l’une range les sommets avant les arêtes, l’autre bâtit une face entière avant de finir la seconde. À vous de choisir votre route.',
+  },
 }

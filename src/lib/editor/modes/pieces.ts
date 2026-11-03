@@ -18,7 +18,9 @@ import type { CubeShape } from '../../core/shapes'
  * skipping pieces already placed elsewhere.
  *
  * A pose is a piece as some sequence of turns leaves it, found by turning
- * that piece alone from its home. The edit stays a map of painted stickers
+ * that piece alone from its home. A puzzle that changes shape is entered in
+ * the form it stands in (`form`, modes/form.ts): its slots are that form's,
+ * each taking the poses that reach it. The edit stays a map of painted stickers
  * (edit.ts): a slot holds the stickers of its pose, so everything that
  * reads an edit (from the current state, validation) works unchanged.
  */
@@ -39,16 +41,17 @@ const POSES = new Map<CubeShape, ReadonlyMap<string, readonly Pose[]>>()
 /** How many pieces of each kind a puzzle has (twins count twice). */
 const BUDGETS = new Map<CubeShape, Map<string, number>>()
 
-/** Every pose each slot takes, piece by piece, its home pose first. A
- *  piece's kind is its colors and the slots it reaches: twins share it, an
- *  edge and a corner of the same colors (the Floppy Ghost's) do not. */
+/** Every pose each place takes, piece by piece, its home pose first, by
+ *  place (whatever form it is a slot of). A piece's kind is its colors and
+ *  the places it reaches: twins share it, an edge and a corner of the same
+ *  colors (the Floppy Ghost's) do not. */
 function posesBySlot(shape: CubeShape): ReadonlyMap<string, readonly Pose[]> {
   let poses = POSES.get(shape)
   if (poses) return poses
   const budget = new Map<string, number>()
   const tables = tablesFor(shape)
   const mechanism = turnDims(shape)
-  const bySlot = new Map<string, Pose[]>(tables.paintableSlots.map((s) => [s.key, []]))
+  const bySlot = new Map<string, Pose[]>()
   const solved = tables.slots.map((slot) => ({
     position: slot.position,
     stickers: slot.stickers.map((s) => ({ normal: s.normal, color: s.solvedColor })),
@@ -80,7 +83,8 @@ function posesBySlot(shape: CubeShape): ReadonlyMap<string, readonly Pose[]> {
       const seen = !asSeen || stateKey(asSeen([cubie], (c) => c)) === look
       if (seen && !offered.has(look)) {
         offered.add(look)
-        bySlot.get(cubie.position.join(','))?.push({ kind, cubie })
+        const place = cubie.position.join(',')
+        bySlot.set(place, [...(bySlot.get(place) ?? []), { kind, cubie }])
       }
     }
   })
@@ -94,6 +98,10 @@ type Edit = Record<string, Color>
 
 const idsOf = (cubie: Cubie) =>
   cubie.stickers.map((s) => stickerId(cubie.position, normalIndex(s.normal)))
+
+/** The places of a form's slots to fill (the box's by default). */
+const slotKeysOf = (shape: CubeShape, form?: Cube): string[] =>
+  tablesFor(shape, form).paintableSlots.map((s) => s.key)
 
 /** The pose a slot holds in an edit, if it holds exactly one. */
 function poseIn(edit: Edit, shape: CubeShape, slotKey: string): Pose | undefined {
@@ -114,11 +122,11 @@ function cleared(edit: Edit, slotKey: string): Edit {
 
 /** Put the next pose that fits in a slot (after the one it holds), skipping
  *  the pieces all placed elsewhere; the same edit when none is left. */
-export function nextPiece(edit: Edit, shape: CubeShape, slotKey: string): Edit {
+export function nextPiece(edit: Edit, shape: CubeShape, slotKey: string, form?: Cube): Edit {
   const poses = posesBySlot(shape).get(slotKey) ?? []
   const current = poseIn(edit, shape, slotKey)
   const used = new Map<string, number>()
-  for (const key of posesBySlot(shape).keys()) {
+  for (const key of slotKeysOf(shape, form)) {
     const kind = key === slotKey ? undefined : poseIn(edit, shape, key)?.kind
     if (kind) used.set(kind, (used.get(kind) ?? 0) + 1)
   }
@@ -134,24 +142,30 @@ export function nextPiece(edit: Edit, shape: CubeShape, slotKey: string): Edit {
 }
 
 /** The piece each slot holds, or none: what the entry view draws. */
-export function piecesIn(edit: Edit, shape: CubeShape): Map<string, Cubie | undefined> {
-  return new Map(
-    [...posesBySlot(shape).keys()].map((key) => [key, poseIn(edit, shape, key)?.cubie]),
-  )
+export function piecesIn(
+  edit: Edit,
+  shape: CubeShape,
+  form?: Cube,
+): Map<string, Cubie | undefined> {
+  return new Map(slotKeysOf(shape, form).map((key) => [key, poseIn(edit, shape, key)?.cubie]))
 }
 
 /** Slots holding a piece, out of those to fill. */
-export function placedCount(edit: Edit, shape: CubeShape): { placed: number; total: number } {
-  const pieces = [...piecesIn(edit, shape).values()]
+export function placedCount(
+  edit: Edit,
+  shape: CubeShape,
+  form?: Cube,
+): { placed: number; total: number } {
+  const pieces = [...piecesIn(edit, shape, form).values()]
   return { placed: pieces.filter(Boolean).length, total: pieces.length }
 }
 
 /** The puzzle an edit holds, each slot's piece as placed (undefined while
  *  a slot is empty). */
-export function piecesCube(edit: Edit, shape: CubeShape): Cube | undefined {
-  const pieces = piecesIn(edit, shape)
+export function piecesCube(edit: Edit, shape: CubeShape, form?: Cube): Cube | undefined {
+  const pieces = piecesIn(edit, shape, form)
   const cube: Cubie[] = []
-  for (const slot of tablesFor(shape).slots) {
+  for (const slot of tablesFor(shape, form).slots) {
     const placed = slot.paintable
       ? pieces.get(slot.key)
       : {

@@ -12,6 +12,17 @@ import { turnedKeys } from '../../editor/modes/toggles'
 import { purpleBoxed, purpleSolved, purpleTurns, solvedPurple, turnAboutA } from './purple'
 import { scramblePurple } from './purpleStates'
 import { PURPLE_FACE_ENTRY } from './purpleViews'
+import { SECTOR_TURNS } from '../shared/sectors'
+import { sectorGuide } from '../guides'
+import { SQUARE1_FORM_STAGES } from './square1Entry'
+import { BY_PIECES } from '../../editor/entry'
+import {
+  scrambleSquare1,
+  solvedSquare1,
+  square1Solved,
+  square1Turns,
+  SQUARE1_SYMMETRIES,
+} from './square1'
 
 export const TWISTED_MODELS = {
   // Its box is off its core, which its coordinates are about; held only
@@ -85,5 +96,19 @@ export const TWISTED_MODELS = {
     // Its halves laid first, cell by cell (fashionEntry.ts): too many forms
     // for thumbnails.
     entry: { steps: () => [{ kind: 'cuts', cuts: FASHION_CUTS }] },
+  },
+  // Turns as the Hockey Puck, its slash blocked while a corner lies across
+  // its cut; held with its cut where the slash turns.
+  square1: {
+    solved: solvedSquare1,
+    isSolved: square1Solved,
+    symmetries: SQUARE1_SYMMETRIES,
+    turns: () => SECTOR_TURNS,
+    ownTurnAllowed: square1Turns,
+    scramble: scrambleSquare1,
+    guide: sectorGuide,
+    // Its shape in three stages (its top, its bottom, its middle), then its
+    // pieces one by one.
+    entry: { steps: () => [{ kind: 'form', stages: SQUARE1_FORM_STAGES }], paint: BY_PIECES },
   },
 } satisfies Partial<Record<CubeShape, PuzzleModel>>

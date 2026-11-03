@@ -8,7 +8,7 @@ import { CopterPad } from './CopterPad'
 import { FashionPad } from './FashionPad'
 import { MegaPad } from './MegaPad'
 import { MovePad } from './MovePad'
-import { PuckPad } from './PuckPad'
+import { SectorPad } from './SectorPad'
 import { PyraPad } from './PyraPad'
 import { RainbowPad } from './RainbowPad'
 import { StarPad } from './StarPad'
@@ -22,7 +22,7 @@ const PADS: Record<PadKind, (disabled: boolean) => ReactNode> = {
   ghost: (disabled) => <GhostPad disabled={disabled} />,
   copter: (disabled) => <CopterPad disabled={disabled} />,
   fashion: (disabled) => <FashionPad disabled={disabled} />,
-  puck: (disabled) => <PuckPad disabled={disabled} />,
+  sectors: (disabled) => <SectorPad disabled={disabled} />,
   mega: (disabled) => <MegaPad disabled={disabled} />,
   crystal: (disabled) => <MegaPad disabled={disabled} crystal />,
   fto: (disabled) => <FtoPad disabled={disabled} />,

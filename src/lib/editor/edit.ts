@@ -106,7 +106,7 @@ export function progress(
 
 /** Every sticker slot of the shape (in that form) is filled. */
 export function isComplete(edit: EditStickers, shape: CubeShape, form?: Cube): boolean {
-  if (entersByPieces(shape)) return piecesCube(edit, shape) !== undefined
+  if (entersByPieces(shape)) return piecesCube(edit, shape, form) !== undefined
   return slotsFor(shape, form).every((slot) => slot.stickers.every((s) => edit[s.id] !== undefined))
 }
 
@@ -129,7 +129,7 @@ export function buildCube(
     return out
   }
   if (entersByPieces(shape)) {
-    const cube = piecesCube(edit, shape)
+    const cube = piecesCube(edit, shape, form)
     if (!cube) throw new Error('buildCube: a slot holds no piece')
     return built(cube)
   }

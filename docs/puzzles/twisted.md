@@ -233,3 +233,73 @@ la seconde le remet), si bien qu'aucune autre couche ne les voit et que
 l'équateur reste en place. Les pièces du dehors sont uniques (une recherche
 par les deux bouts) ; celles du dedans vont par jumelles, qui absorbent
 toute parité : les deux « singularités » de la page ne servent pas.
+
+## Le Square-1 (`square1`)
+
+fan2cube.fr/squareone1 et 2 (Vojtech Kopsky et Karel Hršel, 1990),
+francocube.com (la méthode simple de Cyril) : un cube coupé en trois
+étages, le haut et le bas tournant par douzièmes, le milieu coupé en deux
+moitiés, la droite basculant avec le slash. **Modèle**
+(`lib/puzzles/twisted/square1.ts`) : la mécanique du Hockey Puck
+(`lib/puzzles/shared/sectors.ts` : douze secteurs par étage, un tour de k
+crans, le slash qui retourne la moitié droite autour de l'axe x). Ses 8
+arêtes tiennent un secteur, ses 8 coins deux : un coin se pose sur la
+frontière entre ses deux secteurs (douze frontières, à 90 - 30j degrés),
+que le slash envoie de j à 6 - j. Le slash ne passe que si aucun coin
+n'est à cheval sur la coupe (frontières 0 et 6), d'un étage ou de l'autre
+(`square1Turns`, branché par `PuzzleModel.ownTurnAllowed`) ; les étages
+tournent toujours. Chaque face d'une pièce regarde la direction d'un
+secteur (`SECTOR_NORMALS`, indices 48 à 59), qu'un tour fait tourner avec
+elle : la forme n'est que la place des pièces, elle change à chaque coup.
+« Résolu » : chaque direction d'une seule couleur, toutes les faces
+latérales sur les quatre directions d'un cube (`square1Solved`) ; tenu de
+4 façons (`SQUARE1_SYMMETRIES` : retourné autour de la coupe, tourné d'un
+demi-tour), qui gardent la coupe où le slash tourne. Notation de fan2cube,
+celle du Puck et des étoiles : `3`, `-2B` (`D` en anglais), `/`, le bas
+compté dans le sens horaire vu de dessous ; francocube écrit ses formules
+en paires `(x, y)`, converties (`pairsFormula`). Le mélange tourne les
+étages de façon à ce que le slash passe, puis le joue (`scrambleSquare1`).
+
+**Rendu** (`three/puzzles/twisted/square1Geometry.ts`) : chaque pièce est
+un prisme de son contour vu de dessus (`square1Outline` : une arête, le
+triangle de l'axe à son douzième de côté ; un coin, le cerf-volant jusqu'au
+coin du cube ; une moitié du milieu, le carré coupé par la ligne du slash,
+en miroir une fois retournée), chaque face extérieure prenant la couleur du
+sticker qui regarde sa direction. Le dessin est tourné d'un vingt-quatrième
+(`SQUARE1_ORIENT`) pour présenter une face de face : ses côtés regardent à
+15 degrés de la coupe.
+
+**Résolution** (`methods/twisted/`, socle commun `square1Kit.ts`), deux
+méthodes qui commencent toutes deux par **retrouver la forme du cube**
+(`toCube`) : le moins de slashs possible, chacun après les tours d'étage qui
+le laissent passer, par un parcours sur ses formes (leurs étages lus
+quelle que soit leur rotation), puis les étages tournés pour que les coins
+regardent comme résolus.
+
+- **Les sommets d'abord** (`square1CornersFirst.ts`, d'après fan2cube) : la
+  forme et le milieu carré ; les sommets du bas un à un, (HDA)->(BAD) =
+  -B/3/3/6/B ; ceux du haut, (HGP)<->(HAG) = 3/-3+3B/3/-3B/3B/-3B/ ; les
+  arêtes du bas une à une, (HD)->(BD) = 1/-3B/-1-4B/1+B/3B/3B/-1 ; celles du
+  haut, E = 1/-3B/-1/3/1/3B/-1/-3/, et la formule de parité de la page une
+  fois sur deux ; les étages alignés.
+- **Face par face** (`square1FaceFirst.ts`, d'après francocube) : la forme
+  seule ; une face et sa couronne pièce par pièce, que la page fait à
+  l'intuition, ici avec les deux insertions de fan2cube (le quart de tour
+  et le slash seuls n'atteignent qu'un millier de cubes, et les suites de
+  deux slashs ne suffisent pas) ; les coins du haut, /(3,0)/(-3,0)/(-3,3)/
+  (-3,0)/(3,0)/(0,-3) ; les arêtes du haut, (-2,0)/(0,3)/(-1,-1)/(1,-2)/(2,0)
+  (deux voisines sur chaque étage, donc jouée deux fois) et la parité ; le
+  milieu, /(6,0)/(6,0)/ ou (1,-1)/(6,6)/.
+
+Chaque étape cherche parmi ses formules et les quarts de tour des étages,
+qui gardent le cube ; l'effet de chaque formule est vérifié
+(`tests/unit/puzzles/twisted/square1.test.ts`).
+
+**Saisie** dans la forme où il se trouve, choisie en **trois étapes**
+(`square1Entry.ts`, une étape `form` à `stages`, `StagedFormPicker`) : ses
+340 formes (170 paires de contours, le milieu carré ou retourné) sont trop
+nombreuses pour des vignettes. On choisit le contour du dessus parmi ses 29,
+vu de dessus, la coupe en pointillé, puis on le tourne d'un cran à la fois
+comme le sien ; puis le contour du dessous parmi ceux qui vont avec ; puis
+le milieu. Les pièces se posent ensuite une à une (`modes/pieces.ts`, sur
+les emplacements de cette forme). Pas de scan.
