@@ -1,6 +1,7 @@
+import type { MirrorLook } from '../puzzles/entry'
 import { FACE_COLOR } from './cube'
 import type { CubeColor, Face, Sticker } from './types'
-import type { CubeVariant } from './shapes'
+import { mirrorOnly, type CubeShape, type CubeVariant } from './shapes'
 
 /**
  * Piece shapes: what turns a cube into a mirror cube.
@@ -44,12 +45,28 @@ type Point = readonly [number, number, number]
  *   at a corner, the three thin ones at the opposite one, the way they turn
  *   round it the real Mirror Blocks' (green, in front, thinner than blue; the
  *   other way, the cube was its mirror image).
+ *
+ * A puzzle sold only as a mirror has its own look on its card (`mirrorOnly`:
+ * the Qiyi 2x2, two thicknesses only, its colors two).
  */
-export const LAYER_THICKNESS: Record<CubeVariant, Record<CubeColor, number>> = {
-  classic: { W: 1, Y: 1, G: 1, B: 1, O: 1, R: 1 },
+export const MIRROR_BLOCKS: MirrorLook = {
   // In middle layers (18 mm): 8, 12, 16, 20, 24 and 28 mm.
-  mirror: { O: 8 / 18, Y: 12 / 18, G: 16 / 18, B: 20 / 18, W: 24 / 18, R: 28 / 18 },
+  thickness: { O: 8 / 18, Y: 12 / 18, G: 16 / 18, B: 20 / 18, W: 24 / 18, R: 28 / 18 },
+  finish: 'gold',
 }
+
+/** Every layer a plain cube's. */
+const PLAIN: Record<CubeColor, number> = { W: 1, Y: 1, G: 1, B: 1, O: 1, R: 1 }
+
+/** A puzzle's layer thicknesses by color, in a variant: plain, or its
+ *  mirror's (its own, else the Mirror Blocks'). */
+export function thicknessOf(shape: CubeShape, variant: CubeVariant): Record<CubeColor, number> {
+  return variant === 'classic' ? PLAIN : (mirrorOnly(shape) ?? MIRROR_BLOCKS).thickness
+}
+
+/** A mirror puzzle's finish (its own, else the Mirror Blocks' gold). */
+export const finishOf = (shape: CubeShape): MirrorLook['finish'] =>
+  (mirrorOnly(shape) ?? MIRROR_BLOCKS).finish
 
 /** What a sticker tells on each variant: its color, or (all alike, a
  *  mirror's) its layer's size, which the variant's thicknesses give. */

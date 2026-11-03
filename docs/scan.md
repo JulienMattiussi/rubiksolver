@@ -7,7 +7,8 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 
 ## Les puzzles scannables
 
-`scannable` (`lib/editor/scan/plan.ts`) : 60 modèles sur 76, et le 3x3 miroir.
+`scannable` (`lib/editor/scan/plan.ts`) : 61 modèles sur 77, dont le 2x2 Qiyi
+miroir, et le 3x3 miroir.
 
 - **En grille**, tout se déduit des dimensions (`scanPlan`) : les cubes du
   2x2 au 6x6, les cuboïdes et les plats sans saisie propre (1x2x3, Floppy,
@@ -85,15 +86,16 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 - **Par ses contours** (`scan` : un `OutlineScan`, `outlines.ts`) : le
   Floppy Ghost, tout argenté, lu d'une seule photo (voir « Par les
   contours » plus bas).
-- **Par les tailles de ses stickers** : le 3x3 miroir (`mirrorScan` sur sa
-  carte ; voir « Le cube miroir » plus bas).
+- **Par les tailles de ses stickers** : le 3x3 miroir et le 2x2 Qiyi
+  miroir (`mirrorScan` sur leur carte ; voir « Le cube miroir » et « Le 2x2
+  miroir » plus bas).
 
 Restent dehors les puzzles dont une information n'est pas une couleur
 (les autres miroirs, super cubes, soudés, engrenages...), les autres puzzles qui se
 déforment (Camouflage, Purple, Fashion-V, AI Cube), et le Tori (ses
 arêtes, de minces amandes au bord des faces).
 
-Seuls le 2x2, le 3x3 (et son miroir), le 4x4, les tours 2x2x3 et 2x2x4, le Gear Cube Ultimate, le Skewb et l'Ivy Cube ont été essayés en vrai (`scanTried` sur
+Seuls le 2x2, le 3x3 (et son miroir), le 2x2 Qiyi miroir, le 4x4, les tours 2x2x3 et 2x2x4, le Gear Cube Ultimate, le Skewb et l'Ivy Cube ont été essayés en vrai (`scanTried` sur
 leur carte) ; sur les autres, le bouton « Utiliser l'appareil photo » porte
 une fiole : « Cette fonction n'a pas encore été testée et validée sur ce
 modèle ».
@@ -285,7 +287,7 @@ portable aussi clair que ses stickers est figée en test
 Tout doré ou argenté, ses pièces se reconnaissent à leurs tailles : sur une
 face, chaque sticker est aussi large et aussi haut que les couches qu'il
 couvre. Ses épaisseurs sont celles d'un vrai Mirror Blocks mesuré
-(`LAYER_THICKNESS.mirror`, 8 à 28 mm, couche du milieu 18 mm).
+(`MIRROR_BLOCKS`, 8 à 28 mm, couche du milieu 18 mm).
 
 - **Les faces sont nommées par leur épaisseur** (« la face très fine face à
   l'objectif, la très épaisse en haut », `scanMovesSized`) : ses centres
@@ -334,3 +336,29 @@ lecture retrouve l'état exact, que l'appli a résolu sur le vrai cube ; sur
 un scan dans l'appli d'un cube résolu devant la caméra d'un portable
 (`mirrorSolvedLaptop.json`), elle le lit résolu ; un cube mélangé, scanné
 dans l'appli, a été lu juste.
+
+## Le 2x2 miroir (le Qiyi)
+
+Le 2x2 Qiyi miroir (`mirrorScan: 'cross'`) se scanne avec les mêmes outils
+que le 3x3 (les stickers trouvés par OpenCV, les pièces mises au moindre
+coût), à trois différences près, faute de centre :
+
+- **Le calage** : on vise le point où les quatre stickers d'une face se
+  rejoignent, sur la croix du cadre (`ScanFace.cross`, `CrossCuts`) ; les
+  coupes passent par là, donc chaque sticker a son coin intérieur tout
+  près (`placeAround`, `sized.ts`).
+- **Les faces** ne se nomment pas (ses coins ne disent aucune face) :
+  n'importe quelle face d'abord (le geste `crossed`), puis les gestes
+  habituels (`orderFor`, `crossFaces`) ; la lecture est le cube tel qu'il
+  est tenu, et tout état de ce puzzle se résout.
+- **La mesure** : sans centre, rien ne donne l'échelle d'une photo (prise
+  plus ou moins près). Ses couches n'ont que deux tailles, loin l'une de
+  l'autre (3 et 2 cm) : sur chaque face, un côté est fin ou épais selon ce
+  qu'il mesure face aux autres (à partir d'un écart de 1,25) ; une face dont
+  tous les côtés se valent est lue des deux façons, et la lecture la moins
+  chère l'emporte (`crossRead.ts`, qui reprend l'affectation de
+  `sizedRead.ts`).
+
+Lu exactement sur des images synthétiques (chaque face prise plus ou moins
+près, caméra de face ou de dos, `crossScan.test.ts`), puis sur le vrai
+cube, résolu et mélangé : juste, une seule face à reprendre à chaque fois.

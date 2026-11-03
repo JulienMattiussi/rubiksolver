@@ -1,8 +1,8 @@
 import { cubeDims, solvedCube } from '@/lib/core/cube'
 import { normalIndex } from '@/lib/core/geometry'
-import { cubieBox, LAYER_THICKNESS } from '@/lib/core/shape'
+import { cubieBox, thicknessOf } from '@/lib/core/shape'
 import { lookOf } from '@/lib/editor/modes/form'
-import { type Color, type Cube } from '@/lib/core/types'
+import { type Color, type Cube, type CubeColor } from '@/lib/core/types'
 import { type CubeShape, type CubeVariant } from '@/lib/core/shapes'
 import { drawnIn, visualPosition } from './layout'
 import { inScene, isPolyDrawn, polyDrawing } from './polyDrawing'
@@ -45,7 +45,7 @@ function drawPuzzle(shape: CubeShape, variant: CubeVariant): IsoDrawing {
   if (isPolyDrawn(shape)) return drawPoly(shape)
   const own = ownViewsOf(shape)?.thumbnail
   if (own) return own(shape)
-  return drawCubies(solvedCube(shape), variant)
+  return drawCubies(solvedCube(shape), thicknessOf(shape, variant))
 }
 
 const FORM_DRAWINGS = new Map<string, IsoDrawing>()
@@ -56,7 +56,9 @@ export function formDrawing(shape: CubeShape, form: Cube): IsoDrawing {
   const key = `${shape}|${lookOf(form)}`
   let drawing = FORM_DRAWINGS.get(key)
   if (!drawing) {
-    drawing = isPolyDrawn(shape) ? drawPoly(shape, form, 'W') : drawCubies(form, 'classic', 'W')
+    drawing = isPolyDrawn(shape)
+      ? drawPoly(shape, form, 'W')
+      : drawCubies(form, thicknessOf(shape, 'classic'), 'W')
     FORM_DRAWINGS.set(key, drawing)
   }
   return drawing
@@ -98,12 +100,12 @@ export function pieceDrawing(shape: CubeShape, piece: number, back: boolean): Is
 }
 
 /** A grid puzzle's cubies as they stand (`neutral`: every sticker that color). */
-function drawCubies(cube: Cube, variant: CubeVariant, neutral?: Color): IsoDrawing {
+function drawCubies(cube: Cube, thickness: Record<CubeColor, number>, neutral?: Color): IsoDrawing {
   const dims = cubeDims(cube)
   const cells = new Set(cube.map((c) => visualPosition(c.position, dims).join()))
   const faces: IsoFace[] = []
   for (const cubie of cube.filter(drawnIn(cube))) {
-    const { size, center } = cubieBox(cubie.stickers, LAYER_THICKNESS[variant])
+    const { size, center } = cubieBox(cubie.stickers, thickness)
     const cell = visualPosition(cubie.position, dims)
     const mid = cell.map((v, a) => v + center[a]!)
     const min = mid.map((v, a) => v - size[a]! / 2) as unknown as Point

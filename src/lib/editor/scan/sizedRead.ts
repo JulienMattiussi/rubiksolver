@@ -1,7 +1,8 @@
 import { solvedCube } from '../../core/cube'
+import type { CubeShape } from '../../core/shapes'
 import { AXIS_ROTATIONS, cross, FACE_NORMAL } from '../../core/geometry'
-import { LAYER_THICKNESS } from '../../core/shape'
-import type { Cubie, CubeColor, Face, Sticker, Vec3 } from '../../core/types'
+import { MIRROR_BLOCKS } from '../../core/shape'
+import type { Color, Cube, Cubie, CubeColor, Face, Sticker, Vec3 } from '../../core/types'
 import { cubeToEdit } from '../edit'
 import { validateCube } from '../validate'
 import { cheapestAssignment } from './assign'
@@ -10,7 +11,7 @@ import { sizedOrder } from './plan'
 
 /**
  * A mirror 3x3 read from what its stickers measure (pure, sized.ts): each
- * piece, known by its layers' thicknesses (LAYER_THICKNESS.mirror, those
+ * piece, known by its layers' thicknesses (MIRROR_BLOCKS, those
  * of the real puzzle), put where it fits the measures best, all at once
  * (the Hungarian method, assign.ts), held each way that might show it.
  *
@@ -32,8 +33,6 @@ export type Sizes = ReadonlyMap<string, readonly [number | null, number | null]>
 const FRAMES = [0.02, 0.04, 0.06, 0.08, 0.1]
 const SHOWN = [1, 0.95, 0.9]
 
-const SOLVED = solvedCube('3')
-const PIECES = SOLVED.flatMap((c, i) => (c.stickers.length > 1 ? [i] : []))
 const axisOf = (v: Vec3) => v.findIndex((x) => x !== 0)
 
 /** The faces as the scan asks them, each its face and the one on top. */
@@ -41,20 +40,20 @@ const held = (behind: boolean) => sizedOrder(behind).map(({ front, up }) => [fro
 /** The faces as a phone's camera brings them, or one facing the user. */
 const WAYS = [held(false), held(true)]
 
-interface Measure {
+/** A layer measured: where (a piece's place), along which axis, how thick. */
+export interface Measure {
   readonly at: string
   readonly axis: number
   readonly value: number
 }
 
-/** The measures of every face, held as `held` says, a sticker's frame
- *  `frame` of its layer each side. */
-function measuresOf(
+/** The measures of every face, held as `held` says, each sticker's sizes
+ *  read as its layers' (`layer`: a frame's share put back). */
+export function measuresOf(
   faces: readonly Sizes[],
   held: readonly (readonly [Face, Face])[],
-  frame: number,
+  layer: (v: number) => number,
 ) {
-  const layer = (v: number) => v * (1 - 2 * frame) + 2 * frame
   const out: Measure[] = []
   faces.forEach((sizes, f) => {
     const [front, up] = held[f]!
@@ -70,9 +69,26 @@ function measuresOf(
   return out
 }
 
-/** The cheapest pieces for the measures: the state, and its cost. */
-function cheapest(measures: readonly Measure[], shown: number) {
-  const thickness = (c: CubeColor) => 1 + (LAYER_THICKNESS.mirror[c] - 1) * shown
+/** Each mirror's solved pieces (those of several stickers), once. */
+const SOLVED = new Map<CubeShape, { cube: Cube; pieces: number[] }>()
+function solvedOf(shape: CubeShape) {
+  let solved = SOLVED.get(shape)
+  if (!solved) {
+    const cube = solvedCube(shape)
+    solved = { cube, pieces: cube.flatMap((c, i) => (c.stickers.length > 1 ? [i] : [])) }
+    SOLVED.set(shape, solved)
+  }
+  return solved
+}
+
+/** The cheapest pieces of a mirror for the measures, each layer as thick
+ *  as its color says (`thickness`): the state, and its cost. */
+export function cheapest(
+  shape: CubeShape,
+  measures: readonly Measure[],
+  thickness: (c: Color) => number,
+) {
+  const { cube: SOLVED, pieces: PIECES } = solvedOf(shape)
   const where = new Map<string, Measure[]>()
   for (const m of measures) where.set(m.at, [...(where.get(m.at) ?? []), m])
   // Each piece at each place: its best way round there, and its cost.
@@ -85,7 +101,7 @@ function cheapest(measures: readonly Measure[], shown: number) {
         const stickers = piece.stickers.map((s) => ({ ...s, normal: turn(s.normal) }))
         const along = (axis: number) => {
           const s = stickers.find((x) => x.normal[axis] !== 0)
-          return s ? thickness(s.color as CubeColor) : 1
+          return s ? thickness(s.color) : 1
         }
         const cost = (where.get(place.join()) ?? []).reduce(
           (t, m) => t + Math.abs(m.value - along(m.axis)),
@@ -122,8 +138,10 @@ export type Held = readonly (readonly [Face, Face])[]
 export function readSized(faces: readonly Sizes[], ways: readonly Held[] = WAYS): ScanReading {
   const tries = ways.flatMap((held) =>
     FRAMES.flatMap((frame) => {
-      const measures = measuresOf(faces, held, frame)
-      return SHOWN.map((shown) => cheapest(measures, shown))
+      const measures = measuresOf(faces, held, (v) => v * (1 - 2 * frame) + 2 * frame)
+      return SHOWN.map((shown) =>
+        cheapest('3', measures, (c) => 1 + (MIRROR_BLOCKS.thickness[c as CubeColor] - 1) * shown),
+      )
     }),
   )
   tries.sort((a, b) => a.cost - b.cost)

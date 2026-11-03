@@ -44,6 +44,7 @@ const PUZZLES: ReadonlyArray<{
   scramble: number
 }> = [
   { shape: '2', pieces: 8, stickers: 24, orientations: 24, painted: 24, scramble: 11 },
+  { shape: 'qiyi2', pieces: 8, stickers: 24, orientations: 24, painted: 24, scramble: 11 },
   { shape: '3', pieces: 27, stickers: 54, orientations: 24, painted: 54, scramble: 25 },
   { shape: '4', pieces: 64, stickers: 96, orientations: 24, painted: 96, scramble: 40 },
   { shape: 'super4', pieces: 64, stickers: 144, orientations: 24, painted: 144, scramble: 40 },

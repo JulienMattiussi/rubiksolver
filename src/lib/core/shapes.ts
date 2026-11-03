@@ -8,6 +8,8 @@
 import { CATALOG, CATEGORY_OF } from '../puzzles/catalog'
 import type {
   EditHint,
+  MirrorLook,
+  MirrorScan,
   MoveFamily,
   PadKind,
   PuzzleEntry,
@@ -160,8 +162,10 @@ export const SHAPE_SCAN_BEFORE: Record<CubeShape, ScanBefore | undefined> = each
   (e) => e.scanBefore,
 )
 
-/** Shapes whose mirror scans by its stickers' sizes (sizedRead.ts). */
-export const SHAPE_MIRROR_SCAN: Record<CubeShape, boolean> = each((e) => e.mirrorScan === true)
+/** How each shape's mirror scans by its stickers' sizes, if it does. */
+export const SHAPE_MIRROR_SCAN: Record<CubeShape, MirrorScan | undefined> = each(
+  (e) => e.mirrorScan,
+)
 
 /** Shapes exposed in the UI, in display order. */
 const SHAPES = Object.keys(CATALOG) as readonly CubeShape[]
@@ -179,10 +183,17 @@ export type CubeVariant = 'classic' | 'mirror'
  * no mirror version, and the 1x2x3 cannot have one (a one-layer axis puts two
  * opposite stickers on the same piece, so its faces carry no thickness).
  */
-const SHAPE_MIRROR: Record<CubeShape, boolean> = each((e) => e.mirror === true)
+const SHAPE_MIRROR: Record<CubeShape, true | MirrorLook | undefined> = each((e) => e.mirror)
 
 export function supportsMirror(shape: CubeShape): boolean {
-  return SHAPE_MIRROR[shape]
+  return SHAPE_MIRROR[shape] !== undefined
+}
+
+/** A mirror puzzle's own look, when it is sold only as a mirror (the Qiyi
+ *  2x2: two thicknesses, silver): never shown plain. */
+export function mirrorOnly(shape: CubeShape): MirrorLook | undefined {
+  const mirror = SHAPE_MIRROR[shape]
+  return mirror === true ? undefined : mirror
 }
 
 /** One entry of the cube picker: a shape plus a rendering variant. */
@@ -220,7 +231,10 @@ export function cubeCategory({ shape, variant }: CubeKind): CubeCategory {
 
 /** Cube choices exposed in the UI (the picker groups them by `cubeCategory`). */
 export const CUBE_KINDS: readonly CubeKind[] = [
-  ...SHAPES.map((shape): CubeKind => ({ shape, variant: 'classic' })),
+  ...SHAPES.filter((shape) => !mirrorOnly(shape)).map((shape): CubeKind => ({
+    shape,
+    variant: 'classic',
+  })),
   ...SHAPES.filter(supportsMirror).map((shape): CubeKind => ({ shape, variant: 'mirror' })),
 ]
 

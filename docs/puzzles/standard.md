@@ -275,11 +275,11 @@ ordinaire, mais tous ses stickers ont la même couleur et ses couches ont des
 de la taille) : le modèle, les coups, `isSolved`, les solveurs, la saisie et la
 validation l'ignorent complètement. Seuls les puzzles miroirs qui existent
 vraiment sont proposés (`mirror` sur leur carte, `supportsMirror`, puis `CUBE_KINDS`) :
-2x2, 3x3 et 4x4. Le 1x2x3 ne peut pas en
+2x2, 3x3 et 4x4, plus le 2x2 Qiyi, vendu seulement en miroir (voir plus bas). Le 1x2x3 ne peut pas en
 avoir : un axe à une seule couche porte ses deux grandes faces sur les mêmes
 pièces, donc elles ne peuvent pas avoir d'épaisseur.
 
-La correspondance est **couleur -> épaisseur** (`LAYER_THICKNESS`), **bijective** :
+La correspondance est **couleur -> épaisseur** (`MIRROR_BLOCKS`, lue par `thicknessOf`), **bijective** :
 les six épaisseurs sont distinctes, celles d'un vrai Mirror Blocks mesuré
 (couches extérieures de 8 à 28 mm par pas de 4 mm, couche du milieu de
 18 mm, chaque axe sa paire : 8 et 28, 12 et 24, 16 et 20 mm). Une forme
@@ -319,9 +319,40 @@ La variante `classic` est le cas dégénéré de la même table (toutes les
 **La saisie d'un cube miroir se fait en épaisseurs** : par la bijection,
 peindre une épaisseur, c'est peindre une couleur, et la saisie est celle des
 couleurs. Seul l'habillage diffère : la palette affiche six barres ordonnées
-de la plus fine à la plus épaisse, les stickers peints sont dorés, et
+de la plus fine à la plus épaisse, les stickers peints prennent sa teinte (dorés, argentés sur le Qiyi), et
 `EditView` donne à chaque emplacement la forme de ses stickers **déjà peints**
 (un axe non peint garde 1). Comme les pièces ne grandissent que vers
 l'extérieur, une saisie à moitié faite ne se chevauche jamais : la pièce prend
 sa forme au fur et à mesure. Le 3x3 miroir se saisit aussi à l'appareil photo, par les
 tailles de ses stickers (voir « Le cube miroir » dans [docs/scan.md](../scan.md)).
+
+## Le 2x2 Qiyi miroir (`qiyi2`)
+
+Le **2x2 Qiyi miroir** est un autre 2x2 miroir, argenté, vendu seulement
+en miroir : ses couches n'ont que **deux tailles** (3 cm et 2 cm, les trois
+épaisses se rejoignant en un coin), si bien que ses coins vont par trois
+jumeaux (deux côtés épais et un fin, ou l'inverse), plus le coin tout épais
+et le coin tout fin. Les épaisseurs ne désignent donc plus une pièce : ce
+n'est pas une variante de rendu du 2x2 mais **un puzzle à lui**, un 2x2 à
+**deux couleurs** (`scheme` : les trois faces épaisses blanches, les trois
+fines jaunes), dont le test de résolution ordinaire (des faces unies) dit
+exactement que la forme est un cube. Sa carte porte son allure (`mirror` :
+ses épaisseurs, 1,2 et 0,8 cellule, et sa teinte argentée), que lisent
+`thicknessOf` et `skinOf` ; il n'a pas de version classique (`mirrorOnly`).
+Il a autant de pièces et de stickers que le 2x2 : il s'en distingue par son
+nombre de couleurs (`cubeShape`).
+
+**Tout état se résout** : les coins tout épais et tout fin tournent sur
+eux-mêmes sans qu'on le voie, ce qui rattrape n'importe quelle vrille d'un
+autre coin. **Résolution** (`methods/standard/qiyi2.ts`) : sa solution la
+plus courte vient de la recherche optimale du 2x2 (`solveOptimal2`), ouverte
+aux jumeaux (vers chacune des façons de tenir le cube résolu, les états
+comparés à ce qu'ils montrent, `layoutKey`) ; puis, pour ses méthodes, le
+cube est lu comme le 2x2 qu'il est (`asPocket`) : chaque pièce reçoit les
+couleurs du coin où cette solution la ramène, ce qui donne un vrai 2x2, le
+plus proche possible d'être résolu, que les méthodes du 2x2 (**Par
+couches**, **Optimale**) résolvent par les mêmes coups (`READ_AS`,
+`solve/solver.ts`). **Saisie** : en épaisseurs, deux barres, les jumeaux
+partageant leur budget comme les centres du 4x4 ; ou à l'appareil photo,
+par les tailles de ses stickers (voir « Le 2x2 miroir » dans
+[docs/scan.md](../scan.md)). Pas de tutoriel pour l'instant.

@@ -10,6 +10,20 @@ export const STANDARD = {
     mirror: true,
     scanTried: true,
   },
+  // Qiyi's mirror 2x2, sold only so: two sizes of layer (3 and 2 cm, the
+  // thick ones meeting at a corner), so six of its corners go by threes of
+  // twins. Read as a 2x2 of two colors, a face of each its size's.
+  qiyi2: {
+    label: '2x2 Qiyi',
+    slug: '2x2-qiyi',
+    dims: [2, 2, 2],
+    scramble: 11,
+    scheme: { R: 'W', B: 'W', L: 'Y', F: 'Y' },
+    // In cells of 2.5 cm.
+    mirror: { thickness: { W: 1.2, Y: 0.8, G: 1, B: 1, O: 1, R: 1 }, finish: 'silver' },
+    mirrorScan: 'cross',
+    scanTried: true,
+  },
   '3': {
     home: 'classic',
     cover: true,
@@ -19,7 +33,7 @@ export const STANDARD = {
     scramble: 20,
     advanced: ['slice', 'wide'],
     mirror: true,
-    mirrorScan: true,
+    mirrorScan: 'center',
     scanTried: true,
   },
   '4': {

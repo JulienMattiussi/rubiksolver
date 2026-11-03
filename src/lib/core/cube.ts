@@ -110,27 +110,44 @@ function stickerCount(cube: Cube): number {
   return n
 }
 
+/** Colors a puzzle wears, which no turn changes: read only when pieces
+ *  and stickers do not tell two shapes apart (the 2x2 and the Qiyi 2x2,
+ *  six colors and two). */
+function colorCount(cube: Cube): number {
+  const seen = new Set<Color>()
+  for (const c of cube) for (const s of c.stickers) seen.add(s.color)
+  return seen.size
+}
+
 /**
  * The shapes by cubie count, the signature `cubeShape` recognizes: a count
  * alone, or with the sticker count when two shapes share it (the Pyraminx
- * and the Jing, 15 pieces each). Every shape needs its own, which this
- * checks as the module loads.
+ * and the Jing, 15 pieces each), then the color count (the 2x2 and the
+ * Qiyi 2x2). Every shape needs its own, which this checks as the module
+ * loads.
  */
-const SHAPES_OF_COUNT = new Map<number, Map<number, CubeShape>>()
+const SHAPES_OF_COUNT = new Map<number, Map<number, Map<number, CubeShape>>>()
 for (const shape of Object.keys(SHAPE_DIMS) as CubeShape[]) {
   const solved = solvedCube(shape)
-  const byStickers = SHAPES_OF_COUNT.get(solved.length) ?? new Map<number, CubeShape>()
-  const other = byStickers.get(stickerCount(solved))
+  const byStickers = SHAPES_OF_COUNT.get(solved.length) ?? new Map()
+  const byColors = byStickers.get(stickerCount(solved)) ?? new Map<number, CubeShape>()
+  const other = byColors.get(colorCount(solved))
   if (other) throw new Error(`cubeShape: ${shape} and ${other} have the same pieces and stickers`)
-  byStickers.set(stickerCount(solved), shape)
+  byColors.set(colorCount(solved), shape)
+  byStickers.set(stickerCount(solved), byColors)
   SHAPES_OF_COUNT.set(solved.length, byStickers)
 }
 
+/** The one value of a map that has one (no need to read what tells them
+ *  apart), else the one `key` gives. */
+const only = <T>(map: Map<number, T> | undefined, key: () => number): T | undefined =>
+  map?.size === 1 ? [...map.values()][0] : map?.get(key())
+
 /** Shape of a puzzle from its cubie count (6 -> 1x2x3, 8 -> 2x2, 14 -> star...),
- *  and its sticker count when that is not enough. */
+ *  its sticker count when that is not enough, then its color count. */
 export function cubeShape(cube: Cube): CubeShape {
-  const shapes = SHAPES_OF_COUNT.get(cube.length)
-  const shape = shapes?.size === 1 ? [...shapes.values()][0] : shapes?.get(stickerCount(cube))
+  const byColors = only(SHAPES_OF_COUNT.get(cube.length), () => stickerCount(cube))
+  const shape = only(byColors, () => colorCount(cube))
   if (!shape) throw new Error(`cubeShape: malformed cube with ${cube.length} cubies`)
   return shape
 }

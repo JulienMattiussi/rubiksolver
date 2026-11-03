@@ -1,4 +1,4 @@
-import { cubeOrientations, faceColorsOf, solvedCube, turnDims } from '../../core/cube'
+import { cubeOrientations, FACE_COLOR, faceColorsOf, solvedCube, turnDims } from '../../core/cube'
 import { cross, dot, FACE_NORMAL, layerCoords, normalIndex, outerCoord } from '../../core/geometry'
 import { SHAPE_DIMS, type CubeShape } from '../../core/shapes'
 import type { Dims, Face, Vec3 } from '../../core/types'
@@ -409,6 +409,31 @@ export function ringFaces(shape: CubeShape, rings: readonly RingFace[]) {
       present(shape),
     ),
   )
+}
+
+/** Cells across the frame of a 2x2 mirror's face: a layer each, its
+ *  stickers reaching 1.2 either way of where they meet. */
+const CROSS_CELLS = 4
+
+/** A 2x2 mirror's faces, in `order` (`orderFor`), held any way (its corners
+ *  tell no face): where its four stickers meet on the frame's middle,
+ *  drawn as a cross; its cells only say when it is held still. */
+export function crossFaces(order: typeof ORDER): ScanFace[] {
+  const grid = gridLayout(CROSS_CELLS, CROSS_CELLS)
+  return order.map(({ front, up, move }) => ({
+    ...grid,
+    lines: [],
+    move: move === 'first' ? 'crossed' : move,
+    angle: GRID_ANGLES[move] ?? null,
+    frontColor: FACE_COLOR[front],
+    upColor: FACE_COLOR[up],
+    cells: grid.points.map((_, i) => `${front}${i}`),
+    center: null,
+    sized: true,
+    cross: true,
+    told: false,
+    named: false,
+  }))
 }
 
 /** Cells across the frame of a mirror cube's face (its stickers past its

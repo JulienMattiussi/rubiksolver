@@ -1,5 +1,4 @@
 import { faceColorsOf, isBoxed } from '../../core/cube'
-import { normalIndex } from '../../core/geometry'
 import { invertMoves } from '../../core/moves'
 import { parseMoves } from '../../core/notation'
 import type { Color, Cube, Cubie, Move } from '../../core/types'
@@ -84,20 +83,6 @@ export function barKey(pieces: readonly Cubie[]): string {
   return pieces
     .filter(isCorner)
     .map((c) => `${c.position.map(Math.sign).join('')}${barAxis(c)}`)
-    .sort()
-    .join(' ')
-}
-
-/** Where some pieces stand and how they are turned, twins merged. */
-export function layoutKey(pieces: readonly Cubie[]): string {
-  return pieces
-    .map(
-      (c) =>
-        `${c.position.join(',')}:${c.stickers
-          .map((s) => `${normalIndex(s.normal)}${s.color}`)
-          .sort()
-          .join('')}`,
-    )
     .sort()
     .join(' ')
 }

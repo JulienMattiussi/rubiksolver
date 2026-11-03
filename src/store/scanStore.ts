@@ -6,7 +6,8 @@ import type { ScanReading } from '@/lib/editor/scan/classify'
 import { scanPlan } from '@/lib/editor/scan/plan'
 import { coreOf } from '@/lib/editor/scan/box'
 import type { Picture } from '@/lib/editor/scan/outlines'
-import { placeStickers, stickerSizes } from '@/lib/editor/scan/sized'
+import { crossSizes, placeAround, placeStickers, stickerSizes } from '@/lib/editor/scan/sized'
+import { readCross } from '@/lib/editor/scan/crossRead'
 import { readSized } from '@/lib/editor/scan/sizedRead'
 import { findStickers, type FaceImage } from '@/workers/findStickers'
 import type { CellSample } from '@/lib/editor/scan/sample'
@@ -132,23 +133,27 @@ export const useScan = create<ScanStore>((set, get) => {
   }
 
   /** A mirror read by its stickers' sizes: each face's found in the worker
-   *  (OpenCV), set round its center (the frame's middle), then read. */
+   *  (OpenCV), set round its center (the frame's middle), or a 2x2's round
+   *  where they meet there, then read. */
   const readSizes = async () => {
     const mine = run
     let reading: ScanReading
     try {
+      const cross = plan()[0]?.cross
       const sizes = []
+      const crossed = []
       const found = []
       for (const kept of get().kept) {
         const image = kept?.image
         const rects = image ? await findStickers(image) : []
         const middle = image ? ([image.width / 2, image.height / 2] as const) : ([0, 0] as const)
         found.push({ size: image && [image.width, image.height], rects })
-        sizes.push(stickerSizes(placeStickers(rects, middle)))
+        if (cross) crossed.push(crossSizes(placeAround(rects, middle)))
+        else sizes.push(stickerSizes(placeStickers(rects, middle)))
       }
       // The rectangles found, to replay a reading that went wrong.
       if (scanDebug()) console.log(`scan ${shape()} sized`, JSON.stringify(found))
-      reading = readSized(sizes)
+      reading = cross ? readCross(crossed, shape()) : readSized(sizes)
     } catch (error) {
       console.error(error)
       reading = { ok: false, face: 0 }

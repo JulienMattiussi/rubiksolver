@@ -2,13 +2,13 @@ import { cubeShape } from '@/lib/core/cube'
 import { progress } from '@/lib/editor/edit'
 import { paletteColors } from '@/lib/editor/modes/colors'
 import { entryOf } from '@/lib/editor/entry'
-import { byThickness, LAYER_THICKNESS, tellsSizes, thicknessShare } from '@/lib/core/shape'
+import { byThickness, tellsSizes, thicknessOf, thicknessShare } from '@/lib/core/shape'
 import type { CubeColor } from '@/lib/core/types'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
 import { useColorName } from '@/hooks/useColorName'
-import { COLOR_HEX, VARIANT_SKIN } from '@/three/core/colors'
+import { COLOR_HEX, skinOf } from '@/three/core/colors'
 import { SECTION_LABEL } from '@/components/ui/styles'
 
 /** Width of a thickness swatch, stretched over the whole button (order and
@@ -24,7 +24,7 @@ export function ColorPalette() {
   const shape = useCube((s) => cubeShape(s.cube))
   const variant = useCube((s) => s.variant)
   const sizes = tellsSizes(variant)
-  const thickness = LAYER_THICKNESS[variant]
+  const thickness = thicknessOf(shape, variant)
   const edit = useEditor((s) => s.edit)
   const selected = useEditor((s) => s.selectedColor)
   const setColor = useEditor((s) => s.setColor)
@@ -66,7 +66,7 @@ export function ColorPalette() {
                     style={{
                       // Only the cubes come so: their six colors.
                       width: swatchWidth(thicknessShare(c as CubeColor, thickness)),
-                      backgroundColor: VARIANT_SKIN[variant],
+                      backgroundColor: skinOf(shape, variant),
                     }}
                   />
                 </span>

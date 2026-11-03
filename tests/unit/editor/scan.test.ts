@@ -34,10 +34,11 @@ const sampleGrid = (pixels: Pixels, rows: number, cols: number) =>
 const SCANNABLE = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter((s) => scannable(s))
 // Read from their cells (not a face out of shape, nor one read whole).
 // (halves.test.ts reads those whose cells hold halves, gears.test.ts the
-// Gear Cubes whose gears are read apart.)
+// Gear Cubes whose gears are read apart, sized.test.ts the mirrors read
+// by their stickers' sizes.)
 const SCANNED = SCANNABLE.filter((shape) => {
   const first = scanPlan(shape)[0]
-  return !first?.open && !first?.whole && !first?.halves && !first?.gears
+  return !first?.open && !first?.whole && !first?.halves && !first?.gears && !first?.sized
 })
 const OUT_OF_SHAPE = SCANNABLE.filter((shape) => scanPlan(shape)[0]?.open)
 
@@ -62,7 +63,7 @@ describe('scan plan', () => {
 
   it('says which puzzles it was tried on for real', () => {
     const tried = (Object.keys(SHAPE_SCAN_TRIED) as CubeShape[]).filter((s) => SHAPE_SCAN_TRIED[s])
-    expect(tried).toEqual(['2', '3', '4', '223', '224', 'gearU', 'skewb', 'ivy'])
+    expect(tried).toEqual(['2', '3', '4', '223', '224', 'qiyi2', 'gearU', 'skewb', 'ivy'])
     expect(tried.every((s) => scannable(s))).toBe(true)
   })
 

@@ -1,5 +1,5 @@
 import { FACE_COLOR, faceColorsOf, solvedCube } from './cube'
-import { AXIS_ROTATIONS, faceOfNormal } from './geometry'
+import { AXIS_ROTATIONS, faceOfNormal, normalIndex } from './geometry'
 import type { Color, Cube, Cubie, Face, Sticker, Vec3 } from './types'
 import type { CubeShape } from './shapes'
 
@@ -136,4 +136,19 @@ export function listedAs(cube: Cube, reference: Cube): Cube {
     )
     return { position: piece.position, stickers }
   })
+}
+
+/** Where some pieces stand and how they are turned, twins merged (an order
+ *  of the pieces, or which twin is where, makes no difference). */
+export function layoutKey(pieces: readonly Cubie[]): string {
+  return pieces
+    .map(
+      (c) =>
+        `${c.position.join(',')}:${c.stickers
+          .map((s) => `${normalIndex(s.normal)}${s.color}`)
+          .sort()
+          .join('')}`,
+    )
+    .sort()
+    .join(' ')
 }

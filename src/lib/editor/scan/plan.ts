@@ -2,6 +2,7 @@ import { shapeColors } from '../../core/cube'
 import { tellsSizes } from '../../core/shape'
 import {
   isGridless,
+  mirrorOnly,
   SHAPE_MIRROR_SCAN,
   SHAPE_SHIFTS,
   type CubeShape,
@@ -21,6 +22,7 @@ import {
   gridFaces,
   ringFaces,
   sizedFaces,
+  crossFaces,
   squareFaces,
   wholeFaces,
 } from './planFaces'
@@ -47,11 +49,14 @@ import {
  *  `show`: told by
  *  its colors alone (a Megaminx's twelve faces); `upright`: the first face
  *  of a puzzle out of shape, its long side upright; `anchored`: the one
- *  face of a puzzle read whole, its anchor in the shape marked (`whole`). */
+ *  face of a puzzle read whole, its anchor in the shape marked (`whole`);
+ *  `crossed`: the first face of a 2x2 mirror, any, where its stickers meet
+ *  on the frame's cross. */
 export type ScanMove =
   | 'first'
   | 'upright'
   | 'anchored'
+  | 'crossed'
   | 'turn'
   | 'below'
   | 'tilt'
@@ -120,6 +125,9 @@ export interface ScanFace extends FaceLayout {
   /** A mirror cube's face, read by the sizes of its stickers (sized.ts),
    *  named by its thickness: its picture kept whole, its center in `mark`. */
   readonly sized?: true
+  /** A 2x2 mirror's face, held any way, its stickers set round where they
+   *  meet: the frame's middle, drawn as a cross. */
+  readonly cross?: true
 }
 
 /** What a scan is read against: the puzzle, its faces as scanned, and the
@@ -212,9 +220,10 @@ export const orderFor = (behind: boolean) =>
 /** Whether a puzzle can be scanned: one its model says how to scan, or a
  *  plain grid puzzle painted by its colors, a cube, a cuboid or a flat one
  *  (no model of its own building or entering it otherwise, no shifting);
- *  shown as a mirror, one whose card says its mirror scans. */
+ *  shown as a mirror (as a puzzle sold only so always is), one whose card
+ *  says its mirror scans. */
 export function scannable(shape: CubeShape, variant: CubeVariant = 'classic'): boolean {
-  if (tellsSizes(variant)) return SHAPE_MIRROR_SCAN[shape]
+  if (tellsSizes(variant) || mirrorOnly(shape)) return SHAPE_MIRROR_SCAN[shape] !== undefined
   const model = MODELS[shape]
   if (model?.scan) return true
   return !(model?.solved || model?.entry || isGridless(shape) || SHAPE_SHIFTS[shape])
@@ -246,9 +255,13 @@ export function scanPlan(
   variant: CubeVariant = 'classic',
   behind = false,
 ): readonly ScanFace[] {
-  if (tellsSizes(variant)) {
+  if (tellsSizes(variant) || mirrorOnly(shape)) {
     const key = `${shape}:sized:${behind}`
-    const sized = SIZED.get(key) ?? sizedFaces(shape, sizedOrder(behind))
+    const sized =
+      SIZED.get(key) ??
+      (SHAPE_MIRROR_SCAN[shape] === 'cross'
+        ? crossFaces(orderFor(behind))
+        : sizedFaces(shape, sizedOrder(behind)))
     SIZED.set(key, sized)
     return sized
   }

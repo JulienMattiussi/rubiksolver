@@ -167,7 +167,7 @@ describe('cube picker', () => {
     )
     expect(groups).toEqual({
       standard: ['2', '3', '4', '5', '6', 'super4', 'super5'],
-      mirror: ['2m', '3m', '4m'],
+      mirror: ['2m', '3m', '4m', 'qiyi2m'],
       tower: ['223', '224', '234', '332', '334', '443', '445', '554', 'camo'],
       flat: ['123', '331', 'ghost'],
       pyramid: ['pyra', 'tetra', 'pyra4', 'pyra5', 'jing', 'morph', 'mmorph'],

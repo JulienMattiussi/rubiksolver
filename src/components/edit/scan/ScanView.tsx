@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Flashlight, FlashlightOff, Loader2, X } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
-import { LAYER_THICKNESS, thicknessShare } from '@/lib/core/shape'
+import { thicknessOf, thicknessShare } from '@/lib/core/shape'
+import { skinOf } from '@/three/core/colors'
 import type { CubeColor } from '@/lib/core/types'
 import { frameOnScreen, type Size } from '@/lib/editor/scan/frame'
 import { coreOf } from '@/lib/editor/scan/box'
@@ -189,13 +190,14 @@ export function ScanView() {
                     the way to turn the puzzle drawn above the words. */}
                 {!missed && <ScanMoveArrow face={face} mirrored={mirrored} />}
                 <ColorWords
+                  skin={skinOf(shape, variant)}
                   text={toldText(color(face.frontColor), color(face.upColor))}
                   colors={[face.frontColor, face.upColor].map((c) => ({
                     color: c,
                     name: color(c),
                     // A mirror's face, drawn by its thickness.
                     ...(face.sized && {
-                      size: thicknessShare(c as CubeColor, LAYER_THICKNESS.mirror),
+                      size: thicknessShare(c as CubeColor, thicknessOf(shape, variant)),
                     }),
                   }))}
                 />
@@ -238,7 +240,13 @@ export function ScanView() {
           armed={armed}
           nothing={nothing}
           onArm={arm}
-          hint={face.sized || face.centered ? t.scanTakeHintSized : undefined}
+          hint={
+            face.cross
+              ? t.scanTakeHintCross
+              : face.sized || face.centered
+                ? t.scanTakeHintSized
+                : undefined
+          }
         />
       )}
 

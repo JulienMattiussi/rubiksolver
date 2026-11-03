@@ -1,5 +1,6 @@
 import { solvedCube, turnDims } from '../../core/cube'
 import { CUBE_HOLDS } from '../../core/hold'
+import { layoutKey } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
 import { invertMoves } from '../../core/moves'
 import type { Cube, Cubie, Face, Move } from '../../core/types'
@@ -12,7 +13,6 @@ import {
   isBottomCorner,
   isCorner,
   isMiddle,
-  layoutKey,
   PIVOT,
   shapeDone,
   SWAP,

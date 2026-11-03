@@ -148,3 +148,32 @@ export function stickerSizes(placed: Placed): Map<string, readonly [number | nul
   }
   return out
 }
+
+/** How far from where the stickers meet a sticker's inner corner may lie
+ *  (the seams, a piece sticking out), in its longer side. */
+const CROSS_REACH = 0.6
+
+/** A 2x2 mirror's face (no center): its four stickers set round `at`, where
+ *  they meet (the frame's middle): in each quarter, the rectangle whose
+ *  inner corner comes closest to it, each layer's cut running through it. */
+export function placeAround(rects: readonly Rect[], at: readonly [number, number]): Placed {
+  const placed = new Map<string, Rect>()
+  for (const [r, k] of CORNERS) {
+    let best: { rect: Rect; d: number } | undefined
+    for (const rect of rects) {
+      const [x, y, w, h] = rect
+      // Its middle in this quarter, its corner toward `at` near it.
+      if ((x + w / 2 - at[0]) * k <= 0 || (y + h / 2 - at[1]) * r <= 0) continue
+      const d = Math.hypot((k > 0 ? x : x + w) - at[0], (r > 0 ? y : y + h) - at[1])
+      if (d <= CROSS_REACH * Math.max(w, h) && (!best || d < best.d)) best = { rect, d }
+    }
+    if (best) placed.set(slotKey([r, k]), best.rect)
+  }
+  return placed
+}
+
+/** What a 2x2 mirror's face measures: each sticker's width and height, in
+ *  pixels (no center to scale them by). */
+export function crossSizes(placed: Placed): Map<string, readonly [number, number]> {
+  return new Map([...placed].map(([key, [, , w, h]]) => [key, [w, h] as const]))
+}

@@ -1,6 +1,6 @@
 import { type Cube } from '@/lib/core/types'
 import { type CubeShape, type CubeVariant } from '@/lib/core/shapes'
-import { COLOR_HEX, VARIANT_SKIN, PLASTIC } from '@/three/core/colors'
+import { COLOR_HEX, PLASTIC, skinOf } from '@/three/core/colors'
 import { formDrawing, isometricDrawing, pieceDrawing } from '@/three/core/isometric'
 import { isPolyDrawn, polyDrawing } from '@/three/core/polyDrawing'
 
@@ -35,7 +35,7 @@ export function PuzzleIcon({
       : isometricDrawing(shape, variant)
   // One color for every sticker on a variant whose stickers tell sizes (a
   // mirror cube) and on a puzzle drawn in one.
-  const skin = VARIANT_SKIN[variant] ?? (isPolyDrawn(shape) ? polyDrawing(shape).skin : undefined)
+  const skin = skinOf(shape, variant) ?? (isPolyDrawn(shape) ? polyDrawing(shape).skin : undefined)
   const fill = (paint: (typeof polygons)[number]['paint']) =>
     paint === 'body' ? PLASTIC : (skin ?? COLOR_HEX[paint])
   return (

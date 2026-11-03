@@ -4,16 +4,16 @@
 
 # Rubik Solver
 
-**Turn, scramble or enter 75 twisty puzzles in 3D, then solve them step by step with
+**Turn, scramble or enter 77 twisty puzzles in 3D, then solve them step by step with
 real methods, or learn to solve the 3x3, the 2x2, the 4x4, the 5x5, the super cubes, the Floppy, the 1x2x3, the Floppy Ghost, the Pyraminx, the Pyramorphinx, the Skewb, the Gear Cube Ultimate, the 2x2x4 tower or the 2x2x3 tower yourself with a guided tutorial.**
 
 [**Try it**](https://rubiksolver.yavadeus.dev) &nbsp;·&nbsp;
-[The puzzles](#76-puzzles-12-families) &nbsp;·&nbsp;
+[The puzzles](#77-puzzles-12-families) &nbsp;·&nbsp;
 [How it works](#how-it-works) &nbsp;·&nbsp;
 [Technical docs](AGENTS.md)
 
 <a href="https://rubiksolver.yavadeus.dev">
-  <img src="docs/images/banner.png" width="820" alt="Rubik Solver: 76 puzzles, from the 2x2 to the Gear Cube, to enter and solve step by step.">
+  <img src="docs/images/banner.png" width="820" alt="Rubik Solver: 77 puzzles, from the 2x2 to the Gear Cube, to enter and solve step by step.">
 </a>
 
 <sub>
@@ -97,10 +97,10 @@ On a phone or a laptop, **scan** the puzzle instead: show it face by face, as th
 instructions say (where to turn it, with an arrow), and each face is taken on its own
 once it is still in the frame. The whole puzzle is then read at once, its colors
 matched to real pieces, and painted in the editor, to check and correct before
-validating. 60 of the 76 puzzles scan: the cubes from 2x2 to 6x6 and the cuboids, the
+validating. 61 of the 77 puzzles scan: the cubes from 2x2 to 6x6 and the cuboids, the
 Megaminx and the other dodecahedra, the pyramids, the octahedra, the Rainbow, the star prisms, the Latch and Quarter cubes, the bandaged 3x3s (their bonds found from their colors), the Fashion-V (its halves too), the Gear Cubes (their gears lined up first), the diagonal cubes (Skewb, Ivy Cube, Dino, Rex...), the 2x2x4 and 2x3x4 towers, whose
 shape the scan finds by itself, the all-silver Floppy Ghost, read from one picture by
-the outlines of its pieces, and the 3x3 mirror, read by the sizes of its stickers.
+the outlines of its pieces, and the 3x3 and Qiyi 2x2 mirrors, read by the sizes of their stickers.
 Everything stays in the browser: no picture leaves the device.
 
 ### And also
@@ -109,14 +109,14 @@ A link per puzzle and language to share (`#/en/megaminx`), a saved state to comp
 two methods on the same scramble, mirror versions of the 2x2, 3x3 and 4x4, a mobile
 layout, and fireworks when a move solves the puzzle.
 
-## 76 puzzles, 12 families
+## 77 puzzles, 12 families
 
 <img src="docs/images/picker.png" width="820" alt="The puzzle picker: its twelve categories, each drawn from its puzzles' shapes.">
 
 | Family            | Puzzles                                                                                                                          |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | **Standard**      | 2x2 (Pocket), 3x3, 4x4 (Revenge), 5x5 (Professor), 6x6, Super Revenge, Super Professor                                           |
-| **Mirror**        | the 2x2, 3x3 and 4x4 as Mirror Blocks, solved by shape                                                                           |
+| **Mirror**        | the 2x2, 3x3 and 4x4 as Mirror Blocks, and Qiyi's silver 2x2 (two sizes only), solved by shape                                   |
 | **Towers**        | 2x2x3, 2x2x4, 2x3x4, Domino 3x3x2, 3x3x4, 4x4x3, 4x4x5, 5x5x4, Camouflage 4x4x2                                                  |
 | **Flat**          | 1x2x3, Floppy 3x3x1, Floppy Ghost                                                                                                |
 | **Pyramids**      | Pyraminx, Tetraminx, Master and Professor Pyraminx, Pyraminx Jing, Pyramorphinx, Master Morphinx                                 |

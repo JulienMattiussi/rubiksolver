@@ -4,7 +4,7 @@ import type { Point } from '@/lib/editor/scan/layout'
 import type { ScanFace } from '@/lib/editor/scan/plan'
 import type { CellSample } from '@/lib/editor/scan/sample'
 import { COLOR_HEX } from '@/three/core/colors'
-import { CenterCuts } from './CenterCuts'
+import { CenterCuts, CrossCuts } from './CenterCuts'
 
 interface ScanFrameProps {
   /** The frame on screen (frame.ts). */
@@ -79,7 +79,13 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }:
         {/* A mirror's face: no outline (only its center is fixed), its
             center and the cuts from it; a face framed as a mirror's, and
             one read whole (its anchor and the cuts from it), alike. */}
-        {face.mark ? (
+        {face.cross ? (
+          <CrossCuts
+            at={at([face.width / 2, face.width / 2])}
+            reach={rect.width / 2}
+            stroke={stroke}
+          />
+        ) : face.mark ? (
           <CenterCuts mark={face.mark.map(at)} stroke={stroke} />
         ) : (
           <polygon

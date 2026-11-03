@@ -1,9 +1,9 @@
 import { faceColorsOf, isSolved, solvedCube } from '../../core/cube'
-import { normalIndex, vecKey } from '../../core/geometry'
+import { vecKey } from '../../core/geometry'
 import { invertMoves } from '../../core/moves'
 import { parseMoves } from '../../core/notation'
 import { allTurnsOf, moveSet, type MoveSet } from '../../core/moveSet'
-import { atHome, homesOf } from '../../core/pieces'
+import { atHome, homesOf, layoutKey } from '../../core/pieces'
 import { solvePieces } from '../../solve/pieceSearch'
 import type { MethodPlan, StepSpec } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
@@ -44,19 +44,6 @@ import { once } from '../../solve/once'
  * pieces unique) would be left in a parity no formula keeping the inner one
  * undoes.
  */
-
-/** Where some pieces stand and how they are turned, twins merged. */
-const layoutKey = (pieces: readonly Cubie[]) =>
-  pieces
-    .map(
-      (c) =>
-        `${c.position.join(',')}:${c.stickers
-          .map((s) => `${normalIndex(s.normal)}${s.color}`)
-          .sort()
-          .join('')}`,
-    )
-    .sort()
-    .join(' ')
 
 const height = (c: Cubie) => Math.abs(c.position[1])
 const top = (shape: CubeShape) => Math.max(...solvedCube(shape).map(height))

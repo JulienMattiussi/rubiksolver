@@ -22,12 +22,13 @@ il faut** (une rotation du cube entier, `withCentersHome`, voir « Coups avancé
 [standard](puzzles/standard.md)), étape retirée quand elle est vide ; les
 nombres d'étapes ci-dessous ne la comptent pas.
 
-- **Par couches** (`beginner`, 3x3, Void Cube, Z-Twist, Fisher Cube, Windmill, Master Morphinx et 2x2 ; aussi
+- **Par couches** (`beginner`, 3x3, Void Cube, Z-Twist, Fisher Cube, Windmill, Master Morphinx, 2x2 et 2x2 Qiyi miroir ; aussi
   le Fused et le Squarebik, voir [bandaged](puzzles/bandaged.md)) : sur 3x3, 1re couche entière
   (croix + coins), puis arêtes du milieu, puis dernière couche (croix,
   orientation coins, permutation coins, permutation arêtes) - 7 étapes,
   celles de son plan déclaré, que suivent les autres puzzles ; le 3x3 et
-  le 2x2 jouent leur tutoriel (voir plus haut).
+  le 2x2 jouent leur tutoriel (voir plus haut), que le 2x2 Qiyi miroir
+  joue lu comme un 2x2 (voir [standard](puzzles/standard.md)).
 - **Ofapel** (`ofapel`, 3x3, d'après francocube.com/ofapel) : une variante
   « coins d'abord » qui joue son tutoriel (voir plus haut) : croix, coins
   du bas, coins du haut placés puis tournés, arêtes du haut remontées de la
@@ -61,7 +62,7 @@ nombres d'étapes ci-dessous ne la comptent pas.
   qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
   droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL -
   5 étapes.
-- **Optimale** (`optimal`, 2x2, 1x2x3, Floppy, Floppy Ghost et Purple) : recherche exhaustive,
+- **Optimale** (`optimal`, 2x2, 2x2 Qiyi miroir, 1x2x3, Floppy, Floppy Ghost et Purple) : recherche exhaustive,
   solution la plus courte possible (11 coups max sur 2x2, 6 sur 1x2x3, 8 sur
   Floppy, 15 sur Floppy Ghost, 30 sur Purple), une seule étape.
 

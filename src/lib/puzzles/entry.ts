@@ -1,5 +1,20 @@
-import type { Color, Dims, Face } from '../core/types'
+import type { Color, CubeColor, Dims, Face } from '../core/types'
 import type { CubeVariant, InnerTurn, SliceLetters } from '../core/shapes'
+
+/** How a mirror puzzle looks (lib/core/shape.ts): its layers' thicknesses
+ *  by the color they stand for (opposite ones adding up to 2, a middle
+ *  layer's 1), and the finish all its stickers wear. */
+export interface MirrorLook {
+  readonly thickness: Record<CubeColor, number>
+  readonly finish: 'gold' | 'silver'
+}
+
+/** How a mirror scans by its stickers' sizes (lib/editor/scan/sized.ts):
+ *  round its center, which gives the scale and names the face by its
+ *  depth (`center`: the 3x3's, sizedRead.ts), or round where the four
+ *  stickers of a face meet, held any way (`cross`: the Qiyi 2x2's,
+ *  crossRead.ts). */
+export type MirrorScan = 'center' | 'cross'
 
 /** The families of puzzles turning by their own kind of moves (see
  *  core/moveKind.ts). */
@@ -62,8 +77,9 @@ export interface PuzzleEntry {
   readonly slices?: SliceLetters
   /** Turns offered apart and never scrambled (see `SHAPE_ADVANCED_TURNS`). */
   readonly advanced?: readonly ('slice' | 'wide')[]
-  /** Sold as a mirror puzzle too (see `supportsMirror`). */
-  readonly mirror?: true
+  /** Sold as a mirror puzzle too, as the Mirror Blocks are (`true`), or
+   *  only as one, of its own look (see `supportsMirror`, `mirrorOnly`). */
+  readonly mirror?: true | MirrorLook
   /** Its camera scan was tried on the real puzzle and works (elsewhere,
    *  the button says it is untried: see `SHAPE_SCAN_TRIED`). */
   readonly scanTried?: true
@@ -75,9 +91,8 @@ export interface PuzzleEntry {
   /** What to do to it before a scan, which then takes it so (a Gear
    *  Cube's gears lined up: their pivots at rest, `toggles` cleared). */
   readonly scanBefore?: ScanBefore
-  /** Its mirror scanned by the sizes of its stickers (lib/editor/scan/
-   *  sizedRead.ts: the 3x3's), its faces named by their thickness. */
-  readonly mirrorScan?: true
+  /** Its mirror scanned by the sizes of its stickers (see `MirrorScan`). */
+  readonly mirrorScan?: MirrorScan
   /** Its colors where its real puzzle differs from the standard scheme. */
   readonly scheme?: Partial<Record<Face, Color>>
   /** Its pad of turns, when not its faces'. */

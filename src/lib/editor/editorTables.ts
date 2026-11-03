@@ -90,7 +90,8 @@ export type Placement = Record<number, Color>
 /** A placement plus the identity of the physical piece it corresponds to. */
 export interface PlacementOption {
   readonly colors: Placement
-  /** 'P:<solved position>' for unique pieces, 'C:<color>' for centers. */
+  /** 'P:<look>' for pieces of several stickers (twins alike),
+   *  'C:<kind>:<color>' for centers. */
   readonly pieceKey: string
 }
 
@@ -198,7 +199,7 @@ function turnedPlacements(
           if (turnedFaces !== faces) continue
           options.set(`${placementKey(colors)}|${i}`, {
             colors,
-            pieceKey: pieceKeyOf(cubie, cubie.position),
+            pieceKey: pieceKeyOf(cubie),
           })
         }
       })
@@ -224,19 +225,33 @@ function placementKey(p: Placement): string {
     .join('')
 }
 
-/** Identity of the physical piece a solved-cube cubie is. One-sticker
+/** Identity of the physical piece a cubie of the solved puzzle is. One-sticker
  *  pieces of one color are interchangeable, within their kind, told by
  *  their coordinates' sizes (a 5x5's cross and diagonal centers, the
- *  4-Trajber's corners, edges and face middles). */
-function pieceKeyOf(cubie: Cubie, solvedPosition: Vec3): string {
-  const kind = solvedPosition
+ *  4-Trajber's corners, edges and face middles); so are pieces that a turn
+ *  of the whole puzzle lays on one another, colors and all (the Qiyi 2x2's
+ *  twin corners; a 4x4's two wings of a color pair are mirror images, which
+ *  no turn makes alike). */
+function pieceKeyOf(cubie: Cubie): string {
+  const kind = cubie.position
     .map(Math.abs)
     .sort((a, b) => a - b)
     .join(',')
   return cubie.stickers.length === 1
-    ? `C:${kind}${handOf(solvedPosition)}:${cubie.stickers[0]!.color}`
-    : `P:${vecKey(solvedPosition)}`
+    ? `C:${kind}${handOf(cubie.position)}:${cubie.stickers[0]!.color}`
+    : `P:${lookOfPiece(cubie)}`
 }
+
+/** Where a piece stands and how its stickers face, however the whole
+ *  puzzle is turned: the least of its 24 turns. */
+const lookOfPiece = ({ position, stickers }: Cubie): string =>
+  AXIS_ROTATIONS.map(
+    (turn) =>
+      `${vecKey(turn(position))}:${stickers
+        .map((s) => `${vecKey(turn(s.normal))}${s.color}`)
+        .sort()
+        .join('')}`,
+  ).sort()[0]!
 
 /** Which of two mirror kinds a center is, when its face holds both (a
  *  6x6's obliques, off the diagonals): the sign of the turn from its nearer
@@ -282,7 +297,7 @@ function computePlacements(
       // the placement is the one that moves, which has a budget.
       const key = placementKey(colors)
       if (fixed.has(i) && bucket.has(key)) return
-      bucket.set(key, { colors, pieceKey: pieceKeyOf(cubie, solved[i]!.position) })
+      bucket.set(key, { colors, pieceKey: pieceKeyOf(solved[i]!) })
     })
   }
   return new Map([...perSlot].map(([k, m]) => [k, [...m.values()]]))
@@ -294,7 +309,7 @@ function computeBudgets(shape: CubeShape, fixed: Set<number>): Map<string, numbe
   const budgets = new Map<string, number>()
   entrySolved(shape).forEach((cubie, i) => {
     if (fixed.has(i) || cubie.stickers.length === 0) return
-    const key = pieceKeyOf(cubie, cubie.position)
+    const key = pieceKeyOf(cubie)
     budgets.set(key, (budgets.get(key) ?? 0) + 1)
   })
   return budgets

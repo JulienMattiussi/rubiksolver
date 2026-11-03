@@ -221,6 +221,8 @@ export const UI_FR = {
     `Positionnez la caméra immobile devant le puzzle, le centre ${front} **face à l’objectif** et le ${up} **en haut**, le centre de la face **dans la case marquée**, dans un endroit éclairé.`,
   scanTakeHintSized:
     'Positionnez le centre de la face dans le cadre, puis touchez le bouton pour scanner la face.',
+  scanTakeHintCross:
+    'Positionnez le point où se rejoignent les quatre stickers sur la croix, puis touchez le bouton pour scanner la face.',
   scanHolding: 'Tenez le puzzle immobile…',
   scanNothing: 'Rien de stable dans le cadre : repositionnez le puzzle et réessayez.',
   scanMoves: {
@@ -255,6 +257,8 @@ export const UI_FR = {
     // A puzzle read whole names no color either.
     anchored: () =>
       'Positionnez la caméra immobile devant une grande face du puzzle, sa pièce centrale **dans la forme marquée**, dans un endroit éclairé.',
+    crossed: () =>
+      'Positionnez la caméra immobile devant le cube, n’importe quelle face **face à l’objectif**, le point où se rejoignent ses quatre stickers **sur la croix du cadre**, dans un endroit éclairé.',
     upright: () =>
       'Positionnez la caméra immobile devant le puzzle, son côté le plus long **à la verticale**, ses petits cubes du milieu **dans les cases encadrées**.',
   },
@@ -295,6 +299,8 @@ export const UI_FR = {
       'Montrez le dessous : basculez la pointe du haut **en arrière**, la face du dessous vient **face à l’objectif**.',
     anchored:
       'Positionnez la caméra immobile devant une grande face du puzzle, sa pièce centrale **dans la forme marquée**, dans un endroit éclairé.',
+    crossed:
+      'Positionnez la caméra immobile devant le cube, n’importe quelle face **face à l’objectif**, le point où se rejoignent ses quatre stickers **sur la croix du cadre**, dans un endroit éclairé.',
     upright:
       'Positionnez la caméra immobile devant le puzzle, son côté le plus long **à la verticale**, ses petits cubes du milieu **dans les cases encadrées**.',
   },

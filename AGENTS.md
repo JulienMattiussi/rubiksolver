@@ -4,7 +4,8 @@
 
 POC d'un **Rubik's Cube 3D interactif et pédagogique**, sur des dizaines de
 puzzles rangés en catégories, celles du sélecteur et des dossiers du code :
-standard, miroirs (une variante de rendu des standards, sans dossier à elle),
+standard, miroirs (une variante de rendu des standards, sans dossier à elle,
+plus le 2x2 Qiyi, vendu seulement en miroir),
 tower, flat, pyramid, polyhedron, round, gear, diagonal, holey, twisted,
 bandaged (les soudés). La
 liste fait foi dans les catalogues (`lib/puzzles/<catégorie>/catalog.ts`).
@@ -66,7 +67,7 @@ plus souvent celle de fan2cube (voir leur fiche dans `docs/puzzles/`).
 > rotation entière exacte à 90 degrés, donc l'état logique ne dérive jamais. Le
 > rendu 3D est une **fonction pure de cet état** (chaque forme n'est qu'une
 > mise à l'échelle, voir `three/core/layout.ts` ; la variante miroir n'est qu'une
-> table d'épaisseurs, voir `lib/core/shape.ts`) ; les solveurs lisent le même modèle.
+> table d'épaisseurs par puzzle, voir `lib/core/shape.ts`) ; les solveurs lisent le même modèle.
 
 **Une forme, trois nombres** : tout se déduit de `SHAPE_DIMS`, sans cas
 particulier. La grille est une liste de coordonnées par axe (`layerCoords`),
@@ -80,7 +81,8 @@ stickers. Au rendu, chaque cubie occupe une cellule d'une unité et l'échelle
 ramène le plus grand côté à 3.
 
 **Reconnaître un puzzle** : `cubeShape` le lit à son nombre de pièces, puis à
-son nombre de stickers quand deux puzzles en ont autant ; deux puzzles
+son nombre de stickers quand deux puzzles en ont autant, puis à son nombre
+de couleurs (le 2x2 et le 2x2 Qiyi) ; deux puzzles
 indiscernables ainsi font échouer le chargement du module (`core/cube.ts`).
 
 **Les coups** : un coup est un `Turn`, l'union de `Move` (les cubes) et des
@@ -104,8 +106,8 @@ src/
 │   │                    #   coups permis, animation), moves (coups d'une forme, mélange), notation (écrire et lire
 │   │                    #   un coup : US, FR), moveSet,
 │   │                    #   moveKind (les sortes de coups, MoveKind), plane (polygones convexes du plan),
-│   │                    #   shape (miroir), pieces (poseOf, sameAt,
-│   │                    #   withStickers : prédicats de pièces), guide (sections du guide, MoveDescription), hold (les tenues d'un modèle, HoldFrame, déduites de ses faces : un coup lu depuis
+│   │                    #   shape (miroir : épaisseurs et teinte de chaque puzzle), pieces (poseOf, sameAt,
+│   │                    #   withStickers : prédicats de pièces ; layoutKey : des pièces vues, jumeaux confondus), guide (sections du guide, MoveDescription), hold (les tenues d'un modèle, HoldFrame, déduites de ses faces : un coup lu depuis
 │   │                    #   la face tenue devant)
 │   ├── puzzles/         # Les puzzles, un dossier par catégorie (voir « La fiche d'un puzzle ») :
 │   │   ├── catalog.ts   #   tous les puzzles, dans l'ordre du sélecteur (catalog.ts de chaque catégorie)
@@ -122,7 +124,7 @@ src/
 │   │                    #     et leur notation ; dinoRex et skewbs : les puzzles qui en dérivent ;
 │   │                    #     thinEdges : les arêtes sans sens visible)
 │   ├── methods/         # Les méthodes, un dossier par catégorie, un fichier par méthode ou famille
-│   │   ├── standard/    #   3x3 (algs : le catalogue des formules des cubes, layers3, roux, petrus, zz, recenter, pieces3), 2x2 (cube2), super cubes,
+│   │   ├── standard/    #   3x3 (algs : le catalogue des formules des cubes, layers3, roux, petrus, zz, recenter, pieces3), 2x2 (cube2), 2x2 Qiyi (qiyi2 : lu comme un 2x2), super cubes,
 │   │   │                #     solver4/ solver5/ solver6/ (réductions des 4x4, 5x5 et 6x6)
 │   │   ├── <catégorie>/ #   les autres (towerLayers et towerReduce : briques des tours, pyraKit,
 │   │   │                #     roadblockKit / Bars / Edges : les étapes du RoadBlock, megaminxFormulas...)
@@ -145,7 +147,7 @@ src/
 │   │                    #   `PuzzleModel.scan`) et planFaces (chacune bâtie), layout (grille, anneau, carré, polygone), frame, color, sample, capture,
 │   │                    #   anchors (les couleurs), orient (les faces tenues tournées), assign et classify (la lecture),
 │   │                    #   read (le point d'entrée), box et forms (les tours), halves (le Fashion-V, ses demi-cubies), gears (les Gear Cubes, leurs engrenages), outlines (le Floppy Ghost), sized et
-│   │                    #   sizedRead (le miroir))
+│   │                    #   sizedRead (le miroir), crossRead (le 2x2 miroir))
 │   ├── teach/           # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
 │   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), stages (sortes d'étapes et leurs
 │   │                    #   pas), project (étape d'un petit puzzle relevée sur un grand), scene (tons, flèches),
@@ -423,7 +425,9 @@ les stickers disent une taille, le cube miroir : `STICKERS_TELL` dans
   emplacement, chacun étiqueté par l'**identité de la pièce physique** qu'il
   représente (coins et arêtes uniques ; les deux ailes d'une paire de
   couleurs du 4x4 distinguées par leur chiralité ; les 4 centres d'une
-  couleur partagent une identité à **budget 4**). Un clic n'est accepté que
+  couleur partagent une identité à **budget 4** ; des pièces qu'un tour du
+  puzzle entier superpose, couleurs comprises, aussi : les coins jumeaux du
+  2x2 Qiyi, **budget 3**). Un clic n'est accepté que
   s'il reste compatible avec un placement dont la pièce a encore du budget ;
   dès qu'une pièce est déterminée (2 stickers d'un coin), les stickers
   restants se complètent automatiquement. Le dernier clic l'emporte : une
@@ -453,7 +457,8 @@ en grille, en carré placé par son dessin, en anneaux, en faces planes
 Ultimate, `dodecaScan.ts` ; les prismes en étoile, `starScan.ts`), ou par sa forme,
 que le scan trouve : `forms.ts`, les tours, calées par leur cœur, `box.ts` ;
 le Floppy Ghost, argenté, se lit à ses contours, d'une seule photo, `outlines.ts` ; le 3x3 miroir,
-aux tailles de ses stickers, trouvés par OpenCV dans un worker, `sized.ts`, `sizedRead.ts`). Le détail :
+aux tailles de ses stickers, trouvés par OpenCV dans un worker, `sized.ts`, `sizedRead.ts` ; le
+2x2 Qiyi miroir de même, calé où ses stickers se rejoignent, `crossRead.ts`). Le détail :
 [docs/scan.md](docs/scan.md) ; les limites : `AMELIORATIONS.md`.
 
 Ce que toute saisie remplit, quel que soit son mode, est une table de

@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { cubeDims, cubeShape } from '@/lib/core/cube'
 import { slotsFor } from '@/lib/editor/edit'
 import { canPaint } from '@/lib/editor/modes/colors'
-import { centeringOffset, cubieBox, LAYER_THICKNESS } from '@/lib/core/shape'
+import { centeringOffset, cubieBox, thicknessOf } from '@/lib/core/shape'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
-import { COLOR_HEX, EMPTY_COLOR, PLASTIC, VARIANT_SKIN } from './colors'
+import { COLOR_HEX, EMPTY_COLOR, PLASTIC, skinOf } from './colors'
 import { CUBIE_GAP, cubeScale, visualPosition } from './layout'
 import { Sticker } from './Sticker'
 
@@ -26,12 +26,12 @@ export function EditView() {
   const dims = useCube((s) => cubeDims(s.cube))
   const variant = useCube((s) => s.variant)
   // One skin on a variant whose stickers tell sizes (painted by thickness).
-  const skin = VARIANT_SKIN[variant]
+  const skin = skinOf(shape, variant)
   const edit = useEditor((s) => s.edit)
   // While a form is being chosen, the one hovered (the box otherwise).
   const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
   const paintAt = useEditor((s) => s.paintAt)
-  const thickness = LAYER_THICKNESS[variant]
+  const thickness = thicknessOf(shape, variant)
   const [ox, oy, oz] = centeringOffset(thickness)
   // The sticker under the pointer (its slot's key, then its normal index), lit up.
   const [hovered, setHovered] = useState<string | null>(null)

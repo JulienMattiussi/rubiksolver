@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
 import { parseMoves } from '@/lib/core/notation'
-import { LAYER_THICKNESS } from '@/lib/core/shape'
+import { MIRROR_BLOCKS, thicknessOf } from '@/lib/core/shape'
 import { applyMoves } from '@/lib/core/turn'
 import { cubiesHull, faceCenter } from '@/three/core/hull'
 
-const CLASSIC = LAYER_THICKNESS.classic
-const MIRROR = LAYER_THICKNESS.mirror
+const CLASSIC = thicknessOf('3', 'classic')
+const MIRROR = MIRROR_BLOCKS.thickness
 const at = (p: string) => (cube: ReturnType<typeof solvedCube>) =>
   cube.find((c) => c.position.join() === p)!
 

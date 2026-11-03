@@ -1,9 +1,10 @@
 import type { ReactNode, RefObject } from 'react'
 import type * as THREE from 'three'
 import { cubeDims, cubeShape } from '@/lib/core/cube'
-import { centeringOffset, LAYER_THICKNESS } from '@/lib/core/shape'
+import { centeringOffset, thicknessOf } from '@/lib/core/shape'
 import type { Cube } from '@/lib/core/types'
 import type { CubeVariant } from '@/lib/core/shapes'
+import { skinOf } from './colors'
 import { Cubie } from './Cubie'
 import { cubeScale, drawnIn } from './layout'
 import { NO_PIECES } from './noPieces'
@@ -69,7 +70,9 @@ export function CubeModel({
   const own = ownViewsOf(cubeShape(cube))?.piece
   const drawn = drawnIn(cube)
   const shown = (i: number) => drawn(cube[i]!)
-  const [ox, oy, oz] = centeringOffset(LAYER_THICKNESS[variant])
+  const thickness = thicknessOf(cubeShape(cube), variant)
+  const skin = skinOf(cubeShape(cube), variant)
+  const [ox, oy, oz] = centeringOffset(thickness)
   return (
     <group scale={cubeScale(dims)}>
       <group position={[ox, oy, oz]}>
@@ -79,7 +82,8 @@ export function CubeModel({
               key={i}
               cubie={c}
               dims={dims}
-              variant={variant}
+              thickness={thickness}
+              skin={skin}
               highlighted={highlighted(i)}
               hatched={hatched(i)}
               marked={marked(i)}
@@ -98,7 +102,8 @@ export function CubeModel({
                 key={i}
                 cubie={c}
                 dims={dims}
-                variant={variant}
+                thickness={thickness}
+                skin={skin}
                 highlighted={highlighted(i)}
                 hatched={hatched(i)}
                 part={part}
@@ -115,7 +120,8 @@ export function CubeModel({
                 key={i}
                 cubie={c}
                 dims={dims}
-                variant={variant}
+                thickness={thickness}
+                skin={skin}
                 spinning={turnSpin}
                 progress={progress}
                 own={own}

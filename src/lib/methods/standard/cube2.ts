@@ -1,9 +1,17 @@
-import { cubeOrientations, isSolved, OPPOSITE_COLOR, solvedCube, stateKey } from '../../core/cube'
-import { colorAt, cubieAt, listedAs } from '../../core/pieces'
+import {
+  cubeOrientations,
+  cubeShape,
+  isSolved,
+  OPPOSITE_COLOR,
+  solvedCube,
+  stateKey,
+} from '../../core/cube'
+import { colorAt, colorsOf, cubieAt, layoutKey, listedAs } from '../../core/pieces'
 import { applyMove } from '../../core/turn'
 import { invertMoves } from '../../core/moves'
 import { OUTER_TURNS } from '../../core/moveSet'
 import type { MethodPlan } from '../../solve/solverKit'
+import type { CubeShape } from '../../core/shapes'
 import type { Color, Cube, CubeColor, Face, Move } from '../../core/types'
 
 // ---------------------------------------------------------------------------
@@ -42,8 +50,17 @@ const MOVES_URF: readonly Face[] = ['U', 'R', 'F']
  *  always meets within a combined search depth of 11; 12 proves impossibility. */
 const MAX_DEPTH_2 = 12
 
-/** The 24 orientations of a solved 2x2 with their DBL frames, computed once. */
-const SOLVED_2 = cubeOrientations(solvedCube('2')).map((c) => ({ cube: c, frame: frame2(c) }))
+/** The 24 orientations of a solved 2x2 (or of the Qiyi 2x2, two colors)
+ *  with their DBL frames, computed once per shape. */
+const SOLVED_2 = new Map<CubeShape, { cube: Cube; frame: Record<Face, Color> }[]>()
+function solvedOf(shape: CubeShape) {
+  let solved = SOLVED_2.get(shape)
+  if (!solved) {
+    solved = cubeOrientations(solvedCube(shape)).map((c) => ({ cube: c, frame: frame2(c) }))
+    SOLVED_2.set(shape, solved)
+  }
+  return solved
+}
 
 interface BfsSide {
   frontier: Array<{ cube: Cube; moves: Move[] }>
@@ -51,14 +68,19 @@ interface BfsSide {
   visited: Map<string, Move[]>
 }
 
-function bfsSide(origin: Cube): BfsSide {
-  return { frontier: [{ cube: origin, moves: [] }], visited: new Map([[stateKey(origin), []]]) }
+function bfsSide(origins: readonly Cube[], key: (cube: Cube) => string): BfsSide {
+  return {
+    frontier: origins.map((cube) => ({ cube, moves: [] })),
+    visited: new Map(origins.map((cube) => [key(cube), []])),
+  }
 }
 
 /**
  * Optimal 2x2 solution by bidirectional BFS over U/R/F turns, from `cube`
  * towards the orientation of the solved cube that shares its DBL corner (URF
- * turns never move that corner, so both searches walk the same coset).
+ * turns never move that corner, so both searches walk the same coset). On
+ * the Qiyi 2x2, whose twins look alike, towards every orientation whose
+ * DBL corner looks as its does, the states keyed by how they look.
  *
  * A meet gives forward-moves + inverted backward-moves. The first meet may not
  * be the best one, so the search keeps expanding until the two depths add up
@@ -67,8 +89,13 @@ function bfsSide(origin: Cube): BfsSide {
  */
 export function solveOptimal2(entered: Cube): Move[] {
   const g = frame2(entered)
-  const target = SOLVED_2.find(({ frame: f }) => f.D === g.D && f.L === g.L && f.B === g.B)?.cube
+  const targets = solvedOf(cubeShape(entered))
+    .filter(({ frame: f }) => f.D === g.D && f.L === g.L && f.B === g.B)
+    .map((t) => t.cube)
+  const target = targets[0]
   if (!target) throw new Error('solveOptimal2: DBL piece is not a real corner')
+  const twins = new Set(target.map(colorsOf)).size < target.length
+  const key = twins ? layoutKey : stateKey
   // The two searches meet on state keys: list the pieces as the target does
   // (an entered cube lists them slot by slot).
   let cube: Cube
@@ -77,10 +104,10 @@ export function solveOptimal2(entered: Cube): Move[] {
   } catch {
     throw new Error('solveOptimal2: not the pieces of a 2x2')
   }
-  if (stateKey(cube) === stateKey(target)) return []
+  if (targets.some((t) => key(t) === key(cube))) return []
 
-  const fwd = bfsSide(cube)
-  const bwd = bfsSide(target)
+  const fwd = bfsSide([cube], key)
+  const bwd = bfsSide(targets, key)
   let best: Move[] | null = null
   let fwdDepth = 0
   let bwdDepth = 0
@@ -100,9 +127,9 @@ export function solveOptimal2(entered: Cube): Move[] {
           state = applyMove(state, { face, amount: 1 })
           // Key first: most children are already-visited duplicates, so the
           // move-list copy below is only built for meets and fresh states.
-          const key = stateKey(state)
-          const met = other.visited.get(key)
-          const fresh = !expand.visited.has(key)
+          const k = key(state)
+          const met = other.visited.get(k)
+          const fresh = !expand.visited.has(k)
           if (!met && !fresh) continue
           const moves = [...node.moves, { face, amount: amount as 1 | 2 | 3 }]
           if (met && (!best || moves.length + met.length < best.length)) {
@@ -110,7 +137,7 @@ export function solveOptimal2(entered: Cube): Move[] {
             best = [...f, ...invertMoves(b)]
           }
           if (fresh) {
-            expand.visited.set(key, moves)
+            expand.visited.set(k, moves)
             next.push({ cube: state, moves })
           }
         }

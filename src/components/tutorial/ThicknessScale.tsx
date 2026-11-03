@@ -1,7 +1,8 @@
-import { byThickness, LAYER_THICKNESS } from '@/lib/core/shape'
+import { cubeShape } from '@/lib/core/cube'
+import { byThickness, thicknessOf } from '@/lib/core/shape'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
-import { VARIANT_SKIN } from '@/three/core/colors'
+import { skinOf } from '@/three/core/colors'
 import { useTutorialTexts } from './useTutorialTexts'
 
 /** A middle layer's thickness on the scale, px (the cube's cell). */
@@ -15,7 +16,8 @@ export function ThicknessScale() {
   const tx = useTutorialTexts()
   const intro = useI18n((s) => s.t.tutorialMirror.thicknessIntro)
   const variant = useCube((s) => s.variant)
-  const thickness = LAYER_THICKNESS[variant]
+  const shape = useCube((s) => cubeShape(s.cube))
+  const thickness = thicknessOf(shape, variant)
   const name = (text: string) => text.charAt(0).toUpperCase() + text.slice(1)
   return (
     <section className="mt-4 border-t border-slate-700 pt-3">
@@ -33,7 +35,7 @@ export function ThicknessScale() {
             <li key={c} className="flex justify-center">
               <span
                 className="block w-full max-w-10 rounded-sm ring-1 ring-black/60"
-                style={{ height: thickness[c] * CELL, backgroundColor: VARIANT_SKIN[variant] }}
+                style={{ height: thickness[c] * CELL, backgroundColor: skinOf(shape, variant) }}
                 aria-hidden
               />
             </li>

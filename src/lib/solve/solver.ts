@@ -1,6 +1,7 @@
 import { cubeShape } from '../core/cube'
 import { bestHolding, holdingsOf, turnBack } from './holdings'
 import { OPTIMAL_2_PLAN, solveOptimal2 } from '../methods/standard/cube2'
+import { asPocket } from '../methods/standard/qiyi2'
 import { DOMINO_PLAN } from '../methods/tower/domino'
 import { optimalPlan } from './exhaustive'
 import { methodOf } from '../teach/method'
@@ -102,6 +103,7 @@ const SOLVE_METHODS = [
     id: 'beginner',
     plans: {
       '2': taught('2', 'beginner'),
+      qiyi2: taught('2', 'beginner'),
       '3': taught('3', 'beginner'),
       void: voidPlan(BEGINNER_PLAN),
       twist: twistPlan(BEGINNER_PLAN),
@@ -252,6 +254,7 @@ const SOLVE_METHODS = [
     id: 'optimal',
     plans: {
       '2': OPTIMAL_2_PLAN,
+      qiyi2: OPTIMAL_2_PLAN,
       // Each searched one turn past its diameter (exhaustive.ts).
       '123': optimalPlan('123', 7),
       '331': optimalPlan('331', 9),
@@ -269,8 +272,13 @@ const SOLVE_METHODS = [
 /** Identifier of an available solving method. */
 export type MethodId = (typeof SOLVE_METHODS)[number]['id']
 
+/** The puzzles solved as another they are (its plans run on it): the Qiyi
+ *  2x2 as the 2x2 it is, its twins told apart. */
+const READ_AS: Partial<Record<CubeShape, (cube: Cube) => Cube>> = { qiyi2: asPocket }
+
 /** The solving methods available for a given shape, each bound to it. */
 export function methodsFor(shape: CubeShape) {
+  const read = READ_AS[shape] ?? ((cube: Cube) => cube)
   return SOLVE_METHODS.flatMap((m) => {
     const plan: MethodPlan | undefined = (m.plans as Partial<Record<CubeShape, MethodPlan>>)[shape]
     return plan
@@ -278,8 +286,8 @@ export function methodsFor(shape: CubeShape) {
           {
             id: m.id as MethodId,
             solve: (cube: Cube) =>
-              'asItStands' in m ? solveAsItStands(cube, plan) : buildSteps(cube, plan),
-            outline: (start?: Cube) => planOutline(plan, start),
+              'asItStands' in m ? solveAsItStands(cube, plan) : buildSteps(read(cube), plan),
+            outline: (start?: Cube) => planOutline(plan, start && read(start)),
           },
         ]
       : []
@@ -305,9 +313,12 @@ export function methodTurns(shape: CubeShape): Turn[] {
   })
 }
 
-/** A shape's quickest solve, when not its first method's: on a 2x2 the
- *  optimal search, the quickest to prove a cube impossible. */
-const QUICKEST: Partial<Record<CubeShape, (cube: Cube) => Turn[]>> = { '2': solveOptimal2 }
+/** A shape's quickest solve, when not its first method's: on a 2x2 (and the
+ *  Qiyi 2x2) the optimal search, the quickest to prove a cube impossible. */
+const QUICKEST: Partial<Record<CubeShape, (cube: Cube) => Turn[]>> = {
+  '2': solveOptimal2,
+  qiyi2: solveOptimal2,
+}
 
 /** A shape's own proof of solvability, throwing on an impossible state,
  *  when quicker than solving it (the 4x4's, solver4/proof.ts; the

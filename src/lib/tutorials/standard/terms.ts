@@ -1,4 +1,4 @@
-import { byThickness, LAYER_THICKNESS } from '../../core/shape'
+import { byThickness, MIRROR_BLOCKS } from '../../core/shape'
 import { invertMove } from '../../core/moves'
 import type { Cube, CubeColor, Move, Vec3 } from '../../core/types'
 import { piecesTurnedBy, piecesWhere } from '../../teach/pieces'
@@ -62,7 +62,7 @@ function sideOf(cube: Cube, color: CubeColor): Vec3 | null {
  *  side wearing it. */
 export const thicknessKey = (color: CubeColor) => `termThickness${color}`
 
-export const THICKNESSES: readonly Term[] = byThickness(LAYER_THICKNESS.mirror).map((color) => ({
+export const THICKNESSES: readonly Term[] = byThickness(MIRROR_BLOCKS.thickness).map((color) => ({
   key: thicknessKey(color),
   only: 'mirror',
   pieces: piecesWhere((c) => c.stickers.some((s) => s.color === color)),

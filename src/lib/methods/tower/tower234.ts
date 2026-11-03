@@ -3,7 +3,7 @@ import { normalIndex } from '../../core/geometry'
 import { invertMoves } from '../../core/moves'
 import { parseMoves } from '../../core/notation'
 import { allTurnsOf, moveSet } from '../../core/moveSet'
-import { atHome, homesOf } from '../../core/pieces'
+import { atHome, homesOf, layoutKey } from '../../core/pieces'
 import { solvePieces } from '../../solve/pieceSearch'
 import type { MethodPlan } from '../../solve/solverKit'
 import { applyMoves, turnAllowed } from '../../core/turn'
@@ -78,19 +78,6 @@ const kindOf = (c: Cubie) =>
 
 const homes = (...kinds: string[]) => homesOf(SHAPE, (c) => kinds.includes(kindOf(c)))
 const isHome = (c: Cubie) => atHome(c, SHAPE)
-
-/** Where some pieces stand and how they are turned, twins merged. */
-const layoutKey = (pieces: readonly Cubie[]) =>
-  pieces
-    .map(
-      (c) =>
-        `${c.position.join(',')}:${c.stickers
-          .map((s) => `${normalIndex(s.normal)}${s.color}`)
-          .sort()
-          .join('')}`,
-    )
-    .sort()
-    .join(' ')
 
 /** A slot's look: its piece's colors by direction. */
 const lookAt = (cube: Cube) =>

@@ -216,6 +216,8 @@ export const UI_EN: typeof UI_FR = {
     `Hold the camera still in front of the puzzle, the ${front} center **facing the lens** and ${up} **on top**, the center of the face **in the marked cell**, in a well-lit place.`,
   scanTakeHintSized:
     'Place the center of the face in the frame, then tap the button to scan the face.',
+  scanTakeHintCross:
+    'Place the point where the four stickers meet on the cross, then tap the button to scan the face.',
   scanHolding: 'Hold the puzzle still…',
   scanNothing: 'Nothing held still in the frame: place the puzzle again and retry.',
   scanMoves: {
@@ -249,6 +251,8 @@ export const UI_EN: typeof UI_FR = {
     // A puzzle read whole names no color either.
     anchored: () =>
       'Hold the camera still in front of a large face of the puzzle, its middle piece **in the marked shape**, in a well-lit place.',
+    crossed: () =>
+      'Hold the camera still in front of the cube, any face **toward the lens**, the point where its four stickers meet **on the frame’s cross**, in a well-lit place.',
     upright: () =>
       'Hold the camera still in front of the puzzle, its longest side **upright**, its middle small cubes **in the outlined cells**.',
   },
@@ -289,6 +293,8 @@ export const UI_EN: typeof UI_FR = {
       'Show the bottom: tip the top point **backward**, the bottom face comes **to face the lens**.',
     anchored:
       'Hold the camera still in front of a large face of the puzzle, its middle piece **in the marked shape**, in a well-lit place.',
+    crossed:
+      'Hold the camera still in front of the cube, any face **toward the lens**, the point where its four stickers meet **on the frame’s cross**, in a well-lit place.',
     upright:
       'Hold the camera still in front of the puzzle, its longest side **upright**, its middle small cubes **in the outlined cells**.',
   },

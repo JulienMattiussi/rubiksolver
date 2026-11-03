@@ -29,23 +29,48 @@ export function CenterCuts({ mark, stroke }: { mark: readonly Point[]; stroke: s
         strokeLinejoin="round"
         className={`transition-colors ${stroke}`}
       />
-      {rays.flatMap(([[x, y], [dx, dy]], r) =>
-        Array.from({ length: STEPS }, (_, i) => {
-          const [a, b] = [(i / STEPS) * reach, ((i + 1) / STEPS) * reach]
-          return (
-            <line
-              key={`${r}-${i}`}
-              x1={x + dx * a}
-              y1={y + dy * a}
-              x2={x + dx * b}
-              y2={y + dy * b}
-              strokeWidth={2}
-              strokeOpacity={1 - (i + 0.5) / STEPS}
-              className={`transition-colors ${stroke}`}
-            />
-          )
-        }),
-      )}
+      <Rays rays={rays} reach={reach} stroke={stroke} />
     </>
+  )
+}
+
+/** Where a 2x2 mirror's four stickers meet (`at`), its cuts drawn through
+ *  it, fading out `reach` away each way. */
+export function CrossCuts({ at, reach, stroke }: { at: Point; reach: number; stroke: string }) {
+  const ways: Point[] = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+  return <Rays rays={ways.map((way) => [at, way])} reach={reach} stroke={stroke} />
+}
+
+/** Lines from points along directions, fading out over `reach`. */
+function Rays({
+  rays,
+  reach,
+  stroke,
+}: {
+  rays: readonly (readonly [Point, Point])[]
+  reach: number
+  stroke: string
+}) {
+  return rays.flatMap(([[x, y], [dx, dy]], r) =>
+    Array.from({ length: STEPS }, (_, i) => {
+      const [a, b] = [(i / STEPS) * reach, ((i + 1) / STEPS) * reach]
+      return (
+        <line
+          key={`${r}-${i}`}
+          x1={x + dx * a}
+          y1={y + dy * a}
+          x2={x + dx * b}
+          y2={y + dy * b}
+          strokeWidth={2}
+          strokeOpacity={1 - (i + 0.5) / STEPS}
+          className={`transition-colors ${stroke}`}
+        />
+      )
+    }),
   )
 }

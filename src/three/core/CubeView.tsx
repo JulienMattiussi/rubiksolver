@@ -1,5 +1,5 @@
-import { cubeDims } from '@/lib/core/cube'
-import { LAYER_THICKNESS } from '@/lib/core/shape'
+import { cubeDims, cubeShape } from '@/lib/core/cube'
+import { thicknessOf } from '@/lib/core/shape'
 import { applyMoves } from '@/lib/core/turn'
 import { useCube } from '@/store/cubeStore'
 import { useShownCube } from '@/store/exampleStore'
@@ -26,7 +26,7 @@ export function CubeView() {
   // their size): the piece's, to the one standing where it lands now (what
   // shows there; its own once the formula is played if none does), round
   // the pieces as they stand, bumps and all.
-  const thickness = LAYER_THICKNESS[variant]
+  const thickness = thicknessOf(cubeShape(cube), variant)
   const after = useMemo(() => (moves ? applyMoves(cube, moves) : cube), [cube, moves])
   const hull = useMemo(() => cubiesHull(cube, dims, thickness), [cube, dims, thickness])
   const landing = (piece: number, at: readonly number[]) =>

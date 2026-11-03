@@ -1,19 +1,21 @@
 import { Fragment, type ReactNode } from 'react'
 import type { Color } from '@/lib/core/types'
-import { COLOR_HEX, VARIANT_SKIN } from '@/three/core/colors'
+import { COLOR_HEX } from '@/three/core/colors'
 import { Bolded } from '@/components/ui/Bolded'
 import { SCAN_WHERE } from '@/components/ui/styles'
 
 /** A text naming colors, each name led by a swatch of its color (the
  *  first time it comes, in the order they come), or on a mirror, of its
- *  thickness (`size`, from 0 the thinnest to 1 the thickest: a gold bar as
- *  long); its words between `**` (where to hold it) in bold. */
+ *  thickness (`size`, from 0 the thinnest to 1 the thickest: a bar of its
+ *  `skin` as long); its words between `**` (where to hold it) in bold. */
 export function ColorWords({
   text,
   colors,
+  skin,
 }: {
   text: string
   colors: readonly { readonly color: Color; readonly name: string; readonly size?: number }[]
+  skin?: string
 }) {
   const marks = colors
     .map((c) => ({ ...c, at: text.indexOf(c.name) }))
@@ -33,7 +35,7 @@ export function ColorWords({
             size === undefined
               ? { backgroundColor: COLOR_HEX[color], width: '0.875rem', height: '0.875rem' }
               : {
-                  backgroundColor: VARIANT_SKIN.mirror,
+                  backgroundColor: skin,
                   width: `${0.4 + 1.6 * size}rem`,
                   height: '0.6rem',
                 }

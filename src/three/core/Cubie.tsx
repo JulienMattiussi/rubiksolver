@@ -1,8 +1,7 @@
 import type { ComponentType, RefObject } from 'react'
-import { cubieBox, LAYER_THICKNESS } from '@/lib/core/shape'
-import type { Cubie as CubieType, Dims } from '@/lib/core/types'
-import type { CubeVariant } from '@/lib/core/shapes'
-import { COLOR_HEX, HIGHLIGHT, PLACE, PLASTIC, VARIANT_SKIN } from './colors'
+import { cubieBox } from '@/lib/core/shape'
+import type { CubeColor, Cubie as CubieType, Dims } from '@/lib/core/types'
+import { COLOR_HEX, HIGHLIGHT, PLACE, PLASTIC } from './colors'
 import { CUBIE_GAP, visualPosition } from './layout'
 import { Sticker } from './Sticker'
 import { usePulse } from './usePulse'
@@ -38,12 +37,13 @@ export interface OwnPieceProps {
 
 /** One small cube: a dark body plus a sticker on each exterior face (a
  *  puzzle with its own pieces draws them, `own`). Its box
- *  comes from the variant's thickness table (a mirror cubie is not a cube, see
+ *  comes from the puzzle's thickness table (a mirror cubie is not a cube, see
  *  lib/core/shape.ts); `dims` maps logical coordinates to visual positions. */
 export function Cubie({
   cubie,
   dims,
-  variant,
+  thickness,
+  skin,
   highlighted = false,
   hatched = false,
   marked = false,
@@ -63,7 +63,10 @@ export function Cubie({
 }: {
   cubie: CubieType
   dims: Dims
-  variant: CubeVariant
+  /** Its layers' thicknesses (a mirror's: lib/core/shape.ts). */
+  thickness: Record<CubeColor, number>
+  /** The one skin all its stickers wear, a mirror's (`skinOf`). */
+  skin?: string
   /** Part of the turn a hovered pad button would make, or the piece a
    *  tutorial formula aims at. */
   highlighted?: boolean
@@ -114,9 +117,7 @@ export function Cubie({
       />
     )
   }
-  const { size, center } = cubieBox(cubie.stickers, LAYER_THICKNESS[variant])
-  // One skin for every sticker on a variant whose stickers tell sizes.
-  const skin = VARIANT_SKIN[variant]
+  const { size, center } = cubieBox(cubie.stickers, thickness)
   return (
     <group position={visualPosition(cubie.position, dims)}>
       <mesh castShadow position={[center[0], center[1], center[2]]}>

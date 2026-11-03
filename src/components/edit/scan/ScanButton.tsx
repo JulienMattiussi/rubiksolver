@@ -1,6 +1,5 @@
 import { Camera, FlaskConical } from 'lucide-react'
 import { cubeShape } from '@/lib/core/cube'
-import { tellsSizes } from '@/lib/core/shape'
 import { SHAPE_SCAN_BEFORE, SHAPE_SCAN_TRIED } from '@/lib/core/shapes'
 import { scannable } from '@/lib/editor/scan/plan'
 import { useI18n } from '@/i18n/i18nStore'
@@ -21,9 +20,9 @@ export function ScanButton() {
   const scanning = useScan((s) => s.open)
   const start = useScan((s) => s.start)
   if (!scannable(shape, variant) || !hasCamera()) return null
-  // A mirror's scan, by its stickers' sizes, tried on the 3x3 (the only one
-  // that scans so, 2026-10-24).
-  const untried = !tellsSizes(variant) && !SHAPE_SCAN_TRIED[shape]
+  // A mirror's scan, by its stickers' sizes, tried with its puzzle's (the
+  // 3x3's, 2026-10-24).
+  const untried = !SHAPE_SCAN_TRIED[shape]
   // What to do to the puzzle first (a Gear Cube's gears lined up).
   const before = SHAPE_SCAN_BEFORE[shape]
   return (

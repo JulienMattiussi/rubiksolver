@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { cubeDims, cubeShape } from '@/lib/core/cube'
 import { slotsFor } from '@/lib/editor/edit'
 import { canPaint } from '@/lib/editor/modes/colors'
+import { thicknessOf } from '@/lib/core/shape'
 import { entryOf, togglesAt } from '@/lib/editor/entry'
 import { litSlots } from '@/lib/editor/modes/toggles'
 import { gearAt } from '@/lib/puzzles/gear/gear'
@@ -68,7 +69,7 @@ export function GearEditView() {
               }),
             }}
             dims={dims}
-            variant="classic"
+            thickness={thicknessOf(shape, 'classic')}
             own={GearPiece}
             onHover={(face, on) => hover(`${slot.key}|${face}`)(on)}
             lit={pivots ? null : litIn(slot.key)}
