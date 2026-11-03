@@ -49,7 +49,7 @@ describe('a shape entered face by face', () => {
     }
   })
 
-  it('finds a scrambled Purple again from its four canvases, however held, drawn anywhere', () => {
+  it("finds a scrambled Meffert's Pocket Cube again from its four canvases, however held, drawn anywhere", () => {
     const entry = entryOf('purple')
     // Its box, centered on a 5x5 canvas: 4 mini cubes wide.
     const [box] = canvasesOf(solvedCube('purple'), entry)

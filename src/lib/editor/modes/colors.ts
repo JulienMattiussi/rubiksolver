@@ -42,7 +42,7 @@ import type { CubeShape } from '../../core/shapes'
  */
 
 /** The colors to pick from: the shape's, but one its pre-filled stickers
- *  all take (the Purple's violet). */
+ *  all take (Meffert's Pocket Cube's violet). */
 export function paletteColors(shape: CubeShape, form?: Cube): Color[] {
   const { remaining } = progress(emptyEdit(shape, form), shape, form)
   return shapeColors(shape).filter((c) => remaining[c] > 0)

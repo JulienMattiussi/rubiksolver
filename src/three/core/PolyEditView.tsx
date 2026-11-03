@@ -155,7 +155,7 @@ export function PolyEditView() {
               const color = fixed && edit[stickerId(fixed, ni)]
               return color ? COLOR_HEX[color] : EMPTY_COLOR
             }
-            // A face with no sticker to enter keeps its own (the Purple's),
+            // A face with no sticker to enter keeps its own (Meffert's Pocket Cube's),
             // as does a piece that never moves, put piece by piece (the
             // Z-Twist's centers).
             if (!byNi.has(ni) || (pieces && !slot.paintable)) return undefined

@@ -4,7 +4,7 @@ import type { Color, Cube, Cubie, Vec3 } from '../../core/types'
 /**
  * A puzzle made of boxes seen from four sides, for entering its shape face
  * by face when it has too many to offer as thumbnails (the Camouflage, the
- * Purple): its front, then, tilted toward us each time, what was its top,
+ * Meffert's Pocket Cube): its front, then, tilted toward us each time, what was its top,
  * its back, its bottom. Each face is drawn on a canvas of square cells, row
  * by row from its top, each cell showing the first piece along its line of
  * sight: the color its face toward us shows, or nothing ("absent": a
@@ -55,7 +55,7 @@ export interface FaceEntry {
   readonly canvas: number
   /** Whether a face is drawn where it stands on the grid (the Camouflage,
    *  its mechanism centered), or anywhere on the canvas, compared as drawn
-   *  (the Purple, off its core). */
+   *  (Meffert's Pocket Cube, off its core). */
   readonly framed: boolean
   /** The states the faces show (canvas regions, in `FACES` order), however
    *  held: none if none fits. Slow at worst: run in a worker. */

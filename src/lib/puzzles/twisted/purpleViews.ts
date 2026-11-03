@@ -15,10 +15,10 @@ import {
 import { half, solvedPurple } from './purple'
 
 /**
- * The Purple entered face by face (lib/editor/modes/faceViews.ts): its 1 160 shapes,
+ * Meffert's Pocket Cube entered face by face (lib/editor/modes/faceViews.ts): its 1 160 shapes,
  * each held any of 24 ways, show four faces no other shape does (measured),
  * so the faces are simply looked up among them. A cell is a mini cube
- * (2 model units, purple.ts); off its core, the Purple stands anywhere on a
+ * (2 model units, purple.ts); off its core, Meffert's Pocket Cube stands anywhere on a
  * 5x5 canvas (its widest face), and a face is compared as drawn, wherever.
  */
 

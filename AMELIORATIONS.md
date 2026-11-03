@@ -36,7 +36,7 @@ vrai puzzle) ne sont réglés que sur ces quelques essais.
   rectangles figés de deux vrais scans et l'usage.
 - **Restent hors du scan** le Tori (ses arêtes, de minces amandes au bord
   des faces), les autres miroirs, les super cubes, les soudés, les
-  engrenages, et parmi ceux qui se déforment le Camouflage, le Purple, le
+  engrenages, et parmi ceux qui se déforment le Camouflage, le Meffert's Pocket Cube, le
   Fashion-V et l'AI Cube (qui pourraient suivre le chemin des tours).
 
 **Pistes.** Régler les seuils sur de vraies photos (lampe chaude, reflets)

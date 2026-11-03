@@ -227,7 +227,7 @@ test('move guide: opens on every puzzle, without an error', async ({ page }) => 
     ['Cylindriques', '2-Star Prism (UFO)'],
     ['Cylindriques', '4-Star Prism'],
     ['Engrenages', 'Gear Cube Ultimate'],
-    ['Torturés', 'Purple'],
+    ['Torturés', "Meffert's Pocket Cube"],
   ]
   for (const [category, name] of puzzles) {
     await pickCube(page, category, name)
@@ -261,7 +261,7 @@ const ENTERED: [string, string, string][] = [
   // Edges turning: curved pieces drawn ray by ray.
   ['Coupes diagonales', 'Curvy Copter III', '102 / 102 stickers'],
   // Out of its box, its big cubes pre-filled.
-  ['Torturés', 'Purple', '33 / 33 stickers'],
+  ['Torturés', "Meffert's Pocket Cube", '33 / 33 stickers'],
   // Entered piece by piece: its pieces counted.
   ['Plats', 'Floppy Ghost', '10 / 10 pièces'],
   ['Torturés', 'Z-Twist', '20 / 20 pièces'],

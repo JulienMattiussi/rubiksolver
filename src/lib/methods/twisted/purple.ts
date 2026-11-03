@@ -4,7 +4,7 @@ import type { MethodPlan } from '../../solve/solverKit'
 import { solvePurple, purpleToCube } from '../../puzzles/twisted/purpleStates'
 
 /**
- * The Purple's methods, both from a search of its whole state space (41760
+ * Meffert's Pocket Cube's methods, both from a search of its whole state space (41760
  * states, purpleStates.ts): no human method is known for it yet.
  *
  *   Shape then colors   1. The cube again    the fewest turns back to a

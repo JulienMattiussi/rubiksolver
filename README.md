@@ -125,7 +125,7 @@ layout, and fireworks when a move solves the puzzle.
 | **Gears**         | Gear Cube, Gear Cube Ultimate, Gear Cube Extreme                                                                                 |
 | **Diagonal cuts** | Skewb, Ivy Cube, Master Skewb, Dino Cube, Rex Cube, Curvy Copter, Curvy Copter III, Fisher Cube, Windmill                        |
 | **Holey**         | Holey Megaminx, Void Cube, Tori, Edge Only                                                                                       |
-| **Twisted**       | Purple, Z-Twist, Quarter Cube, Latch Cube, Fashion-V, Square-1                                                                   |
+| **Twisted**       | Meffert's Pocket Cube, Z-Twist, Quarter Cube, Latch Cube, Fashion-V, Square-1                                                    |
 | **Bandaged**      | AI Cube, RoadBlock-I, BigBlock, Squarebik, Fused, Bandage Cube, Quad, Stripe, QuadStripe, FusedStripe, Detour, Diamond, Alcatraz |
 
 Every puzzle has its sheet in [docs/puzzles/](docs/puzzles), and every method its

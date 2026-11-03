@@ -2,7 +2,7 @@ import { FACE_SPEC, mapVec } from '../../core/geometry'
 import type { Color, Cube, Cubie, Face, Sticker, Vec3 } from '../../core/types'
 
 /**
- * The Purple (its maker's name forgotten): a 2x2x2 whose corner piece A,
+ * Meffert's Pocket Cube (sold all violet but one corner): a 2x2x2 whose corner piece A,
  * up front right, is cut again into a 2x2x2 of mini cubes, and whose core is
  * A's inner mini cube, the one touching the puzzle's center. Its faces turn
  * about that core, a quarter of the puzzle's width off the center: a turn
@@ -29,7 +29,7 @@ const axis = (a: number, sign: number): Vec3 => mapVec([0, 1, 2], (d) => (d === 
  *  lime, the front blue). */
 const A_COLORS: readonly Color[] = ['Y', 'L', 'B']
 
-/** The solved Purple: the 7 big cubes, all violet, then A's 8 minis (the
+/** The solved Meffert's Pocket Cube: the 7 big cubes, all violet, then A's 8 minis (the
  *  core first, hidden), in A's colors. */
 export function solvedPurple(): Cube {
   const signs = [-1, 1]
@@ -58,11 +58,11 @@ export function solvedPurple(): Cube {
 }
 
 /** Whether every piece is back in the solved box (-5 to 3): then they fill
- *  it, and the Purple is a cube again. */
+ *  it, and Meffert's Pocket Cube is a cube again. */
 export const purpleBoxed = (cube: Cube): boolean =>
   cube.every((c) => c.position.every((v) => v - half(c) >= -5 && v + half(c) <= 3))
 
-/** Whether the Purple is solved: a cube again, A's colors outside (on its
+/** Whether Meffert's Pocket Cube is solved: a cube again, A's colors outside (on its
  *  minis at 2 along their normal, which points out), one a face. Held
  *  turned about A, its colors go round: still solved. */
 export function purpleSolved(cube: Cube): boolean {
@@ -86,7 +86,7 @@ export function purpleTurns(cube: Cube, face: Face): boolean {
   return !cube.some((c) => half(c) === 2 && c.position[coordIndex] === dir)
 }
 
-/** The Purple held another way that keeps its box: a third of a turn about
+/** Meffert's Pocket Cube held another way that keeps its box: a third of a turn about
  *  its diagonal through A (x -> y -> z), its only symmetry. */
 export function turnAboutA(cube: Cube): Cube {
   const turn = ([x, y, z]: Vec3): Vec3 => [z, x, y]

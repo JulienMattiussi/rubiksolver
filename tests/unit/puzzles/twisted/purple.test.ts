@@ -35,7 +35,7 @@ const look = (cube: Cube) =>
     .sort()
     .join(' ')
 
-describe('Purple', () => {
+describe("Meffert's Pocket Cube", () => {
   it('is 7 big violet cubes and the 8 minis of A, one hidden: its core', () => {
     const bigs = SOLVED.filter((c) => c.position.every((v) => Math.abs(v) % 2 === 1))
     expect(bigs).toHaveLength(7)

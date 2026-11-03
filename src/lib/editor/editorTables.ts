@@ -154,7 +154,7 @@ export function tablesFor(shape: CubeShape, form?: Cube): SlotTables {
       paintableSlots,
       byKey: new Map(slots.map((s) => [s.key, s])),
       // A puzzle that shifts can come back to its box with pieces turned in
-      // place (the Purple's minis): any turn of a piece, the check after.
+      // place (Meffert's Pocket Cube's minis): any turn of a piece, the check after.
       // Worked out when first asked (a Square-1 put piece by piece, never
       // scanned, never asks: its pieces turn by twelfths).
       get placements() {
@@ -215,7 +215,7 @@ function turnedPlacements(
 }
 
 /** The parities of a position's coordinates, in any order: no turn changes
- *  them, so a piece only ever reaches slots that share them (the Purple's
+ *  them, so a piece only ever reaches slots that share them (Meffert's Pocket Cube's
  *  big cubes, on odd coordinates, never stand where a mini does). */
 const parities = (p: readonly number[]) =>
   p

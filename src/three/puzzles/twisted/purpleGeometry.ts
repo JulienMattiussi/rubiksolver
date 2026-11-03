@@ -3,7 +3,7 @@ import type { Cubie, Face } from '@/lib/core/types'
 import { face, type P3, type PiecePolygon } from '../../core/polygons'
 
 /**
- * Geometry of the Purple's pieces (see lib/puzzles/twisted/purple.ts): each is a box about
+ * Geometry of Meffert's Pocket Cube's pieces (see lib/puzzles/twisted/purple.ts): each is a box about
  * its position, 4 model units wide for a big cube (odd coordinates), 2 for
  * a mini (even ones). The real puzzle is violet all over but A's three
  * outer faces, so every face of a piece is violet, the ones a turn brings

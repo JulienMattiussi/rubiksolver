@@ -207,7 +207,7 @@ src/
 │                        #   (les assemble), i18nStore
 ├── workers/             # solveWorker : la solution hors du fil de l'interface ; stickersWorker (et findStickers,
 │                        #   stickers) : les stickers d'un miroir trouvés par OpenCV ; facesWorker (et
-│                        #   findFaces) : la forme retrouvée de ses faces (Camouflage, Purple)
+│                        #   findFaces) : la forme retrouvée de ses faces (Camouflage, Meffert's Pocket Cube)
 ├── seo/                 # Les pages des moteurs de recherche : about (ce que la page d'un puzzle dit de lui),
 │                        #   head (titre, description), page (Page, adresse complète), PageHead et PageBody
 │                        #   (l'en-tête et le texte d'une page), pages (chaque page écrite au build, sitemap)
@@ -411,7 +411,7 @@ chacun son module de `lib/editor/modes/` :
 | Mode                                   | Ce qu'on fait                                             | Puzzles                                                                                  |
 | -------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `form` (`form.ts`)                     | choisir la forme parmi des vignettes, ou en étapes        | tours 2x2x4 et 2x3x4, Pyramorphinx, AI Cube ; Square-1 en étapes (`stages`)              |
-| `canvas` (`canvas.ts`, `faceViews.ts`) | dire sa forme face par face sur des canevas               | Purple, Camouflage                                                                       |
+| `canvas` (`canvas.ts`, `faceViews.ts`) | dire sa forme face par face sur des canevas               | Meffert's Pocket Cube, Camouflage                                                        |
 | `cuts`                                 | poser ses demi-cubies case par case                       | Fashion-V                                                                                |
 | `joints` (`joints.ts`)                 | souder ses pièces joint par joint                         | soudés dont les blocs bougent                                                            |
 | `toggles` (`toggles.ts`)               | tourner quelque chose d'un clic (barres, pivots, centres) | RoadBlock-I, Gear Cubes ; Z-Twist et Quarter pendant la peinture                         |
@@ -501,7 +501,7 @@ qu'à déclarer l'étape `form`. Les fonctions de saisie prennent cette forme
 (`form`, un état de cette forme) ; un emplacement y accepte toute pièce de
 son type tournée pour présenter ses stickers sur ses faces, pourvu que la
 parité de ses coordonnées soit celle de l'emplacement (un gros cube du
-Purple ne va jamais où va un mini-cube) : la validation dit ensuite si
+Meffert's Pocket Cube ne va jamais où va un mini-cube) : la validation dit ensuite si
 l'état est atteignable. « Modifier » saisit un puzzle déformé dans sa forme.
 
 **Sur canevas** : quatre canevas (ses faces) sur un cube qui bascule vers
@@ -509,7 +509,7 @@ soi d'une face à l'autre (`FaceCanvases`, vu de face, `CameraReset`,
 `FaceArrows`) ; on peint chaque case d'une couleur ou « absent » et on joint
 les cases d'une même face de pièce. L'étape porte le `FaceEntry` du puzzle :
 sa grille, la taille du canevas, si un dessin se place où il est (`framed` :
-le Camouflage) ou n'importe où (le Purple), et comment retrouver ses états
+le Camouflage) ou n'importe où (le Meffert's Pocket Cube), et comment retrouver ses états
 (`find`, dans un worker : `camoViews.ts`, `purpleViews.ts`) ; voir
 [docs/puzzles/tower.md](docs/puzzles/tower.md) et
 [docs/puzzles/twisted.md](docs/puzzles/twisted.md). **Par les demi-cubies** :

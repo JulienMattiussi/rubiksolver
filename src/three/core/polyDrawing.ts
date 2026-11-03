@@ -29,7 +29,7 @@ export interface PolyDrawing {
    *  polygons and turns are in it (the Pyramorphinx turns like a 2x2). */
   readonly orient?: readonly [number, number, number, number]
   /** Where the model's origin stands in its frame, when its turns are about
-   *  a point off its middle (the Purple's core). */
+   *  a point off its middle (Meffert's Pocket Cube's core). */
   readonly offset?: readonly [number, number, number]
   /** A picture on some pieces (the GEM-0's emblems):
    *  which pieces (by index, or by what they are), where on each, and the

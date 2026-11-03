@@ -193,7 +193,7 @@ export function editOfCanvases(found: Found, canvases: Canvases, entry: FaceEntr
       if (r < 0 || r >= n || c < 0 || c >= n) return
       const p = front[r * n + c]!
       const piece = p >= 0 ? found.cube[p] : undefined
-      // Only a face the model gives a sticker (the Purple's revealed faces
+      // Only a face the model gives a sticker (Meffert's Pocket Cube's revealed faces
       // are violet, painted with nothing to enter).
       if (piece?.stickers.some((s) => normalIndex(s.normal) === toward)) {
         edit[stickerId(piece.position, toward)] = cell

@@ -16,7 +16,7 @@ export function FacePalette() {
   const selected = useEditor((s) => s.faceColor)
   const setFaceColor = useEditor((s) => s.setFaceColor)
   const colorName = useColorName()
-  // Every color its faces show (the Purple's violet too, which painting
+  // Every color its faces show (Meffert's Pocket Cube's violet too, which painting
   // leaves out: its big cubes come painted).
   const cells: FaceCell[] = [...shapeColors(shape), 'absent']
   return (

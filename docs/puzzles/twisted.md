@@ -2,7 +2,7 @@
 
 Détail des puzzles de la catégorie (modèles : `src/lib/puzzles/twisted/`, méthodes : `src/lib/methods/twisted/`, dessins : `src/three/puzzles/twisted/`). Les principes communs sont dans [AGENTS.md](../../AGENTS.md).
 
-## Le Purple (`purple`)
+## Le Meffert's Pocket Cube (`purple`)
 
 Un **2x2x2** dont le coin A (haut, avant, droite) est lui-même coupé en
 2x2x2 mini-cubes, et dont le **cœur** est le mini-cube de A tourné vers le

@@ -460,4 +460,49 @@ export const PUZZLES_FR = {
     methods:
       'Deux méthodes, qui commencent toutes deux par lui rendre sa forme de cube : l’une range les sommets avant les arêtes, l’autre bâtit une face entière avant de finir la seconde. À vous de choisir votre route.',
   },
+  twist: {
+    summary:
+      'Le Z-Twist, un Rubik’s Cube tordu sur lui-même : chaque coup le fait onduler. Résolvez-le pas à pas, avec la méthode de votre choix.',
+    about:
+      'Le Z-Twist est **un Rubik’s Cube dont le dessus a pivoté d’un quart de tour par rapport au dessous** : ses côtés se tordent, et une même face peut montrer deux couleurs. Dès qu’on le tourne, il ondule en formes étonnantes, et l’on peine à reconnaître un 3x3. Pourtant tout est là, ses centres disant même par leur forme s’ils sont tournés : un déguisement facétieux, parfait pour qui connaît déjà le cube.',
+    methodsTitle: 'Un 3x3 sous la torsion',
+    methods:
+      'Quatre méthodes du 3x3 au choix, par couches, CFOP, Petrus ou ZZ, qui remettent aussi ses centres de côté dans le bon sens.',
+  },
+  quarter: {
+    summary:
+      'Le Quarter Cube, un Rubik’s Cube dont chaque face ne fait qu’un quart de tour, puis revient. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Quarter Cube a l’air d’un Rubik’s Cube ordinaire, mais **chaque face ne peut faire qu’un quart de tour, puis revenir**. Impossible de tourner deux fois de suite la même face : il faut sans cesse alterner, et les réflexes du 3x3 ne servent plus à rien. Un repère sur chaque centre dit où en est sa face : une contrainte toute simple, qui change tout.',
+    methodsTitle: 'Toujours alterner',
+    methods:
+      'Une méthode qui place les arêtes d’abord, puis le reste, avec des formules qui alternent sans cesse les faces, puisqu’aucune ne peut tourner deux fois de suite.',
+  },
+  latch: {
+    summary:
+      'Le Latch Cube, un Rubik’s Cube à sens interdits : des flèches décident dans quel sens chaque face peut tourner. Manipulez-le et résolvez-le pas à pas.',
+    about:
+      'Sur le Latch Cube, **des flèches sur les arêtes décident du sens de chaque face** : horaire, anti-horaire, les deux, ou pas du tout quand elles se contredisent. Les sens interdits voyagent avec les pièces, et le cube semble se rebeller à chaque coup. Il faut apprendre à négocier avec lui : déroutant, puis franchement addictif.',
+    methodsTitle: 'Contourner les flèches',
+    methods:
+      'Les arêtes d’abord, en contournant les faces bloquées, puis le reste : une méthode qui apprend à avancer malgré les sens interdits.',
+  },
+  fashion: {
+    summary:
+      'Le Fashion-V, un 3x3x5 ramassé en cube : ses couches fines se dressent et se couchent à chaque coup. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Fashion-V cache **un 3x3x5 dans la forme d’un cube** : ses couches du haut et du bas sont moitié moins épaisses que celle du milieu. Quand on tourne un côté, ses pièces se dressent et se décalent, et le cube devient un empilement surprenant. L’un des plus étonnants à manipuler, qui demande de penser en tour autant qu’en cube.',
+    methodsTitle: 'Coucher, puis tourner',
+    methods:
+      'On couche d’abord toutes ses paires de pièces pour retrouver un 3x3x5 en ordre, puis on le résout comme une tour.',
+  },
+  purple: {
+    summary:
+      'Le Meffert’s Pocket Cube, un 2x2 tout violet à l’axe décentré : il se déforme à chaque coup. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Meffert’s Pocket Cube a tout d’un 2x2 tranquille, **tout violet sauf un coin découpé en huit petits cubes**. Mais son axe est décentré : chaque coup le déforme, et ses gros blocs partent en tous sens. Ici, la couleur compte peu, **c’est la forme qu’il faut retrouver** : un casse-tête de géométrie plus que de couleurs, aussi intrigant que charmant.',
+    methodsTitle: 'La forme avant tout',
+    methods:
+      'Deux méthodes : l’une le ramène d’abord à un cube, puis remet en place les couleurs du coin découpé ; l’autre trouve d’un coup la solution la plus courte.',
+  },
 }

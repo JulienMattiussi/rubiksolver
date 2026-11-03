@@ -44,7 +44,7 @@ mobile et en saisie, une seule carte) :
   caractères (`3Uw'`) mettent deux paires par rangée au lieu de trois.
   Chaque sorte de couche ne montre que les faces qui l'ont (aucun bouton pour
   un coup que le puzzle ne fait pas : la 2x2x3 n'a de tranche qu'au milieu,
-  nommée `M` comme sur sa notice). Un coup que l'état bloque (tours qui se déforment, Purple, soudés...) reste
+  nommée `M` comme sur sa notice). Un coup que l'état bloque (tours qui se déforment, Meffert's Pocket Cube, soudés...) reste
   grisé ; un puzzle
   qui ne tourne pas comme un cube a son propre pad, nommé par le `pad` de sa
   carte et construit par `padFor`).

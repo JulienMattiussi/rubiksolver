@@ -5,7 +5,7 @@ import { SHAPE_DIMS } from '../../core/shapes'
 import { purpleBoxed, purpleTurns } from './purple'
 
 /**
- * The Purple's states as one sees them (its big cubes alike): few enough
+ * Meffert's Pocket Cube's states as one sees them (its big cubes alike): few enough
  * (41760) to search whole, for its solutions, the editor's check, and its
  * scramble.
  *
@@ -93,7 +93,7 @@ export function solvePurple(cube: Cube): Move[] {
   return moves
 }
 
-/** The fewest turns that make the Purple a cube again, whatever A's colors. */
+/** The fewest turns that make Meffert's Pocket Cube a cube again, whatever A's colors. */
 export function purpleToCube(cube: Cube): Move[] {
   const seen = new Set([lookOf(cube)])
   let frontier = [{ state: cube, moves: [] as Move[] }]

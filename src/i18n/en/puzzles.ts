@@ -452,4 +452,49 @@ export const PUZZLES_EN: typeof PUZZLES_FR = {
     methods:
       'Two methods, both starting by giving it back its cube shape: one sorts the corners before the edges, the other builds a whole face before finishing the second. Pick your road.',
   },
+  twist: {
+    summary:
+      'The Z-Twist, a Rubik’s Cube twisted on itself: every turn makes it ripple. Solve it step by step, with the method of your choice.',
+    about:
+      'The Z-Twist is **a Rubik’s Cube whose top has turned a quarter against its bottom**: its sides twist, and one face can show two colors. As soon as you turn it, it ripples into surprising shapes, and you can hardly tell it is a 3x3. Yet everything is there, its centers even showing by their shape whether they are turned: a playful disguise, perfect for anyone who already knows the cube.',
+    methodsTitle: 'A 3x3 under the twist',
+    methods:
+      'Four 3x3 methods to choose from, layer by layer, CFOP, Petrus or ZZ, which also turn its side centers back the right way.',
+  },
+  quarter: {
+    summary:
+      'The Quarter Cube, a Rubik’s Cube whose faces only turn a quarter, then back. Turn it in 3D and solve it step by step.',
+    about:
+      'The Quarter Cube looks like an ordinary Rubik’s Cube, but **each face can only turn a quarter, then come back**. No turning the same face twice in a row: you must keep alternating, and your 3x3 reflexes are no use anymore. A mark on each center tells where its face stands: a very simple constraint that changes everything.',
+    methodsTitle: 'Always alternate',
+    methods:
+      'A method that places the edges first, then the rest, with formulas that keep alternating the faces, since none can turn twice in a row.',
+  },
+  latch: {
+    summary:
+      'The Latch Cube, a Rubik’s Cube with one-way faces: arrows decide which way each face can turn. Turn it in 3D and solve it step by step.',
+    about:
+      'On the Latch Cube, **arrows on the edges decide which way each face turns**: clockwise, counterclockwise, both, or not at all when they disagree. The one-way signs travel with the pieces, and the cube seems to rebel at every turn. You have to learn to bargain with it: baffling, then downright addictive.',
+    methodsTitle: 'Getting round the arrows',
+    methods:
+      'The edges first, getting round the jammed faces, then the rest: a method that teaches you to move on despite the one-way faces.',
+  },
+  fashion: {
+    summary:
+      'The Fashion-V, a 3x3x5 squeezed into a cube: its thin layers stand up and lie down at every turn. Turn it in 3D and solve it step by step.',
+    about:
+      'The Fashion-V hides **a 3x3x5 in the shape of a cube**: its top and bottom layers are half as thick as its middle one. When you turn a side, its pieces stand up and shift, and the cube becomes a surprising stack. One of the most astonishing to handle, which asks you to think as a tower as much as a cube.',
+    methodsTitle: 'Lay down, then turn',
+    methods:
+      'First lay down all its pairs of pieces to get a 3x3x5 back in order, then solve it as a tower.',
+  },
+  purple: {
+    summary:
+      'Meffert’s Pocket Cube, an all-violet 2x2 with an off-center axis: it changes shape at every turn. Turn it in 3D and solve it step by step.',
+    about:
+      'Meffert’s Pocket Cube looks like a quiet 2x2, **all violet but one corner cut into eight small cubes**. But its axis is off center: every turn bends it, and its big blocks fly off in all directions. Here color matters little, **its shape is what you must find again**: a puzzle of geometry more than colors, as intriguing as it is charming.',
+    methodsTitle: 'Shape above all',
+    methods:
+      'Two methods: one first brings it back to a cube, then puts the split corner’s colors back; the other finds the shortest solution in one go.',
+  },
 }

@@ -22,7 +22,7 @@ export function slotsFor(shape: CubeShape, form?: Cube): readonly Slot[] {
 
 /** A blank slate: only the fixed pieces are set (see `Slot.paintable`),
  *  and any sticker every piece that fits its slot shows in one color (the
- *  Purple's big cubes, violet all over). */
+ *  Meffert's Pocket Cube's big cubes, violet all over). */
 export function emptyEdit(shape: CubeShape, form?: Cube): EditStickers {
   const tables = tablesFor(shape, form)
   const edit: EditStickers = {}

@@ -62,9 +62,9 @@ nombres d'étapes ci-dessous ne la comptent pas.
   qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
   droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL -
   5 étapes.
-- **Optimale** (`optimal`, 2x2, 2x2 Qiyi miroir, 1x2x3, Floppy, Floppy Ghost et Purple) : recherche exhaustive,
+- **Optimale** (`optimal`, 2x2, 2x2 Qiyi miroir, 1x2x3, Floppy, Floppy Ghost et Meffert's Pocket Cube) : recherche exhaustive,
   solution la plus courte possible (11 coups max sur 2x2, 6 sur 1x2x3, 8 sur
-  Floppy, 15 sur Floppy Ghost, 30 sur Purple), une seule étape.
+  Floppy, 15 sur Floppy Ghost, 30 sur Meffert's Pocket Cube), une seule étape.
 
 ## Les méthodes des autres puzzles
 
@@ -84,7 +84,7 @@ Leurs étapes sont décrites dans la fiche de chaque puzzle (section
 | Les arêtes d'abord (`quarterEdgesFirst`)        | Quarter Cube                                                                   | [twisted](puzzles/twisted.md)                                                       |
 | Les arêtes d'abord (`latchEdgesFirst`)          | Latch Cube                                                                     | [twisted](puzzles/twisted.md)                                                       |
 | Coucher puis deux tours (`fashionLaid`)         | Fashion-V                                                                      | [twisted](puzzles/twisted.md)                                                       |
-| Forme puis couleurs (`shapeFirst`)              | Purple                                                                         | [twisted](puzzles/twisted.md)                                                       |
+| Forme puis couleurs (`shapeFirst`)              | Meffert's Pocket Cube                                                          | [twisted](puzzles/twisted.md)                                                       |
 | Les sommets d'abord (`square1CornersFirst`)     | Square-1                                                                       | [twisted](puzzles/twisted.md)                                                       |
 | Face par face (`square1FaceFirst`)              | Square-1                                                                       | [twisted](puzzles/twisted.md)                                                       |
 | Méthode des blocs (`aiBlocks`)                  | AI Cube                                                                        | [bandaged](puzzles/bandaged.md)                                                     |

@@ -187,7 +187,7 @@ export function scramble(
   while (moves.length < length) {
     // Another face than the last one, among those that can turn (all of
     // them, on a puzzle that keeps its box); the same again only when it is
-    // the one left (the Purple often jams all others).
+    // the one left (Meffert's Pocket Cube often jams all others).
     const turnable = shifts
       ? faces.filter((f) =>
           layerVariants(shape, f).some((variant) =>

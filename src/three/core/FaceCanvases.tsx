@@ -35,7 +35,7 @@ export function FaceCanvases() {
   const faceAt = useEditor((s) => s.faceAt)
   const faceCellAt = useEditor((s) => s.faceCellAt)
   const faceJoinAt = useEditor((s) => s.faceJoinAt)
-  // Its canvases' cells a side (the Camouflage's 6, the Purple's 5).
+  // Its canvases' cells a side (the Camouflage's 6, Meffert's Pocket Cube's 5).
   const n = Math.round(Math.sqrt(faces[0]?.cells.length ?? 36))
   const step = (2 * HALF) / n
   /** A cell's center on its canvas (row from the top, column). */

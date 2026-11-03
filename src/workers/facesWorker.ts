@@ -20,7 +20,7 @@ export interface FacesResponse {
 
 /** Finds a puzzle's state from its faces off the main thread: the
  *  Camouflage's search takes some 100 ms, a few seconds at worst; the
- *  Purple's index is built once, in about a second (lib/editor/modes/faceViews.ts). */
+ *  Meffert's Pocket Cube's index is built once, in about a second (lib/editor/modes/faceViews.ts). */
 self.onmessage = ({ data }: MessageEvent<FacesRequest>) => {
   let found: Found[] = []
   try {
