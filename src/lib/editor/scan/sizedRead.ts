@@ -1,8 +1,8 @@
 import { solvedCube } from '../../core/cube'
 import type { CubeShape } from '../../core/shapes'
-import { AXIS_ROTATIONS, cross, FACE_NORMAL } from '../../core/geometry'
+import { AXIS_ROTATIONS, axisOf, cross, FACE_NORMAL } from '../../core/geometry'
 import { MIRROR_BLOCKS } from '../../core/shape'
-import type { Color, Cube, Cubie, CubeColor, Face, Sticker, Vec3 } from '../../core/types'
+import type { Color, Cube, Cubie, CubeColor, Face, Sticker } from '../../core/types'
 import { cubeToEdit } from '../edit'
 import { validateCube } from '../validate'
 import { cheapestAssignment } from './assign'
@@ -32,8 +32,6 @@ export type Sizes = ReadonlyMap<string, readonly [number | null, number | null]>
  *  their difference to the middle the layers show: the values fitted. */
 const FRAMES = [0.02, 0.04, 0.06, 0.08, 0.1]
 const SHOWN = [1, 0.95, 0.9]
-
-const axisOf = (v: Vec3) => v.findIndex((x) => x !== 0)
 
 /** The faces as the scan asks them, each its face and the one on top. */
 const held = (behind: boolean) => sizedOrder(behind).map(({ front, up }) => [front, up] as const)

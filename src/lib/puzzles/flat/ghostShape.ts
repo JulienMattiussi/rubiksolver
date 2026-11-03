@@ -2,6 +2,7 @@ import { colorsOf } from '../../core/pieces'
 import type { Cubie, Face } from '../../core/types'
 import { clip, type P2 } from '../../core/plane'
 import { GHOST_TOP_AXIS, ghostSlot, solvedGhost } from './ghost'
+import { mod } from '../../core/geometry'
 
 /**
  * The Floppy Ghost's shape, flat (pure): the square plate cut by the
@@ -80,8 +81,6 @@ export interface Placing {
   readonly flipped: boolean
   readonly turns: number
 }
-
-const mod = (a: number, n: number) => ((a % n) + n) % n
 
 /** A plane direction index moved by a placing (see lib/puzzles/flat/ghost.ts). */
 export const moveDirection = (j: number, { flipped, turns }: Placing) =>

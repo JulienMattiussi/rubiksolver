@@ -74,6 +74,7 @@ import {
   invertSectorMove,
   sectorRotation,
   sectorTurns,
+  signedSteps,
   simplifySectorMoves,
 } from './shared/sectors'
 import {
@@ -147,7 +148,7 @@ const PYRA: MoveKind<PyraMove> = {
     move.vertex === 'U' ? { kind: 'home' } : { kind: 'around', axis: pyraRotation(move).axis },
   describe: (move, shape) => {
     const layer = pyraLayerOf(move)
-    const kind =
+    const part =
       layer === 'tips'
         ? 'tip'
         : layer === 'corners'
@@ -158,7 +159,13 @@ const PYRA: MoveKind<PyraMove> = {
               ? 'opposite'
               : 'slice'
     const clockwise = move.amount === 1
-    return { kind, vertex: move.vertex, clockwise, ...(move.slice && { slice: move.slice }) }
+    return {
+      kind: 'pyra',
+      part,
+      vertex: move.vertex,
+      clockwise,
+      ...(move.slice && { slice: move.slice }),
+    }
   },
 }
 
@@ -203,9 +210,8 @@ const SECTORS: MoveKind<SectorMove> = {
   apply: (cube, move) => applySectorMove(cube, move),
   sight: () => ({ kind: 'home' }),
   describe: (move) => {
-    if ('flip' in move) return { kind: 'puckSlash' }
-    const twelfths = move.steps > 6 ? move.steps - 12 : move.steps
-    return { kind: 'puckLayer', layer: move.layer, twelfths }
+    if ('flip' in move) return { kind: 'sectorSlash' }
+    return { kind: 'sectorLayer', layer: move.layer, twelfths: signedSteps(move) }
   },
 }
 

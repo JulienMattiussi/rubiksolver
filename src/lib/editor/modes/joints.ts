@@ -2,7 +2,7 @@ import { solvedCube } from '../../core/cube'
 import type { Cube, Vec3 } from '../../core/types'
 import type { CubeShape } from '../../core/shapes'
 import { isMark, MARK } from '../../core/types'
-import { mapVec, normalOfIndex, parseVecKey } from '../../core/geometry'
+import { axisOf, mapVec, normalOfIndex, parseVecKey } from '../../core/geometry'
 import { stepOf, type PaintTogether } from '../entry'
 
 /**
@@ -299,7 +299,7 @@ export function piecesLeft(shape: CubeShape, joints: readonly Joint[]) {
  *  of: its piece's cells on that face. A block's face is one tile, one
  *  color. */
 export function tileMates(joints: readonly Joint[], cell: Vec3, normal: Vec3): Vec3[] {
-  const axis = normal.findIndex((v) => v !== 0)
+  const axis = axisOf(normal)
   return piecesOf(joints)(cell.join())
     .map(cellOf)
     .filter((c) => c.join() !== cell.join() && c[axis] === cell[axis])

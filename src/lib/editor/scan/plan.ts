@@ -16,16 +16,15 @@ import type { OutlineScan } from './outlines'
 import {
   boxFaces,
   centeredFaces,
-  flatFaces,
-  gearFaces,
   halvesFaces,
   gridFaces,
   ringFaces,
-  sizedFaces,
-  crossFaces,
   squareFaces,
   wholeFaces,
 } from './planFaces'
+import { flatFaces } from './planFlat'
+import { gearFaces } from './planGears'
+import { crossFaces, sizedFaces } from './planMirrors'
 
 /**
  * How a puzzle is scanned with a camera, face by face (pure, no React): the

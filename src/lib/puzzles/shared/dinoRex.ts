@@ -1,4 +1,4 @@
-import { FACE_NORMAL, mapVec } from '../../core/geometry'
+import { axisOf, FACE_NORMAL, mapVec } from '../../core/geometry'
 import type { Cube, Cubie, Face, RainbowMove, Vec3 } from '../../core/types'
 import { RAINBOW_TURNS, SQUARE_COLOR, scrambleRainbow, solvedRainbow } from './rainbow'
 
@@ -58,7 +58,7 @@ export function solvedRex(): Cube {
   }
   // Petals: on each face, toward each of its corners.
   for (const n of axes) {
-    const a = n.findIndex((x) => x !== 0)
+    const a = axisOf(n)
     for (const s of [1, -1]) {
       for (const t of [1, -1]) {
         const [u, v] = [0, 1, 2].filter((d) => d !== a)

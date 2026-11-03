@@ -283,11 +283,15 @@ export type MethodId = (typeof SOLVE_METHODS)[number]['id']
  *  2x2 as the 2x2 it is, its twins told apart. */
 const READ_AS: Partial<Record<CubeShape, (cube: Cube) => Cube>> = { qiyi2: asPocket }
 
+/** A method's plan for a shape, if it covers it. */
+const planOf = (m: (typeof SOLVE_METHODS)[number], shape: CubeShape): MethodPlan | undefined =>
+  (m.plans as Partial<Record<CubeShape, MethodPlan>>)[shape]
+
 /** The solving methods available for a given shape, each bound to it. */
 export function methodsFor(shape: CubeShape) {
   const read = READ_AS[shape] ?? ((cube: Cube) => cube)
   return SOLVE_METHODS.flatMap((m) => {
-    const plan: MethodPlan | undefined = (m.plans as Partial<Record<CubeShape, MethodPlan>>)[shape]
+    const plan = planOf(m, shape)
     return plan
       ? [
           {
@@ -315,7 +319,7 @@ function solveAsItStands(cube: Cube, plan: MethodPlan): SolveStep[] {
  *  notation a solution may show, beyond the pad's turns (M on a 3x3). */
 export function methodTurns(shape: CubeShape): Turn[] {
   return SOLVE_METHODS.flatMap((m) => {
-    const plan: MethodPlan | undefined = (m.plans as Partial<Record<CubeShape, MethodPlan>>)[shape]
+    const plan = planOf(m, shape)
     return (plan ?? []).flatMap((step) => step.moves.generators)
   })
 }

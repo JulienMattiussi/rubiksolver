@@ -21,8 +21,9 @@ export type MirrorScan = 'center' | 'cross'
 export type MoveFamily =
   'star' | 'pyra' | 'ghost' | 'sectors' | 'rainbow' | 'mega' | 'gear' | 'copter'
 
-/** A group of a pad's face turns, under its title (`padGroups`): the
- *  Fashion-V's and Meffert's Pocket Cube's (components/controls/LayerPad.tsx). */
+/** A group of a pad's face turns, under its title (`t.padGroups`), on a
+ *  puzzle whose pad is its card's groups (`pad: 'layers'`,
+ *  components/controls/LayerPad.tsx). */
 export type LayerGroup = {
   readonly key: 'blocks' | 'thin' | 'halves' | 'byA'
   readonly layers: readonly Omit<Move, 'amount'>[]
@@ -30,7 +31,7 @@ export type LayerGroup = {
 
 /** The pad of turns a puzzle shows (components/controls/padFor.tsx): its
  *  faces' unless it turns otherwise ('vto': its faces' too, its corners,
- *  wide, before its tips). */
+ *  wide, before its tips; 'layers': its card's groups of face turns). */
 export type PadKind =
   | 'faces'
   | 'vto'
@@ -38,8 +39,7 @@ export type PadKind =
   | 'pyra'
   | 'ghost'
   | 'copter'
-  | 'fashion'
-  | 'meffertsPocket'
+  | 'layers'
   | 'sectors'
   | 'mega'
   | 'crystal'
@@ -106,6 +106,8 @@ export interface PuzzleEntry {
   readonly scheme?: Partial<Record<Face, Color>>
   /** Its pad of turns, when not its faces'. */
   readonly pad?: PadKind
+  /** Its pad's groups of face turns, when its pad is `layers`. */
+  readonly padGroups?: readonly LayerGroup[]
   /** The kind of turns it makes, its own (none: a grid's face layers):
    *  built and turned by its family's module, drawn from polygons. */
   readonly moves?: MoveFamily

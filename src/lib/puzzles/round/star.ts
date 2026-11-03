@@ -1,4 +1,4 @@
-import { HEX_NORMALS } from '../../core/geometry'
+import { HEX_NORMALS, mapPiece } from '../../core/geometry'
 import type { FaceLabels } from '../../core/notation'
 import type { Color, Cube, Cubie, RingMove, StarMove, Sticker, Vec3 } from '../../core/types'
 import type { StarShape } from '../../core/shapes'
@@ -155,14 +155,7 @@ export const STAR_SYMMETRIES: readonly ((cube: Cube) => Cube)[] = [
 
 export function applyStarMove(cube: Cube, move: StarMove): Cube {
   const map = mapOf(move)
-  return cube.map((cubie) =>
-    starTurns(move, cubie.position)
-      ? {
-          position: map(cubie.position),
-          stickers: cubie.stickers.map((s) => ({ normal: map(s.normal), color: s.color })),
-        }
-      : cubie,
-  )
+  return cube.map((cubie) => (starTurns(move, cubie.position) ? mapPiece(map)(cubie) : cubie))
 }
 
 /**

@@ -1,5 +1,5 @@
 import { FACE_COLOR } from '../../core/cube'
-import { dot, FACE_NORMAL, mapVec } from '../../core/geometry'
+import { axisOf, dot, FACE_NORMAL, mapPiece, mapVec } from '../../core/geometry'
 import type { FaceLabels } from '../../core/notation'
 import type { CopterEdge, CopterMove, Cube, Cubie, Face, Vec3 } from '../../core/types'
 
@@ -62,14 +62,7 @@ const halfTurn =
 
 export function applyCopterMove(cube: Cube, move: CopterMove): Cube {
   const turn = halfTurn(COPTER_AXES[move.edge])
-  return cube.map((c) =>
-    copterTurns(move, c.position)
-      ? {
-          position: turn(c.position),
-          stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
-        }
-      : c,
-  )
+  return cube.map((c) => (copterTurns(move, c.position) ? mapPiece(turn)(c) : c))
 }
 
 /** The axis an edge turns about, unit, in the renderer's frame. */
@@ -82,7 +75,7 @@ const FACES = Object.keys(FACE_NORMAL) as Face[]
 /** On a face, at `scale` out, a piece at (u, v) along its two other axes. */
 function onFace(face: Face, scale: number, u: number, v: number): Vec3 {
   const n = FACE_NORMAL[face]
-  const axis = n.findIndex((x) => x !== 0)
+  const axis = axisOf(n)
   const [a, b] = [0, 1, 2].filter((i) => i !== axis) as [number, number]
   const p = [0, 0, 0]
   p[axis] = n[axis]! * scale

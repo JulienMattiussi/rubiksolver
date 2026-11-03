@@ -1,5 +1,5 @@
 import { solvedCube } from '../../core/cube'
-import { AXIS_ROTATIONS, cross, dot, FACE_NORMAL, normalIndex } from '../../core/geometry'
+import { AXIS_ROTATIONS, axisOf, cross, dot, FACE_NORMAL, normalIndex } from '../../core/geometry'
 import type { CubeShape } from '../../core/shapes'
 import type { Color, Cube, Cubie, Face, Vec3 } from '../../core/types'
 import { stickerId, tablesFor } from '../editorTables'
@@ -65,7 +65,7 @@ function filled(pieces: readonly Cubie[], front: Face, up: Face): Map<string, nu
     if (!c.stickers.some((s) => s.normal.join() === n.join())) continue
     const cut = cutAxis(cells.get(cellKeyOf(c.position))!)
     const along = (v: Vec3) => {
-      const axis = v.findIndex((x) => x !== 0)
+      const axis = axisOf(v)
       return subsAlong(dot(c.position, v), axis === cut)
     }
     const cols = along(r)

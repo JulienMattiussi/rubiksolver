@@ -1,11 +1,13 @@
 import { isSolved, solvedCube } from '../../core/cube'
-import type { Cube, Cubie, SectorMove } from '../../core/types'
+import type { Cube, Cubie } from '../../core/types'
 import { once } from '../../solve/once'
-import { solvePieces } from '../../solve/pieceSearch'
 import type { MethodPlan } from '../../solve/solverKit'
 import {
+  bottomLayer,
   EVERY_TURN,
-  goesOnCorners,
+  homeOf,
+  INSERT_CORNER,
+  INSERT_EDGE,
   isCorner,
   isCube,
   isEdge,
@@ -13,10 +15,10 @@ import {
   piecesOf,
   placedTogether,
   QUARTERS,
-  INSERT_CORNER,
-  INSERT_EDGE,
+  search,
   toCube,
-  trackedHomes,
+  topCorners,
+  topLayer,
 } from './square1Kit'
 
 /**
@@ -47,10 +49,6 @@ export const SWAP_OPPOSITE_EDGES = pairsFormula(
 export const SQUARE_MIDDLE = pairsFormula('/(6,0)/(6,0)/')
 export const TURN_MIDDLE = pairsFormula('(1,-1)/(6,6)/')
 
-const bottomLayer = (c: readonly Cubie[]) => piecesOf(c, false, () => true)
-const topLayer = (c: readonly Cubie[]) => piecesOf(c, true, () => true)
-const topCorners = (c: readonly Cubie[]) => piecesOf(c, true, isCorner)
-
 /** The first face's pieces in the order they are placed: its corners, then
  *  its edges. */
 const FIRST_FACE = once(() => {
@@ -58,45 +56,22 @@ const FIRST_FACE = once(() => {
   return [...piecesOf(solved, false, isCorner), ...piecesOf(solved, false, isEdge)]
 })
 
-/** Each piece's home, by its colors. */
-const HOME_OF = once(
-  () => new Map(solvedCube('square1').map((c) => [colorsOf(c), c.position.join()])),
-)
-
-const colorsOf = (c: Cubie) =>
-  c.stickers
-    .map((s) => s.color)
-    .sort()
-    .join()
+/** The homes of the first face's first `n` pieces. */
+const firstHomes = (n: number): Set<string> =>
+  new Set(
+    FIRST_FACE()
+      .slice(0, n)
+      .map((c) => c.position.join()),
+  )
 
 /** Whether the first `n` of the first face's pieces stand together, the
  *  puzzle a cube again. */
 const firstPieces = (pieces: readonly Cubie[], n: number): boolean => {
   if (!isCube(pieces, false)) return false
-  const homes = new Set(
-    FIRST_FACE()
-      .slice(0, n)
-      .map((c) => c.position.join()),
-  )
-  const placed = pieces.filter((c) => homes.has(HOME_OF().get(colorsOf(c))!))
+  const homes = firstHomes(n)
+  const placed = pieces.filter((c) => homes.has(homeOf(c).position.join()))
   return placed.length === n && placedTogether(placed)
 }
-
-const search = (
-  cube: Cube,
-  keep: (c: Cubie) => boolean,
-  spec: {
-    moves: typeof QUARTERS
-    macros?: readonly (readonly SectorMove[])[]
-    goal: (pieces: readonly Cubie[]) => boolean
-    maxDepth: number
-  },
-): SectorMove[] =>
-  solvePieces(cube, {
-    track: trackedHomes(keep).map((c) => c.position),
-    legal: (pieces, move) => goesOnCorners(pieces, move as SectorMove),
-    ...spec,
-  })
 
 const layersPlaced = (c: readonly Cubie[]) =>
   placedTogether(bottomLayer(c)) && placedTogether(topLayer(c))
@@ -113,11 +88,7 @@ export const SQUARE1_FACE_PLAN: MethodPlan = [
     goal: (c) => isCube(c, false) && placedTogether(bottomLayer(c)),
     moves: EVERY_TURN,
     phases: Array.from({ length: 8 }, (_, i) => (cube: Cube) => {
-      const homes = new Set(
-        FIRST_FACE()
-          .slice(0, i + 1)
-          .map((c) => c.position.join()),
-      )
+      const homes = firstHomes(i + 1)
       return search(cube, (c) => homes.has(c.position.join()), {
         moves: QUARTERS,
         macros: [INSERT_CORNER, INSERT_EDGE],

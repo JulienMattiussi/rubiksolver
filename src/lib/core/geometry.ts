@@ -1,4 +1,4 @@
-import type { Axis, Dims, Face, Vec3 } from './types'
+import type { Axis, Cubie, Dims, Face, Vec3 } from './types'
 
 /**
  * Integer geometry of the puzzles: faces and their normals, the per-axis
@@ -6,7 +6,6 @@ import type { Axis, Dims, Face, Vec3 } from './types'
  * y = up, z = towards the viewer (front). No floating point ever enters here.
  */
 
-/** Map each coordinate of a 3-vector (with its axis index) to a new `Vec3`. */
 /** The dot product of two 3D vectors. */
 export const dot = (a: readonly number[], b: readonly number[]): number =>
   a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!
@@ -18,6 +17,23 @@ export const cross = (a: readonly number[], b: readonly number[]): [number, numb
   a[0]! * b[1]! - a[1]! * b[0]!,
 ]
 
+/** The axis a unit normal (or any vector along an axis) lies along. */
+export const axisOf = (v: readonly number[]): number => v.findIndex((x) => x !== 0)
+
+/** `a` modulo `n`, never negative. */
+export const mod = (a: number, n: number): number => ((a % n) + n) % n
+
+/** A piece moved by a map of integer vectors (a turn, a reflection): its
+ *  place and its stickers' normals. */
+export const mapPiece =
+  (map: (v: Vec3) => Vec3) =>
+  (cubie: Cubie): Cubie => ({
+    ...cubie,
+    position: map(cubie.position),
+    stickers: cubie.stickers.map((s) => ({ ...s, normal: map(s.normal) })),
+  })
+
+/** Map each coordinate of a 3-vector (with its axis index) to a new `Vec3`. */
 export function mapVec(v: readonly number[], f: (x: number, axis: number) => number): Vec3 {
   return [f(v[0]!, 0), f(v[1]!, 1), f(v[2]!, 2)]
 }

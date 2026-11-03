@@ -1,5 +1,5 @@
 import { faceColorsOf } from '../../core/cube'
-import { FACE_SPEC, mapVec } from '../../core/geometry'
+import { axisOf, FACE_SPEC, mapVec } from '../../core/geometry'
 import { applyMove } from '../../core/turn'
 import { BLOCK_TURNS } from '../../puzzles/twisted/fashion'
 import type { Cube, Move, Vec3 } from '../../core/types'
@@ -68,7 +68,7 @@ function shapesOf(cube: Cube, shape: CubeShape): { edges: Shape; corners: Shape 
     else if (e !== undefined && edges[e] === 3 && c.stickers.length === 2) {
       // A whole edge (its cell has no cut): the way its red or orange faces.
       const side = c.stickers.find((s) => sideways.has(s.color))
-      if (side) edges[e] = 3 + side.normal.findIndex((v) => v !== 0)
+      if (side) edges[e] = 3 + axisOf(side.normal)
     }
     const k = CORNER_INDEX.get(cell.join())
     if (k !== undefined && cut >= 0) corners[k] = cut
@@ -102,7 +102,7 @@ const turnOf = (move: Move): ShapeTurn => {
       move,
       MECHANISM,
     )
-    return moved!.stickers[0]!.normal.findIndex((v) => v !== 0)
+    return axisOf(moved!.stickers[0]!.normal)
   })
   return { edges: sent(EDGES, EDGE_INDEX), corners: sent(CORNERS, CORNER_INDEX), axes, inside }
 }

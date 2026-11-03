@@ -1,6 +1,6 @@
 import { turnDims } from '../core/cube'
 import { faceLayers } from '../core/geometry'
-import { layerRows, type GuideGroup, type MoveDescription } from '../core/guide'
+import { layerRows, senseOf, type GuideGroup, type MoveDescription } from '../core/guide'
 import { isFaceTurn, kindOf } from '../core/moveKind'
 import { advancedMovesFor, FACES, movesFor, sameLayer } from '../core/moves'
 import { MODELS } from '../puzzles/models'
@@ -76,7 +76,7 @@ export function describeMove(turn: Turn, shape: CubeShape): MoveDescription {
   const own = MODELS[shape]?.describe
   if (own) return own(turn)
   if (!isFaceTurn(turn)) return kindOf(turn)!.describe(turn, shape)
-  const direction = turn.amount === 2 ? 'half' : turn.amount === 1 ? 'cw' : 'ccw'
+  const direction = senseOf(turn.amount)
   const kind = turn.whole ? 'whole' : layerOf(turn, SHAPE_DIMS[shape])
   // Two layers out of the mechanism's four (three of six): half of it.
   const depth = turn.depth ?? 1

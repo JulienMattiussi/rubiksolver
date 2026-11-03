@@ -1,4 +1,4 @@
-import { FACE_SPEC, mapVec } from '../../core/geometry'
+import { axisOf, FACE_SPEC, mapVec } from '../../core/geometry'
 import { MARK } from '../../core/types'
 import { applyMove, moveSlab, inSlab } from '../../core/turn'
 import type { Cube, Cubie, Face, Move, Vec3 } from '../../core/types'
@@ -24,7 +24,7 @@ const isCenter = (c: Cubie) =>
 /** Where a center's bar lies when solved: along x on top and bottom, level
  *  (across the face, not up) on the sides. */
 function solvedBar(face: Vec3): Vec3 {
-  const axis = face.findIndex((v) => v !== 0)
+  const axis = axisOf(face)
   return axis === 1 ? [1, 0, 0] : axis === 0 ? [0, 0, 1] : [1, 0, 0]
 }
 
@@ -40,7 +40,7 @@ const faceOf = (c: Cubie) => c.stickers.find((s) => s.color !== MARK)!.normal
 function barOn(face: Vec3, turned: boolean): Vec3 {
   const start = solvedBar(face)
   if (!turned) return start
-  const other = 3 - face.findIndex((v) => v !== 0) - start.findIndex((v) => v !== 0)
+  const other = 3 - axisOf(face) - axisOf(start)
   return mapVec([0, 1, 2], (d) => (d === other ? 1 : 0))
 }
 
@@ -65,7 +65,7 @@ export const barsTurned = (cube: Cube): string[] =>
     const axis = barAxis(c)
     if (axis === undefined || c.position.filter((v) => v !== 0).length !== 1) return []
     const face = faceOf(c)
-    return barOn(face, false).findIndex((v) => v !== 0) === axis ? [] : [faceKey(face)]
+    return axisOf(barOn(face, false)) === axis ? [] : [faceKey(face)]
   })
 
 /** The cells of a center's bar (its own among them), its face's bars lying
@@ -73,7 +73,7 @@ export const barsTurned = (cube: Cube): string[] =>
 export function barCells(position: Vec3, turned: readonly string[]): Vec3[] {
   const axis = position.findIndex((v) => Math.abs(v) === 2)
   const face = mapVec(position, (v, d) => (d === axis ? Math.sign(v) : 0))
-  const along = barOn(face, turned.includes(faceKey(face))).findIndex((v) => v !== 0)
+  const along = axisOf(barOn(face, turned.includes(faceKey(face))))
   return [-1, 0, 1].map((k) => mapVec(position, (v, d) => (d === along ? k : v)))
 }
 
@@ -88,7 +88,7 @@ export const withoutBars = (cube: Cube): Cube =>
 /** The axis a center's bar lies along (0, 1 or 2), if it is one. */
 export const barAxis = (c: Cubie): number | undefined => {
   const mark = c.stickers.find((s) => s.color === MARK)
-  return mark && mark.normal.findIndex((v) => v !== 0)
+  return mark && axisOf(mark.normal)
 }
 
 /** Whether a turn cuts no bar: none it takes lies along its axis (a face

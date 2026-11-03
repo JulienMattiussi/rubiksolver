@@ -1,4 +1,4 @@
-import { FACE_NORMAL, PLANE_NORMALS } from '../../core/geometry'
+import { FACE_NORMAL, mod, PLANE_NORMALS } from '../../core/geometry'
 import type { FaceLabels } from '../../core/notation'
 import type { Color, Cube, Cubie, Face, GhostMove, GhostSide, Vec3 } from '../../core/types'
 
@@ -100,8 +100,6 @@ export function solvedGhost(): Cube {
     })),
   ]
 }
-
-const mod = (a: number, n: number) => ((a % n) + n) % n
 
 /** Side k's half turn on a normal: the plane direction reflected about its
  *  axis, front and back swapped. */

@@ -7,7 +7,7 @@ import { readFaces, type ScanReading } from './classify'
 import { distance, type Lab } from './color'
 import { orientFaces } from './orient'
 import { scanPlan } from './plan'
-import { GEAR } from './planFaces'
+import { GEAR } from './planGears'
 import type { CellSample } from './sample'
 
 /**

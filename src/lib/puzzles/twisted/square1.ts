@@ -1,16 +1,8 @@
 import { FACE_COLOR } from '../../core/cube'
-import { normalIndex, SECTOR_NORMALS } from '../../core/geometry'
-import type {
-  Cube,
-  Cubie,
-  Face,
-  SectorMove,
-  SectorSteps,
-  Sticker,
-  Turn,
-  Vec3,
-} from '../../core/types'
-import { applySectorMove, sectorAt, sectorFaced, sectorPlace } from '../shared/sectors'
+import { mapPiece, normalIndex, SECTOR_NORMALS } from '../../core/geometry'
+import type { Cube, Cubie, Face, SectorMove, Sticker, Turn } from '../../core/types'
+import { applySectorMove, sectorAt, sectorFaced } from '../shared/sectors'
+import { slashGoes, slashWays } from './square1Shape'
 
 /**
  * The Square-1: a cube cut in three layers, its top and bottom ones turning
@@ -59,15 +51,10 @@ export function solvedSquare1(): Cube {
   ]
 }
 
-/** Whether the slash can go: no corner across its cut (on boundary 0 or
- *  6) in either layer. Its layers always turn. */
-export function square1Turns(cube: Cube, move: Turn): boolean {
-  if (!('flip' in move)) return true
-  return cube.every((c) => {
-    const place = sectorPlace(c.position)
-    return !place?.wide || place.m % 6 !== 0
-  })
-}
+/** Whether a turn goes: its layers always, the slash when no corner lies
+ *  across its cut (square1Shape.ts). */
+export const square1Turns = (cube: Cube, move: Turn): boolean =>
+  !('flip' in move) || slashGoes(cube)
 
 /** Whether it is solved, however it is held: each direction one color, a
  *  cube (every side facing one of the cube's four ways, the middle's too). */
@@ -92,18 +79,9 @@ export function square1Solved(cube: Cube): boolean {
 
 /** The whole puzzle turned about its cut's line or about its axis: the
  *  ways to hold it that keep its cut where the slash turns. */
-const turnWhole =
-  (map: (v: Vec3) => Vec3) =>
-  (cube: Cube): Cube =>
-    cube.map((c) => ({
-      ...c,
-      position: map(c.position),
-      stickers: c.stickers.map((s) => ({ normal: map(s.normal), color: s.color })),
-    }))
-
 export const SQUARE1_SYMMETRIES = [
-  turnWhole(([x, y, z]) => [x, -y, -z]),
-  turnWhole(([x, y, z]) => [-x, -y, z]),
+  (cube: Cube): Cube => cube.map(mapPiece(([x, y, z]) => [x, -y, -z])),
+  (cube: Cube): Cube => cube.map(mapPiece(([x, y, z]) => [-x, -y, z])),
 ]
 
 /** The layer turns, then the slash when it can go: a Square-1's scramble,
@@ -117,19 +95,8 @@ export function scrambleSquare1(length: number, rng: () => number, start: Cube):
   }
   while (moves.length < length) {
     // The layer turns after which the slash can go, one drawn among them.
-    const ways: [number, number][] = []
-    for (let u = 0; u < 12; u++) {
-      for (let d = 0; d < 12; d++) {
-        if (u === 0 && d === 0) continue
-        let next = state
-        if (u) next = applySectorMove(next, { layer: 'U', steps: u as SectorSteps })
-        if (d) next = applySectorMove(next, { layer: 'D', steps: d as SectorSteps })
-        if (square1Turns(next, { flip: true })) ways.push([u, d])
-      }
-    }
-    const [u, d] = ways[Math.floor(rng() * ways.length)]!
-    if (u) play({ layer: 'U', steps: u as SectorSteps })
-    if (d) play({ layer: 'D', steps: d as SectorSteps })
+    const ways = slashWays(state).filter((w) => w.turns.length > 0)
+    ways[Math.floor(rng() * ways.length)]!.turns.forEach(play)
     play({ flip: true })
   }
   return moves.slice(0, length)

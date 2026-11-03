@@ -15,7 +15,8 @@ import { FromAbove } from './FromAbove'
  * top, bottom and middle), when its forms are too many for thumbnails: each
  * stage's choices seen from above, the one picked turned round till it
  * stands as the puzzle's does, the whole form shown in 3D meanwhile; the
- * last stage goes on to its pieces.
+ * last stage goes on to its pieces. Back from its colors, it starts from
+ * the form being entered (`FormStages.of`).
  */
 export function StagedFormPicker({ stages }: { stages: FormStages }) {
   const t = useI18n((s) => s.t)
@@ -23,7 +24,8 @@ export function StagedFormPicker({ stages }: { stages: FormStages }) {
   const pickForm = useEditor((s) => s.pickForm)
   const setPreview = useEditor((s) => s.setPreview)
   const [stage, setStage] = useState(0)
-  const [picks, setPicks] = useState<readonly FormPick[]>([])
+  const entered = useEditor((s) => s.form)
+  const [picks, setPicks] = useState<readonly FormPick[]>(() => (entered ? stages.of(entered) : []))
   const name = stages.stages[stage]!
   const options = stages.options(stage, picks.slice(0, stage))
   const picked = picks[stage]

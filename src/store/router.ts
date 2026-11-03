@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { cubeShape } from '@/lib/core/cube'
-import { parseRoute, routePath, sameKind } from '@/lib/app/route'
+import { parseRoute, routePath, sameKind, type Language } from '@/lib/app/route'
 import type { CubeKind } from '@/lib/core/shapes'
 import { useI18n } from '@/i18n/i18nStore'
 import { selectBusy, useCube } from './cubeStore'
@@ -55,7 +55,7 @@ export function followRoute(): void {
 
 /** Go to another language, a puzzle, or the home page (`kind: null`), as a
  *  new history entry; what is not named stays as shown. */
-export function goTo(route: { locale?: 'fr' | 'en'; kind?: CubeKind | null }): void {
+export function goTo(route: { locale?: Language; kind?: CubeKind | null }): void {
   const home = useRoute.getState().home
   const kind = route.kind === null ? undefined : (route.kind ?? (home ? undefined : currentKind()))
   const path = routePath(route.locale ?? useI18n.getState().locale, kind)

@@ -23,7 +23,7 @@ import { fixedJoints, jointsOf, type Joint } from './modes/joints'
 export interface Settings {
   /** Its pieces' joints (modes/joints.ts). */
   readonly joints: readonly Joint[]
-  /** Its half-cubies, cell by cell (modes/cuts.ts). */
+  /** Its half-cubies, cell by cell (its `CutsSpec`). */
   readonly cuts: Cuts
   /** Its faces, as its canvases show them (modes/canvas.ts). */
   readonly faces: Canvases

@@ -1,4 +1,4 @@
-import { dot, mapVec, TET_NORMALS } from '../../core/geometry'
+import { dot, mapPiece, mapVec, TET_NORMALS } from '../../core/geometry'
 import type {
   Color,
   Cube,
@@ -191,20 +191,15 @@ function mapOf(move: PyraMove): (v: Vec3) => Vec3 {
   return move.amount === 1 ? turn : (v) => turn(turn(v))
 }
 
-const turnPiece = (map: (v: Vec3) => Vec3, cubie: Cubie): Cubie => ({
-  position: map(cubie.position),
-  stickers: cubie.stickers.map((s) => ({ normal: map(s.normal), color: s.color })),
-})
-
 export function applyPyraMove(cube: Cube, move: PyraMove, size: number): Cube {
   const map = mapOf(move)
-  return cube.map((c) => (pyraTurns(move, c.position, size) ? turnPiece(map, c) : c))
+  return cube.map((c) => (pyraTurns(move, c.position, size) ? mapPiece(map)(c) : c))
 }
 
 /** The whole Pyraminx turned about its top, then about its left corner: their
  *  closure, 12 orientations, gives the editor every way a piece can sit. */
 export const PYRA_SYMMETRIES: readonly ((cube: Cube) => Cube)[] = (['U', 'L'] as const).map(
-  (vertex) => (cube: Cube) => cube.map((c) => turnPiece(clockwise(vertex), c)),
+  (vertex) => (cube: Cube) => cube.map(mapPiece(clockwise(vertex))),
 )
 
 /** Layers per corner of each Pyraminx (the Jing counts 2: its pieces sit

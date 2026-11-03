@@ -7,6 +7,7 @@ import { applyMoves as applyMovesTo } from '../../core/turn'
 import type { Cube, Cubie, RainbowMove, Turn, Vec3 } from '../../core/types'
 import type { CubeShape } from '../../core/shapes'
 import { colorsOf } from '../../core/pieces'
+import { mapPiece } from '../../core/geometry'
 
 /**
  * Bricks of the Skewbs' methods (the Skewb, the Skewb Ultimate, the Master
@@ -33,12 +34,7 @@ const keyOf = (c: Cubie) =>
     .sort()
     .join()
 
-const turned = (cube: Cube, turn: (v: Vec3) => Vec3): Cube =>
-  cube.map((c) => ({
-    ...c,
-    position: turn(c.position),
-    stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
-  }))
+const turned = (cube: Cube, turn: (v: Vec3) => Vec3): Cube => cube.map(mapPiece(turn))
 
 const NONE = { generators: [], turns: [] }
 

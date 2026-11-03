@@ -1,4 +1,4 @@
-import { DODECA_NORMALS, dot, FACE_NORMAL } from '../../core/geometry'
+import { axisOf, DODECA_NORMALS, dot, FACE_NORMAL, mapPiece } from '../../core/geometry'
 import type { Color, Cube, Cubie, Face, RainbowCorner, RainbowMove, Vec3 } from '../../core/types'
 import { MASTER_SLICES, RAINBOW_CORNERS, RAINBOW_TRIANGLES, SQUARE_COLOR } from './rainbow'
 import { DINO_TURNS } from './dinoRex'
@@ -69,14 +69,7 @@ export function scrambleSkewbU(length: number, rng: () => number): RainbowMove[]
 export const SKEWB_SYMMETRIES: readonly ((cube: Cube) => Cube)[] = [
   ([x, y, z]: Vec3): Vec3 => [y, z, x],
   ([x, y, z]: Vec3): Vec3 => [-x + 0, y, -z + 0],
-].map(
-  (turn) => (cube: Cube) =>
-    cube.map((c) => ({
-      ...c,
-      position: turn(c.position),
-      stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
-    })),
-)
+].map((turn) => (cube: Cube) => cube.map(mapPiece(turn)))
 
 /**
  * The Skewb (fan2cube.fr/skewb1, Tony Durham, 1982): the Skewb Ultimate's
@@ -106,14 +99,7 @@ export function solvedSkewb(): Cube {
 export const SKEWB_CUBE_SYMMETRIES: readonly ((cube: Cube) => Cube)[] = [
   ([x, y, z]: Vec3): Vec3 => [y, z, x],
   ([x, y, z]: Vec3): Vec3 => [z, y, -x + 0],
-].map(
-  (turn) => (cube: Cube) =>
-    cube.map((c) => ({
-      ...c,
-      position: turn(c.position),
-      stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
-    })),
-)
+].map((turn) => (cube: Cube) => cube.map(mapPiece(turn)))
 
 /**
  * The Master Skewb (fan2cube.fr/masterskewb1, Katsuhiko Okamoto, 2003): the
@@ -147,7 +133,7 @@ export function solvedMasterSkewb(): Cube {
   // Petals: on each face, toward each of its corners.
   for (const f of Object.keys(FACE_NORMAL) as Face[]) {
     const n = FACE_NORMAL[f]
-    const a = n.findIndex((x) => x !== 0)
+    const a = axisOf(n)
     const [u, v] = [0, 1, 2].filter((d) => d !== a) as [number, number]
     for (const s of [2, -2]) {
       for (const t of [2, -2]) {

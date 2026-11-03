@@ -3,24 +3,19 @@ import { formatMove } from '@/lib/core/notation'
 import { describeMove } from '@/lib/app/moveGuide'
 import { turnAllowed } from '@/lib/core/turn'
 import type { Move } from '@/lib/core/types'
-import type { LayerGroup } from '@/lib/puzzles/entry'
+import { SHAPE_PAD_GROUPS } from '@/lib/core/shapes'
 import { selectMoveLabels, useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { PadGroups } from './PadGroups'
 import { PadHeader } from './PadHeader'
 import { useTurnButton } from './useTurnButton'
 
-/** Rotation pad of a puzzle whose face turns go by groups, each under its
- *  title (the Fashion-V's blocks then thin layers, Meffert's Pocket Cube's
- *  halves then the thin layers by its small corner), in its own notation
- *  (its model's `format`), a turn grayed while it jams. */
-export function LayerPad({
-  groups,
-  disabled,
-}: {
-  groups: readonly LayerGroup[]
-  disabled: boolean
-}) {
+/** Rotation pad of a puzzle whose face turns go by groups (its card's
+ *  `padGroups`: the Fashion-V's blocks then thin layers, Meffert's Pocket
+ *  Cube's halves then the thin layers by its small corner), each under its
+ *  title, in its own notation (its model's `format`), a turn grayed while
+ *  it jams. */
+export function LayerPad({ disabled }: { disabled: boolean }) {
   const t = useI18n((s) => s.t)
   const labels = useI18n(selectMoveLabels)
   const cube = useCube((s) => s.cube)
@@ -36,7 +31,7 @@ export function LayerPad({
     <div>
       <PadHeader />
       <PadGroups
-        groups={groups.map((g) => ({ ...g, title: t.padGroups[g.key] }))}
+        groups={SHAPE_PAD_GROUPS[shape].map((g) => ({ ...g, title: t.padGroups[g.key] }))}
         layerKey={(layer) => formatMove({ ...layer, amount: 1 }, labels, dims, shape)}
         pair={(layer) => (
           <>

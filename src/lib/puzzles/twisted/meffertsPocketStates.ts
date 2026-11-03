@@ -1,6 +1,6 @@
 import { solvedCube } from '../../core/cube'
 import { applyMove } from '../../core/turn'
-import { AXIS_ROTATIONS, FACE_NORMAL } from '../../core/geometry'
+import { AXIS_ROTATIONS, FACE_NORMAL, mapPiece } from '../../core/geometry'
 import { type Cube, type Face, type Move, type Vec3 } from '../../core/types'
 import { SHAPE_DIMS } from '../../core/shapes'
 import { meffertsPocketBoxed, meffertsPocketTurns } from './meffertsPocket'
@@ -81,10 +81,7 @@ function searchTree() {
 
 /** The state held another way about its core, and its turns' faces back. */
 function heldBy(cube: Cube, rotate: (v: Vec3) => Vec3): Cube {
-  return cube.map((c) => ({
-    position: rotate(c.position),
-    stickers: c.stickers.map((s) => ({ normal: rotate(s.normal), color: s.color })),
-  }))
+  return cube.map(mapPiece(rotate))
 }
 
 /** A shortest solution: the tree's path to the state, undone (a turn that

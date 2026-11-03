@@ -12,6 +12,9 @@ import { CUBE_KINDS, cubeKindId, SHAPE_SLUG, type CubeKind, type CubeVariant } f
 export const LANGUAGES = ['fr', 'en'] as const
 export type Language = (typeof LANGUAGES)[number]
 
+/** The language of a bare address, and of search engines' `x-default`. */
+export const DEFAULT_LANGUAGE: Language = LANGUAGES[0]
+
 /** What an address names: either part may be missing or unknown. */
 export interface Route {
   readonly locale?: Language

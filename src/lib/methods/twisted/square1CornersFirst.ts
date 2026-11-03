@@ -1,22 +1,23 @@
-import { isSolved, solvedCube } from '../../core/cube'
+import { isSolved } from '../../core/cube'
 import type { Cube, Cubie, SectorMove } from '../../core/types'
-import { solvePieces } from '../../solve/pieceSearch'
 import type { MethodPlan } from '../../solve/solverKit'
 import {
+  bottomCorners,
+  bottomLayer,
   EVERY_TURN,
   formula,
   INSERT_CORNER,
   INSERT_EDGE,
-  goesOnCorners,
-  isCorner,
   isCube,
   isEdge,
   offsetOf,
   piecesOf,
   placedTogether,
   QUARTERS,
+  search,
   toCube,
-  trackedHomes,
+  topCorners,
+  topLayer,
 } from './square1Kit'
 
 /**
@@ -50,11 +51,6 @@ function atLeast(pieces: readonly Cubie[], n: number): boolean {
   return Math.max(0, ...counts.values()) >= n
 }
 
-const bottomCorners = (c: readonly Cubie[]) => piecesOf(c, false, isCorner)
-const topCorners = (c: readonly Cubie[]) => piecesOf(c, true, isCorner)
-const bottomLayer = (c: readonly Cubie[]) => piecesOf(c, false, () => true)
-const topLayer = (c: readonly Cubie[]) => piecesOf(c, true, () => true)
-
 /** One more piece placed with the others, by a formula and quarter turns. */
 const placing =
   (
@@ -63,14 +59,7 @@ const placing =
     goal: (pieces: readonly Cubie[]) => boolean,
   ) =>
   (cube: Cube): SectorMove[] =>
-    solvePieces(cube, {
-      track: trackedHomes(keep).map((c) => c.position),
-      moves: QUARTERS,
-      macros,
-      goal,
-      legal: (pieces, move) => goesOnCorners(pieces, move as SectorMove),
-      maxDepth: 10,
-    })
+    search(cube, keep, { moves: QUARTERS, macros, goal, maxDepth: 10 })
 
 const cornersDone = (c: readonly Cubie[]) =>
   placedTogether(bottomCorners(c)) && placedTogether(topCorners(c))
@@ -131,14 +120,6 @@ export const SQUARE1_CORNERS_PLAN: MethodPlan = [
     key: 'stepSq1InLine',
     goal: isSolved,
     moves: EVERY_TURN,
-    phases: [
-      (cube) =>
-        solvePieces(cube, {
-          track: solvedCube('square1').map((c) => c.position),
-          moves: QUARTERS,
-          goal: isSolved,
-          maxDepth: 4,
-        }),
-    ],
+    phases: [(cube) => search(cube, () => true, { moves: QUARTERS, goal: isSolved, maxDepth: 4 })],
   },
 ]

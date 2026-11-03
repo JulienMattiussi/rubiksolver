@@ -1,7 +1,6 @@
-import { FACE_SPEC, mapVec } from '../../core/geometry'
-import type { MoveDescription } from '../../core/guide'
+import { axisOf, FACE_SPEC, mapPiece, mapVec } from '../../core/geometry'
+import { senseOf, type MoveDescription } from '../../core/guide'
 import { AMOUNT_SUFFIX, type FaceLabels } from '../../core/notation'
-import type { LayerGroup } from '../entry'
 import type { Color, Cube, Cubie, Face, Move, Sticker, Vec3 } from '../../core/types'
 
 /**
@@ -92,7 +91,7 @@ export function meffertsPocketSolved(cube: Cube): boolean {
   for (const c of cube) {
     for (const s of c.stickers) {
       if (s.color === 'V') continue
-      const a = s.normal.findIndex((v) => v !== 0)
+      const a = axisOf(s.normal)
       const side = s.normal[a]! > 0 ? hi[a] : lo[a]
       if (c.position[a]! + s.normal[a]! * half(c) !== side) return false
       const face = s.normal.join()
@@ -123,23 +122,12 @@ const NEAR_A: readonly Face[] = ['U', 'R', 'F']
 export const meffertsPocketLayers = (face: Face): readonly Pick<Move, 'depth' | 'wide'>[] =>
   NEAR_A.includes(face) ? [MEFFERTS_POCKET_HALF, {}] : [{}]
 
-/** Its pad: the halves, each axis's two side by side, then the thin layers. */
-export const MEFFERTS_POCKET_PAD: readonly LayerGroup[] = [
-  {
-    key: 'halves',
-    layers: (['U', 'D', 'R', 'L', 'F', 'B'] as const).map((face) =>
-      NEAR_A.includes(face) ? { face, ...MEFFERTS_POCKET_HALF } : { face },
-    ),
-  },
-  { key: 'byA', layers: NEAR_A.map((face) => ({ face })) },
-]
-
 const isThin = (move: Move) => NEAR_A.includes(move.face) && !move.wide
 
 /** What a turn does: a half, or the thin layer by A. */
 export function describeMeffertsPocketMove(move: Move): MoveDescription {
-  const turn = move.amount === 2 ? 'half' : move.amount === 1 ? 'cw' : 'ccw'
-  return { kind: 'meffertsPocket', face: move.face, layer: isThin(move) ? 'thin' : 'half', turn }
+  const layer = isThin(move) ? 'thin' : 'half'
+  return { kind: 'layers', face: move.face, layer, turn: senseOf(move.amount) }
 }
 
 /** A half by its face's letter, the thin layer by A in lowercase (u). */
@@ -152,8 +140,5 @@ export function formatMeffertsPocketMove(move: Move, labels: FaceLabels): string
  *  its diagonal through A (x -> y -> z), its only symmetry. */
 export function turnAboutA(cube: Cube): Cube {
   const turn = ([x, y, z]: Vec3): Vec3 => [z, x, y]
-  return cube.map((c) => ({
-    position: turn(c.position),
-    stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
-  }))
+  return cube.map(mapPiece(turn))
 }

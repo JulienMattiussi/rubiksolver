@@ -1,6 +1,6 @@
 import type { Cube, Cubie, Vec3 } from '../../core/types'
 import { MARK } from '../../core/types'
-import { mapVec } from '../../core/geometry'
+import { axisOf, mapVec } from '../../core/geometry'
 
 /**
  * The Master Morphinx (fan2cube.fr/mastermorphinx1, Aleh Hladzilin and Adam
@@ -28,10 +28,7 @@ export const withCenterMarks = (cube: Cube): Cube =>
     isCenter(c) && c.stickers.length === 1
       ? {
           ...c,
-          stickers: [
-            ...c.stickers,
-            { normal: markOf(c.position.findIndex((v) => v !== 0)), color: MARK },
-          ],
+          stickers: [...c.stickers, { normal: markOf(axisOf(c.position)), color: MARK }],
         }
       : c,
   )
@@ -71,7 +68,7 @@ function twisted(c: Cubie): Cubie {
 /** A corner's twist, in thirds: where its white or yellow sticker faces. */
 const twistOf = (c: Cubie) => {
   const s = c.stickers.find((t) => t.color === 'W' || t.color === 'Y')!
-  const axis = s.normal.findIndex((v) => v !== 0)
+  const axis = axisOf(s.normal)
   const hand = c.position[0]! * c.position[1]! * c.position[2]!
   return ((((axis - 1) * hand) % 3) + 3) % 3
 }

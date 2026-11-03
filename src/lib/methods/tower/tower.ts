@@ -3,6 +3,7 @@ import { invertMoves } from '../../core/moves'
 import { parseMoves } from '../../core/notation'
 import type { Color, Cube, Cubie, Move } from '../../core/types'
 import { DESCEND_CORNER, SWAP_CORNERS } from './domino'
+import { axisOf } from '../../core/geometry'
 
 /**
  * 2x2x4 tower, "Two Pockets" method, as taught on fan2cube.fr (tower2242 +
@@ -64,7 +65,7 @@ const UP_DOWN: readonly Color[] = [COLORS.U, COLORS.D]
  *  (y = standing). Bars are told apart by octant, a corner per octant. */
 export function barAxis(corner: Cubie): number {
   const end = corner.stickers.find((s) => UP_DOWN.includes(s.color))!
-  return end.normal.findIndex((v) => v !== 0)
+  return axisOf(end.normal)
 }
 
 /** A bar's pieces, by index: its corner (`corner`, an index) and the

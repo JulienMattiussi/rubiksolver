@@ -18,7 +18,7 @@ real methods, or learn to solve the 3x3, the 2x2, the 4x4, the 5x5, the super cu
 
 <sub>
   100% front-end &nbsp;·&nbsp; React 19 + React Three Fiber &nbsp;·&nbsp; TypeScript strict &nbsp;·&nbsp;
-  integer-only puzzle engine &nbsp;·&nbsp; 48 solving methods &nbsp;·&nbsp; 16 guided tutorials &nbsp;·&nbsp;
+  integer-only puzzle engine &nbsp;·&nbsp; 52 solving methods &nbsp;·&nbsp; 16 guided tutorials &nbsp;·&nbsp;
   French and English &nbsp;·&nbsp; MIT license
 </sub>
 

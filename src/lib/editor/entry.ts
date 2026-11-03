@@ -12,7 +12,8 @@ import { MODELS } from '../puzzles/models'
  *   form     its form picked among thumbnails (modes/form.ts), or in stages
  *            when its forms are too many (`stages`: the Square-1's)
  *   canvas   its shape told face by face on canvases (modes/canvas.ts)
- *   cuts     its half-cubies laid, cell by cell (modes/cuts.ts)
+ *   cuts     its half-cubies laid, cell by cell (its `CutsSpec`, no mode
+ *            module: the Fashion-V's, fashionEntry.ts)
  *   joints   its pieces fused, joint by joint (modes/joints.ts)
  *   toggles  something set by clicking pieces round (modes/toggles.ts)
  *
@@ -56,7 +57,8 @@ export interface TogglesSpec {
   readonly carry?: (edit: EditStickers, key: string, from: number) => EditStickers
 }
 
-/** Half-cubies laid cell by cell (modes/cuts.ts): the Fashion-V's. */
+/** Half-cubies laid cell by cell, all said by the puzzle (no mode module):
+ *  the Fashion-V's (puzzles/twisted/fashionEntry.ts). */
 export interface CutsSpec {
   /** As in the box. */
   readonly start: () => Cuts

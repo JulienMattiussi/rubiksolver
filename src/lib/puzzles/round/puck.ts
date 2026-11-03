@@ -1,4 +1,4 @@
-import { FACE_NORMAL } from '../../core/geometry'
+import { FACE_NORMAL, mod } from '../../core/geometry'
 import type { Color, Cube, Cubie, SectorMove, SectorSteps } from '../../core/types'
 import { sectorAt, sectorPlace } from '../shared/sectors'
 
@@ -47,8 +47,6 @@ export function solvedPuck(): Cube {
 
 /** The twelve sectors of a layer. */
 const TWELVE = Array.from({ length: 12 }, (_, m) => m)
-
-const mod = (a: number, n: number) => ((a % n) + n) % n
 
 /** Which piece a top piece is (its number), from its hidden face. */
 export function puckNumber(cubie: Cubie): number | undefined {

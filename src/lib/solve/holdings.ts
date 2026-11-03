@@ -1,5 +1,5 @@
 import { solvedCube } from '../core/cube'
-import { AXIS_ROTATIONS, FACE_NORMAL, faceOfNormal } from '../core/geometry'
+import { AXIS_ROTATIONS, axisOf, FACE_NORMAL, faceOfNormal } from '../core/geometry'
 import { SHAPE_DIMS, type CubeShape } from '../core/shapes'
 import { poseOf } from '../core/pieces'
 import { isFaceMove, type Cube, type Cubie, type Turn, type Vec3 } from '../core/types'
@@ -49,8 +49,7 @@ export function bestHolding(cube: Cube, shape: CubeShape): Rotation {
     [0, 1, 0],
     [0, 0, 1],
   ]
-  const fits = (by: Rotation) =>
-    axes.every((e, a) => dims[by(e).findIndex((x) => x !== 0)] === dims[a])
+  const fits = (by: Rotation) => axes.every((e, a) => dims[axisOf(by(e))] === dims[a])
   const home = (by: Rotation) => turnedWhole(cube, by).filter((c) => solved.has(at(c))).length
   return AXIS_ROTATIONS.filter(fits).reduce((best, by) => (home(by) > home(best) ? by : best))
 }

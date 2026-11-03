@@ -1,5 +1,5 @@
 import { tallAxis } from './camo'
-import { FACE_SPEC, layerCoords, mapVec } from '../../core/geometry'
+import { axisOf, FACE_SPEC, layerCoords, mapVec } from '../../core/geometry'
 import { invertMove, layerTurnsOf } from '../../core/moves'
 import { applyMove, moveSlab } from '../../core/turn'
 import type { Cube, Move, Vec3 } from '../../core/types'
@@ -72,7 +72,7 @@ function shapeTurns(): ShapeTurn[] {
         move,
         MECHANISM,
       )
-      return moved!.stickers[0]!.normal.findIndex((v) => v !== 0)
+      return axisOf(moved!.stickers[0]!.normal)
     })
     // A layer alone has a cut at +-2 (the mechanism's): pieces tall on its
     // axis on that side straddle it. A block's only cut is the middle.

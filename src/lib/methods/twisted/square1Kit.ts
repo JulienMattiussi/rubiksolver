@@ -1,7 +1,9 @@
 import { solvedCube } from '../../core/cube'
+import { mod } from '../../core/geometry'
 import { allTurnsOf, type MoveSet } from '../../core/moveSet'
 import { NOTATION_FR } from '../../core/notation'
-import type { Cube, Cubie, SectorMove, SectorSteps } from '../../core/types'
+import { colorsOf } from '../../core/pieces'
+import type { Cube, Cubie, SectorMove } from '../../core/types'
 import {
   applySectorMove,
   parseSectorMoves,
@@ -9,7 +11,15 @@ import {
   sectorPlace,
 } from '../../puzzles/shared/sectors'
 import { square1Turns } from '../../puzzles/twisted/square1'
+import {
+  isFlipped,
+  keyOf,
+  layerTurns,
+  outline,
+  slashWays,
+} from '../../puzzles/twisted/square1Shape'
 import { once } from '../../solve/once'
+import { solvePieces, type PieceSearch } from '../../solve/pieceSearch'
 
 /**
  * What the Square-1's two methods share (square1CornersFirst.ts after
@@ -31,16 +41,13 @@ export const pairsFormula = (text: string): SectorMove[] =>
     ),
   )
 
-const turn = (layer: 'U' | 'D', steps: number): SectorMove[] =>
-  steps % 12 ? [{ layer, steps: (((steps % 12) + 12) % 12) as SectorSteps }] : []
-
 /** Every turn it has: the step sets of its methods. */
 export const EVERY_TURN: MoveSet = allTurnsOf('square1')
 
 /** The layers turned by quarters, which keep a cube a cube. */
 export const QUARTERS: MoveSet = {
-  generators: [...turn('U', 3), ...turn('D', 3)],
-  turns: [3, 6, 9].flatMap((k) => [...turn('U', k), ...turn('D', k)]),
+  generators: [...layerTurns(3, 0), ...layerTurns(0, 3)],
+  turns: [3, 6, 9].flatMap((k) => [...layerTurns(k, 0), ...layerTurns(0, k)]),
 }
 
 /** fan2cube's two insertions (squareone2), which both methods place the
@@ -49,39 +56,28 @@ export const QUARTERS: MoveSet = {
 export const INSERT_CORNER = formula('-B/3/3/6/B')
 export const INSERT_EDGE = formula('1/-3B/-1-4B/1+B/3B/3B/-1')
 
-/** The pieces' homes, by their colors. */
-const HOME = once(
-  () =>
-    new Map(
-      solvedCube('square1').flatMap((c) => {
-        const place = sectorPlace(c.position)
-        return place ? [[colorsKey(c), place] as const] : []
-      }),
-    ),
-)
+/** Each piece's home: the solved piece of its colors. */
+const HOMES = once(() => new Map(solvedCube('square1').map((c) => [colorsOf(c), c])))
 
-const colorsKey = (c: Cubie): string =>
-  c.stickers
-    .map((s) => s.color)
-    .sort()
-    .join('')
+/** Where a piece belongs (solved). */
+export const homeOf = (c: Cubie): Cubie => HOMES().get(colorsOf(c))!
 
 export const isCorner = (c: Cubie): boolean => sectorPlace(c.position)?.wide ?? false
 export const isEdge = (c: Cubie): boolean => sectorPlace(c.position)?.wide === false
 const isLayerPiece = (c: Cubie): boolean => sectorPlace(c.position) !== undefined
 
 /** Whether a piece belongs to the top layer (its home's). */
-const fromTop = (c: Cubie): boolean => HOME().get(colorsKey(c))!.z > 0
+const fromTop = (c: Cubie): boolean => sectorPlace(homeOf(c).position)!.z > 0
 
 /** How far a piece stands from home, in its layer's own turns (a top
  *  piece k twelfths on, a bottom one k twelfths back), or null when it is
  *  out of its layer. */
 export function offsetOf(c: Cubie): number | null {
   const place = sectorPlace(c.position)
-  const home = HOME().get(colorsKey(c))
+  const home = sectorPlace(homeOf(c).position)
   if (!place || !home || place.z !== home.z) return null
   const k = place.m - home.m
-  return (((place.z > 0 ? k : -k) % 12) + 12) % 12
+  return mod(place.z > 0 ? k : -k, 12)
 }
 
 /** Whether these pieces stand in their layer, all as far from home: placed,
@@ -98,6 +94,11 @@ export const piecesOf = (
   kind: (c: Cubie) => boolean,
 ): Cubie[] => cube.filter((c) => isLayerPiece(c) && kind(c) && fromTop(c) === top)
 
+export const topCorners = (c: readonly Cubie[]) => piecesOf(c, true, isCorner)
+export const bottomCorners = (c: readonly Cubie[]) => piecesOf(c, false, isCorner)
+export const topLayer = (c: readonly Cubie[]) => piecesOf(c, true, () => true)
+export const bottomLayer = (c: readonly Cubie[]) => piecesOf(c, false, () => true)
+
 /** Whether it is a cube, ready to slash: every corner on a boundary that
  *  sides it as solved (1, 4, 7, 10) and, when asked, the middle square,
  *  not flipped. */
@@ -109,27 +110,10 @@ export function isCube(cube: readonly Cubie[], middle = true): boolean {
   })
 }
 
-/** A layer's outline: each sector's piece, an edge's or a corner's first or
- *  second twelfth, from sector 0 on. */
-function outline(cube: Cube, z: number): string {
-  const cells = Array<string>(12).fill('e')
-  for (const c of cube) {
-    const place = sectorPlace(c.position)
-    if (!place?.wide || place.z !== z) continue
-    cells[(place.m + 11) % 12] = 'a'
-    cells[place.m] = 'b'
-  }
-  return cells.join('')
-}
-
 /** The shape, its layers' outlines read from wherever they are turned, the
  *  middle flipped or not. */
-function shapeKey(cube: Cube, middle: boolean): string {
-  const turned = (s: string) =>
-    Array.from({ length: 12 }, (_, r) => s.slice(r) + s.slice(0, r)).sort()[0]!
-  const flipped = cube.some((c) => !sectorPlace(c.position) && !isCube([c]))
-  return `${turned(outline(cube, 1))}|${turned(outline(cube, -1))}${middle ? `|${flipped}` : ''}`
-}
+const shapeKey = (cube: Cube, middle: boolean): string =>
+  `${keyOf(outline(cube, 1)).key}|${keyOf(outline(cube, -1)).key}${middle ? `|${isFlipped(cube)}` : ''}`
 
 const play = (cube: Cube, moves: readonly SectorMove[]): Cube => moves.reduce(applySectorMove, cube)
 
@@ -147,17 +131,12 @@ export function toCube(cube: Cube, middle: boolean): SectorMove[] {
   while (frontier.length && !frontier.some((n) => goal(n.state))) {
     const next: typeof frontier = []
     for (const { state, moves } of frontier) {
-      for (let u = 0; u < 12; u++) {
-        for (let d = 0; d < 12; d++) {
-          const setup = [...turn('U', u), ...turn('D', d)]
-          const turned = play(state, setup)
-          if (!square1Turns(turned, { flip: true })) continue
-          const slashed = applySectorMove(turned, { flip: true })
-          const key = shapeKey(slashed, middle)
-          if (seen.has(key)) continue
-          seen.add(key)
-          next.push({ state: slashed, moves: [...moves, ...setup, { flip: true }] })
-        }
+      for (const { turns, at } of slashWays(state)) {
+        const slashed = applySectorMove(at, { flip: true })
+        const key = shapeKey(slashed, middle)
+        if (seen.has(key)) continue
+        seen.add(key)
+        next.push({ state: slashed, moves: [...moves, ...turns, { flip: true }] })
       }
     }
     frontier = next
@@ -167,7 +146,7 @@ export function toCube(cube: Cube, middle: boolean): SectorMove[] {
   // Its layers turned so that its corners side it as solved.
   for (let u = 0; u < 3; u++) {
     for (let d = 0; d < 3; d++) {
-      const align = [...turn('U', u), ...turn('D', d)]
+      const align = layerTurns(u, d)
       if (isCube(play(found.state, align), middle)) return [...found.moves, ...align]
     }
   }
@@ -175,10 +154,19 @@ export function toCube(cube: Cube, middle: boolean): SectorMove[] {
 }
 
 /** The pieces a step of either method tracks: the corners always (they
- *  say when the slash jams), the middle when it matters. */
-export const trackedHomes = (keep: (c: Cubie) => boolean): Cube =>
+ *  say when the slash jams), the others it keeps. */
+const trackedHomes = (keep: (c: Cubie) => boolean): Cube =>
   solvedCube('square1').filter((c) => isCorner(c) || keep(c))
 
-/** Whether a turn goes, read on tracked pieces that hold every corner. */
-export const goesOnCorners = (pieces: Cube, move: SectorMove | { flip: true }): boolean =>
-  square1Turns(pieces, move)
+/** A step's search: the pieces it keeps (and the corners) tracked, its
+ *  turns played only when they go on them. */
+export const search = (
+  cube: Cube,
+  keep: (c: Cubie) => boolean,
+  spec: Pick<PieceSearch<SectorMove>, 'moves' | 'macros' | 'goal' | 'maxDepth'>,
+): SectorMove[] =>
+  solvePieces(cube, {
+    track: trackedHomes(keep).map((c) => c.position),
+    legal: square1Turns,
+    ...spec,
+  })

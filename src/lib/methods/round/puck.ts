@@ -5,6 +5,7 @@ import type { MethodPlan } from '../../solve/solverKit'
 import type { Cube, SectorMove, SectorSteps } from '../../core/types'
 import { once } from '../../solve/once'
 import { permutationIsOdd } from '../../solve/permutation'
+import { mod } from '../../core/geometry'
 
 /**
  * Hockey Puck, "isolate, then permute" (the 2-Star Prism's way, starPrism.ts),
@@ -40,8 +41,6 @@ function slotsOf(cube: Cube): Slots {
   }
   return slots
 }
-
-const mod = (a: number, n: number) => ((a % n) + n) % n
 
 function apply(slots: readonly number[], move: SectorMove): Slots {
   const out = [...slots]

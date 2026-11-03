@@ -1,4 +1,4 @@
-import { FACE_SPEC, rotateN } from '../../core/geometry'
+import { FACE_SPEC, mapPiece, mod, rotateN } from '../../core/geometry'
 import {
   isGearMove,
   type Cube,
@@ -78,10 +78,8 @@ function asSeen(c: Cubie): Cubie {
 /** A cubie turned by quarter turns about an axis, its spin kept. */
 function turned(c: Cubie, axis: 'x' | 'y' | 'z', times: number, spin = 0): Cubie {
   return {
-    ...c,
-    position: rotateN(c.position, axis, times),
-    stickers: c.stickers.map((s) => ({ normal: rotateN(s.normal, axis, times), color: s.color })),
-    ...(c.spin !== undefined && { spin: (((c.spin + spin) % 6) + 6) % 6 }),
+    ...mapPiece((v) => rotateN(v, axis, times))(c),
+    ...(c.spin !== undefined && { spin: mod(c.spin + spin, 6) }),
   }
 }
 

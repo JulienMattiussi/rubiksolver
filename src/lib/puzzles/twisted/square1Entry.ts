@@ -1,10 +1,11 @@
 import { FACE_COLOR, solvedCube } from '../../core/cube'
 import { SECTOR_NORMALS } from '../../core/geometry'
-import type { Color, Cube, Cubie, SectorMove, SectorSteps, Sticker } from '../../core/types'
+import type { Color, Cube, Cubie, Sticker } from '../../core/types'
 import type { FormPick, FormStages } from '../../editor/entry'
 import { once } from '../../solve/once'
-import { applySectorMove, sectorAt, sectorFaced, sectorPlace } from '../shared/sectors'
-import { square1Turns } from './square1'
+import { applySectorMove, sectorAt, sectorPlace } from '../shared/sectors'
+import { SQUARE1_SYMMETRIES } from './square1'
+import { isFlipped, keyOf, outline, slashWays, turned } from './square1Shape'
 
 /**
  * The Square-1 entered in the shape it stands in, chosen in three stages
@@ -13,50 +14,17 @@ import { square1Turns } from './square1'
  * each turned as it stands against the slash's cut, then its middle, square
  * or not. Its pieces are then put one by one (modes/pieces.ts).
  *
- * A layer's outline is read sector by sector from sector 0 (the one just
- * right of the cut's back end): `e` an edge's twelfth, `a` and `b` a
- * corner's first and second. Its key is its least way round; a way is how
- * far its layer is turned from it (a top's twelfths clockwise seen from
- * above, a bottom's seen from below, as its turns count them).
+ * A layer is picked by its outline's key, then its way round
+ * (square1Shape.ts): a top's twelfths clockwise seen from above, a
+ * bottom's seen from below, as its turns count them.
  */
 
 const STAGES = ['top', 'bottom', 'middle'] as const
-
-/** A layer's outline, as it stands. */
-function outline(cube: Cube, z: number): string {
-  const cells = Array<string>(12).fill('e')
-  for (const c of cube) {
-    const place = sectorPlace(c.position)
-    if (!place?.wide || place.z !== z) continue
-    cells[(place.m + 11) % 12] = 'a'
-    cells[place.m] = 'b'
-  }
-  return cells.join('')
-}
-
-/** An outline turned r cells on: what stood at m stands at m + r. */
-const turned = (cells: string, r: number): string => {
-  const k = ((r % 12) + 12) % 12
-  return cells.slice(12 - k) + cells.slice(0, 12 - k)
-}
-
-/** An outline's key, its least way round, and how far it stands from it. */
-function keyOf(cells: string): { key: string; way: number } {
-  let best = { key: cells, way: 0 }
-  for (let r = 1; r < 12; r++) {
-    const key = turned(cells, -r)
-    if (key < best.key) best = { key, way: r }
-  }
-  return best
-}
 
 /** How many different ways round an outline stands. */
 const waysOf = (key: string): number =>
   Array.from({ length: 12 }, (_, r) => turned(key, r)).filter((c, r, all) => all.indexOf(c) === r)
     .length
-
-const isFlipped = (cube: Cube): boolean =>
-  cube.some((c) => !sectorPlace(c.position) && c.stickers.some((s) => sectorFaced(s.normal) === 3))
 
 /** Its shapes, each its top's and bottom's keys and its middle flipped or
  *  not: every one its turns reach from the box (all 340). */
@@ -69,12 +37,8 @@ const SHAPES = once(() => {
   while (frontier.length) {
     const next: Cube[] = []
     for (const state of frontier) {
-      for (let i = 0; i < 144; i++) {
-        let cube = state
-        for (const move of layerTurns(Math.floor(i / 12), i % 12))
-          cube = applySectorMove(cube, move)
-        if (!square1Turns(cube, { flip: true })) continue
-        cube = applySectorMove(cube, { flip: true })
+      for (const { at } of slashWays(state)) {
+        const cube = applySectorMove(at, { flip: true })
         const key = keyOfShape(cube)
         if (seen.has(key)) continue
         seen.add(key)
@@ -88,11 +52,6 @@ const SHAPES = once(() => {
     return { top: top!, bottom: bottom!, flipped: flipped === 'true' }
   })
 })
-
-const layerTurns = (u: number, d: number): SectorMove[] => [
-  ...(u ? [{ layer: 'U', steps: u as SectorSteps } as const] : []),
-  ...(d ? [{ layer: 'D', steps: d as SectorSteps } as const] : []),
-]
 
 const distinct = (keys: readonly string[]) => [...new Set(keys)].sort()
 
@@ -122,7 +81,6 @@ function layer(cells: string, z: number): Cubie[] {
   return out
 }
 
-/** The middle's halves, the right one flipped or not. */
 /** The middle's halves in their own colors, the right one flipped or not:
  *  the left one never moves, so entering keeps it as the form has it. */
 function middle(flipped: boolean): Cubie[] {
@@ -179,17 +137,7 @@ export const SQUARE1_FORM_STAGES: FormStages = {
     const z = stage === 0 ? 1 : stage === 1 ? -1 : 0
     return form
       .filter((c) => (sectorPlace(c.position)?.z ?? 0) === z)
-      .map((c) =>
-        z < 0
-          ? {
-              position: [c.position[0], -c.position[1], -c.position[2]],
-              stickers: c.stickers.map((s) => ({
-                normal: [s.normal[0], -s.normal[1], -s.normal[2]],
-                color: s.color,
-              })),
-            }
-          : c,
-      )
+      .map((c) => (z < 0 ? SQUARE1_SYMMETRIES[0]!([c])[0]! : c))
   },
   of: (cube) => {
     const top = keyOf(outline(cube, 1))

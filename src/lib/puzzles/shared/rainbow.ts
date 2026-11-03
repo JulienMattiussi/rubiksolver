@@ -1,4 +1,4 @@
-import { dot, FACE_NORMAL } from '../../core/geometry'
+import { dot, FACE_NORMAL, mapPiece } from '../../core/geometry'
 import type { FaceLabels } from '../../core/notation'
 import type { Color, Cube, Cubie, Face, RainbowCorner, RainbowMove, Vec3 } from '../../core/types'
 
@@ -113,14 +113,7 @@ function clockwise(d: Vec3): (v: Vec3) => Vec3 {
 export function applyRainbowMove(cube: Cube, move: RainbowMove): Cube {
   const once = clockwise(RAINBOW_CORNERS[move.triangle])
   const map = move.amount === 1 ? once : (v: Vec3) => once(once(v))
-  return cube.map((c) =>
-    rainbowTurns(move, c.position)
-      ? {
-          position: map(c.position),
-          stickers: c.stickers.map((s) => ({ normal: map(s.normal), color: s.color })),
-        }
-      : c,
-  )
+  return cube.map((c) => (rainbowTurns(move, c.position) ? mapPiece(map)(c) : c))
 }
 
 /** The axis a triangle turns about, in the model, and the angle (clockwise

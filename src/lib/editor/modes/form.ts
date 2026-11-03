@@ -1,5 +1,5 @@
 import { cubeShape, solvedCube, turnDims } from '../../core/cube'
-import { AXIS_ROTATIONS, normalIndex } from '../../core/geometry'
+import { AXIS_ROTATIONS, mapPiece, normalIndex } from '../../core/geometry'
 import { layerTurnsOf } from '../../core/moves'
 import { applyMove, turnAllowed } from '../../core/turn'
 import { type Cube } from '../../core/types'
@@ -66,12 +66,7 @@ export function lookOf(cube: Cube): string {
 function heldLook(cube: Cube): string {
   let least = ''
   for (const turn of AXIS_ROTATIONS) {
-    const look = lookOf(
-      cube.map((c) => ({
-        position: turn(c.position),
-        stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
-      })),
-    )
+    const look = lookOf(cube.map(mapPiece(turn)))
     if (!least || look < least) least = look
   }
   return least

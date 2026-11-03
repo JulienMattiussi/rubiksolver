@@ -145,7 +145,8 @@ src/
 │   │                    #   enchaînement), edit (la table de stickers, buildCube), editorTables, validate,
 │   │                    #   modes/ (un mode par fichier : form, canvas et faceViews, joints, toggles,
 │   │                    #   colors, pieces), scan/ (la saisie à l'appareil photo, docs/scan.md : plan (les faces dans l'ordre,
-│   │                    #   `PuzzleModel.scan`) et planFaces (chacune bâtie), layout (grille, anneau, carré, polygone), frame, color, sample, capture,
+│   │                    #   `PuzzleModel.scan`) et planFaces (chacune bâtie ; planFlat, planGears, planMirrors : celles des
+│   │                    #   polyèdres, des Gear Cubes, des miroirs), layout (grille, anneau, carré, polygone), frame, color, sample, capture,
 │   │                    #   anchors (les couleurs), orient (les faces tenues tournées), assign et classify (la lecture),
 │   │                    #   read (le point d'entrée), box et forms (les tours), halves (le Fashion-V, ses demi-cubies), gears (les Gear Cubes, leurs engrenages), outlines (le Floppy Ghost), sized et
 │   │                    #   sizedRead (le miroir), crossRead (le 2x2 miroir))
@@ -201,7 +202,8 @@ src/
 ├── hooks/               # useAutoPlan (solution dans le worker), useCamera, useFaceReading et usePreloadStickers (le scan), useIsDesktop,
 │                        #   useSolveShortcuts, useTutorial
 ├── i18n/                # fr/ et en/ (ui, methods, steps, moveSentences : phrases longues du guide et
-│                        #   courtes du tutoriel, tutorial : phrases communes, tutorials/ : les textes de chaque tutoriel,
+│                        #   courtes du tutoriel, une table par sorte de coup (moveSentences.ts : leur type, qui
+│                        #   oblige chaque sorte à les avoir), moveNames : noms des faces et couches, tutorial : phrases communes, tutorials/ : les textes de chaque tutoriel,
 │                        #   tutorialMirror, puzzles : ce que la page d'un puzzle dit de lui ; EN typé sur FR),
 │                        #   tutorialTexts (leur forme), translations
 │                        #   (les assemble), i18nStore
@@ -242,7 +244,7 @@ JSON-LD et, dans la racine que l'app redessine, le texte de la page du
 puzzle (`AboutText`), plus le `sitemap.xml`. Ce texte (`seo/about.ts`)
 est celui que l'app montre (`components/about/`), une accroche plutôt
 qu'une fiche technique : ses propres mots (`i18n/*/puzzles.ts`, par
-`cubeKindId`, seul le Gear Cube Ultimate pour l'instant : l'accroche du
+`cubeKindId`, chaque puzzle et chaque miroir : l'accroche du
 résultat de recherche, ce qu'il est à manipuler, ses méthodes vues de
 loin), sinon ses méthodes nommées depuis le registre ; jamais un texte
 pour les seuls robots. L'image `public/og.png`, l'icône
@@ -263,7 +265,8 @@ Holey Megaminx du Megaminx, reprend simplement celui de son parent) :
   nom, adresse, dimensions, longueur de mélange, couches intérieures, coups
   avancés, déformation, miroir, scan essayé en vrai (`scanTried`), couleurs, sorte de coups (`moves`, d'où
   `isStar`, `isPyraminx`, `isGridless`...), clips colorés d'un Gear Cube,
-  vignette en tête de sa catégorie (`cover`), pavé de coups (`pad`) et
+  vignette en tête de sa catégorie (`cover`), pavé de coups (`pad` ;
+  `padGroups` : ses groupes de coups, pour un pavé `layers`) et
   consigne de saisie (`editHint`), que l'interface traduit (`padFor`,
   `EditPanel`). Aucun code commun ne teste le nom d'un puzzle : ce qui le
   distingue est un champ de sa carte ou un crochet de son modèle.
@@ -281,7 +284,7 @@ Holey Megaminx du Megaminx, reprend simplement celui de son parent) :
   saisie d'un puzzle », ce que montre l'éditeur, stickers cachés `hidden`,
   tranches qui tournent entières `wholeSlices`), guide des mouvements
   (`guide`, `describe`). Le cœur (`cube.ts`, `turn.ts`, `moves.ts`,
-  `moveSet.ts`, `editor.ts`) demande d'abord au modèle et fait sinon ce que
+  `moveSet.ts`, `lib/editor/`) demande d'abord au modèle et fait sinon ce que
   fait un cuboïde. Un crochet appelle ce que définit le cœur au moment où il
   est appelé, jamais au chargement (import circulaire) ;
 - **son dessin** (`three/puzzles/<catégorie>/drawings.ts`), s'il est dessiné

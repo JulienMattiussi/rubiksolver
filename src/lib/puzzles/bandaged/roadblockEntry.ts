@@ -1,7 +1,7 @@
 import { stickerId } from '../../editor/editorTables'
 import type { EditStickers, PaintTogether, TogglesSpec } from '../../editor/entry'
 import { togglesOfKeys, turnedKeys } from '../../editor/modes/toggles'
-import { normalIndex, parseVecKey } from '../../core/geometry'
+import { axisOf, normalIndex, parseVecKey } from '../../core/geometry'
 import { barCells, barsTurned, faceKeyAt, isBarCenter } from './roadblock'
 import type { Vec3 } from '../../core/types'
 
@@ -17,7 +17,7 @@ import type { Vec3 } from '../../core/types'
  *  forth: its bars laid the other way keep their colors. */
 function turnFace(edit: EditStickers, faceKey: string, back: boolean): EditStickers {
   const normal = faceKey.split(',').map((v) => Math.sign(Number(v)))
-  const axis = normal.findIndex((v) => v !== 0)
+  const axis = axisOf(normal)
   const [b, c] = [(axis + 1) % 3, (axis + 2) % 3]
   const ni = normalIndex(normal as unknown as Vec3)
   // The face's centers' stickers on it, each where the quarter takes it:

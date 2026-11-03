@@ -25,9 +25,9 @@ une coupe la chevauche et bloque la face (`meffertsPocketTurns`).
 
 **Ses coups** : ses deux coupes d'un axe se valent ; résolu, celle du côté
 de A (en 1) détache une tranche fine, l'autre (en -1) le coupe en deux
-moitiés. Le pad (`LayerPad`, `MEFFERTS_POCKET_PAD`) montre donc, par axe, ses
+moitiés. Le pad (`LayerPad`, `pad: 'layers'` et ses `padGroups` sur sa carte) montre donc, par axe, ses
 **deux moitiés** (D, L et B : leur couche externe ; U, R et F : la moitié
-au-delà du cœur, un coup large de 4 couches sur 5, `MEFFERTS_POCKET_HALF`), toujours
+au-delà du cœur, un coup large de 4 couches sur 5), toujours
 possibles ensemble, puis les **tranches du petit coin** (u, r, f : la
 couche externe de U, R et F, `formatMeffertsPocketMove`). Tourner une moitié, c'est
 tourner l'autre en sens inverse, le puzzle tenu autrement : tourner les
@@ -267,7 +267,8 @@ arêtes tiennent un secteur, ses 8 coins deux : un coin se pose sur la
 frontière entre ses deux secteurs (douze frontières, à 90 - 30j degrés),
 que le slash envoie de j à 6 - j. Le slash ne passe que si aucun coin
 n'est à cheval sur la coupe (frontières 0 et 6), d'un étage ou de l'autre
-(`square1Turns`, branché par `PuzzleModel.ownTurnAllowed`) ; les étages
+(`square1Turns`, branché par `PuzzleModel.ownTurnAllowed`, qui lit
+`slashGoes`) ; les étages
 tournent toujours. Chaque face d'une pièce regarde la direction d'un
 secteur (`SECTOR_NORMALS`, indices 48 à 59), qu'un tour fait tourner avec
 elle : la forme n'est que la place des pièces, elle change à chaque coup.
@@ -294,7 +295,11 @@ méthodes qui commencent toutes deux par **retrouver la forme du cube**
 (`toCube`) : le moins de slashs possible, chacun après les tours d'étage qui
 le laissent passer, par un parcours sur ses formes (leurs étages lus
 quelle que soit leur rotation), puis les étages tournés pour que les coins
-regardent comme résolus.
+regardent comme résolus. Sa forme se lit au même endroit pour le modèle,
+la saisie et les méthodes (`square1Shape.ts` : contour d'un étage et sa
+clé, milieu retourné, tours d'étage après lesquels le slash passe) ; le
+socle commun des méthodes tient aussi leur recherche (`search`) et leurs
+pièces (`topCorners`, `bottomLayer`...).
 
 - **Les sommets d'abord** (`square1CornersFirst.ts`, d'après fan2cube) : la
   forme et le milieu carré ; les sommets du bas un à un, (HDA)->(BAD) =
@@ -322,4 +327,5 @@ nombreuses pour des vignettes. On choisit le contour du dessus parmi ses 29,
 vu de dessus, la coupe en pointillé, puis on le tourne d'un cran à la fois
 comme le sien ; puis le contour du dessous parmi ceux qui vont avec ; puis
 le milieu. Les pièces se posent ensuite une à une (`modes/pieces.ts`, sur
-les emplacements de cette forme). Pas de scan.
+les emplacements de cette forme). Revenu de ses couleurs (« Modifier »),
+le choix repart de la forme saisie (`FormStages.of`). Pas de scan.

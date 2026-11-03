@@ -11,6 +11,7 @@ import type {
   MirrorLook,
   MirrorScan,
   MoveFamily,
+  LayerGroup,
   PadKind,
   PuzzleEntry,
   ScanBefore,
@@ -144,6 +145,11 @@ export const SHAPE_SCHEME: Record<CubeShape, Partial<Record<Face, Color>>> = eac
 
 /** The pad of turns each shape shows. */
 export const SHAPE_PAD: Record<CubeShape, PadKind> = each((e) => e.pad ?? 'faces')
+
+/** The groups of face turns of each shape whose pad shows them. */
+export const SHAPE_PAD_GROUPS: Record<CubeShape, readonly LayerGroup[]> = each(
+  (e) => e.padGroups ?? [],
+)
 
 /** The editor's hint for each shape, when not the usual one. */
 export const SHAPE_EDIT_HINT: Record<CubeShape, EditHint | undefined> = each((e) => e.editHint)

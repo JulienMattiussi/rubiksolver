@@ -1,4 +1,4 @@
-import { LANGUAGES, type Language } from '@/lib/app/route'
+import { DEFAULT_LANGUAGE, LANGUAGES, type Language } from '@/lib/app/route'
 import { LOCALES } from '@/i18n/translations'
 import { aboutOf } from './about'
 import { headOf } from './head'
@@ -55,7 +55,7 @@ export function PageHead({ locale, kind }: Page) {
       {LANGUAGES.map((other) => (
         <link key={other} rel="alternate" hrefLang={other} href={urlOf(other, kind)} />
       ))}
-      <link rel="alternate" hrefLang="x-default" href={urlOf('fr', kind)} />
+      <link rel="alternate" hrefLang="x-default" href={urlOf(DEFAULT_LANGUAGE, kind)} />
       <meta property="og:locale" content={OG_LOCALE[locale]} />
       {LANGUAGES.filter((other) => other !== locale).map((other) => (
         <meta key={other} property="og:locale:alternate" content={OG_LOCALE[other]} />

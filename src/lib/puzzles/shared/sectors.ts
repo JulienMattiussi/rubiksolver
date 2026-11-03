@@ -1,4 +1,4 @@
-import { normalIndex, SECTOR_NORMALS } from '../../core/geometry'
+import { mod, normalIndex, SECTOR_NORMALS } from '../../core/geometry'
 import type { FaceLabels } from '../../core/notation'
 import type { Cube, SectorMove, SectorSteps, Sticker, Vec3 } from '../../core/types'
 
@@ -65,8 +65,6 @@ export const sectorAt = (m: number, z: number, wide = false): Vec3 => {
   return [x, y, z]
 }
 
-const mod = (a: number, n: number) => ((a % n) + n) % n
-
 /** The sector a side faces (its normal one of `SECTOR_NORMALS`), if any. */
 export const sectorFaced = (normal: Vec3): number | undefined => {
   const index = normal[2] === 0 ? normalIndex(normal) - 48 : -1
@@ -123,7 +121,7 @@ export function sectorRotation(move: SectorMove): {
   // The slash: about the axis across the cut (x), as the 2-Star's: the
   // right half stays right, its front going back and its top down.
   if ('flip' in move) return { axis: [1, 0, 0], angle: Math.PI }
-  const k = move.steps > 6 ? move.steps - 12 : move.steps
+  const k = signedSteps(move)
   // Clockwise seen from its side: about -z on top, about z below.
   return { axis: [0, 0, 1], angle: ((move.layer === 'U' ? -k : k) * Math.PI) / 6 }
 }
@@ -160,9 +158,14 @@ export function simplifySectorMoves(moves: readonly SectorMove[]): SectorMove[] 
 /** A turn as written, as the star prisms' (fan2cube's): the top's signed
  *  twelfths (`2`, `-1`), the bottom's with its letter (`-2B`, `B`), the
  *  slash `/`. */
+/** A layer turn's twelfths, signed: clockwise when positive (seen from its
+ *  own side), the shorter way round. */
+export const signedSteps = (move: { readonly steps: number }): number =>
+  move.steps > 6 ? move.steps - 12 : move.steps
+
 export function formatSectorMove(move: SectorMove, labels: FaceLabels): string {
   if ('flip' in move) return '/'
-  const k = move.steps > 6 ? move.steps - 12 : move.steps
+  const k = signedSteps(move)
   if (move.layer === 'U') return String(k)
   return `${k === 1 ? '' : k === -1 ? '-' : k}${labels.D}`
 }

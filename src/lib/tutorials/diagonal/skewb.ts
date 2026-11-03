@@ -11,6 +11,7 @@ import { firstGesture, type Gesture } from '../../teach/macros'
 import type { TutorialPick } from '../../teach/tutorial'
 import { holdAt, SKEWB_HOLDS } from './skewbHolds'
 import { SKEWB_GLOSSARY } from './skewbTerms'
+import { mapPiece } from '../../core/geometry'
 
 /**
  * The Skewb's tutorial, the method of francocube.com (cyril/skewb_index),
@@ -36,12 +37,7 @@ import { SKEWB_GLOSSARY } from './skewbTerms'
 
 const SOLVED = solvedCube('skewb')
 
-const rotate = (cube: Cube, turn: (v: Vec3) => Vec3): Cube =>
-  cube.map((c) => ({
-    ...c,
-    position: turn(c.position),
-    stickers: c.stickers.map((s) => ({ normal: turn(s.normal), color: s.color })),
-  }))
+const rotate = (cube: Cube, turn: (v: Vec3) => Vec3): Cube => cube.map(mapPiece(turn))
 
 /** The Skewb turned whole every way (24), each a solved state. */
 const REFERENCES: readonly Cube[] = (() => {

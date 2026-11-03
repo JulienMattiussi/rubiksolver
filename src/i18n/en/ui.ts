@@ -2,10 +2,9 @@ import type { LayerKind } from '@/lib/core/moves'
 import type { PyraLayer } from '@/lib/puzzles/pyramid/pyraminx'
 import type { GhostSide, MegaFace, PyraVertex, RainbowCorner } from '@/lib/core/types'
 import type { CubeVariant } from '@/lib/core/shapes'
+import { describeEn, describeShortEn } from './moveSentences'
 import {
   CORNER_NAMES_EN,
-  describeEn,
-  describeShortEn,
   FACE_NAMES_EN,
   MEGA_FACE_NAMES_EN,
   SIDE_NAMES_EN,
@@ -13,8 +12,8 @@ import {
   FTO_FACE_NAMES_EN,
   TRIANGLE_NAMES_EN,
   STAR_LAYER_EN,
-} from './moveSentences'
-import type { StarLayer } from '../fr/moveSentences'
+} from './moveNames'
+import type { StarLayer } from '../fr/moveNames'
 import type { UI_FR } from '../fr/ui'
 import { listEn } from './list'
 

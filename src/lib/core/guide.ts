@@ -41,13 +41,21 @@ export interface GuideGroup {
   readonly rows: readonly (readonly Turn[])[]
 }
 
-/** What a turn does, for its sentence (see the translations). */
+/** Which way a quarter-turning layer goes, seen from its side. */
+export type TurnSense = 'cw' | 'ccw' | 'half'
+
+/** A face turn's amount as its sense. */
+export const senseOf = (amount: 1 | 2 | 3): TurnSense =>
+  amount === 2 ? 'half' : amount === 1 ? 'cw' : 'ccw'
+
+/** What a turn does, for its sentence (see the translations, which say
+ *  each kind's in a table: i18n/moveSentences.ts). */
 export type MoveDescription =
   | {
       /** `whole`: the puzzle itself turned (x, y, z), as `face` turns. */
       readonly kind: 'face' | 'middle' | 'slice' | 'wide' | 'whole'
       readonly face: Face
-      readonly turn: 'cw' | 'ccw' | 'half'
+      readonly turn: TurnSense
       /** A wide turn taking half the mechanism (a 4x4's Rw, a 6x6's 3Rw). */
       readonly halfPuzzle?: true
       /** The third layer in (a 6x6's 3R), or three layers wide (3Rw). */
@@ -64,7 +72,8 @@ export type MoveDescription =
   | {
       /** A Pyraminx corner's layer, its tip alone, a Master's or a
        *  Professor's slice or the face opposite the corner, or the Jing's half. */
-      readonly kind: 'corner' | 'tip' | 'slice' | 'opposite' | 'half'
+      readonly kind: 'pyra'
+      readonly part: 'corner' | 'tip' | 'slice' | 'opposite' | 'half'
       readonly vertex: PyraVertex
       readonly clockwise: boolean
       readonly slice?: 1 | 2 | 3 | 4
@@ -73,12 +82,12 @@ export type MoveDescription =
       /** A Hockey Puck's or a Square-1's layer turned some twelfths (signed:
        *  clockwise when positive, the top seen from above, the bottom from
        *  below), or its slash. */
-      readonly kind: 'puckLayer'
+      readonly kind: 'sectorLayer'
       readonly layer: 'U' | 'D'
       readonly twelfths: number
     }
   | {
-      readonly kind: 'puckSlash'
+      readonly kind: 'sectorSlash'
     }
   | {
       /** A Floppy Ghost side flipped over. */
@@ -86,19 +95,13 @@ export type MoveDescription =
       readonly side: GhostSide
     }
   | {
-      /** A Fashion-V's turn: a side's block, a half (H*), a thin layer (H)
-       *  or the one under it (h). */
-      readonly kind: 'fashion'
+      /** A face's layers on a puzzle that names them its own way: a side's
+       *  block (a Fashion-V's), a half (its H*, a Meffert's Pocket Cube's
+       *  halves), a thin layer, or the one under it. */
+      readonly kind: 'layers'
       readonly face: Face
       readonly layer: 'block' | 'half' | 'thin' | 'inner'
-      readonly turn: 'cw' | 'ccw' | 'half'
-    }
-  | {
-      /** A Meffert's Pocket Cube's turn: a half, or the thin layer by A. */
-      readonly kind: 'meffertsPocket'
-      readonly face: Face
-      readonly layer: 'half' | 'thin'
-      readonly turn: 'cw' | 'ccw' | 'half'
+      readonly turn: TurnSense
     }
   | {
       /** A Curvy Copter edge's half turn (`iii`: the Curvy Copter III's,
