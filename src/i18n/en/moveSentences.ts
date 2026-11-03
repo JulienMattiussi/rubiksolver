@@ -169,7 +169,7 @@ export function describeEn(d: MoveDescription): string {
     const sense = d.twelfths > 0 ? 'clockwise' : 'counterclockwise'
     return `Turn the ${d.layer === 'U' ? 'top' : 'bottom'} disc ${notches} (${30 * n}°) ${sense}, as seen from ${d.layer === 'U' ? 'above' : 'below'}.`
   }
-  if (d.kind === 'purple') {
+  if (d.kind === 'meffertsPocket') {
     const sense =
       d.turn === 'half'
         ? 'a half turn'
@@ -282,7 +282,7 @@ export function describeShortEn(d: MoveDescription): string {
     const n = Math.abs(d.twelfths)
     return `Turn the ${d.layer === 'U' ? 'top' : 'bottom'} disc ${n === 1 ? 'one notch' : `${n} notches`} ${senseEn(d.twelfths > 0)}, seen from ${d.layer === 'U' ? 'above' : 'below'}`
   }
-  if (d.kind === 'purple') {
+  if (d.kind === 'meffertsPocket') {
     const what =
       d.layer === 'half' ? HALF_NAMES_EN[d.face] : `the thin layer of the ${FACE_NAMES_EN[d.face]}`
     return d.turn === 'half'

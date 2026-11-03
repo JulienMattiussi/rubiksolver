@@ -60,7 +60,10 @@ import { TOWER443_PLAN, TOWER445_PLAN } from '../methods/tower/tower44'
 import { TOWER554_PLAN } from '../methods/tower/tower554'
 import { TOWER234_PLAN } from '../methods/tower/tower234'
 import { GEAR_EXTREME_PLAN } from '../methods/gear/gearExtreme'
-import { PURPLE_OPTIMAL_PLAN, PURPLE_SHAPE_FIRST_PLAN } from '../methods/twisted/purple'
+import {
+  MEFFERTS_POCKET_OPTIMAL_PLAN,
+  MEFFERTS_POCKET_SHAPE_FIRST_PLAN,
+} from '../methods/twisted/meffertsPocket'
 import { withCentersHome } from '../methods/standard/recenter'
 import { ROUX_PLAN } from '../methods/standard/roux'
 import { SLIM_TOWER_PLAN } from '../methods/tower/slimTower'
@@ -233,7 +236,7 @@ const SOLVE_METHODS = [
   { id: 'gearEquatorFirst', plans: { gearX: GEAR_EXTREME_PLAN } },
   { id: 'square1CornersFirst', plans: { square1: SQUARE1_CORNERS_PLAN } },
   { id: 'square1FaceFirst', plans: { square1: SQUARE1_FACE_PLAN } },
-  { id: 'shapeFirst', plans: { purple: PURPLE_SHAPE_FIRST_PLAN } },
+  { id: 'shapeFirst', plans: { meffertsPocket: MEFFERTS_POCKET_SHAPE_FIRST_PLAN } },
   { id: 'extendedCross', plans: { tori: TORI_PLAN, edge: EDGE_ONLY_PLAN } },
   { id: 'voidCornersFirst', plans: { void: VOID_CUBE_PLAN } },
   { id: 'copterEdgesFirst', plans: { copter: COPTER_PLAN, copter3: COPTER3_PLAN } },
@@ -263,7 +266,7 @@ const SOLVE_METHODS = [
       '123': optimalPlan('123', 7),
       '331': optimalPlan('331', 9),
       ghost: optimalPlan('ghost', 16),
-      purple: PURPLE_OPTIMAL_PLAN,
+      meffertsPocket: MEFFERTS_POCKET_OPTIMAL_PLAN,
     },
   },
 ] as const satisfies ReadonlyArray<{

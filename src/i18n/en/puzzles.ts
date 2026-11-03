@@ -488,7 +488,7 @@ export const PUZZLES_EN: typeof PUZZLES_FR = {
     methods:
       'First lay down all its pairs of pieces to get a 3x3x5 back in order, then solve it as a tower.',
   },
-  purple: {
+  meffertsPocket: {
     summary:
       'Meffert’s Pocket Cube, an all-violet 2x2 with an off-center axis: it changes shape at every turn. Turn it in 3D and solve it step by step.',
     about:
@@ -499,7 +499,7 @@ export const PUZZLES_EN: typeof PUZZLES_FR = {
   },
   '123': {
     summary:
-      'Six cubes in a rectangle that only turn by half turns: the 1x2x3 is the ideal puzzle to start with. Turn it in 3D and solve it step by step.',
+      'The 1x2x3, a small block of six cubes that only turns by half turns: the ideal puzzle to start with. Turn it in 3D and solve it step by step.',
     about:
       'The 1x2x3 sits in your hand like a small rectangle of six cubes, and only turns by **half turns**. You get to know it quickly, and that is its charm: **only 96 positions**, against more than 43 quintillion for a Rubik’s Cube. The perfect playground to understand what an algorithm is before taking on the big ones.',
     methodsTitle: 'A first step',

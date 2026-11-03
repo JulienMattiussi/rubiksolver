@@ -250,7 +250,7 @@ export function isBoxed(cube: Cube): boolean {
  * cuboids) there is no fixed reference, so a solved-but-reoriented puzzle
  * must count as solved. The face count tells a Pyramorphinx half turned a
  * quarter (each half uniform, but on two tetrahedra: eight faces) from one
- * in its form. Meffert's Pocket Cube has its own test (purple.ts): violet all over
+ * in its form. Meffert's Pocket Cube has its own test (meffertsPocket.ts): violet all over
  * but A, so its faces are not one color each.
  */
 export function isSolved(cube: Cube): boolean {

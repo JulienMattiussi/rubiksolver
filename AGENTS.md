@@ -510,7 +510,7 @@ soi d'une face à l'autre (`FaceCanvases`, vu de face, `CameraReset`,
 les cases d'une même face de pièce. L'étape porte le `FaceEntry` du puzzle :
 sa grille, la taille du canevas, si un dessin se place où il est (`framed` :
 le Camouflage) ou n'importe où (le Meffert's Pocket Cube), et comment retrouver ses états
-(`find`, dans un worker : `camoViews.ts`, `purpleViews.ts`) ; voir
+(`find`, dans un worker : `camoViews.ts`, `meffertsPocketViews.ts`) ; voir
 [docs/puzzles/tower.md](docs/puzzles/tower.md) et
 [docs/puzzles/twisted.md](docs/puzzles/twisted.md). **Par les demi-cubies** :
 un clic fait défiler la position des demi-cubies d'une case, puis la

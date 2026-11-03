@@ -2,7 +2,7 @@
 
 Détail des puzzles de la catégorie (modèles : `src/lib/puzzles/twisted/`, méthodes : `src/lib/methods/twisted/`, dessins : `src/three/puzzles/twisted/`). Les principes communs sont dans [AGENTS.md](../../AGENTS.md).
 
-## Le Meffert's Pocket Cube (`purple`)
+## Le Meffert's Pocket Cube (`meffertsPocket`)
 
 Un **2x2x2** dont le coin A (haut, avant, droite) est lui-même coupé en
 2x2x2 mini-cubes, et dont le **cœur** est le mini-cube de A tourné vers le
@@ -10,10 +10,10 @@ centre, invisible. Ses faces tournent autour de ce cœur, décalé d'un quart
 de la largeur : chaque quart de tour sort sa couche de la boîte, il se
 **déforme**. Tout violet sauf les trois faces extérieures de A (vert
 citron dessus, bleu devant, jaune à droite) : résolu quand il redevient un cube, chaque couleur de A sur une
-face (`purpleSolved` ; ses faces n'étant pas unies, `isSolved` lui laisse
+face (`meffertsPocketSolved` ; ses faces n'étant pas unies, `isSolved` lui laisse
 la main).
 
-**Modèle entier** (`lib/puzzles/twisted/purple.ts`) : coordonnées en demi-mini-cubes autour
+**Modèle entier** (`lib/puzzles/twisted/meffertsPocket.ts`) : coordonnées en demi-mini-cubes autour
 du cœur. Un mini-cube fait 2 de large, centré sur des coordonnées paires
 (0 ou 2 une fois résolu, le cœur à l'origine) ; un gros cube 4, sur des
 impaires (-3 ou 1). Chaque axe est coupé de part et d'autre du cœur, en -1
@@ -21,21 +21,21 @@ et 1, et une face tourne ce qui est au-delà de sa coupe (2 ou plus) :
 exactement la tranche externe d'un 5x5 (`dims` `[5, 5, 5]` de sa carte), donc le
 moteur des cubes le fait tourner tel quel (`Move`, pad, guide, `shifts` de
 sa carte ; le mélange est le sien, voir plus bas). Seul `turnAllowed` lui est propre : un gros cube centré sur
-une coupe la chevauche et bloque la face (`purpleTurns`).
+une coupe la chevauche et bloque la face (`meffertsPocketTurns`).
 
 **Ses coups** : ses deux coupes d'un axe se valent ; résolu, celle du côté
 de A (en 1) détache une tranche fine, l'autre (en -1) le coupe en deux
-moitiés. Le pad (`LayerPad`, `PURPLE_PAD`) montre donc, par axe, ses
+moitiés. Le pad (`LayerPad`, `MEFFERTS_POCKET_PAD`) montre donc, par axe, ses
 **deux moitiés** (D, L et B : leur couche externe ; U, R et F : la moitié
-au-delà du cœur, un coup large de 4 couches sur 5, `PURPLE_HALF`), toujours
+au-delà du cœur, un coup large de 4 couches sur 5, `MEFFERTS_POCKET_HALF`), toujours
 possibles ensemble, puis les **tranches du petit coin** (u, r, f : la
-couche externe de U, R et F, `formatPurpleMove`). Tourner une moitié, c'est
+couche externe de U, R et F, `formatMeffertsPocketMove`). Tourner une moitié, c'est
 tourner l'autre en sens inverse, le puzzle tenu autrement : tourner les
 deux d'un même axe tourne le puzzle entier autour de son cœur. Tout ce qui
 lit son état vaut donc quelle que soit la façon de le tenir : `isBoxed`
-(sa boîte de 8 de large sur chaque axe, `purpleBoxed`), `purpleSolved`
+(sa boîte de 8 de large sur chaque axe, `meffertsPocketBoxed`), `meffertsPocketSolved`
 (chaque couleur de A sur le côté de la boîte où pointe sa normale) et
-`solvePurple` (l'état tenu de chacune des 24 façons jusqu'à le trouver
+`solveMeffertsPocket` (l'état tenu de chacune des 24 façons jusqu'à le trouver
 dans l'arbre, ses coups ramenés à la tenue d'origine). Ses lettres, elles,
 sont celles de la tenue résolue : une fois le puzzle entier tourné, la
 tranche « u » n'est plus forcément celle du petit coin. La saisie ignore
@@ -51,22 +51,22 @@ près), à 13 coups au plus, aucune bloquée ; avec les couleurs de A, **41 760 
 coups au plus, dont 35 en forme de cube mais pas résolus : testé en
 parcourant tout l'espace.
 
-**Mélange** (`purpleStates.ts`) : des coups au hasard se défont l'un
+**Mélange** (`meffertsPocketStates.ts`) : des coups au hasard se défont l'un
 l'autre (la plupart sont bloqués) et le replient en cube, A entier. Le
 sien ne repasse jamais par un état déjà vu (départ compris) et continue
 au-delà de sa longueur tant que A n'est pas disloqué.
 
-**Rendu** (`three/puzzles/twisted/purpleGeometry.ts`) : chaque pièce est une boîte, violette
+**Rendu** (`three/puzzles/twisted/meffertsPocketGeometry.ts`) : chaque pièce est une boîte, violette
 sur toutes ses faces (comme le vrai puzzle, aussi celles qu'un coup fait
 apparaître) sauf les stickers de A ; `PolyDrawing.offset` recentre la boîte, décalée du cœur autour
 duquel tout tourne.
 
-**Résolution** (`methods/twisted/purple.ts`), aucune méthode humaine n'étant
+**Résolution** (`methods/twisted/meffertsPocket.ts`), aucune méthode humaine n'étant
 connue : tout vient d'un parcours de tous ses états depuis le résolu
-(`purpleStates.ts`, une fois, dans le worker), un arbre
+(`meffertsPocketStates.ts`, une fois, dans le worker), un arbre
 des chemins les plus courts. **Forme puis couleurs** (`shapeFirst`) : (1)
-le moins de coups pour redevenir un cube (`purpleToCube`), (2) depuis ce
-cube, la suite la plus courte vers le résolu (`solvePurple`,
+le moins de coups pour redevenir un cube (`meffertsPocketToCube`), (2) depuis ce
+cube, la suite la plus courte vers le résolu (`solveMeffertsPocket`,
 le chemin de l'arbre défait : un coup qui est passé repasse dans l'autre
 sens) ; **Optimale** : la plus courte d'un coup. Le test vérifie sur tout
 l'espace que chaque solution a exactement la longueur de sa distance.
@@ -77,7 +77,7 @@ quatre de ses faces, elles, ne laissent jamais deux formes (mesuré sur ses
 1 160 formes tenues des 24 façons). On les reproduit sur des canevas de
 5x5 mini-cubes (sa face la plus large), un gros cube sur 2x2, où l'on veut
 sur le canevas : le dessin est comparé tel quel, quel que soit l'endroit
-(`lib/puzzles/twisted/purpleViews.ts`, l'entrée `faces` de son modèle,
+(`lib/puzzles/twisted/meffertsPocketViews.ts`, l'entrée `faces` de son modèle,
 voir « Saisie face par face » dans AGENTS.md). Toutes ses faces sont
 violettes, même celles qu'un coup découvre : la palette des faces propose
 le violet, et « absent » n'y dit que les trous. Ses formes sont toutes

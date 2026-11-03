@@ -18,7 +18,7 @@ describe('an entry, as its model declares it', () => {
     expect(kinds('fashion')).toEqual(['cuts'])
     expect(kinds('roadblock')).toEqual(['toggles'])
     expect(kinds('224')).toEqual(['form'])
-    expect(kinds('purple')).toEqual(['canvas'])
+    expect(kinds('meffertsPocket')).toEqual(['canvas'])
     expect((['gearCube', 'gearU', 'gearX'] as const).map(kinds)).toEqual([
       ['toggles'],
       ['toggles'],
@@ -28,7 +28,7 @@ describe('an entry, as its model declares it', () => {
   })
 
   it('starts with its first step, unless offered later only (the Camouflage)', () => {
-    expect(firstStepOf('purple')).toBe('canvas')
+    expect(firstStepOf('meffertsPocket')).toBe('canvas')
     expect(firstStepOf('camo')).toBe('paint')
     expect(firstStepOf('3')).toBe('paint')
   })

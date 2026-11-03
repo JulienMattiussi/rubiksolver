@@ -186,7 +186,7 @@ describe('cube picker', () => {
         'windmill',
       ],
       holey: ['holey', 'void', 'tori', 'edge'],
-      twisted: ['purple', 'twist', 'quarter', 'latch', 'fashion', 'square1'],
+      twisted: ['meffertsPocket', 'twist', 'quarter', 'latch', 'fashion', 'square1'],
       bandaged: [
         'bigBlock',
         'squarebik',

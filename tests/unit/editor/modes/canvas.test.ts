@@ -50,16 +50,16 @@ describe('a shape entered face by face', () => {
   })
 
   it("finds a scrambled Meffert's Pocket Cube again from its four canvases, however held, drawn anywhere", () => {
-    const entry = entryOf('purple')
+    const entry = entryOf('meffertsPocket')
     // Its box, centered on a 5x5 canvas: 4 mini cubes wide.
-    const [box] = canvasesOf(solvedCube('purple'), entry)
+    const [box] = canvasesOf(solvedCube('meffertsPocket'), entry)
     expect(box!.cells.filter((c) => c === 'absent')).toHaveLength(9)
     for (const [seed, turn] of [
       [1, 0],
       [2, 5],
       [3, 17],
     ] as const) {
-      const cube = scrambled('purple', seed)
+      const cube = scrambled('meffertsPocket', seed)
       // Held another way: its faces as one sees them then.
       const canvases = canvasesOf(heldAs(cube, turn), entry)
       const found = entry.find(viewsOfCanvases(canvases)!)

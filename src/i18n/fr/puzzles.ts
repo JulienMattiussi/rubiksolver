@@ -496,7 +496,7 @@ export const PUZZLES_FR = {
     methods:
       'On couche d’abord toutes ses paires de pièces pour retrouver un 3x3x5 en ordre, puis on le résout comme une tour.',
   },
-  purple: {
+  meffertsPocket: {
     summary:
       'Le Meffert’s Pocket Cube, un 2x2 tout violet à l’axe décentré : il se déforme à chaque coup. Manipulez-le en 3D et résolvez-le pas à pas.',
     about:
@@ -507,7 +507,7 @@ export const PUZZLES_FR = {
   },
   '123': {
     summary:
-      'Six cubes en rectangle qui ne tournent que par demi-tours : le 1x2x3 est le casse-tête idéal pour débuter. Manipulez-le en 3D et résolvez-le pas à pas.',
+      'Le 1x2x3, un petit pavé de six cubes qui ne tourne que par demi-tours : le casse-tête idéal pour débuter. Manipulez-le en 3D et résolvez-le pas à pas.',
     about:
       'Le 1x2x3 tient dans la main comme un petit rectangle de six cubes, et ne se tourne que par **demi-tours**. On en fait vite le tour, et c’est tout son charme : **96 positions seulement**, contre plus de 43 milliards de milliards pour un Rubik’s Cube. Le terrain de jeu parfait pour comprendre ce qu’est une formule avant de s’attaquer aux grands.',
     methodsTitle: 'Un premier pas',

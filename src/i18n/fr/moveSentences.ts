@@ -172,7 +172,7 @@ export function describeFr(d: MoveDescription): string {
     const sense = d.twelfths > 0 ? 'des aiguilles' : 'inverse des aiguilles'
     return `On tourne le disque ${d.layer === 'U' ? 'du haut' : 'du bas'} ${notches} (${30 * n}°) dans le sens ${sense} d’une montre, vu de ${d.layer === 'U' ? 'dessus' : 'dessous'}.`
   }
-  if (d.kind === 'purple') {
+  if (d.kind === 'meffertsPocket') {
     const sense =
       d.turn === 'half'
         ? 'd’un demi-tour'
@@ -298,7 +298,7 @@ export function describeShortFr(d: MoveDescription): string {
     const n = Math.abs(d.twelfths)
     return `Rotation du disque ${d.layer === 'U' ? 'du haut' : 'du bas'} ${n === 1 ? 'd’un cran' : `de ${n} crans`} ${senseFr(d.twelfths > 0)}, vu de ${d.layer === 'U' ? 'dessus' : 'dessous'}`
   }
-  if (d.kind === 'purple') {
+  if (d.kind === 'meffertsPocket') {
     const what =
       d.layer === 'half'
         ? of(HALF_NAMES_FR[d.face])

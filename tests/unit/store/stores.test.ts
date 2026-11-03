@@ -355,7 +355,7 @@ describe('editor store: the Camouflage face by face', () => {
 
 describe("editor store: Meffert's Pocket Cube face by face", () => {
   it('starts with its faces, before any form to pick, and has no thumbnails', () => {
-    useCube.getState().setShape('purple')
+    useCube.getState().setShape('meffertsPocket')
     const editor = () => useEditor.getState()
     editor().enter()
     expect(editor()).toMatchObject({ phase: 'canvas', faceAt: 0 })

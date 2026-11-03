@@ -9,24 +9,24 @@ import { paint } from '@/lib/editor/modes/colors'
 import { formOf } from '@/lib/editor/modes/form'
 import { normalIndex } from '@/lib/core/geometry'
 import { validateCube } from '@/lib/editor/validate'
-import { aBroken, solvePurple } from '@/lib/puzzles/twisted/purpleStates'
+import { aBroken, solveMeffertsPocket } from '@/lib/puzzles/twisted/meffertsPocketStates'
 import { seededRng } from '../../../helpers'
 
-const SOLVED = solvedCube('purple')
+const SOLVED = solvedCube('meffertsPocket')
 
 /** Its outer turns: a half beyond the core (U, R, F's, wide) is the
  *  opposite one, held otherwise, so they reach every state as it stands. */
-const OUTER = movesFor('purple').filter((m) => !m.wide)
+const OUTER = movesFor('meffertsPocket').filter((m) => !m.wide)
 const HALF = { depth: 4, wide: true } as const
 
 /** A state entered as one would: its form, then each sticker painted (the
  *  editor completing what it can). */
 function paintedIn(cube: Cube) {
   const form = formOf(cube)
-  let edit = emptyEdit('purple', form)
+  let edit = emptyEdit('meffertsPocket', form)
   for (const c of cube) {
     for (const s of c.stickers) {
-      edit = paint(edit, 'purple', c.position.join(), normalIndex(s.normal), s.color, form)
+      edit = paint(edit, 'meffertsPocket', c.position.join(), normalIndex(s.normal), s.color, form)
     }
   }
   return edit
@@ -50,9 +50,9 @@ describe("Meffert's Pocket Cube", () => {
   })
 
   it('turns, solved, its six halves, not the thin layers by A', () => {
-    const allowed = movesFor('purple').filter((m) => turnAllowed(SOLVED, m))
+    const allowed = movesFor('meffertsPocket').filter((m) => turnAllowed(SOLVED, m))
     const layers = new Set(
-      allowed.map((m) => formatMove({ ...m, amount: 1 }, undefined, undefined, 'purple')),
+      allowed.map((m) => formatMove({ ...m, amount: 1 }, undefined, undefined, 'meffertsPocket')),
     )
     expect([...layers].sort()).toEqual(['B', 'D', 'F', 'L', 'R', 'U'])
     expect(allowed.filter((m) => m.face === 'U').every((m) => m.wide)).toBe(true)
@@ -70,7 +70,10 @@ describe("Meffert's Pocket Cube", () => {
 
   it('is solved held any way, its turns named as it stands', () => {
     for (let seed = 0; seed < 5; seed++) {
-      const scrambled = applyMoves(SOLVED, scrambleTurns('purple', 25, seededRng(seed), SOLVED))
+      const scrambled = applyMoves(
+        SOLVED,
+        scrambleTurns('meffertsPocket', 25, seededRng(seed), SOLVED),
+      )
       // Turned over by both halves of two axes.
       const held = applyMoves(scrambled, [
         { face: 'R', amount: 1, ...HALF },
@@ -78,7 +81,7 @@ describe("Meffert's Pocket Cube", () => {
         { face: 'F', amount: 2, ...HALF },
         { face: 'B', amount: 2 },
       ])
-      const solution = solvePurple(held)
+      const solution = solveMeffertsPocket(held)
       let state = held
       for (const move of solution) {
         expect(turnAllowed(state, move)).toBe(true)
@@ -151,7 +154,7 @@ describe("Meffert's Pocket Cube", () => {
           if (seen.has(key(after))) continue
           seen.add(key(after))
           // Solved in as many turns as it lies from solved: the fewest.
-          const solution = solvePurple(after)
+          const solution = solveMeffertsPocket(after)
           expect(solution).toHaveLength(depth + 1)
           expect(isSolved(applyMoves(after, solution))).toBe(true)
           next.push(after)
@@ -174,7 +177,7 @@ describe("Meffert's Pocket Cube", () => {
   it('scrambles away from the cube, A broken up, wherever it starts', () => {
     for (let seed = 0; seed < 20; seed++) {
       for (const start of [SOLVED, applyMove(SOLVED, { face: 'L', amount: 1 })]) {
-        const moves = scrambleTurns('purple', 25, seededRng(seed), start)
+        const moves = scrambleTurns('meffertsPocket', 25, seededRng(seed), start)
         expect(moves.length).toBeGreaterThanOrEqual(25)
         const after = applyMoves(start, moves)
         expect(aBroken(after)).toBe(true)
@@ -202,18 +205,21 @@ describe("Meffert's Pocket Cube", () => {
 
   it('is painted in as it stands, scrambled, sticker by sticker', () => {
     for (let seed = 0; seed < 10; seed++) {
-      const cube = applyMoves(SOLVED, scrambleTurns('purple', 25, seededRng(seed), SOLVED))
+      const cube = applyMoves(SOLVED, scrambleTurns('meffertsPocket', 25, seededRng(seed), SOLVED))
       expect(paintedIn(cube)).toEqual(cubeToEdit(cube))
     }
   })
 
   it('is entered with its big cubes already violet: only A to paint', () => {
     // In its box, A's three minis of one sticker can only stand home: set too.
-    expect(progress(emptyEdit('purple'), 'purple')).toMatchObject({ filled: 24, total: 33 })
+    expect(progress(emptyEdit('meffertsPocket'), 'meffertsPocket')).toMatchObject({
+      filled: 24,
+      total: 33,
+    })
   })
 
   it('is written like a cube, its thin layers by A in lowercase', () => {
-    const write = (move: Move) => formatMove(move, undefined, undefined, 'purple')
+    const write = (move: Move) => formatMove(move, undefined, undefined, 'meffertsPocket')
     expect(write({ face: 'L', amount: 3 })).toBe("L'")
     expect(write({ face: 'U', amount: 1, ...HALF })).toBe('U')
     expect(write({ face: 'R', amount: 2 })).toBe('r2')

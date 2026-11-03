@@ -12,13 +12,13 @@ import {
   type Found,
   type Views,
 } from '../../editor/modes/faceViews'
-import { half, solvedPurple } from './purple'
+import { half, solvedMeffertsPocket } from './meffertsPocket'
 
 /**
  * Meffert's Pocket Cube entered face by face (lib/editor/modes/faceViews.ts): its 1 160 shapes,
  * each held any of 24 ways, show four faces no other shape does (measured),
  * so the faces are simply looked up among them. A cell is a mini cube
- * (2 model units, purple.ts); off its core, Meffert's Pocket Cube stands anywhere on a
+ * (2 model units, meffertsPocket.ts); off its core, Meffert's Pocket Cube stands anywhere on a
  * 5x5 canvas (its widest face), and a face is compared as drawn, wherever.
  */
 
@@ -29,7 +29,7 @@ const FRAME = 9
 /** Its grid: each piece's box in mini cubes; every face shows a color, its
  *  sticker's or violet (the real puzzle is violet all over, but A's three
  *  outer faces). */
-const PURPLE_GRID: FaceGrid = {
+const MEFFERTS_POCKET_GRID: FaceGrid = {
   size: FRAME,
   cellsOf: (piece) =>
     piece.position.map(
@@ -42,15 +42,15 @@ const PURPLE_GRID: FaceGrid = {
 /** Its shapes, one state each: where its pieces stand, colors aside (a
  *  breadth-first search from the solved one, its big cubes alike). */
 let SHAPES: Cube[] | undefined
-function purpleShapes(): Cube[] {
+function meffertsPocketShapes(): Cube[] {
   if (SHAPES) return SHAPES
   const key = (cube: Cube) =>
     cube
       .map((c) => `${c.position.join()}:${half(c)}`)
       .sort()
       .join(' ')
-  const turns = layerTurnsOf('purple')
-  const start = solvedPurple()
+  const turns = layerTurnsOf('meffertsPocket')
+  const start = solvedMeffertsPocket()
   const seen = new Set([key(start)])
   const shapes = [start]
   for (let k = 0; k < shapes.length; k++) {
@@ -71,9 +71,9 @@ let BY_FACES: Map<string, Found[]> | undefined
 function byFaces(): Map<string, Found[]> {
   if (BY_FACES) return BY_FACES
   const index = new Map<string, Found[]>()
-  for (const cube of purpleShapes()) {
+  for (const cube of meffertsPocketShapes()) {
     AXIS_ROTATIONS.forEach((_, turn) => {
-      const { views } = sightOf(heldAs(cube, turn), PURPLE_GRID)
+      const { views } = sightOf(heldAs(cube, turn), MEFFERTS_POCKET_GRID)
       const key = views.map((v) => drawingKey(v, FRAME)).join('|')
       index.set(key, [...(index.get(key) ?? []), { cube, turn }])
     })
@@ -83,8 +83,8 @@ function byFaces(): Map<string, Found[]> {
 
 /** Entered face by face (its faces first: it seldom stands in its box), a
  *  face drawn anywhere on its canvas; held any way. */
-export const PURPLE_FACE_ENTRY: FaceEntry = {
-  grid: PURPLE_GRID,
+export const MEFFERTS_POCKET_FACE_ENTRY: FaceEntry = {
+  grid: MEFFERTS_POCKET_GRID,
   canvas: 5,
   framed: false,
   find: (views: Views) =>

@@ -84,7 +84,7 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'rainbow', pieces: 20, stickers: 56, orientations: 24, painted: 56, scramble: 20 },
   // Held three ways: about its diagonal through A, its one symmetry.
   {
-    shape: 'purple',
+    shape: 'meffertsPocket',
     pieces: 15,
     stickers: 33,
     orientations: 3,

@@ -95,7 +95,7 @@ export type MoveDescription =
     }
   | {
       /** A Meffert's Pocket Cube's turn: a half, or the thin layer by A. */
-      readonly kind: 'purple'
+      readonly kind: 'meffertsPocket'
       readonly face: Face
       readonly layer: 'half' | 'thin'
       readonly turn: 'cw' | 'ccw' | 'half'

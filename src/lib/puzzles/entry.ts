@@ -39,7 +39,7 @@ export type PadKind =
   | 'ghost'
   | 'copter'
   | 'fashion'
-  | 'purple'
+  | 'meffertsPocket'
   | 'sectors'
   | 'mega'
   | 'crystal'

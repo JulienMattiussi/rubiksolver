@@ -1,6 +1,6 @@
 import type { CubeShape } from '@/lib/core/shapes'
 import type { PolyDrawing } from '../../core/polyDrawing'
-import { PURPLE_OFFSET, purplePolygons } from './purpleGeometry'
+import { MEFFERTS_POCKET_OFFSET, meffertsPocketPolygons } from './meffertsPocketGeometry'
 import { quarterPolygons } from './quarterGeometry'
 import { latchPolygons, latchThumbnail, UNPAINTED } from './latchGeometry'
 import { fashionPolygons } from './fashionGeometry'
@@ -9,7 +9,7 @@ import { SQUARE1_ORIENT, square1Polygons, square1Thumbnail } from './square1Geom
 
 /** Upright as the cubes. */
 export const TWISTED_DRAWINGS = {
-  purple: { polygons: purplePolygons, yaw: 0, offset: PURPLE_OFFSET },
+  meffertsPocket: { polygons: meffertsPocketPolygons, yaw: 0, offset: MEFFERTS_POCKET_OFFSET },
   twist: {
     polygons: twistPolygons,
     yaw: 0,

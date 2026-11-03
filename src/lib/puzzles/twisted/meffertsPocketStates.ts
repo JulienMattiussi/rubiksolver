@@ -3,7 +3,7 @@ import { applyMove } from '../../core/turn'
 import { AXIS_ROTATIONS, FACE_NORMAL } from '../../core/geometry'
 import { type Cube, type Face, type Move, type Vec3 } from '../../core/types'
 import { SHAPE_DIMS } from '../../core/shapes'
-import { purpleBoxed, purpleTurns } from './purple'
+import { meffertsPocketBoxed, meffertsPocketTurns } from './meffertsPocket'
 
 /**
  * Meffert's Pocket Cube's states as one sees them (its big cubes alike): few enough
@@ -58,7 +58,7 @@ let tree: Map<string, { readonly from: string; readonly move: Move } | null> | n
 
 function searchTree() {
   if (tree) return tree
-  const solved = solvedCube('purple')
+  const solved = solvedCube('meffertsPocket')
   tree = new Map([[lookOf(solved), null]])
   let frontier = [{ state: solved, look: lookOf(solved) }]
   while (frontier.length) {
@@ -66,8 +66,8 @@ function searchTree() {
     for (const { state, look: from } of frontier) {
       for (const move of TURNS) {
         // Its own jam test and mechanism: no need to tell its shape again.
-        if (!purpleTurns(state, move)) continue
-        const after = applyMove(state, move, SHAPE_DIMS.purple)
+        if (!meffertsPocketTurns(state, move)) continue
+        const after = applyMove(state, move, SHAPE_DIMS.meffertsPocket)
         const look = lookOf(after)
         if (tree.has(look)) continue
         tree.set(look, { from, move })
@@ -92,7 +92,7 @@ function heldBy(cube: Cube, rotate: (v: Vec3) => Vec3): Cube {
  *  otherwise than the tree's states (both halves of an axis turned), it is
  *  solved as held the tree's way, its turns' faces turned back. Throws on a
  *  state no turns reach. */
-export function solvePurple(cube: Cube): Move[] {
+export function solveMeffertsPocket(cube: Cube): Move[] {
   const paths = searchTree()
   for (const rotate of AXIS_ROTATIONS) {
     let look = lookOf(heldBy(cube, rotate))
@@ -107,20 +107,20 @@ export function solvePurple(cube: Cube): Move[] {
     }
     return moves
   }
-  throw new Error('solvePurple: no turns reach this state')
+  throw new Error('solveMeffertsPocket: no turns reach this state')
 }
 
 /** The fewest turns that make Meffert's Pocket Cube a cube again, whatever A's colors. */
-export function purpleToCube(cube: Cube): Move[] {
+export function meffertsPocketToCube(cube: Cube): Move[] {
   const seen = new Set([lookOf(cube)])
   let frontier = [{ state: cube, moves: [] as Move[] }]
   while (frontier.length) {
     const next: typeof frontier = []
     for (const { state, moves } of frontier) {
-      if (purpleBoxed(state)) return moves
+      if (meffertsPocketBoxed(state)) return moves
       for (const move of TURNS) {
-        if (!purpleTurns(state, move)) continue
-        const after = applyMove(state, move, SHAPE_DIMS.purple)
+        if (!meffertsPocketTurns(state, move)) continue
+        const after = applyMove(state, move, SHAPE_DIMS.meffertsPocket)
         const look = lookOf(after)
         if (seen.has(look)) continue
         seen.add(look)
@@ -129,22 +129,22 @@ export function purpleToCube(cube: Cube): Move[] {
     }
     frontier = next
   }
-  throw new Error('purpleToCube: no turns make it a cube')
+  throw new Error('meffertsPocketToCube: no turns make it a cube')
 }
 
 /** Turns past `length` before giving up on breaking A (never reached in
  *  practice: a few turns do). */
 const EXTRA = 30
 
-export function scramblePurple(length: number, rng: () => number, start: Cube): Move[] {
+export function scrambleMeffertsPocket(length: number, rng: () => number, start: Cube): Move[] {
   const seen = new Set([lookOf(start)])
   const moves: Move[] = []
   let state = start
   while (moves.length < length || (!aBroken(state) && moves.length < length + EXTRA)) {
     const last = moves[moves.length - 1]?.face
-    const ahead = TURNS.filter((m) => purpleTurns(state, m)).map((move) => ({
+    const ahead = TURNS.filter((m) => meffertsPocketTurns(state, m)).map((move) => ({
       move,
-      after: applyMove(state, move, SHAPE_DIMS.purple),
+      after: applyMove(state, move, SHAPE_DIMS.meffertsPocket),
     }))
     // Somewhere new by another face than the last; else somewhere new; else
     // (a dead end of the walk, rare) anywhere.

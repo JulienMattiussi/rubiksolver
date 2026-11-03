@@ -10,17 +10,17 @@ import { centerToggles, withCenterSpins, withTurnedCenters } from './twist'
 import { FASHION_CUTS } from './fashionEntry'
 import { turnedKeys } from '../../editor/modes/toggles'
 import {
-  describePurpleMove,
-  formatPurpleMove,
-  purpleBoxed,
-  purpleLayers,
-  purpleSolved,
-  purpleTurns,
-  solvedPurple,
+  describeMeffertsPocketMove,
+  formatMeffertsPocketMove,
+  meffertsPocketBoxed,
+  meffertsPocketLayers,
+  meffertsPocketSolved,
+  meffertsPocketTurns,
+  solvedMeffertsPocket,
   turnAboutA,
-} from './purple'
-import { scramblePurple } from './purpleStates'
-import { PURPLE_FACE_ENTRY } from './purpleViews'
+} from './meffertsPocket'
+import { scrambleMeffertsPocket } from './meffertsPocketStates'
+import { MEFFERTS_POCKET_FACE_ENTRY } from './meffertsPocketViews'
 import { SECTOR_TURNS } from '../shared/sectors'
 import { sectorGuide } from '../guides'
 import { SQUARE1_FORM_STAGES } from './square1Entry'
@@ -36,19 +36,19 @@ import {
 export const TWISTED_MODELS = {
   // Its box is off its core, which its coordinates are about; held only
   // about its diagonal through A. Each axis its two halves and its thin
-  // layer by A (purple.ts).
-  purple: {
-    solved: solvedPurple,
-    turnAllowed: purpleTurns,
-    layers: purpleLayers,
-    format: (move, labels) => formatPurpleMove(move, labels),
-    describe: (turn) => describePurpleMove(turn as Move),
-    boxed: purpleBoxed,
-    isSolved: purpleSolved,
+  // layer by A (meffertsPocket.ts).
+  meffertsPocket: {
+    solved: solvedMeffertsPocket,
+    turnAllowed: meffertsPocketTurns,
+    layers: meffertsPocketLayers,
+    format: (move, labels) => formatMeffertsPocketMove(move, labels),
+    describe: (turn) => describeMeffertsPocketMove(turn as Move),
+    boxed: meffertsPocketBoxed,
+    isSolved: meffertsPocketSolved,
     symmetries: [turnAboutA],
-    scramble: scramblePurple,
+    scramble: scrambleMeffertsPocket,
     // Its shape told on canvases first, too many forms for thumbnails.
-    entry: { steps: () => [{ kind: 'canvas', faces: PURPLE_FACE_ENTRY }] },
+    entry: { steps: () => [{ kind: 'canvas', faces: MEFFERTS_POCKET_FACE_ENTRY }] },
   },
   // Its thin edges show one color: their way round does not count.
   twist: {

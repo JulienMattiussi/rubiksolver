@@ -3,6 +3,21 @@
 Ce qui marche aujourd'hui mais mériterait mieux, avec les pistes déjà
 envisagées.
 
+## À faire (notes du 2026-11-03)
+
+- **Scanner le Meffert's Pocket Cube** par la méthode des miroirs (les
+  stickers trouvés par OpenCV et leur forme lue, comme le 3x3 miroir).
+- **Étendre le Floppy** (à préciser : d'autres puzzles plats de sa famille).
+- **Scanner le Floppy Ghost** pour de bon (voir la piste en cours plus bas,
+  et le travail mis de côté dans `../rubiksolver-wip-ghost-scan`).
+- **Scanner le Megaminx** en vrai (seulement essayé sur images synthétiques).
+- **L'Hologram** : un puzzle à modéliser, s'annonce très difficile.
+- **Le référencement Google**, une fois le site déployé : le déclarer dans
+  Search Console et y soumettre le `sitemap.xml` ; le présenter là où sont
+  les cubeurs (forums, Reddit) pour obtenir des liens ; Search Console dira
+  ensuite sur quelles recherches il apparaît. En mineur, une image de
+  partage par puzzle (aujourd'hui la même partout).
+
 ## Le scan à l'appareil photo : réglages et autres formes
 
 **Constat.** Le scan (`lib/editor/scan/`, détail dans `docs/scan.md`) n'a

@@ -40,7 +40,7 @@ const A_COLORS: readonly Color[] = ['Y', 'L', 'B']
 
 /** The solved Meffert's Pocket Cube: the 7 big cubes, all violet, then A's 8 minis (the
  *  core first, hidden), in A's colors. */
-export function solvedPurple(): Cube {
+export function solvedMeffertsPocket(): Cube {
   const signs = [-1, 1]
   const bigs = signs.flatMap((x) =>
     signs.flatMap((y) =>
@@ -77,7 +77,7 @@ function boxOf(cube: Cube): { lo: Vec3; hi: Vec3 } {
  *  their box (as wide as the solved one, -5 to 3, wherever it stands: held
  *  another way, after both halves of an axis turned, it lies elsewhere about
  *  its core). */
-export const purpleBoxed = (cube: Cube): boolean => {
+export const meffertsPocketBoxed = (cube: Cube): boolean => {
   const { lo, hi } = boxOf(cube)
   return [0, 1, 2].every((a) => hi[a]! - lo[a]! === 8)
 }
@@ -85,8 +85,8 @@ export const purpleBoxed = (cube: Cube): boolean => {
 /** Whether Meffert's Pocket Cube is solved: a cube again, A's colors outside (each
  *  sticker on the side of the box its normal points to), one a face. Held
  *  turned about A, or another way, its colors go round: still solved. */
-export function purpleSolved(cube: Cube): boolean {
-  if (!purpleBoxed(cube)) return false
+export function meffertsPocketSolved(cube: Cube): boolean {
+  if (!meffertsPocketBoxed(cube)) return false
   const { lo, hi } = boxOf(cube)
   const faceColor = new Map<string, Color>()
   for (const c of cube) {
@@ -105,7 +105,7 @@ export function purpleSolved(cube: Cube): boolean {
 
 /** Whether a face can turn: no big cube straddles its cut. A half on the
  *  far side of the core (a wide turn) turns on the opposite face's cut. */
-export function purpleTurns(cube: Cube, move: Pick<Move, 'face' | 'wide'>): boolean {
+export function meffertsPocketTurns(cube: Cube, move: Pick<Move, 'face' | 'wide'>): boolean {
   const { coordIndex, dir } = FACE_SPEC[move.face]
   const cut = move.wide ? -dir : dir
   return !cube.some((c) => half(c) === 2 && c.position[coordIndex] === cut)
@@ -113,22 +113,22 @@ export function purpleTurns(cube: Cube, move: Pick<Move, 'face' | 'wide'>): bool
 
 /** A half seen from U, R or F, beyond the cut that splits the solved puzzle
  *  in two: a wide turn of four of its five layers. */
-const PURPLE_HALF: Pick<Move, 'depth' | 'wide'> = { depth: 4, wide: true }
+const MEFFERTS_POCKET_HALF: Pick<Move, 'depth' | 'wide'> = { depth: 4, wide: true }
 
 /** The faces whose outer layer is the thin one by A (held as solved). */
 const NEAR_A: readonly Face[] = ['U', 'R', 'F']
 
 /** The layers a face turns: U, R and F their half, then their thin layer by
  *  A; D, L and B their half (their outer layer). */
-export const purpleLayers = (face: Face): readonly Pick<Move, 'depth' | 'wide'>[] =>
-  NEAR_A.includes(face) ? [PURPLE_HALF, {}] : [{}]
+export const meffertsPocketLayers = (face: Face): readonly Pick<Move, 'depth' | 'wide'>[] =>
+  NEAR_A.includes(face) ? [MEFFERTS_POCKET_HALF, {}] : [{}]
 
 /** Its pad: the halves, each axis's two side by side, then the thin layers. */
-export const PURPLE_PAD: readonly LayerGroup[] = [
+export const MEFFERTS_POCKET_PAD: readonly LayerGroup[] = [
   {
     key: 'halves',
     layers: (['U', 'D', 'R', 'L', 'F', 'B'] as const).map((face) =>
-      NEAR_A.includes(face) ? { face, ...PURPLE_HALF } : { face },
+      NEAR_A.includes(face) ? { face, ...MEFFERTS_POCKET_HALF } : { face },
     ),
   },
   { key: 'byA', layers: NEAR_A.map((face) => ({ face })) },
@@ -137,13 +137,13 @@ export const PURPLE_PAD: readonly LayerGroup[] = [
 const isThin = (move: Move) => NEAR_A.includes(move.face) && !move.wide
 
 /** What a turn does: a half, or the thin layer by A. */
-export function describePurpleMove(move: Move): MoveDescription {
+export function describeMeffertsPocketMove(move: Move): MoveDescription {
   const turn = move.amount === 2 ? 'half' : move.amount === 1 ? 'cw' : 'ccw'
-  return { kind: 'purple', face: move.face, layer: isThin(move) ? 'thin' : 'half', turn }
+  return { kind: 'meffertsPocket', face: move.face, layer: isThin(move) ? 'thin' : 'half', turn }
 }
 
 /** A half by its face's letter, the thin layer by A in lowercase (u). */
-export function formatPurpleMove(move: Move, labels: FaceLabels): string {
+export function formatMeffertsPocketMove(move: Move, labels: FaceLabels): string {
   const letter = labels[move.face]
   return (isThin(move) ? letter.toLowerCase() : letter) + AMOUNT_SUFFIX[move.amount]
 }
