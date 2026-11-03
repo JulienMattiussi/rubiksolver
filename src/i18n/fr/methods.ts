@@ -195,8 +195,8 @@ export const METHODS_FR = {
     desc: 'La solution la plus courte possible, trouvée par une recherche exhaustive.',
   },
   fromStart: {
-    name: 'Depuis START',
-    desc: 'Passer par la position START, d’où partent ses formules, pour y placer toutes les pièces.',
+    name: 'Par la position clé',
+    desc: 'Passer par sa position clé, d’où partent ses formules, pour y placer toutes les pièces.',
   },
   skewbFirst: {
     name: 'Skewb d’abord',

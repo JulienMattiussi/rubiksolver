@@ -337,7 +337,7 @@ export const UI_FR = {
   editHintRoadblock:
     'Ses centres sont des barres de trois : un clic peint la barre entière. Choisissez une couleur et cliquez les stickers ; tournez la vue pour atteindre les autres faces.',
   editHintBars:
-    'D’abord le sens des barres : en position START, celles des quatre côtés sont horizontales, celles du haut et du bas vont de gauche à droite. Un clic sur un centre tourne les barres de sa face d’un quart. Donnez à chaque face le sens de la vôtre, puis validez.',
+    'D’abord le sens des barres : en position clé, celles des quatre côtés sont horizontales, celles du haut et du bas vont de gauche à droite. Un clic sur un centre tourne les barres de sa face d’un quart. Donnez à chaque face le sens de la vôtre, puis validez.',
   acceptBars: 'Valider les barres',
   changeBars: 'Changer les barres',
   fromCurrent: 'Modifier',

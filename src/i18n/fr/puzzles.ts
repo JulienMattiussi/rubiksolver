@@ -118,4 +118,121 @@ export const PUZZLES_FR = {
     methods:
       'Comme pour le Fisher Cube, quatre méthodes du 3x3 au choix, par couches, CFOP, Petrus ou ZZ, puis une dernière formule pour tourner ses centres de côté.',
   },
+  bigBlock: {
+    summary:
+      'Le BigBlock, un Rubik’s Cube dont un gros bloc est soudé : deux faces seulement tournent. Le plus doux des soudés, à résoudre pas à pas.',
+    about:
+      'Le BigBlock est un Rubik’s Cube dont **un bloc de douze pièces** est soudé d’un seul tenant : il ne reste que **deux faces qui tournent**. On croirait une plaisanterie, et pourtant ces deux faces suffisent à le mélanger sérieusement. Le plus abordable des soudés, parfait pour découvrir la famille.',
+    methodsTitle: 'Les coins, puis les arêtes',
+    methods:
+      'Une méthode en deux temps : les coins d’abord, puis les arêtes, chaque fois par une formule à deux faces qui ne touche qu’à ce qui reste à faire.',
+  },
+  squarebik: {
+    summary:
+      'Le Squarebik, un Rubik’s Cube à moitié soudé, bridé comme un Square-1 : trois faces seulement tournent. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Squarebik soude la moitié de sa couronne du milieu, à la manière d’un Square-1 : **seules trois faces tournent encore**. On le croit vite résolu, puis l’on bute sur les pièces qui refusent de passer d’un côté à l’autre. Un soudé de transition, juste assez retors pour qu’on y prenne goût.',
+    methodsTitle: 'Comme un 3x3, ou presque',
+    methods:
+      'Il se résout par couches, comme un Rubik’s Cube, en montant étage par étage avec les seules faces qui tournent encore. Quelques formules de plus que sur un 3x3, mais le chemin est familier.',
+  },
+  fused: {
+    summary:
+      'Le Fused, un Rubik’s Cube dont un coin de 2x2x2 est soudé en bloc : trois faces tournent. Un soudé accessible et malin, à résoudre pas à pas.',
+    about:
+      'Le Fused a **un coin entier soudé en un bloc de huit pièces** : les trois faces qui le touchent ne tournent plus, il n’en reste que trois. Le mélange paraît sage, mais il faut vite ruser pour amener chaque pièce là où elle doit aller. Un soudé à la fois accessible et malin.',
+    methodsTitle: 'Par couches, en rusant',
+    methods:
+      'Il se résout par couches, entre Petrus et Fridrich, avec les trois faces libres : le bas et le milieu se construisent à l’intuition, et quelques formules bien choisies finissent le haut.',
+  },
+  quadStripe: {
+    summary:
+      'Le QuadStripe soude trois carrés et trois barres autour d’un cube caché : chaque coup change les faces qui tournent. Résolvez-le pas à pas en 3D.',
+    about:
+      'Sur le QuadStripe, trois carrés et trois barres soudés s’enroulent autour d’un **petit cube caché**. À chaque coup, les soudures se déplacent et **ce sont d’autres faces qui se bloquent** : le puzzle se transforme sans cesse sous les doigts. Il faut apprendre à le lire autant qu’à le tourner, et c’est ce qui le rend passionnant.',
+    methodsTitle: 'Tout part d’une position clé',
+    methods:
+      'Comme les soudés de sa trempe, on le ramène d’abord à sa position clé, d’où partent toutes ses formules, puis on y range chaque sorte de pièce l’une après l’autre.',
+  },
+  detour: {
+    summary:
+      'Le Detour, deux barres et cinq languettes soudées : un Rubik’s Cube qui oblige à prendre des chemins de traverse. Manipulez-le en 3D et résolvez-le.',
+    about:
+      'Le Detour porte bien son nom : avec ses deux barres et ses **cinq languettes soudées**, aucun coup direct ne mène là où l’on veut, il faut sans cesse **passer par des détours**. Ses milliers de formes possibles en font un vrai labyrinthe, mais chaque passage trouvé procure un plaisir rare.',
+    methodsTitle: 'Le passage obligé',
+    methods:
+      'On le ramène à sa position clé, où une face tourne librement, on y range les pièces par petits groupes avec des formules courtes, puis l’on revient à la forme du cube résolu.',
+  },
+  diamond: {
+    summary:
+      'Le Diamond, deux carrés et deux languettes soudés : peu de formes, mais chacune a son piège. Un soudé élégant à manipuler en 3D et à résoudre pas à pas.',
+    about:
+      'Le Diamond soude **deux carrés et deux languettes**, et ne prend qu’une centaine de formes, bien moins que ses cousins le Stripe ou le Detour, qui en comptent des milliers. Mais chacune réserve son piège. Un soudé élégant, idéal pour apprendre à manœuvrer autour des blocs.',
+    methodsTitle: 'Un aller-retour',
+    methods:
+      'On passe par sa position clé, où le haut tourne librement, pour y ranger toutes les pièces, puis l’on revient à la forme du cube. Un aller-retour court et bien balisé.',
+  },
+  bandage: {
+    summary:
+      'Le Bandage Cube, sept barres soudées autour d’un sommet libre : le classique des soudés. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Bandage Cube est le classique de la famille : **sept barres soudées**, des languettes et un seul sommet resté libre. Chaque coup déplace les soudures et fige d’autres faces, si bien qu’on avance souvent à reculons. Exigeant mais d’une logique imparable, c’est l’épreuve que tout amateur de soudés finit par affronter.',
+    methodsTitle: 'Barre après barre',
+    methods:
+      'Depuis sa position clé, on remet ses barres en place une à une, chacune avec la formule qui lui convient ; les deux dernières suivent d’elles-mêmes.',
+  },
+  quad: {
+    summary:
+      'Le Quad, trois carrés soudés autour d’un cube caché : le QuadStripe sans ses barres, plus libre et plus trompeur. Résolvez-le pas à pas en 3D.',
+    about:
+      'Le Quad, c’est le QuadStripe débarrassé de ses barres : il ne garde que **trois carrés soudés** autour d’un petit cube caché. Plus de liberté, donc, mais aussi moins de repères, et l’on se surprend à le mélanger davantage en croyant le résoudre. Plus court que son grand frère, et plein de surprises.',
+    methodsTitle: 'Le cube caché d’abord',
+    methods:
+      'Depuis sa position clé, on reforme d’abord le petit cube caché, puis on range autour les arêtes et les sommets, avec les formules du QuadStripe.',
+  },
+  stripe: {
+    summary:
+      'Le Stripe, trois barres soudées en étoile autour d’un coin : un Rubik’s Cube aux coups souvent bloqués. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le Stripe soude **trois barres en étoile** autour d’un même coin, si bien qu’une bonne partie des coups est bloquée à tout moment. Pourtant, son chemin de résolution ressemble étonnamment à celui d’un Rubik’s Cube, couche après couche, pour qui sait contourner ses barres.',
+    methodsTitle: 'Couche après couche',
+    methods:
+      'Depuis sa position clé, on le résout presque comme un 3x3, du bas vers le haut, avec des formules taillées pour ses barres, avant de revenir à la forme du cube.',
+  },
+  fusedStripe: {
+    summary:
+      'Le FusedStripe, le bloc du Fused et trois barres soudées : l’un des soudés les plus coriaces. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'Le FusedStripe cumule les contraintes : **le gros bloc du Fused et trois barres en étoile**. Il reste si peu de coups possibles qu’on se sent vite à l’étroit, et orienter ses pièces oblige à passer par une position intermédiaire bien précise. L’un des soudés les plus coriaces, et l’un des plus satisfaisants à vaincre.',
+    methodsTitle: 'Un détour obligé',
+    methods:
+      'On place d’abord ses barres, ses sommets et ses arêtes, puis on oriente tout en passant par une position intermédiaire, où de nouvelles formules deviennent possibles, avant de revenir.',
+  },
+  alcatraz: {
+    summary:
+      'L’Alcatraz, le plus verrouillé des soudés : un bloc, trois barres, deux languettes et un carré. Saurez-vous vous en évader ? Résolvez-le pas à pas.',
+    about:
+      'L’Alcatraz porte un nom de prison, et il le mérite : **un bloc de huit pièces, trois barres, deux languettes et un carré** soudés ensemble. C’est le dernier et le plus redoutable de la série, celui où chaque coup se négocie. S’en évader demande méthode et persévérance, mais la sortie n’en est que plus belle.',
+    methodsTitle: 'La grande évasion',
+    methods:
+      'Depuis sa position clé, on libère d’abord ses barres, puis l’on place et tourne les sommets et les arêtes du haut avec quelques longues formules. Un parcours exigeant, balisé étape par étape.',
+  },
+  ai: {
+    summary:
+      'L’AI Cube, un 4x4 dont la moitié des pièces est soudée en gros blocs : rien ne tourne comme prévu. Manipulez-le en 3D et résolvez-le pas à pas.',
+    about:
+      'L’AI Cube part d’un 4x4 dont **quatre gros blocs soudés** se placent en quinconce, entourés de petits cubes libres. Selon où se trouvent les blocs, on peut tourner une moitié du cube, une couche ou une simple tranche, et le puzzle change de visage à chaque coup. Fascinant à manipuler, et bien plus abordable qu’il n’y paraît.',
+    methodsTitle: 'Retour au Pocket',
+    methods:
+      'On le ramène à un 2x2x2 : on reconstitue d’abord ses huit blocs, petits cubes compris, puis on le résout comme un simple Pocket Cube.',
+  },
+  roadblock: {
+    summary:
+      'Le RoadBlock-I, un 5x5 dont les centres sont soudés en barres : une tranche ne tourne que si ses barres la laissent passer. Résolvez-le pas à pas.',
+    about:
+      'Le RoadBlock-I est un 5x5 dont **les neuf centres de chaque face sont soudés en trois barres**. Une tranche ne tourne que si aucune barre ne lui coupe la route, d’où son nom. Il faut sans cesse coucher et redresser les barres pour ouvrir le passage : un casse-tête ingénieux, aussi déroutant que plaisant.',
+    methodsTitle: 'Ouvrir la route',
+    methods:
+      'On le ramène à un Rubik’s Cube : en couchant ses barres dans le bon sens, on libère les tranches qu’il faut tourner, puis on le résout comme un 3x3.',
+  },
 }

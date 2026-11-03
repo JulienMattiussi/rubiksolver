@@ -110,4 +110,121 @@ export const PUZZLES_EN: typeof PUZZLES_FR = {
     methods:
       'As with the Fisher Cube, four 3x3 methods to choose from, layer by layer, CFOP, Petrus or ZZ, then one last formula to turn its side centers.',
   },
+  bigBlock: {
+    summary:
+      'The BigBlock, a Rubik’s Cube with one big block fused: only two faces turn. The gentlest of the bandaged puzzles, to solve step by step.',
+    about:
+      'The BigBlock is a Rubik’s Cube in which **a block of twelve pieces** is fused in one piece: only **two faces still turn**. It sounds like a joke, yet those two faces are enough to scramble it seriously. The most approachable of the bandaged puzzles, perfect to discover the family.',
+    methodsTitle: 'The corners, then the edges',
+    methods:
+      'A method in two moves: the corners first, then the edges, each time with a two-face formula that only touches what is left to do.',
+  },
+  squarebik: {
+    summary:
+      'The Squarebik, a half-fused Rubik’s Cube, restrained like a Square-1: only three faces turn. Turn it in 3D and solve it step by step.',
+    about:
+      'The Squarebik fuses half of its middle ring, the way a Square-1 does: **only three faces still turn**. You soon think it solved, then stumble on pieces that refuse to cross from one side to the other. A transition puzzle, just devious enough to get you hooked.',
+    methodsTitle: 'Like a 3x3, almost',
+    methods:
+      'It is solved layer by layer, like a Rubik’s Cube, climbing floor by floor with only the faces that still turn. A few more formulas than on a 3x3, but the path feels familiar.',
+  },
+  fused: {
+    summary:
+      'The Fused, a Rubik’s Cube with a 2x2x2 corner fused into a block: three faces turn. An approachable, clever puzzle, to solve step by step.',
+    about:
+      'The Fused has **a whole corner fused into a block of eight pieces**: the three faces touching it no longer turn, leaving only three. The scramble looks tame, but you soon need cunning to bring each piece where it belongs. Both approachable and clever.',
+    methodsTitle: 'Layer by layer, with cunning',
+    methods:
+      'It is solved layer by layer, somewhere between Petrus and Fridrich, with the three free faces: the bottom and middle are built by intuition, and a few well-chosen formulas finish the top.',
+  },
+  quadStripe: {
+    summary:
+      'The QuadStripe fuses three squares and three bars around a hidden cube: each turn changes which faces can turn. Solve it step by step in 3D.',
+    about:
+      'On the QuadStripe, three fused squares and three bars wrap around a **small hidden cube**. With each turn the fusings move and **other faces get blocked**: the puzzle keeps changing under your fingers. You have to learn to read it as much as to turn it, and that is what makes it gripping.',
+    methodsTitle: 'Everything goes through START',
+    methods:
+      'Like the bandaged puzzles of its kind, you first bring it back to its starting position, START, where all its formulas begin, then sort each kind of piece there, one after another.',
+  },
+  detour: {
+    summary:
+      'The Detour, two bars and five fused tabs: a Rubik’s Cube that forces you to take side roads. Turn it in 3D and solve it step by step.',
+    about:
+      'The Detour lives up to its name: with its two bars and **five fused tabs**, no direct turn leads where you want, you keep having to **take detours**. Its thousands of possible shapes make it a real maze, but each passage found is a rare pleasure.',
+    methodsTitle: 'Back to START',
+    methods:
+      'You bring it back to its START position, where one face turns freely, sort the pieces in small groups with short formulas, then return to the solved cube’s shape.',
+  },
+  diamond: {
+    summary:
+      'The Diamond, two squares and two tabs fused: few shapes, but each has its trap. An elegant bandaged puzzle to turn in 3D and solve step by step.',
+    about:
+      'The Diamond fuses **two squares and two tabs**, and takes only about a hundred shapes, far fewer than its cousins the Stripe or the Detour, which have thousands. But each one hides a trap. An elegant bandaged puzzle, ideal to learn to steer around blocks.',
+    methodsTitle: 'A round trip',
+    methods:
+      'You go through its START position, where the top turns freely, to sort all the pieces there, then return to the cube’s shape. A short, well-marked round trip.',
+  },
+  bandage: {
+    summary:
+      'The Bandage Cube, seven fused bars around a free corner: the classic of the bandaged puzzles. Turn it in 3D and solve it step by step.',
+    about:
+      'The Bandage Cube is the family’s classic: **seven fused bars**, some tabs and a single corner left free. Each turn moves the fusings and freezes other faces, so you often move forward by going backward. Demanding but flawlessly logical, it is the test every bandaged fan ends up facing.',
+    methodsTitle: 'Bar after bar',
+    methods:
+      'From its START position, you put its bars back one by one, each with the formula that suits it; the last two follow on their own.',
+  },
+  quad: {
+    summary:
+      'The Quad, three fused squares around a hidden cube: the QuadStripe without its bars, freer and trickier. Solve it step by step in 3D.',
+    about:
+      'The Quad is the QuadStripe stripped of its bars: it keeps only **three fused squares** around a small hidden cube. More freedom, then, but fewer landmarks, and you catch yourself scrambling it further while thinking you are solving it. Shorter than its big brother, and full of surprises.',
+    methodsTitle: 'The hidden cube first',
+    methods:
+      'From its START position, you first rebuild the small hidden cube, then sort the edges and corners around it, with the QuadStripe’s formulas.',
+  },
+  stripe: {
+    summary:
+      'The Stripe, three bars fused in a star around a corner: a Rubik’s Cube with many turns blocked. Turn it in 3D and solve it step by step.',
+    about:
+      'The Stripe fuses **three bars in a star** around one corner, so that a good share of the turns is blocked at any moment. Yet its solving path is surprisingly close to a Rubik’s Cube’s, layer after layer, for whoever knows how to get around its bars.',
+    methodsTitle: 'Layer after layer',
+    methods:
+      'From its START position, you solve it almost like a 3x3, from bottom to top, with formulas cut for its bars, before returning to the cube’s shape.',
+  },
+  fusedStripe: {
+    summary:
+      'The FusedStripe, the Fused’s block and three fused bars: one of the toughest bandaged puzzles. Turn it in 3D and solve it step by step.',
+    about:
+      'The FusedStripe piles up constraints: **the Fused’s big block and three bars in a star**. So few turns remain that you soon feel cramped, and orienting its pieces requires going through one precise intermediate position. One of the toughest bandaged puzzles, and one of the most satisfying to beat.',
+    methodsTitle: 'A forced detour',
+    methods:
+      'You first place its bars, corners and edges, then orient everything by going through an intermediate position where new formulas become possible, before coming back.',
+  },
+  alcatraz: {
+    summary:
+      'The Alcatraz, the most locked-down bandaged puzzle: a block, three bars, two tabs and a square. Can you escape? Solve it step by step.',
+    about:
+      'The Alcatraz bears a prison’s name, and earns it: **a block of eight pieces, three bars, two tabs and a square** fused together. It is the last and most fearsome of the series, where every turn is negotiated. Escaping takes method and perseverance, but the way out is all the sweeter.',
+    methodsTitle: 'The great escape',
+    methods:
+      'From its START position, you first free its bars, then place and turn the top corners and edges with a few long formulas. A demanding course, marked out step by step.',
+  },
+  ai: {
+    summary:
+      'The AI Cube, a 4x4 with half its pieces fused into big blocks: nothing turns as expected. Turn it in 3D and solve it step by step.',
+    about:
+      'The AI Cube starts from a 4x4 in which **four big fused blocks** sit in a checkerboard, surrounded by small free cubes. Depending on where the blocks are, you can turn half the cube, a layer or a mere slice, and the puzzle changes face at every turn. Fascinating to handle, and far more approachable than it looks.',
+    methodsTitle: 'Back to the Pocket',
+    methods:
+      'You bring it back to a 2x2x2: first rebuild its eight blocks, small cubes included, then solve it as a plain Pocket Cube.',
+  },
+  roadblock: {
+    summary:
+      'The RoadBlock-I, a 5x5 whose centers are fused into bars: a slice turns only if its bars let it through. Solve it step by step in 3D.',
+    about:
+      'The RoadBlock-I is a 5x5 in which **the nine centers of each face are fused into three bars**. A slice turns only if no bar blocks its way, hence its name. You keep laying the bars down and standing them up to open the way: an ingenious puzzle, as baffling as it is fun.',
+    methodsTitle: 'Opening the road',
+    methods:
+      'You bring it back to a Rubik’s Cube: by laying its bars the right way, you free the slices that need turning, then solve it as a 3x3.',
+  },
 }
