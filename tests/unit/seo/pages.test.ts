@@ -26,7 +26,7 @@ describe('a puzzle’s page', () => {
       /^7 méthodes pour le résoudre, au choix : Par couches, .* et ZZ\./,
     )
     expect(about.methods).toMatch(/ont leur tutoriel, pour les apprendre pas à pas\.$/)
-    expect(aboutOf(LOCALES.en, { shape: 'gearX', variant: 'classic' }).methods).toMatch(
+    expect(aboutOf(LOCALES.en, { shape: 'megaminx', variant: 'classic' }).methods).toMatch(
       /^One method to solve it: [^.]+\.$/,
     )
   })
