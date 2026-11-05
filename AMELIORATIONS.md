@@ -9,11 +9,12 @@ envisagées.
 - **Scanner le Floppy Ghost** pour de bon (voir la piste en cours plus bas,
   et le travail mis de côté dans `../rubiksolver-wip-ghost-scan`).
 - **L'Hologram** : un puzzle à modéliser, s'annonce très difficile.
-- **Le référencement Google**, une fois le site déployé : le déclarer dans
-  Search Console et y soumettre le `sitemap.xml` ; le présenter là où sont
-  les cubeurs (forums, Reddit) pour obtenir des liens ; Search Console dira
-  ensuite sur quelles recherches il apparaît. En mineur, une image de
-  partage par puzzle (aujourd'hui la même partout).
+- **Le référencement Google** : `yavadeus.dev` est déclaré dans Search
+  Console (validé par le DNS d'Infomaniak) et le `sitemap.xml` soumis le
+  2026-11-05. Reste à le présenter là où sont les cubeurs (forums, Reddit)
+  pour obtenir des liens, puis à lire dans Search Console sur quelles
+  recherches il apparaît. En mineur, une image de partage par puzzle
+  (aujourd'hui la même partout).
 
 ## Le scan à l'appareil photo : réglages et autres formes
 
@@ -39,8 +40,9 @@ vrai puzzle) ne sont réglés que sur ces quelques essais.
 - **Les formes d'une tour** sont énumérées à l'ouverture du scan (environ
   1 s, le fil de l'interface bloqué pendant l'annonce de la première face) :
   à faire dans un worker.
-- **Le miroir** : seul le 3x3 se scanne (le 2x2 n'a pas de centre pour
-  étalon, le 4x4 en a quatre) ; la correction de perspective par la
+- **Le miroir** : seuls le 3x3 et le 2x2 Qiyi se scannent (le 2x2 calé où
+  ses stickers se rejoignent, `crossRead.ts`), pas le 4x4 (quatre centres
+  par face, aucun seul pour étalon) ; la correction de perspective par la
   profondeur des pièces n'est pas faite ; la détection (OpenCV) n'est pas
   testée sous Vitest (son chargement y reste bloqué), seulement par les
   rectangles figés de deux vrais scans et l'usage.
