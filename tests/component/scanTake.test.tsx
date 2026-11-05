@@ -22,5 +22,9 @@ describe('<ScanTake />', () => {
     expect(screen.queryByRole('button')).toBeNull()
     rerender(<ScanTake armed={false} nothing onArm={() => {}} />)
     expect(screen.getByText(t().scanNothing)).toBeTruthy()
+    // Another face shown: which one, instead.
+    rerender(<ScanTake armed={false} nothing wrong="another face" onArm={() => {}} />)
+    expect(screen.getByText('another face')).toBeTruthy()
+    expect(screen.queryByText(t().scanNothing)).toBeNull()
   })
 })

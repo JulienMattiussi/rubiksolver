@@ -1,9 +1,10 @@
-import { solvedCube } from '../core/cube'
+import { cubeShape, solvedCube } from '../core/cube'
 import { AXIS_ROTATIONS, axisOf, FACE_NORMAL, faceOfNormal } from '../core/geometry'
 import { SHAPE_DIMS, type CubeShape } from '../core/shapes'
 import { poseOf } from '../core/pieces'
 import { isFaceMove, type Cube, type Cubie, type Turn, type Vec3 } from '../core/types'
 import type { Rotation } from './everyWay'
+import type { Held } from './solverKit'
 
 /**
  * The ways a puzzle may be held, and which one its fixed pieces say: many
@@ -61,4 +62,11 @@ export function turnBack(turn: Turn, by: Rotation): Turn {
   const n = FACE_NORMAL[turn.face].join()
   const was = Object.values(FACE_NORMAL).find((m) => by(m).join() === n)!
   return { ...turn, face: faceOfNormal(was) }
+}
+
+/** A puzzle with no piece telling how it is held, read where it stands
+ *  (`bestHolding`), its turns named back (a method's `held`). */
+export function heldAsItStands(cube: Cube): Held {
+  const by = bestHolding(cube, cubeShape(cube))
+  return { cube: holdingsOf(cube, [by])[0]!, back: (turn) => turnBack(turn, by) }
 }

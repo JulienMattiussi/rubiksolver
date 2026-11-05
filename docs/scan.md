@@ -98,7 +98,7 @@ Restent dehors les puzzles dont une information n'est pas une couleur
 déforment (Camouflage, Fashion-V, AI Cube), et le Tori (ses
 arêtes, de minces amandes au bord des faces).
 
-Seuls le 2x2, le 3x3 (et son miroir), le 2x2 Qiyi miroir, le 4x4, les tours 2x2x3 et 2x2x4, le Gear Cube Ultimate, le Skewb, l'Ivy Cube et le Meffert's Pocket Cube ont été essayés en vrai (`scanTried` sur
+Seuls le 2x2, le 3x3 (et son miroir), le 2x2 Qiyi miroir, le 4x4, les tours 2x2x3 et 2x2x4, le Megaminx, le Gear Cube Ultimate, le Skewb, l'Ivy Cube et le Meffert's Pocket Cube ont été essayés en vrai (`scanTried` sur
 leur carte) ; sur les autres, le bouton « Utiliser l'appareil photo » porte
 une fiole : « Cette fonction n'a pas encore été testée et validée sur ce
 modèle ».
@@ -155,13 +155,17 @@ sur Android).
    immobile… » ; chaque case montre ce qu'elle lit (un point de sa couleur,
    un anneau quand ce n'est pas sûr) ; la face est prise quand ses couleurs
    restent les mêmes une seconde (le cadre passe au vert). Rien de stable
-   en 5 secondes : un tap à refaire.
+   en 5 secondes : un tap à refaire ; si le puzzle montrait sûrement une
+   autre face (son centre d'une autre couleur), le message dit laquelle et
+   rappelle celle demandée (`otherFace`).
 5. **La vérification** de la face (un loader), puis un 💪 (`Cheer`) et la
    face suivante ; ou « Cube mal détecté » et la même face à reprendre.
 6. **La lecture** du puzzle entier (`readScan`), puis l'éditeur, le puzzle
    peint, avec un encadré : « vérifiez bien que le modèle représenté est
    conforme à votre puzzle, puis validez » (`fromScan`). Une face douteuse
-   est redemandée, avec la photo prise d'elle : sans couleur qui la nomme (un
+   est redemandée, avec la photo prise d'elle (et, si son centre la nomme,
+   le rappel de vérifier ce centre et celui du haut : une face montrée à la
+   place d'une autre n'est rattrapée qu'à la lecture) : sans couleur qui la nomme (un
    puzzle montré par gestes), c'est ce qui dit laquelle reprendre, et dans
    quel sens. Chaque face douteuse n'est redemandée qu'une fois, la plus
    douteuse d'abord (une face reprise en vain n'est pas celle qui est mal

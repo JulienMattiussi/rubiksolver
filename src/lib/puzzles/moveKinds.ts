@@ -49,13 +49,13 @@ import {
 } from './gear/gear'
 import {
   applyMegaMove,
-  formatMegaMove,
   MEGA_AXES,
   invertMegaMove,
   megaRotation,
   megaTurns,
   simplifyMegaMoves,
 } from './polyhedron/megaminx'
+import { formatMegaMove } from './polyhedron/megaNotation'
 import {
   applyPyraMove,
   invertPyraMove,

@@ -253,6 +253,8 @@ export const UI_FR = {
     'Positionnez le point où se rejoignent les quatre stickers sur la croix, puis touchez le bouton pour scanner la face.',
   scanHolding: 'Tenez le puzzle immobile…',
   scanNothing: 'Rien de stable dans le cadre : repositionnez le puzzle et réessayez.',
+  scanWrongFace: (shown: string, asked: string) =>
+    `Ce n’est pas la face demandée : le centre ${shown} est face à l’objectif. Montrez le centre ${asked}, puis réessayez.`,
   scanMoves: {
     first: (front: string, up: string) =>
       `Positionnez la caméra immobile devant le puzzle, le centre ${front} **face à l’objectif** et le ${up} **en haut**, la face remplissant le cadre, dans un endroit éclairé.`,
@@ -337,6 +339,8 @@ export const UI_FR = {
   },
   scanAgain: 'La face à reprendre, telle qu’elle a été prise',
   scanMissed: 'Puzzle mal détecté : reprenez cette face, tenue comme sur la photo.',
+  scanMissedTold: (front: string, up: string) =>
+    `Puzzle mal détecté : vérifiez que le centre ${front} est bien face à l’objectif et le ${up} en haut, puis reprenez la face.`,
   scanChecking: 'Vérification de la face…',
   scanReading: 'Lecture du puzzle…',
   scanDenied:

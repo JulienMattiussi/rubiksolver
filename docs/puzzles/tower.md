@@ -53,7 +53,7 @@ Aucune pièce ne disant comment la tour est tenue, la méthode la lit comme
 elle se présente : elle la résout tenue de la façon (parmi les huit qui
 gardent son côté long vertical) où le plus de pièces sont déjà chez elles,
 ses coups renommés pour la tour telle qu'elle est (`bestHolding`,
-`asItStands` au registre) ; tenue à l'envers, ses Pockets se lisent dans
+`heldAsItStands`, le `held` de sa méthode au registre) ; tenue à l'envers, ses Pockets se lisent dans
 l'autre sens au lieu d'être retournés. Le tutoriel la lit de même, dans
 celle des huit tenues qui garde le plus de pièces placées, étape par
 étape dans l'ordre (le bas du Pocket intérieur d'abord), et dit ses côtés

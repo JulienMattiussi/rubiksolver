@@ -7,7 +7,7 @@ import { lookOf } from '@/lib/editor/modes/form'
 import { cubeToEdit } from '@/lib/editor/edit'
 import { cheapestAssignment } from '@/lib/editor/scan/assign'
 import { glareDistance, guessColor, labOf, type Lab } from '@/lib/editor/scan/color'
-import { HOLD_MS, showsFace, watch, watchAfter } from '@/lib/editor/scan/capture'
+import { HOLD_MS, otherFace, showsFace, watch, watchAfter } from '@/lib/editor/scan/capture'
 import { readScan } from '@/lib/editor/scan/read'
 import { frameOnScreen, screenToPicture } from '@/lib/editor/scan/frame'
 import { turnCells } from '@/lib/editor/scan/orient'
@@ -71,6 +71,7 @@ describe('scan plan', () => {
       '223',
       '224',
       'qiyi2',
+      'megaminx',
       'gearU',
       'skewb',
       'ivy',
@@ -380,6 +381,14 @@ describe('scan colors', () => {
     // A white sticker stays white.
     const white = picture(['W'], 1, 1, seededRng(6))
     expect(guessColor(sampleGrid(white, 1, 1)[0]!.lab).color).toBe('W')
+  })
+
+  it('tells which center it shows instead of the face asked for', () => {
+    // The green face shown, the blue asked: not taken, but said.
+    expect(otherFace(greens(), blue!)).toBe('G')
+    expect(otherFace(greens(), green!)).toBeNull()
+    // A cell it is not sure of: nothing said.
+    expect(otherFace([{ lab: lch(70, 60, 128) }, ...greens().slice(1)], blue!)).toBeNull()
   })
 
   it('takes no face with a cell it is not sure of', () => {

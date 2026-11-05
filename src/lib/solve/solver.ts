@@ -1,5 +1,5 @@
 import { cubeShape } from '../core/cube'
-import { bestHolding, holdingsOf, turnBack } from './holdings'
+import { heldAsItStands } from './holdings'
 import { OPTIMAL_2_PLAN, solveOptimal2 } from '../methods/standard/cube2'
 import { asPocket } from '../methods/standard/qiyi2'
 import { DOMINO_PLAN } from '../methods/tower/domino'
@@ -190,7 +190,7 @@ const SOLVE_METHODS = [
   },
   // No piece of a tower says how it is held: read as it stands (upside
   // down, its Pockets the other way round).
-  { id: 'twoPockets', plans: { '224': taught('224', 'twoPockets') }, asItStands: true },
+  { id: 'twoPockets', plans: { '224': taught('224', 'twoPockets') }, held: heldAsItStands },
   { id: 'tower234Steps', plans: { '234': TOWER234_PLAN } },
   { id: 'doubleDomino', plans: { '334': TOWER334_PLAN } },
   { id: 'fashionLaid', plans: { fashion: FASHION_PLAN } },
@@ -279,10 +279,9 @@ const SOLVE_METHODS = [
 ] as const satisfies ReadonlyArray<{
   id: string
   plans: Readonly<Partial<Record<CubeShape, MethodPlan>>>
-  /** Solved from the holding where most pieces stand home (`bestHolding`). */
-  asItStands?: true
-  /** Solved turned whole as its steps read it (a Megaminx held another
-   *  way: its steps name their faces where they stand). */
+  /** Solved turned whole as its steps read it, its turns named back: a
+   *  tower from where most pieces stand home (`heldAsItStands`), a
+   *  Megaminx held another way as its steps done say (`megaHeld`). */
   held?: (cube: Cube) => Held
 }>
 
@@ -309,11 +308,7 @@ export function methodsFor(shape: CubeShape) {
             solve: (cube: Cube) =>
               inSight(
                 cube,
-                'asItStands' in m
-                  ? solveAsItStands(cube, plan)
-                  : 'held' in m
-                    ? solveHeld(m.held(cube), plan)
-                    : buildSteps(read(cube), plan),
+                'held' in m ? solveHeld(m.held(cube), plan) : buildSteps(read(cube), plan),
               ),
             outline: (start?: Cube) => planOutline(plan, start && read(start)),
           },
@@ -325,16 +320,6 @@ export function methodsFor(shape: CubeShape) {
 /** Solved turned whole as its steps read it, its turns named back. */
 function solveHeld({ cube, back }: Held, plan: MethodPlan): SolveStep[] {
   return buildSteps(cube, plan).map((step) => ({ ...step, moves: step.moves.map(back) }))
-}
-
-/** A plan run on the puzzle held where most of its pieces stand home, its
- *  turns named back for the puzzle as it is held. */
-function solveAsItStands(cube: Cube, plan: MethodPlan): SolveStep[] {
-  const by = bestHolding(cube, cubeShape(cube))
-  return buildSteps(holdingsOf(cube, [by])[0]!, plan).map((step) => ({
-    ...step,
-    moves: step.moves.map((m) => turnBack(m, by)),
-  }))
 }
 
 /** Every layer the shape's methods turn (their steps' move sets): the

@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
-import { watch, watchAfter } from '@/lib/editor/scan/capture'
+import { otherFace, watch, watchAfter } from '@/lib/editor/scan/capture'
 import { labOf } from '@/lib/editor/scan/color'
 import { frameOnScreen, screenToPicture } from '@/lib/editor/scan/frame'
 import type { Picture } from '@/lib/editor/scan/outlines'
 import { cubeShape } from '@/lib/core/cube'
+import type { Color } from '@/lib/core/types'
 import { useCube } from '@/store/cubeStore'
 import { savePicture } from '@/store/scanDebug'
 import type { Kept } from '@/store/scanStore'
@@ -97,6 +98,10 @@ export function useFaceReading({
 }) {
   const [armed, setArmed] = useState(false)
   const [nothing, setNothing] = useState(false)
+  // The center last shown instead of the face asked for, and once nothing
+  // held still in time, the one to say.
+  const other = useRef<Color | null>(null)
+  const [wrong, setWrong] = useState<Color | null>(null)
   const [holding, setHolding] = useState(false)
   const [cells, setCells] = useState<readonly CellSample[]>([])
   const canvas = useRef<HTMLCanvasElement | null>(null)
@@ -104,6 +109,8 @@ export function useFaceReading({
 
   const arm = useCallback(() => {
     setNothing(false)
+    setWrong(null)
+    other.current = null
     setArmed(true)
   }, [])
   useEffect(() => {
@@ -111,6 +118,7 @@ export function useFaceReading({
     const timer = setTimeout(() => {
       setArmed(false)
       setNothing(true)
+      setWrong(other.current)
     }, ARMED_MS)
     return () => clearTimeout(timer)
   }, [armed])
@@ -135,6 +143,7 @@ export function useFaceReading({
       ctx.drawImage(video, crop.x, crop.y, crop.width, crop.height, 0, 0, width, height)
       const read = sampleFace(ctx.getImageData(0, 0, width, height), face)
       setCells(read)
+      other.current = otherFace(read, face)
       const seen = watch(watched, read, performance.now(), face)
       watched = seen.state
       setHolding(watched.frames.length > 1)
@@ -166,5 +175,5 @@ export function useFaceReading({
     }
   }, [aiming, armed, face, top, bottom, last, take, videoRef])
 
-  return { armed, nothing, arm, holding, cells }
+  return { armed, nothing, wrong, arm, holding, cells }
 }

@@ -118,7 +118,7 @@ export function ScanView() {
 
   // Each face waits for the user's tap, then is read (useFaceReading).
   const aiming = camera === 'on' && status === 'aiming' && stage === 'top'
-  const { armed, nothing, arm, holding, cells } = useFaceReading({
+  const { armed, nothing, wrong, arm, holding, cells } = useFaceReading({
     videoRef,
     face,
     top,
@@ -146,6 +146,13 @@ export function ScanView() {
     const sized = t.scanMovesSized
     return (sized[key as keyof typeof sized] ?? sized.show)(front, up)
   }
+  // The colors a face told by its center names, each with its swatch (a
+  // mirror's, its thickness).
+  const toldColors = [face.frontColor, face.upColor].map((c) => ({
+    color: c,
+    name: color(c),
+    ...(face.sized && { size: thicknessShare(c as CubeColor, thicknessOf(shape, variant)) }),
+  }))
   const busy = status === 'checking' ? t.scanChecking : status === 'reading' ? t.scanReading : null
 
   return createPortal(
@@ -193,14 +200,7 @@ export function ScanView() {
                 <ColorWords
                   skin={skinOf(shape, variant)}
                   text={toldText(color(face.frontColor), color(face.upColor))}
-                  colors={[face.frontColor, face.upColor].map((c) => ({
-                    color: c,
-                    name: color(c),
-                    // A mirror's face, drawn by its thickness.
-                    ...(face.sized && {
-                      size: thicknessShare(c as CubeColor, thicknessOf(shape, variant)),
-                    }),
-                  }))}
+                  colors={toldColors}
                 />
               </p>
             ) : (
@@ -211,7 +211,20 @@ export function ScanView() {
                 </p>
               )
             )}
-            {missed && <ErrorAlert>{t.scanMissed}</ErrorAlert>}
+            {/* Taken again: a face told by its center says to check it. */}
+            {missed && (
+              <ErrorAlert>
+                {face.told ? (
+                  <ColorWords
+                    skin={skinOf(shape, variant)}
+                    text={t.scanMissedTold(color(face.frontColor), color(face.upColor))}
+                    colors={toldColors}
+                  />
+                ) : (
+                  t.scanMissed
+                )}
+              </ErrorAlert>
+            )}
             {/* The face to take again, as it was taken: which one, which
                 way up. */}
             {missed && kept[at]?.photo && (
@@ -240,6 +253,14 @@ export function ScanView() {
         <ScanTake
           armed={armed}
           nothing={nothing}
+          wrong={
+            wrong && (
+              <ColorWords
+                text={t.scanWrongFace(color(wrong), color(face.frontColor))}
+                colors={[wrong, face.frontColor].map((c) => ({ color: c, name: color(c) }))}
+              />
+            )
+          }
           onArm={arm}
           hint={
             face.cross

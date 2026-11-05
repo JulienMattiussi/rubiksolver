@@ -146,7 +146,7 @@ describe('Megaminx', () => {
   // Played in hand some steps, turned whole on the way (the face beneath
   // tipped in front), then solved again: from where it stands, the steps
   // done not begun again from the face now beneath.
-  it.each<CubeShape>(['megaminx', 'holey'])(
+  it.each<CubeShape>(['megaminx', 'holey', 'crystal'])(
     'picks a %s up where its solution was left',
     (shape) => {
       const cube = applyMoves(

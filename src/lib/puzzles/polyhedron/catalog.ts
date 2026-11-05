@@ -41,6 +41,7 @@ export const POLYHEDRON = {
     dims: [9, 9, 9],
     scramble: 40,
     pad: 'mega',
+    scanTried: true,
   },
   // The Pyraminx Crystal: the Megaminx cut deeper, without centers.
   crystal: {

@@ -8,7 +8,6 @@ envisagées.
 - **Étendre le Floppy** (à préciser : d'autres puzzles plats de sa famille).
 - **Scanner le Floppy Ghost** pour de bon (voir la piste en cours plus bas,
   et le travail mis de côté dans `../rubiksolver-wip-ghost-scan`).
-- **Scanner le Megaminx** en vrai (seulement essayé sur images synthétiques).
 - **L'Hologram** : un puzzle à modéliser, s'annonce très difficile.
 - **Le référencement Google**, une fois le site déployé : le déclarer dans
   Search Console et y soumettre le `sitemap.xml` ; le présenter là où sont
@@ -19,10 +18,11 @@ envisagées.
 ## Le scan à l'appareil photo : réglages et autres formes
 
 **Constat.** Le scan (`lib/editor/scan/`, détail dans `docs/scan.md`) n'a
-été essayé en vrai que sur le 2x2, le 3x3, le 4x4, les tours 2x2x3 et
-2x2x4 et le 3x3 miroir ; les autres (cuboïdes, plats, troués, diagonaux, Megaminx, tour
-2x3x4, Floppy Ghost) ne l'ont été que sur images synthétiques, leur bouton
-marqué d'une fiole. Ses seuils (bandes de teinte et marges de `color.ts`,
+été essayé en vrai que sur les puzzles dont la carte porte `scanTried`
+(2x2, 2x2 Qiyi, 3x3, 4x4, tours 2x2x3 et 2x2x4, Megaminx, Gear Cube
+Ultimate, Skewb, Ivy Cube, Meffert's Pocket Cube) et le 3x3 miroir ; les
+autres ne l'ont été que sur images synthétiques, leur bouton marqué d'une
+fiole. Ses seuils (bandes de teinte et marges de `color.ts`,
 `HOLD_MS` et `DRIFT` dans `capture.ts`, `FORCED` dans `classify.ts`,
 `TURNED` dans `orient.ts`, `border` du Ghost vérifié sur une photo du
 vrai puzzle) ne sont réglés que sur ces quelques essais.
@@ -36,9 +36,6 @@ vrai puzzle) ne sont réglés que sur ces quelques essais.
   portable, `orderFor`), mais un utilisateur qui tourne quand même dans
   l'autre sens n'est rattrapé que sur le miroir (sa lecture essaie les deux
   ordres) ; ailleurs, la face est redemandée ou l'état lu faux.
-- **« Rien de stable »** s'affiche aussi quand le puzzle est immobile mais
-  montre une autre face que celle demandée (un mauvais centre) : un message
-  propre l'aiderait.
 - **Les formes d'une tour** sont énumérées à l'ouverture du scan (environ
   1 s, le fil de l'interface bloqué pendant l'annonce de la première face) :
   à faire dans un worker.

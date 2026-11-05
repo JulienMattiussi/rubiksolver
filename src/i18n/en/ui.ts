@@ -246,6 +246,8 @@ export const UI_EN: typeof UI_FR = {
     'Place the point where the four stickers meet on the cross, then tap the button to scan the face.',
   scanHolding: 'Hold the puzzle still…',
   scanNothing: 'Nothing held still in the frame: place the puzzle again and retry.',
+  scanWrongFace: (shown: string, asked: string) =>
+    `That is not the face asked for: the ${shown} center faces the lens. Show the ${asked} center, then retry.`,
   scanMoves: {
     first: (front: string, up: string) =>
       `Hold the camera still in front of the puzzle, the ${front} center **facing the lens** and ${up} **on top**, the face filling the frame, in a well-lit place.`,
@@ -329,6 +331,8 @@ export const UI_EN: typeof UI_FR = {
   },
   scanAgain: 'The face to take again, as it was taken',
   scanMissed: 'Puzzle not detected properly: take this face again, held as in the picture.',
+  scanMissedTold: (front: string, up: string) =>
+    `Puzzle not detected properly: check that the ${front} center faces the lens and the ${up} one is on top, then take the face again.`,
   scanChecking: 'Checking the face…',
   scanReading: 'Reading the puzzle…',
   scanDenied: 'The camera could not be opened: allow it in the browser settings, then try again.',

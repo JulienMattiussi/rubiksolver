@@ -4,6 +4,7 @@ import { ScanView } from '@/components/edit/scan/ScanView'
 import { useI18n } from '@/i18n/i18nStore'
 import { useCube } from '@/store/cubeStore'
 import { useScan } from '@/store/scanStore'
+import { scanPlan } from '@/lib/editor/scan/plan'
 
 vi.mock('@/hooks/useCamera', () => ({
   hasCamera: () => true,
@@ -47,5 +48,17 @@ describe('<ScanView />', () => {
     expect(screen.getByRole('button', { name: t().scanTake })).toBeTruthy()
     // No gesture to it: the face is taken again where it stands.
     expect(screen.queryByText(t().scanMovesAny.flip)).toBeNull()
+  })
+
+  it('says to check the center of a face told by it, taken again', () => {
+    useCube.getState().setShape('3')
+    useScan.getState().start()
+    render(<ScanView />)
+    act(() => useScan.setState({ face: 2, missed: true }))
+    const { frontColor, upColor } = scanPlan('3')[2]!
+    const name = (c: keyof ReturnType<typeof t>['colors']) => t().colors[c].toLowerCase()
+    expect(screen.getByRole('alert').textContent).toBe(
+      t().scanMissedTold(name(frontColor), name(upColor)),
+    )
   })
 })

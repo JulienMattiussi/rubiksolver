@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { ScanLine } from 'lucide-react'
 import { useI18n } from '@/i18n/i18nStore'
 import { Button } from '@/components/ui/Button'
@@ -8,17 +8,21 @@ import { Button } from '@/components/ui/Button'
  * once the puzzle is placed (or, on a laptop, the space bar), released; the
  * camera then waits for the face to hold still (ScanView), saying so below
  * the frame. Nothing else tells a puzzle from a wall. When nothing held
- * still in time, it says so over the button.
+ * still in time, it says so over the button (or, when it showed another
+ * face, which one, `wrong`).
  */
 export function ScanTake({
   armed,
   nothing,
+  wrong,
   onArm,
   hint,
 }: {
   armed: boolean
   /** Nothing held still last time. */
   nothing: boolean
+  /** What to say instead when the picture showed another face. */
+  wrong?: ReactNode
   onArm: () => void
   /** What to put in the frame, when not the whole puzzle (a mirror's
    *  center). */
@@ -55,7 +59,7 @@ export function ScanTake({
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
       <div className="pointer-events-auto flex max-w-sm flex-col items-center gap-3 rounded-2xl bg-black/75 p-5 text-center shadow-xl ring-1 ring-white/15">
         <p className="text-sm leading-snug text-slate-100">
-          {nothing ? t.scanNothing : (hint ?? t.scanTakeHint)}
+          {nothing ? (wrong ?? t.scanNothing) : (hint ?? t.scanTakeHint)}
         </p>
         <Button variant="primary" onClick={onArm} className="px-6 py-3 text-base">
           <ScanLine className="size-5" aria-hidden />

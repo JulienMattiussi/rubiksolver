@@ -85,6 +85,18 @@ export function showsFace(cells: readonly CellSample[], face: ScanFace): boolean
   return !!middle && family(middle) === family(face.frontColor) && guesses.every((g) => g.sure)
 }
 
+/** The center a picture surely shows instead of the face asked for (a
+ *  face told by its center, every cell surely a cube color, its center
+ *  another), to say so: else none. */
+export function otherFace(cells: readonly CellSample[], face: ScanFace): Color | null {
+  if (!face.named || !face.told || face.center === null || face.sized || face.whole) return null
+  if (cells.length !== face.cells.length) return null
+  const guesses = cells.map((cell) => guessColor(cell.lab))
+  const middle = guesses[face.center]?.color
+  if (!middle || !guesses.every((g) => g.sure)) return null
+  return family(middle) === family(face.frontColor) ? null : middle
+}
+
 /** The pictures of the face reading the same so far, since when, and the
  *  face taken before while the picture still shows it. */
 export interface Watch {
