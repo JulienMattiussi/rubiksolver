@@ -11,6 +11,7 @@ export const PYRAMID = {
     dims: [5, 5, 5],
     scramble: 11,
     pad: 'pyra',
+    scanTried: true,
   },
   tetra: {
     moves: 'pyra',

@@ -71,6 +71,7 @@ describe('scan plan', () => {
       '223',
       '224',
       'qiyi2',
+      'pyra',
       'megaminx',
       'gearU',
       'skewb',
