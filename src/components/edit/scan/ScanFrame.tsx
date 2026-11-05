@@ -1,5 +1,7 @@
+import { cellColor } from '@/lib/editor/scan/canvasRead'
 import { cssOf, guessColor } from '@/lib/editor/scan/color'
 import type { Rect } from '@/lib/editor/scan/frame'
+import type { Color } from '@/lib/core/types'
 import type { Point } from '@/lib/editor/scan/layout'
 import type { ScanFace } from '@/lib/editor/scan/plan'
 import type { CellSample } from '@/lib/editor/scan/sample'
@@ -31,7 +33,9 @@ interface ScanFrameProps {
  *  colors hold. Each cell shows what it reads, as a dot: the cube color it
  *  seems to be (a ring when not surely, nothing when none), or on a puzzle
  *  of many colors, or out of shape (a wall looks like a white sticker),
- *  the color measured; so one sees what holds the scan. */
+ *  the color measured; on a face read as a grid of its colors (Meffert's
+ *  Pocket Cube), the color measured where it shows one of them: a sticker
+ *  seen, so one sees how to hold it; so one sees what holds the scan. */
 export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }: ScanFrameProps) {
   const unit = rect.width / face.width
   const at = ([x, y]: Point): Point => [(mirrored ? face.width - x : x) * unit, y * unit]
@@ -118,7 +122,7 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }:
         )}
       </svg>
       {!face.whole &&
-        !face.sized &&
+        (!face.sized || face.canvas) &&
         cells.map((cell, i) => {
           const point = face.points[i]
           if (!point) return null
@@ -129,7 +133,7 @@ export function ScanFrame({ rect, face, holding, cells, mirrored, debug, core }:
               className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
               style={{ left: x, top: y }}
             >
-              <CellDot cell={cell} named={face.named && !face.open} />
+              <CellDot cell={cell} named={face.named && !face.open} palette={face.canvas} />
               {debug && <CellMeasure cell={cell} />}
             </div>
           )
@@ -165,8 +169,28 @@ function centerShape(outline: readonly Point[], points: readonly Point[], center
 
 const CENTER_SHARE = 0.55
 
-/** A cell's dot: its guessed color, filled when sure; or its measure. */
-function CellDot({ cell, named }: { cell: CellSample; named: boolean }) {
+/** A cell's dot: its guessed color, filled when sure; or its measure; or,
+ *  where it shows one of `palette`, its measure. */
+function CellDot({
+  cell,
+  named,
+  palette,
+}: {
+  cell: CellSample
+  named: boolean
+  palette?: readonly Color[]
+}) {
+  // A sticker, in the color seen: which of the puzzle's it is, its size
+  // tells (a violet one may show a blue one's hue).
+  if (palette) {
+    if (!cellColor(cell.lab, palette)) return null
+    return (
+      <span
+        className="size-3 rounded-full ring-2 ring-black/60"
+        style={{ background: cssOf(cell.lab) }}
+      />
+    )
+  }
   if (!named) {
     return (
       <span

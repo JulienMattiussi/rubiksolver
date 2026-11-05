@@ -4,6 +4,7 @@ import { invertMoves } from '../../core/moves'
 import { applyMoves } from '../../core/turn'
 import type { Cube } from '../../core/types'
 import {
+  FACES,
   seamsOf,
   sightLines,
   type FaceEntry,
@@ -58,7 +59,8 @@ const FILLS = CELLS.map((cell) => [0, 1, 2, 3].map((v) => (v ? voxelsOf(cell, v 
 /** Every Camouflage has its 32 pieces somewhere. */
 const PIECES = 32
 
-const LINES = sightLines(N)
+// Its four faces' (its sides never asked).
+const LINES = sightLines(N).slice(0, FACES.length)
 
 /** Voxels to the cells (and values) that could fill them. */
 const FILLERS: [number, number][][] = Array.from({ length: N ** 3 }, () => [])

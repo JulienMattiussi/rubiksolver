@@ -1,7 +1,9 @@
-import { FACE_COLOR, faceColorsOf } from '../../core/cube'
+import { FACE_COLOR, faceColorsOf, shapeColors } from '../../core/cube'
 import type { CubeShape } from '../../core/shapes'
+import type { Face } from '../../core/types'
+import { FACES } from '../modes/faceViews'
 import { gridLayout } from './layout'
-import type { ORDER, ScanFace, sizedOrder } from './plan'
+import type { ORDER, ScanFace, ScanMove, sizedOrder } from './plan'
 import { GRID_ANGLES } from './planFaces'
 
 /** Cells across the frame of a 2x2 mirror's face: a layer each, its
@@ -59,4 +61,39 @@ export function sizedFaces(shape: CubeShape, order: ReturnType<typeof sizedOrder
     told: true,
     named: false,
   }))
+}
+
+/** Cells across the frame of a face entered on canvases: its widest (five
+ *  mini cubes on Meffert's Pocket Cube) and room round it. */
+const CANVAS_CELLS = 6
+
+/** A puzzle entered on canvases (modes/canvas.ts), its four faces in their
+ *  order (`FACES`: any face first, then each time turned left, easier in
+ *  hand than tilted: its pictures read a quarter round, `gridCanvas`), then
+ *  its top tilted toward the lens and its bottom, turned half round (its
+ *  sides, sides.ts: what tells two shapes apart, and the stickers on
+ *  them): its frame drawn, its cells' dots shown, its picture kept to read
+ *  its stickers on (canvasRead.ts). */
+export function canvasFaces(shape: CubeShape): Omit<ScanFace, 'told' | 'named'>[] {
+  const grid = gridLayout(CANVAS_CELLS, CANVAS_CELLS)
+  const colors = shapeColors(shape)
+  const face = (front: Face, up: Face, move: ScanMove) => ({
+    ...grid,
+    // No lines: its stickers are placed where they stand, not where drawn.
+    lines: [],
+    move,
+    angle: GRID_ANGLES[move] ?? null,
+    frontColor: FACE_COLOR[front],
+    upColor: FACE_COLOR[up],
+    cells: grid.points.map((_, i) => `${front}${i}`),
+    center: null,
+    sized: true as const,
+    canvas: colors,
+  })
+  return [
+    ...FACES.map((front, f) => face(front, FACES[(f + 1) % FACES.length]!, f ? 'turn' : 'any')),
+    // Its sides (sides.ts), its top then its bottom.
+    face('R', 'F', 'tilt'),
+    face('L', 'F', 'flip'),
+  ]
 }

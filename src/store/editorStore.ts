@@ -18,16 +18,14 @@ import { nextToggle } from '@/lib/editor/modes/toggles'
 import { nextStep, partsDone, settingsOf, startSettings, type Settings } from '@/lib/editor/steps'
 import {
   CANVAS_COUNT,
-  editOfCanvases,
   paintCanvas,
   regionsOf,
-  showsCanvases,
   toggleJoin,
-  viewsOfCanvases,
   type FaceCell,
 } from '@/lib/editor/modes/canvas'
+import { blankCanvas } from '@/lib/editor/modes/sides'
 import { tablesFor } from '@/lib/editor/editorTables'
-import { findFaces } from '@/workers/findFaces'
+import { entered, scanned, type FacesFound, type Reading } from './faceSearch'
 import { validateCube, type ValidationError } from '@/lib/editor/validate'
 import type { Color, Cube, Vec3 } from '@/lib/core/types'
 import { SHAPE_SCAN_BEFORE, type CubeShape } from '@/lib/core/shapes'
@@ -106,6 +104,12 @@ interface EditorStore extends Settings {
   /** The colors a camera scan read (lib/editor/scan/), to check and apply,
    *  in the form it found a puzzle that changes shape in (no form to pick). */
   scanned: (edit: EditStickers, form?: Cube, parts?: Parts) => void
+  /** The faces a camera scan read of a puzzle entered on canvases, by
+   *  each reading of its pictures (the likeliest first; faceSearch.ts):
+   *  the state they show, its colors next; else what the scan does (a
+   *  side to take, a face to take again); else the faces as first read,
+   *  on their canvases. */
+  scannedFaces: (readings: readonly Reading[]) => Promise<FacesFound>
   /** The colors entered come from a scan, not yet checked by eye (the
    *  panel asks to). */
   fromScan: boolean
@@ -221,35 +225,62 @@ export const useEditor = create<EditorStore>((set, get) => {
         set({ error: 'faces' })
         return
       }
-      if (faceAt < CANVAS_COUNT - 1) {
+      if (faceAt < faces.length - 1) {
         set({ faceAt: faceAt + 1, error: null })
         return
       }
-      // The four faces held: the state they show, searched in a worker.
+      // Every face held: the state they show, searched in a worker.
       set({ finding: true, error: null })
-      const shape = currentShape()
-      const entry = stepOf(shape, 'canvas')!.faces
-      void findFaces(shape, viewsOfCanvases(faces)!).then((states) => {
+      void entered(currentShape(), faces).then((found) => {
         // Left meanwhile (cancelled, or back to a face): dropped.
         const now = get()
         if (now.mode !== 'edit' || now.phase !== 'canvas' || now.faces !== faces) {
           set({ finding: false })
           return
         }
-        // Its colors where the faces say (a sticker where one said absent
-        // refuses it).
-        const found = states.find((f) => showsCanvases(f, faces, entry))
-        if (!found) {
-          set({ finding: false, error: 'facesShape' })
-          return
-        }
-        const form = formOf(found.cube)
-        // Painted from what the faces show; the rest to paint.
-        onwards(form, {
-          finding: false,
-          edit: { ...emptyEdit(shape, form), ...editOfCanvases(found, faces, entry) },
-        })
+        if (found.kind === 'shown')
+          onwards(found.shown.form, { finding: false, edit: found.shown.edit })
+        else if (found.kind === 'side') {
+          // Two shapes alike: their right side asked for.
+          const n = stepOf(currentShape(), 'canvas')!.faces.canvas
+          set({ faces: [...faces, blankCanvas(n)], faceAt: faces.length, finding: false })
+        } else set({ finding: false, error: 'facesShape' })
       })
+    },
+
+    scannedFaces: async (readings) => {
+      set({ finding: true, error: null })
+      const found = await scanned(currentShape(), readings)
+      if (found.kind === 'shown') {
+        set({
+          faces: found.faces.slice(0, CANVAS_COUNT),
+          form: found.shown.form,
+          edit: found.shown.edit,
+          phase: 'paint',
+          preview: undefined,
+          selectedColor: pickable(get().selectedColor, found.shown.form),
+          finding: false,
+          error: null,
+          failedStep: null,
+          fromScan: true,
+        })
+        return found
+      }
+      if (found.kind !== 'none') {
+        set({ finding: false })
+        return found
+      }
+      // None shows a state: the faces as first read, to set right by hand.
+      const choices = readings[0]?.choices.slice(0, CANVAS_COUNT) ?? []
+      set({
+        ...(choices.every((c) => c.length) && { faces: choices.map((c) => c[0]!) }),
+        faceAt: 0,
+        phase: 'canvas',
+        finding: false,
+        error: 'facesShape',
+        fromScan: true,
+      })
+      return found
     },
 
     toggleAt: (slotKey) =>

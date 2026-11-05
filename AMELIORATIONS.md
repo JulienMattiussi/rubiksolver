@@ -5,8 +5,6 @@ envisagées.
 
 ## À faire (notes du 2026-11-03)
 
-- **Scanner le Meffert's Pocket Cube** par la méthode des miroirs (les
-  stickers trouvés par OpenCV et leur forme lue, comme le 3x3 miroir).
 - **Étendre le Floppy** (à préciser : d'autres puzzles plats de sa famille).
 - **Scanner le Floppy Ghost** pour de bon (voir la piste en cours plus bas,
   et le travail mis de côté dans `../rubiksolver-wip-ghost-scan`).
@@ -51,7 +49,7 @@ vrai puzzle) ne sont réglés que sur ces quelques essais.
   rectangles figés de deux vrais scans et l'usage.
 - **Restent hors du scan** le Tori (ses arêtes, de minces amandes au bord
   des faces), les autres miroirs, les super cubes, les soudés, les
-  engrenages, et parmi ceux qui se déforment le Camouflage, le Meffert's Pocket Cube, le
+  engrenages, et parmi ceux qui se déforment le Camouflage, le
   Fashion-V et l'AI Cube (qui pourraient suivre le chemin des tours).
 
 **Pistes.** Régler les seuils sur de vraies photos (lampe chaude, reflets)

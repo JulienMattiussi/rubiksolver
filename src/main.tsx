@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import '@/index.css'
 import App from '@/App'
 import { startRouter } from '@/store/router'
-import { rememberScanDebug } from '@/store/scanStore'
+import { rememberScanDebug } from '@/store/scanDebug'
 
 // The scan's debug asked in the address, before the router rewrites it.
 rememberScanDebug()

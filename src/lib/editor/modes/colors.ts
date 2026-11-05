@@ -104,6 +104,82 @@ function candidates(
   })
 }
 
+/** Whether stickers painted at once (a scan's, on a state found) could be
+ *  real pieces: no color more often than the puzzle has it, each slot's
+ *  painted stickers some piece's, and no piece shown whole more often than
+ *  it exists. */
+export function realPieces(edit: EditStickers, shape: CubeShape, form?: Cube): boolean {
+  const { remaining } = progress(edit, shape, form)
+  if (Object.values(remaining).some((n) => n < 0)) return false
+  const tables = tablesFor(shape, form)
+  const used = new Map<string, number>()
+  for (const slot of tables.paintableSlots) {
+    const painted = paintedOf(edit, slot)
+    const shown = Object.entries(painted)
+    if (!shown.length) continue
+    const options = (tables.placements.get(slot.key) ?? []).filter((o) =>
+      shown.every(([ni, color]) => o.colors[Number(ni)] === color),
+    )
+    if (!options.length) return false
+    const piece = options[0]!.pieceKey
+    if (shown.length === slot.stickers.length && options.every((o) => o.pieceKey === piece))
+      used.set(piece, (used.get(piece) ?? 0) + 1)
+  }
+  return [...used].every(([piece, n]) => n <= (tables.budgets.get(piece) ?? 0))
+}
+
+/** How many ways of placing the pieces are weighed at most, past which
+ *  nothing is completed. */
+const MOST_WAYS = 4096
+
+/** Stickers painted at once (a scan's: some on faces never seen) completed
+ *  where the pieces tell them: every way of putting the pieces that fit the
+ *  slots not yet whole (each piece no more often than it exists, the whole
+ *  ones counted) agrees on that sticker's color. */
+export function completed(edit: EditStickers, shape: CubeShape, form?: Cube): EditStickers {
+  const tables = tablesFor(shape, form)
+  const used = new Map<string, number>()
+  const open: { slot: Slot; options: readonly PlacementOption[] }[] = []
+  for (const slot of tables.paintableSlots) {
+    const painted = Object.entries(paintedOf(edit, slot))
+    const options = (tables.placements.get(slot.key) ?? []).filter((o) =>
+      painted.every(([ni, color]) => o.colors[Number(ni)] === color),
+    )
+    if (painted.length < slot.stickers.length) open.push({ slot, options })
+    else if (options[0]) used.set(options[0].pieceKey, (used.get(options[0].pieceKey) ?? 0) + 1)
+  }
+  // Each open sticker's colors over every way (undefined: none yet).
+  const seen = new Map<string, Set<Color>>()
+  let ways = 0
+  const place = (k: number, chosen: PlacementOption[]): void => {
+    if (ways > MOST_WAYS) return
+    if (k === open.length) {
+      ways++
+      open.forEach(({ slot }, i) => {
+        for (const s of slot.stickers) {
+          if (edit[s.id]) continue
+          const color = chosen[i]!.colors[s.ni]
+          if (!seen.has(s.id)) seen.set(s.id, new Set())
+          if (color) seen.get(s.id)!.add(color)
+        }
+      })
+      return
+    }
+    for (const option of open[k]!.options) {
+      const n = used.get(option.pieceKey) ?? 0
+      if (n >= (tables.budgets.get(option.pieceKey) ?? 0)) continue
+      used.set(option.pieceKey, n + 1)
+      place(k + 1, [...chosen, option])
+      used.set(option.pieceKey, n)
+    }
+  }
+  place(0, [])
+  if (!ways || ways > MOST_WAYS) return edit
+  const next = { ...edit }
+  for (const [id, colors] of seen) if (colors.size === 1) next[id] = [...colors][0]!
+  return next
+}
+
 /**
  * Paint `color` on sticker (`slotKey`, `ni`). Returns the next state, or the
  * same reference if the paint is impossible. A conflicting paint restarts the

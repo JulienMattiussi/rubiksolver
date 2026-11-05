@@ -24,7 +24,7 @@ import {
 } from './planFaces'
 import { flatFaces } from './planFlat'
 import { gearFaces } from './planGears'
-import { crossFaces, sizedFaces } from './planMirrors'
+import { canvasFaces, crossFaces, sizedFaces } from './planMirrors'
 
 /**
  * How a puzzle is scanned with a camera, face by face (pure, no React): the
@@ -50,12 +50,14 @@ import { crossFaces, sizedFaces } from './planMirrors'
  *  of a puzzle out of shape, its long side upright; `anchored`: the one
  *  face of a puzzle read whole, its anchor in the shape marked (`whole`);
  *  `crossed`: the first face of a 2x2 mirror, any, where its stickers meet
- *  on the frame's cross. */
+ *  on the frame's cross; `any`: the first face of a puzzle out of shape
+ *  read by its stickers, any, the whole puzzle in the frame. */
 export type ScanMove =
   | 'first'
   | 'upright'
   | 'anchored'
   | 'crossed'
+  | 'any'
   | 'turn'
   | 'below'
   | 'tilt'
@@ -127,6 +129,10 @@ export interface ScanFace extends FaceLayout {
   /** A 2x2 mirror's face, held any way, its stickers set round where they
    *  meet: the frame's middle, drawn as a cross. */
   readonly cross?: true
+  /** A face of a puzzle entered on canvases (Meffert's Pocket Cube), held
+   *  any way, read as a grid laid on its picture (canvasRead.ts): the
+   *  colors its stickers wear, its cells' dots shown in them. */
+  readonly canvas?: readonly Color[]
 }
 
 /** What a scan is read against: the puzzle, its faces as scanned, and the
@@ -287,9 +293,11 @@ export function scanPlan(
                   ? squareFaces(shape, order)
                   : own === 'forms'
                     ? boxFaces(shape, order)
-                    : rings
-                      ? ringFaces(shape, rings)
-                      : gridFaces(shape, order)
+                    : own === 'canvas'
+                      ? canvasFaces(shape)
+                      : rings
+                        ? ringFaces(shape, rings)
+                        : gridFaces(shape, order)
     // Centers tell the faces only if every face has one, where they stay
     // (not a Skewb's, which move about, nor a pyramid's, nor a Gear Cube
     // Extreme's top and bottom ones, which its slices take away): pieces no

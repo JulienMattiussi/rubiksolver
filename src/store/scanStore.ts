@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { cubeShape } from '@/lib/core/cube'
+import { cubeShape, shapeColors, solvedCube } from '@/lib/core/cube'
 import { showsFace } from '@/lib/editor/scan/capture'
 import { readScan } from '@/lib/editor/scan/read'
 import type { ScanReading } from '@/lib/editor/scan/classify'
@@ -9,10 +9,20 @@ import type { Picture } from '@/lib/editor/scan/outlines'
 import { crossSizes, placeAround, placeStickers, stickerSizes } from '@/lib/editor/scan/sized'
 import { readCross } from '@/lib/editor/scan/crossRead'
 import { readSized } from '@/lib/editor/scan/sizedRead'
+import {
+  gridCanvas,
+  gridColors,
+  gridRects,
+  readGrid,
+  type GridFace,
+} from '@/lib/editor/scan/canvasRead'
+import type { Rect } from '@/lib/editor/scan/sized'
+import { stepOf } from '@/lib/editor/entry'
 import { findStickers, type FaceImage } from '@/workers/findStickers'
 import type { CellSample } from '@/lib/editor/scan/sample'
 import { useCube } from './cubeStore'
 import { useEditor } from './editorStore'
+import { saveReading, scanDebug } from './scanDebug'
 
 /** How long a face taken is checked, shown with a loader. */
 const CHECK_MS = 600
@@ -30,6 +40,10 @@ export interface Kept {
   readonly photo?: string
   readonly light?: Picture
   readonly image?: FaceImage
+  /** A face read as canvases: where the frame shown lies in its image
+   *  (kept with room round it), and its grid read there. */
+  readonly frame?: Rect
+  readonly grid?: GridFace
 }
 
 interface ScanStore {
@@ -65,39 +79,6 @@ interface ScanStore {
 
 const shape = () => cubeShape(useCube.getState().cube)
 
-const DEBUG = 'scandebug'
-
-/** `scandebug` anywhere in the address as the page loads (before or after
- *  its `#`, which the router then rewrites): kept for the tab's session. */
-export function rememberScanDebug(): void {
-  try {
-    if (window.location.href.includes(DEBUG)) sessionStorage.setItem(DEBUG, '1')
-  } catch {
-    // No storage (a private window): the address alone says it.
-  }
-}
-
-/** The scan debugged: the cells' measures written in them (ScanView), and
- *  the scan's in the console, to replay a reading that went wrong. */
-export function scanDebug(): boolean {
-  if (typeof window === 'undefined') return false
-  try {
-    return window.location.href.includes(DEBUG) || sessionStorage.getItem(DEBUG) === '1'
-  } catch {
-    return window.location.href.includes(DEBUG)
-  }
-}
-
-/** A face read whole (outlines.ts), debugged: the very picture read,
- *  downloaded as a PNG, to replay its reading in a test. */
-export function savePicture(canvas: HTMLCanvasElement): void {
-  if (!scanDebug()) return
-  const link = document.createElement('a')
-  link.href = canvas.toDataURL('image/png')
-  link.download = `scan-${shape()}-${Date.now()}.png`
-  link.click()
-}
-
 /** The faces taken so far, each one's cells in Lab, in the console. */
 function logScan(when: string, faces: readonly (readonly CellSample[] | undefined)[]) {
   if (!scanDebug()) return
@@ -108,6 +89,8 @@ function logScan(when: string, faces: readonly (readonly CellSample[] | undefine
 export const useScan = create<ScanStore>((set, get) => {
   // A check still running when the scan closes is dropped.
   let run = 0
+  // The faces of a puzzle read as canvases taken again so far.
+  const retaken = new Set<number>()
   const later = (f: () => void, ms: number) => {
     const mine = run
     setTimeout(() => mine === run && f(), ms)
@@ -161,6 +144,51 @@ export const useScan = create<ScanStore>((set, get) => {
     if (mine === run) done(reading)
   }
 
+  /** A puzzle entered on canvases: each face's grid read as taken
+   *  (canvasRead.ts), its stickers' colors of all faces at once, then the
+   *  state its canvases show searched by the editor. */
+  const readCanvases = async () => {
+    const mine = run
+    const kept = get().kept
+    const grids = kept.map((k) => k?.grid)
+    const missing = grids.findIndex((g) => !g)
+    if (missing >= 0) {
+      done({ ok: false, face: missing })
+      return
+    }
+    const faces = grids as GridFace[]
+    const entry = stepOf(shape(), 'canvas')!.faces
+    const colors = gridColors(faces, solvedCube(shape()), entry.spans ?? {})
+    // Turned as told first, then the other way (a hand that turned it
+    // right, a camera that faces the user or not): its top, tilted toward
+    // the lens, its left side then (`SIDES`), or its right.
+    const readings = [get().behind, !get().behind].map((fromLeft) => ({
+      choices: faces.map((grid, f) => [gridCanvas(grid, colors[f]!, fromLeft, entry.canvas)]),
+      side: fromLeft ? 0 : 1,
+    }))
+    const result = await useEditor.getState().scannedFaces(readings)
+    if (mine !== run) return
+    // Debugged: the pictures as read.
+    saveReading(
+      faces.map((grid, f) => ({
+        image: kept[f]?.image,
+        frame: kept[f]?.frame,
+        rects: gridRects(grid),
+        colors: colors[f]!,
+      })),
+      `scan-${shape()}`,
+    )
+    if (result.kind === 'retake') {
+      // Each face asked again in turn: one taken again in vain is not the
+      // misread one.
+      const fresh = result.faces.filter((f) => !retaken.has(f))
+      if (!fresh.length) retaken.clear()
+      const face = fresh[0] ?? result.faces[0]!
+      retaken.add(face)
+      done({ ok: false, face })
+    } else get().close()
+  }
+
   /** The puzzle read: painted in the editor, or the face to take again. */
   const done = (reading: ScanReading) => {
     const faces = get().faces
@@ -188,6 +216,7 @@ export const useScan = create<ScanStore>((set, get) => {
     last: undefined,
 
     start: () => {
+      retaken.clear()
       set({
         open: true,
         face: 0,
@@ -208,14 +237,30 @@ export const useScan = create<ScanStore>((set, get) => {
       set({ open: false, status: 'aiming' })
     },
 
-    take: (cells, kept) => {
+    take: (cells, taking) => {
       set({ status: 'checking' })
-      later(() => {
+      const check = (kept: Kept | undefined) => {
         const asking = plan()
         const { face, faces } = get()
         const asked = asking[face]!
         if (!showsFace(cells, asked)) {
           set({ status: 'aiming', missed: true })
+          return
+        }
+        // A face read as canvases: its grid read, or the face taken again.
+        if (kept?.image && kept.frame && !kept.grid) {
+          // Debugged: the picture refused.
+          saveReading(
+            [{ image: kept.image, frame: kept.frame, rects: [], colors: [] }],
+            `scan-${shape()}-refused`,
+          )
+          // Its photo shown, to take it again as it was held.
+          const photo = { photo: kept.photo }
+          set({
+            status: 'aiming',
+            missed: true,
+            kept: asking.map((_, i) => (i === face ? photo : get().kept[i])),
+          })
           return
         }
         const taken = asking.map((_, i) => (i === face ? cells : faces[i]))
@@ -231,6 +276,15 @@ export const useScan = create<ScanStore>((set, get) => {
         }
         if (next >= 0) set({ ...after, face: next, status: 'aiming' })
         else set({ ...after, status: 'complete' })
+      }
+      // A face read as canvases: its grid read on its picture (after the
+      // loader shows: some tenths of a second).
+      const image = taking?.frame && taking.image
+      const entry = stepOf(shape(), 'canvas')?.faces
+      if (!image || !entry) return later(() => check(taking), CHECK_MS)
+      later(() => {
+        const grid = readGrid(image, taking.frame!, entry, shapeColors(shape()))
+        check({ ...taking, ...(grid && { grid }) })
       }, CHECK_MS)
     },
 
@@ -240,7 +294,11 @@ export const useScan = create<ScanStore>((set, get) => {
     read: () => {
       set({ status: 'reading' })
       // The loader shown a moment before the reading takes the thread.
-      later(() => (plan()[0]?.sized ? void readSizes() : readFaces()), READ_DELAY_MS)
+      const first = plan()[0]
+      later(
+        () => (first?.canvas ? void readCanvases() : first?.sized ? void readSizes() : readFaces()),
+        READ_DELAY_MS,
+      )
     },
   }
 })

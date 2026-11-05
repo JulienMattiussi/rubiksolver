@@ -13,7 +13,8 @@ import { useCamera } from '@/hooks/useCamera'
 import { useFaceReading } from '@/hooks/useFaceReading'
 import { drawnFace } from '@/three/core/scanDrawing'
 import { useCube } from '@/store/cubeStore'
-import { scanDebug, useScan } from '@/store/scanStore'
+import { scanDebug } from '@/store/scanDebug'
+import { useScan } from '@/store/scanStore'
 import { Bolded } from '@/components/ui/Bolded'
 import { Button } from '@/components/ui/Button'
 import { SCAN_WHERE } from '@/components/ui/styles'
@@ -243,7 +244,7 @@ export function ScanView() {
           hint={
             face.cross
               ? t.scanTakeHintCross
-              : face.sized || face.centered
+              : (face.sized && !face.canvas) || face.centered
                 ? t.scanTakeHintSized
                 : undefined
           }

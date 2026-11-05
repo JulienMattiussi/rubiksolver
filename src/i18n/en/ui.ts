@@ -198,6 +198,8 @@ export const UI_EN: typeof UI_FR = {
     'Pick a color and click the stickers; turn the view to reach the other faces. Your Camouflage is not a brick? “Change the shape” enters it face by face.',
   editHintFaces:
     'Copy the face of your puzzle toward you: pick a color (or “Absent” where no sticker shows) and click the cells, then click the joints between the cells of one sticker. Then tilt your puzzle toward you (its top comes to the front) and do the same.',
+  editHintSide:
+    'These four faces leave two possible shapes: bring the first face back in front, then turn your puzzle a quarter turn to the left (its right face comes in front) and copy it.',
   faceStep: (n: number, total: number) => `Face ${n} / ${total}`,
   faceAbsent: 'Absent',
   tiltDown: 'Enter the next face',
@@ -207,7 +209,7 @@ export const UI_EN: typeof UI_FR = {
   changeFaces: 'Change the shape',
   errorFaces: 'This face is not complete: every cell must be painted, a color or “Absent”.',
   errorFacesShape:
-    'No Camouflage shape shows these four faces: check the joints and the absent cells.',
+    'No shape of the puzzle shows these four faces: check the joints and the absent cells.',
   editHintTwist:
     'Click a corner or an edge to put a piece there that fits: each click moves on to the next (another piece, or the same one turned). A click on a side center turns it a quarter turn, to match the shape of yours.',
   editHintMirror:
@@ -275,6 +277,8 @@ export const UI_EN: typeof UI_FR = {
     // A puzzle read whole names no color either.
     anchored: () =>
       'Hold the camera still in front of a large face of the puzzle, its middle piece **in the marked shape**, in a well-lit place.',
+    any: () =>
+      'Hold the camera still in front of the puzzle, any face **toward the lens**, the **whole puzzle inside the frame**, in a well-lit place.',
     crossed: () =>
       'Hold the camera still in front of the cube, any face **toward the lens**, the point where its four stickers meet **on the frame’s cross**, in a well-lit place.',
     upright: () =>
@@ -317,6 +321,7 @@ export const UI_EN: typeof UI_FR = {
       'Show the bottom: tip the top point **backward**, the bottom face comes **to face the lens**.',
     anchored:
       'Hold the camera still in front of a large face of the puzzle, its middle piece **in the marked shape**, in a well-lit place.',
+    any: 'Hold the camera still in front of the puzzle, any face **toward the lens**, the **whole puzzle inside the frame**, in a well-lit place.',
     crossed:
       'Hold the camera still in front of the cube, any face **toward the lens**, the point where its four stickers meet **on the frame’s cross**, in a well-lit place.',
     upright:

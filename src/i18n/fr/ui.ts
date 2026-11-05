@@ -200,6 +200,8 @@ export const UI_FR = {
     'Choisissez une couleur et cliquez les stickers ; tournez la vue pour atteindre les autres faces. Votre Camouflage n’est pas en pavé ? « Changer la forme » le saisit face par face.',
   editHintFaces:
     'Reproduisez la face de votre puzzle tournée vers vous : choisissez une couleur (ou « Absent » là où on ne voit pas de sticker) et cliquez les cases, puis cliquez les joints entre les cases d’un même sticker. Ensuite, basculez votre puzzle vers vous (son dessus vient devant) et faites de même.',
+  editHintSide:
+    'Ces quatre faces laissent deux formes possibles : remettez la première face devant, puis tournez votre puzzle d’un quart de tour vers la gauche (sa face de droite vient devant) et reproduisez-la.',
   faceStep: (n: number, total: number) => `Face ${n} / ${total}`,
   faceAbsent: 'Absent',
   tiltDown: 'Saisir la face suivante',
@@ -210,7 +212,7 @@ export const UI_FR = {
   errorFaces:
     'Cette face n’est pas complète : chaque case doit être peinte, d’une couleur ou « Absent ».',
   errorFacesShape:
-    'Aucune forme du Camouflage ne montre ces quatre faces : vérifiez les joints et les cases absentes.',
+    'Aucune forme du puzzle ne montre ces quatre faces : vérifiez les joints et les cases absentes.',
   editHintTwist:
     'Cliquez un coin ou une arête pour y poser une pièce qui peut s’y loger : chaque clic passe à la suivante (autre pièce, ou la même tournée). Un clic sur un centre de côté le tourne d’un quart de tour, pour lui donner la forme du vôtre.',
   editHintMirror:
@@ -283,6 +285,8 @@ export const UI_FR = {
     // A puzzle read whole names no color either.
     anchored: () =>
       'Positionnez la caméra immobile devant une grande face du puzzle, sa pièce centrale **dans la forme marquée**, dans un endroit éclairé.',
+    any: () =>
+      'Positionnez la caméra immobile devant le puzzle, n’importe quelle face **face à l’objectif**, le puzzle **tout entier dans le cadre**, dans un endroit éclairé.',
     crossed: () =>
       'Positionnez la caméra immobile devant le cube, n’importe quelle face **face à l’objectif**, le point où se rejoignent ses quatre stickers **sur la croix du cadre**, dans un endroit éclairé.',
     upright: () =>
@@ -325,6 +329,7 @@ export const UI_FR = {
       'Montrez le dessous : basculez la pointe du haut **en arrière**, la face du dessous vient **face à l’objectif**.',
     anchored:
       'Positionnez la caméra immobile devant une grande face du puzzle, sa pièce centrale **dans la forme marquée**, dans un endroit éclairé.',
+    any: 'Positionnez la caméra immobile devant le puzzle, n’importe quelle face **face à l’objectif**, le puzzle **tout entier dans le cadre**, dans un endroit éclairé.',
     crossed:
       'Positionnez la caméra immobile devant le cube, n’importe quelle face **face à l’objectif**, le point où se rejoignent ses quatre stickers **sur la croix du cadre**, dans un endroit éclairé.',
     upright:

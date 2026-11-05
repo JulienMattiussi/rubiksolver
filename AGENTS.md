@@ -143,13 +143,13 @@ src/
 │   │                    #   la plus courte suite de macros : AI Cube, 3x3 croix puis coins)
 │   ├── editor/          # La saisie : entry (ce que le modèle déclare : étapes, peinture), steps (leur
 │   │                    #   enchaînement), edit (la table de stickers, buildCube), editorTables, validate,
-│   │                    #   modes/ (un mode par fichier : form, canvas et faceViews, joints, toggles,
+│   │                    #   modes/ (un mode par fichier : form, canvas, faceViews et sides, joints, toggles,
 │   │                    #   colors, pieces), scan/ (la saisie à l'appareil photo, docs/scan.md : plan (les faces dans l'ordre,
 │   │                    #   `PuzzleModel.scan`) et planFaces (chacune bâtie ; planFlat, planGears, planMirrors : celles des
 │   │                    #   polyèdres, des Gear Cubes, des miroirs), layout (grille, anneau, carré, polygone), frame, color, sample, capture,
 │   │                    #   anchors (les couleurs), orient (les faces tenues tournées), assign et classify (la lecture),
 │   │                    #   read (le point d'entrée), box et forms (les tours), halves (le Fashion-V, ses demi-cubies), gears (les Gear Cubes, leurs engrenages), outlines (le Floppy Ghost), sized et
-│   │                    #   sizedRead (le miroir), crossRead (le 2x2 miroir))
+│   │                    #   sizedRead (le miroir), crossRead (le 2x2 miroir), canvasRead (le Meffert's Pocket Cube, lu en grille comme ses canevas))
 │   ├── teach/           # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
 │   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), stages (sortes d'étapes et leurs
 │   │                    #   pas), project (étape d'un petit puzzle relevée sur un grand), scene (tons, flèches),
@@ -196,7 +196,7 @@ src/
 │                        #   solve/ (SolveArea : la résolution ou le tutoriel), tutorial/, home/, celebration/,
 │                        #   about/ (la page d'un puzzle : deux cartes en biais de part et d'autre, ou une fenêtre)
 ├── store/               # Zustand : cubeStore (cube, file de coups, solution), editorStore, savedStore,
-│                        #   viewStore, router, scanStore (le scan, face par face), tutorialStore (pick, formules jouées, coups à la main, arrêt),
+│                        #   viewStore, router, scanStore (le scan, face par face ; scanDebug : `?scandebug`), faceSearch (l’état que montrent des canevas, saisis ou scannés), tutorialStore (pick, formules jouées, coups à la main, arrêt),
 │                        #   tutorialTrack (étapes montrées, 💪 et fin, coups déjà montrés),
 │                        #   exampleStore (la formule de l'aide-mémoire montrée par-dessus le cube)
 ├── hooks/               # useAutoPlan (solution dans le worker), useCamera, useFaceReading et usePreloadStickers (le scan), useIsDesktop,
@@ -480,7 +480,9 @@ Ultimate, `dodecaScan.ts` ; les prismes en étoile, `starScan.ts`), ou par sa fo
 que le scan trouve : `forms.ts`, les tours, calées par leur cœur, `box.ts` ;
 le Floppy Ghost, argenté, se lit à ses contours, d'une seule photo, `outlines.ts` ; le 3x3 miroir,
 aux tailles de ses stickers, trouvés par OpenCV dans un worker, `sized.ts`, `sizedRead.ts` ; le
-2x2 Qiyi miroir de même, calé où ses stickers se rejoignent, `crossRead.ts`). Le détail :
+2x2 Qiyi miroir de même, calé où ses stickers se rejoignent, `crossRead.ts` ; le Meffert's Pocket
+Cube, sticker par sticker, gros ou mini à sa taille, chacun posé par son centre sur la grille
+d'un mini-cube par case, ses règles (nombre de gros cubes, canevas) en garde-fous, `canvasRead.ts`). Le détail :
 [docs/scan.md](docs/scan.md) ; les limites : `AMELIORATIONS.md`.
 
 Ce que toute saisie remplit, quel que soit son mode, est une table de
@@ -513,7 +515,11 @@ soi d'une face à l'autre (`FaceCanvases`, vu de face, `CameraReset`,
 les cases d'une même face de pièce. L'étape porte le `FaceEntry` du puzzle :
 sa grille, la taille du canevas, si un dessin se place où il est (`framed` :
 le Camouflage) ou n'importe où (le Meffert's Pocket Cube), et comment retrouver ses états
-(`find`, dans un worker : `camoViews.ts`, `meffertsPocketViews.ts`) ; voir
+(`find`, dans un worker : `camoViews.ts`, `meffertsPocketViews.ts` ;
+la recherche, saisie ou scannée, `store/faceSearch.ts`). Quand ses quatre
+faces laissent deux formes (le Meffert's Pocket Cube, ses faces noires),
+un cinquième canevas demande son côté droit, qui les départage, quelle
+que soit son orientation (`modes/sides.ts`) ; voir
 [docs/puzzles/tower.md](docs/puzzles/tower.md) et
 [docs/puzzles/twisted.md](docs/puzzles/twisted.md). **Par les demi-cubies** :
 un clic fait défiler la position des demi-cubies d'une case, puis la

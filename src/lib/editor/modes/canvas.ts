@@ -53,11 +53,12 @@ const widthOf = (canvas: Canvas) => Math.round(Math.sqrt(canvas.cells.length))
 /** What a state, held some way, shows on its canvases: each face's regions,
  *  colors and front pieces (index in the state), and where its grid's cell
  *  lies for each canvas cell. A framed puzzle's canvas is its grid; another
- *  one's drawing is centered on its canvas. */
-function canvasSight(cube: Cube, entry: FaceEntry, turn = 0) {
+ *  one's drawing is centered on its canvas. Its four faces, or `count`,
+ *  its sides after (`SIDES`). */
+function canvasSight(cube: Cube, entry: FaceEntry, turn = 0, count: number = FACES.length) {
   const n = entry.canvas
   const g = entry.grid.size
-  const sight = sightOf(heldAs(cube, turn), entry.grid)
+  const sight = sightOf(heldAs(cube, turn), entry.grid, count)
   return sight.views.map((view, f) => {
     let [dr, dc] = [0, 0]
     if (!entry.framed) {
@@ -87,10 +88,11 @@ function canvasSight(cube: Cube, entry: FaceEntry, turn = 0) {
 }
 
 /** The canvases of a state: each cell the color it shows or absent, the
- *  cells of one piece's face joined. */
-export function canvasesOf(cube: Cube, entry: FaceEntry): Canvases {
+ *  cells of one piece's face joined; its four faces, or `count` (its sides
+ *  after). */
+export function canvasesOf(cube: Cube, entry: FaceEntry, count: number = FACES.length): Canvases {
   const n = entry.canvas
-  return canvasSight(cube, entry).map(({ regions, colors }) => ({
+  return canvasSight(cube, entry, 0, count).map(({ regions, colors }) => ({
     cells: colors.map((c): FaceCell => c ?? 'absent'),
     joins: regions.flatMap((r, i) =>
       r >= 0
@@ -174,15 +176,22 @@ export function showsCanvases(found: Found, canvases: Canvases, entry: FaceEntry
 }
 
 /** The stickers the canvases show, colored as painted, on a state that
- *  shows them (`showsCanvases`): the painting that follows starts there. */
-export function editOfCanvases(found: Found, canvases: Canvases, entry: FaceEntry): EditStickers {
+ *  shows them (`showsCanvases`; a side after its four faces, where given,
+ *  as the state draws it, sides.ts): the painting that follows starts
+ *  there. */
+export function editOfCanvases(
+  found: Found,
+  canvases: readonly (Canvas | undefined)[],
+  entry: FaceEntry,
+): EditStickers {
   const n = entry.canvas
   const back = unturn(found.turn)
   const edit: Record<string, Color> = {}
-  canvasSight(found.cube, entry, found.turn).forEach(({ regions, front }, f) => {
+  canvasSight(found.cube, entry, found.turn, canvases.length).forEach(({ regions, front }, f) => {
+    if (!canvases[f]) return
     // An unframed drawing may stand elsewhere on its canvas than this one.
     const mine = boundsOf(regions, n)
-    const theirs = viewsOfCanvases([canvases[f]!])
+    const theirs = viewsOfCanvases([canvases[f]])
     const drawn = theirs && boundsOf(theirs[0]!, n)
     const [dr, dc] =
       mine && drawn && !entry.framed ? [mine[0] - drawn[0], mine[2] - drawn[2]] : [0, 0]
@@ -193,8 +202,7 @@ export function editOfCanvases(found: Found, canvases: Canvases, entry: FaceEntr
       if (r < 0 || r >= n || c < 0 || c >= n) return
       const p = front[r * n + c]!
       const piece = p >= 0 ? found.cube[p] : undefined
-      // Only a face the model gives a sticker (Meffert's Pocket Cube's revealed faces
-      // are violet, painted with nothing to enter).
+      // Only a face the model gives a sticker.
       if (piece?.stickers.some((s) => normalIndex(s.normal) === toward)) {
         edit[stickerId(piece.position, toward)] = cell
       }

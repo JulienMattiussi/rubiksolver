@@ -8,8 +8,11 @@ Un **2x2x2** dont le coin A (haut, avant, droite) est lui-même coupé en
 2x2x2 mini-cubes, et dont le **cœur** est le mini-cube de A tourné vers le
 centre, invisible. Ses faces tournent autour de ce cœur, décalé d'un quart
 de la largeur : chaque quart de tour sort sa couche de la boîte, il se
-**déforme**. Tout violet sauf les trois faces extérieures de A (vert
-citron dessus, bleu devant, jaune à droite) : résolu quand il redevient un cube, chaque couleur de A sur une
+**déforme**. Des stickers sur un corps noir (il existe aussi en plastique
+violet massif ; c'est la version à stickers qui est modélisée), tous
+violets sauf les trois faces extérieures de A (vert citron à droite, bleu
+dessus, jaune devant), sur les faces extérieures du cube résolu seulement :
+une face qu'un coup découvre est noire. Résolu quand il redevient un cube, chaque couleur de A sur une
 face (`meffertsPocketSolved` ; ses faces n'étant pas unies, `isSolved` lui laisse
 la main).
 
@@ -56,9 +59,9 @@ l'autre (la plupart sont bloqués) et le replient en cube, A entier. Le
 sien ne repasse jamais par un état déjà vu (départ compris) et continue
 au-delà de sa longueur tant que A n'est pas disloqué.
 
-**Rendu** (`three/puzzles/twisted/meffertsPocketGeometry.ts`) : chaque pièce est une boîte, violette
-sur toutes ses faces (comme le vrai puzzle, aussi celles qu'un coup fait
-apparaître) sauf les stickers de A ; `PolyDrawing.offset` recentre la boîte, décalée du cœur autour
+**Rendu** (`three/puzzles/twisted/meffertsPocketGeometry.ts`) : chaque pièce est une boîte noire,
+ses stickers sur les faces extérieures du cube résolu (celles qu'un coup
+fait apparaître restent noires) ; `PolyDrawing.offset` recentre la boîte, décalée du cœur autour
 duquel tout tourne.
 
 **Résolution** (`methods/twisted/meffertsPocket.ts`), aucune méthode humaine n'étant
@@ -73,23 +76,34 @@ l'espace que chaque solution a exactement la longueur de sa distance.
 
 **Saisie** : par ses faces d'abord, puis ses couleurs. Ses 388 formes (les
 rotations du puzzle entier fusionnées) se distinguent mal en vignettes ;
-quatre de ses faces, elles, ne laissent jamais deux formes (mesuré sur ses
-1 160 formes tenues des 24 façons). On les reproduit sur des canevas de
+quatre de ses faces, elles, en laissent rarement deux (mesuré sur ses
+1 160 formes tenues des 24 façons : 1 504 de ses 9 280 positions tenues
+partagent leurs quatre dessins avec une autre, ses faces noires cachant ce
+qui les distingue ; en plastique violet massif, aucune). On les reproduit sur des canevas de
 5x5 mini-cubes (sa face la plus large), un gros cube sur 2x2, où l'on veut
 sur le canevas : le dessin est comparé tel quel, quel que soit l'endroit
 (`lib/puzzles/twisted/meffertsPocketViews.ts`, l'entrée `faces` de son modèle,
-voir « Saisie face par face » dans AGENTS.md). Toutes ses faces sont
-violettes, même celles qu'un coup découvre : la palette des faces propose
-le violet, et « absent » n'y dit que les trous. Ses formes sont toutes
+voir « Saisie face par face » dans AGENTS.md). Une face qu'un coup
+découvre est noire : on la saisit « absent », comme un trou. Ses formes sont toutes
 calculées une fois (un parcours de ses 1 160 formes), puis chacune tenue
 des 24 façons, indexée par ses quatre dessins (dans le worker, une seconde
-environ la première fois). « Modifier » le saisit tel qu'il est, sans
+environ la première fois). Ses faces noires cachent parfois ce qui
+distingue deux formes : quand les quatre faces en laissent deux (le résolu
+compris), un cinquième canevas demande sa face de droite (la première face
+remise devant, le puzzle tourné d'un quart vers la gauche), comparée sous
+ses quatre orientations ; l'une ou l'autre de ses faces de côté suffit
+toujours (`lib/editor/modes/sides.ts`). « Modifier » le saisit tel qu'il est, sans
 passer par ses faces. Les gros cubes arrivent déjà
 violets (et la palette ne propose pas le violet : `paletteColors` écarte
 une couleur que les stickers pré-remplis prennent tous) : `emptyEdit` remplit tout sticker que toutes les pièces qui
 tiennent dans son emplacement montrent d'une seule couleur (dans la boîte,
 les trois mini-cubes de A à un sticker aussi : ils n'y sont jamais
 ailleurs). Une face sans sticker à saisir garde sa couleur dans la vue.
+
+**Scan** : ses six faces à l'appareil photo, les quatre des canevas puis
+ses deux côtés, dont ses stickers (trouvés par OpenCV, comme ceux d'un miroir) dessinent
+les canevas, puis la même recherche (voir « Le Meffert's Pocket Cube »
+dans [docs/scan.md](../scan.md)).
 
 ## Le Z-Twist (`twist`)
 

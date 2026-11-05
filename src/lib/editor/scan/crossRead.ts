@@ -48,8 +48,8 @@ function told(
 }
 
 /** Every way to read the faces: one per face's way, all combined. */
-const combined = (ways: readonly Sizes[][]): Sizes[][] =>
-  ways.reduce<Sizes[][]>((all, face) => all.flatMap((so) => face.map((f) => [...so, f])), [[]])
+export const combined = <T>(ways: readonly (readonly T[])[]): T[][] =>
+  ways.reduce<T[][]>((all, face) => all.flatMap((so) => face.map((f) => [...so, f])), [[]])
 
 /** A 2x2 mirror read from its faces' sides (pixels), held as the scan's
  *  gestures say: the cheapest reading, else the face with the fewest

@@ -24,6 +24,11 @@ export const HOLD_MS = 1000
 /** On a puzzle of many colors, how far a cell's measure may drift while
  *  held still (the noise of the camera, a hand that barely moves). */
 const DRIFT = 12
+/** On a face read as a canvas, the share of its cells that must barely
+ *  drift: the others fall on its stickers' edges, against the black body,
+ *  which the slightest shake of a hand moves (the stickers are found on
+ *  the last picture, a sharp one, not on these cells). */
+const STILL_SHARE = 0.7
 
 /** A color, twins alike (red and orange: color.ts). */
 const family = (color: Color | null): Color | null =>
@@ -52,6 +57,10 @@ function same(a: readonly CellSample[], b: readonly CellSample[], face: ScanFace
     return agree >= SURE_CELLS
   }
   if (face.named) return colorsOf(a) === colorsOf(b)
+  if (face.canvas) {
+    const still = a.filter((cell, i) => b[i] && distance(cell.lab, b[i].lab) <= DRIFT)
+    return a.length === b.length && still.length >= STILL_SHARE * a.length
+  }
   return a.length === b.length && a.every((cell, i) => distance(cell.lab, b[i]!.lab) <= DRIFT)
 }
 
@@ -65,6 +74,9 @@ export function showsFace(cells: readonly CellSample[], face: ScanFace): boolean
   // A face of a puzzle out of shape: black sides and the background
   // between its stickers; some sticker at least.
   if (face.open) return guesses.some((g) => g.sure)
+  // A face read as a canvas: anywhere in the frame, what its stickers
+  // draw read with the others.
+  if (face.canvas) return true
   // A face read whole, or by its stickers' sizes: its anchor, its center,
   // lit in the middle (its seams are dark; a mirror's bumps, black sides).
   if (face.whole || face.sized) return guesses[(guesses.length - 1) >> 1]?.color != null

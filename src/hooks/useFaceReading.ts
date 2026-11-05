@@ -3,9 +3,13 @@ import { watch, watchAfter } from '@/lib/editor/scan/capture'
 import { labOf } from '@/lib/editor/scan/color'
 import { frameOnScreen, screenToPicture } from '@/lib/editor/scan/frame'
 import type { Picture } from '@/lib/editor/scan/outlines'
-import { savePicture, type Kept } from '@/store/scanStore'
+import { cubeShape } from '@/lib/core/cube'
+import { useCube } from '@/store/cubeStore'
+import { savePicture } from '@/store/scanDebug'
+import type { Kept } from '@/store/scanStore'
 import type { FaceImage } from '@/workers/findStickers'
 import type { ScanFace } from '@/lib/editor/scan/plan'
+import type { Rect } from '@/lib/editor/scan/sized'
 import { sampleFace, type CellSample } from '@/lib/editor/scan/sample'
 
 /** How often the picture is read, in milliseconds. */
@@ -27,18 +31,39 @@ function lightOf({ data, width, height }: ImageData): Picture {
  *  on it (stickersWorker.ts), a thin one some 25 pixels wide. */
 const SIZED_PX = 480
 
-/** The frame's image, sharp enough to find a mirror's stickers on. */
+/** Room kept round the frame of a face read as canvases, a share of its
+ *  side each way (the camera's picture allowing): its stickers are read
+ *  past the frame too (a puzzle held a little off it, or near). */
+const CANVAS_ROOM = 0.15
+
+/** The frame's image, sharp enough to find a mirror's stickers on, `room`
+ *  round it (a share of its side each way, as far as the picture goes),
+ *  and where the frame lies in it. */
 function imageOf(
   video: HTMLVideoElement,
   crop: { x: number; y: number; width: number; height: number },
   canvas: HTMLCanvasElement,
-): FaceImage | undefined {
-  const [width, height] = [SIZED_PX, Math.round((SIZED_PX * crop.height) / crop.width)]
+  room = 0,
+): { image: FaceImage; frame: Rect } | undefined {
+  // Along one axis: the frame from `from`, `size` long, grown by the room
+  // the picture has on either side.
+  const grown = (from: number, size: number, limit: number) => {
+    const before = Math.max(0, Math.min(from, room * size))
+    const after = Math.max(0, Math.min(limit - from - size, room * size))
+    return [from - before, size + before + after] as const
+  }
+  const [cx, cw] = grown(crop.x, crop.width, video.videoWidth)
+  const [cy, ch] = grown(crop.y, crop.height, video.videoHeight)
+  const scale = SIZED_PX / crop.width
+  const [width, height] = [Math.round(cw * scale), Math.round(ch * scale)]
   Object.assign(canvas, { width, height })
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
   if (!ctx) return undefined
-  ctx.drawImage(video, crop.x, crop.y, crop.width, crop.height, 0, 0, width, height)
-  return { width, height, rgba: ctx.getImageData(0, 0, width, height).data }
+  ctx.drawImage(video, cx, cy, cw, ch, 0, 0, width, height)
+  return {
+    image: { width, height, rgba: ctx.getImageData(0, 0, width, height).data },
+    frame: [(crop.x - cx) * scale, (crop.y - cy) * scale, crop.width * scale, crop.height * scale],
+  }
 }
 
 /**
@@ -117,11 +142,21 @@ export function useFaceReading({
         // A tap again for the next face.
         setArmed(false)
         const light = face.whole ? lightOf(ctx.getImageData(0, 0, width, height)) : undefined
-        if (face.whole) savePicture(canvas.current)
-        const image = face.sized
-          ? imageOf(video, crop, (wide.current ??= document.createElement('canvas')))
+        if (face.whole) savePicture(canvas.current, `scan-${cubeShape(useCube.getState().cube)}`)
+        const sharp = face.sized
+          ? imageOf(
+              video,
+              crop,
+              (wide.current ??= document.createElement('canvas')),
+              face.canvas ? CANVAS_ROOM : 0,
+            )
           : undefined
-        take(seen.taken, { photo: canvas.current.toDataURL('image/jpeg', 0.8), light, image })
+        take(seen.taken, {
+          photo: canvas.current.toDataURL('image/jpeg', 0.8),
+          light,
+          image: sharp?.image,
+          ...(face.canvas && sharp && { frame: sharp.frame }),
+        })
       }
     }, READ_MS)
     return () => {

@@ -20,7 +20,7 @@ interface Gesture {
 type Point = readonly [number, number]
 
 const GESTURES: Record<
-  Exclude<ScanFace['move'], 'first' | 'upright' | 'anchored' | 'crossed' | 'show'>,
+  Exclude<ScanFace['move'], 'first' | 'upright' | 'anchored' | 'crossed' | 'any' | 'show'>,
   Gesture
 > = {
   // A turn to the left, about the vertical: its front goes left.
@@ -96,6 +96,7 @@ export function ScanMoveArrow({
     move === 'upright' ||
     move === 'anchored' ||
     move === 'crossed' ||
+    move === 'any' ||
     move === 'show'
   )
     return null

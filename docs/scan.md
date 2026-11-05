@@ -7,7 +7,7 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 
 ## Les puzzles scannables
 
-`scannable` (`lib/editor/scan/plan.ts`) : 61 modèles sur 78, dont le 2x2 Qiyi
+`scannable` (`lib/editor/scan/plan.ts`) : 62 modèles sur 78, dont le 2x2 Qiyi
 miroir, et le 3x3 miroir.
 
 - **En grille**, tout se déduit des dimensions (`scanPlan`) : les cubes du
@@ -86,16 +86,19 @@ miroir, et le 3x3 miroir.
 - **Par ses contours** (`scan` : un `OutlineScan`, `outlines.ts`) : le
   Floppy Ghost, tout argenté, lu d'une seule photo (voir « Par les
   contours » plus bas).
+- **Par ses canevas** (`scan: 'canvas'`, `canvasRead.ts`) : le Meffert's
+  Pocket Cube, ses quatre faces lues comme on les dessine sur ses canevas
+  (voir « Le Meffert's Pocket Cube » plus bas).
 - **Par les tailles de ses stickers** : le 3x3 miroir et le 2x2 Qiyi
   miroir (`mirrorScan` sur leur carte ; voir « Le cube miroir » et « Le 2x2
   miroir » plus bas).
 
 Restent dehors les puzzles dont une information n'est pas une couleur
 (les autres miroirs, super cubes, soudés, engrenages...), les autres puzzles qui se
-déforment (Camouflage, Meffert's Pocket Cube, Fashion-V, AI Cube), et le Tori (ses
+déforment (Camouflage, Fashion-V, AI Cube), et le Tori (ses
 arêtes, de minces amandes au bord des faces).
 
-Seuls le 2x2, le 3x3 (et son miroir), le 2x2 Qiyi miroir, le 4x4, les tours 2x2x3 et 2x2x4, le Gear Cube Ultimate, le Skewb et l'Ivy Cube ont été essayés en vrai (`scanTried` sur
+Seuls le 2x2, le 3x3 (et son miroir), le 2x2 Qiyi miroir, le 4x4, les tours 2x2x3 et 2x2x4, le Gear Cube Ultimate, le Skewb, l'Ivy Cube et le Meffert's Pocket Cube ont été essayés en vrai (`scanTried` sur
 leur carte) ; sur les autres, le bouton « Utiliser l'appareil photo » porte
 une fiole : « Cette fonction n'a pas encore été testée et validée sur ce
 modèle ».
@@ -165,7 +168,12 @@ sur Android).
 `?scandebug` dans l'adresse écrit dans chaque case sa mesure (clarté,
 saturation, teinte), pour régler les seuils ; sur un miroir, il écrit dans
 la console les rectangles trouvés sur chaque face, pour rejouer la lecture ;
-sur un puzzle lu par ses contours, il télécharge l'image lue (PNG).
+sur un puzzle lu par ses contours, il télécharge l'image lue (PNG), et
+sur le Meffert's Pocket Cube une seule image à chaque lecture : ses faces
+côte à côte telles que prises (pour rejouer la lecture), et dessous chaque sticker
+lu encadré de la couleur lue, sa lettre dessus, le cadre affiché en
+pointillés (`saveReading`, `store/scanDebug.ts`) ; une face refusée à la
+prise est téléchargée seule.
 
 ## La lecture d'une face
 
@@ -362,3 +370,125 @@ coût), à trois différences près, faute de centre :
 Lu exactement sur des images synthétiques (chaque face prise plus ou moins
 près, caméra de face ou de dos, `crossScan.test.ts`), puis sur le vrai
 cube, résolu et mélangé : juste, une seule face à reprendre à chaque fois.
+
+## Le Meffert's Pocket Cube
+
+Il se déforme et il est tout violet, sauf les trois faces de son petit
+coin A : ses couleurs ne disent presque rien, ses stickers dessinent sa
+forme. Il se scanne comme il se saisit à la main (voir « Saisie » dans
+[puzzles/twisted.md](puzzles/twisted.md)) : ses quatre faces dans l'ordre
+des canevas, puis ses deux côtés (`canvasFaces`, `planMirrors.ts`), n'importe quelle face
+d'abord (le geste `any`, le puzzle entier dans le cadre), puis tourné
+vers la gauche trois fois, plus facile en main que basculé vers l'objectif :
+chaque image est lue tournée d'un quart (`gridCanvas`, `canvasRead.ts`), la
+face suivante venant alors du haut comme sur les canevas. Elle vient de la
+droite de l'image ou de sa gauche selon la caméra et la main : les deux
+sens sont lus, celui attendu d'abord, et le premier qui montre un état
+l'emporte (le 2026-11-04, tourné comme demandé, elle venait de la gauche,
+le sens attendu d'une caméra qui fait face).
+
+**Une face se lit sticker par sticker**, puis se pose sur sa grille, comme
+on la saisit à la main : une case par mini-cube, un gros cube en couvre
+deux sur deux. Le cadre montre en direct un point de la couleur vue là où
+il voit un sticker (`cellColor`, `ScanFrame`), rien sur le corps noir ou
+le fond. La prise attend le tap et une seconde d'immobilité, et garde
+l'image du cadre avec 15 % de marge (`CANVAS_ROOM`, `useFaceReading.ts`).
+Cette immobilité est lâche (`STILL_SHARE`, `capture.ts`) : 70 % des cases
+seulement doivent rester stables, car les autres tombent au bord d'un
+sticker, et la main la plus calme les fait basculer.
+
+- **Les stickers** (`readGrid`, `canvasRead.ts`) : un pixel en est un
+  s'il a la teinte d'une des couleurs du puzzle, assez saturée (rien
+  sinon : le corps, le mur, la peau, un t-shirt bleu-vert, sous une
+  lumière chaude aussi) ; un sticker est un ensemble de ces pixels d'un
+  seul tenant, séparé des autres par son liseré noir, avec les pixels
+  pâles reliés à eux sans franchir de noir (un reflet délavait la moitié
+  d'un gros cube, et un mini vert citron sortait presque blanc, le
+  2026-11-05 ; le mur pâle, lui, est séparé des stickers par le corps
+  noir), assez carré et
+  assez grand, ni coupé par le bord de l'image, ni contenu dans un autre
+  (le logo d'un gros cube). Un sticker trop long est coupé à son
+  étranglement, s'il en a un : un reflet qui déborde par-dessus le liseré
+  noir soudait deux gros cubes l'un au-dessus de l'autre (le 2026-11-05,
+  une face refusée à chaque prise). Une face refusée à la prise montre sa
+  photo dans l'alerte.
+- **Gros ou mini, à la taille**, jamais à la teinte : sous la lumière du
+  jour, le violet a la teinte même du bleu (285 à 295 degrés, le
+  2026-11-05). Les tailles se séparent au premier écart d'au moins 1,5 ;
+  sans écart, tous sont gros (une face de gros cubes).
+- **Chacun posé par son centre** : déformé, le puzzle a ses pièces à des
+  profondeurs différentes, et aucune grille ne tombe sur tous leurs
+  stickers à la fois (le 2026-11-05, une colonne d'un mélangé décalée
+  d'une demi-case sur l'autre : une grille rigide perdait ses minis). La
+  taille de case vient des stickers (moins leur liseré), l'origine de la
+  grille de la moyenne de leurs positions, et chaque sticker prend les
+  cases les plus proches de lui. Le puzzle peut donc être tenu plus ou
+  moins près, et pas exactement dans le cadre.
+- **Les règles** servent de garde-fous à chaque prise : chaque sticker
+  tient sur ses cases, sans en prendre une d'un autre, la face tient dans
+  le canevas de 5 sur 5, et elle montre au moins trois gros cubes, quatre
+  sans mini (`FaceEntry.bigs`). Sinon, la face est redemandée aussitôt,
+  plutôt qu'à la lecture, où l'on ne sait plus laquelle reprendre.
+- **Les couleurs** (`gridColors`), de toutes les faces à la fois : un gros
+  sticker est violet, un mini prend la couleur de A la plus proche en
+  teinte, et aucune couleur n'est lue sur plus de stickers que le puzzle
+  n'en a (sous une lumière qui les verdit, des jaunes étaient lus verts,
+  six verts pour quatre ; les plus jaunes reprennent le jaune).
+- **Mesuré sur les vraies photos** des 2026-11-04 et 05 (dix-sept scans,
+  résolus et mélangés, une capture en lumière chaude, la lumière du jour,
+  le puzzle tenu en remplissant le cadre) : 103 faces lues justes sur 103,
+  leurs couleurs aussi (105 avec les deux faces aux reflets). Une grille rigide posée sur l'image en lisait 101,
+  et perdait les minis d'un mélangé dont les pièces sont à des
+  profondeurs différentes. La recherche de stickers d'OpenCV,
+  employée avant (comme pour un miroir), en manquait 7 et ne passait ni le
+  liseré fin d'une face devant le mur, ni la lumière chaude. Les seuils
+  ont peu de marge (`CHROMA` : un mini à l'ombre est perdu au-delà de 28,
+  le mur chaud est à 20 ; `HUE_OFF` : un vert citron pâle, sous la lumière
+  du jour, est perdu en deçà de 32 degrés, un mini bleu se fond dans son
+  liseré à 36).
+- **La forme** est cherchée comme celle des canevas saisis à la main
+  (`scanned`, `store/faceSearch.ts`), chaque façon de lire les faces essayée,
+  la meilleure d'abord : l'éditeur s'ouvre sur ses couleurs, celles que les
+  photos montrent déjà peintes, pourvu qu'elles fassent de vraies pièces
+  (un sticker manqué avait peint un mini violet : la face la plus éloignée
+  est alors redemandée). Une même forme tenue de plusieurs façons
+  dessine souvent les mêmes faces : c'est celle où ces couleurs font de
+  vraies pièces qui est prise (`realPieces`, `modes/colors.ts` : pas plus
+  de stickers d'une couleur que le puzzle n'en a ; tenu autrement, le
+  résolu en montrait cinq jaunes, le 2026-11-04). Les stickers qu'aucune
+  photo ne montre sont ensuite déduits des pièces (`completed`,
+  `modes/colors.ts`) : chaque façon de placer les pièces qui collent aux
+  stickers vus, chacune une seule fois, est essayée, et un sticker sur
+  lequel toutes s'accordent est peint (sur quatre faces seulement, deux
+  stickers d'un mélangé restaient indécidables, le 2026-11-04 : d'où ses
+  six faces). Aucune ne montrant d'état (un sticker
+  manqué, un reflet), l'état le plus proche (`near`, `drawingDistance` :
+  les cases et les joints qui diffèrent, 6 au plus, un gros cube manqué
+  en coûtant 4), à vérifier. Rien d'assez proche : le scan redemande la
+  face la plus éloignée de l'état le plus proche (`Nearest.off`), celle où
+  des stickers ont sans doute été manqués, puis la suivante si la reprendre
+  n'a rien changé (chaque face à son tour, ses côtés en dernier : une face
+  mal lue ailleurs faisait reprendre la même en boucle, le 2026-11-04) ;
+  les canevas lus ne s'affichent,
+  à corriger à la main, que si aucun état n'a pu être comparé.
+- **Ses deux côtés** : ses faces noires cachent parfois ce qui distingue
+  deux formes (le résolu compris), et des stickers se trouvent sur les
+  côtés que les quatre faces ne montrent pas. Le scan prend donc toujours
+  ses six faces : après les quatre, le haut du puzzle basculé vers
+  l'objectif, puis le dessous (un demi-tour). Ce sont ses faces de gauche
+  et de droite selon le sens où il a été tourné, chacune comparée sous ses
+  quatre orientations (`modes/sides.ts`), à 2 cases près, et ses couleurs
+  reportées dans ce sens (`asDrawn`). Rien n'est à peindre après le scan.
+
+Lu exactement sur des images synthétiques (chaque face prise plus ou moins
+près, stickers décalés, `canvasScan.test.ts`), sur des états dont toutes
+les faces de pièces se voient entières (sur le vrai, à corps noir, un
+sticker n'est jamais en partie caché : une face découverte est noire).
+Essayé en
+vrai sur le puzzle résolu : un gros sticker manqué sous un reflet, il est
+lu par l'état le plus proche (ses rectangles figés dans le même test) ;
+puis mélangé, tourné vers la gauche, les deux gros stickers du haut de sa
+dernière face manqués : c'est elle que le scan redemande (même test). Au
+fil des essais du 2026-11-04 (stickers vus de biais, jaune lu vert, minis
+manqués sous un reflet, couleurs posées sur le puzzle tenu autrement),
+un mélangé est lu en entier, ses six faces, sans rien à peindre ensuite.

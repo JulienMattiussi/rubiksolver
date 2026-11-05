@@ -58,12 +58,15 @@ export interface PuzzleModel {
    *  by its flat faces, each where its drawing shows its stickers (`flat`:
    *  the pyramids); or its faces in 6 x 6, its cells' halves found from
    *  their colors (`halves`: the Fashion-V); or as a 3x3, its edges read
-   *  on their clips and their gears (`gears`: the Gear Cube Ultimate). */
+   *  on their clips and their gears (`gears`: the Gear Cube Ultimate); or
+   *  four faces read as grids, as its canvases (`canvas`: Meffert's
+   *  Pocket Cube, canvasRead.ts). */
   readonly scan?:
     | 'grid'
     | 'centered'
     | 'square'
     | 'forms'
+    | 'canvas'
     | 'halves'
     | 'gears'
     | ((behind: boolean) => readonly RingFace[])

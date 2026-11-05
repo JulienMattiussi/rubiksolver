@@ -4,13 +4,15 @@ import { AMOUNT_SUFFIX, type FaceLabels } from '../../core/notation'
 import type { Color, Cube, Cubie, Face, Move, Sticker, Vec3 } from '../../core/types'
 
 /**
- * Meffert's Pocket Cube (sold all violet but one corner): a 2x2x2 whose corner piece A,
+ * Meffert's Pocket Cube (stickers on a black body, all violet but one
+ * corner; sold in violet plastic too): a 2x2x2 whose corner piece A,
  * up front right, is cut again into a 2x2x2 of mini cubes, and whose core is
  * A's inner mini cube, the one touching the puzzle's center. Its faces turn
  * about that core, a quarter of the puzzle's width off the center: a turn
  * sends its layer out of the box, so it shifts shape. All violet but A,
- * whose three faces are blue, yellow and lime: solved when it is a cube
- * again, A's colors each on one face.
+ * whose three faces are blue, yellow and lime, its stickers on the solved
+ * cube's outer faces only (a face a turn brings out is black): solved when
+ * it is a cube again, A's colors each on one face.
  *
  * Integer model, in half mini cubes about the core: a mini cube is 2 wide,
  * centered on even coordinates (0 or 2 solved, the core at the origin), a
@@ -33,9 +35,9 @@ export const half = (c: Cubie) => (Math.abs(c.position[0]) % 2 === 1 ? 2 : 1)
 
 const axis = (a: number, sign: number): Vec3 => mapVec([0, 1, 2], (d) => (d === a ? sign : 0))
 
-/** A's colors, by the axis its face looks along (the right yellow, the top
- *  lime, the front blue). */
-const A_COLORS: readonly Color[] = ['Y', 'L', 'B']
+/** A's colors, by the axis its face looks along (the right lime, the top
+ *  blue, the front yellow). */
+export const A_COLORS: readonly Color[] = ['L', 'B', 'Y']
 
 /** The solved Meffert's Pocket Cube: the 7 big cubes, all violet, then A's 8 minis (the
  *  core first, hidden), in A's colors. */

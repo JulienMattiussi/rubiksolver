@@ -11,13 +11,14 @@ const HALF = 1.5
 const GAP = 0.08
 
 /** Each face's canvas on the cube (in `FACES` order: front, top,
- *  back, bottom): where it lies, turned so its rows read from its top once
- *  the cube has tilted it toward us. */
+ *  back, bottom; then the right side, `SIDES`): where it lies, turned so
+ *  its rows read from its top once the cube has brought it toward us. */
 const PLACES: { position: [number, number, number]; rotation: [number, number, number] }[] = [
   { position: [0, 0, HALF], rotation: [0, 0, 0] },
   { position: [0, HALF, 0], rotation: [-Math.PI / 2, 0, 0] },
   { position: [0, 0, -HALF], rotation: [Math.PI, 0, 0] },
   { position: [0, -HALF, 0], rotation: [Math.PI / 2, 0, 0] },
+  { position: [HALF, 0, 0], rotation: [0, Math.PI / 2, 0] },
 ]
 
 const hexOf = (cell: Canvas['cells'][number]) =>
@@ -26,7 +27,8 @@ const hexOf = (cell: Canvas['cells'][number]) =>
 /**
  * A puzzle's faces being copied (faceCanvases.ts): a cube carrying its
  * four canvases, tilting a quarter turn toward us for each next face, as
- * the puzzle in hand. On the face toward us, a click paints a cell, and a
+ * the puzzle in hand; then, asked for, its right side, tilted back to the
+ * first face and turned left. On the face toward us, a click paints a cell, and a
  * click between two cells of one color joins them (one sticker) or parts
  * them; joined cells show as one.
  */
@@ -48,12 +50,16 @@ export function FaceCanvases() {
   const hover = (key: string) => (on: boolean) =>
     setHovered((h) => (on ? key : h === key ? null : h))
 
-  // Tilts toward the face being entered, easing there.
+  // Tilts toward the face being entered (a side: on round to the first,
+  // turned left), easing there.
   useFrame((_, delta) => {
     const g = cube.current
     if (!g) return
-    const target = (faceAt * Math.PI) / 2
-    g.rotation.x += (target - g.rotation.x) * Math.min(1, delta * 8)
+    const ease = Math.min(1, delta * 8)
+    const ring = PLACES.length - 1
+    const side = faceAt >= ring
+    g.rotation.x += ((Math.min(faceAt, ring) * Math.PI) / 2 - g.rotation.x) * ease
+    g.rotation.y += ((side ? -Math.PI / 2 : 0) - g.rotation.y) * ease
   })
 
   return (

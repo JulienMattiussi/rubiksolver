@@ -187,7 +187,7 @@ describe("Meffert's Pocket Cube", () => {
   })
 
   it('refuses, entered, two minis of A with their colors swapped', () => {
-    // The minis of one color, on the right (lime) and on top (yellow).
+    // The minis of two colors swapped: the right one's (lime) and the front one's (yellow).
     const swap = { L: 'Y', Y: 'L' } as const
     const swapped = SOLVED.map((c) =>
       c.stickers.length === 1 && c.stickers[0]!.color !== 'V'

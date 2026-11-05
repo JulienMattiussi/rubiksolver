@@ -40,6 +40,8 @@ export const TWISTED_MODELS = {
   meffertsPocket: {
     solved: solvedMeffertsPocket,
     turnAllowed: meffertsPocketTurns,
+    // Its faces read as its canvases, as a grid (canvasRead.ts).
+    scan: 'canvas',
     layers: meffertsPocketLayers,
     format: (move, labels) => formatMeffertsPocketMove(move, labels),
     describe: (turn) => describeMeffertsPocketMove(turn as Move),

@@ -5,9 +5,9 @@ import { face, type P3, type PiecePolygon } from '../../core/polygons'
 /**
  * Geometry of Meffert's Pocket Cube's pieces (see lib/puzzles/twisted/meffertsPocket.ts): each is a box about
  * its position, 4 model units wide for a big cube (odd coordinates), 2 for
- * a mini (even ones). The real puzzle is violet all over but A's three
- * outer faces, so every face of a piece is violet, the ones a turn brings
- * out included, unless the model gives it a sticker of A's colors.
+ * a mini (even ones). Stickers on a black body: a face is stickered only
+ * where the model gives it a sticker (the solved cube's outer faces), a
+ * face a turn brings out stays black.
  */
 
 /** Model units to scene units: the solved cube (8 units) about as big as a
@@ -42,11 +42,6 @@ export function meffertsPocketPolygons(cubie: Cubie): PiecePolygon[] {
       p[c] = p[c]! + v! * h * n[a]!
       return p.map((x) => x * SCALE) as P3
     })
-    const ni = normalIndex(n)
-    // Violet everywhere: a face with no sticker in the model still is.
-    const shown = cubie.stickers.some((s) => normalIndex(s.normal) === ni)
-      ? cubie
-      : { ...cubie, stickers: [...cubie.stickers, { normal: n, color: 'V' as const }] }
-    return face(corners, [...n] as P3, shown, ni, STICKER_SCALE)
+    return face(corners, [...n] as P3, cubie, normalIndex(n), STICKER_SCALE)
   })
 }

@@ -27,6 +27,8 @@ export const TWISTED = {
       },
       { key: 'byA', layers: [{ face: 'U' }, { face: 'R' }, { face: 'F' }] },
     ],
+    // Tried on the real one (stickers on a black body), 2026-11-04.
+    scanTried: true,
   },
   // The Z-Twist (twist.ts): a 3x3x3, shaped otherwise.
   twist: { label: 'Z-Twist', slug: 'z-twist', dims: [3, 3, 3], scramble: 20, editHint: 'twist' },

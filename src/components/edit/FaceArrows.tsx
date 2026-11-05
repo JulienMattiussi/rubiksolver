@@ -1,5 +1,4 @@
 import { ArrowDown, ArrowUp, Cog, Search } from 'lucide-react'
-import { CANVAS_COUNT } from '@/lib/editor/modes/canvas'
 import { useI18n } from '@/i18n/i18nStore'
 import { useEditor } from '@/store/editorStore'
 
@@ -18,10 +17,11 @@ export function FaceArrows() {
   const t = useI18n((s) => s.t)
   const copying = useEditor((s) => s.mode === 'edit' && s.phase === 'canvas')
   const faceAt = useEditor((s) => s.faceAt)
+  const count = useEditor((s) => s.faces.length)
   const finding = useEditor((s) => s.finding)
   const tiltFace = useEditor((s) => s.tiltFace)
   if (!copying) return null
-  const last = faceAt === CANVAS_COUNT - 1
+  const last = faceAt === count - 1
   const Next = finding ? Cog : last ? Search : ArrowDown
   return (
     <div className="pointer-events-none absolute inset-0">

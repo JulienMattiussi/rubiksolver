@@ -6,13 +6,14 @@ import {
   drawingKey,
   FACES,
   heldAs,
+  nearestOf,
   sightOf,
   type FaceEntry,
   type FaceGrid,
   type Found,
   type Views,
 } from '../../editor/modes/faceViews'
-import { half, solvedMeffertsPocket } from './meffertsPocket'
+import { A_COLORS, half, solvedMeffertsPocket } from './meffertsPocket'
 
 /**
  * Meffert's Pocket Cube entered face by face (lib/editor/modes/faceViews.ts): its 1 160 shapes,
@@ -26,9 +27,9 @@ import { half, solvedMeffertsPocket } from './meffertsPocket'
  *  every shape held any way about the core. */
 const FRAME = 9
 
-/** Its grid: each piece's box in mini cubes; every face shows a color, its
- *  sticker's or violet (the real puzzle is violet all over, but A's three
- *  outer faces). */
+/** Its grid: each piece's box in mini cubes; a face shows its sticker's
+ *  color, or nothing (its black body: a face a turn brings out, inside the
+ *  solved cube, has none). */
 const MEFFERTS_POCKET_GRID: FaceGrid = {
   size: FRAME,
   cellsOf: (piece) =>
@@ -36,7 +37,7 @@ const MEFFERTS_POCKET_GRID: FaceGrid = {
       (v) => [(v - half(piece) + FRAME) / 2, (v + half(piece) + FRAME) / 2] as const,
     ),
   shows: (piece, normal) =>
-    piece.stickers.find((s) => normalIndex(s.normal) === normal)?.color ?? 'V',
+    piece.stickers.find((s) => normalIndex(s.normal) === normal)?.color ?? null,
 }
 
 /** Its shapes, one state each: where its pieces stand, colors aside (a
@@ -81,14 +82,25 @@ function byFaces(): Map<string, Found[]> {
   return (BY_FACES = index)
 }
 
+/** How many cells the faces read by a camera may differ by from a
+ *  shape's: a big cube's sticker missed (four cells), and a little more. */
+const NEAR = 6
+
 /** Entered face by face (its faces first: it seldom stands in its box), a
  *  face drawn anywhere on its canvas; held any way. */
 export const MEFFERTS_POCKET_FACE_ENTRY: FaceEntry = {
   grid: MEFFERTS_POCKET_GRID,
+  // The big cubes violet, A's minis in its colors.
+  spans: { V: 2, ...Object.fromEntries(A_COLORS.map((c) => [c, 1])) },
+  // Its eight big cubes: four of a face's corners at most, three at least
+  // (the fourth's place holds minis).
+  bigs: { least: 3, all: 4 },
   canvas: 5,
   framed: false,
   find: (views: Views) =>
     views.length === FACES.length
       ? (byFaces().get(views.map((v) => drawingKey(v, 5)).join('|')) ?? [])
       : [],
+  near: (views: Views) =>
+    views.length === FACES.length ? nearestOf(byFaces(), views, 5, NEAR) : { found: [], off: [] },
 }
