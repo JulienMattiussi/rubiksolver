@@ -409,6 +409,8 @@ export const UI_EN: typeof UI_FR = {
     M: 'Brown',
     L: 'Lime',
     C: 'Gold',
+    A: 'Grey',
+    S: 'Beige',
     H: 'Graphite',
   },
   cubeLabel: 'Cube choice',

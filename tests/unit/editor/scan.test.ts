@@ -6,7 +6,7 @@ import { AXIS_ROTATIONS } from '@/lib/core/geometry'
 import { lookOf } from '@/lib/editor/modes/form'
 import { cubeToEdit } from '@/lib/editor/edit'
 import { cheapestAssignment } from '@/lib/editor/scan/assign'
-import { guessColor, labOf } from '@/lib/editor/scan/color'
+import { glareDistance, guessColor, labOf, type Lab } from '@/lib/editor/scan/color'
 import { HOLD_MS, showsFace, watch, watchAfter } from '@/lib/editor/scan/capture'
 import { readScan } from '@/lib/editor/scan/read'
 import { frameOnScreen, screenToPicture } from '@/lib/editor/scan/frame'
@@ -24,6 +24,7 @@ import {
 import { MARK, type Color } from '@/lib/core/types'
 import { seededRng } from '../../helpers'
 import { boxScanOf, facePicture, picture, RGB, scanOf } from './scanPictures'
+import MEGAMINX from './fixtures/megaminxScrambled.json'
 
 /** A grid face's cells, measured. */
 const sampleGrid = (pixels: Pixels, rows: number, cols: number) =>
@@ -422,6 +423,22 @@ describe('reading a scan', () => {
     ).toEqual([1, 0, 2])
   })
 
+  // A real scrambled Megaminx (2026-11-05): under a glare, a yellow sticker
+  // read 99/-4/11 and an orange one 87/13/9, paler than their colors but
+  // not misread.
+  it('reads a real scrambled megaminx, some stickers under a glare', () => {
+    const faces = MEGAMINX.map((f) => f.map((lab) => ({ lab: lab as unknown as Lab })))
+    expect(readScan('megaminx', faces).ok).toBe(true)
+  })
+
+  it('tells a color paled by a glare from another one', () => {
+    const [yellow, white] = [labOf(250, 204, 21), labOf(248, 250, 252)]
+    const glared: Lab = [99, -4, 11]
+    expect(glareDistance(glared, yellow)).toBeLessThan(5)
+    // A white sticker is no yellow one under a glare: too little color left.
+    expect(glareDistance(white, yellow)).toBeGreaterThan(glareDistance(glared, yellow))
+  })
+
   // A laptop's camera: told to turn it "to the right", as the mirrored
   // picture shows, the user turns it the other way round; every face is
   // asked, checked and read as it then comes.
@@ -493,6 +510,6 @@ describe('reading a scan', () => {
     const { faces } = scanOf('3', 8)
     // The third face's corner seen purple: no piece shows that.
     faces[2]![0] = { lab: labOf(150, 40, 200) }
-    expect(readScan('3', faces)).toEqual({ ok: false, face: 2 })
+    expect(readScan('3', faces)).toMatchObject({ ok: false, face: 2, doubtful: [2] })
   })
 })

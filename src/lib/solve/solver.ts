@@ -44,7 +44,7 @@ import { JING_PLAN } from '../methods/pyramid/jing'
 import { OCT4_PLAN } from '../methods/polyhedron/oct4'
 import { GEM_PLAN, VTO_PLAN } from '../methods/polyhedron/vto'
 import { RAINBOW_PLAN } from '../methods/polyhedron/rainbow'
-import { CRYSTAL_PLAN, MEGAMINX_PLAN } from '../methods/polyhedron/megaminx'
+import { CRYSTAL_PLAN, crystalHeld, megaHeld, MEGAMINX_PLAN } from '../methods/polyhedron/megaminx'
 import { GEAR_PLAN } from '../methods/gear/gear'
 import { DINO_PLAN } from '../methods/diagonal/dino'
 import { DINO_CYL_PLAN } from '../methods/round/dinoCyl'
@@ -74,7 +74,14 @@ import { reductionPlan } from '../methods/standard/solver4/steps'
 import { reduction5Plan } from '../methods/standard/solver5/steps'
 import { super4Plan, super5Plan } from '../methods/standard/superCube'
 import { reduction6Plan } from '../methods/standard/solver6/steps'
-import { buildSteps, planOutline, type MethodPlan, type SolveStep } from './solverKit'
+import {
+  buildSteps,
+  inSight,
+  planOutline,
+  type Held,
+  type MethodPlan,
+  type SolveStep,
+} from './solverKit'
 import type { Cube, Turn } from '../core/types'
 import type { CubeShape } from '../core/shapes'
 
@@ -216,8 +223,8 @@ const SOLVE_METHODS = [
   { id: 'vtoCentersFirst', plans: { vto: VTO_PLAN } },
   { id: 'gemCentersFirst', plans: { gem: GEM_PLAN } },
   { id: 'extendedTriangle', plans: { rainbow: RAINBOW_PLAN } },
-  { id: 'megaStar', plans: { megaminx: MEGAMINX_PLAN, holey: MEGAMINX_PLAN } },
-  { id: 'crystalCornersFirst', plans: { crystal: CRYSTAL_PLAN } },
+  { id: 'megaStar', plans: { megaminx: MEGAMINX_PLAN, holey: MEGAMINX_PLAN }, held: megaHeld },
+  { id: 'crystalCornersFirst', plans: { crystal: CRYSTAL_PLAN }, held: crystalHeld },
   { id: 'dinoLayers', plans: { dino: DINO_PLAN } },
   { id: 'dinoCylLayers', plans: { dinoCyl: DINO_CYL_PLAN } },
   { id: 'rexEdgesFirst', plans: { rex: REX_PLAN } },
@@ -274,6 +281,9 @@ const SOLVE_METHODS = [
   plans: Readonly<Partial<Record<CubeShape, MethodPlan>>>
   /** Solved from the holding where most pieces stand home (`bestHolding`). */
   asItStands?: true
+  /** Solved turned whole as its steps read it (a Megaminx held another
+   *  way: its steps name their faces where they stand). */
+  held?: (cube: Cube) => Held
 }>
 
 /** Identifier of an available solving method. */
@@ -297,12 +307,24 @@ export function methodsFor(shape: CubeShape) {
           {
             id: m.id as MethodId,
             solve: (cube: Cube) =>
-              'asItStands' in m ? solveAsItStands(cube, plan) : buildSteps(read(cube), plan),
+              inSight(
+                cube,
+                'asItStands' in m
+                  ? solveAsItStands(cube, plan)
+                  : 'held' in m
+                    ? solveHeld(m.held(cube), plan)
+                    : buildSteps(read(cube), plan),
+              ),
             outline: (start?: Cube) => planOutline(plan, start && read(start)),
           },
         ]
       : []
   })
+}
+
+/** Solved turned whole as its steps read it, its turns named back. */
+function solveHeld({ cube, back }: Held, plan: MethodPlan): SolveStep[] {
+  return buildSteps(cube, plan).map((step) => ({ ...step, moves: step.moves.map(back) }))
 }
 
 /** A plan run on the puzzle held where most of its pieces stand home, its

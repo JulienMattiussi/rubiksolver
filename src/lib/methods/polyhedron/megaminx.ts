@@ -2,8 +2,10 @@ import { cubeOrientations, solvedCube } from '../../core/cube'
 import {
   applyMegaMove,
   CRYSTAL_TURNS,
+  MEGA_FACES,
   MEGA_SLOTS,
   MEGA_TURNS,
+  megaCarried,
   megaFaceOf,
   megaNormal,
   megaPosition,
@@ -13,9 +15,9 @@ import { allTurnsOf } from '../../core/moveSet'
 import { HOLDINGS, megaFormula } from './megaminxFormulas'
 import { CRYSTAL_STEPS, MEGA_STEPS, type Step } from './megaminxSteps'
 import { simplifyMoves } from '../../core/moves'
-import type { MethodPlan } from '../../solve/solverKit'
+import type { Held, MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
-import type { Cube, Cubie, MegaFace, MegaMove } from '../../core/types'
+import { isMegaMove, type Cube, type Cubie, type MegaFace, type MegaMove } from '../../core/types'
 import { colorsOf } from '../../core/pieces'
 import { macroOf, placesOf, route, type Macro } from '../../solve/placeTable'
 
@@ -133,14 +135,67 @@ function targetOf(cube: Cube, STEPS: readonly Step[]): Cube {
   HELD ??= cubeOrientations(SOLVED)
   const seen = centers(cube)
   if (seen) return HELD.find((held) => centers(held) === seen)!
-  const score = (held: Cube) => {
-    const home = (slot: readonly MegaFace[]) => isHome(cube, held, slot)
-    const steps = STEPS.findIndex(({ slots }) => !slots.every(home))
-    const pieces = MEGA_SLOTS.filter((slot) => slot.length > 1 && home(slot)).length
-    return (steps < 0 ? STEPS.length : steps) * 100 + pieces
-  }
-  return HELD.reduce((best, held) => (score(held) > score(best) ? held : best))
+  return HELD.reduce((best, held) =>
+    agreement(cube, held, STEPS) > agreement(cube, best, STEPS) ? held : best,
+  )
 }
+
+/** How far a state agrees with a target: the steps done, then the pieces
+ *  home. */
+function agreement(cube: Cube, target: Cube, STEPS: readonly Step[]): number {
+  const home = (slot: readonly MegaFace[]) => isHome(cube, target, slot)
+  const steps = STEPS.findIndex(({ slots }) => !slots.every(home))
+  const pieces = MEGA_SLOTS.filter((slot) => slot.length > 1 && home(slot)).length
+  return (steps < 0 ? STEPS.length : steps) * 100 + pieces
+}
+
+/** Every way to hold the puzzle (60): the whole turns that hold it so, and
+ *  where they take each face. */
+let WHOLE: { turns: MegaMove[]; to: (face: MegaFace) => MegaFace }[] | undefined
+function wholeHoldings() {
+  if (WHOLE) return WHOLE
+  const by = (['U', 'F'] as const).map((megaFace): MegaMove => ({
+    megaFace,
+    amount: 1,
+    whole: true,
+  }))
+  const out = [{ turns: [] as MegaMove[], to: (face: MegaFace) => face }]
+  const seen = new Set([MEGA_FACES.join()])
+  for (let i = 0; i < out.length; i++) {
+    for (const turn of by) {
+      const [was, step] = [out[i]!.to, megaCarried(turn)]
+      const to = (face: MegaFace) => step(was(face))
+      const key = MEGA_FACES.map(to).join()
+      if (seen.has(key)) continue
+      seen.add(key)
+      out.push({ turns: [...out[i]!.turns, turn], to })
+    }
+  }
+  return (WHOLE = out)
+}
+
+/** The puzzle turned whole as its steps read it, their faces where they
+ *  stand: held as the most steps then the most pieces agree with (a puzzle
+ *  turned in hand midway is not begun again from the face now beneath),
+ *  as it stands on a tie. Its turns are named back. */
+const heldAs =
+  (STEPS: readonly Step[]) =>
+  (cube: Cube): Held => {
+    const ways = wholeHoldings().map((way) => {
+      const held = applyMoves(cube, way.turns)
+      return { ...way, cube: held, agrees: agreement(held, targetOf(held, STEPS), STEPS) }
+    })
+    const best = ways.reduce((a, b) => (b.agrees > a.agrees ? b : a))
+    // A turn of the face now at `face` was of the one taken there.
+    const from = (face: MegaFace) => MEGA_FACES.find((f) => best.to(f) === face)!
+    return {
+      cube: best.cube,
+      back: (turn) => (isMegaMove(turn) ? { ...turn, megaFace: from(turn.megaFace) } : turn),
+    }
+  }
+
+export const megaHeld = heldAs(MEGA_STEPS)
+export const crystalHeld = heldAs(CRYSTAL_STEPS)
 
 /** A puzzle's pieces by position, and by colors (built once per state). */
 const BY_POSITION = new WeakMap<Cube, Map<string, Cubie>>()

@@ -8,8 +8,8 @@ import { megaAround, megaNormal, megaPosition, solvedMegaminx } from './megaminx
  * How a camera scans a Megaminx (lib/editor/scan/plan.ts): its twelve
  * faces, each told by its center's color and the one on top. The white one
  * first, the green on top; the five around it, the white on top, turning
- * the puzzle left (the face on the right comes next); then the yellow one,
- * and the five around it, the yellow on top.
+ * the puzzle left (the face on the right comes next); then the grey one,
+ * and the five around it, the grey on top.
  */
 
 /** Each face shown, and the one on top. */

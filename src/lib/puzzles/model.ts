@@ -28,6 +28,9 @@ export interface PuzzleModel {
   readonly boxed?: (cube: Cube) => boolean
   /** Whether it is solved, when one color per face does not say. */
   readonly isSolved?: (cube: Cube) => boolean
+  /** A solution's steps turned in hand so every turn shows (a Megaminx
+   *  hides half its faces), still solving it. */
+  readonly inSight?: (steps: readonly (readonly Turn[])[]) => Turn[][]
   /** Its whole-puzzle turns, when not a cuboid's quarter or half turns. */
   readonly symmetries?: readonly ((cube: Cube) => Cube)[]
   /** Every turn it has, when not its grid's face turns (one per layer and

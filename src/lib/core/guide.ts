@@ -125,6 +125,8 @@ export type MoveDescription =
       readonly face: MegaFace
       readonly fifths: number
       readonly crystal?: true
+      /** The whole puzzle turned as it turns. */
+      readonly whole?: true
     }
   | {
       /** A Rainbow triangle turned a third. */

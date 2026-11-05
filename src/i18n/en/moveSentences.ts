@@ -59,7 +59,9 @@ const LONG: MoveSentences = {
       ? `Turn the inner slice of ${DINO_CORNER_NAMES_EN[d.corner]} a third of a turn (120°) ${senseEn(d.clockwise)}, as seen from it: six edges and six petals go round, between the two cuts of its diagonal.`
       : `Turn ${DINO_CORNER_NAMES_EN[d.corner]} a third of a turn (120°) ${senseEn(d.clockwise)}, as seen from it: ${d.master ? 'its three neighboring corners, its three edges, the three centers around it and nine petals go round with it' : d.skewb ? 'the whole half of the puzzle on its side goes round with it, its three neighboring corners and the three centers around it' : d.rex ? 'its three edges, the three centers around it and nine petals go round with it' : 'its three edges go round it'}.`,
   megaFace: (d) =>
-    `Turn ${MEGA_FACE_NAMES_EN[d.face]} ${Math.abs(d.fifths) === 1 ? 'a fifth of a turn (72°)' : 'two fifths of a turn (144°)'} ${senseEn(d.fifths > 0)}, as seen from it: ${d.crystal ? 'its five corners, its five edges and the five edges leaving its corners go round with it' : 'its center stays put, its five edges and five corners go round it'}.`,
+    d.whole
+      ? `Turn the whole puzzle in your hands about ${MEGA_FACE_NAMES_EN[d.face]}, ${Math.abs(d.fifths) === 1 ? 'a fifth of a turn (72°)' : 'two fifths of a turn (144°)'} ${senseEn(d.fifths > 0)}, as seen from it: nothing moves on the puzzle, a hidden face comes in front of you.`
+      : `Turn ${MEGA_FACE_NAMES_EN[d.face]} ${Math.abs(d.fifths) === 1 ? 'a fifth of a turn (72°)' : 'two fifths of a turn (144°)'} ${senseEn(d.fifths > 0)}, as seen from it: ${d.crystal ? 'its five corners, its five edges and the five edges leaving its corners go round with it' : 'its center stays put, its five edges and five corners go round it'}.`,
   ftoFace: (d) =>
     d.slice
       ? `Turn the slice between ${FTO_FACE_NAMES_EN[d.triangle]} and its opposite a third of a turn (120°) ${senseEn(d.clockwise)}, as seen from ${FTO_FACE_NAMES_EN[d.triangle]}: its six edges and six centers go round.`
@@ -154,7 +156,7 @@ const SHORT: MoveSentences = {
     return `Turn ${what} a third of a turn ${senseEn(d.clockwise)}, seen from it`
   },
   megaFace: (d) =>
-    `Turn ${MEGA_FACE_NAMES_EN[d.face]} ${Math.abs(d.fifths) === 1 ? 'a fifth of a turn' : 'two fifths of a turn'} ${senseEn(d.fifths > 0)}, facing it`,
+    `Turn ${d.whole ? `the whole puzzle about ${MEGA_FACE_NAMES_EN[d.face]}` : MEGA_FACE_NAMES_EN[d.face]} ${Math.abs(d.fifths) === 1 ? 'a fifth of a turn' : 'two fifths of a turn'} ${senseEn(d.fifths > 0)}, facing it`,
   ftoFace: (d) => {
     const face = FTO_FACE_NAMES_EN[d.triangle]
     return d.slice

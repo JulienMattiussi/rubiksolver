@@ -116,7 +116,7 @@ src/
 │   │   ├── moveKinds.ts #   toutes les sortes de coups (celles des familles de puzzles sans grille)
 │   │   ├── guides.ts    #   les guides des mouvements de ces familles (le `guide` de leur modèle)
 │   │   ├── model.ts     #   PuzzleModel : construction, mécanisme, coups permis, boîte, résolu, symétries,
-│   │   │                #     coups et mélange (sans grille), saisie
+│   │   │                #     coups et mélange (sans grille), saisie, coups en vue (inSight)
 │   │   ├── <catégorie>/ #   standard, tower, flat, pyramid, polyhedron, round, gear, diagonal, holey, twisted,
 │   │   │                #     bandaged (blocks.ts : les blocs de chaque soudé ; bonds.ts : leur modèle commun) :
 │   │   │                #     catalog.ts, models.ts et le module de chaque puzzle qui en a un (star.ts, gear.ts...)
@@ -338,7 +338,9 @@ slash du Square-1) lève une exception ; la solution n'est simplifiée que
 si ses coups passent encore. Une solution complète perd enfin les tours en
 main que font ses coups d'étage (`Uw' Dw` sur la 2x2x4 : la tour tournée
 d'un bloc), les coups suivants nommés comme le puzzle est alors tenu
-(`solve/rotations.ts`), si elle résout toujours. C'est ce qui empêche une méthode de dégénérer en
+(`solve/rotations.ts`), si elle résout toujours ; à l'inverse, celle d'un
+puzzle qui cache des faces y gagne des tours en main, chaque coup en vue
+(`PuzzleModel.inSight` : le Megaminx, `megaSight.ts`). C'est ce qui empêche une méthode de dégénérer en
 « par couches déguisé » : les jeux de coups (`<M, U>` pour la fin de Roux,
 `<R, U>` pour le F2L de Petrus...) sont imposés.
 

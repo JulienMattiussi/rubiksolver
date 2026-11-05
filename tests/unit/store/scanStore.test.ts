@@ -84,6 +84,21 @@ describe('scan store', () => {
     expect(useScan.getState()).toMatchObject({ open: true, face: 3, missed: true })
   })
 
+  it('asks a face misread again once, then paints its likeliest reading', () => {
+    const { faces } = scanOf('3', 5)
+    faces[3]![0] = { lab: labOf(150, 40, 200) }
+    faces.forEach(take)
+    useScan.getState().read()
+    vi.runAllTimers()
+    expect(useScan.getState()).toMatchObject({ face: 3, missed: true })
+    // Taken again as misread: not asked a third time, but checked by eye.
+    take(faces[3]!)
+    useScan.getState().read()
+    vi.runAllTimers()
+    expect(useScan.getState().open).toBe(false)
+    expect(useEditor.getState().fromScan).toBe(true)
+  })
+
   it('keeps each face picture, to show the one to take again', () => {
     const { faces } = scanOf('3', 5)
     faces[3]![0] = { lab: labOf(150, 40, 200) }

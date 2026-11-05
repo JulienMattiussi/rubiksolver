@@ -5,6 +5,7 @@ import { simplifyMoves } from '../core/moves'
 import { formatMove, parseMoves } from '../core/notation'
 import { allows, type MoveSet } from '../core/moveSet'
 import { withoutRotations } from './rotations'
+import { MODELS } from '../puzzles/models'
 import type { Cube, Face, Move, Turn } from '../core/types'
 
 /**
@@ -269,6 +270,25 @@ export function buildSteps(cube: Cube, plan: MethodPlan): SolveStep[] {
     })
   }
   return withoutTurnsInHand(cube, state, steps).filter((s) => s.moves.length > 0)
+}
+
+/** A puzzle turned whole as a method reads it (its centers home), and a
+ *  turn of it named back for the puzzle as it stands. */
+export interface Held {
+  readonly cube: Cube
+  readonly back: (turn: Turn) => Turn
+}
+
+/** A solution's steps turned in hand so every turn shows, when its model
+ *  says how (a Megaminx: `PuzzleModel.inSight`) and it solves the puzzle
+ *  all the same. */
+export function inSight(cube: Cube, steps: SolveStep[]): SolveStep[] {
+  const own = MODELS[cubeShape(cube)]?.inSight
+  if (!own) return steps
+  const shown = own(steps.map((s) => s.moves))
+  const moves = shown.flat()
+  if (!goesFrom(cube, moves) || !isSolved(applyMoves(cube, moves))) return steps
+  return steps.map((s, i) => ({ ...s, moves: shown[i]! }))
 }
 
 /** A solution's steps without its whole-puzzle turns made of layer turns

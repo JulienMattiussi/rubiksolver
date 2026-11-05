@@ -249,7 +249,7 @@ const MEGA: MoveKind<MegaMove> = {
   is: isMegaMove,
   format: formatMegaMove,
   invert: invertMegaMove,
-  sameLayer: (a, b) => a.megaFace === b.megaFace,
+  sameLayer: (a, b) => a.megaFace === b.megaFace && !a.whole === !b.whole,
   simplify: simplifyMegaMoves,
   turned: byPlace(megaTurns),
   rotation: megaRotation,
@@ -257,7 +257,13 @@ const MEGA: MoveKind<MegaMove> = {
   sight: (move) => ({ kind: 'toward', direction: MEGA_AXES[move.megaFace] }),
   describe: (move) => {
     const fifths = move.amount <= 2 ? move.amount : move.amount - 5
-    return { kind: 'megaFace', face: move.megaFace, fifths, ...(move.crystal && { crystal: true }) }
+    return {
+      kind: 'megaFace',
+      face: move.megaFace,
+      fifths,
+      ...(move.crystal && { crystal: true }),
+      ...(move.whole && { whole: true }),
+    }
   },
 }
 

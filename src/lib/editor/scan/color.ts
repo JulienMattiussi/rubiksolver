@@ -57,6 +57,26 @@ export function distance(a: Lab, b: Lab): number {
   return Math.hypot((a[0] - b[0]) / 2, a[1] - b[1], a[2] - b[2])
 }
 
+/** What a glare shows: the light itself, white. */
+const GLARE: Lab = [100, 0, 0]
+/** The least share of its color a sticker under a glare keeps: below it,
+ *  nothing tells it from a white one. */
+const GLARE_KEEPS = 0.1
+
+/** How far a measure is from `color` washed by a glare: from the nearest
+ *  mix of the two (a glare only takes color away and adds light: a
+ *  Megaminx's yellow read 99/-4/11 on a real photo, 2026-11-05), the color
+ *  keeping some of its share. */
+export function glareDistance(measure: Lab, color: Lab): number {
+  const scaled = (v: Lab) => [v[0] / 2, v[1], v[2]] as const
+  const [m, c, g] = [scaled(measure), scaled(color), scaled(GLARE)]
+  const toGlare = c.map((v, i) => g[i]! - v)
+  const along = toGlare.reduce((sum, v, i) => sum + v * (m[i]! - c[i]!), 0)
+  const length = toGlare.reduce((sum, v) => sum + v * v, 0)
+  const t = Math.min(1 - GLARE_KEEPS, Math.max(0, length ? along / length : 0))
+  return Math.hypot(...m.map((v, i) => v - (c[i]! + t * toGlare[i]!)))
+}
+
 /** Below this chroma a sticker is white: a light tints it (a webcam's
  *  bluish white reaches 23, a warm light's 20), while a pale orange comes
  *  down to 40 (2026-10-21). */

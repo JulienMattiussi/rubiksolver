@@ -163,7 +163,10 @@ sur Android).
    conforme à votre puzzle, puis validez » (`fromScan`). Une face douteuse
    est redemandée, avec la photo prise d'elle : sans couleur qui la nomme (un
    puzzle montré par gestes), c'est ce qui dit laquelle reprendre, et dans
-   quel sens.
+   quel sens. Chaque face douteuse n'est redemandée qu'une fois, la plus
+   douteuse d'abord (une face reprise en vain n'est pas celle qui est mal
+   lue) ; quand toutes l'ont été, la lecture la plus probable va à
+   l'éditeur, à vérifier.
 
 `?scandebug` dans l'adresse écrit dans chaque case sa mesure (clarté,
 saturation, teinte), pour régler les seuils ; sur un miroir, il écrit dans
@@ -208,7 +211,10 @@ prise est téléchargée seule.
 - **Les pièces** (`classify.ts`, `assign.ts`) : chaque vraie pièce placée
   au moindre coût (la méthode hongroise, sur les placements et les budgets
   de l'éditeur, `tablesFor`) ; un sticker que cela force loin de ce qu'il
-  montrait désigne la face à reprendre.
+  montrait met sa face en doute. Pas un sticker qu'un reflet a pâli : un
+  reflet ôte la couleur et ajoute de la lumière, il est lu près du mélange
+  de sa couleur et du blanc (`glareDistance` ; un jaune lu 99/-4/11 sur un
+  vrai Megaminx).
 
 Une face tenue tournée n'est retrouvée à coup sûr que sur un cube à grille,
 le Master Skewb, les Copter et le Megaminx : sur un cuboïde, un plat, le

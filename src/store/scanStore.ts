@@ -89,7 +89,7 @@ function logScan(when: string, faces: readonly (readonly CellSample[] | undefine
 export const useScan = create<ScanStore>((set, get) => {
   // A check still running when the scan closes is dropped.
   let run = 0
-  // The faces of a puzzle read as canvases taken again so far.
+  // The faces taken again so far: each one in doubt is asked again once.
   const retaken = new Set<number>()
   const later = (f: () => void, ms: number) => {
     const mine = run
@@ -178,18 +178,16 @@ export const useScan = create<ScanStore>((set, get) => {
       })),
       `scan-${shape()}`,
     )
-    if (result.kind === 'retake') {
-      // Each face asked again in turn: one taken again in vain is not the
-      // misread one.
-      const fresh = result.faces.filter((f) => !retaken.has(f))
-      if (!fresh.length) retaken.clear()
-      const face = fresh[0] ?? result.faces[0]!
-      retaken.add(face)
-      done({ ok: false, face })
-    } else get().close()
+    if (result.kind === 'retake')
+      done({ ok: false, face: result.faces[0]!, doubtful: result.faces })
+    else get().close()
   }
 
-  /** The puzzle read: painted in the editor, or the face to take again. */
+  /** The puzzle read: painted in the editor, or the face to take again.
+   *  Each face in doubt is asked again once, in turn: one taken again in
+   *  vain is not the misread one. Once they all were, the likeliest
+   *  reading goes to the editor to be checked by eye, if there is one;
+   *  else they are asked again from the first. */
   const done = (reading: ScanReading) => {
     const faces = get().faces
     if (reading.ok) {
@@ -197,9 +195,19 @@ export const useScan = create<ScanStore>((set, get) => {
       get().close()
       return
     }
+    const doubtful = reading.doubtful ?? [reading.face]
+    const fresh = doubtful.filter((f) => !retaken.has(f))
+    if (!fresh.length && reading.edit) {
+      useEditor.getState().scanned(reading.edit)
+      get().close()
+      return
+    }
+    if (!fresh.length) retaken.clear()
+    const face = fresh[0] ?? doubtful[0]!
+    retaken.add(face)
     set({
-      faces: faces.map((f, i) => (i === reading.face ? undefined : f)),
-      face: reading.face,
+      faces: faces.map((f, i) => (i === face ? undefined : f)),
+      face,
       status: 'aiming',
       missed: true,
     })

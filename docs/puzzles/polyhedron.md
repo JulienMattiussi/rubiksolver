@@ -204,7 +204,25 @@ pas de l'état, est lu une fois sur le puzzle résolu sous forme de table
 plus court enchaînement de celles qui laissent en place tout ce qui est fait
 (Dijkstra sur ses places, `solve/placeTable.ts`, que partage l'AI Cube),
 pièce après pièce. La cible est la tenue que
-disent ses centres.
+disent ses centres. Ses étapes nomment leurs faces là où elles sont
+(l'étoile, autour de la face du dessous) : un puzzle tourné en main en
+cours de route (une bascule, voir plus bas) est d'abord tenu comme le plus
+d'étapes faites le disent (`megaHeld`, le champ `held` du registre), puis
+ses coups renommés pour le puzzle tel qu'il est tenu ; repris en
+chemin, il ne recommence pas depuis la face qui est maintenant dessous.
+
+**Tout coup en vue** (`megaSight.ts`, `PuzzleModel.inSight`) : un
+dodécaèdre cache la moitié de ses faces, et la vue où il s'ouvre n'en montre
+bien que quatre (U, F, R et DR, `MEGA_IN_SIGHT`, vérifié sur la caméra).
+Avant un coup d'une face cachée, la solution tourne le puzzle entier dans
+les mains (`MegaMove.whole`, noté comme une rotation de cube dans les deux
+langues) : autour de la verticale (`y`, `y2'`...), le haut gardé en haut,
+d'autant de cinquièmes qu'il faut pour montrer le plus de coups qui
+suivent ; pour la face du dessous, il est basculé vers soi (`x2`, autour de
+DR : D vient devant, comme le `x` d'un cube amène son dessous devant). Les coups suivants sont
+nommés comme le puzzle est alors tenu. Chaque étape se lit donc : coups en
+vue, rotation, coups en vue ; une rotation tous les trois coups environ. Le
+Holey Megaminx et le Pyraminx Crystal font de même.
 
 Le **Pyraminx Crystal** (`crystal`, fan2cube.fr/pyraminxcrystal1 et 2) est le Megaminx coupé plus profond : chaque coupe passe par
 le centre des faces voisines, si bien qu'il n'a plus de centres (20 sommets,

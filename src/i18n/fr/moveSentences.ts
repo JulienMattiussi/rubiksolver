@@ -62,7 +62,9 @@ const LONG: MoveSentences = {
       ? `On tourne la tranche intérieure de ${DINO_CORNER_NAMES_FR[d.corner]} d’un tiers de tour (120°) dans le sens ${hands(d.clockwise)} d’une montre, vu depuis lui : six arêtes et six pétales tournent, entre les deux coupes de sa diagonale.`
       : `On tourne ${DINO_CORNER_NAMES_FR[d.corner]} d’un tiers de tour (120°) dans le sens ${hands(d.clockwise)} d’une montre, vu de face : ${d.master ? 'ses trois sommets voisins, ses trois arêtes, les trois centres autour et neuf pétales tournent avec lui' : d.skewb ? 'toute la moitié du puzzle de son côté tourne avec lui, ses trois sommets voisins et les trois centres autour' : d.rex ? 'ses trois arêtes, les trois centres autour et neuf pétales tournent avec lui' : 'ses trois arêtes tournent autour de lui'}.`,
   megaFace: (d) =>
-    `On tourne ${MEGA_FACE_NAMES_FR[d.face]} ${Math.abs(d.fifths) === 1 ? 'd’un cinquième de tour (72°)' : 'de deux cinquièmes de tour (144°)'} dans le sens ${hands(d.fifths > 0)} d’une montre, vu de face : ${d.crystal ? 'ses cinq sommets, ses cinq arêtes et les cinq arêtes qui partent de ses sommets tournent avec elle' : 'son centre ne bouge pas, ses cinq arêtes et ses cinq sommets tournent autour'}.`,
+    d.whole
+      ? `On tourne tout le puzzle dans tes mains autour de ${MEGA_FACE_NAMES_FR[d.face]}, ${Math.abs(d.fifths) === 1 ? 'd’un cinquième de tour (72°)' : 'de deux cinquièmes de tour (144°)'} dans le sens ${hands(d.fifths > 0)} d’une montre, vu de face : rien ne bouge sur le puzzle, une face cachée vient devant toi.`
+      : `On tourne ${MEGA_FACE_NAMES_FR[d.face]} ${Math.abs(d.fifths) === 1 ? 'd’un cinquième de tour (72°)' : 'de deux cinquièmes de tour (144°)'} dans le sens ${hands(d.fifths > 0)} d’une montre, vu de face : ${d.crystal ? 'ses cinq sommets, ses cinq arêtes et les cinq arêtes qui partent de ses sommets tournent avec elle' : 'son centre ne bouge pas, ses cinq arêtes et ses cinq sommets tournent autour'}.`,
   ftoFace: (d) =>
     d.slice
       ? `On tourne la tranche entre ${FTO_FACE_NAMES_FR[d.triangle]} et sa face opposée d’un tiers de tour (120°) dans le sens ${hands(d.clockwise)} d’une montre, vu depuis ${FTO_FACE_NAMES_FR[d.triangle]} : ses six arêtes et six centres tournent.`
@@ -171,7 +173,7 @@ const SHORT: MoveSentences = {
     return `Rotation ${closed(what)} d’un tiers de tour ${senseFr(d.clockwise)}, vu depuis lui`
   },
   megaFace: (d) =>
-    `Rotation ${of(MEGA_FACE_NAMES_FR[d.face])} ${Math.abs(d.fifths) === 1 ? 'd’un cinquième de tour' : 'de deux cinquièmes de tour'} ${senseFr(d.fifths > 0)}, en la regardant`,
+    `Rotation ${d.whole ? `du puzzle entier, autour ${of(MEGA_FACE_NAMES_FR[d.face])},` : of(MEGA_FACE_NAMES_FR[d.face])} ${Math.abs(d.fifths) === 1 ? 'd’un cinquième de tour' : 'de deux cinquièmes de tour'} ${senseFr(d.fifths > 0)}, en la regardant`,
   ftoFace: (d) => {
     const face = FTO_FACE_NAMES_FR[d.triangle]
     return d.slice

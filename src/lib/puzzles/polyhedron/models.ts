@@ -18,6 +18,7 @@ import { OCT_SCAN } from './octScan'
 import { RAINBOW_TURNS, scrambleRainbow, solvedRainbow } from '../shared/rainbow'
 import { scrambleSkewbU, SKEWB_SYMMETRIES, SKEWB_TURNS, solvedSkewbU } from '../shared/skewbs'
 import { solvedGem, solvedVto } from './vto'
+import { megaInSight } from './megaSight'
 import { dinoGuide, ftoGuide, megaGuide, triangleGuide } from '../guides'
 
 /** The Megaminx, as the Holey Megaminx turns too. */
@@ -27,6 +28,7 @@ export const MEGAMINX: PuzzleModel = {
   turns: () => MEGA_TURNS,
   scramble: (length, rng) => scrambleMegaminx(length, rng),
   guide: () => megaGuide(false),
+  inSight: megaInSight,
 }
 
 const SKEWB_U_SCAN = dodecaScan(solvedSkewbU(), DODECA_NORMALS[1]!, DODECA_NORMALS[0]!)
@@ -63,6 +65,7 @@ export const POLYHEDRON_MODELS = {
     turns: () => CRYSTAL_TURNS,
     scramble: (length, rng) => scrambleMegaminx(length, rng, true),
     guide: () => megaGuide(true),
+    inSight: megaInSight,
   },
   skewbU: {
     solved: solvedSkewbU,

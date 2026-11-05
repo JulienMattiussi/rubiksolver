@@ -2,7 +2,7 @@ import { emptyEdit } from '../edit'
 import type { EditStickers, Parts } from '../entry'
 import { anchorsOf } from './anchors'
 import { cheapestAssignment } from './assign'
-import { distance, type Lab } from './color'
+import { distance, glareDistance, type Lab } from './color'
 import { orientFaces } from './orient'
 import type { Scanned } from './plan'
 import type { CellSample } from './sample'
@@ -16,8 +16,8 @@ import type { Color, Cube } from '../../core/types'
  * read whole: every real piece goes to one place, in one of the ways it
  * can sit there, the cheapest way for all of them at once (the editor's
  * placements and budgets, editorTables.ts: a corner red and orange at once
- * is no piece). A sticker this forces far from what it looked like tells a
- * face to take again.
+ * is no piece). A sticker this forces far from what it looked like (not
+ * merely paled by a glare) puts its face in doubt, to take again.
  */
 
 /** What a slot costs where no piece can sit (finite: the assignment adds). */
@@ -34,7 +34,16 @@ export type ScanReading =
       /** Parts read apart from the stickers (a Gear Cube's gears). */
       readonly parts?: Parts
     }
-  | { readonly ok: false; readonly face: number }
+  | {
+      readonly ok: false
+      /** The face to take again. */
+      readonly face: number
+      /** Every face read in doubt, the most doubtful first (`face` among
+       *  them), and the likeliest reading all the same: once each was
+       *  taken again, it goes to the editor to be checked by eye. */
+      readonly doubtful?: readonly number[]
+      readonly edit?: EditStickers
+    }
 
 /** A scan read against its plan and tables (one form of a puzzle that
  *  changes shape, forms.ts), and what the reading cost: how far its
@@ -91,12 +100,21 @@ export function readFaces(
       if (color) edit[s.id] = color
       const nearest = Math.min(...colors.map((c) => costOf(s.id, c)))
       const face = faceOf.get(s.id)
-      if ((!color || costOf(s.id, color) - nearest > FORCED) && face !== undefined) doubts[face]!++
+      // A sticker under a glare reads paler than its color, not doubtful.
+      const lab = seen.get(s.id)
+      const ref = color && anchor.get(color)
+      const off = !color
+        ? NEVER
+        : Math.min(costOf(s.id, color), lab && ref ? glareDistance(lab, ref) : NEVER)
+      if (off - nearest > FORCED && face !== undefined) doubts[face]!++
     }
   })
-  const worst = doubts.indexOf(Math.max(...doubts))
-  const reading: ScanReading = doubts[worst]
-    ? { ok: false, face: worst }
+  const doubtful = plan
+    .map((_, f) => f)
+    .filter((f) => doubts[f])
+    .sort((f, g) => doubts[g]! - doubts[f]!)
+  const reading: ScanReading = doubtful.length
+    ? { ok: false, face: doubtful[0]!, doubtful, edit }
     : { ok: true, edit, ...(form && { form }) }
   return { reading, cost }
 }

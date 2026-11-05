@@ -422,6 +422,8 @@ export const UI_FR = {
     M: 'Marron',
     L: 'Vert citron',
     C: 'Doré',
+    A: 'Gris',
+    S: 'Beige',
     H: 'Graphite',
   },
   cubeLabel: 'Choix du cube',

@@ -44,7 +44,7 @@ const AROUND: Record<MegaFace, readonly MegaFace[]> = {
   B: ['BR', 'BL', 'DBL', 'D', 'DBR'],
   DBL: ['L', 'DL', 'D', 'B', 'BL'],
   DL: ['F', 'DR', 'D', 'DBL', 'L'],
-  D: ['DR', 'DL', 'DBL', 'B', 'DBR'],
+  D: ['DR', 'DBR', 'B', 'DBL', 'DL'],
 }
 
 /** The faces around one, clockwise seen from it. */
@@ -76,17 +76,17 @@ export const megaFaceOf = (normal: Vec3): MegaFace => FACE_OF.get(normal.join())
 /** Each face's color. */
 const COLOR: Record<MegaFace, Color> = {
   U: 'W',
-  F: 'G',
+  F: 'E',
   R: 'R',
-  BR: 'B',
-  BL: 'P',
+  BR: 'N',
+  BL: 'Y',
   L: 'V',
-  DR: 'L',
-  DBR: 'O',
-  B: 'T',
-  DBL: 'M',
-  DL: 'N',
-  D: 'Y',
+  DR: 'S',
+  DBR: 'P',
+  B: 'L',
+  DBL: 'O',
+  DL: 'B',
+  D: 'A',
 }
 
 const keyOf = (faces: readonly MegaFace[]) => [...faces].sort().join()
@@ -126,8 +126,13 @@ export function solvedMegaminx(): Cube {
   }))
 }
 
-/** Where a face goes as a face turns some fifths clockwise. */
-function carried(move: MegaMove): (face: MegaFace) => MegaFace {
+/** Where a face goes as a face turns some fifths clockwise (the puzzle
+ *  turned whole: every face). */
+export function megaCarried(move: MegaMove): (face: MegaFace) => MegaFace {
+  if (move.whole) {
+    const turn = wholeTurn(move.megaFace)
+    return (face) => Array.from({ length: move.amount }).reduce<MegaFace>((f) => turn(f), face)
+  }
   const around = AROUND[move.megaFace]
   return (face) => {
     const i = around.indexOf(face)
@@ -141,7 +146,7 @@ function carried(move: MegaMove): (face: MegaFace) => MegaFace {
 export function megaTurns(move: MegaMove, position: Vec3): boolean {
   const slot = SLOT_AT.get(position.join())
   if (!slot) return false // the Crystal's core
-  if (slot.includes(move.megaFace)) return true
+  if (move.whole || slot.includes(move.megaFace)) return true
   if (!move.crystal || slot.length !== 2) return false
   const around = AROUND[move.megaFace]
   const [i, j] = slot.map((f) => around.indexOf(f))
@@ -150,7 +155,7 @@ export function megaTurns(move: MegaMove, position: Vec3): boolean {
 
 /** A face turned: every piece of its layer one step on per fifth. */
 export function applyMegaMove(cube: Cube, move: MegaMove): Cube {
-  const to = carried(move)
+  const to = megaCarried(move)
   return cube.map((c): Cubie => {
     if (!megaTurns(move, c.position)) return c
     const slot = megaSlotAt(c.position)
@@ -196,9 +201,10 @@ export function megaRotation(move: MegaMove) {
 }
 
 /** The puzzle turned as a whole, so these faces go where these others
- *  were: one fifth about U, one about F (they make the 60 ways to hold it). */
-function wholeTurn(about: 'U' | 'F'): (face: MegaFace) => MegaFace {
-  const turn = carried({ megaFace: about, amount: 1 })
+ *  were: one fifth about a face (about U and about F, they make the 60
+ *  ways to hold it). */
+function wholeTurn(about: MegaFace): (face: MegaFace) => MegaFace {
+  const turn = megaCarried({ megaFace: about, amount: 1 })
   const opposite = OPPOSITE[about]
   // The far ring turns as the near one, its faces opposite theirs.
   return (face) => {
@@ -257,7 +263,7 @@ export function simplifyMegaMoves(moves: readonly MegaMove[]): MegaMove[] {
   const out: MegaMove[] = []
   for (const move of moves) {
     const last = out[out.length - 1]
-    if (last?.megaFace === move.megaFace) {
+    if (last?.megaFace === move.megaFace && !last.whole === !move.whole) {
       out.pop()
       const total = (last.amount + move.amount) % 5
       if (total !== 0) out.push({ ...move, amount: total as MegaMove['amount'] })
@@ -308,6 +314,15 @@ const FR: Record<MegaFace, string> = {
 
 const SUFFIX = { 1: '', 2: '2', 3: "2'", 4: "'" } as const
 
+/** The whole puzzle's turns, written as a cube's in both languages: y
+ *  about the vertical, x tipping the face beneath toward the viewer (about
+ *  the one below between F and R, as a cube's x brings its bottom in
+ *  front); any other, its face's letter in lower case. */
+const ROTATION_OF: Partial<Record<MegaFace, string>> = { U: 'y', DR: 'x' }
+
+/** A turn as written; the puzzle turned whole, as a rotation. */
 export function formatMegaMove(move: MegaMove, labels: FaceLabels): string {
-  return (labels.U === 'U' ? move.megaFace : FR[move.megaFace]) + SUFFIX[move.amount]
+  const face = labels.U === 'U' ? move.megaFace : FR[move.megaFace]
+  const letter = move.whole ? (ROTATION_OF[move.megaFace] ?? face.toLowerCase()) : face
+  return letter + SUFFIX[move.amount]
 }

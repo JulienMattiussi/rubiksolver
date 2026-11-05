@@ -9,7 +9,7 @@ export type Face = 'U' | 'D' | 'L' | 'R' | 'F' | 'B'
 
 /** Sticker colors. Kept distinct from Face letters (a sticker's color is not
  *  the same concept as the face it currently sits on). */
-export type Color = CubeColor | 'P' | 'V' | RainbowColor | GemColor | 'H'
+export type Color = CubeColor | 'P' | 'V' | RainbowColor | GemColor | MegaColor | 'H'
 
 /** The Rainbow's six more triangle colors: dark green, dark blue,
  *  turquoise, pale pink, brown, lime. */
@@ -17,6 +17,9 @@ type RainbowColor = 'E' | 'N' | 'T' | 'K' | 'M' | 'L'
 
 /** The GEM-0's squares: golden, as on the real puzzle. */
 type GemColor = 'C'
+
+/** The Megaminx's grey and beige faces, as on the real puzzle. */
+type MegaColor = 'A' | 'S'
 
 /** The six colors of the cubes (the standard scheme); the star prism adds
  *  pink and violet for its six valleys. */
@@ -37,6 +40,8 @@ export const ALL_COLORS: readonly Color[] = [
   'M',
   'L',
   'C',
+  'A',
+  'S',
   'H',
 ]
 
@@ -206,6 +211,9 @@ export interface MegaMove {
   /** The Pyraminx Crystal's, cut deeper: the face's layer also takes the
    *  five edges leaving its corners. */
   readonly crystal?: true
+  /** The whole puzzle turned as the face turns (held another way: a face
+   *  behind brought in sight, megaSight.ts). */
+  readonly whole?: true
 }
 
 /** An edge of the Curvy Copters (copter.ts), by fan2cube's letter. */

@@ -25,6 +25,9 @@ export const COLOR_HEX: Record<Color, string> = {
   L: '#a3e635',
   // The GEM-0's squares, golden.
   C: '#d6b25e',
+  // The Megaminx's grey and beige faces.
+  A: '#848b97',
+  S: '#e6d38f',
   // The Hockey Puck's center, graphite (drawn only: no sticker wears it).
   H: '#5b6273',
 }
