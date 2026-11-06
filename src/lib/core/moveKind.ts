@@ -25,7 +25,8 @@ export interface TurnRotation {
 export interface MoveKind<T extends Turn> {
   /** Whether a turn is of this kind. */
   is(turn: Turn): boolean
-  format(move: T, labels: FaceLabels): string
+  /** Its name, as its puzzle (when told) names it. */
+  format(move: T, labels: FaceLabels, shape?: CubeShape): string
   /** The move undoing it. */
   invert(move: T): T
   /** Whether two moves of the kind turn the same layers. */

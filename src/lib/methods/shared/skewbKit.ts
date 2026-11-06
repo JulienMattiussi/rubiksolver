@@ -2,7 +2,7 @@ import { solvedCube } from '../../core/cube'
 import { invertMoves } from '../../core/moves'
 import { solvePieces } from '../../solve/pieceSearch'
 import { parseDinoMoves, RAINBOW_CORNERS, RAINBOW_TRIANGLES } from '../../puzzles/shared/rainbow'
-import { canonicalSlice } from '../../puzzles/shared/skewbs'
+import { canonicalSlice, SKEWB_CUT } from '../../puzzles/shared/skewbs'
 import { applyMoves as applyMovesTo } from '../../core/turn'
 import type { Cube, Cubie, RainbowMove, Turn, Vec3 } from '../../core/types'
 import type { CubeShape } from '../../core/shapes'
@@ -19,7 +19,7 @@ import { mapPiece } from '../../core/geometry'
  */
 
 /** A fan2cube formula (`[B'E'][HE]`), in the Skewbs' turns. */
-export const parse = (formula: string) => parseDinoMoves(formula, 'skewb')
+export const parse = (formula: string) => parseDinoMoves(formula, { corner: SKEWB_CUT })
 
 /** Each formula, and the way back. */
 export const both = (formulas: readonly string[]) =>

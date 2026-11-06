@@ -94,7 +94,8 @@ des faces voisines, au tiers de la profondeur : 6 sommets (quatre
 triangles), 12 arêtes (deux, sans sens) et 24 centres (un, en deux
 familles que rien ne mélange), et entre chaque face et son opposée une
 tranche qui tourne aussi. **Modèle** (`lib/puzzles/polyhedron/fto.ts`) : celui du Rainbow
-(`RainbowMove.fto`, `slice` pour une tranche), les faces regardant les
+(ses coupes `FTO_CUT` et `FTO_SLICE` pour une tranche, sa notation par
+faces : `rainbow` de son modèle), les faces regardant les
 diagonales du cube ; l'octaèdre |x| + |y| + |z| <= 6, coupé à 2 le long de
 chaque diagonale ; une pièce tient en un point de sa case (sommets en
 (3, 0, 0), arêtes en (2, 2, 0), centres en (2, 1, 1)...), une face prend ce
@@ -252,7 +253,7 @@ Skewb taillé en dodécaèdre : chaque sommet
 du cube (aussi sommet du dodécaèdre) tourne d'un tiers de tour toute la moitié
 du puzzle de son côté. 6 centres montrant chacun les quatre faces penchées
 vers leur axe, 8 sommets les trois faces qui s'y rejoignent. Modèle entier,
-celui du Dino (`lib/puzzles/shared/skewbs.ts` : `solvedSkewbU`, `RainbowMove.skewb`, notation
+celui du Dino (`lib/puzzles/shared/skewbs.ts` : `solvedSkewbU`, `SKEWB_CUT`, notation
 des sommets de fan2cube) : centres sur les axes, sommets en (1, 1, 1)..., un
 tour prend ce qui a un produit scalaire positif avec sa diagonale. Les 12
 faces ont pour normales (0, ±1, ±2) et leurs permutations circulaires (2 pour

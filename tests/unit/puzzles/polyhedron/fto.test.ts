@@ -54,7 +54,7 @@ describe('FTO', () => {
 
   it('writes its turns in both notations', () => {
     const show = (labels: typeof NOTATION_FR) =>
-      FTO_TURNS.filter((m) => m.amount === 1).map((m) => formatMove(m, labels))
+      FTO_TURNS.filter((m) => m.amount === 1).map((m) => formatMove(m, labels, undefined, 'fto'))
     expect(show(NOTATION_FR)).toEqual(['H', 'P', 'G̲', 'D̲', 'A', 'B', 'D', 'G', 'h', 'a', 'g', 'd'])
     expect(show(NOTATION_US)).toEqual([
       'U',

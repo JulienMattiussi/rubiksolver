@@ -16,7 +16,13 @@ import { megaScan } from './megaminxScan'
 import { solvedOct4 } from './oct4'
 import { OCT_SCAN } from './octScan'
 import { RAINBOW_TURNS, scrambleRainbow, solvedRainbow } from '../shared/rainbow'
-import { scrambleSkewbU, SKEWB_SYMMETRIES, SKEWB_TURNS, solvedSkewbU } from '../shared/skewbs'
+import {
+  scrambleSkewbU,
+  SKEWB_CUT,
+  SKEWB_SYMMETRIES,
+  SKEWB_TURNS,
+  solvedSkewbU,
+} from '../shared/skewbs'
 import { solvedGem, solvedVto } from './vto'
 import { megaInSight } from './megaSight'
 import { dinoGuide, ftoGuide, megaGuide, triangleGuide } from '../guides'
@@ -44,6 +50,7 @@ export const POLYHEDRON_MODELS = {
     turns: () => FTO_TURNS,
     scramble: (length, rng) => scrambleFto(length, rng),
     guide: ftoGuide,
+    rainbow: { by: 'face' },
   },
   rainbow: {
     solved: solvedRainbow,
@@ -74,6 +81,7 @@ export const POLYHEDRON_MODELS = {
     symmetries: SKEWB_SYMMETRIES,
     turns: () => SKEWB_TURNS,
     scramble: (length, rng) => scrambleSkewbU(length, rng),
-    guide: () => dinoGuide({ skewb: true }),
+    guide: () => dinoGuide(SKEWB_CUT),
+    rainbow: { by: 'corner', takes: 'half' },
   },
 } satisfies Partial<Record<CubeShape, PuzzleModel>>

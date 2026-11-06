@@ -4,6 +4,7 @@ import type { GuideGroup, MoveDescription } from '../core/guide'
 import type { EntryMarks, EntryStep, MarksRefusal, PaintSpec } from '../editor/entry'
 import type { OutlineScan } from '../editor/scan/outlines'
 import type { FlatScan, RingFace } from '../editor/scan/plan'
+import type { RainbowNaming } from './shared/rainbow'
 
 /**
  * How a puzzle departs from a plain cuboid on its grid, each hook optional:
@@ -31,6 +32,10 @@ export interface PuzzleModel {
   /** Its tiles lenticular, each showing one of two colors by the angle
    *  (the Rubik's Impossible): a piece's, one per colored sticker in order. */
   readonly lenses?: (cubie: Cubie) => readonly Lens[]
+  /** How its turns are named, when it turns the Rainbow's way (rainbow.ts):
+   *  by triangle (by default), by face (the FTO) or by corner (the Dino
+   *  Cube and those cut from it, with what a corner's turn takes). */
+  readonly rainbow?: RainbowNaming
   /** A solution's steps turned in hand so every turn shows (a Megaminx
    *  hides half its faces), still solving it. */
   readonly inSight?: (steps: readonly (readonly Turn[])[]) => Turn[][]

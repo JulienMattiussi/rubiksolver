@@ -7,6 +7,7 @@ import {
   TOP_TWISTS,
 } from '@/lib/methods/polyhedron/skewbU'
 import { parseDinoMoves } from '@/lib/puzzles/shared/rainbow'
+import { SKEWB_CUT } from '@/lib/puzzles/shared/skewbs'
 import { applyMoves } from '@/lib/core/turn'
 
 const SOLVED = solvedCube('skewbU')
@@ -32,7 +33,7 @@ const NAME: Record<string, string> = {
 /** What a formula does from the solved puzzle: `(A)->(P)`, or `A°`
  *  turned in place. */
 function effect(formula: string): string[] {
-  const cube = applyMoves(SOLVED, parseDinoMoves(formula, 'skewb'))
+  const cube = applyMoves(SOLVED, parseDinoMoves(formula, { corner: SKEWB_CUT }))
   return cube
     .flatMap((c, i) => {
       const home = SOLVED[i]!

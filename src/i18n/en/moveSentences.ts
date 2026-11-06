@@ -57,7 +57,7 @@ const LONG: MoveSentences = {
   dinoCorner: (d) =>
     d.slice
       ? `Turn the inner slice of ${DINO_CORNER_NAMES_EN[d.corner]} a third of a turn (120°) ${senseEn(d.clockwise)}, as seen from it: six edges and six petals go round, between the two cuts of its diagonal.`
-      : `Turn ${DINO_CORNER_NAMES_EN[d.corner]} a third of a turn (120°) ${senseEn(d.clockwise)}, as seen from it: ${d.master ? 'its three neighboring corners, its three edges, the three centers around it and nine petals go round with it' : d.skewb ? 'the whole half of the puzzle on its side goes round with it, its three neighboring corners and the three centers around it' : d.rex ? 'its three edges, the three centers around it and nine petals go round with it' : 'its three edges go round it'}.`,
+      : `Turn ${DINO_CORNER_NAMES_EN[d.corner]} a third of a turn (120°) ${senseEn(d.clockwise)}, as seen from it: ${{ layer: 'its three neighboring corners, its three edges, the three centers around it and nine petals go round with it', half: 'the whole half of the puzzle on its side goes round with it, its three neighboring corners and the three centers around it', petals: 'its three edges, the three centers around it and nine petals go round with it', edges: 'its three edges go round it' }[d.takes]}.`,
   megaFace: (d) =>
     d.whole
       ? `Turn the whole puzzle in your hands about ${MEGA_FACE_NAMES_EN[d.face]}, ${Math.abs(d.fifths) === 1 ? 'a fifth of a turn (72°)' : 'two fifths of a turn (144°)'} ${senseEn(d.fifths > 0)}, as seen from it: nothing moves on the puzzle, a hidden face comes in front of you.`

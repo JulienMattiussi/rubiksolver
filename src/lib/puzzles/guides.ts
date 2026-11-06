@@ -8,6 +8,7 @@ import type {
   SectorSteps,
   PyraMove,
   RainbowCorner,
+  RainbowCut,
   RainbowMove,
   RingMove,
   StarMove,
@@ -15,11 +16,12 @@ import type {
 import type { CubeShape, PyraShape, StarShape } from '../core/shapes'
 import { COPTER_TURNS } from './diagonal/copter'
 import { GHOST_TURNS } from './flat/ghost'
-import { FTO_TURNS } from './polyhedron/fto'
+import { FTO_CUT, FTO_TURNS } from './polyhedron/fto'
 import { MEGA_FACES } from './polyhedron/megaminx'
 import { isOppositeFace, PYRA_LAYERS, PYRA_VERTICES, pyraTurn } from './pyramid/pyraminx'
 import { STAR_RINGS } from './round/star'
-import { RAINBOW_TRIANGLES } from './shared/rainbow'
+import { isSliceCut, RAINBOW_CUT, RAINBOW_TRIANGLES } from './shared/rainbow'
+import { MASTER_CUTS, SKEWB_CUT } from './shared/skewbs'
 
 /**
  * The move guides of the puzzles that do not turn as a cube, by family:
@@ -117,7 +119,10 @@ const thirds = (turn: Omit<RainbowMove, 'amount'>) =>
 
 /** The Rainbow's triangles. */
 export const triangleGuide = (): GuideGroup[] => [
-  { section: 'triangles', rows: RAINBOW_TRIANGLES.map((triangle) => thirds({ triangle })) },
+  {
+    section: 'triangles',
+    rows: RAINBOW_TRIANGLES.map((triangle) => thirds({ triangle, cut: RAINBOW_CUT })),
+  },
 ]
 
 /** The FTO's faces as its pad lays them out (the top face and the three
@@ -125,36 +130,34 @@ export const triangleGuide = (): GuideGroup[] => [
 export const ftoGuide = (): GuideGroup[] => {
   const faces: RainbowCorner[] = ['U', 'u', 'R', 'L', 'd', 'D', 'r', 'l']
   return [
-    { section: 'faces', rows: faces.map((triangle) => thirds({ triangle, fto: true })) },
-    { section: 'middle', rows: FTO_TURNS.filter((m) => m.amount === 1 && m.slice).map(thirds) },
+    { section: 'faces', rows: faces.map((triangle) => thirds({ triangle, cut: FTO_CUT })) },
+    {
+      section: 'middle',
+      rows: FTO_TURNS.filter((m) => m.amount === 1 && isSliceCut(m.cut)).map(thirds),
+    },
   ]
 }
 
 /** The Dino's corners: the top's, then the bottom's (front right first). */
 const DINO_CORNERS: readonly RainbowCorner[] = ['U', 'u', 'l', 'L', 'R', 'r', 'd', 'D']
 
-/** A Dino Cube's corners (a Rex Cube's, a Skewb's: `cut`). */
-export const dinoGuide = (cut: Pick<RainbowMove, 'rex' | 'skewb'> = {}): GuideGroup[] => [
-  {
-    section: 'dinoCorners',
-    rows: DINO_CORNERS.map((triangle) => thirds({ triangle, dino: true, ...cut })),
-  },
+/** A Dino Cube's corners (a Rex Cube's, a Skewb's: their `cut`). */
+export const dinoGuide = (cut: RainbowCut): GuideGroup[] => [
+  { section: 'dinoCorners', rows: DINO_CORNERS.map((triangle) => thirds({ triangle, cut })) },
 ]
 
 /** The Ivy Cube's four corners, the top's then the bottom's. */
 export const ivyGuide = (): GuideGroup[] => [
   {
     section: 'dinoCorners',
-    rows: (['L', 'u', 'R', 'd'] as const).map((triangle) =>
-      thirds({ triangle, dino: true, skewb: true }),
-    ),
+    rows: (['L', 'u', 'R', 'd'] as const).map((triangle) => thirds({ triangle, cut: SKEWB_CUT })),
   },
 ]
 
 /** The Master Skewb's corners' outer layers, then its four inner ones. */
 export const masterSkewbGuide = (): GuideGroup[] => {
   const turn = (triangle: RainbowCorner, slice?: true) =>
-    thirds({ triangle, dino: true, master: true, ...(slice && { slice }) })
+    thirds({ triangle, cut: slice ? MASTER_CUTS.slice : MASTER_CUTS.corner })
   return [
     { section: 'dinoCorners', rows: DINO_CORNERS.map((c) => turn(c)) },
     { section: 'middle', rows: (['D', 'R', 'd', 'r'] as const).map((c) => turn(c, true)) },

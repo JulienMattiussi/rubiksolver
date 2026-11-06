@@ -21,7 +21,7 @@ import {
   type Turn,
   type Vec3,
 } from '../core/types'
-import { type PyraShape } from '../core/shapes'
+import { type CubeShape, type PyraShape } from '../core/shapes'
 import { turnDims, cubeShape } from '../core/cube'
 import {
   applyCopterMove,
@@ -89,12 +89,15 @@ import {
 import {
   applyRainbowMove,
   formatRainbowMove,
+  isSliceCut,
   RAINBOW_CORNERS,
   invertRainbowMove,
   rainbowRotation,
   rainbowTurns,
+  sameCut,
   simplifyRainbowMoves,
 } from './shared/rainbow'
+import { MODELS } from './models'
 
 /**
  * Every kind of move besides the cube's face turns, each from its puzzle's
@@ -215,33 +218,29 @@ const SECTORS: MoveKind<SectorMove> = {
   },
 }
 
+/** How a puzzle names its turns of the Rainbow's way (by triangle when
+ *  not told). */
+const namingOf = (shape?: CubeShape) => (shape && MODELS[shape]?.rainbow) || undefined
+
 const RAINBOW: MoveKind<RainbowMove> = {
   is: isRainbowMove,
-  format: formatRainbowMove,
+  format: (move, labels, shape) => formatRainbowMove(move, labels, namingOf(shape)),
   invert: invertRainbowMove,
-  sameLayer: (a, b) => a.triangle === b.triangle && !a.slice === !b.slice,
+  sameLayer: (a, b) => a.triangle === b.triangle && sameCut(a.cut, b.cut),
   simplify: simplifyRainbowMoves,
   turned: byPlace(rainbowTurns),
   rotation: rainbowRotation,
   apply: (cube, move) => applyRainbowMove(cube, move),
   sight: (move) => ({ kind: 'toward', direction: RAINBOW_CORNERS[move.triangle] }),
-  describe: (move) => {
+  describe: (move, shape) => {
     const clockwise = move.amount === 1
-    if (move.fto) {
-      const base = { kind: 'ftoFace', triangle: move.triangle, clockwise } as const
-      return move.slice ? { ...base, slice: true } : base
-    }
-    return move.dino
-      ? {
-          kind: 'dinoCorner',
-          corner: move.triangle,
-          clockwise,
-          ...(move.rex && { rex: true as const }),
-          ...(move.skewb && { skewb: true as const }),
-          ...(move.master && { master: true as const }),
-          ...(move.slice && { slice: true as const }),
-        }
-      : { kind: 'triangle', triangle: move.triangle, clockwise }
+    const naming = namingOf(shape)
+    const slice = isSliceCut(move.cut) ? { slice: true as const } : {}
+    if (naming?.by === 'face')
+      return { kind: 'ftoFace', triangle: move.triangle, clockwise, ...slice }
+    if (naming?.by === 'corner')
+      return { kind: 'dinoCorner', corner: move.triangle, clockwise, takes: naming.takes, ...slice }
+    return { kind: 'triangle', triangle: move.triangle, clockwise }
   },
 }
 

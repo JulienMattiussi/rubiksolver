@@ -3,6 +3,7 @@ import { solvedCube } from '@/lib/core/cube'
 import { scrambleTurns } from '@/lib/core/moves'
 import { applyMoves } from '@/lib/core/turn'
 import { parseDinoMoves } from '@/lib/puzzles/shared/rainbow'
+import { SKEWB_CUT } from '@/lib/puzzles/shared/skewbs'
 import { BOTTOM_TWIST, CENTER_CYCLES, CENTER_SWAP, TOP_TWIST } from '@/lib/methods/diagonal/skewb'
 import { seededRng } from '../../../helpers'
 
@@ -29,7 +30,7 @@ const NAME: Record<string, string> = {
 /** What a formula does from the solved puzzle: `(A)->(P)`, or `A°`
  *  turned in place. */
 function effect(formula: string): string[] {
-  const cube = applyMoves(SOLVED, parseDinoMoves(formula, 'skewb'))
+  const cube = applyMoves(SOLVED, parseDinoMoves(formula, { corner: SKEWB_CUT }))
   return cube
     .flatMap((c, i) => {
       const home = SOLVED[i]!

@@ -61,34 +61,6 @@ sticker par sa forme (ses côtés et leurs angles) dans son emplacement, repér�
 par les coins du pentagone ; la tenue est alors trouvée sans ambiguïté, il
 reste à détecter les stickers que l'ombre assombrit.
 
-## Les puzzles « Rainbow » : la coupe dans le coup
-
-**Constat.** Le Rainbow, le Dino Cube, le Rex Cube, le Skewb, le Master
-Skewb et le FTO tournent tous d'un tiers de tour autour d'une diagonale et
-partagent un type de coup (`RainbowMove`) et un moteur
-(`lib/puzzles/shared/rainbow.ts`). Ce qui les distingue, la profondeur de
-la coupe, est écrit dans chaque coup par des drapeaux (`dino`, `rex`,
-`skewb`, `master`, `fto`), que lisent le moteur (`rainbowTurns`), la
-notation, le pad Rainbow, le guide et ses phrases : la dernière trace du
-« quel puzzle est-ce ? » dans le code commun, cachée dans la donnée. Un
-nouveau puzzle de cette famille demande un drapeau de plus et de toucher
-une douzaine de fichiers.
-
-**Piste** (revue le 2026-10-21). La coupe ne peut pas être lue sur le
-modèle : la recherche par pièces (`pieceSearch`) joue les coups sur
-quelques pièces seulement, qui ne disent pas de quel puzzle il s'agit.
-Elle reste donc dans le coup, mais en donnée : une plage de profondeur le
-long de la diagonale (`cut: { min, max }`) au lieu des drapeaux, chaque
-puzzle déclarant les siennes dans son module (le Rex « 4 et plus », une
-tranche du FTO « entre -1 et 1 »), le moteur ne testant plus que « la pièce
-est-elle dans la plage ? ». La notation, les titres du pad et les phrases
-du guide, eux, se lisent sur le modèle (ces endroits connaissent le puzzle
-affiché ; vérifier que chaque appel à `formatMove` reçoit sa forme). Coût :
-une quinzaine de fichiers source et huit de test (28 coups écrits avec un
-drapeau, le décodage des formules fan2cube, la notation, les deux pads, le
-guide). Aucun gain visible ; à faire avant d'ajouter un puzzle de cette
-famille.
-
 ## Le blanc d'abord, puis le cube retourné
 
 **Constat.** Les méthodes et les tutoriels des cubes font leur première

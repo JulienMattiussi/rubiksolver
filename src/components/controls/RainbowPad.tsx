@@ -1,5 +1,8 @@
-import type { RainbowCorner, RainbowMove } from '@/lib/core/types'
+import type { RainbowCorner, RainbowCut, RainbowMove } from '@/lib/core/types'
 import type { PadKind } from '@/lib/puzzles/entry'
+import { DINO_CUT, REX_CUT } from '@/lib/puzzles/shared/dinoRex'
+import { RAINBOW_CUT } from '@/lib/puzzles/shared/rainbow'
+import { MASTER_CUTS, SKEWB_CUT } from '@/lib/puzzles/shared/skewbs'
 import { useI18n } from '@/i18n/i18nStore'
 import { PadGroups } from './PadGroups'
 import { PadHeader } from './PadHeader'
@@ -37,18 +40,24 @@ const MASTER_GROUPS: readonly Group[] = [
 /** The puzzles turning the Rainbow's way, each with its own pad. */
 type RainbowVariant = Extract<PadKind, 'rainbow' | 'dino' | 'rex' | 'skewb' | 'ivy' | 'masterSkewb'>
 
-/** Each variant's groups and the flags its turns carry: the Rex Cube, the
- *  Skewb Ultimate and the Master Skewb turn as the Dino Cube does. */
+/** Each variant's groups and the cuts its turns take (its slices' too),
+ *  and whether they are named by corner (the Dino Cube and those cut
+ *  from it) rather than by triangle (the Rainbow). */
 const VARIANTS: Record<
   RainbowVariant,
-  { groups: readonly Group[]; flags: Omit<RainbowMove, 'triangle' | 'amount'> }
+  { groups: readonly Group[]; cut: RainbowCut; slice?: RainbowCut; corners?: true }
 > = {
-  rainbow: { groups: RAINBOW_GROUPS, flags: {} },
-  dino: { groups: DINO_GROUPS, flags: { dino: true } },
-  rex: { groups: DINO_GROUPS, flags: { dino: true, rex: true } },
-  skewb: { groups: DINO_GROUPS, flags: { dino: true, skewb: true } },
-  ivy: { groups: IVY_GROUPS, flags: { dino: true, skewb: true } },
-  masterSkewb: { groups: MASTER_GROUPS, flags: { dino: true, master: true } },
+  rainbow: { groups: RAINBOW_GROUPS, cut: RAINBOW_CUT },
+  dino: { groups: DINO_GROUPS, cut: DINO_CUT, corners: true },
+  rex: { groups: DINO_GROUPS, cut: REX_CUT, corners: true },
+  skewb: { groups: DINO_GROUPS, cut: SKEWB_CUT, corners: true },
+  ivy: { groups: IVY_GROUPS, cut: SKEWB_CUT, corners: true },
+  masterSkewb: {
+    groups: MASTER_GROUPS,
+    cut: MASTER_CUTS.corner,
+    slice: MASTER_CUTS.slice,
+    corners: true,
+  },
 }
 
 /** Rotation pad of the Rainbow: each triangle, a third of a turn either way,
@@ -56,16 +65,17 @@ const VARIANTS: Record<
  *  The Dino Cube's: its corners, the top's then the bottom's; the Master
  *  Skewb's then its inner slices. */
 export function RainbowPad({ disabled, variant }: { disabled: boolean; variant: RainbowVariant }) {
-  const { groups, flags } = VARIANTS[variant]
+  const { groups, cut, slice: sliceCut, corners } = VARIANTS[variant]
   const t = useI18n((s) => s.t)
   const turnButton = useTurnButton(disabled)
-  const titleOf = (move: RainbowMove) => {
+  const titleOf = (move: RainbowMove, slice?: true) => {
     const clockwise = move.amount === 1
-    if (move.master && move.slice) return t.masterSliceTitle(move.triangle, clockwise)
-    if (move.dino) return t.dinoTurnTitle(move.triangle, clockwise)
+    if (slice) return t.masterSliceTitle(move.triangle, clockwise)
+    if (corners) return t.dinoTurnTitle(move.triangle, clockwise)
     return t.rainbowTurnTitle(move.triangle, clockwise)
   }
-  const button = (move: RainbowMove, ghost: boolean) => turnButton(move, titleOf(move), { ghost })
+  const button = (move: RainbowMove, ghost: boolean, slice?: true) =>
+    turnButton(move, titleOf(move, slice), { ghost })
   return (
     <div>
       <PadHeader />
@@ -74,8 +84,8 @@ export function RainbowPad({ disabled, variant }: { disabled: boolean; variant: 
         layerKey={(triangle) => triangle}
         pair={(triangle, { slice }) => (
           <>
-            {button({ triangle, amount: 1, ...flags, ...(slice && { slice }) }, false)}
-            {button({ triangle, amount: 2, ...flags, ...(slice && { slice }) }, true)}
+            {button({ triangle, amount: 1, cut: slice ? sliceCut! : cut }, false, slice)}
+            {button({ triangle, amount: 2, cut: slice ? sliceCut! : cut }, true, slice)}
           </>
         )}
       />

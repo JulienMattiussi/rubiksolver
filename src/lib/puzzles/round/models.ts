@@ -4,7 +4,7 @@ import { solvedCube } from '../../core/cube'
 import type { PuzzleModel } from '../model'
 import { BY_PIECES } from '../../editor/entry'
 import { asSeenThin, thinEdgesSolved, withRealThinEdges } from '../shared/thinEdges'
-import { DINO_TURNS, scrambleDino } from '../shared/dinoRex'
+import { DINO_CUT, DINO_TURNS, scrambleDino } from '../shared/dinoRex'
 import { solvedDinoCyl } from './dinoCyl'
 import { puckSolved, scramblePuck, solvedPuck } from './puck'
 import { SECTOR_TURNS } from '../shared/sectors'
@@ -42,7 +42,8 @@ export const ROUND_MODELS = {
     solved: solvedDinoCyl,
     turns: () => DINO_TURNS,
     scramble: (length, rng) => scrambleDino(length, rng),
-    guide: () => dinoGuide(),
+    guide: () => dinoGuide(DINO_CUT),
+    rainbow: { by: 'corner', takes: 'edges' },
   },
   // A 3x3 cut otherwise, its hidden core left out (which tells it from the
   // 3x3); its middle edges show one color: their way round does not count.

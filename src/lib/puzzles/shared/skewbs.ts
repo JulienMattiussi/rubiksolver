@@ -1,7 +1,23 @@
 import { axisOf, DODECA_NORMALS, dot, FACE_NORMAL, mapPiece } from '../../core/geometry'
-import type { Color, Cube, Cubie, Face, RainbowCorner, RainbowMove, Vec3 } from '../../core/types'
-import { MASTER_SLICES, RAINBOW_CORNERS, RAINBOW_TRIANGLES, SQUARE_COLOR } from './rainbow'
-import { DINO_TURNS } from './dinoRex'
+import type {
+  Color,
+  Cube,
+  Cubie,
+  Face,
+  RainbowCorner,
+  RainbowCut,
+  RainbowMove,
+  Vec3,
+} from '../../core/types'
+import {
+  isSliceCut,
+  MASTER_SLICES,
+  RAINBOW_CORNERS,
+  RAINBOW_TRIANGLES,
+  SQUARE_COLOR,
+  turnsOf,
+  type CornerCuts,
+} from './rainbow'
 
 /**
  * The Skewbs: the Skewb, the Skewb Ultimate, the Master Skewb and the Ivy
@@ -41,8 +57,12 @@ export function solvedSkewbU(): Cube {
   return [...centers, ...corners]
 }
 
-/** Every Skewb Ultimate turn, both ways. */
-export const SKEWB_TURNS: readonly RainbowMove[] = DINO_TURNS.map((m) => ({ ...m, skewb: true }))
+/** The Skewbs' cut, through the middle: a corner's turn takes the whole
+ *  half of the puzzle on its side. */
+export const SKEWB_CUT: RainbowCut = { from: 1 }
+
+/** Every Skewb Ultimate turn (and a Skewb's), both ways. */
+export const SKEWB_TURNS: readonly RainbowMove[] = turnsOf(SKEWB_CUT)
 
 /** The corners of one set (their coordinates' signs multiplying to 1):
  *  never two opposite, and their turns reach every state. */
@@ -58,7 +78,7 @@ export function scrambleSkewbU(length: number, rng: () => number): RainbowMove[]
   while (moves.length < length) {
     const triangle = SKEWB_SCRAMBLED[Math.floor(rng() * SKEWB_SCRAMBLED.length)]!
     if (triangle === moves[moves.length - 1]?.triangle) continue
-    moves.push({ triangle, amount: rng() < 0.5 ? 1 : 2, dino: true, skewb: true })
+    moves.push({ triangle, amount: rng() < 0.5 ? 1 : 2, cut: SKEWB_CUT })
   }
   return moves
 }
@@ -151,25 +171,24 @@ export function solvedMasterSkewb(): Cube {
 /** A Master Skewb slice as its pad and notation name it: by the bottom
  *  corner of its diagonal (the top one's, the other way round). */
 export function canonicalSlice(move: RainbowMove): RainbowMove {
-  if (!move.master || !move.slice || RAINBOW_CORNERS[move.triangle][1] < 0) return move
+  if (!isSliceCut(move.cut) || RAINBOW_CORNERS[move.triangle][1] < 0) return move
   const opposite = RAINBOW_CORNERS[move.triangle].map((v) => -v).join()
   const triangle = RAINBOW_TRIANGLES.find((t) => RAINBOW_CORNERS[t].join() === opposite)!
   return { ...move, triangle, amount: move.amount === 1 ? 2 : 1 }
 }
 
+/** The Master Skewb's cuts: a corner's outer layer (what is at least 2
+ *  along its diagonal), and the inner slice between its two cuts. */
+export const MASTER_CUTS = {
+  corner: { from: 2 },
+  slice: { from: -1, to: 1 },
+} as const satisfies CornerCuts
+
 /** Every Master Skewb turn, both ways: the corners' outer layers, then the
  *  inner slices. */
 export const MASTER_TURNS: readonly RainbowMove[] = [
-  ...DINO_TURNS.map((m) => ({ ...m, master: true as const })),
-  ...MASTER_SLICES.flatMap((triangle) =>
-    ([1, 2] as const).map((amount): RainbowMove => ({
-      triangle,
-      amount,
-      dino: true,
-      master: true,
-      slice: true,
-    })),
-  ),
+  ...turnsOf(MASTER_CUTS.corner),
+  ...turnsOf(MASTER_CUTS.slice).filter((m) => MASTER_SLICES.includes(m.triangle)),
 ]
 
 /** A Master Skewb scramble: its outer layers and slices at random, never
@@ -217,7 +236,7 @@ export function scrambleIvy(length: number, rng: () => number): RainbowMove[] {
   while (moves.length < length) {
     const triangle = IVY_CORNERS[Math.floor(rng() * IVY_CORNERS.length)]!
     if (triangle === moves[moves.length - 1]?.triangle) continue
-    moves.push({ triangle, amount: rng() < 0.5 ? 1 : 2, dino: true, skewb: true })
+    moves.push({ triangle, amount: rng() < 0.5 ? 1 : 2, cut: SKEWB_CUT })
   }
   return moves
 }

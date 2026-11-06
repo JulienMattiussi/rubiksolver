@@ -1,12 +1,23 @@
 import { dot, FACE_NORMAL, mapPiece } from '../../core/geometry'
+import type { CornerTakes } from '../../core/guide'
 import type { FaceLabels } from '../../core/notation'
-import type { Color, Cube, Cubie, Face, RainbowCorner, RainbowMove, Vec3 } from '../../core/types'
+import type {
+  Color,
+  Cube,
+  Cubie,
+  Face,
+  RainbowCorner,
+  RainbowCut,
+  RainbowMove,
+  Vec3,
+} from '../../core/types'
 
 /**
  * The model of the puzzles whose corners (or a cube's diagonals) turn by
  * thirds, shared by several categories: the Rainbow's, below, and on it the
  * Dino Cube and the Rex Cube (dinoRex.ts), the Skewbs (skewbs.ts) and the
- * FTO (fto.ts), each with its own pieces; their notations are all here.
+ * FTO (fto.ts), each with its own pieces and its own cuts (how deep a
+ * turn goes along its diagonal); their notations are all here.
  *
  * The Rainbow (fan2cube.fr/rainbow1, Bethel Japan, 1971): a
  * cuboctahedron, 6 squares and 8 triangles. Each triangle turns by thirds
@@ -84,17 +95,21 @@ export function solvedRainbow(): Cube {
   return [...pieces, ...centers]
 }
 
-/** Whether a triangle's turn takes a piece: its three corners (and its
- *  fixed center, which only spins); on the Rex Cube, cut deeper, its three
- *  edges, three centers and nine petals (see `solvedRex`); on the Skewb
- *  Ultimate, cut through the middle, its whole half (`solvedSkewbU`). */
+/** The Rainbow's cut: a triangle's turn takes its three corners (and its
+ *  fixed center, which only spins). */
+export const RAINBOW_CUT: RainbowCut = { from: 2 }
+
+/** Whether a cut is a slice's, between two cuts. */
+export const isSliceCut = (cut: RainbowCut): boolean => cut.to !== undefined
+
+/** Whether two turns cut the same layer of their diagonal. */
+export const sameCut = (a: RainbowCut, b: RainbowCut): boolean => a.from === b.from && a.to === b.to
+
+/** Whether a turn takes a piece: what lies within its cut along its
+ *  diagonal (each puzzle's cut: `RAINBOW_CUT`, `REX_CUT`, `FTO_SLICE`...). */
 export const rainbowTurns = (move: RainbowMove, position: Vec3): boolean => {
   const along = dot(position, RAINBOW_CORNERS[move.triangle])
-  // The FTO's face takes what is beyond its cut, its slice what is between
-  // its two cuts (see `solvedFto`); the Master Skewb's corner and slice
-  // the same (`solvedMasterSkewb`).
-  if (move.fto || move.master) return move.slice ? Math.abs(along) < 2 : along >= 2
-  return along >= (move.skewb ? 1 : move.rex ? 4 : 2)
+  return along >= move.cut.from && (move.cut.to === undefined || along <= move.cut.to)
 }
 
 /** A third of a turn about a diagonal, clockwise seen from it. About
@@ -128,9 +143,14 @@ export function rainbowRotation(move: RainbowMove) {
 }
 
 /** Every turn, both ways. */
-export const RAINBOW_TURNS: readonly RainbowMove[] = RAINBOW_TRIANGLES.flatMap((triangle) =>
-  ([1, 2] as const).map((amount) => ({ triangle, amount })),
-)
+export const RAINBOW_TURNS: readonly RainbowMove[] = turnsOf(RAINBOW_CUT)
+
+/** Every triangle's turn of a cut, both ways. */
+export function turnsOf(cut: RainbowCut): RainbowMove[] {
+  return RAINBOW_TRIANGLES.flatMap((triangle) =>
+    ([1, 2] as const).map((amount) => ({ triangle, amount, cut })),
+  )
+}
 
 export const invertRainbowMove = (move: RainbowMove): RainbowMove => ({
   ...move,
@@ -142,7 +162,7 @@ export function simplifyRainbowMoves(moves: readonly RainbowMove[]): RainbowMove
   const out: RainbowMove[] = []
   for (const move of moves) {
     const last = out[out.length - 1]
-    if (last?.triangle === move.triangle && !last.slice === !move.slice) {
+    if (last?.triangle === move.triangle && sameCut(last.cut, move.cut)) {
       out.pop()
       const total = (last.amount + move.amount) % 3
       if (total !== 0) out.push({ ...move, amount: total as 1 | 2 })
@@ -151,13 +171,18 @@ export function simplifyRainbowMoves(moves: readonly RainbowMove[]): RainbowMove
   return out
 }
 
-/** A scramble: triangles at random, never the same twice in a row. */
-export function scrambleRainbow(length: number, rng: () => number): RainbowMove[] {
+/** A scramble: triangles at random, never the same twice in a row (turns
+ *  of this cut: the Dino Cube's, the Rex Cube's...). */
+export function scrambleRainbow(
+  length: number,
+  rng: () => number,
+  cut: RainbowCut = RAINBOW_CUT,
+): RainbowMove[] {
   const moves: RainbowMove[] = []
   while (moves.length < length) {
     const triangle = RAINBOW_TRIANGLES[Math.floor(rng() * RAINBOW_TRIANGLES.length)]!
     if (triangle === moves[moves.length - 1]?.triangle) continue
-    moves.push({ triangle, amount: rng() < 0.5 ? 1 : 2 })
+    moves.push({ triangle, amount: rng() < 0.5 ? 1 : 2, cut })
   }
   return moves
 }
@@ -169,13 +194,31 @@ const LETTERS: Record<'us' | 'fr', Record<RainbowCorner, string>> = {
   fr: { U: 'H', D: 'B', L: 'G', R: 'D', u: 'h', d: 'b', l: 'g', r: 'd' },
 }
 
-export function formatRainbowMove(move: RainbowMove, labels: FaceLabels): string {
+/** How a puzzle of the family names its turns (its model's `rainbow`):
+ *  by triangle (the Rainbow's, and a turn named without its puzzle), by
+ *  face (the FTO's), or by corner (the Dino Cube's and those cut from it),
+ *  saying then what a corner's turn takes along, for the move guide. */
+export type RainbowNaming =
+  { readonly by: 'triangle' | 'face' } | { readonly by: 'corner'; readonly takes: CornerTakes }
+
+/** Marks a slice named by triangle: never shown, only a turn told without
+ *  its puzzle (a key) keeps it apart from its corner's. */
+const SLICE_MARK = '*'
+
+export function formatRainbowMove(
+  move: RainbowMove,
+  labels: FaceLabels,
+  naming?: RainbowNaming,
+): string {
   const notation = labels.U === 'U' ? 'us' : 'fr'
-  const letter = move.fto
-    ? (move.slice ? FTO_SLICE_LETTERS : FTO_LETTERS)[notation][move.triangle]
-    : move.master && move.slice
-      ? MASTER_SLICE_LETTERS[notation][move.triangle]!
-      : (move.dino ? DINO_LETTERS : LETTERS)[notation][move.triangle]
+  const slice = isSliceCut(move.cut)
+  const by = naming?.by ?? 'triangle'
+  const letter =
+    by === 'face'
+      ? (slice ? FTO_SLICE_LETTERS : FTO_LETTERS)[notation][move.triangle]!
+      : by === 'corner'
+        ? (slice ? MASTER_SLICE_LETTERS : DINO_LETTERS)[notation][move.triangle]!
+        : LETTERS[notation][move.triangle] + (slice ? SLICE_MARK : '')
   return letter + (move.amount === 2 ? "'" : '')
 }
 
@@ -211,7 +254,7 @@ export function parseRainbowMoves(text: string): RainbowMove[] {
       group = null
     } else {
       const triangle = RAINBOW_TRIANGLES.find((t) => LETTERS.fr[t] === m[3])!
-      ;(group ?? out).push({ triangle, amount: m[4] ? 2 : 1 })
+      ;(group ?? out).push({ triangle, amount: m[4] ? 2 : 1, cut: RAINBOW_CUT })
     }
   }
   return out
@@ -225,14 +268,19 @@ const DINO_LETTERS: Record<'us' | 'fr', Record<RainbowCorner, string>> = {
   fr: { U: 'A', u: 'D', l: 'P', L: 'G', R: 'B', r: 'E', d: 'H', D: 'O' },
 }
 
-/** Read fan2cube's Dino formulas (`[GA']`, `DAD'.GAE'`): a letter a
- *  corner, `'` back, `²` twice, `[a b]` the commutator a b a' b' (`rex`:
- *  the Rex Cube's turns; `master`: the Master Skewb's, a lowercase letter
- *  an inner slice). */
-export function parseDinoMoves(text: string, kind?: 'rex' | 'skewb' | 'master'): RainbowMove[] {
+/** The cuts a puzzle named by corner turns its formulas with: its
+ *  corners', and its inner slices' (the Master Skewb's). */
+export interface CornerCuts {
+  readonly corner: RainbowCut
+  readonly slice?: RainbowCut
+}
+
+/** Read fan2cube's Dino formulas (`[GA']`, `DAD'.GAE'`) as the turns of a
+ *  puzzle's cuts: a letter a corner, a lowercase letter an inner slice,
+ *  `'` back, `²` twice, `[a b]` the commutator a b a' b'. */
+export function parseDinoMoves(text: string, cuts: CornerCuts): RainbowMove[] {
   const out: RainbowMove[] = []
   let group: RainbowMove[] | null = null
-  const flag = { dino: true as const, ...(kind && { [kind]: true as const }) }
   for (const m of text.matchAll(/(\[)|(\])|([ADPGBEHObeho])(')?(²)?/g)) {
     if (m[1]) group = []
     else if (m[2]) {
@@ -245,8 +293,7 @@ export function parseDinoMoves(text: string, kind?: 'rex' | 'skewb' | 'master'):
       const turn: RainbowMove = {
         triangle,
         amount: m[4] ? 2 : 1,
-        ...flag,
-        ...(slice && { slice: true as const }),
+        cut: slice ? cuts.slice! : cuts.corner,
       }
       ;(group ?? out).push(...(m[5] ? [turn, turn] : [turn]))
     }

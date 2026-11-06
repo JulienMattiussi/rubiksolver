@@ -1,5 +1,7 @@
 import type { RainbowCorner, RainbowMove } from '@/lib/core/types'
 import { useI18n } from '@/i18n/i18nStore'
+import { FTO_CUT, FTO_SLICE } from '@/lib/puzzles/polyhedron/fto'
+import { isSliceCut } from '@/lib/puzzles/shared/rainbow'
 import { PadGroups } from './PadGroups'
 import { PadHeader } from './PadHeader'
 import { useTurnButton } from './useTurnButton'
@@ -22,7 +24,9 @@ export function FtoPad({ disabled }: { disabled: boolean }) {
   const t = useI18n((s) => s.t)
   const turnButton = useTurnButton(disabled)
   const button = (move: RainbowMove, ghost: boolean) =>
-    turnButton(move, t.ftoTurnTitle(move.triangle, move.amount === 1, !!move.slice), { ghost })
+    turnButton(move, t.ftoTurnTitle(move.triangle, move.amount === 1, isSliceCut(move.cut)), {
+      ghost,
+    })
   return (
     <div>
       <PadHeader />
@@ -30,7 +34,7 @@ export function FtoPad({ disabled }: { disabled: boolean }) {
         groups={GROUPS.map((g) => ({ ...g, title: t[g.key] }))}
         layerKey={(triangle) => triangle}
         pair={(triangle, { slice }) => {
-          const turn = { triangle, fto: true as const, ...(slice && { slice }) }
+          const turn = { triangle, cut: slice ? FTO_SLICE : FTO_CUT }
           return (
             <>
               {button({ ...turn, amount: 1 }, false)}

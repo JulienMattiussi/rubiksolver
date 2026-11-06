@@ -2,6 +2,7 @@ import { isSolved, solvedCube } from '../../core/cube'
 import { allTurnsOf } from '../../core/moveSet'
 import { colorsOf } from '../../core/pieces'
 import { parseDinoMoves } from '../../puzzles/shared/rainbow'
+import { DINO_CUT } from '../../puzzles/shared/dinoRex'
 import type { MethodPlan } from '../../solve/solverKit'
 import type { Cube, Cubie, RainbowMove } from '../../core/types'
 import { cycleTable, placeByCycles } from '../../solve/cycleTable'
@@ -28,7 +29,7 @@ const SOLVED = solvedCube('dino')
 const TURNS = allTurnsOf('dino')
 
 /** The page's formula, as it writes it. */
-const DINO_CYCLE = parseDinoMoves("[GA']")
+const DINO_CYCLE = parseDinoMoves("[GA']", { corner: DINO_CUT })
 
 const TABLES = new Map<Cube, Map<string, RainbowMove[]>>()
 /** The 3-cycles of edges of a solved puzzle (the Dino's, the Cylinder's:

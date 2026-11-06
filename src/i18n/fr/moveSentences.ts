@@ -60,7 +60,7 @@ const LONG: MoveSentences = {
   dinoCorner: (d) =>
     d.slice
       ? `On tourne la tranche intérieure de ${DINO_CORNER_NAMES_FR[d.corner]} d’un tiers de tour (120°) dans le sens ${hands(d.clockwise)} d’une montre, vu depuis lui : six arêtes et six pétales tournent, entre les deux coupes de sa diagonale.`
-      : `On tourne ${DINO_CORNER_NAMES_FR[d.corner]} d’un tiers de tour (120°) dans le sens ${hands(d.clockwise)} d’une montre, vu de face : ${d.master ? 'ses trois sommets voisins, ses trois arêtes, les trois centres autour et neuf pétales tournent avec lui' : d.skewb ? 'toute la moitié du puzzle de son côté tourne avec lui, ses trois sommets voisins et les trois centres autour' : d.rex ? 'ses trois arêtes, les trois centres autour et neuf pétales tournent avec lui' : 'ses trois arêtes tournent autour de lui'}.`,
+      : `On tourne ${DINO_CORNER_NAMES_FR[d.corner]} d’un tiers de tour (120°) dans le sens ${hands(d.clockwise)} d’une montre, vu de face : ${{ layer: 'ses trois sommets voisins, ses trois arêtes, les trois centres autour et neuf pétales tournent avec lui', half: 'toute la moitié du puzzle de son côté tourne avec lui, ses trois sommets voisins et les trois centres autour', petals: 'ses trois arêtes, les trois centres autour et neuf pétales tournent avec lui', edges: 'ses trois arêtes tournent autour de lui' }[d.takes]}.`,
   megaFace: (d) =>
     d.whole
       ? `On tourne tout le puzzle dans tes mains autour de ${MEGA_FACE_NAMES_FR[d.face]}, ${Math.abs(d.fifths) === 1 ? 'd’un cinquième de tour (72°)' : 'de deux cinquièmes de tour (144°)'} dans le sens ${hands(d.fifths > 0)} d’une montre, vu de face : rien ne bouge sur le puzzle, une face cachée vient devant toi.`

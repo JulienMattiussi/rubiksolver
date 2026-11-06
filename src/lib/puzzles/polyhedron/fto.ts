@@ -3,10 +3,13 @@ import {
   FTO_LETTERS,
   FTO_SLICE_LETTERS,
   invertRainbowMove,
+  isSliceCut,
   RAINBOW_CORNERS,
   RAINBOW_TRIANGLES,
+  sameCut,
+  turnsOf,
 } from '../shared/rainbow'
-import type { Cube, Cubie, RainbowCorner, RainbowMove, Vec3 } from '../../core/types'
+import type { Cube, Cubie, RainbowCorner, RainbowCut, RainbowMove, Vec3 } from '../../core/types'
 import { dot, mapVec } from '../../core/geometry'
 
 /**
@@ -69,13 +72,18 @@ export function solvedFto(): Cube {
   return [...corners, ...edges, ...centers]
 }
 
+/** Its cuts: a face takes what is at least 2 along its diagonal, its
+ *  slice what is within 2 of the middle. */
+export const FTO_CUT: RainbowCut = { from: 2 }
+export const FTO_SLICE: RainbowCut = { from: -1, to: 1 }
+
 /** The faces that have a slice named after them, one per axis. */
 const SLICED = Object.keys(FTO_SLICE_LETTERS.fr) as RainbowCorner[]
 
 /** A slice as named: one named after its opposite face is the same slice,
  *  the other way round (`fromEverySide` makes such). */
 export function namedSlice(move: RainbowMove): RainbowMove {
-  if (!move.slice || SLICED.includes(move.triangle)) return move
+  if (!isSliceCut(move.cut) || SLICED.includes(move.triangle)) return move
   const d = RAINBOW_CORNERS[move.triangle]
   const triangle = RAINBOW_TRIANGLES.find(
     (t) => RAINBOW_CORNERS[t].join() === d.map((v) => -v).join(),
@@ -85,9 +93,11 @@ export function namedSlice(move: RainbowMove): RainbowMove {
 
 /** Every FTO turn, both ways: the eight faces, then the four slices. */
 export const FTO_TURNS: readonly RainbowMove[] = [
-  ...RAINBOW_TRIANGLES.map((triangle) => ({ triangle, fto: true as const })),
-  ...SLICED.map((triangle) => ({ triangle, fto: true as const, slice: true as const })),
-].flatMap((turn) => ([1, 2] as const).map((amount): RainbowMove => ({ ...turn, amount })))
+  ...turnsOf(FTO_CUT),
+  ...SLICED.flatMap((triangle) =>
+    ([1, 2] as const).map((amount): RainbowMove => ({ triangle, amount, cut: FTO_SLICE })),
+  ),
+]
 
 /** An FTO scramble: faces (and a slice now and then) at random, never the
  *  same layer twice in a row. */
@@ -96,7 +106,7 @@ export function scrambleFto(length: number, rng: () => number): RainbowMove[] {
   while (moves.length < length) {
     const move = FTO_TURNS[Math.floor(rng() * FTO_TURNS.length)]!
     const last = moves[moves.length - 1]
-    if (last && last.triangle === move.triangle && !last.slice === !move.slice) continue
+    if (last && last.triangle === move.triangle && sameCut(last.cut, move.cut)) continue
     moves.push(move)
   }
   return moves
@@ -127,12 +137,7 @@ export function parseFtoMoves(text: string): RainbowMove[] {
       const letter = m[6]!
       const slice = letter === letter.toLowerCase()
       const triangle = (slice ? slices : faces).find(([, l]) => l === letter)![0]
-      const turn: RainbowMove = {
-        triangle,
-        amount: m[7] ? 2 : 1,
-        fto: true,
-        ...(slice && { slice: true as const }),
-      }
+      const turn: RainbowMove = { triangle, amount: m[7] ? 2 : 1, cut: slice ? FTO_SLICE : FTO_CUT }
       top.push(...(m[8] ? [turn, turn] : [turn]))
     }
   }

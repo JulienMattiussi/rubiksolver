@@ -175,24 +175,22 @@ export type SectorMove =
  *  then the four behind them, in lowercase. */
 export type RainbowCorner = 'U' | 'D' | 'L' | 'R' | 'u' | 'd' | 'l' | 'r'
 
-/** A Rainbow turn: a third of a turn of one triangle (its three pieces),
- *  clockwise seen from it (`amount` 1) or back (2). */
+/** How deep a turn of the Rainbow's way cuts, along its diagonal: it
+ *  takes what lies at least `from` along it, and at most `to` for a slice
+ *  between two cuts. Each puzzle of the family declares its own (the
+ *  Dino Cube's in dinoRex.ts, the Skewbs' in skewbs.ts...). */
+export interface RainbowCut {
+  readonly from: number
+  readonly to?: number
+}
+
+/** A turn of the Rainbow's way: a third of a turn about one triangle's
+ *  diagonal (a cube's corner on the Dino Cube and the like), clockwise
+ *  seen from it (`amount` 1) or back (2), taking what its `cut` says. */
 export interface RainbowMove {
   readonly triangle: RainbowCorner
   readonly amount: 1 | 2
-  /** The Dino Cube's (the same turn, its own notation). */
-  readonly dino?: true
-  /** The Rex Cube's: the Dino's, cut deeper (rainbow.ts). */
-  readonly rex?: true
-  /** The Skewb Ultimate's: the Dino's, cut through the middle. */
-  readonly skewb?: true
-  /** The Master Skewb's: a corner's outer layer, or with `slice` the inner
-   *  layer along its diagonal (rainbow.ts, `solvedMasterSkewb`). */
-  readonly master?: true
-  /** The FTO's: a face (a third of the octahedron), or with `slice` the
-   *  layer between it and its opposite (rainbow.ts, `solvedFto`). */
-  readonly fto?: true
-  readonly slice?: true
+  readonly cut: RainbowCut
 }
 
 /** Any turn of any puzzle: a face-layer move, a star prism's, the

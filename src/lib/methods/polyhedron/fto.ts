@@ -1,6 +1,6 @@
 import { isSolved, solvedCube } from '../../core/cube'
 import { namedSlice, parseFtoMoves } from '../../puzzles/polyhedron/fto'
-import { applyRainbowMove } from '../../puzzles/shared/rainbow'
+import { applyRainbowMove, isSliceCut } from '../../puzzles/shared/rainbow'
 import { vecKey } from '../../core/geometry'
 import { allTurnsOf } from '../../core/moveSet'
 import type { MethodPlan } from '../../solve/solverKit'
@@ -30,7 +30,7 @@ import { withStickers } from '../../core/pieces'
 const SOLVED = solvedCube('fto')
 const TURNS = allTurnsOf('fto')
 const SETUPS = TURNS.turns as RainbowMove[]
-const FACE_TURNS = SETUPS.filter((m) => !m.slice)
+const FACE_TURNS = SETUPS.filter((m) => !isSliceCut(m.cut))
 
 const isCorner = withStickers(4)
 const isEdge = withStickers(2)

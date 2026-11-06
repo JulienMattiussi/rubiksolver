@@ -1,15 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
 import { scrambleTurns } from '@/lib/core/moves'
-import { NOTATION_FR } from '@/lib/core/notation'
+import { formatMove, NOTATION_FR } from '@/lib/core/notation'
 import { applyMoves } from '@/lib/core/turn'
-import { formatRainbowMove, parseDinoMoves } from '@/lib/puzzles/shared/rainbow'
+import { parseDinoMoves } from '@/lib/puzzles/shared/rainbow'
+import { MASTER_CUTS } from '@/lib/puzzles/shared/skewbs'
 import { EDGE_CYCLES, MASTER_SKEWB_PLAN, PETAL_CYCLES } from '@/lib/methods/diagonal/masterSkewb'
 import { buildSteps } from '@/lib/solve/solverKit'
 import { seededRng } from '../../../helpers'
 
 const SOLVED = solvedCube('masterSkewb')
-const parse = (formula: string) => parseDinoMoves(formula, 'master')
+const parse = (formula: string) => parseDinoMoves(formula, MASTER_CUTS)
 
 /** fan2cube's face letters, by axis. */
 const FACE: Record<string, string> = {
@@ -72,7 +73,7 @@ describe('Master Skewb', () => {
   it('writes its slices in lowercase, as fan2cube.fr does', () => {
     expect(
       parse("o'(P'DP)o")
-        .map((m) => formatRainbowMove(m, NOTATION_FR))
+        .map((m) => formatMove(m, NOTATION_FR, undefined, 'masterSkewb'))
         .join(' '),
     ).toBe("o' P' D P o")
   })

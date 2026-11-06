@@ -41,7 +41,7 @@ export function formatMove(
   dims?: Dims,
   shape?: CubeShape,
 ): string {
-  if (!isFaceTurn(move)) return kindOf(move)!.format(move, labels)
+  if (!isFaceTurn(move)) return kindOf(move)!.format(move, labels, shape)
   if (move.whole) {
     // Held another way, L turns as x' does.
     const back = 'LDB'.includes(move.face)

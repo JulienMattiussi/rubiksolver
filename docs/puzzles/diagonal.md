@@ -8,8 +8,8 @@ Le Dino Cube (fan2cube.fr/dinocube1 et 2) a la mécanique du Rainbow : chaque so
 fait un 3-cycle des trois arêtes autour de lui. Ses 12 pièces sont ces
 arêtes, deux triangles chacune (les faces coupées le long de leurs
 diagonales), sans centre. Le modèle est celui du Rainbow
-(`lib/puzzles/shared/dinoRex.ts` : `solvedDino` garde ses arêtes et leurs carrés, `RainbowMove.dino` sa
-notation : les lettres de fan2cube, A D P G en haut, B E H O en bas ; UFR...
+(`lib/puzzles/shared/dinoRex.ts` : `solvedDino` garde ses arêtes et leurs carrés, `DINO_CUT` sa coupe, et
+sa notation, par sommets (`rainbow` de son modèle) : les lettres de fan2cube, A D P G en haut, B E H O en bas ; UFR...
 en anglais). Rendu (`three/puzzles/shared/dinoGeometry.ts`) :
 chaque arête est la part du cube où ses deux coordonnées sont les plus
 grandes.
@@ -186,7 +186,7 @@ parité de la page (après des coups à 60°) ne servent donc pas.
 Le Rex Cube (fan2cube.fr/rexcube1 et 2) est le Dino
 coupé plus profond : un tiers de
 tour d'un sommet emporte ses 3 arêtes, les 3 centres autour et 9 pétales
-(testé). 12 arêtes, 6 centres, 24 pétales. Même modèle (`solvedRex`, `RainbowMove.rex` : un sommet tourne ce
+(testé). 12 arêtes, 6 centres, 24 pétales. Même modèle (`solvedRex`, `REX_CUT` : un sommet tourne ce
 qui est à au moins 4 le long de sa diagonale, en quarts de demi-côté : centres
 à 4, arêtes en (3, 3, 0), pétales en (2, 4, 2)), même notation que le Dino,
 boîte de 9 (`dims` de sa carte). Rendu (`three/puzzles/diagonal/rexGeometry.ts`) : chaque face

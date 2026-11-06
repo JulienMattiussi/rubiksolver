@@ -1,6 +1,6 @@
 import { axisOf, FACE_NORMAL, mapVec } from '../../core/geometry'
-import type { Cube, Cubie, Face, RainbowMove, Vec3 } from '../../core/types'
-import { RAINBOW_TURNS, SQUARE_COLOR, scrambleRainbow, solvedRainbow } from './rainbow'
+import type { Cube, Cubie, Face, RainbowCut, RainbowMove, Vec3 } from '../../core/types'
+import { SQUARE_COLOR, scrambleRainbow, solvedRainbow, turnsOf } from './rainbow'
 
 /**
  * The Dino Cube and the Rex Cube: the Rainbow's mechanism (rainbow.ts) cut
@@ -20,12 +20,16 @@ export function solvedDino(): Cube {
     .map((c) => ({ ...c, stickers: c.stickers.filter((s) => s.normal.includes(0)) }))
 }
 
+/** The Dino's cut, the Rainbow's: a corner's turn takes the three edges
+ *  around it. */
+export const DINO_CUT: RainbowCut = { from: 2 }
+
 /** Every Dino turn, both ways. */
-export const DINO_TURNS: readonly RainbowMove[] = RAINBOW_TURNS.map((m) => ({ ...m, dino: true }))
+export const DINO_TURNS: readonly RainbowMove[] = turnsOf(DINO_CUT)
 
 /** A Dino scramble: the Rainbow's, in the Dino's turns. */
 export const scrambleDino = (length: number, rng: () => number): RainbowMove[] =>
-  scrambleRainbow(length, rng).map((m) => ({ ...m, dino: true }))
+  scrambleRainbow(length, rng, DINO_CUT)
 
 /**
  * The Rex Cube (fan2cube.fr/rexcube1, Andrew Cormier, 2010): the Dino's
@@ -73,9 +77,13 @@ export function solvedRex(): Cube {
   return out
 }
 
+/** The Rex's cut, deeper than the Dino's: a corner's turn takes what is at
+ *  least 4 along its diagonal. */
+export const REX_CUT: RainbowCut = { from: 4 }
+
 /** Every Rex turn, both ways. */
-export const REX_TURNS: readonly RainbowMove[] = DINO_TURNS.map((m) => ({ ...m, rex: true }))
+export const REX_TURNS: readonly RainbowMove[] = turnsOf(REX_CUT)
 
 /** A Rex scramble: the Dino's, in the Rex's turns. */
 export const scrambleRex = (length: number, rng: () => number): RainbowMove[] =>
-  scrambleRainbow(length, rng).map((m) => ({ ...m, dino: true, rex: true }))
+  scrambleRainbow(length, rng, REX_CUT)

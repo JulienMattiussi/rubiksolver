@@ -92,7 +92,11 @@ générique (file d'animation, rendu, notation) prend un `Turn` et demande
 à la sorte du coup (`kindOf`, `core/moveKind.ts` : un `MoveKind` dit comment
 écrire, inverser, fusionner, jouer et animer ses coups ; les sortes sont
 rassemblées par les puzzles dans `puzzles/moveKinds.ts`, comme leurs
-modèles), et fait sinon ce que fait un cube. L'animation tourne autour d'un axe
+modèles), et fait sinon ce que fait un cube. Les puzzles qui tournent comme
+le Rainbow (Dino, Rex, Skewbs, FTO...) partagent `RainbowMove` : un coup
+porte sa coupe (`RainbowCut`, déclarée par chaque puzzle dans son module),
+et se nomme comme le dit le modèle (`rainbow` : par triangle, par sommet ou
+par face). L'animation tourne autour d'un axe
 quelconque (`turnRotation` renvoie un vecteur) ; les solveurs des cubes
 gardent `Move`.
 

@@ -35,6 +35,12 @@ type GuideSection =
   | 'dinoCorners'
   | PyraLayer
 
+/** What a corner's turn takes along, on a puzzle turning by corners: its
+ *  three edges (the Dino Cube's), with centers and petals (the Rex Cube's),
+ *  the whole half on its side (the Skewbs'), its outer layer (the Master
+ *  Skewb's). */
+export type CornerTakes = 'edges' | 'petals' | 'half' | 'layer'
+
 export interface GuideGroup {
   readonly section: GuideSection
   /** Each row: one turn, or a turn and its opposite. */
@@ -142,14 +148,13 @@ export type MoveDescription =
       readonly slice?: true
     }
   | {
-      /** A Dino Cube corner turned a third (or a Rex Cube's). */
+      /** A corner turned a third (the Dino Cube's and those cut from it),
+       *  what it takes along as its puzzle says, or with `slice` the inner
+       *  layer of its diagonal (the Master Skewb's). */
       readonly kind: 'dinoCorner'
       readonly corner: RainbowCorner
       readonly clockwise: boolean
-      readonly rex?: true
-      readonly skewb?: true
-      /** A Master Skewb's outer layer, or with `slice` its inner one. */
-      readonly master?: true
+      readonly takes: CornerTakes
       readonly slice?: true
     }
 

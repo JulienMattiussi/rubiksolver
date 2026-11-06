@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { cubeShape, isSolved, solvedCube } from '@/lib/core/cube'
 import { CORNER_TURN } from '@/lib/methods/round/dinoCyl'
 import { parseDinoMoves } from '@/lib/puzzles/shared/rainbow'
+import { DINO_CUT } from '@/lib/puzzles/shared/dinoRex'
 import { applyMoves } from '@/lib/core/turn'
 import type { RainbowMove } from '@/lib/core/types'
 
@@ -23,13 +24,13 @@ describe('Dino Cylinder', () => {
   })
 
   it('turns a corner in place, with its three edges', () => {
-    const turn = parseDinoMoves('A')
+    const turn = parseDinoMoves('A', { corner: DINO_CUT })
     expect(moved(turn).sort()).toEqual(['corner 1,1,1', 'edge 0,1,1', 'edge 1,0,1', 'edge 1,1,0'])
     expect(isSolved(applyMoves(SOLVED, [...turn, ...turn, ...turn]))).toBe(true)
   })
 
   it('cycles three edges by [GA’] and turns a corner alone by (A)+ (fan2cube.fr)', () => {
-    const cycle = moved(parseDinoMoves("[GA']"))
+    const cycle = moved(parseDinoMoves("[GA']", { corner: DINO_CUT }))
     expect(cycle).toHaveLength(3)
     expect(cycle.every((p) => p.startsWith('edge'))).toBe(true)
     expect(moved(CORNER_TURN)).toEqual(['corner 1,1,1'])

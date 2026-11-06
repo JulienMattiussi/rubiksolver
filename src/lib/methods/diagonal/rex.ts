@@ -3,6 +3,7 @@ import { allTurnsOf } from '../../core/moveSet'
 import { invertMoves } from '../../core/moves'
 import { colorsOf, withStickers } from '../../core/pieces'
 import { parseDinoMoves } from '../../puzzles/shared/rainbow'
+import { REX_CUT } from '../../puzzles/shared/dinoRex'
 import type { MethodPlan } from '../../solve/solverKit'
 import type { Cube, Cubie, RainbowMove } from '../../core/types'
 import { alikeHomes, cycleTable, placeByCycles } from '../../solve/cycleTable'
@@ -35,9 +36,9 @@ const isCenter = (c: Cubie) =>
   c.stickers.length === 1 && c.position.filter((x) => x !== 0).length === 1
 const isPetal = (c: Cubie) => c.stickers.length === 1 && !isCenter(c)
 
-const EDGE_CYCLE = parseDinoMoves("[GA']", 'rex')
-const CENTER_CYCLE = parseDinoMoves("[DG']", 'rex')
-const PETAL_SWAP = parseDinoMoves("[DG'][D'B]", 'rex')
+const EDGE_CYCLE = parseDinoMoves("[GA']", { corner: REX_CUT })
+const CENTER_CYCLE = parseDinoMoves("[DG']", { corner: REX_CUT })
+const PETAL_SWAP = parseDinoMoves("[DG'][D'B]", { corner: REX_CUT })
 
 const edgeCycles = once(() =>
   cycleTable(SOLVED, isEdge, fromEverySide(EDGE_CYCLE), SETUPS, (c) => !isEdge(c)),

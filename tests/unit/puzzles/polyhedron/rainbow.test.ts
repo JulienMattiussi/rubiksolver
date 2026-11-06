@@ -3,6 +3,7 @@ import { cubeShape, isSolved, solvedCube } from '@/lib/core/cube'
 import { PLACE_LEFT, PLACE_RIGHT } from '@/lib/methods/polyhedron/rainbow'
 import { formatMoves, NOTATION_FR, NOTATION_US } from '@/lib/core/notation'
 import { parseDinoMoves, RAINBOW_TURNS } from '@/lib/puzzles/shared/rainbow'
+import { DINO_CUT, REX_CUT } from '@/lib/puzzles/shared/dinoRex'
 import { colorsOf } from '@/lib/core/pieces'
 import { applyMoves } from '@/lib/core/turn'
 import type { Cube, RainbowMove } from '@/lib/core/types'
@@ -56,7 +57,7 @@ describe('Dino Cube (fan2cube.fr/dinocube1 and 2)', () => {
   })
 
   it('cycles three top edges with [GA’], (HA)->(HD)->(HG), nothing else', () => {
-    const after = applyMoves(DINO, parseDinoMoves("[GA']"))
+    const after = applyMoves(DINO, parseDinoMoves("[GA']", { corner: DINO_CUT }))
     // HA = (0, 1, 1), HD = (1, 1, 0), HG = (-1, 1, 0).
     const moved = DINO.filter((c, i) => after[i]!.position.join() !== c.position.join())
     expect(moved.map((c) => c.position.join()).sort()).toEqual(['-1,1,0', '0,1,1', '1,1,0'])
@@ -86,7 +87,7 @@ describe('Rex Cube (fan2cube.fr/rexcube1 and 2)', () => {
         : 'petal'
   /** How many of each kind a formula moves. */
   const moves = (formula: string) => {
-    const after = applyMoves(REX, parseDinoMoves(formula, 'rex'))
+    const after = applyMoves(REX, parseDinoMoves(formula, { corner: REX_CUT }))
     const count: Record<string, number> = {}
     REX.forEach((c, i) => {
       if (after[i]!.position.join() !== c.position.join())
@@ -97,7 +98,7 @@ describe('Rex Cube (fan2cube.fr/rexcube1 and 2)', () => {
 
   it('turns a corner’s three edges, three centers and nine petals', () => {
     expect(REX).toHaveLength(42)
-    const one = applyMoves(REX, [{ triangle: 'U', amount: 1, dino: true, rex: true }])
+    const one = applyMoves(REX, [{ triangle: 'U', amount: 1, cut: REX_CUT }])
     const count: Record<string, number> = {}
     REX.forEach((c, i) => {
       if (one[i]!.position.join() !== c.position.join())

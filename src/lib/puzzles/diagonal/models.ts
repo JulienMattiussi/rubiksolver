@@ -5,7 +5,9 @@ import { isSolved, solvedCube } from '../../core/cube'
 import type { PuzzleModel } from '../model'
 import { BY_PIECES } from '../../editor/entry'
 import {
+  DINO_CUT,
   DINO_TURNS,
+  REX_CUT,
   REX_TURNS,
   scrambleDino,
   scrambleRex,
@@ -20,6 +22,7 @@ import {
   IVY_TURNS,
   scrambleIvy,
   SKEWB_SYMMETRIES,
+  SKEWB_CUT,
   SKEWB_TURNS,
   solvedIvy,
   solvedMasterSkewb,
@@ -37,7 +40,8 @@ export const DIAGONAL_MODELS = {
     scan: 'square',
     turns: () => DINO_TURNS,
     scramble: (length, rng) => scrambleDino(length, rng),
-    guide: () => dinoGuide(),
+    guide: () => dinoGuide(DINO_CUT),
+    rainbow: { by: 'corner', takes: 'edges' },
   },
   // A cube: its 24 holdings.
   skewb: {
@@ -46,7 +50,8 @@ export const DIAGONAL_MODELS = {
     symmetries: SKEWB_CUBE_SYMMETRIES,
     turns: () => SKEWB_TURNS,
     scramble: (length, rng) => scrambleSkewbU(length, rng),
-    guide: () => dinoGuide({ skewb: true }),
+    guide: () => dinoGuide(SKEWB_CUT),
+    rainbow: { by: 'corner', takes: 'half' },
   },
   // A Skewb with one set of corners: held the 12 ways that keep them.
   ivy: {
@@ -56,6 +61,7 @@ export const DIAGONAL_MODELS = {
     turns: () => IVY_TURNS,
     scramble: (length, rng) => scrambleIvy(length, rng),
     guide: ivyGuide,
+    rainbow: { by: 'corner', takes: 'half' },
   },
   // The Curvy Copters: a cube, as the Skewb, held 24 ways.
   copter: {
@@ -84,13 +90,15 @@ export const DIAGONAL_MODELS = {
     turns: () => MASTER_TURNS,
     scramble: (length, rng) => scrambleMasterSkewb(length, rng),
     guide: masterSkewbGuide,
+    rainbow: { by: 'corner', takes: 'layer' },
   },
   rex: {
     solved: solvedRex,
     scan: 'square',
     turns: () => REX_TURNS,
     scramble: (length, rng) => scrambleRex(length, rng),
-    guide: () => dinoGuide({ rex: true }),
+    guide: () => dinoGuide(REX_CUT),
+    rainbow: { by: 'corner', takes: 'petals' },
   },
   fisher: {
     solved: () => withMarks(solvedCube('3')),

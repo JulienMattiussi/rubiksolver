@@ -4,6 +4,7 @@ import { allTurnsOf } from '../../core/moveSet'
 import { invertMoves } from '../../core/moves'
 import { colorsOf, withStickers } from '../../core/pieces'
 import { parseDinoMoves } from '../../puzzles/shared/rainbow'
+import { DINO_CUT } from '../../puzzles/shared/dinoRex'
 import type { MethodPlan } from '../../solve/solverKit'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Cubie, RainbowMove } from '../../core/types'
@@ -31,7 +32,7 @@ const isCorner = withStickers(3)
 const isEdge = (c: Cubie) => !isCorner(c)
 
 /** The page's corner turn: (A)+, the corner A a third clockwise. */
-export const CORNER_TURN = parseDinoMoves("[AD]A'[DA']")
+export const CORNER_TURN = parseDinoMoves("[AD]A'[DA']", { corner: DINO_CUT })
 
 /** The solved puzzle held every way. */
 const HELD: readonly Cube[] = holdingsOf(SOLVED)

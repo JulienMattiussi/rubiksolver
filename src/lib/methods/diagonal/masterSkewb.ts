@@ -7,6 +7,7 @@ import type { Cube, Cubie, RainbowMove, Vec3 } from '../../core/types'
 import { faceOfNormal, mapVec } from '../../core/geometry'
 import { aroundTop } from '../shared/skewbKit'
 import { skewbFirst } from './skewb'
+import { MASTER_CUTS } from '../../puzzles/shared/skewbs'
 import { once } from '../../solve/once'
 import { withStickers } from '../../core/pieces'
 
@@ -33,7 +34,7 @@ export const EDGE_CYCLES = ["o'(P'DP)o(P'D'P)", "e(PG'P')e'(PGP')"]
 /** (D) -> (P) -> (G), and its mirror (A) -> (G) -> (P). */
 export const PETAL_CYCLES = ["e(D'GD)e'(D'G'D)", "o'(GD'G')o(GDG')"]
 
-const { steps, kit, skewb, parse } = skewbFirst('masterSkewb', 'master')
+const { steps, kit, skewb, parse } = skewbFirst('masterSkewb', MASTER_CUTS)
 const { held } = kit
 const TURNS = allTurnsOf('masterSkewb')
 const SOLVED = solvedCube('masterSkewb')
