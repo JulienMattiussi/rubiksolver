@@ -3,7 +3,14 @@ import type { PuzzleEntry } from '../entry'
 /** The puzzles one layer thick. In the picker's order. */
 export const FLAT = {
   '123': { label: '1x2x3', slug: '1x2x3', dims: [3, 2, 1], scramble: 10 },
-  '331': { label: '3x3x1 (Floppy)', slug: 'floppy', dims: [3, 1, 3], scramble: 12 },
+  '331': {
+    label: '3x3x1 (Floppy)',
+    slug: 'floppy',
+    dims: [3, 1, 3],
+    scramble: 12,
+    // Tried on the real puzzle (2026-11-06).
+    scanTried: true,
+  },
   // The Floppy Ghost (ghost.ts) is no grid: its slots sit within +-3 in its plane, all at z = 0.
   ghost: {
     home: 'classic',

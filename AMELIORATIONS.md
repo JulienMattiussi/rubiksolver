@@ -5,7 +5,6 @@ envisagées.
 
 ## À faire (notes du 2026-11-03)
 
-- **Étendre le Floppy** (à préciser : d'autres puzzles plats de sa famille).
 - **Le référencement Google** : `yavadeus.dev` est déclaré dans Search
   Console (validé par le DNS d'Infomaniak) et le `sitemap.xml` soumis le
   2026-11-05. Reste à le présenter là où sont les cubeurs (forums, Reddit)
@@ -18,7 +17,7 @@ envisagées.
 **Constat.** Le scan (`lib/editor/scan/`, détail dans `docs/scan.md`) n'a
 été essayé en vrai que sur les puzzles dont la carte porte `scanTried`
 (2x2, 2x2 Qiyi, 3x3, 4x4, tours 2x2x3 et 2x2x4, Megaminx, Pyraminx,
-Gear Cube Ultimate, Skewb, Ivy Cube, Meffert's Pocket Cube, Floppy Ghost) et le 3x3 miroir ; les
+Gear Cube Ultimate, Skewb, Ivy Cube, Meffert's Pocket Cube, Floppy, Floppy Ghost) et le 3x3 miroir ; les
 autres ne l'ont été que sur images synthétiques, leur bouton marqué d'une
 fiole. Ses seuils (bandes de teinte et marges de `color.ts`,
 `HOLD_MS` et `DRIFT` dans `capture.ts`, `FORCED` dans `classify.ts`,

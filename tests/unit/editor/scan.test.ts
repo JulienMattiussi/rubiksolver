@@ -70,6 +70,7 @@ describe('scan plan', () => {
       '4',
       '223',
       '224',
+      '331',
       'qiyi2',
       'ghost',
       'pyra',
