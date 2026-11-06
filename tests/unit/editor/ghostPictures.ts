@@ -1,4 +1,4 @@
-import { inset, inside, type P2 } from '@/lib/core/plane'
+import { inside, type P2 } from '@/lib/core/plane'
 import type { Cube } from '@/lib/core/types'
 import { outlineReach, type Picture } from '@/lib/editor/scan/outlines'
 import { ghostScan } from '@/lib/puzzles/flat/ghostScan'
@@ -20,20 +20,17 @@ export interface Shot {
   readonly noise?: number
   /** A dark patch on the picture (a reflection): its middle, its radius. */
   readonly shadow?: { readonly at: P2; readonly radius: number }
+  /** The picture's side, in pixels. */
+  readonly size?: number
 }
-
-const SIZE = 160
 
 /** A picture of a Floppy Ghost in a state: silver stickers framed by black
  *  bodies, over a background. */
 export function ghostPicture(cube: Cube, shot: Shot, rng: () => number): Picture {
   const { turn = 0, mirrored = false, zoom = 1, shift = [0, 0] } = shot
-  const { background = 60, stripes, sticker = 80, noise = 6, shadow } = shot
+  const { background = 60, stripes, sticker = 80, noise = 6, shadow, size: SIZE = 160 } = shot
   const scale = (zoom * SIZE) / (2 * outlineReach(ghostScan))
-  const pieces = cube.map((cubie) => {
-    const outline = ghostScan.outline(cubie)
-    return { outline, sticker: inset(outline, ghostScan.border) }
-  })
+  const pieces = cube.map(ghostScan.pose)
   const [c, s] = [Math.cos(turn), Math.sin(turn)]
   const light = new Float64Array(SIZE * SIZE)
   for (let y = 0; y < SIZE; y++)

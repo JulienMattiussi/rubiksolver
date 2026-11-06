@@ -5,7 +5,7 @@ import { readScan } from '@/lib/editor/scan/read'
 import type { ScanReading } from '@/lib/editor/scan/classify'
 import { scanPlan } from '@/lib/editor/scan/plan'
 import { coreOf } from '@/lib/editor/scan/box'
-import type { Picture } from '@/lib/editor/scan/outlines'
+import { seeOutlines, type Picture } from '@/lib/editor/scan/outlines'
 import { crossSizes, placeAround, placeStickers, stickerSizes } from '@/lib/editor/scan/sized'
 import { readCross } from '@/lib/editor/scan/crossRead'
 import { readSized } from '@/lib/editor/scan/sizedRead'
@@ -22,6 +22,7 @@ import { findStickers, type FaceImage } from '@/workers/findStickers'
 import type { CellSample } from '@/lib/editor/scan/sample'
 import { useCube } from './cubeStore'
 import { useEditor } from './editorStore'
+import { showOutlines } from './outlineDebug'
 import { saveReading, scanDebug } from './scanDebug'
 
 /** How long a face taken is checked, shown with a loader. */
@@ -108,6 +109,10 @@ export const useScan = create<ScanStore>((set, get) => {
     try {
       const lights = get().kept.map((k) => k?.light)
       reading = readScan(shape(), faces as readonly (readonly CellSample[])[], get().behind, lights)
+      // Read whole, debugged: what the reading saw, over its picture.
+      const whole = plan()[0]?.whole
+      if (whole && lights[0] && scanDebug())
+        showOutlines(lights[0], seeOutlines(whole, lights[0]), `scan-${shape()}`)
     } catch (error) {
       console.error(error)
       reading = { ok: false, face: 0 }

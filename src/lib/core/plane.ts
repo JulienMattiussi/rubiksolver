@@ -20,26 +20,22 @@ export function clip(polygon: readonly P2[], side: (p: P2) => number): P2[] {
   return out
 }
 
-/** The same convex polygon, each edge pulled in by `d`. */
-export function inset(polygon: readonly P2[], d: number): P2[] {
-  const n = polygon.length
-  const lines = polygon.map((a, i) => {
-    const b = polygon[(i + 1) % n]!
+/** The same convex polygon, each edge pulled in by `d` (or edge i by
+ *  `d(i)`): what lies that far inside every edge's line. An edge shorter
+ *  than its neighbors pull in vanishes (meeting its neighbors' lines
+ *  instead would cross them). */
+export function inset(polygon: readonly P2[], d: number | ((i: number) => number)): P2[] {
+  let out = [...polygon]
+  polygon.forEach((a, i) => {
+    const by = typeof d === 'number' ? d : d(i)
+    const b = polygon[(i + 1) % polygon.length]!
     const [dx, dy] = [b[0] - a[0], b[1] - a[1]]
     const length = Math.hypot(dx, dy)
+    if (length < 1e-12) return
     // Counterclockwise: the inside is on the left.
-    const normal: P2 = [-dy / length, dx / length]
-    return { point: [a[0] + normal[0] * d, a[1] + normal[1] * d] as P2, dir: [dx, dy] as P2 }
+    out = clip(out, (p) => ((p[1] - a[1]) * dx - (p[0] - a[0]) * dy) / length - by)
   })
-  return lines.map((line, i) => {
-    const prev = lines[(i + n - 1) % n]!
-    const cross = prev.dir[0] * line.dir[1] - prev.dir[1] * line.dir[0]
-    const t =
-      ((line.point[0] - prev.point[0]) * line.dir[1] -
-        (line.point[1] - prev.point[1]) * line.dir[0]) /
-      cross
-    return [prev.point[0] + t * prev.dir[0], prev.point[1] + t * prev.dir[1]]
-  })
+  return out
 }
 
 /** Whether a point lies in a counterclockwise convex polygon. */

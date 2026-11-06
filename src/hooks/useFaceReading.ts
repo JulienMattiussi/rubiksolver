@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { otherFace, watch, watchAfter } from '@/lib/editor/scan/capture'
 import { labOf } from '@/lib/editor/scan/color'
 import { frameOnScreen, screenToPicture } from '@/lib/editor/scan/frame'
-import type { Picture } from '@/lib/editor/scan/outlines'
+import { anchorInMark, type Picture } from '@/lib/editor/scan/outlines'
 import { cubeShape } from '@/lib/core/cube'
 import type { Color } from '@/lib/core/types'
 import { useCube } from '@/store/cubeStore'
@@ -21,7 +21,8 @@ const FRAME_PX = 192
 const ARMED_MS = 5000
 
 /** A picture's lightness, pixel by pixel (a face read whole). */
-function lightOf({ data, width, height }: ImageData): Picture {
+function lightOf({ width, height, ...pixels }: ImageData | FaceImage): Picture {
+  const data = 'data' in pixels ? pixels.data : pixels.rgba
   const light = new Float32Array(width * height)
   for (let i = 0; i < light.length; i++)
     light[i] = labOf(data[4 * i]!, data[4 * i + 1]!, data[4 * i + 2]!)[0]
@@ -29,8 +30,9 @@ function lightOf({ data, width, height }: ImageData): Picture {
 }
 
 /** Pixels across the image a mirror's face is kept in: its stickers found
- *  on it (stickersWorker.ts), a thin one some 25 pixels wide. */
-const SIZED_PX = 480
+ *  on it (stickersWorker.ts), a thin one some 25 pixels wide; and a face
+ *  read whole (outlines.ts), its black frames some 15 pixels wide. */
+const SHARP_PX = 480
 
 /** Room kept round the frame of a face read as canvases, a share of its
  *  side each way (the camera's picture allowing): its stickers are read
@@ -55,7 +57,7 @@ function imageOf(
   }
   const [cx, cw] = grown(crop.x, crop.width, video.videoWidth)
   const [cy, ch] = grown(crop.y, crop.height, video.videoHeight)
-  const scale = SIZED_PX / crop.width
+  const scale = SHARP_PX / crop.width
   const [width, height] = [Math.round(cw * scale), Math.round(ch * scale)]
   Object.assign(canvas, { width, height })
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
@@ -141,29 +143,40 @@ export function useFaceReading({
       const ctx = canvas.current.getContext('2d', { willReadFrequently: true })
       if (!ctx) return
       ctx.drawImage(video, crop.x, crop.y, crop.width, crop.height, 0, 0, width, height)
-      const read = sampleFace(ctx.getImageData(0, 0, width, height), face)
+      const frame = ctx.getImageData(0, 0, width, height)
+      const read = sampleFace(frame, face)
       setCells(read)
       other.current = otherFace(read, face)
+      // A face read whole: taken only once its anchor lies in its mark.
+      if (face.whole && !anchorInMark(face.whole, lightOf(frame))) {
+        watched = watchAfter(last)
+        setHolding(false)
+        return
+      }
       const seen = watch(watched, read, performance.now(), face)
       watched = seen.state
       setHolding(watched.frames.length > 1)
       if (seen.taken) {
         // A tap again for the next face.
         setArmed(false)
-        const light = face.whole ? lightOf(ctx.getImageData(0, 0, width, height)) : undefined
-        if (face.whole) savePicture(canvas.current, `scan-${cubeShape(useCube.getState().cube)}`)
-        const sharp = face.sized
-          ? imageOf(
-              video,
-              crop,
-              (wide.current ??= document.createElement('canvas')),
-              face.canvas ? CANVAS_ROOM : 0,
-            )
-          : undefined
+        const sharp =
+          face.sized || face.whole
+            ? imageOf(
+                video,
+                crop,
+                (wide.current ??= document.createElement('canvas')),
+                face.canvas ? CANVAS_ROOM : 0,
+              )
+            : undefined
+        // A face read whole: the sharp picture's lightness, saved to
+        // replay its reading (`?scandebug`).
+        const light = face.whole && sharp ? lightOf(sharp.image) : undefined
+        if (face.whole && wide.current)
+          savePicture(wide.current, `scan-${cubeShape(useCube.getState().cube)}`)
         take(seen.taken, {
           photo: canvas.current.toDataURL('image/jpeg', 0.8),
           light,
-          image: sharp?.image,
+          image: face.sized ? sharp?.image : undefined,
           ...(face.canvas && sharp && { frame: sharp.frame }),
         })
       }

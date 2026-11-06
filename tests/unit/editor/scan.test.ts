@@ -71,6 +71,7 @@ describe('scan plan', () => {
       '223',
       '224',
       'qiyi2',
+      'ghost',
       'pyra',
       'megaminx',
       'gearU',
@@ -293,6 +294,17 @@ describe('scan frame', () => {
     const laptop = frameOnScreen({ width: 1280, height: 700 }, { width: 4, height: 4 }, 220, 88)
     expect(laptop.height).toBeCloseTo(0.92 * 392)
     expect(laptop.y).toBeGreaterThan(220)
+  })
+
+  it('frames a face read whole over the whole screen', () => {
+    // A Floppy Ghost: its puzzle fills the frame's middle only.
+    const ghost = { width: 5, height: 5, whole: true }
+    expect(frameOnScreen({ width: 1280, height: 700 }, ghost, 220, 88)).toEqual({
+      x: 325,
+      y: 35,
+      width: 630,
+      height: 630,
+    })
   })
 })
 

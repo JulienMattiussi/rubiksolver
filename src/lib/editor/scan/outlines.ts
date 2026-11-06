@@ -1,33 +1,48 @@
 import type { Cube, Cubie } from '../../core/types'
-import { inset, inside, type P2 } from '../../core/plane'
+import type { P2 } from '../../core/plane'
+import { findAnchor, type AnchorSeen } from './outlineAnchor'
+import { apply, compose, fitAffine, scaleOf, type PlaneMap } from './outlineFit'
+import { contrastOf, matchPose, probesOf, type Match } from './outlineMatch'
+import { fitSeams, type SeamPoint } from './outlineSeams'
 
 /**
  * A puzzle read from one picture by the outlines of its pieces, not their
  * colors (pure): a Floppy Ghost, all silver, each piece a sticker framed by
- * its black body. The picture is split into light (a sticker) and dark (a
- * body, a seam) by a threshold its lightness sets (Otsu); the piece that
- * never moves (its anchor, the Ghost's pentagon) is the light patch round
- * the frame's middle, which says where the puzzle stands, how big, and how
- * turned (but for its own symmetry). Each way it may then be held, each
- * pose of a piece (its outline where it stands) scores the picture: light
- * where its sticker is, dark round it; a state scores the sum of its
- * pieces' (they never overlap), and every state is tried.
+ * its black body. The piece that never moves (its anchor, the Ghost's
+ * pentagon) is found round the frame's middle, its corners where its
+ * sides meet (outlineAnchor.ts); they place the whole model on the picture
+ * (outlineFit.ts), once for each way it may be held (turned by an
+ * `order`th of a turn, or seen from the back). Each slot round it can hold
+ * but a few poses (a piece, either way up): each is matched where it would
+ * stand (outlineMatch.ts: its sticker's sides light inside, dark outside),
+ * and the state whose poses match best, over every state and every hold,
+ * is the one read. No pose is chosen alone: a slot misread is put right by
+ * the others, since a piece stands in one slot only.
  */
 
 /** How a model is read by its outlines (`PuzzleModel.scan`). */
 export interface OutlineScan {
   /** Every state it can stand in. */
   readonly states: () => readonly Cube[]
-  /** A piece's outline where it stands, seen from the front,
-   *  counterclockwise, in the model's frame (its anchor's middle at the
-   *  origin). */
-  readonly outline: (cubie: Cubie) => readonly P2[]
-  /** The piece that never moves, and its symmetry (it looks the same
-   *  turned by a `order`th of a turn, or seen from the back). */
+  /** A piece where it stands, seen from the front: its outline and its
+   *  sticker (inside its black frame), counterclockwise, in the model's
+   *  frame (its anchor's middle at the origin). */
+  readonly pose: (cubie: Cubie) => {
+    readonly outline: readonly P2[]
+    readonly sticker: readonly P2[]
+  }
+  /** The piece that never moves, a regular polygon of `order` sides (it
+   *  looks the same turned by an `order`th of a turn, or seen from the
+   *  back). */
   readonly anchor: number
   readonly order: number
-  /** How far a sticker lies inside its piece's outline (its black frame). */
+  /** How far a sticker lies inside its piece's edge along a seam (half
+   *  the seam's width). */
   readonly border: number
+  /** Where it is always cut, whatever its state (in the model's frame):
+   *  a seam, a dark band between two stickers, which sets its fit right
+   *  (asked when read, not when loaded). */
+  readonly seams: () => readonly (readonly [P2, P2])[]
 }
 
 /** A picture's lightness (0 to 100), row by row. */
@@ -42,7 +57,8 @@ export type OutlineReading = { ok: true; cube: Cube } | { ok: false }
 interface Pose {
   readonly outline: readonly P2[]
   readonly sticker: readonly P2[]
-  readonly box: readonly [number, number, number, number]
+  /** The slot it stands in (its position). */
+  readonly slot: string
 }
 
 interface Poses {
@@ -65,35 +81,36 @@ function posesOf(scan: OutlineScan): Poses {
   const states = scan.states()
   const of = states.map((cube) =>
     Int32Array.from(cube, (cubie) => {
-      const outline = scan.outline(cubie)
+      const { outline, sticker } = scan.pose(cubie)
       const key = outline.map((p) => p.map((x) => x.toFixed(4)).join()).join(';')
       let id = ids.get(key)
       if (id === undefined) {
         id = poses.length
         ids.set(key, id)
-        const xs = outline.map((p) => p[0])
-        const ys = outline.map((p) => p[1])
-        poses.push({
-          outline,
-          sticker: inset(outline, scan.border),
-          box: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)],
-        })
+        poses.push({ outline, sticker, slot: cubie.position.join() })
       }
       return id
     }),
   )
-  const reach = Math.max(...poses.flatMap((p) => p.box.map(Math.abs)))
+  const reach = Math.max(...poses.flatMap((p) => p.outline.flat().map(Math.abs)))
   found = { poses, of, states, reach }
   POSES.set(scan, found)
   return found
 }
 
+/** The anchor's sticker in the model, its corners counterclockwise from
+ *  the first past the x axis. */
+function anchorCorners(scan: OutlineScan): P2[] {
+  const { poses, of } = posesOf(scan)
+  const corners = [...poses[of[0]![scan.anchor]!]!.sticker]
+  return corners.sort((a, b) => Math.atan2(a[1], a[0]) - Math.atan2(b[1], b[0]))
+}
+
 /** Where its anchor goes in a frame `size` units wide (y down): the
  *  shape marked there, which the user puts it in. */
 export function outlineMark(scan: OutlineScan, size: number): P2[] {
-  const { poses, of, reach } = posesOf(scan)
-  const unit = size / (2 * reach)
-  return poses[of[0]![scan.anchor]!]!.sticker.map(([x, y]) => [
+  const unit = size / (2 * posesOf(scan).reach)
+  return posesOf(scan).poses[posesOf(scan).of[0]![scan.anchor]!]!.sticker.map(([x, y]) => [
     size / 2 + x * unit,
     size / 2 - y * unit,
   ])
@@ -103,167 +120,168 @@ export function outlineMark(scan: OutlineScan, size: number): P2[] {
  *  in its model's units: every state fits. */
 export const outlineReach = (scan: OutlineScan): number => posesOf(scan).reach
 
-/** The lightness that best splits a picture in two (Otsu), and how light
- *  each side is on average. */
-function threshold(light: ArrayLike<number>): Split {
-  const bins = new Float64Array(101)
-  for (let i = 0; i < light.length; i++)
-    bins[Math.round(Math.min(100, Math.max(0, light[i]!)))]! += 1
-  const total = light.length
-  const sum = bins.reduce((s, n, l) => s + n * l, 0)
-  let [below, belowSum, best] = [0, 0, -1]
-  let split: Split = { cut: 50, dark: 0, light: 100 }
-  for (let l = 0; l < 100; l++) {
-    below += bins[l]!
-    belowSum += l * bins[l]!
-    const above = total - below
-    if (!below || !above) continue
-    const [dark, lit] = [belowSum / below, (sum - belowSum) / above]
-    const spread = below * above * (lit - dark) ** 2
-    if (spread > best) [best, split] = [spread, { cut: l + 0.5, dark, light: lit }]
-  }
-  return split
-}
+/** How far the anchor seen may lie from its mark, and be bigger or
+ *  smaller, or turned, to take the picture. */
+const MARK_OFF = 0.06
+const MARK_SIZE = 0.15
+const MARK_TURN = (12 * Math.PI) / 180
 
-interface Split {
-  readonly cut: number
-  readonly dark: number
-  readonly light: number
-}
-
-/** How light a pixel looks, from -1 (as dark as the dark side) to 1. */
-function lookOf(l: number, { cut, dark, light }: Split): number {
-  return l > cut ? Math.min(1, (l - cut) / (light - cut)) : Math.max(-1, (l - cut) / (cut - dark))
-}
-
-/** A polygon's area and its `order`th complex moment (its turn shows in
- *  its argument), from points on a fine grid. */
-function moments(polygon: readonly P2[], order: number) {
-  const xs = polygon.map((p) => p[0])
-  const ys = polygon.map((p) => p[1])
-  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]
-  const step = Math.max(x1 - x0, y1 - y0) / 200
-  const points: P2[] = []
-  for (let x = x0; x <= x1; x += step)
-    for (let y = y0; y <= y1; y += step) if (inside(polygon, [x, y])) points.push([x, y])
-  return { area: points.length * step * step, moment: complexMoment(points, order) }
-}
-
-/** Σ (x + iy)^order, as an angle. */
-function complexMoment(points: readonly P2[], order: number): number {
+/** How big and how turned a polygon is round its middle. */
+function spread(corners: readonly P2[], middle: P2, order: number) {
+  const radius = corners.reduce((s, p) => s + Math.hypot(p[0] - middle[0], p[1] - middle[1]), 0)
+  // Its corners' angles, an `order`th of a turn folded away (y up).
   let [re, im] = [0, 0]
-  for (const [x, y] of points) {
-    const r = Math.hypot(x, y) ** order
-    const a = order * Math.atan2(y, x)
-    re += r * Math.cos(a)
-    im += r * Math.sin(a)
+  for (const [x, y] of corners) {
+    const a = order * Math.atan2(middle[1] - y, x - middle[0])
+    re += Math.cos(a)
+    im += Math.sin(a)
   }
-  return Math.atan2(im, re)
+  return { radius: radius / corners.length, turn: Math.atan2(im, re) / order }
 }
 
-/** The light patch round the picture's middle: its pixels (as points, y
- *  up, from the middle), if one. */
-function middlePatch(picture: Picture, light: (i: number) => boolean): P2[] | undefined {
-  const { width, height } = picture
-  const [cx, cy] = [Math.floor(width / 2), Math.floor(height / 2)]
-  // The light pixel nearest the middle.
-  let start = -1
-  for (let r = 0; r < Math.min(width, height) / 4 && start < 0; r++)
-    for (let dy = -r; dy <= r && start < 0; dy++)
-      for (let dx = -r; dx <= r && start < 0; dx++) {
-        const i = (cy + dy) * width + cx + dx
-        if (light(i)) start = i
-      }
-  if (start < 0) return undefined
-  const seen = new Uint8Array(width * height)
-  const stack = [start]
-  seen[start] = 1
-  const points: P2[] = []
-  while (stack.length) {
-    const i = stack.pop()!
-    const [x, y] = [i % width, Math.floor(i / width)]
-    // Touching the frame's edge: not the anchor alone.
-    if (x === 0 || y === 0 || x === width - 1 || y === height - 1) return undefined
-    points.push([x, y])
-    for (const j of [i - 1, i + 1, i - width, i + width])
-      if (!seen[j] && light(j)) {
-        seen[j] = 1
-        stack.push(j)
-      }
-  }
-  return points
+/** Whether the anchor shows in its mark, near enough to take the picture. */
+export function anchorInMark(scan: OutlineScan, picture: Picture): boolean {
+  const seen = findAnchor(picture, scan.order)
+  if (!seen) return false
+  const size = Math.min(picture.width, picture.height)
+  const mark = outlineMark(scan, size)
+  const center: P2 = [picture.width / 2, picture.height / 2]
+  const offset = Math.hypot(seen.middle[0] - center[0], seen.middle[1] - center[1])
+  const [now, want] = [
+    spread(seen.corners, seen.middle, scan.order),
+    spread(mark, center, scan.order),
+  ]
+  const d = scan.order * (now.turn - want.turn)
+  return (
+    offset < MARK_OFF * size &&
+    Math.abs(now.radius / want.radius - 1) < MARK_SIZE &&
+    Math.abs(Math.atan2(Math.sin(d), Math.cos(d))) / scan.order < MARK_TURN
+  )
 }
+
+/** A piece as read, on the picture: its outline, its sticker where it
+ *  matched, its cost; and the pose that came next in its slot. */
+interface PieceSeen {
+  readonly outline: readonly P2[]
+  readonly sticker: readonly P2[]
+  readonly cost: number
+  readonly second?: { readonly sticker: readonly P2[]; readonly cost: number }
+}
+
+/** What a reading saw, to show it (`?scandebug`): the anchor's corners,
+ *  the seams found, each piece of the state read, and how much worse the next best state
+ *  matched (the reading's confidence). */
+export interface OutlinesSeen {
+  readonly cube: Cube
+  readonly anchor: AnchorSeen
+  readonly seams: readonly SeamPoint[]
+  readonly pieces: readonly PieceSeen[]
+  readonly margin: number
+}
+
+/** How far the anchor's fit may leave its corners (model units), how
+ *  much bigger or smaller than the frame says the puzzle may be, and the
+ *  least contrast between a sticker and its frame. */
+const FIT_OFF = 0.1
+const ZOOM = 1.6
+const LEAST_CONTRAST = 4
+/** How far a pose may slide from where the fit puts it, as a share of the
+ *  picture's side, in three steps each way. */
+const SLIDE = 0.012
+/** The most pixels a probe lies off a sticker's side. */
+const DEPTH = 6
 
 /** A puzzle read by its outlines from a picture of its front (or its
- *  back), its anchor round the middle: the state whose pieces agree best
- *  with it, however it is turned; none when no anchor shows there. */
-export function readOutlines(scan: OutlineScan, picture: Picture): OutlineReading {
+ *  back), its anchor round the middle, and what the reading saw; none when
+ *  no anchor shows there. */
+export function seeOutlines(scan: OutlineScan, picture: Picture): OutlinesSeen | undefined {
   const { poses, of, states, reach } = posesOf(scan)
-  const split = threshold(picture.light)
-  const patch = middlePatch(picture, (i) => picture.light[i]! > split.cut)
-  if (!patch) return { ok: false }
-  const anchor = poses[of[0]![scan.anchor]!]!
-  const model = moments(anchor.sticker, scan.order)
-  // Where the anchor's middle is, how many pixels a unit, how turned.
-  const [cx, cy] = [
-    patch.reduce((s, p) => s + p[0], 0) / patch.length,
-    patch.reduce((s, p) => s + p[1], 0) / patch.length,
-  ]
-  const scale = Math.sqrt(patch.length / model.area)
-  // Too small or too big for the anchor in its place in the frame.
-  const nominal = Math.min(picture.width, picture.height) / (2 * reach)
-  if (scale < nominal / 2 || scale > nominal * 2) return { ok: false }
-  const seen = complexMoment(
-    patch.map(([x, y]): P2 => [x - cx, cy - y]),
-    scan.order,
-  )
+  const anchor = findAnchor(picture, scan.order)
+  if (!anchor) return undefined
+  const model = anchorCorners(scan)
+  const anchorPose = poses[of[0]![scan.anchor]!]!
+  const n = scan.order
+  const size = Math.min(picture.width, picture.height)
+  const nominal = size / (2 * reach)
+  const slide = SLIDE * size
+  const step = Math.max(1, slide / 3)
 
-  let best: { score: number; state: number } | undefined
-  for (const mirrored of [false, true]) {
-    // Seen from the back, mirrored (x to -x: z^n to (-1)^n conj(z^n)).
-    const base = mirrored
-      ? (seen + model.moment - scan.order * Math.PI) / scan.order
-      : (seen - model.moment) / scan.order
-    for (let k = 0; k < scan.order; k++) {
-      const turn = base + (2 * Math.PI * k) / scan.order
-      const scores = scorePoses(picture, split, poses, { cx, cy, scale, turn, mirrored })
-      of.forEach((ids, state) => {
-        let score = 0
-        for (const id of ids) score += scores[id]!
-        if (!best || score > best.score) best = { score, state }
-      })
+  // Fitted once on the anchor's corners, then on the seams.
+  const first = fitAffine(model, anchor.corners)
+  const scale = scaleOf(first.map)
+  if (first.off > FIT_OFF * scale || scale < nominal / ZOOM || scale > nominal * ZOOM)
+    return undefined
+  // Probed half way into the black frame, or a few pixels (a thin sticker
+  // on a small picture).
+  const depth = Math.min(scan.border / 2, DEPTH / scale)
+  const contrast = contrastOf(
+    picture,
+    probesOf(anchorPose.outline, anchorPose.sticker, first.map, depth),
+  )
+  if (contrast < LEAST_CONTRAST) return undefined
+  const { map: fitted, seams } = fitSeams(
+    picture,
+    first.map,
+    scan.seams(),
+    2 * scan.border,
+    contrast,
+  )
+  // Each other way to hold it: the anchor (and its seams) turned onto
+  // itself, its corner i where corner k + i was (or k - i, from the back).
+  const holds: { map: PlaneMap; matches: Match[] }[] = []
+  for (const mirrored of [false, true])
+    for (let k = 0; k < n; k++) {
+      const onto = model.map((_, i) => model[(((mirrored ? k - i : k + i) % n) + n) % n]!)
+      const map = compose(fitted, fitAffine(model, onto).map)
+      const matches = poses.map((pose) =>
+        matchPose(picture, probesOf(pose.outline, pose.sticker, map, depth), contrast, slide, step),
+      )
+      holds.push({ map, matches })
     }
-  }
-  return best ? { ok: true, cube: states[best.state]! } : { ok: false }
+
+  // The best state over every hold, and the best of the other states.
+  let best = { cost: Infinity, state: -1, hold: -1 }
+  let next = Infinity
+  holds.forEach(({ matches }, hold) => {
+    of.forEach((ids, state) => {
+      let cost = 0
+      for (const id of ids) cost += matches[id]!.cost
+      if (cost < best.cost) {
+        if (state !== best.state) next = best.cost
+        best = { cost, state, hold }
+      } else if (state !== best.state && cost < next) next = cost
+    })
+  })
+  const { map, matches } = holds[best.hold]!
+  const shown = (polygon: readonly P2[], [dx, dy]: P2 = [0, 0]) =>
+    polygon.map((p): P2 => {
+      const [x, y] = apply(map, p)
+      return [x + dx, y + dy]
+    })
+  const pieces = Array.from(of[best.state]!, (id): PieceSeen => {
+    const pose = poses[id]!
+    const others = poses
+      .map((other, j) => ({ other, j }))
+      .filter(({ other, j }) => j !== id && other.slot === pose.slot)
+      .sort((a, b) => matches[a.j]!.cost - matches[b.j]!.cost)
+    const second = others[0]
+    return {
+      outline: shown(pose.outline),
+      sticker: shown(pose.sticker, matches[id]!.shift),
+      cost: matches[id]!.cost,
+      ...(second && {
+        second: {
+          sticker: shown(second.other.sticker, matches[second.j]!.shift),
+          cost: matches[second.j]!.cost,
+        },
+      }),
+    }
+  })
+  return { cube: states[best.state]!, anchor, seams, pieces, margin: next - best.cost }
 }
 
-/** What a dark pixel round a sticker weighs against a light one on it: a
- *  dark background hides a body's outer edge, never a sticker. */
-const BODY = 0.5
-
-/** How much each pose agrees with the picture, held as `at` says: each
- *  pixel it covers, light on its sticker, dark round it. */
-function scorePoses(
-  picture: Picture,
-  split: Split,
-  poses: readonly Pose[],
-  at: { cx: number; cy: number; scale: number; turn: number; mirrored: boolean },
-): Float64Array {
-  const scores = new Float64Array(poses.length)
-  const [c, s] = [Math.cos(at.turn), Math.sin(at.turn)]
-  for (let y = 0; y < picture.height; y++)
-    for (let x = 0; x < picture.width; x++) {
-      // Back to the model: unturned, unmirrored.
-      const [qx, qy] = [(x - at.cx) / at.scale, (at.cy - y) / at.scale]
-      const px = c * qx + s * qy
-      const p: P2 = [at.mirrored ? -px : px, -s * qx + c * qy]
-      const look = lookOf(picture.light[y * picture.width + x]!, split)
-      poses.forEach((pose, id) => {
-        const [x0, y0, x1, y1] = pose.box
-        if (p[0] < x0 || p[0] > x1 || p[1] < y0 || p[1] > y1) return
-        if (inside(pose.sticker, p)) scores[id]! += look
-        else if (inside(pose.outline, p)) scores[id]! -= BODY * look
-      })
-    }
-  return scores
+/** A puzzle read by its outlines: the state seen (`seeOutlines`). */
+export function readOutlines(scan: OutlineScan, picture: Picture): OutlineReading {
+  const seen = seeOutlines(scan, picture)
+  return seen ? { ok: true, cube: seen.cube } : { ok: false }
 }

@@ -153,7 +153,7 @@ src/
 │   │                    #   `PuzzleModel.scan`) et planFaces (chacune bâtie ; planFlat, planGears, planMirrors : celles des
 │   │                    #   polyèdres, des Gear Cubes, des miroirs), layout (grille, anneau, carré, polygone), frame, color, sample, capture,
 │   │                    #   anchors (les couleurs), orient (les faces tenues tournées), assign et classify (la lecture),
-│   │                    #   read (le point d'entrée), box et forms (les tours), halves (le Fashion-V, ses demi-cubies), gears (les Gear Cubes, leurs engrenages), outlines (le Floppy Ghost), sized et
+│   │                    #   read (le point d'entrée), box et forms (les tours), halves (le Fashion-V, ses demi-cubies), gears (les Gear Cubes, leurs engrenages), outlines (le Floppy Ghost : outlineAnchor, outlineFit, outlineSeams, outlineMatch), sized et
 │   │                    #   sizedRead (le miroir), crossRead (le 2x2 miroir), canvasRead (le Meffert's Pocket Cube, lu en grille comme ses canevas))
 │   ├── teach/           # Le moteur du tutoriel, sans rien d'un modèle : tutorial (TutorialStep et ses sortes,
 │   │                    #   Tutorial), kit (TutorialPlan déclaré, tutorialOf), stages (sortes d'étapes et leurs
@@ -202,7 +202,7 @@ src/
 │                        #   solve/ (SolveArea : la résolution ou le tutoriel), tutorial/, home/, celebration/,
 │                        #   about/ (la page d'un puzzle : deux cartes en biais de part et d'autre, ou une fenêtre)
 ├── store/               # Zustand : cubeStore (cube, file de coups, solution), editorStore, savedStore,
-│                        #   viewStore, router, scanStore (le scan, face par face ; scanDebug : `?scandebug`), faceSearch (l’état que montrent des canevas, saisis ou scannés), tutorialStore (pick, formules jouées, coups à la main, arrêt),
+│                        #   viewStore, router, scanStore (le scan, face par face ; scanDebug : `?scandebug` ; outlineDebug : ce qu'a vu la lecture du Ghost), faceSearch (l’état que montrent des canevas, saisis ou scannés), tutorialStore (pick, formules jouées, coups à la main, arrêt),
 │                        #   tutorialTrack (étapes montrées, 💪 et fin, coups déjà montrés),
 │                        #   exampleStore (la formule de l'aide-mémoire montrée par-dessus le cube)
 ├── hooks/               # useAutoPlan (solution dans le worker), useCamera, useFaceReading et usePreloadStickers (le scan), useIsDesktop,
@@ -491,7 +491,7 @@ en grille, en carré placé par son dessin, en anneaux, en faces planes
 (les pyramides, `pyraScan.ts` ; les octaèdres, `octScan.ts` ; le Skewb
 Ultimate, `dodecaScan.ts` ; les prismes en étoile, `starScan.ts`), ou par sa forme,
 que le scan trouve : `forms.ts`, les tours, calées par leur cœur, `box.ts` ;
-le Floppy Ghost, argenté, se lit à ses contours, d'une seule photo, `outlines.ts` ; le 3x3 miroir,
+le Floppy Ghost, argenté, se lit à ses contours, d'une seule photo calée par son pentagone puis ses coupes, chaque pose de pièce sondée le long de son sticker, `outlines.ts` ; le 3x3 miroir,
 aux tailles de ses stickers, trouvés par OpenCV dans un worker, `sized.ts`, `sizedRead.ts` ; le
 2x2 Qiyi miroir de même, calé où ses stickers se rejoignent, `crossRead.ts` ; le Meffert's Pocket
 Cube, sticker par sticker, gros ou mini à sa taille, chacun posé par son centre sur la grille

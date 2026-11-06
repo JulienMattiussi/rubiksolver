@@ -1,15 +1,24 @@
 import { describe, expect, it } from 'vitest'
 import { stateKey } from '@/lib/core/cube'
 import { cubeToEdit } from '@/lib/editor/edit'
-import { readOutlines } from '@/lib/editor/scan/outlines'
+import { anchorInMark, readOutlines, seeOutlines, type Picture } from '@/lib/editor/scan/outlines'
 import { scanPlan } from '@/lib/editor/scan/plan'
 import { readScan } from '@/lib/editor/scan/read'
 import { ghostScan } from '@/lib/puzzles/flat/ghostScan'
 import { seededRng } from '../../helpers'
 import { ghostPicture, type Shot } from './ghostPictures'
-import LAPTOP from './fixtures/ghostSolvedLaptop.json'
+import SCANS from './fixtures/ghostScans.json'
 
 const STATES = ghostScan.states()
+
+/** A real scan (`?scandebug`, 2026-11-06): the picture read, its lightness
+ *  a byte a pixel, and the state the user saw it read right (its index in
+ *  `states()`). */
+const photo = (scan: { width: number; height: number; light: string }): Picture => ({
+  width: scan.width,
+  height: scan.height,
+  light: Uint8Array.from(atob(scan.light), (c) => c.charCodeAt(0)),
+})
 
 /** Whether a picture of a state reads as that state. */
 function reads(state: number, shot: Shot, seed: number): boolean {
@@ -59,11 +68,31 @@ describe('a Floppy Ghost read by its outlines', () => {
     }
   }, 30_000)
 
-  it('reads the real one, solved, on a laptop as light as its stickers', () => {
-    // The picture the scan reads (192 px), from a photo: its lightness, a byte a pixel.
-    const light = Uint8Array.from(atob(LAPTOP.light), (c) => c.charCodeAt(0))
-    const reading = readOutlines(ghostScan, { width: LAPTOP.width, height: LAPTOP.height, light })
-    expect(reading.ok && stateKey(reading.cube)).toBe(stateKey(STATES[0]!))
+  it('reads real scans: solved, held tilted, scrambled', () => {
+    for (const scan of SCANS) {
+      const reading = readOutlines(ghostScan, photo(scan))
+      expect(reading.ok && stateKey(reading.cube), scan.name).toBe(stateKey(STATES[scan.state]!))
+    }
+  })
+
+  it('finds its seams on a real one, and shows each piece read with the one next best', () => {
+    const seen = seeOutlines(ghostScan, photo(SCANS[3]!))!
+    expect(seen.anchor.corners).toHaveLength(5)
+    expect(seen.seams.length).toBeGreaterThan(100)
+    expect(seen.pieces).toHaveLength(11)
+    // Every piece of a slot that holds several poses has a second.
+    expect(seen.pieces.filter((p) => p.second)).toHaveLength(10)
+    expect(seen.margin).toBeGreaterThan(0.1)
+  })
+
+  it('takes a picture once its pentagon lies in its mark', () => {
+    expect(anchorInMark(ghostScan, ghostPicture(STATES[0]!, {}, seededRng(1)))).toBe(true)
+    // Turned by a fifth: the pentagon looks the same.
+    const fifth = ghostPicture(STATES[0]!, { turn: (2 * Math.PI) / 5 }, seededRng(1))
+    expect(anchorInMark(ghostScan, fifth)).toBe(true)
+    // Off its mark, too small, or turned half way to the next fifth.
+    for (const shot of [{ shift: [20, 0] as const }, { zoom: 0.7 }, { turn: Math.PI / 5 }])
+      expect(anchorInMark(ghostScan, ghostPicture(STATES[0]!, shot, seededRng(1)))).toBe(false)
   })
 
   it('reads nothing when no anchor shows in the middle', () => {

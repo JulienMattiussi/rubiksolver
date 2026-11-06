@@ -99,7 +99,7 @@ Impossible, dont une photo ne montre qu'une couleur par sticker...), les autres 
 déforment (Camouflage, Fashion-V, AI Cube), et le Tori (ses
 arêtes, de minces amandes au bord des faces).
 
-Seuls le 2x2, le 3x3 (et son miroir), le 2x2 Qiyi miroir, le 4x4, les tours 2x2x3 et 2x2x4, le Megaminx, le Pyraminx, le Gear Cube Ultimate, le Skewb, l'Ivy Cube et le Meffert's Pocket Cube ont été essayés en vrai (`scanTried` sur
+Seuls le 2x2, le 3x3 (et son miroir), le 2x2 Qiyi miroir, le 4x4, les tours 2x2x3 et 2x2x4, le Megaminx, le Pyraminx, le Gear Cube Ultimate, le Skewb, l'Ivy Cube, le Meffert's Pocket Cube et le Floppy Ghost ont été essayés en vrai (`scanTried` sur
 leur carte) ; sur les autres, le bouton « Utiliser l'appareil photo » porte
 une fiole : « Cette fonction n'a pas encore été testée et validée sur ce
 modèle ».
@@ -269,37 +269,62 @@ photo suffit (le dos montre les mêmes contours, en miroir). La lecture
 (`outlines.ts`, déclarée par `ghostScan`, `lib/puzzles/flat/ghostScan.ts`)
 :
 
-- sépare le clair (un sticker) du sombre (un corps, un joint) par un seuil
-  que la photo fixe (Otsu), chaque pixel noté de -1 à 1 selon qu'il est
-  aussi sombre ou aussi clair que la moyenne de son côté ;
-- trouve le pentagone central (la plage claire autour du milieu du cadre,
-  la seule pièce qui ne bouge jamais) : sa surface donne l'échelle, son
-  centre la position, son moment d'ordre 5 la rotation à un cinquième de
-  tour près ;
-- pour chacune des dix tenues (cinq rotations, de face ou de dos), note
-  chaque pose de pièce (son contour où elle se trouve,
-  `lib/puzzles/flat/ghostShape.ts`) : clair sur son sticker, sombre
-  autour (à demi-poids : un fond sombre cache le bord d'une pièce, jamais
-  un sticker) ; un état vaut la somme de ses pièces, et les 30 720 sont
-  essayés (une fraction de seconde).
+- **la prise** : le parcours n'a qu'une face (`move: 'anchored'`), sa
+  pièce centrale dans le pentagone tracé dans le cadre (`ScanFace.mark`,
+  ses côtés prolongés, sans contour), sans points dans les cases, le cadre
+  sur tout l'écran (`frameOnScreen` : le puzzle n'en remplit que le
+  milieu, le cadre laissant la place à tous ses états) ; elle
+  n'est prise qu'une fois le pentagone vu dans sa marque (`anchorInMark` :
+  son centre, sa taille, sa rotation à un cinquième de tour près) et tenu
+  immobile une seconde, en 480 px (`light` dans `scanStore.kept`) ;
+- **le pentagone** (`outlineAnchor.ts`) : la plage claire autour du milieu
+  (seuil d'Otsu sur le centre de l'image), ses cinq côtés ajustés en
+  droites sur son bord (un reflet qui l'entame n'y compte pas), ses coins
+  où ils se coupent ;
+- **le calage** (`outlineFit.ts`, `outlineSeams.ts`) : une transformation
+  affine ajustée sur ces cinq coins, puis refaite en perspective sur les
+  cinq coupes du pentagramme, cherchées en travers de là où elle les
+  met : des bandes sombres entre deux stickers, droites, qui traversent
+  tout le puzzle dans tous ses états (un tour envoie les coupes sur les
+  coupes). Elles rattrapent ce que cinq coins proches ne disent pas : un
+  puzzle penché, ou une erreur d'un pixel qui grandirait loin du centre.
+  Les dix tenues (cinq rotations, de face ou de dos) s'en déduisent par
+  la symétrie du pentagone ;
+- **chaque pièce** (`outlineMatch.ts`) : chaque emplacement n'admet que
+  dix poses (cinq pièces, dans un sens ou dans l'autre) ; chacune est
+  sondée là où elle serait, le long des côtés de son sticker : clair juste
+  dedans, sombre juste dehors (au milieu de son cadre noir). Chaque sonde
+  compare deux pixels voisins, donc une ombre ou un éclairage de côté ne
+  la gêne pas ; s'y ajoutent l'intérieur du sticker (aucune bande noire ne
+  le traverse) et l'extérieur (pas aussi clair qu'un sticker : une pose
+  plus petite que la vraie). Chaque pose peut glisser de quelques pixels ;
+- **l'état** : celui dont les poses vont le mieux, sur les 30 720 et les
+  dix tenues. Aucune pose n'est choisie seule : un emplacement mal lu est
+  corrigé par les autres, une pièce n'étant qu'à un endroit.
 
-Le parcours n'a qu'une face (`move: 'anchored'`) : une grande face face à
-l'objectif, sa pièce centrale dans le pentagone tracé dans le cadre
-(`ScanFace.mark`, ses côtés prolongés, sans contour), sans points dans les cases ; le cadre est tenu immobile
-une seconde (ses 5 x 5 cases, mesurées comme celles d'un Megaminx), puis la
-prise garde, avec la photo, la clarté de chaque pixel du cadre
-(`useFaceReading`, `light` dans `scanStore.kept`) que lit `readScan`.
+Sa géométrie (`ghostShape.ts`) est relevée sur des photos du vrai puzzle :
+le pentagramme régulier (incliné de 5°, sa taille, son centre), une coupe
+noire de 3,5 mm (0,095 unité de chaque côté, mesurée sur un scan en 480 px :
+en 192 px, le flou l'élargissait) et un rebord extérieur plus
+fin, de 1,4 mm (0,075 unité). Le dessin 3D reprend ces stickers, avec les
+bosses du plastique au milieu de chaque côté du pentagone, qui mordent sur
+son sticker et sur celui de l'arête voisine (`ghostSticker`).
+
+**Le débogage** (`?scandebug`) : après la prise, ce que la lecture a vu
+s'affiche par-dessus l'éditeur et se télécharge (`store/outlineDebug.ts`) :
+en bleu le contour de chaque pièce de l'état lu, en vert son sticker là où
+il colle, son coût écrit dedans, en pointillé orange la pose suivante de
+son emplacement et son coût, en magenta les coupes trouvées, en rouge les
+coins du pentagone ; en haut, l'écart avec le deuxième état (la confiance).
+La photo lue est aussi téléchargée, pour rejouer sa lecture en test.
 
 Sur des images synthétiques (tenue quelconque, de face ou de dos, zoom de
 plus ou moins 10 %, fond de n'importe quelle clarté ou rayé comme une main,
-stickers ternes, bruit, reflet sombre),
-les états sont lus exactement. Sur le vrai puzzle, la lecture tient à la
-géométrie : un pentagramme incliné de 9° au lieu de 5°, ou un pentagone 6 %
-trop petit, et un autre état l'emporte de peu. Elle a donc été relevée sur
-une photo (`ghostShape.ts`), et la photo d'un Ghost résolu posé sur un
-portable aussi clair que ses stickers est figée en test
-(`fixtures/ghostSolvedLaptop.json`). Un scan tenu à la main, penché et
-éclairé d'un côté, se lit encore mal : voir `AMELIORATIONS.md`.
+stickers ternes, bruit, reflet sombre), les états sont lus exactement.
+Essayé en vrai le 2026-11-06 (une webcam, le puzzle tenu à la main devant
+un visage) : résolu, tenu penché, mélangé légèrement puis bien, tous lus
+juste, avec la résolution et le tutoriel ensuite ; ces quatre scans sont
+figés en test (`fixtures/ghostScans.json`, chacun avec l'état lu).
 
 ## Le cube miroir (3x3)
 

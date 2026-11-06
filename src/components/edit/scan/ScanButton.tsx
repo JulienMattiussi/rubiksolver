@@ -7,12 +7,13 @@ import { hasCamera } from '@/hooks/useCamera'
 import { useCube } from '@/store/cubeStore'
 import { useScan } from '@/store/scanStore'
 import { Button } from '@/components/ui/Button'
+import { OutlineDebug } from './OutlineDebug'
 import { ScanView } from './ScanView'
 
 /** « Use the camera », where the puzzle can be scanned (lib/editor/scan/;
  *  a mirror by its stickers' sizes, where its card says so), a flask on it
  *  until the scan was tried on the real puzzle; and the scan itself, once
- *  started. */
+ *  started (and, debugged, what a reading by outlines saw). */
 export function ScanButton() {
   const t = useI18n((s) => s.t)
   const shape = useCube((s) => cubeShape(s.cube))
@@ -40,6 +41,7 @@ export function ScanButton() {
       </Button>
       {before && <p className="text-xs leading-relaxed text-amber-200">{t.scanBefore[before]}</p>}
       {scanning && <ScanView />}
+      <OutlineDebug />
     </>
   )
 }

@@ -4,12 +4,13 @@ import { inset, type P2 } from '@/lib/core/plane'
 import {
   moveDirection,
   movePoint,
+  ghostSticker,
   placingOf,
   region,
   squareSide,
 } from '@/lib/puzzles/flat/ghostShape'
 import type { Cubie, Vec3 } from '@/lib/core/types'
-import { face, type P3, type PiecePolygon } from '../../core/polygons'
+import { colorFacing, face, type P3, type PiecePolygon } from '../../core/polygons'
 
 /**
  * Geometry of the Floppy Ghost's pieces: each its region of the square
@@ -21,8 +22,10 @@ import { face, type P3, type PiecePolygon } from '../../core/polygons'
 const DEPTH = 0.5
 /** Each piece pulled in from its cuts, leaving dark seams between them. */
 const INSET = 0.012
-/** Share of a face its sticker covers. */
+/** Share of a side face its sticker covers. */
 const STICKER_SCALE = 0.9
+/** How far a sticker lies off its face. */
+const LIFT = 0.004
 
 /** Every polygon of a Floppy Ghost piece, as it stands. */
 export function ghostPolygons(cubie: Cubie): PiecePolygon[] {
@@ -34,11 +37,30 @@ export function ghostPolygons(cubie: Cubie): PiecePolygon[] {
     const j = ghostDirection(normal)
     return normalIndex(j === undefined ? normal : PLANE_NORMALS[moveDirection(j, placing)]!)
   }
-  // The front and the back, swapped on a piece lying on its back.
+  // The front and the back, swapped on a piece lying on its back: its
+  // sticker as on the real puzzle (its black frame, the bumps of the
+  // center's body bitten out of it).
+  const sticker = ghostSticker(home, true)
+  const corners = ghostSticker(home)
+  const middle: P2 = [
+    corners.reduce((sum, p) => sum + p[0], 0) / corners.length,
+    corners.reduce((sum, p) => sum + p[1], 0) / corners.length,
+  ]
   const flat = (z: 1 | -1): PiecePolygon[] => {
     const normal: Vec3 = [0, 0, placing.flipped ? -z : z]
-    const points = (z > 0 ? inner : [...inner].reverse()).map((p) => at(p, z * DEPTH))
-    return face(points, [...normal] as P3, cubie, normalIndex(normal), STICKER_SCALE)
+    const ni = normalIndex(normal)
+    const onFace = (polygon: readonly P2[], depth: number) =>
+      (z > 0 ? polygon : [...polygon].reverse()).map((p) => at(p, z * depth))
+    const body = face(onFace(inner, DEPTH), [...normal] as P3)
+    const color = colorFacing(cubie, ni)
+    if (!color) return body
+    // Notched, no longer convex but seen whole from its middle (its
+    // corners' mean): a fan from there round its outline, back to its
+    // first point.
+    const points = onFace([middle, ...sticker, sticker[0]!], DEPTH + LIFT)
+    // The fan's middle first, whichever way round.
+    if (z < 0) points.unshift(points.pop()!)
+    return [...body, { points, paint: color, normal: [...normal] as P3, ni }]
   }
   const polygons = [...flat(1), ...flat(-1)]
   inner.forEach((a, i) => {

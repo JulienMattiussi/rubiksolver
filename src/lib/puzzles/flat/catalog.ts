@@ -13,5 +13,7 @@ export const FLAT = {
     dims: [7, 7, 1],
     scramble: 15,
     pad: 'ghost',
+    // Read by its outlines, tried on the real puzzle (2026-11-06).
+    scanTried: true,
   },
 } satisfies Record<string, PuzzleEntry>

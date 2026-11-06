@@ -6,8 +6,6 @@ envisagées.
 ## À faire (notes du 2026-11-03)
 
 - **Étendre le Floppy** (à préciser : d'autres puzzles plats de sa famille).
-- **Scanner le Floppy Ghost** pour de bon (voir la piste en cours plus bas,
-  et le travail mis de côté dans `../rubiksolver-wip-ghost-scan`).
 - **Le référencement Google** : `yavadeus.dev` est déclaré dans Search
   Console (validé par le DNS d'Infomaniak) et le `sitemap.xml` soumis le
   2026-11-05. Reste à le présenter là où sont les cubeurs (forums, Reddit)
@@ -20,12 +18,12 @@ envisagées.
 **Constat.** Le scan (`lib/editor/scan/`, détail dans `docs/scan.md`) n'a
 été essayé en vrai que sur les puzzles dont la carte porte `scanTried`
 (2x2, 2x2 Qiyi, 3x3, 4x4, tours 2x2x3 et 2x2x4, Megaminx, Pyraminx,
-Gear Cube Ultimate, Skewb, Ivy Cube, Meffert's Pocket Cube) et le 3x3 miroir ; les
+Gear Cube Ultimate, Skewb, Ivy Cube, Meffert's Pocket Cube, Floppy Ghost) et le 3x3 miroir ; les
 autres ne l'ont été que sur images synthétiques, leur bouton marqué d'une
 fiole. Ses seuils (bandes de teinte et marges de `color.ts`,
 `HOLD_MS` et `DRIFT` dans `capture.ts`, `FORCED` dans `classify.ts`,
-`TURNED` dans `orient.ts`, `border` du Ghost vérifié sur une photo du
-vrai puzzle) ne sont réglés que sur ces quelques essais.
+`TURNED` dans `orient.ts`, `SLIDE` et `DEPTH` du Ghost dans `outlines.ts`)
+ne sont réglés que sur ces quelques essais.
 
 - **Une face tenue tournée** n'est retrouvée à coup sûr que sur un cube à
   grille : sur un cuboïde, un plat, le Dino, le Rex ou l'Edge Only, une
@@ -36,9 +34,6 @@ vrai puzzle) ne sont réglés que sur ces quelques essais.
   portable, `orderFor`), mais un utilisateur qui tourne quand même dans
   l'autre sens n'est rattrapé que sur le miroir (sa lecture essaie les deux
   ordres) ; ailleurs, la face est redemandée ou l'état lu faux.
-- **Les formes d'une tour** sont énumérées à l'ouverture du scan (environ
-  1 s, le fil de l'interface bloqué pendant l'annonce de la première face) :
-  à faire dans un worker.
 - **Le miroir** : seuls le 3x3 et le 2x2 Qiyi se scannent (le 2x2 calé où
   ses stickers se rejoignent, `crossRead.ts`), pas le 4x4 (quatre centres
   par face, aucun seul pour étalon) ; la correction de perspective par la
@@ -53,13 +48,7 @@ vrai puzzle) ne sont réglés que sur ces quelques essais.
 **Pistes.** Régler les seuils sur de vraies photos (lampe chaude, reflets)
 et en faire des tests, comme les rectangles figés du miroir. Essayer les
 deux sens de rotation sur toute lecture par gestes, comme le miroir, et
-garder la moins chère. Le Ghost : sa géométrie est relevée et une photo
-résolue bien de face est figée en test, mais un scan tenu à la main (penché,
-éclairé d'un côté) se lit encore mal, le score global au pixel ne
-départageant pas les états proches. Piste en cours : reconnaître chaque
-sticker par sa forme (ses côtés et leurs angles) dans son emplacement, repéré
-par les coins du pentagone ; la tenue est alors trouvée sans ambiguïté, il
-reste à détecter les stickers que l'ombre assombrit.
+garder la moins chère.
 
 ## Le blanc d'abord, puis le cube retourné
 

@@ -3,7 +3,7 @@ import type { Cube } from '../../core/types'
 import type { OutlineScan } from '../../editor/scan/outlines'
 import { once } from '../../solve/once'
 import { applyGhostMove, GHOST_TURNS, solvedGhost } from './ghost'
-import { ghostOutline } from './ghostShape'
+import { GHOST_BORDER, ghostPose, ghostSeams } from './ghostShape'
 
 /** Every state of the Floppy Ghost (30 720), from the solved one. */
 const ghostStates = once((): Cube[] => {
@@ -22,12 +22,13 @@ const ghostStates = once((): Cube[] => {
 })
 
 /** The Floppy Ghost read by its outlines (outlines.ts): its center, a
- *  regular pentagon, the anchor; each sticker framed by its black body,
- *  about 2.5 mm on a 56 mm plate (3 units). */
+ *  regular pentagon, the anchor; each sticker framed by its black body
+ *  (ghostShape.ts), its pentagram's cuts the seams. */
 export const ghostScan: OutlineScan = {
   states: ghostStates,
-  outline: ghostOutline,
+  pose: ghostPose,
+  seams: ghostSeams,
   anchor: 0,
   order: 5,
-  border: 0.13,
+  border: GHOST_BORDER,
 }
