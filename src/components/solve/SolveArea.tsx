@@ -6,9 +6,9 @@ import { TutorialPanel } from '@/components/tutorial/TutorialPanel'
 import { SolvePanel } from './SolvePanel'
 
 /** The solve block, or the tutorial in its place while it is on (and the
- *  puzzle has one). */
+ *  puzzle has one, not unlocked). */
 export function SolveArea({ home = false }: { home?: boolean }) {
   const tutorial = useTutorialStore((s) => s.active)
-  const has = useCube((s) => tutorialFor(cubeShape(s.cube), s.method) !== undefined)
+  const has = useCube((s) => !s.unlocked && tutorialFor(cubeShape(s.cube), s.method) !== undefined)
   return tutorial && has && !home ? <TutorialPanel /> : <SolvePanel home={home} />
 }

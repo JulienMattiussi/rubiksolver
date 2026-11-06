@@ -15,7 +15,8 @@ export function PlanOutline() {
   const shape = cubeShape(cube)
   const methodId = useCube((s) => s.method)
   const sizes = useCube((s) => tellsSizes(s.variant))
-  const methods = methodsFor(shape)
+  const unlocked = useCube((s) => s.unlocked)
+  const methods = methodsFor(shape, unlocked)
   const method = methods.find((m) => m.id === methodId) ?? methods[0]
   if (!method) return null
 

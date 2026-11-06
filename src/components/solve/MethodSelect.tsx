@@ -22,7 +22,8 @@ export function MethodSelect({
   const shape = useCube((s) => cubeShape(s.cube))
   const method = useCube((s) => s.method)
   const setMethod = useCube((s) => s.setMethod)
-  const methods = methodsFor(shape)
+  const unlocked = useCube((s) => s.unlocked)
+  const methods = methodsFor(shape, unlocked)
   return (
     <div>
       <Select

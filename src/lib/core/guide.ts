@@ -159,10 +159,10 @@ export type MoveDescription =
     }
 
 /** The rows of one face layer: both quarter turns, then the half turn; the
- *  half turn alone where the shape has no quarter turn. Read when called:
- *  moves.ts loads after the models. */
-export function layerRows(shape: CubeShape, layer: Move): Move[][] {
-  const amounts = amountsFor(shape, layer.face)
+ *  half turn alone where the shape has no quarter turn (unless `unlocked`).
+ *  Read when called: moves.ts loads after the models. */
+export function layerRows(shape: CubeShape, layer: Move, unlocked = false): Move[][] {
+  const amounts = amountsFor(shape, layer.face, unlocked)
   const at = (amount: 1 | 2 | 3): Move => ({ ...layer, amount })
   return amounts.includes(1) ? [[at(1), at(3)], [at(2)]] : [[at(2)]]
 }

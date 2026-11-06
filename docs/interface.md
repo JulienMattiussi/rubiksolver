@@ -125,6 +125,14 @@ qu'elle tient immobile, et le puzzle lu est peint dans l'éditeur, à vérifier
 et valider. Le détail (puzzles, parcours, lecture) :
 [docs/scan.md](scan.md).
 
+**Mode débridé** (switch au-dessus du guide des mouvements, sur un puzzle
+qui en a un : le Floppy, ses quarts de tour) : le pad, le guide et le mélange
+prennent les coups de ce mode, la solution sa méthode (la seule de ce mode),
+le tutoriel n'est pas offert. Éteint à chaque visite, il ne s'éteint qu'une
+fois le puzzle réinitialisé (grisé sinon, son infobulle le dit) et s'allume
+seul pour un état chargé qui le demande. Le détail :
+[docs/puzzles/flat.md](puzzles/flat.md).
+
 **Guide des mouvements** (bouton au-dessus du pad, modale) : chaque coup de
 la forme, montré **sur le cube dans son état actuel**, avec sa notation et une
 phrase qui le décrit. Une ligne par couche et par sens : le coup et son

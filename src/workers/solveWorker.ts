@@ -7,6 +7,8 @@ export interface SolveRequest {
   readonly id: number
   readonly cube: Cube
   readonly method: MethodId
+  /** In the puzzle's unlocked mode: that mode's methods. */
+  readonly unlocked: boolean
 }
 
 export interface SolveResponse {
@@ -20,7 +22,7 @@ export interface SolveResponse {
 self.onmessage = ({ data }: MessageEvent<SolveRequest>) => {
   let steps: SolveStep[] | null = null
   try {
-    const methods = methodsFor(cubeShape(data.cube))
+    const methods = methodsFor(cubeShape(data.cube), data.unlocked)
     const method = methods.find((m) => m.id === data.method) ?? methods[0]
     steps = method ? method.solve(data.cube) : null
   } catch {

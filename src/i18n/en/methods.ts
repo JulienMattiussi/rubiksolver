@@ -157,6 +157,10 @@ export const METHODS_EN: typeof METHODS_FR = {
     name: 'Equator then corners',
     desc: 'Like a Domino standing up: the equator first, then the bottom and top corners.',
   },
+  floppyFlatFirst: {
+    name: 'Flat first',
+    desc: 'Lay it flat again, place the corners with half turns, then flip each edge alone by standing up the two rows beside it.',
+  },
   floppyEdgesFirst: {
     name: 'Edges then corners',
     desc: 'Its manual’s method: the yellow cross, one half turn per edge, then the corners with a single four-move formula.',

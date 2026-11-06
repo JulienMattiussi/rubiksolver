@@ -187,7 +187,8 @@ src/
 │   │                    #   Tower, Coins puis arêtes, d'après sa notice), towerKit (ce que partagent
 │   │                    #   leurs tutoriels : la tenue lue sur l'état, la plus courte chaîne de gestes), towerTerms
 │   └── app/             # Le reste de l'app : route (adresse), snapshot (mémorisé), storage (gardé entre deux
-│                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing
+│                        #   visites : états mémorisés, notation, vitesses), moveGuide, speed, easing,
+│                        #   unlock (le mode débridé d'un puzzle : les quarts de tour du Floppy)
 ├── three/               # Rendu 3D (React Three Fiber)
 │   ├── core/            # Scene, CubeView / Cubie / Sticker (puzzles à grille), PolyView / PolyModel / PolyPiece
 │   │                    #   (puzzles en polygones), EditView / PolyEditView / CutsView (saisie), polyDrawing (registre des
@@ -202,7 +203,7 @@ src/
 ├── components/          # UI : ui/ (primitives), controls/ (panneau, pads de coups faits de useTurnButton, padFor), picker/, guide/, edit/ (scan/ : la caméra),
 │                        #   solve/ (SolveArea : la résolution ou le tutoriel), tutorial/, home/, celebration/,
 │                        #   about/ (la page d'un puzzle : deux cartes en biais de part et d'autre, ou une fenêtre)
-├── store/               # Zustand : cubeStore (cube, file de coups, solution), editorStore, savedStore,
+├── store/               # Zustand : cubeStore (cube, file de coups, solution, mode débridé), editorStore, savedStore,
 │                        #   viewStore, router, scanStore (le scan, face par face ; scanDebug : `?scandebug` ; outlineDebug : ce qu'a vu la lecture du Ghost), faceSearch (l’état que montrent des canevas, saisis ou scannés), tutorialStore (pick, formules jouées, coups à la main, arrêt),
 │                        #   tutorialTrack (étapes montrées, 💪 et fin, coups déjà montrés),
 │                        #   exampleStore (la formule de l'aide-mémoire montrée par-dessus le cube)
@@ -290,7 +291,8 @@ Holey Megaminx du Megaminx, reprend simplement celui de son parent) :
   sans grille, saisie (`entry` : ses étapes et sa peinture, voir « La
   saisie d'un puzzle », ce que montre l'éditeur, stickers cachés `hidden`,
   tranches qui tournent entières `wholeSlices`), guide des mouvements
-  (`guide`, `describe`). Le cœur (`cube.ts`, `turn.ts`, `moves.ts`,
+  (`guide`, `describe`), mode débridé (`unlocked` : les quarts de tour du
+  Floppy, offerts par un switch). Le cœur (`cube.ts`, `turn.ts`, `moves.ts`,
   `moveSet.ts`, `lib/editor/`) demande d'abord au modèle et fait sinon ce que
   fait un cuboïde. Un crochet appelle ce que définit le cœur au moment où il
   est appelé, jamais au chargement (import circulaire) ;
@@ -352,7 +354,8 @@ puzzle qui cache des faces y gagne des tours en main, chaque coup en vue
 `<R, U>` pour le F2L de Petrus...) sont imposés.
 
 Le registre (`solver.ts`) déclare, pour chaque méthode, **un plan par forme
-supportée** (source unique : pas de dispatch séparé) ; `methodsFor(shape)`
+supportée** (source unique : pas de dispatch séparé ; une méthode marquée
+`unlocked` n'est offerte qu'en mode débridé, et ce mode n'offre qu'elles) ; `methodsFor(shape)`
 renvoie les méthodes disponibles pour une forme, chacune liée à son plan (l'UI
 et le store ne voient que ça). Chaque méthode, ses puzzles et ses étapes :
 [docs/methods.md](docs/methods.md) ; le 2x2, le 3x3 et la réduction du 4x4 :

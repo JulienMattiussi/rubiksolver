@@ -35,12 +35,14 @@ export const SLICES: ReadonlyArray<{ letter: string; face: Face; opposite: Face 
  * puzzle, so turning it just looks at the puzzle from elsewhere. A quarter
  * turn needs the two other dimensions to be equal, otherwise the slab does not
  * land back in the box; a shape-shifting puzzle's mechanism is a cube, so it
- * always has them. Everything else is limited to half turns.
+ * always has them. Everything else is limited to half turns. `unlocked`: as
+ * the puzzle turns in that mode, if it has one (PuzzleModel.unlocked).
  */
-export function amountsFor(shape: CubeShape, face: Face): readonly (1 | 2 | 3)[] {
+export function amountsFor(shape: CubeShape, face: Face, unlocked = false): readonly (1 | 2 | 3)[] {
   const dims = turnDims(shape)
   if (faceLayers(dims, face) < 2) return []
-  const own = MODELS[shape]?.amounts
+  const model = MODELS[shape]
+  const own = (unlocked && model?.unlocked?.amounts) || model?.amounts
   if (own) return own(face)
   return quarterTurnFits(dims, faceAxis(face)) ? [1, 2, 3] : [2]
 }
@@ -168,16 +170,18 @@ export function simplifyCubeMoves(moves: readonly Move[]): Move[] {
  * meaningful. Half the moves are outer turns, the rest shared by the other
  * layer variants (slices and wide turns on a 4x4, wide turns on a tower), so
  * centers and wings get shuffled too. A tower only draws turns it can make
- * from where it stands. `rng` is injectable for deterministic tests.
+ * from where it stands. `rng` is injectable for deterministic tests;
+ * `unlocked`, the turns of that mode (the Floppy's quarter turns).
  */
 export function scramble(
   shape: CubeShape,
   length = 25,
   rng: () => number = Math.random,
   start: Cube = solvedCube(shape),
+  unlocked = false,
 ): Move[] {
   if (isGridless(shape)) throw new Error(`scramble: ${shape} has no face layers, see scrambleTurns`)
-  const faces = FACES.filter((face) => amountsFor(shape, face).length > 0)
+  const faces = FACES.filter((face) => amountsFor(shape, face, unlocked).length > 0)
   // A shape-shifting puzzle jams some turns once out of its box, so its
   // scramble plays along from `start` and only draws turns it can make.
   const shifts = SHAPE_SHIFTS[shape]
@@ -191,14 +195,14 @@ export function scramble(
     const turnable = shifts
       ? faces.filter((f) =>
           layerVariants(shape, f).some((variant) =>
-            turnAllowed(state, { face: f, amount: amountsFor(shape, f)[0]!, ...variant }),
+            turnAllowed(state, { face: f, amount: amountsFor(shape, f, unlocked)[0]!, ...variant }),
           ),
         )
       : faces
     const others = turnable.filter((f) => f !== prevFace)
     const choices = others.length > 0 ? others : turnable
     const face = choices[Math.floor(rng() * choices.length)]!
-    const amounts = amountsFor(shape, face)
+    const amounts = amountsFor(shape, face, unlocked)
     const amount = amounts[Math.floor(rng() * amounts.length)]!
     // Half outer turns, the rest shared by the other layer variants.
     const variants = layerVariants(shape, face)
@@ -225,10 +229,11 @@ export function scrambleTurns(
   length: number,
   rng: () => number,
   start: Cube,
+  unlocked = false,
 ): Turn[] {
   const own = MODELS[shape]?.scramble
   if (own) return own(length, rng, start)
-  return scramble(shape, length, rng, start)
+  return scramble(shape, length, rng, start, unlocked)
 }
 
 /** One turn of every layer a puzzle has, gridless ones included, but a wide
@@ -252,10 +257,10 @@ export function layerTurnsOf(shape: CubeShape): readonly Turn[] {
  * with the four half turns of its two turnable axes. On a shape-shifting
  * puzzle some of these jam depending on the state (`turnAllowed`).
  */
-export function movesFor(shape: CubeShape): readonly Move[] {
+export function movesFor(shape: CubeShape, unlocked = false): readonly Move[] {
   if (isGridless(shape)) return [] // it turns in its own way (star.ts, pyraminx.ts, ghost.ts)
   return FACES.flatMap((face) =>
-    amountsFor(shape, face).flatMap((amount) =>
+    amountsFor(shape, face, unlocked).flatMap((amount) =>
       layerVariants(shape, face).map((variant): Move => ({ face, amount, ...variant })),
     ),
   )

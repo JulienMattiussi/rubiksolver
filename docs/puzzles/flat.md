@@ -61,6 +61,27 @@ droite, ou, opposées, l'une devant (elles finissent côte à côte), ou toutes
 les quatre, n'importe comment. Le test parcourt les 192 états. En saisie,
 ses arêtes (qui se retournent) se peignent.
 
+**Le mode débridé** (`PuzzleModel.unlocked`, `lib/puzzles/flat/floppy.ts`,
+`lib/app/unlock.ts`) : le vrai Floppy tourne aussi ses côtés d'un quart,
+ce qui redresse une rangée hors du plateau. Il tourne donc toujours sur le
+mécanisme d'un 3x3x3 dont il ne garde que la tranche du milieu (`U` et `D`
+jamais : pas d'axe), et ses quarts de tour ne sont offerts qu'en mode
+débridé, un switch au-dessus du guide des mouvements (`UnlockSwitch`) :
+pad, guide et mélange (qui le déforme) les prennent, le tutoriel n'est pas
+proposé, la saisie valide ce que ces coups atteignent. 3 041 280 états en
+tout, à 13 coups au plus, dont 384 à plat. Le mode est éteint à chaque
+visite et à chaque autre puzzle, ne s'éteint qu'une fois le puzzle
+réinitialisé, et s'allume seul pour un état chargé qui le demande
+(`needsUnlock` : déformé, ou hors de portée des demi-tours). Un Floppy
+déformé ne se saisit pas (« Modifier » grisé). Sa méthode, la seule du mode
+(`unlocked` au registre, `methods/flat/floppyUnlocked.ts`), **À plat
+d'abord** : (1) le remettre à plat, la plus courte suite cherchée sur sa
+seule forme ; (2) les coins en demi-tours (débridé, ils peuvent être à une
+permutation impaire du résolu, que les cycles de trois coins de la notice
+ne défont pas) ; (3) chaque arête à l'envers retournée seule par
+`R L F2 L' R'` vue de son côté : les deux rangées voisines redressées, son
+côté ne porte plus qu'elle.
+
 **Ce que partagent leurs tutoriels** (`lib/tutorials/flat/flatKit.ts`) :
 une pièce s'y nomme par sa place (`flatPieceKind`) et par les couleurs de
 son pourtour, les deux grandes faces à part (`flatOutside`), et chaque côté

@@ -39,6 +39,7 @@ function solver(): Worker | null {
 export function useAutoPlan(enabled = true): boolean {
   const cube = useCube((s) => s.cube)
   const method = useCube((s) => s.method)
+  const unlocked = useCube((s) => s.unlocked)
   const busy = useCube(selectBusy)
   const planned = useCube((s) => s.steps !== null)
 
@@ -49,9 +50,9 @@ export function useAutoPlan(enabled = true): boolean {
       if (!target) return
       const id = ++lastId
       pending.set(id, planKey({ cube, method }))
-      target.postMessage({ id, cube, method } satisfies SolveRequest)
+      target.postMessage({ id, cube, method, unlocked } satisfies SolveRequest)
     }, SETTLE_MS)
     return () => clearTimeout(timer)
-  }, [enabled, cube, method, busy, planned])
+  }, [enabled, cube, method, unlocked, busy, planned])
   return planned || typeof Worker === 'undefined'
 }

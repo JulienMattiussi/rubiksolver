@@ -402,7 +402,8 @@ export const useEditor = create<EditorStore>((set, get) => {
         set({ error: 'jointsColors', failedStep: null })
         return false
       }
-      const result = validateCube(cube)
+      // Unlocked, what its quarter turns reach too (an edge flipped alone).
+      const result = validateCube(cube, useCube.getState().unlocked)
       if (!result.ok) {
         set({ error: result.error, failedStep: result.step ?? null })
         return false

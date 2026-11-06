@@ -455,6 +455,13 @@ export const UI_EN: typeof UI_FR = {
   categories: 'Categories',
   close: 'Close',
   moveGuide: 'Move guide',
+  unlocked: {
+    label: 'Unlocked mode',
+    title:
+      'The sides also turn a quarter, as the real puzzle allows: a row stands up. No tutorial in this mode.',
+    stuck: 'Reset the puzzle to go back to the normal mode.',
+    deformed: 'A puzzle out of shape cannot be entered: lay it flat first.',
+  },
   moveGuideIntro:
     'Each move is shown on the cube as it is now. Scroll: the ones in the middle play.',
   guideSections: {

@@ -119,3 +119,108 @@
     }
   }
 }
+
+/* The unlocked mode's switch (UnlockSwitch): its padlock jolted as it opens
+   or shuts, sparks bursting out as it opens, its lit track shimmering and
+   its bolt flickering while it is on; off, its track breathing and its
+   padlock rattling now and then, as if it wanted out. */
+@theme {
+  --animate-jolt: jolt 500ms ease-out;
+  --animate-spark: spark 900ms ease-out forwards;
+  --animate-shimmer: shimmer 2.5s linear infinite;
+  --animate-flicker: flicker 1.6s ease-in-out infinite;
+  --animate-beckon: beckon 2.4s ease-in-out infinite;
+  --animate-rattle: rattle 3.5s ease-in-out infinite;
+
+  @keyframes beckon {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(129, 140, 248, 0);
+    }
+    50% {
+      box-shadow: 0 0 10px 1px rgba(129, 140, 248, 0.55);
+    }
+  }
+
+  @keyframes rattle {
+    0%,
+    78%,
+    100% {
+      transform: rotate(0);
+    }
+    82% {
+      transform: rotate(-20deg);
+    }
+    86% {
+      transform: rotate(16deg);
+    }
+    90% {
+      transform: rotate(-10deg);
+    }
+    94% {
+      transform: rotate(6deg);
+    }
+  }
+
+  @keyframes jolt {
+    0% {
+      transform: scale(1) rotate(0);
+    }
+    30% {
+      transform: scale(1.5) rotate(-22deg);
+    }
+    55% {
+      transform: scale(1.15) rotate(14deg);
+    }
+    80% {
+      transform: scale(1.05) rotate(-6deg);
+    }
+    100% {
+      transform: scale(1) rotate(0);
+    }
+  }
+
+  @keyframes spark {
+    0% {
+      opacity: 1;
+      transform: translate(0, 0) scale(1.4);
+    }
+    55% {
+      opacity: 1;
+      transform: translate(calc(var(--dx) * 0.8), calc(var(--dy) * 0.8)) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--dx), var(--dy)) scale(0.2);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 200% 50%;
+    }
+  }
+
+  @keyframes flicker {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    45% {
+      opacity: 1;
+      transform: scale(1.2) rotate(-8deg);
+    }
+    50% {
+      opacity: 0.55;
+      transform: scale(0.95);
+    }
+    55% {
+      opacity: 1;
+      transform: scale(1.15) rotate(6deg);
+    }
+  }
+}

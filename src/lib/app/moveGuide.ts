@@ -41,10 +41,10 @@ function layerOf(move: Move, dims: Dims): 'face' | 'middle' | 'slice' | 'wide' {
 
 const SECTION_OF = { face: 'faces', middle: 'middle', slice: 'slices', wide: 'wide' } as const
 
-function cubeGuide(shape: CubeShape): GuideGroup[] {
+function cubeGuide(shape: CubeShape, unlocked: boolean): GuideGroup[] {
   const dims = SHAPE_DIMS[shape]
   const layers: Move[] = []
-  const pad = movesFor(shape)
+  const pad = movesFor(shape, unlocked)
   for (const turn of [...pad, ...advancedMovesFor(shape), ...methodTurns(shape)]) {
     if (!isFaceMove(turn)) continue
     // A middle slice is named after one face only (2R is M'), unless the pad
@@ -60,14 +60,15 @@ function cubeGuide(shape: CubeShape): GuideGroup[] {
     const rows = layers
       .filter((l) => layerOf(l, dims) === kind)
       .sort((a, b) => order(a) - order(b))
-      .flatMap((l) => layerRows(shape, l))
+      .flatMap((l) => layerRows(shape, l, unlocked))
     return rows.length ? [{ section: SECTION_OF[kind], rows }] : []
   })
 }
 
-/** The guide of a shape, section by section: its model's, or its layers. */
-export function moveGuide(shape: CubeShape): readonly GuideGroup[] {
-  return MODELS[shape]?.guide?.() ?? cubeGuide(shape)
+/** The guide of a shape, section by section: its model's, or its layers
+ *  (`unlocked`: as it turns in that mode, the Floppy's quarter turns). */
+export function moveGuide(shape: CubeShape, unlocked = false): readonly GuideGroup[] {
+  return MODELS[shape]?.guide?.() ?? cubeGuide(shape, unlocked)
 }
 
 /** What a turn does on a shape: as its model says, else its kind of moves,

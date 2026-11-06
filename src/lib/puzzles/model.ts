@@ -48,6 +48,14 @@ export interface PuzzleModel {
   readonly scramble?: (length: number, rng: () => number, start: Cube) => Turn[]
   /** The amounts a face turns by, when its mechanism does not say. */
   readonly amounts?: (face: Face) => readonly (1 | 2 | 3)[]
+  /** What it does once unlocked, a mode the user turns on (the Floppy,
+   *  whose sides the real puzzle also turns a quarter): the amounts a face
+   *  then turns by, and whether a state stands in the shape its turns keep
+   *  when locked (one that does not needs the mode on). */
+  readonly unlocked?: {
+    readonly amounts: (face: Face) => readonly (1 | 2 | 3)[]
+    readonly inShape: (cube: Cube) => boolean
+  }
   /** The layers a face turn can take, when its inner turns do not say. */
   readonly layers?: (face: Face) => readonly Pick<Move, 'depth' | 'wide'>[]
   /** How a turn is written, when not as a cube's (the Fashion-V's blocks). */

@@ -470,6 +470,13 @@ export const UI_FR = {
   categories: 'Catégories',
   close: 'Fermer',
   moveGuide: 'Guide des mouvements',
+  unlocked: {
+    label: 'Mode débridé',
+    title:
+      'Les côtés tournent aussi d’un quart de tour, comme le vrai puzzle le permet : une rangée se redresse. Pas de tutoriel dans ce mode.',
+    stuck: 'Réinitialise le puzzle pour revenir au mode normal.',
+    deformed: 'Le puzzle déformé ne se saisit pas : remets-le à plat d’abord.',
+  },
   moveGuideIntro:
     'Chaque mouvement est montré sur le cube dans son état actuel. Faites défiler : ceux du centre s’animent.',
   guideSections: {

@@ -3,6 +3,7 @@ import { heldAsItStands } from './holdings'
 import { OPTIMAL_2_PLAN, solveOptimal2 } from '../methods/standard/cube2'
 import { asPocket } from '../methods/standard/qiyi2'
 import { DOMINO_PLAN } from '../methods/tower/domino'
+import { FLOPPY_UNLOCKED_PLAN } from '../methods/flat/floppyUnlocked'
 import { optimalPlan } from './exhaustive'
 import { methodOf } from '../teach/method'
 import { tutorialFor } from '../tutorials/registry'
@@ -255,6 +256,9 @@ const SOLVE_METHODS = [
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },
   { id: 'twoStars', plans: { star4: STAR4_PLAN } },
   { id: 'puckIsolate', plans: { puck: PUCK_PLAN } },
+  // The Floppy unlocked (its quarter turns): flat first, then its corners,
+  // then each edge flipped alone. Offered in that mode only.
+  { id: 'floppyFlatFirst', plans: { '331': FLOPPY_UNLOCKED_PLAN }, unlocked: true },
   // Before Corners then edges: the Floppy's manual method first.
   { id: 'floppyEdgesFirst', plans: { '331': taught('331', 'floppyEdgesFirst') } },
   {
@@ -285,6 +289,9 @@ const SOLVE_METHODS = [
 ] as const satisfies ReadonlyArray<{
   id: string
   plans: Readonly<Partial<Record<CubeShape, MethodPlan>>>
+  /** Offered in the puzzle's unlocked mode only (PuzzleModel.unlocked: the
+   *  Floppy's quarter turns), which offers no other. */
+  unlocked?: true
   /** Solved turned whole as its steps read it, its turns named back: a
    *  tower from where most pieces stand home (`heldAsItStands`), a
    *  Megaminx held another way as its steps done say (`megaHeld`). */
@@ -302,11 +309,12 @@ const READ_AS: Partial<Record<CubeShape, (cube: Cube) => Cube>> = { qiyi2: asPoc
 const planOf = (m: (typeof SOLVE_METHODS)[number], shape: CubeShape): MethodPlan | undefined =>
   (m.plans as Partial<Record<CubeShape, MethodPlan>>)[shape]
 
-/** The solving methods available for a given shape, each bound to it. */
-export function methodsFor(shape: CubeShape) {
+/** The solving methods available for a given shape, each bound to it: in
+ *  its unlocked mode (`unlocked`), that mode's. */
+export function methodsFor(shape: CubeShape, unlocked = false) {
   const read = READ_AS[shape] ?? ((cube: Cube) => cube)
   return SOLVE_METHODS.flatMap((m) => {
-    const plan = planOf(m, shape)
+    const plan = 'unlocked' in m === unlocked ? planOf(m, shape) : undefined
     return plan
       ? [
           {
@@ -363,10 +371,13 @@ const PROOFS: Partial<Record<CubeShape, (cube: Cube) => void>> = {
 }
 
 /** Throws when a state cannot be solved: its shape's proof, else its
- *  solve (validation, editor/validate.ts). */
-export function proveSolvable(cube: Cube): void {
+ *  solve (validation, editor/validate.ts); `unlocked`, by that mode's
+ *  method (the Floppy's quarter turns reach more). */
+export function proveSolvable(cube: Cube, unlocked = false): void {
   const prove = PROOFS[cubeShape(cube)]
-  if (prove) prove(cube)
+  const free = unlocked ? methodsFor(cubeShape(cube), true)[0] : undefined
+  if (free) free.solve(cube)
+  else if (prove) prove(cube)
   else solve(cube)
 }
 

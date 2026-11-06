@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { readStored, writeStored } from '@/lib/app/storage'
+import { needsUnlock } from '@/lib/app/unlock'
 import { MAX_TURN_DURATION, MIN_TURN_DURATION } from '@/lib/app/speed'
 import { cubeShape, isSolved, solvedCube, stateKey } from '@/lib/core/cube'
 import { applyMove, turnAllowed } from '@/lib/core/turn'
@@ -14,6 +15,11 @@ interface CubeStore {
   cube: Cube
   /** How the cube is drawn. Purely visual: nothing else reads it. */
   variant: CubeVariant
+  /** The puzzle turns as in its unlocked mode (the Floppy's quarter turns,
+   *  lib/app/unlock.ts): its pad, guide, scramble and methods, no
+   *  tutorial. Off on each visit and each new puzzle, on by itself for
+   *  a state loaded that needs it. */
+  unlocked: boolean
   /** Moves waiting to be animated, in order. */
   queue: Turn[]
   /** Move currently being animated, or null when idle. */
@@ -49,6 +55,9 @@ interface CubeStore {
   setShape: (shape: CubeShape) => void
   /** Switch rendering variant. Keeps the current state: it is only a skin. */
   setVariant: (variant: CubeVariant) => void
+  /** Turn the unlocked mode on, or off (only solved: the locked turns
+   *  could not bring it back). */
+  setUnlocked: (on: boolean) => void
   setMethod: (method: MethodId) => void
   /** Compute the solution steps for the current cube (does not animate),
    *  or take the one computed ahead for it. */
@@ -100,6 +109,13 @@ function clearSolution() {
 /** Names a state and a method: what a solution is computed for. */
 export const planKey = (s: { cube: Cube; method: MethodId }): string =>
   `${s.method}|${stateKey(s.cube)}`
+
+/** The method to keep on a puzzle in a mode (unlocked or not): the one
+ *  chosen if offered there, else the first one. */
+function methodIn(shape: CubeShape, unlocked: boolean, chosen: MethodId): MethodId {
+  const methods = methodsFor(shape, unlocked)
+  return methods.some((m) => m.id === chosen) ? chosen : (methods[0]?.id ?? chosen)
+}
 
 /** Idle state around a freshly loaded cube (reset, shape switch, editor load). */
 function loadedCube(cube: Cube) {
@@ -178,6 +194,7 @@ const storedSpeed = (mode: SpeedMode) =>
 export const useCube = create<CubeStore>((set, get) => ({
   cube: solvedCube(),
   variant: 'classic',
+  unlocked: false,
   queue: [],
   active: null,
   solving: false,
@@ -211,6 +228,7 @@ export const useCube = create<CubeStore>((set, get) => ({
         SHAPE_SCRAMBLE[cubeShape(s.cube)],
         Math.random,
         s.cube,
+        s.unlocked,
       ),
       solving: false,
       scrambling: true,
@@ -221,23 +239,27 @@ export const useCube = create<CubeStore>((set, get) => ({
   setShape: (shape) =>
     set((s) => {
       if (shape === cubeShape(s.cube)) return s
-      const methods = methodsFor(shape)
-      const method = methods.some((m) => m.id === s.method)
-        ? s.method
-        : (methods[0]?.id ?? s.method)
+      const method = methodIn(shape, false, s.method)
       // A shape without a mirror version falls back to the classic rendering.
       const variant = supportsMirror(shape) ? s.variant : 'classic'
-      return { method, variant, ...loadedCube(solvedCube(shape)) }
+      return { method, variant, unlocked: false, ...loadedCube(solvedCube(shape)) }
     }),
 
   setVariant: (variant) => set({ variant }),
+
+  setUnlocked: (on) =>
+    set((s) =>
+      on === s.unlocked || (!on && !isSolved(s.cube))
+        ? s
+        : { unlocked: on, method: methodIn(cubeShape(s.cube), on, s.method), ...clearSolution() },
+    ),
 
   setMethod: (method) => set({ method, ...clearSolution() }),
 
   prepareSolution: () => {
     const s = get()
     const ahead = s.steps && s.dispatched === 0 && s.plannedFor === planKey(s) ? s.steps : null
-    const methods = methodsFor(cubeShape(s.cube))
+    const methods = methodsFor(cubeShape(s.cube), s.unlocked)
     const method = methods.find((m) => m.id === s.method) ?? methods[0]
     if (!method) throw new Error('prepareSolution: no solving method for this shape')
     const steps = ahead ?? method.solve(s.cube)
@@ -288,7 +310,16 @@ export const useCube = create<CubeStore>((set, get) => ({
 
   reset: () => set((s) => loadedCube(solvedCube(cubeShape(s.cube)))),
 
-  loadCube: (cube) => set(loadedCube(cube)),
+  // The mode kept on the same puzzle, on by itself for a state needing it.
+  loadCube: (cube) =>
+    set((s) => {
+      const unlocked = needsUnlock(cube) || (s.unlocked && cubeShape(cube) === cubeShape(s.cube))
+      return {
+        unlocked,
+        method: methodIn(cubeShape(cube), unlocked, s.method),
+        ...loadedCube(cube),
+      }
+    }),
 
   stop: () =>
     set({ queue: [], active: null, solving: false, scrambling: false, ...clearSolution() }),

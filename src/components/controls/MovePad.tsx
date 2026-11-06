@@ -50,7 +50,8 @@ export function MovePad({ disabled, corners }: { disabled: boolean; corners?: bo
   const cube = useCube((s) => s.cube)
   const dims = cubeDims(cube)
   const held = useHeldTurn()
-  const moves = movesFor(shape)
+  const unlocked = useCube((s) => s.unlocked)
+  const moves = movesFor(shape, unlocked)
   const advanced = advancedMovesFor(shape)
   const kinds: PadTab[] = [
     ...(

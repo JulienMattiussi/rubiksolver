@@ -25,9 +25,10 @@ export function MoveGuideDialog({ onClose }: { onClose: () => void }) {
   const labels = useI18n(selectMoveLabels)
   const cube = useCube((s) => s.cube)
   const variant = useCube((s) => s.variant)
+  const unlocked = useCube((s) => s.unlocked)
   const shape = cubeShape(cube)
   const dims = cubeDims(cube)
-  const groups = useMemo(() => moveGuide(shape), [shape])
+  const groups = useMemo(() => moveGuide(shape, unlocked), [shape, unlocked])
   const titleId = useId()
 
   const listRef = useRef<HTMLDivElement>(null)

@@ -158,6 +158,10 @@ export const METHODS_FR = {
     name: 'Équateur puis coins',
     desc: 'Comme un Domino debout : l’équateur d’abord, puis les coins du bas et du haut.',
   },
+  floppyFlatFirst: {
+    name: 'À plat d’abord',
+    desc: 'Le remettre à plat, placer les coins en demi-tours, puis retourner chaque arête seule en redressant les deux rangées voisines.',
+  },
   floppyEdgesFirst: {
     name: 'Arêtes puis coins',
     desc: 'La méthode de sa notice : la croix jaune, un demi-tour par arête, puis les coins par une seule formule de quatre coups.',

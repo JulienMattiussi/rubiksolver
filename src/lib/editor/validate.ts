@@ -19,9 +19,10 @@ export type ValidationResult =
  *    ask for a proof (`proveSolvable`): the solver's solution, which on
  *    an unsolvable cube (bad permutation or orientation parity,
  *    duplicated/missing piece) exhausts its bounded search and throws,
- *    which we catch; or a shape's own quicker proof (the 4x4's).
+ *    which we catch; or a shape's own quicker proof (the 4x4's). In a
+ *    puzzle's unlocked mode (`unlocked`), reachable by that mode's turns.
  */
-export function validateCube(cube: Cube): ValidationResult {
+export function validateCube(cube: Cube, unlocked = false): ValidationResult {
   const shape = cubeShape(cube)
   const counts = countColors(cube.flatMap((c) => c.stickers.map((s) => s.color)))
   const wrongCount = (Object.keys(counts) as Color[]).some(
@@ -30,7 +31,7 @@ export function validateCube(cube: Cube): ValidationResult {
   if (wrongCount) return { ok: false, error: 'counts' }
 
   try {
-    proveSolvable(cube)
+    proveSolvable(cube, unlocked)
   } catch (error) {
     return error instanceof StepFailure
       ? { ok: false, error: 'impossible', step: error.step }

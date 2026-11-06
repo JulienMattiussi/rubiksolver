@@ -3,9 +3,11 @@ import { SECTION_LABEL } from '@/components/ui/styles'
 import { MoveGuideButton } from '@/components/guide/MoveGuideButton'
 import { NotationToggle } from './NotationToggle'
 import { RecenterButton } from './RecenterButton'
+import { UnlockSwitch } from './UnlockSwitch'
 
 /** Title line of a rotation pad, with the recenter and notation switches,
- *  then the move guide's button. */
+ *  then the unlocked mode's switch (a puzzle that has one) and the move
+ *  guide's button. */
 export function PadHeader() {
   const t = useI18n((s) => s.t)
   return (
@@ -17,6 +19,7 @@ export function PadHeader() {
           <NotationToggle />
         </div>
       </div>
+      <UnlockSwitch />
       <MoveGuideButton />
     </>
   )

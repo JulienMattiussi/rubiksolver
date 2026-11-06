@@ -1,5 +1,6 @@
 import { ArchiveRestore, Bookmark, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
+import { outOfShape } from '@/lib/app/unlock'
 import { cubeShape } from '@/lib/core/cube'
 import { SHAPE_LABEL } from '@/lib/core/shapes'
 import { encodeCube } from '@/lib/app/snapshot'
@@ -44,6 +45,8 @@ export function SetupSection() {
   const solved = useCube(selectSolved)
   const tutorial = useTutorialStore((s) => s.active)
   const locked = tutorial ? t.tutorial.locked : undefined
+  // A row stood up (unlocked): no entering it as it stands.
+  const deformed = outOfShape(cube)
   const alreadySaved = saved?.cube === encodeCube(cube)
   const savedTime = saved
     ? new Date(saved.savedAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
@@ -75,9 +78,9 @@ export function SetupSection() {
         </Button>
         <Button
           onClick={enterFromCurrent}
-          disabled={busy || tutorial}
+          disabled={busy || tutorial || deformed}
           variant="ghost"
-          title={locked ?? t.fromCurrentTitle}
+          title={locked ?? (deformed ? t.unlocked.deformed : t.fromCurrentTitle)}
         >
           {t.fromCurrent}
         </Button>
