@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved, solvedCube, stateKey } from '@/lib/core/cube'
 import { emptyEdit, slotsFor } from '@/lib/editor/edit'
-import { FLIP_EDGES } from '@/lib/methods/flat/floppy'
+import { CORNER_FORMULAS, FLIP_EDGES } from '@/lib/methods/flat/floppy'
 import { solveExhaustively } from '@/lib/solve/exhaustive'
 import { movesFor } from '@/lib/core/moves'
 import { formatMoves } from '@/lib/core/notation'
 import { methodsFor } from '@/lib/solve/solver'
 import { applyMove, applyMoves } from '@/lib/core/turn'
-import type { Cube } from '@/lib/core/types'
+import type { Cube, Move } from '@/lib/core/types'
 import { validateCube } from '@/lib/editor/validate'
 import { twistedCorner } from '../../../helpers'
 
@@ -74,7 +74,55 @@ describe('Corners then edges (Floppy method)', () => {
     expect(changed.sort()).toEqual(['0,0,1', '1,0,0'])
   })
 
-  it('is offered first (its tutorial), before the optimal search', () => {
-    expect(methodsFor('331').map((m) => m.id)).toEqual(['cornersFirst', 'optimal'])
+  it('is offered after its manual method, before the optimal search', () => {
+    expect(methodsFor('331').map((m) => m.id)).toEqual([
+      'floppyEdgesFirst',
+      'cornersFirst',
+      'optimal',
+    ])
+  })
+})
+
+/** The places whose piece a formula moves or turns, from solved. */
+function changedBy(moves: readonly Move[]): string[] {
+  const after = applyMoves(SOLVED, moves)
+  return after
+    .flatMap((c, i) => (stateKey([c]) === stateKey([SOLVED[i]!]) ? [] : [c.position.join(',')]))
+    .sort()
+}
+
+/** Where the piece of the front right corner comes from. */
+const comesFrom = (moves: readonly Move[]) =>
+  SOLVED[applyMoves(SOLVED, moves).findIndex((c) => c.position.join() === '1,0,1')]!.position.join()
+
+describe('Edges then corners (Floppy manual method)', () => {
+  it('cycles three corners with each formula of its manual, the edges left', () => {
+    expect(CORNER_FORMULAS.map(changedBy)).toEqual([
+      ['-1,0,1', '1,0,-1', '1,0,1'],
+      ['-1,0,-1', '-1,0,1', '1,0,1'],
+      ['-1,0,1', '1,0,-1', '1,0,1'],
+      ['-1,0,-1', '1,0,-1', '1,0,1'],
+      ['-1,0,-1', '1,0,-1', '1,0,1'],
+    ])
+    // The first corner from the front left, the back left, the back right;
+    // the second from the back right or the back left.
+    expect(CORNER_FORMULAS.map(comesFrom)).toEqual([
+      '-1,0,1',
+      '-1,0,-1',
+      '1,0,-1',
+      '1,0,-1',
+      '-1,0,-1',
+    ])
+  })
+
+  it('solves every state: a half turn per flipped edge, then a formula per corner', () => {
+    const method = methodsFor('331').find((m) => m.id === 'floppyEdgesFirst')!
+    for (const { cube } of stateSpace().values()) {
+      const steps = method.solve(cube)
+      const cross = steps.find((s) => s.key === 'stepTutorialFloppyCross')
+      const corners = steps.find((s) => s.key === 'stepTutorialFloppyCycle')
+      expect(cross?.moves.length ?? 0).toBeLessThanOrEqual(4)
+      expect(corners?.moves.length ?? 0).toBeLessThanOrEqual(8)
+    }
   })
 })

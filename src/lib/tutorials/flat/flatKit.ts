@@ -59,6 +59,17 @@ export const showsFrame = (cube: Cube, frame: Cube, slot: Vec3) => {
   )
 }
 
+/** The piece the frame has at `slot`, as a stage's target: placed when it
+ *  stands there showing its stickers as the frame does. */
+export const frameTarget = (frame: (cube: Cube) => Cube, slot: Vec3): Target => ({
+  piece: (cube) => {
+    const want = colorsOf(frame(cube).find((c) => sameAt(c.position, slot))!)
+    return cube.findIndex((c) => colorsOf(c) === want)
+  },
+  slot,
+  placed: (cube) => showsFrame(cube, frame(cube), slot),
+})
+
 /** The corners' stage (`key`): each corner to its place in the frame,
  *  one at a time (in `slots` order), the shortest way in half turns. */
 export function cornerStage(
@@ -73,14 +84,6 @@ export function cornerStage(
     const was = frame(begun)
     return (cube: Cube) => frame(cube) === was
   }
-  const target = (slot: Vec3): Target => ({
-    piece: (cube) => {
-      const want = colorsOf(frame(cube).find((c) => sameAt(c.position, slot))!)
-      return cube.findIndex((c) => colorsOf(c) === want)
-    },
-    slot,
-    placed: (cube) => showsFrame(cube, frame(cube), slot),
-  })
   const formula = (cube: Cube, pick: TutorialPick, kept: Kept): Move[] | null => {
     const framed = keepsFrame(kept.begun)
     const goal = (c: Cube) =>
@@ -96,7 +99,7 @@ export function cornerStage(
     kind: 'pieces',
     key,
     stage: 1,
-    targets: slots.map(target),
+    targets: slots.map((slot) => frameTarget(frame, slot)),
     words: true,
     hold: () => 'F',
     formula,

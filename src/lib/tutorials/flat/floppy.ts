@@ -1,6 +1,5 @@
 import { isSolved } from '../../core/cube'
 import { CUBE_HOLDS, type Hold } from '../../core/hold'
-import { normalIndex } from '../../core/geometry'
 import { sameAt } from '../../core/pieces'
 import { applyMoves } from '../../core/turn'
 import type { Cube, Vec3 } from '../../core/types'
@@ -13,10 +12,9 @@ import {
   flatOutside,
   flatPieceKind,
   frameColor,
-  frameOf,
   HALF_TURN,
-  showsFrame,
 } from './flatKit'
+import { FLOPPY_EDGES, FLOPPY_FRAME, flippedEdges } from './floppyKit'
 
 /**
  * The Floppy's tutorial, corners then edges (its method, methods/flat/
@@ -27,22 +25,8 @@ import {
  *      front and right ones: held with a flipped pair there; two opposite
  *      ones, held with one in front (the formula leaves them side by
  *      side); all four, any way (it leaves two).
- * Its center and edges' sides say each side's color.
+ * Its center and edges' sides say each side's color (floppyKit.ts).
  */
-
-/** The center's stickers and the edges' rims: what never moves (an edge
- *  only flips, its rim staying). */
-const fixed = (cube: Cube) =>
-  cube
-    .filter((c) => c.position.filter((v) => v !== 0).length < 2)
-    .flatMap((c) =>
-      c.stickers
-        .filter((s) => c.position.every((v) => v === 0) || sameAt(s.normal, c.position))
-        .map((s) => `${normalIndex(s.normal)}${s.color}`),
-    )
-    .sort()
-    .join()
-const frame = frameOf('331', fixed)
 
 const CORNERS: readonly Vec3[] = [
   [-1, 0, 1],
@@ -50,16 +34,7 @@ const CORNERS: readonly Vec3[] = [
   [1, 0, -1],
   [-1, 0, -1],
 ]
-const EDGES: readonly Vec3[] = [
-  [0, 0, 1],
-  [1, 0, 0],
-  [0, 0, -1],
-  [-1, 0, 0],
-]
-
-/** The edges upside down, by place. */
-const flipped = (cube: Cube) => EDGES.filter((slot) => !showsFrame(cube, frame(cube), slot))
-const flippedCount = (cube: Cube) => flipped(cube).length
+const flippedCount = (cube: Cube) => flippedEdges(cube).length
 
 /** Where the formula, held `hold`, leaves `left` edges upside down. */
 const holdLeaving = (cube: Cube, left: number): Hold | null =>
@@ -96,15 +71,19 @@ const EDGE_STAGE: FigureStage = {
     figure('figureFloppyOpposite', 2, 2),
     figure('figureFloppyFour', 4, 2),
   ],
-  focus: (cube) => flipped(cube).map((slot) => cube.findIndex((c) => sameAt(c.position, slot))),
-  progress: (cube) => ({ done: EDGES.length - flippedCount(cube), total: EDGES.length }),
+  focus: (cube) =>
+    flippedEdges(cube).map((slot) => cube.findIndex((c) => sameAt(c.position, slot))),
+  progress: (cube) => ({
+    done: FLOPPY_EDGES.length - flippedCount(cube),
+    total: FLOPPY_EDGES.length,
+  }),
   algorithms: [[FLIP_EDGES]],
 }
 
 export const FLOPPY_TUTORIAL = tutorialOf({
   glossary: [FLAT_CORNER, FLAT_EDGE, HALF_TURN],
-  faceColor: frameColor(frame),
+  faceColor: frameColor(FLOPPY_FRAME),
   pieceKind: flatPieceKind,
   outside: flatOutside,
-  stages: [cornerStage('stepTutorialFloppyCorners', '331', frame, CORNERS), EDGE_STAGE],
+  stages: [cornerStage('stepTutorialFloppyCorners', '331', FLOPPY_FRAME, CORNERS), EDGE_STAGE],
 })

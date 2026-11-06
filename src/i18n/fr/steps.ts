@@ -183,6 +183,8 @@ export const STEPS_FR = {
   stepTutorialSuperMiddles: 'Redresser les centres du milieu',
   stepTutorialSuperCenters: 'Remettre trois centres à leur place',
   stepTutorialFlatCorners: 'Placer un coin',
+  stepTutorialFloppyCross: 'Faire la croix',
+  stepTutorialFloppyCycle: 'Placer un coin',
   stepTutorialFloppyCorners: 'Placer un coin',
   stepTutorialFloppyEdges: 'Retourner deux arêtes',
   stepTutorialFlatEdge: 'Retourner l’arête du bas',

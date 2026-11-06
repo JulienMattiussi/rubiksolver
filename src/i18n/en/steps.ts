@@ -184,6 +184,8 @@ export const STEPS_EN: typeof STEPS_FR = {
   stepTutorialSuperMiddles: 'Straighten the middle centers',
   stepTutorialSuperCenters: 'Put three centers back in place',
   stepTutorialFlatCorners: 'Place a corner',
+  stepTutorialFloppyCross: 'Make the cross',
+  stepTutorialFloppyCycle: 'Place a corner',
   stepTutorialFloppyCorners: 'Place a corner',
   stepTutorialFloppyEdges: 'Flip two edges',
   stepTutorialFlatEdge: 'Flip the bottom edge',

@@ -70,6 +70,53 @@ describe.each([
   })
 })
 
+describe('Floppy tutorial, edges then corners (its manual)', () => {
+  const tutorial = tutorialFor('331', 'floppyEdgesFirst')!
+
+  it('makes the cross, then places the corners', () => {
+    expect(tutorial.stageKeys).toEqual(['stepTutorialFloppyCross', 'stepTutorialFloppyCycle'])
+  })
+
+  it('walks every state to the solve: a half turn per edge, a formula per corner', () => {
+    for (const start of everyState('331')) {
+      let cube = start
+      let corners = 0
+      for (let n = 0; n < 8 && !isSolved(cube); n++) {
+        const step = tutorial.stepOf(cube)!
+        const moves = step.formula(step.suggestion)!
+        expect(moves, step.key).not.toBeNull()
+        expect(moves).toHaveLength(step.key === 'stepTutorialFloppyCross' ? 1 : 4)
+        if (step.key === 'stepTutorialFloppyCycle') corners++
+        const after = applyMoves(cube, moves)
+        // Never a step back: the count only grows within a stage.
+        const next = tutorial.stepOf(after)
+        if (next?.key === step.key) {
+          expect(next.progress!.done).toBeGreaterThan(step.progress!.done)
+        }
+        cube = after
+      }
+      expect(isSolved(cube)).toBe(true)
+      // Two corners placed at most: the last two come along.
+      expect(corners).toBeLessThanOrEqual(2)
+    }
+  })
+
+  it('holds the corner’s place on the front right, as its manual does', () => {
+    for (const start of everyState('331')) {
+      const step = tutorial.stepOf(start)
+      if (step?.key !== 'stepTutorialFloppyCycle') continue
+      const hold = step.hold(step.suggestion)
+      expect(step.suggestion!.slot.join()).toBe(
+        { F: '1,0,1', R: '1,0,-1', B: '-1,0,-1', L: '-1,0,1' }[hold],
+      )
+    }
+  })
+
+  it('says its own stages and words in both languages', () => {
+    expectTexts(tutorial)
+  })
+})
+
 it('flips the 1x2x3’s bottom edge with U2 L2 U2 R2 D2 R2, nothing else', () => {
   const solved = solvedCube('123')
   const after = applyMoves(solved, FLIP_MIDDLE)

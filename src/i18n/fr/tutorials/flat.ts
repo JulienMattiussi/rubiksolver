@@ -7,6 +7,14 @@ export const FLAT_FR: TutorialTexts = {
     ghost: (piece: string) => `Tiens le Floppy Ghost à plat face à toi, ${piece} en haut à gauche.`,
   },
   checks: {
+    stepTutorialFloppyCross: (done: number) =>
+      done === 4
+        ? 'Vérifie que chaque face montre une croix de la couleur de son centre.'
+        : 'Vérifie que l’arête s’est retournée : sa face du bas a la couleur du centre du bas.',
+    stepTutorialFloppyCycle: (done: number) =>
+      done === 4
+        ? 'Vérifie que chaque coin est entre les côtés de ses couleurs : le Floppy est résolu.'
+        : 'Vérifie que le coin est arrivé à sa place, les arêtes et les coins déjà placés intacts.',
     stepTutorialFloppyEdges: (done: number) =>
       done === 4
         ? 'Vérifie que les quatre arêtes montrent leur couleur sur chaque face : le Floppy est résolu.'
@@ -39,6 +47,10 @@ export const FLAT_FR: TutorialTexts = {
       'Un **demi-tour** : la seule façon de tourner un côté. Le côté se retourne, il change de face.',
   },
   progress: {
+    stepTutorialFloppyCross: (done: number, total: number) =>
+      `${done} arête${done > 1 ? 's' : ''} sur ${total} à l’endroit`,
+    stepTutorialFloppyCycle: (done: number, total: number) =>
+      `${done} coin${done > 1 ? 's' : ''} sur ${total} en place`,
     stepTutorialGhostCorners: (done: number, total: number) =>
       `${done} coin${done > 1 ? 's' : ''} sur ${total} en place`,
     stepTutorialGhostTwist: (done: number, total: number) =>
@@ -55,6 +67,8 @@ export const FLAT_FR: TutorialTexts = {
       done ? 'Arête du bas à l’endroit' : 'Arête du bas à retourner',
   },
   titles: {
+    stepTutorialFloppyCross: 'Faire la croix',
+    stepTutorialFloppyCycle: 'Placer les coins',
     stepTutorialGhostCorners: 'Placer les coins',
     stepTutorialGhostTwist: 'Retourner les coins',
     stepTutorialGhostEdges: 'Retourner les arêtes',
@@ -64,6 +78,10 @@ export const FLAT_FR: TutorialTexts = {
     stepTutorialFlatEdge: 'Retourner l’arête du bas',
   },
   hints: {
+    stepTutorialFloppyCross:
+      'Les arêtes ne quittent jamais leur place : un demi-tour de leur côté les retourne seulement. Retourne une à une celles qui sont à l’envers, pour faire sur chaque face une croix de la couleur de son centre.',
+    stepTutorialFloppyCycle:
+      'La croix faite, une formule de quatre demi-tours fait tourner trois coins sans toucher aux arêtes. Tiens la place du coin à droite devant toi : selon où il se trouve, l’une des formules l’y amène. Place ainsi un coin, puis tourne le Floppy d’un côté pour le suivant : une fois deux coins placés, les deux derniers le sont aussi.',
     stepTutorialGhostCorners:
       'Ramène un à un les coins à leur place, à l’endroit ou à l’envers : par un coup, ou par une formule de quatre coups qui fait tourner trois coins en rond, jouée depuis le côté qu’il faut.',
     stepTutorialGhostTwist:

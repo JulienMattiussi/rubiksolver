@@ -41,7 +41,19 @@ les 96 états.
 Le Floppy (`[3, 1, 3]`, `methods/flat/floppy.ts`, d'après fan2cube.fr/floppy1)
 est un 3x3 d'une seule couche : seulement `R2 L2 F2 B2`, 192 états, diamètre
 8 (tout est vérifié en parcourant l'espace entier). Les arêtes ne quittent
-jamais leur place, un demi-tour les retourne ; seuls les coins voyagent. Méthode **Coins puis arêtes**, celle de son tutoriel
+jamais leur place, un demi-tour les retourne ; seuls les coins voyagent.
+Méthode **Arêtes puis coins** d'abord, celle de sa notice (QiYi) et de son
+tutoriel (`lib/tutorials/flat/floppyEdgesFirst.ts`) : (1) la croix, chaque
+arête à l'envers retournée d'un demi-tour de son côté ; (2) les coins, par
+les cinq formules de la notice (`CORNER_FORMULAS`, des `F2 R2 F2 R2` : les
+arêtes intactes, trois coins en cycle), tenu la place du coin devant à
+droite : le premier vient de l'une des trois autres places (trois formules),
+puis, le Floppy tourné d'un côté, le deuxième, le premier gardé devant à
+gauche (deux formules ; un coin déjà placé par hasard tient lieu de premier).
+Arêtes en place, les coins ne sont plus qu'à une permutation paire du
+résolu : deux placés, tous le sont. Au plus 4 coups pour la croix et deux
+formules pour les coins (le test parcourt les 192 états). Puis **Coins puis
+arêtes**, de fan2cube et de son autre tutoriel
 (`lib/tutorials/flat/floppy.ts`) : (1) coins placés un à un en demi-tours,
 (2) arêtes retournées deux par deux par `(F2 R2)3`, qui retourne l'avant et
 la droite sans rien toucher d'autre : tenu les deux à l'envers devant et à

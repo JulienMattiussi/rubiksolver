@@ -5,6 +5,14 @@ export const FLAT_EN: TutorialTexts = {
     ghost: (piece: string) => `Hold the Floppy Ghost flat facing you, ${piece} top left.`,
   },
   checks: {
+    stepTutorialFloppyCross: (done: number) =>
+      done === 4
+        ? 'Check that each face shows a cross of its center’s color.'
+        : 'Check that the edge flipped: its bottom face has the bottom center’s color.',
+    stepTutorialFloppyCycle: (done: number) =>
+      done === 4
+        ? 'Check that each corner sits between the sides of its colors: the Floppy is solved.'
+        : 'Check that the corner reached its place, the edges and the corners already placed untouched.',
     stepTutorialFloppyEdges: (done: number) =>
       done === 4
         ? 'Check the four edges show their color on each side: the Floppy is solved.'
@@ -36,6 +44,10 @@ export const FLAT_EN: TutorialTexts = {
       'A **half turn**: the only way to turn a side. The side flips over to the other face.',
   },
   progress: {
+    stepTutorialFloppyCross: (done: number, total: number) =>
+      `${done} of ${total} edge${total > 1 ? 's' : ''} the right way up`,
+    stepTutorialFloppyCycle: (done: number, total: number) =>
+      `${done} of ${total} corner${total > 1 ? 's' : ''} in place`,
     stepTutorialGhostCorners: (done: number, total: number) =>
       `${done} of ${total} corner${total > 1 ? 's' : ''} in place`,
     stepTutorialGhostTwist: (done: number, total: number) =>
@@ -52,6 +64,8 @@ export const FLAT_EN: TutorialTexts = {
       done ? 'Bottom edge the right way up' : 'Bottom edge to flip',
   },
   titles: {
+    stepTutorialFloppyCross: 'Make the cross',
+    stepTutorialFloppyCycle: 'Place the corners',
     stepTutorialGhostCorners: 'Place the corners',
     stepTutorialGhostTwist: 'Turn the corners over',
     stepTutorialGhostEdges: 'Flip the edges',
@@ -61,6 +75,10 @@ export const FLAT_EN: TutorialTexts = {
     stepTutorialFlatEdge: 'Flip the bottom edge',
   },
   hints: {
+    stepTutorialFloppyCross:
+      'The edges never leave their place: a half turn of their side only flips them. Flip the ones upside down one by one, to make on each face a cross of its center’s color.',
+    stepTutorialFloppyCycle:
+      'With the cross done, a formula of four half turns cycles three corners without touching the edges. Hold the corner’s place on your front right: depending on where the corner is, one of the formulas brings it there. Place one corner this way, then turn the Floppy a side round for the next: once two corners are placed, the last two are too.',
     stepTutorialGhostCorners:
       'Bring the corners to their places one by one, either way up: by a turn, or by a formula of four turns sending three corners round, played from the side it takes.',
     stepTutorialGhostTwist:

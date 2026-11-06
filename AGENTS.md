@@ -179,7 +179,8 @@ src/
 │   │                    #   pyramid/pyraminx (Centres d'abord), pyraHolds (ses tenues), pyraTerms ;
 │   │                    #   pyramid/morph (le Pyramorphinx, Comme un Pocket), morphTerms ;
 │   │                    #   flat/floppy, flat/cube123 et flat/ghost (Coins puis arêtes ; le Ghost par sa
-│   │                    #   légende), flatKit (ce que partagent le Floppy et le 1x2x3) ;
+│   │                    #   légende), flat/floppyEdgesFirst (le Floppy par sa notice, Arêtes puis coins),
+│   │                    #   flatKit (ce que partagent le Floppy et le 1x2x3), floppyKit (les deux du Floppy) ;
 │   │                    #   diagonal/skewb (Le haut d'abord, de francocube), skewbHolds, skewbTerms ;
 │   │                    #   gear/gearUltimate (le Gear Cube Ultimate, Coins d'abord), gearTerms ;
 │   │                    #   tower/tower224 (la tour 2x2x4, Deux Pockets), tower/tower223 (la Slim

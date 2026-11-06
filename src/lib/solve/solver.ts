@@ -255,6 +255,8 @@ const SOLVE_METHODS = [
   { id: 'isolateFirst', plans: { star: STAR_PLAN } },
   { id: 'twoStars', plans: { star4: STAR4_PLAN } },
   { id: 'puckIsolate', plans: { puck: PUCK_PLAN } },
+  // Before Corners then edges: the Floppy's manual method first.
+  { id: 'floppyEdgesFirst', plans: { '331': taught('331', 'floppyEdgesFirst') } },
   {
     id: 'cornersFirst',
     plans: {
