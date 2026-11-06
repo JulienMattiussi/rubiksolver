@@ -70,6 +70,10 @@ export const METHODS_FR = {
     name: 'Méthode des centres',
     desc: 'Le ramener à un 3x3, en couchant ses barres pour pouvoir tourner les tranches voulues.',
   },
+  impossibleGuide: {
+    name: 'Par couches (guide officiel)',
+    desc: 'La méthode du guide : couche par couche en partant du blanc, en redressant au passage le trait de chaque centre.',
+  },
   quarterEdgesFirst: {
     name: 'Les arêtes d’abord',
     desc: 'Chaque face ne fait qu’un quart de tour et revient : toutes les formules alternent les faces.',

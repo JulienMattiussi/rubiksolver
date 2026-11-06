@@ -60,6 +60,17 @@ export interface Sticker {
   readonly color: Color
 }
 
+/** A lenticular tile (the Rubik's Impossible's): its second color (none:
+ *  it shows one color only), its ridges' direction, the direction across
+ *  them, and how far the eye must lean that way (the sine of its angle
+ *  from the tile's normal) for the tile to turn to its second color. */
+export interface Lens {
+  readonly secondary?: Color
+  readonly ridges: Vec3
+  readonly across: Vec3
+  readonly turn: number
+}
+
 /** A single small cube (cubie), at an integer grid position. */
 export interface Cubie {
   readonly position: Vec3

@@ -245,6 +245,8 @@ const ENTERED: [string, string, string][] = [
   // One of each kind of model (the others of a kind enter the same way, see
   // the conformance suite in tests/unit/puzzles.test.ts).
   ['Standards', '2x2 (Pocket)', '24 / 24 stickers'],
+  // Lenticular tiles, entered by the pairs they show.
+  ['Torturés', "Rubik's Impossible", '54 / 54 stickers'],
   // Most often out of its box once scrambled: entered in the form it stands in.
   ['Tours', '2x2x4', '40 / 40 stickers'],
   ['Pyramides', 'Pyraminx', '36 / 36 stickers'],

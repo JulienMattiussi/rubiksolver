@@ -196,6 +196,8 @@ export const UI_FR = {
   changeGears: 'Changer les engrenages',
   editHintQuarter:
     'Choisissez une couleur puis cliquez les stickers ; les centres sont déjà là. Un clic sur un centre tourne son repère d’un quart : donnez à chacun la position du vôtre (il dit dans quel sens sa face peut tourner).',
+  editHintImpossible:
+    'Chaque sticker montre deux couleurs selon l’angle : peignez les deux (penchez le cube pour voir la seconde), dans n’importe quel ordre ; une pièce se complète dès que ses couleurs suffisent. **Le sens des stries compte** : un clic sur un centre tourne les siennes d’un quart, faites-les aller comme sur votre cube.',
   editHintCamo:
     'Choisissez une couleur et cliquez les stickers ; tournez la vue pour atteindre les autres faces. Votre Camouflage n’est pas en pavé ? « Changer la forme » le saisit face par face.',
   editHintFaces:
@@ -407,6 +409,8 @@ export const UI_FR = {
   errorCounts: 'Répartition des couleurs incohérente.',
   errorCountsMirror: 'Répartition des épaisseurs incohérente.',
   errorGears: 'Un engrenage ne porte pas les deux couleurs de ses agrafes.',
+  errorLines:
+    'Le trait d’un centre est mal tourné : comparez le sens des stries de chaque centre avec votre cube, et cliquez celui qui diffère.',
   errorImpossible: 'Cube impossible : vérifiez l’orientation des pièces.',
   errorImpossibleAt: (step: string) =>
     `Cube impossible : la résolution bloque à l’étape « ${step} ». Vérifiez ces pièces.`,

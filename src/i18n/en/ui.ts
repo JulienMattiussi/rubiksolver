@@ -194,6 +194,8 @@ export const UI_EN: typeof UI_FR = {
   changeGears: 'Change the gears',
   editHintQuarter:
     'Pick a color and click the stickers; the centers are there already. A click on a center turns its mark a quarter: give each the position of yours (it says which way its face can turn).',
+  editHintImpossible:
+    'Each sticker shows two colors by the angle: paint both (tilt the cube to see the second one), in any order; a piece fills in once its colors are enough. **The way the ridges run counts**: a click on a center turns its own a quarter, set them as on your cube.',
   editHintCamo:
     'Pick a color and click the stickers; turn the view to reach the other faces. Your Camouflage is not a brick? “Change the shape” enters it face by face.',
   editHintFaces:
@@ -394,6 +396,8 @@ export const UI_EN: typeof UI_FR = {
   errorCounts: 'Inconsistent color counts.',
   errorCountsMirror: 'Inconsistent thickness counts.',
   errorGears: 'A gear does not carry its clips’ two colors.',
+  errorLines:
+    'A center’s line is turned the wrong way: compare the way each center’s ridges run with your cube, and click the one that differs.',
   errorImpossible: 'Impossible cube: check the piece orientations.',
   errorImpossibleAt: (step: string) =>
     `Impossible cube: solving gets stuck at the step “${step}”. Check those pieces.`,

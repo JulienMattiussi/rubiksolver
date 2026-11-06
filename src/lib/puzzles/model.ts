@@ -1,7 +1,7 @@
 import type { FaceLabels } from '../core/notation'
-import type { Cube, Dims, Face, Move, Turn, Vec3 } from '../core/types'
+import type { Cube, Cubie, Dims, Face, Lens, Move, Turn, Vec3 } from '../core/types'
 import type { GuideGroup, MoveDescription } from '../core/guide'
-import type { EntryMarks, EntryStep, PaintSpec } from '../editor/entry'
+import type { EntryMarks, EntryStep, MarksRefusal, PaintSpec } from '../editor/entry'
 import type { OutlineScan } from '../editor/scan/outlines'
 import type { FlatScan, RingFace } from '../editor/scan/plan'
 
@@ -28,6 +28,9 @@ export interface PuzzleModel {
   readonly boxed?: (cube: Cube) => boolean
   /** Whether it is solved, when one color per face does not say. */
   readonly isSolved?: (cube: Cube) => boolean
+  /** Its tiles lenticular, each showing one of two colors by the angle
+   *  (the Rubik's Impossible): a piece's, one per colored sticker in order. */
+  readonly lenses?: (cubie: Cubie) => readonly Lens[]
   /** A solution's steps turned in hand so every turn shows (a Megaminx
    *  hides half its faces), still solving it. */
   readonly inSight?: (steps: readonly (readonly Turn[])[]) => Turn[][]
@@ -90,6 +93,10 @@ export interface PuzzleModel {
     /** The state an entry builds, from what was entered and its marks;
      *  null when they cannot go together (a gear not its clips' colors). */
     readonly built?: (cube: Cube, marks: EntryMarks) => Cube | null
+    /** Why it refuses a whole state built, before solving it says it is
+     *  impossible: what it can tell at once (an Impossible's centers'
+     *  lines, which cannot go with its corners). */
+    readonly refuses?: (cube: Cube) => MarksRefusal | null
     /** Its stickers entering fills in rather than paints (a 4-star's inner
      *  points' faces up or down, under the outer layer). */
     readonly hidden?: (position: Vec3, normal: Vec3) => boolean

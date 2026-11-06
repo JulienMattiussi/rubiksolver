@@ -9,6 +9,7 @@ import { Cubie } from './Cubie'
 import { cubeScale, drawnIn } from './layout'
 import { NO_PIECES } from './noPieces'
 import { ownViewsOf } from '@/three/puzzles/views'
+import { MODELS } from '@/lib/puzzles/models'
 
 export interface ModelProps {
   cube: Cube
@@ -68,6 +69,8 @@ export function CubeModel({
   // A puzzle drawn from its own pieces (a Gear Cube's: small center
   // squares, the edges' clips around them).
   const own = ownViewsOf(cubeShape(cube))?.piece
+  // A puzzle of lenticular tiles (the Rubik's Impossible's).
+  const lenses = MODELS[cubeShape(cube)]?.lenses
   const drawn = drawnIn(cube)
   const shown = (i: number) => drawn(cube[i]!)
   const thickness = thicknessOf(cubeShape(cube), variant)
@@ -92,6 +95,7 @@ export function CubeModel({
               onPickHover={onPickHover && ((on) => onPickHover(i, on))}
               part={part}
               own={own}
+              lenses={lenses?.(c)}
             />
           ),
         )}
@@ -108,6 +112,7 @@ export function CubeModel({
                 hatched={hatched(i)}
                 part={part}
                 own={own}
+                lenses={lenses?.(c)}
               />
             ) : null,
           )}

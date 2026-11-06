@@ -211,6 +211,88 @@ la recherche s'en passe.
 
 **Scan** : en grille, comme un 3x3 : ses flèches suivent ses couleurs.
 
+## Le Rubik's Impossible (`impossible`)
+
+Un 3x3 de Spin Master (2020) aux stickers **lenticulaires** : chacun montre
+l'une de deux couleurs selon l'angle d'où on le regarde, sa **dominante**
+(celle de sa face, résolu) ou sa **secondaire**, propre à chaque sticker.
+Quinze n'en ont qu'une (les « anchors ») : les six centres, six stickers et
+tout le coin rouge-vert-blanc. Tout vient de son guide officiel (« You Can
+Do The Rubik's Impossible », sa grille de l'état résolu). Chaque sticker
+est strié, et sa couleur bascule quand on le penche en travers de ses
+stries ; résolu, les stries d'une face suivent le trait de son centre (de
+gauche à droite en haut et en bas, de haut en bas sur les côtés). L'**orientation
+d'un centre** compte donc, à un demi-tour près. Trois arêtes sont
+**ambiguës** : la bleu-orange montre bleu et orange sur ses deux stickers,
+et la bleu-rouge et la vert-orange portent chacune un sticker rouge/vert et
+un bleu/orange ; seul l'angle de bascule les départage.
+
+**Modèle** (`lib/puzzles/twisted/impossible.ts`) : l'état d'un 3x3 en
+dominantes, le trait de chaque centre noté par deux marques cachées
+(`MARK`), une à chaque bout, qu'un demi-tour laisse telles quelles (une
+seule marque le confondrait avec le Master Morphinx). Résolu : chaque face
+d'une couleur, lu sur le 3x3 sans ses marques (`withoutLines` : les
+marques regardent de côté), et chaque trait dans l'axe de sa face, lu sur
+les couleurs (le trait du blanc et du jaune va vers le rouge et l'orange,
+celui des côtés vers le blanc et le jaune), donc quelle que soit la tenue.
+Le reste suit la pièce et se lit là où elle est (`lensOf`, le crochet
+`lenses` du modèle) : sa rotation depuis chez elle donne la secondaire de
+chaque sticker (la grille du guide, recopiée face par face et vérifiée
+par un test : quinze anchors, les trois arêtes ambiguës), ses stries et le
+sens de sa bascule.
+
+**Rendu** : un sticker lenticulaire (`three/core/useLenticular.ts`) calcule
+à chaque image combien l'œil penche en travers de ses stries, d'après la
+caméra et la rotation de sa pièce (l'animation d'un coup comprise), et
+passe d'une couleur à l'autre au-delà de son angle de bascule, avec un
+court fondu ; ses stries sont dessinées par-dessus (`ridgesTexture.ts`).
+Le guide dit seulement que les stickers d'une même dominante basculent
+ensemble, chaque couleur à son angle : ces angles (`TURN`) sont réglés à
+l'œil, pour qu'une face vue du coin que montre l'appli ait sa dominante.
+La vignette coupe chaque sticker en diagonale, ses deux couleurs, comme
+la grille du guide.
+
+**Résolution** (`methods/twisted/impossible.ts`, `impossibleGuide`) : la
+méthode par couches du guide, blanc d'abord (sa face a deux anchors et
+aucune arête ambiguë) : croix blanche ; trait du centre blanc, par
+`F U F' U F U F' U F U` (la croix gardée, le trait du centre de devant
+tourné aussi) ; coins blancs ; traits des centres du milieu, chacun par
+`F2 D2 F D2 F2` tenu devant (la couche blanche gardée) ; arêtes du milieu ;
+croix jaune ; coins orientés ; coins placés ; arêtes placées par un U-perm
+qui tourne chaque côté d'un nombre pair de quarts (`F2 U L R' F2 L' R U F2`,
+celui du 3x3 tourne le trait de droite). Le trait du jaune suit tout seul :
+chaque quart de tour d'une face change à la fois l'ordre des coins et un
+trait, donc les coins placés, les traits tournés sont en nombre pair. Les
+étapes du 3x3 lisent le puzzle retourné, blanc en bas, ses couleurs
+renommées en celles du 3x3 (blanc pour jaune, bleu pour vert), leurs coups
+renommés ensuite.
+
+**Saisie** (`lib/editor/modes/pairs.ts`, le `together` de sa peinture) : on
+peint ce que montre chaque sticker, ses deux couleurs dans n'importe quel
+ordre, sans savoir laquelle est la dominante ; dès qu'une seule pièce
+montre ces couleurs à cet endroit, ses dominantes sont peintes comme par
+le mode couleurs (budget, reprise). Une couleur recliquée sur un sticker
+qui la montre dit qu'elle est la sienne : ce qui départage un anchor
+d'un sticker dont on n'a pas encore peint la seconde couleur. Les arêtes
+ambiguës ne demandent rien : des pièces qui montrent les mêmes couleurs
+sticker par sticker sont représentées par la première, et le modèle
+choisit à la construction celle qui rend l'état atteignable
+(`impossibleEntry.ts`, `settled` : l'autre sens de la bleu-orange
+retourne une seule arête, l'échange de la vert-orange et de la
+bleu-rouge permute deux arêtes ; une seule combinaison passe). Ce qui a été vu est gardé dans la table des stickers sous
+des clés à part (`~1`, `~2`, `~d`), qu'aucune lecture par identifiant ne
+voit. Un clic sur un centre tourne son trait d'un quart (`lineToggles`) ;
+ses stries sont dessinées en gras, pour qu'on les compare à celles du
+cube. Un trait mal tourné est refusé avant toute résolution, avec son
+propre message (`linesRefused`, le crochet `entry.refuses` du modèle) :
+chaque quart de tour d'une face tourne un trait et permute ses coins, donc
+autant de traits en travers que d'échanges de coins, deux à deux. La vue
+de saisie montre chaque sticker en deux couleurs, ses stries une fois la
+pièce reconnue. Contrepartie du choix des arêtes ambiguës : une arête mal
+lue ailleurs (retournée, ou échangée avec une autre) peut être compensée
+par ce choix, et l'état accepté n'est alors pas celui du cube. Pas de scan : une photo ne montre qu'une couleur
+par sticker.
+
 ## Le Fashion-V (`fashion`)
 
 Le Fashion-V (fan2cube.fr/fashioncube1 et 2, Adam Cowan et Jason Smith, 2010) : un 3x3x5 ramené à un cube, ses deux couches du haut (H, h) et du bas

@@ -69,6 +69,10 @@ export const METHODS_EN: typeof METHODS_FR = {
     name: 'Centers method',
     desc: 'Bring it down to a 3x3, laying its bars across so the slices it needs can turn.',
   },
+  impossibleGuide: {
+    name: 'Layer by layer (official guide)',
+    desc: 'The guide’s method: layer by layer from white, setting each center’s line straight on the way.',
+  },
   quarterEdgesFirst: {
     name: 'Edges first',
     desc: 'Each face only goes a quarter and back: every formula alternates faces.',

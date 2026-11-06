@@ -173,6 +173,11 @@ export interface PaintSpec {
   readonly parts?: PartsSpec
 }
 
+/** Why a model refuses what was entered: its parts (a gear not its clips'
+ *  colors), or its centers' lines (an Impossible's, not as its corners
+ *  stand). */
+export type MarksRefusal = 'parts' | 'lines'
+
 /** What an entry holds besides its colors, for the model to build its
  *  state from (`entry.built`). */
 export interface EntryMarks {

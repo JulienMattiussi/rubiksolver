@@ -1,8 +1,9 @@
-import { cubeDims, solvedCube } from '@/lib/core/cube'
+import { cubeDims, cubeShape, solvedCube } from '@/lib/core/cube'
 import { normalIndex } from '@/lib/core/geometry'
 import { cubieBox, thicknessOf } from '@/lib/core/shape'
 import { lookOf } from '@/lib/editor/modes/form'
-import { type Color, type Cube, type CubeColor } from '@/lib/core/types'
+import { isMark, type Color, type Cube, type CubeColor } from '@/lib/core/types'
+import { MODELS } from '@/lib/puzzles/models'
 import { type CubeShape, type CubeVariant } from '@/lib/core/shapes'
 import { drawnIn, visualPosition } from './layout'
 import { inScene, isPolyDrawn, polyDrawing } from './polyDrawing'
@@ -99,19 +100,36 @@ export function pieceDrawing(shape: CubeShape, piece: number, back: boolean): Is
   return drawing
 }
 
+/** A sticker's square, whole or split along a diagonal (a lenticular
+ *  tile's two colors). */
+const split = (corners: Point[], halves: boolean): Point[][] =>
+  halves
+    ? [
+        [corners[0]!, corners[1]!, corners[3]!],
+        [corners[1]!, corners[2]!, corners[3]!],
+      ]
+    : [corners]
+
 /** A grid puzzle's cubies as they stand (`neutral`: every sticker that color). */
 function drawCubies(cube: Cube, thickness: Record<CubeColor, number>, neutral?: Color): IsoDrawing {
   const dims = cubeDims(cube)
   const cells = new Set(cube.map((c) => visualPosition(c.position, dims).join()))
   const faces: IsoFace[] = []
+  const lensesOf = MODELS[cubeShape(cube)]?.lenses
   for (const cubie of cube.filter(drawnIn(cube))) {
-    const { size, center } = cubieBox(cubie.stickers, thickness)
+    // Marks never show; a lenticular tile shows both its colors, split
+    // across, as its puzzle's guide draws it.
+    const stickers = cubie.stickers.filter((s) => !isMark(s))
+    const lenses = lensesOf?.(cubie)
+    const { size, center } = cubieBox(stickers, thickness)
     const cell = visualPosition(cubie.position, dims)
     const mid = cell.map((v, a) => v + center[a]!)
     const min = mid.map((v, a) => v - size[a]! / 2) as unknown as Point
     const max = mid.map((v, a) => v + size[a]! / 2) as unknown as Point
     for (const { axis, shade } of VISIBLE) {
-      const sticker = cubie.stickers.find((s) => normalIndex(s.normal) === 2 * axis)
+      const index = stickers.findIndex((s) => normalIndex(s.normal) === 2 * axis)
+      const sticker = stickers[index]
+      const second = lenses?.[index]?.secondary
       // A face without sticker shows its plastic, unless a neighbor hides it
       // (out of its box, a tower bares some).
       const beside = cell.map((v, a) => (a === axis ? v + 1 : v)).join()
@@ -122,13 +140,13 @@ function drawCubies(cube: Cube, thickness: Record<CubeColor, number>, neutral?: 
         polygons: [
           { points: toSvg(corners), paint: 'body', shade },
           ...(sticker
-            ? [
-                {
-                  points: toSvg(shrink(corners, STICKER_SCALE)),
-                  paint: neutral ?? sticker.color,
+            ? split(shrink(corners, STICKER_SCALE), second !== undefined && !neutral).map(
+                (points, half) => ({
+                  points: toSvg(points),
+                  paint: neutral ?? (half ? second! : sticker.color),
                   shade,
-                },
-              ]
+                }),
+              )
             : []),
         ],
       })

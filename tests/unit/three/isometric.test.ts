@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { FACE_COLOR, faceColorsOf, stickersOfColor } from '@/lib/core/cube'
+import { FACE_COLOR, faceColorsOf, solvedCube, stickersOfColor } from '@/lib/core/cube'
+import { isMark } from '@/lib/core/types'
+import { MODELS } from '@/lib/puzzles/models'
 import { isGear, SHAPE_DIMS, type CubeShape, type CubeVariant } from '@/lib/core/shapes'
 import { isPolyDrawn } from '@/three/core/polyDrawing'
 import { isometricDrawing } from '@/three/core/isometric'
@@ -10,6 +12,19 @@ const SHAPES = (Object.keys(SHAPE_DIMS) as CubeShape[]).filter(
   (shape) => !isPolyDrawn(shape) && !isGear(shape),
 )
 
+/** The tiles of the U, F and R faces showing two colors (a lenticular
+ *  puzzle's), drawn in two halves. */
+const split = (shape: CubeShape) =>
+  solvedCube(shape).reduce((n, cubie) => {
+    const lenses = MODELS[shape]?.lenses?.(cubie) ?? []
+    return (
+      n +
+      cubie.stickers
+        .filter((s) => !isMark(s))
+        .filter((s, i) => s.normal.some((v) => v > 0) && lenses[i]?.secondary).length
+    )
+  }, 0)
+
 describe('isometric thumbnails', () => {
   it.each(SHAPES)('%s: draws every facelet of its U, F and R faces, body then sticker', (shape) => {
     const visible = (['U', 'F', 'R'] as const).reduce(
@@ -18,7 +33,7 @@ describe('isometric thumbnails', () => {
     )
     for (const variant of ['classic', 'mirror'] as CubeVariant[]) {
       const { polygons, viewBox } = isometricDrawing(shape, variant)
-      expect(polygons.filter((p) => p.paint !== 'body')).toHaveLength(visible)
+      expect(polygons.filter((p) => p.paint !== 'body')).toHaveLength(visible + split(shape))
       // Each sticker on its body; a hollow puzzle (the Void Cube) shows the
       // walls of its holes too.
       const bodies = polygons.filter((p) => p.paint === 'body').length

@@ -62,6 +62,12 @@ nombres d'étapes ci-dessous ne la comptent pas.
   qui ne retournent rien : `U D L R F2 B2`), bloc gauche en `<L, U, R>`, bloc
   droit en `<R, U>` (aucun quart de tour de F ou B après l'EOLine), OCLL, PLL -
   5 étapes.
+- **Par couches (guide officiel)** (`impossibleGuide`, Rubik's Impossible) :
+  la méthode par couches de son guide, blanc d'abord, les traits des
+  centres redressés au passage par ses deux formules : croix blanche, trait
+  du centre blanc, coins blancs, traits des centres du milieu, arêtes du
+  milieu, croix jaune, coins orientés, coins placés, arêtes placées - 9
+  étapes ([twisted](puzzles/twisted.md)).
 - **Optimale** (`optimal`, 2x2, 2x2 Qiyi miroir, 1x2x3, Floppy, Floppy Ghost et Meffert's Pocket Cube) : recherche exhaustive,
   solution la plus courte possible (11 coups max sur 2x2, 6 sur 1x2x3, 8 sur
   Floppy, 15 sur Floppy Ghost, 30 sur Meffert's Pocket Cube), une seule étape.

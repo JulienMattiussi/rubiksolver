@@ -668,6 +668,15 @@ export const PUZZLES_EN: typeof PUZZLES_FR = {
     methods:
       'The 5x5’s reduction, then the centers each put back in its place and the right way up. The tutorial teaches it step by step; a variant finishes with CFOP.',
   },
+  impossible: {
+    summary:
+      'The Rubik’s Impossible, a 3x3 whose stickers change color with the angle: pure torture. Turn it in 3D and learn to solve it step by step.',
+    about:
+      'The Rubik’s Impossible lives up to its name. It turns like a Rubik’s Cube, but **each sticker shows two colors**, by the angle you look at it from: tilt it a little, and the face you thought was done starts changing again. Even its centers have a way round, given away only by their fine ridges. You can **never believe what you see**, and each piece must be looked at from two angles before you know where it goes: **enough to tear your hair out**, even if you can already solve a 3x3. Here, in 3D, its stickers change as the real ones do when you turn the view.',
+    methodsTitle: 'The guide’s method',
+    methods:
+      'The layer by layer method of its official guide, from white, with the two formulas it adds to set the centers’ lines straight. The rest plays as on a 3x3: enough to finally get the better of it.',
+  },
   '2m': {
     summary:
       'The mirror 2x2, all shiny: its pieces are read by their thickness, not their color. Turn it in 3D and learn to solve it step by step.',

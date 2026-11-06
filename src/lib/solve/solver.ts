@@ -23,6 +23,7 @@ import { LATCH_PLAN } from '../methods/twisted/latch'
 import { voidPlan } from '../methods/holey/voidFrames'
 import { CAMO_PLAN } from '../methods/tower/camo'
 import { QUARTER_PLAN } from '../methods/twisted/quarter'
+import { IMPOSSIBLE_PLAN } from '../methods/twisted/impossible'
 import { AI_PLAN } from '../methods/bandaged/ai'
 import { ROADBLOCK_PLAN } from '../methods/bandaged/roadblock'
 import { BIG_BLOCK_PLAN } from '../methods/bandaged/bigBlock'
@@ -200,6 +201,9 @@ const SOLVE_METHODS = [
   },
   { id: 'camoReduction', plans: { camo: CAMO_PLAN } },
   { id: 'quarterEdgesFirst', plans: { quarter: QUARTER_PLAN } },
+  // The Rubik's Impossible's official guide: by layers, white first, the
+  // centers' lines turned on the way.
+  { id: 'impossibleGuide', plans: { impossible: IMPOSSIBLE_PLAN } },
   { id: 'aiBlocks', plans: { ai: AI_PLAN } },
   { id: 'rbCenters', plans: { roadblock: ROADBLOCK_PLAN } },
   {

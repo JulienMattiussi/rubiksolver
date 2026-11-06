@@ -1,4 +1,6 @@
 import { LOCALES, stepName } from '@/i18n/translations'
+import { SHAPE_DIMS, supportsMirror, type CubeShape } from '@/lib/core/shapes'
+import { methodsFor } from '@/lib/solve/solver'
 import { describe, expect, it } from 'vitest'
 import { solvedCube } from '@/lib/core/cube'
 import { FACE_NORMAL } from '@/lib/core/geometry'
@@ -70,8 +72,14 @@ describe('a mirror cube’s solve steps', () => {
       fr: /\b(blanc|blanche|jaune|vert|verte|bleu|rouge|orange)s?\b/i,
       en: /\b(white|yellow|green|blue|red|orange)\b/i,
     }
+    // The steps of the methods of the puzzles sold as mirrors.
+    const keys = new Set(
+      (Object.keys(SHAPE_DIMS) as CubeShape[])
+        .filter(supportsMirror)
+        .flatMap((shape) => methodsFor(shape).flatMap((m) => m.outline().map((s) => s.key))),
+    )
     for (const [locale, t] of Object.entries(LOCALES)) {
-      for (const key of Object.keys(t.steps)) {
+      for (const key of keys) {
         expect(stepName(t, key, true), `${locale} ${key}`).not.toMatch(
           colors[locale as 'fr' | 'en'],
         )

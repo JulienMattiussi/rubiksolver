@@ -20,6 +20,7 @@ import { PhasePanel } from './PhasePanel'
 import { PiecesLeft } from './PiecesLeft'
 import { ScanButton } from './scan/ScanButton'
 import { stepTexts } from './stepTexts'
+import { Bolded } from '@/components/ui/Bolded'
 
 /** The editor's own hints, by kind (a puzzle's card says which). */
 const HINTS = (t: Translations): Record<EditHint, string> => ({
@@ -27,6 +28,7 @@ const HINTS = (t: Translations): Record<EditHint, string> => ({
   camo: t.editHintCamo,
   roadblock: t.editHintRoadblock,
   quarter: t.editHintQuarter,
+  impossible: t.editHintImpossible,
   gear: t.editHintGear,
   gearPlain: t.editHintGearPlain,
 })
@@ -42,6 +44,7 @@ function errorText(
   sizes: boolean,
 ): string {
   if (error === 'parts') return t.errorGears
+  if (error === 'lines') return t.errorLines
   if (error === 'jointsColors') return t.errorJointsColors
   if (error === 'counts') return sizes ? t.errorCountsMirror : t.errorCounts
   if (failedStep && failedStep in t.steps)
@@ -144,13 +147,18 @@ function PaintPanel() {
       {/* First, under the title: the quickest way in. */}
       <ScanButton />
       <p className="text-xs leading-relaxed text-slate-400">
-        {hint
-          ? HINTS(t)[hint]
-          : byPieces
-            ? t.editHintPieces
-            : sizes
-              ? t.editHintMirror
-              : t.editHint}
+        <Bolded
+          text={
+            hint
+              ? HINTS(t)[hint]
+              : byPieces
+                ? t.editHintPieces
+                : sizes
+                  ? t.editHintMirror
+                  : t.editHint
+          }
+          strong="font-semibold text-slate-200"
+        />
       </p>
 
       {!byPieces && <ColorPalette />}

@@ -1,7 +1,7 @@
 import type { PuzzleEntry } from '../entry'
 
-/** The odd ones: shape mods, an off-center core, one-way faces. In the
- *  picker's order. */
+/** The odd ones: shape mods, an off-center core, one-way faces,
+ *  lenticular tiles. In the picker's order. */
 export const TWISTED = {
   // Meffert's Pocket Cube (meffertsPocket.ts) turns on a 5x5's outer slabs: its pieces sit within +-3, in half mini cubes about its off-center core.
   meffertsPocket: {
@@ -44,6 +44,15 @@ export const TWISTED = {
   // The Latch Cube (latch.ts): a 3x3x3, its faces turning the way their
   // arrows say.
   latch: { label: 'Latch Cube', slug: 'latch-cube', dims: [3, 3, 3], scramble: 30 },
+  // The Rubik's Impossible (impossible.ts): a 3x3 of lenticular tiles,
+  // two colors each by the angle, its centers' lines counting.
+  impossible: {
+    label: "Rubik's Impossible",
+    slug: 'rubiks-impossible',
+    dims: [3, 3, 3],
+    scramble: 20,
+    editHint: 'impossible',
+  },
   // The Fashion-V (fashion.ts): a 3x3x5 squashed to a cube, turning like a
   // 5x5x5 (its pieces within +-2), its thin layers alone only when laid.
   fashion: {

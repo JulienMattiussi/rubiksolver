@@ -9,6 +9,16 @@ import { asSeenThin, thinEdgesSolved } from '../shared/thinEdges'
 import { centerToggles, withCenterSpins, withTurnedCenters } from './twist'
 import { FASHION_CUTS } from './fashionEntry'
 import { turnedKeys } from '../../editor/modes/toggles'
+import { paintPair } from '../../editor/modes/pairs'
+import {
+  impossibleSolved,
+  lensOf,
+  lineToggles,
+  withLines,
+  withoutLines,
+  withTurnedLines,
+} from './impossible'
+import { linesRefused, settled } from './impossibleEntry'
 import {
   describeMeffertsPocketMove,
   formatMeffertsPocketMove,
@@ -92,6 +102,21 @@ export const TWISTED_MODELS = {
     entry: {
       seen: (cube, held) => withoutLatchMark(held(cube)),
       built: (cube) => withLatchMark(cube),
+    },
+  },
+  // Its centers' lines marked, which count to solve it.
+  impossible: {
+    solved: () => withLines(solvedCube('3')),
+    isSolved: impossibleSolved,
+    lenses: lensOf,
+    // Its tiles painted as they show, both colors each (its pieces told by
+    // them, modes/pairs.ts), its centers' lines turned by a click.
+    entry: {
+      paint: { by: 'colors', toggles: lineToggles, together: paintPair('impossible') },
+      seen: (cube, held) => withoutLines(held(cube)),
+      // What its colors cannot tell settled (impossibleEntry.ts).
+      built: (cube, { toggles }) => settled(withTurnedLines(cube, turnedKeys(toggles))),
+      refuses: linesRefused,
     },
   },
   // A thin layer alone only when its half is laid (fashion.ts).

@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { cubeDims, cubeShape } from '@/lib/core/cube'
 import { slotsFor } from '@/lib/editor/edit'
 import { canPaint } from '@/lib/editor/modes/colors'
+import { slotLenses, tileColors } from '@/lib/editor/modes/pairs'
+import { togglesAt } from '@/lib/editor/entry'
+import { MODELS } from '@/lib/puzzles/models'
 import { centeringOffset, cubieBox, thicknessOf } from '@/lib/core/shape'
 import { useCube } from '@/store/cubeStore'
 import { useEditor } from '@/store/editorStore'
@@ -31,6 +34,13 @@ export function EditView() {
   // While a form is being chosen, the one hovered (the box otherwise).
   const form = useEditor((s) => (s.phase === 'form' ? s.preview : s.form))
   const paintAt = useEditor((s) => s.paintAt)
+  // Clicks turning pieces round while painting (a Rubik's Impossible's
+  // centers' lines).
+  const toggleSpec = togglesAt(shape, 'paint')
+  const toggles = useEditor((s) => s.toggles)
+  const toggleAt = useEditor((s) => s.toggleAt)
+  // Lenticular tiles show both their colors, and their ridges once told.
+  const lenticular = MODELS[shape]?.lenses !== undefined
   const thickness = thicknessOf(shape, variant)
   const [ox, oy, oz] = centeringOffset(thickness)
   // The sticker under the pointer (its slot's key, then its normal index), lit up.
@@ -42,6 +52,13 @@ export function EditView() {
       <group position={[ox, oy, oz]}>
         {slotsFor(shape, form).map((slot) => {
           const paintable = canPaint(shape, slot.key, form)
+          const turns = toggleSpec?.keyAt({ ...slot, stickers: slot.stickers.length })
+          const select = paintable
+            ? (ni: number) => () => paintAt(slot.key, ni)
+            : turns
+              ? () => () => toggleAt(slot.key)
+              : undefined
+          const lenses = lenticular ? slotLenses(shape, edit, slot, toggles) : undefined
           const painted = slot.stickers.flatMap((s) => {
             const color = edit[s.id]
             return color ? [{ normal: s.normal, color }] : []
@@ -53,8 +70,11 @@ export function EditView() {
                 <boxGeometry args={[box[0] - CUBIE_GAP, box[1] - CUBIE_GAP, box[2] - CUBIE_GAP]} />
                 <meshStandardMaterial color={PLASTIC} roughness={0.65} metalness={0.1} />
               </mesh>
-              {slot.stickers.map((s) => {
-                const color = edit[s.id]
+              {slot.stickers.map((s, i) => {
+                const [color, second] = lenticular
+                  ? tileColors(shape, edit, slot, s.ni)
+                  : [edit[s.id]]
+                const lens = lenses?.[i]
                 return (
                   <Sticker
                     key={s.id}
@@ -62,9 +82,11 @@ export function EditView() {
                     color={color ? (skin ?? COLOR_HEX[color]) : EMPTY_COLOR}
                     box={{ size: box, center }}
                     metal={skin !== undefined && color !== undefined}
-                    onSelect={paintable ? () => paintAt(slot.key, s.ni) : undefined}
+                    onSelect={select?.(s.ni)}
                     onHover={hover(`${slot.key}|${s.ni}`)}
                     lit={hovered === `${slot.key}|${s.ni}`}
+                    split={second && COLOR_HEX[second]}
+                    lens={lens && { across: lens.across, turn: lens.turn, bold: !!turns }}
                   />
                 )
               })}

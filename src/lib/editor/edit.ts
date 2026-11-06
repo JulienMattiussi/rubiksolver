@@ -1,7 +1,13 @@
 import { countColors, cubeOrientations, cubeShape, solvedCube, stickersTotal } from '../core/cube'
 import { normalIndex } from '../core/geometry'
 import { stickerId, tablesFor, type Slot } from './editorTables'
-import { entersByPieces, NO_MARKS, type EditStickers, type EntryMarks } from './entry'
+import {
+  entersByPieces,
+  NO_MARKS,
+  type EditStickers,
+  type EntryMarks,
+  type MarksRefusal,
+} from './entry'
 import { piecesCube } from './modes/pieces'
 import { MODELS } from '../puzzles/models'
 import type { Color, Cube } from '../core/types'
@@ -110,8 +116,15 @@ export function isComplete(edit: EditStickers, shape: CubeShape, form?: Cube): b
   return slotsFor(shape, form).every((slot) => slot.stickers.every((s) => edit[s.id] !== undefined))
 }
 
-/** What an entry's marks cannot go with (a gear not its clips' colors). */
-export class MarksRefused extends Error {}
+/** What an entry's marks cannot go with (a gear not its clips' colors, an
+ *  Impossible's centers' lines not its corners), and why. */
+export class MarksRefused extends Error {
+  readonly reason: MarksRefusal
+  constructor(reason: MarksRefusal) {
+    super(`buildCube: the marks do not fit (${reason})`)
+    this.reason = reason
+  }
+}
 
 /** Build a full Cube from a complete entry (throws if incomplete), as its
  *  model builds it from what was entered besides the colors (`marks`;
@@ -122,10 +135,12 @@ export function buildCube(
   form?: Cube,
   marks: EntryMarks = NO_MARKS,
 ): Cube {
-  const own = MODELS[shape]?.entry?.built
+  const model = MODELS[shape]?.entry
   const built = (cube: Cube) => {
-    const out = own ? own(cube, marks) : cube
-    if (!out) throw new MarksRefused(`buildCube: ${shape}'s marks do not fit`)
+    const out = model?.built ? model.built(cube, marks) : cube
+    if (!out) throw new MarksRefused('parts')
+    const refused = model?.refuses?.(out)
+    if (refused) throw new MarksRefused(refused)
     return out
   }
   if (entersByPieces(shape)) {

@@ -1,10 +1,24 @@
 import type { ComponentType, RefObject } from 'react'
 import { cubieBox } from '@/lib/core/shape'
-import type { CubeColor, Cubie as CubieType, Dims } from '@/lib/core/types'
+import {
+  isMark,
+  type CubeColor,
+  type Cubie as CubieType,
+  type Dims,
+  type Lens,
+} from '@/lib/core/types'
 import { COLOR_HEX, HIGHLIGHT, PLACE, PLASTIC } from './colors'
 import { CUBIE_GAP, visualPosition } from './layout'
 import { Sticker } from './Sticker'
+import type { StickerLens } from './useLenticular'
 import { usePulse } from './usePulse'
+
+/** A tile's lens as its sticker draws it, its second color in the scene's. */
+const stickerLens = ({ secondary, across, turn }: Lens): StickerLens => ({
+  ...(secondary && { second: COLOR_HEX[secondary] }),
+  across,
+  turn,
+})
 
 /** How a piece is shown: lit by a hovered pad button, or the tutorial's
  *  tones and click (see Cubie's props). */
@@ -60,6 +74,7 @@ export function Cubie({
   gearColors,
   onHover,
   lit,
+  lenses,
 }: {
   cubie: CubieType
   dims: Dims
@@ -98,6 +113,9 @@ export function Cubie({
    *  leaves, and the face to light up (see GearCorner). */
   onHover?: (face: string, on: boolean) => void
   lit?: string | null
+  /** Its tiles lenticular, one per colored sticker (`PuzzleModel.lenses`):
+   *  each turns to its second color as the eye leans, its marks not drawn. */
+  lenses?: readonly Lens[]
 }) {
   const glowRef = usePulse(pulse && (highlighted || marked), highlighted || marked ? 0.7 : 0)
   if (Own) {
@@ -117,7 +135,10 @@ export function Cubie({
       />
     )
   }
-  const { size, center } = cubieBox(cubie.stickers, thickness)
+  // A lenticular puzzle's marks (its centers' lines) are not drawn: its
+  // ridges show them.
+  const stickers = lenses ? cubie.stickers.filter((s) => !isMark(s)) : cubie.stickers
+  const { size, center } = cubieBox(stickers, thickness)
   return (
     <group position={visualPosition(cubie.position, dims)}>
       <mesh castShadow position={[center[0], center[1], center[2]]}>
@@ -131,7 +152,7 @@ export function Cubie({
           emissiveIntensity={highlighted || marked ? 0.7 : 0}
         />
       </mesh>
-      {cubie.stickers.map((s, i) => (
+      {stickers.map((s, i) => (
         <Sticker
           key={i}
           normal={s.normal}
@@ -143,6 +164,7 @@ export function Cubie({
           pulse={pulse && (highlighted || marked)}
           onSelect={onPick}
           onHover={onPick && onPickHover}
+          lens={lenses && stickerLens(lenses[i]!)}
         />
       ))}
     </group>

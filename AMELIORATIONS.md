@@ -8,7 +8,6 @@ envisagées.
 - **Étendre le Floppy** (à préciser : d'autres puzzles plats de sa famille).
 - **Scanner le Floppy Ghost** pour de bon (voir la piste en cours plus bas,
   et le travail mis de côté dans `../rubiksolver-wip-ghost-scan`).
-- **L'Hologram** : un puzzle à modéliser, s'annonce très difficile.
 - **Le référencement Google** : `yavadeus.dev` est déclaré dans Search
   Console (validé par le DNS d'Infomaniak) et le `sitemap.xml` soumis le
   2026-11-05. Reste à le présenter là où sont les cubeurs (forums, Reddit)

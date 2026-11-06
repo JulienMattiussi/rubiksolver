@@ -60,7 +60,8 @@ export type ScanUnseen = 'sideCenters' | 'centerMarks'
 export type ScanBefore = 'alignGears'
 
 /** The hint the editor gives, when not the usual one (EditPanel.tsx). */
-export type EditHint = 'twist' | 'camo' | 'roadblock' | 'quarter' | 'gear' | 'gearPlain'
+export type EditHint =
+  'twist' | 'camo' | 'roadblock' | 'quarter' | 'impossible' | 'gear' | 'gearPlain'
 
 /**
  * A puzzle's card: what the app knows of it besides its own module (how it

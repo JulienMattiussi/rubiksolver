@@ -7,7 +7,7 @@ HTTPS : on l'essaie sur un déploiement Vercel.
 
 ## Les puzzles scannables
 
-`scannable` (`lib/editor/scan/plan.ts`) : 62 modèles sur 78, dont le 2x2 Qiyi
+`scannable` (`lib/editor/scan/plan.ts`) : 62 modèles sur 79, dont le 2x2 Qiyi
 miroir, et le 3x3 miroir.
 
 - **En grille**, tout se déduit des dimensions (`scanPlan`) : les cubes du
@@ -94,7 +94,8 @@ miroir, et le 3x3 miroir.
   miroir » plus bas).
 
 Restent dehors les puzzles dont une information n'est pas une couleur
-(les autres miroirs, super cubes, soudés, engrenages...), les autres puzzles qui se
+(les autres miroirs, super cubes, soudés, engrenages, le Rubik's
+Impossible, dont une photo ne montre qu'une couleur par sticker...), les autres puzzles qui se
 déforment (Camouflage, Fashion-V, AI Cube), et le Tori (ses
 arêtes, de minces amandes au bord des faces).
 

@@ -5,11 +5,15 @@ import type { Vec3 } from '@/lib/core/types'
 import { hatchTexture } from './hatchTexture'
 import { paintable } from './paintable'
 import { usePulse } from './usePulse'
-
-const PLANE_Z = new THREE.Vector3(0, 0, 1)
+import { useStickerFrame } from './useStickerFrame'
+import { useLenticular, type StickerLens } from './useLenticular'
+import { ridgesTexture } from './ridgesTexture'
 
 /** Margin left around a sticker, so the dark body shows as a border. */
 const INSET = 0.14
+
+/** How far a lenticular sticker's ridges are drawn above it. */
+const RIDGES_ABOVE = 0.002
 
 interface StickerProps {
   /** Outward normal of the cubie face this sticker sits on. */
@@ -33,6 +37,12 @@ interface StickerProps {
   onHover?: (on: boolean) => void
   /** Lit up: the face under the pointer, in edit mode. */
   lit?: boolean
+  /** Lenticular: its color turns to a second one as the eye leans across
+   *  its ridges, drawn over it. */
+  lens?: StickerLens
+  /** A second color, on its lower right half (a lenticular tile's, as
+   *  entered: both its colors at once). */
+  split?: string
 }
 
 /** A flat colored sticker plane, oriented to face its cubie's outward normal
@@ -48,31 +58,15 @@ export function Sticker({
   onSelect,
   onHover,
   lit = false,
+  lens,
+  split,
 }: StickerProps) {
   const glowRef = usePulse(pulse, lit ? 0.5 : glow ? 0.25 : 0)
-  const [sx, sy, sz] = box.size
-  const [cx, cy, cz] = box.center
-  const { quaternion, position, width, height } = useMemo(() => {
-    const n = new THREE.Vector3(normal[0], normal[1], normal[2])
-    const q = new THREE.Quaternion().setFromUnitVectors(PLANE_Z, n)
-    // Extent of the box along an axis-aligned direction.
-    const extent = (v: THREE.Vector3) =>
-      Math.abs(v.x) * sx + Math.abs(v.y) * sy + Math.abs(v.z) * sz
-    const rotated = (x: number, y: number, z: number) =>
-      new THREE.Vector3(x, y, z).applyQuaternion(q)
-    return {
-      quaternion: q,
-      // On the box face: the body is drawn slightly smaller, so it floats just
-      // above the surface whatever the cubie's size.
-      position: new THREE.Vector3(cx, cy, cz).addScaledVector(n, extent(n) / 2),
-      // The plane's own axes, mapped to the box extents they end up along.
-      width: extent(rotated(1, 0, 0)),
-      height: extent(rotated(0, 1, 0)),
-    }
-  }, [normal, sx, sy, sz, cx, cy, cz])
+  const { quaternion, position, width, height } = useStickerFrame(normal, box)
+  const { ref, upright } = useLenticular(lens, color, quaternion)
 
   return (
-    <mesh quaternion={quaternion} position={position} {...paintable(onSelect, onHover)}>
+    <mesh ref={ref} quaternion={quaternion} position={position} {...paintable(onSelect, onHover)}>
       <planeGeometry args={[width - INSET, height - INSET]} />
       <meshStandardMaterial
         // Its own material hatched or not: a map added later is not drawn.
@@ -86,6 +80,34 @@ export function Sticker({
         emissive={color}
         emissiveIntensity={lit ? 0.5 : glow ? 0.25 : 0}
       />
+      {split && (
+        <mesh position={[0, 0, RIDGES_ABOVE / 2]}>
+          <HalfPlane width={width - INSET} height={height - INSET} />
+          <meshStandardMaterial color={split} roughness={0.4} metalness={0.05} />
+        </mesh>
+      )}
+      {lens && (
+        <mesh position={[0, 0, RIDGES_ABOVE]}>
+          <planeGeometry args={[width - INSET, height - INSET]} />
+          <meshBasicMaterial
+            map={ridgesTexture(upright, lens.bold)}
+            transparent
+            depthWrite={false}
+          />
+        </mesh>
+      )}
     </mesh>
   )
+}
+
+/** The lower right half of a plane, cut along its diagonal. */
+function HalfPlane({ width, height }: { width: number; height: number }) {
+  const geometry = useMemo(() => {
+    const [w, h] = [width / 2, height / 2]
+    const g = new THREE.BufferGeometry()
+    g.setAttribute('position', new THREE.Float32BufferAttribute([-w, -h, 0, w, -h, 0, w, h, 0], 3))
+    g.setAttribute('normal', new THREE.Float32BufferAttribute([0, 0, 1, 0, 0, 1, 0, 0, 1], 3))
+    return g
+  }, [width, height])
+  return <primitive object={geometry} attach="geometry" />
 }

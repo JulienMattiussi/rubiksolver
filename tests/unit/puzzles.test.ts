@@ -50,6 +50,8 @@ const PUZZLES: ReadonlyArray<{
   { shape: 'super4', pieces: 64, stickers: 144, orientations: 24, painted: 144, scramble: 40 },
   { shape: '5', pieces: 125, stickers: 150, orientations: 24, painted: 150, scramble: 60 },
   { shape: 'super5', pieces: 125, stickers: 246, orientations: 24, painted: 246, scramble: 60 },
+  // A 3x3, each center's line marked at its two ends.
+  { shape: 'impossible', pieces: 27, stickers: 66, orientations: 24, painted: 54, scramble: 20 },
   { shape: '6', pieces: 216, stickers: 216, orientations: 24, painted: 216, scramble: 80 },
   { shape: '123', pieces: 6, stickers: 22, orientations: 4, painted: 22, scramble: 10 },
   { shape: '223', pieces: 12, stickers: 32, orientations: 8, painted: 32, scramble: 20 },

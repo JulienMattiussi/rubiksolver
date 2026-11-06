@@ -116,7 +116,8 @@ src/
 │   │   ├── moveKinds.ts #   toutes les sortes de coups (celles des familles de puzzles sans grille)
 │   │   ├── guides.ts    #   les guides des mouvements de ces familles (le `guide` de leur modèle)
 │   │   ├── model.ts     #   PuzzleModel : construction, mécanisme, coups permis, boîte, résolu, symétries,
-│   │   │                #     coups et mélange (sans grille), saisie, coups en vue (inSight)
+│   │   │                #     coups et mélange (sans grille), saisie, coups en vue (inSight),
+│   │   │                #     tuiles lenticulaires (lenses : le Rubik's Impossible)
 │   │   ├── <catégorie>/ #   standard, tower, flat, pyramid, polyhedron, round, gear, diagonal, holey, twisted,
 │   │   │                #     bandaged (blocks.ts : les blocs de chaque soudé ; bonds.ts : leur modèle commun) :
 │   │   │                #     catalog.ts, models.ts et le module de chaque puzzle qui en a un (star.ts, gear.ts...)
@@ -127,7 +128,7 @@ src/
 │   ├── methods/         # Les méthodes, un dossier par catégorie, un fichier par méthode ou famille
 │   │   ├── standard/    #   3x3 (algs : le catalogue des formules des cubes, layers3, roux, petrus, zz, recenter, pieces3), 2x2 (cube2), 2x2 Qiyi (qiyi2 : lu comme un 2x2), super cubes,
 │   │   │                #     solver4/ solver5/ solver6/ (réductions des 4x4, 5x5 et 6x6)
-│   │   ├── <catégorie>/ #   les autres (towerLayers et towerReduce : briques des tours, pyraKit,
+│   │   ├── <catégorie>/ #   les autres (twisted/impossible : le Rubik's Impossible par son guide ; towerLayers et towerReduce : briques des tours, pyraKit,
 │   │   │                #     roadblockKit / Bars / Edges : les étapes du RoadBlock, megaminxFormulas...)
 │   │   └── shared/      #   ce qui sert à plusieurs catégories (rainbowKit, skewbKit)
 │   ├── solve/           # Briques des solveurs : solver (registre des méthodes, solve), solverKit (MethodPlan,
@@ -144,7 +145,7 @@ src/
 │   ├── editor/          # La saisie : entry (ce que le modèle déclare : étapes, peinture), steps (leur
 │   │                    #   enchaînement), edit (la table de stickers, buildCube), editorTables, validate,
 │   │                    #   modes/ (un mode par fichier : form, canvas, faceViews et sides, joints, toggles,
-│   │                    #   colors, pieces), scan/ (la saisie à l'appareil photo, docs/scan.md : plan (les faces dans l'ordre,
+│   │                    #   colors, pieces, pairs : deux couleurs par sticker), scan/ (la saisie à l'appareil photo, docs/scan.md : plan (les faces dans l'ordre,
 │   │                    #   `PuzzleModel.scan`) et planFaces (chacune bâtie ; planFlat, planGears, planMirrors : celles des
 │   │                    #   polyèdres, des Gear Cubes, des miroirs), layout (grille, anneau, carré, polygone), frame, color, sample, capture,
 │   │                    #   anchors (les couleurs), orient (les faces tenues tournées), assign et classify (la lecture),
@@ -187,7 +188,8 @@ src/
 │   │                    #   (puzzles en polygones), EditView / PolyEditView / CutsView (saisie), polyDrawing (registre des
 │   │                    #   dessins), polyhedron, cutSolid, layout, isometric (vignettes), useTurnAnimation,
 │   │                    #   TutorialArrow, hatchTexture et usePulse (le tutoriel), scanDrawing (une face scannée
-│   │                    #   telle que son dessin la montre)...
+│   │                    #   telle que son dessin la montre), useStickerFrame, useLenticular et ridgesTexture
+│   │                    #   (un sticker lenticulaire, sa couleur selon l'angle)...
 │   ├── guide/           # Le guide des mouvements : GuideCanvas, GuideTile, guideCamera
 │   └── puzzles/         # Les dessins, un dossier par catégorie : drawings.ts et la géométrie de chaque puzzle
 │                        #   (gear/ : pas de drawings.ts, ses pièces, sa vue de saisie et sa vignette sont à lui,
@@ -425,13 +427,18 @@ chacun son module de `lib/editor/modes/` :
 
 La peinture peut aussi déclarer des bascules à elle (`paint.toggles`), une
 façon de peindre plusieurs stickers d'un coup (`paint.together` : une barre
-du RoadBlock-I ; le mode joints peint une face de bloc d'un seul tenant) et
+du RoadBlock-I ; le mode joints peint une face de bloc d'un seul tenant ;
+les deux couleurs que montre chaque sticker du Rubik's Impossible,
+`modes/pairs.ts`, sa pièce reconnue à ses paires) et
 des parties peintes à part (`paint.parts` : les engrenages d'un Gear Cube,
 à côté de leurs clips). Ce qui est propre à un puzzle (ses cases, ses
 barres, ses engrenages) est dans son dossier et passé au mode
-(`fashionEntry.ts`, `roadblockEntry.ts`, `gearEntry.ts`) ; le modèle
+(`fashionEntry.ts`, `roadblockEntry.ts`, `gearEntry.ts` ; `impossibleEntry.ts` : les
+pièces que leurs couleurs ne départagent pas) ; le modèle
 reconstruit son état de ce qu'on a saisi (`entry.built`, avec ses bascules
-et ses parties ; il peut le refuser, `MarksRefused`). Une étape peut n'être
+et ses parties ; il peut le refuser, `MarksRefused`, ou refuser l'état
+entier pour une raison qu'il dit, `entry.refuses` : les traits du Rubik's
+Impossible). Une étape peut n'être
 offerte qu'ensuite (`later` : les faces du Camouflage, son pavé peint
 d'abord). Les boutons sont les mêmes partout : le bouton principal avance,
 un « Changer... » par étape revient à elle depuis la peinture (les couleurs

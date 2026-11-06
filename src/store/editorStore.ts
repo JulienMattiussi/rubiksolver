@@ -9,6 +9,7 @@ import {
   stepOf,
   togglesAt,
   type EditStickers,
+  type MarksRefusal,
   type Parts,
   type StepKind,
 } from '@/lib/editor/entry'
@@ -41,7 +42,7 @@ const pickable = (selected: Color, form?: Cube): Color => {
 }
 
 /** Why a step or the entry is refused, besides the state's validation. */
-type EntryError = 'parts' | 'joints' | 'jointsColors' | 'cuts' | 'faces' | 'facesShape'
+type EntryError = MarksRefusal | 'joints' | 'jointsColors' | 'cuts' | 'faces' | 'facesShape'
 
 interface EditorStore extends Settings {
   mode: 'play' | 'edit'
@@ -393,7 +394,7 @@ export const useEditor = create<EditorStore>((set, get) => {
         cube = buildCube(edit, shape, form, { toggles, parts })
       } catch (error) {
         if (!(error instanceof MarksRefused)) throw error
-        set({ error: 'parts' })
+        set({ error: error.reason })
         return false
       }
       // Its pieces must stand fused as its joints were entered.
