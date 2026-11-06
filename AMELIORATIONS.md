@@ -30,10 +30,6 @@ ne sont réglés que sur ces quelques essais.
   face lue dans l'autre sens peut encore faire de vraies pièces (état faux
   mais possible) ou être redemandée ; sur le Skewb, une fois sur dix
   environ quand toutes ses faces sont tournées, l'état lu est faux.
-- **Le sens de rotation** : le plan suit la caméra (gestes en miroir sur un
-  portable, `orderFor`), mais un utilisateur qui tourne quand même dans
-  l'autre sens n'est rattrapé que sur le miroir (sa lecture essaie les deux
-  ordres) ; ailleurs, la face est redemandée ou l'état lu faux.
 - **Le miroir** : seuls le 3x3 et le 2x2 Qiyi se scannent (le 2x2 calé où
   ses stickers se rejoignent, `crossRead.ts`), pas le 4x4 (quatre centres
   par face, aucun seul pour étalon) ; la correction de perspective par la
@@ -46,9 +42,7 @@ ne sont réglés que sur ces quelques essais.
   Fashion-V et l'AI Cube (qui pourraient suivre le chemin des tours).
 
 **Pistes.** Régler les seuils sur de vraies photos (lampe chaude, reflets)
-et en faire des tests, comme les rectangles figés du miroir. Essayer les
-deux sens de rotation sur toute lecture par gestes, comme le miroir, et
-garder la moins chère.
+et en faire des tests, comme les rectangles figés du miroir.
 
 ## Le blanc d'abord, puis le cube retourné
 
