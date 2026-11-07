@@ -77,7 +77,11 @@ mobile et en saisie, une seule carte) :
   (`planKey`) ; tant qu'elle n'est pas prête, Résoudre dit « Calcul… », un
   rouage tournant à la place de son icône (« Calcul de la solution… » dans
   son infobulle : le bouton garde sa taille à côté de Tutoriel), et ses
-  boutons restent grisés (`useAutoPlan` le renvoie). Un calcul qui dure plus de 4 s
+  boutons restent grisés (`useAutoPlan` le renvoie). Le worker est créé
+  dès l'ouverture de la page : un onglet resté ouvert pendant un déploiement
+  le garde, alors que le nouveau ne sert plus son script. Un worker qui ne
+  se charge pas ou qui ne rend rien ne bloque pas : la solution est alors
+  calculée au clic. Un calcul qui dure plus de 4 s
   (le Z-Twist, le Fashion-V) fait apparaître un grand rouage tournant par-dessus
   le plan (`SlowCog`), qui grandit en se dévoilant : la page ne semble pas
   bloquée. Pendant un mélange, Mélanger porte lui aussi un rouage tournant
