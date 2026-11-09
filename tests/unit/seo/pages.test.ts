@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { routePath } from '@/lib/app/route'
 import { CUBE_KINDS, cubeKindId } from '@/lib/core/shapes'
 import { LOCALES, type Translations } from '@/i18n/translations'
 import { PUZZLES_FR } from '@/i18n/fr/puzzles'
@@ -82,8 +83,9 @@ describe('the pages written at build time', () => {
     expect(html).not.toContain('<!--page-')
   })
 
-  it('links the home page to the puzzles of its gallery', () => {
-    expect(pages.get('fr.html')).toContain('<a href="/fr/gear-cube-ultimate"')
+  it('links the home page to every puzzle', () => {
+    const home = pages.get('fr.html')
+    for (const kind of CUBE_KINDS) expect(home).toContain(`<a href="${routePath('fr', kind)}"`)
   })
 
   it('lists every page in the sitemap, with its other language', () => {
